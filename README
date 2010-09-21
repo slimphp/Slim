@@ -1,18 +1,17 @@
-Slim PHP5 Micro-framework (A Sinatra Clone)
+Slim
 
-Welcome to Slim! Slim is a micro PHP5 framework modeled after Sinatra. You can read the full Slim documentation and see code examples at:
+Welcome to Slim! Slim is a micro-framework for PHP5 inspired by the Sinatra framework for Ruby. Slim includes the following features:
 
-http://slim.joshlockhart.com/
-
-Slim includes the following features:
-
-- RESTful GET, POST, PUT, and DELETE routing
+- Clean and simple PHP syntax
+- RESTful routing (GET, POST, PUT, and DELETE)
 - Before and after callbacks
 - Easy-to-extend templating (use Smarty, Twig, or whatever you want)
+- Halt with custom status code and message
+- Easily modify the HTTP request and response
 
-Here is a basic Hello World Slim application:
+Here is a Hello World application written with Slim:
 
-<?
+<?php
 
 //Require Slim
 require('slim/Slim.php');
@@ -21,17 +20,22 @@ require('slim/Slim.php');
 Slim::init();
   
 //Define routes
-Slim::get('/books/:id', function ($id) {
-      //Show book with id = $id
+Slim::get('/hello/:name', function ($name) {
+      echo "Hello! Your name is $name";
 });
 
 ?>
 
-Slim is still in active development and has not been fully tested.
+Slim is created and maintained by Josh Lockhart (@codeguy on Twitter). Slim is still in active development and has not been fully tested. Use at your own risk, but feel free to kick the tires and take it for a spin!
 
-Slim is released under the MIT LICENSE.
+Slim is released under the MIT public license.
 
 Thanks!
 Josh Lockhart
-http://slim.joshlockhart.com/
-info@joshlockhart.com
+
+---
+Documentation:	http://slim.joshlockhart.com/
+Source Code: 	http://github.com/codeguy/Slim/
+Email: 			info@joshlockhart.com
+Twitter:		@codeguy
+LinkedIn:		http://www.linkedin.com/in/joshlockhart
