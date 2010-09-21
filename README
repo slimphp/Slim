@@ -10,6 +10,23 @@ Slim includes the following features:
 - Before and after callbacks
 - Easy-to-extend templating (use Smarty, Twig, or whatever you want)
 
+Here is a basic Hello World Slim application:
+
+<?
+
+//Require Slim
+require('slim/Slim.php');
+ 
+//Initialize Slim
+Slim::init();
+  
+//Define routes
+Slim::get('/books/:id', function ($id) {
+      //Show book with id = $id
+});
+
+?>
+
 Slim is still in active development and has not been fully tested.
 
 Slim is released under the MIT LICENSE.
