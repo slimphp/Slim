@@ -1,0 +1,18 @@
+Slim PHP5 Micro-framework (A Sinatra Clone)
+
+Welcome to Slim! Slim is a micro PHP5 framework modeled after Sinatra. You can read the full Slim documentation and see code examples at:
+
+http://slim.joshlockhart.com/
+
+Slim includes the following features:
+
+- RESTful GET, POST, PUT, and DELETE routing
+- Before and after callbacks
+- Easy-to-extend templating (use Smarty, Twig, or whatever you want)
+
+Slim is still in active development and has not been fully tested.
+
+Thanks!
+Josh Lockhart
+http://slim.joshlockhart.com/
+info@joshlockhart.com
