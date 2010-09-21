@@ -101,7 +101,7 @@ class Slim {
 	 */
 	public static function init() {
 		self::$app = new Slim();
-		self::notFound(function(){ echo "We couldn't find what you are looking for. There's a slim chance you typed in the wrong URL."; });
+		self::notFound(array('Slim', 'defaultNotFound'));
 	}
 	
 	/**
@@ -343,6 +343,16 @@ class Slim {
 		self::response()->status($code);
 	}
 	
+	/**
+	 * Default NOT FOUND handler
+	 *
+	 * Default callback that will be called when a route cannot be
+	 * matched to the current HTTP request.
+	 */
+	public static function defaultNotFound() {
+		echo "We couldn't find what you are looking for. There's a slim chance you typed in the wrong URL.";
+	}
+	
 	/***** RUN SLIM *****/
 	
 	/**
@@ -368,7 +378,7 @@ class Slim {
 			//stop the application and send a 404 response.
 			ob_start();
 			$notFoundCallable = self::router()->notFound();
-			$notFoundCallable();
+			call_user_func($notFoundCallable);
 			$notFound = ob_get_clean();
 			self::error(404, $notFound);
 			
