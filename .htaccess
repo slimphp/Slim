@@ -1,0 +1,5 @@
+Options FollowSymLinks
+RewriteEngine On
+RewriteRule ^([^.]+)$ $1.html [QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ bootstrap.php [QSA,L]
