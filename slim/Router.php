@@ -128,6 +128,26 @@ class Router {
 		}
 	}
 	
+	/**
+	 * Return the parameter names and values for this Route
+	 *
+	 * @return array
+	 */
+	public function params() {
+		return $this->params;
+	}
+
+	/**
+	 * Return a parameter or default if needed
+	 *
+	 * @return string
+	 */
+	public function param($key, $default = NULL) {
+		if (isset($this->params[$key])) {
+			return $this->params[$key];
+		}
+		return $default;
+	}
 }
 
 /**
@@ -189,7 +209,7 @@ class Route {
 	 */
 	public function __construct( $pattern, $method, $request, $callable, $conditions = array() ) {
 		
-		$this->pattern = ltrim($pattern, '/');
+		$this->pattern = $pattern;
 		$this->method = $method;
 		$this->request = $request;
 		$this->callable = $callable;
@@ -197,21 +217,34 @@ class Route {
 		$this->params = array();
 		$this->matched = false;
 		
-		//Extract URL params		
-		preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
-		$paramNames = $paramNames[0];
+		// If pattern not an array, make it an array to work in foreach
+		if ( !is_array($this->pattern) ) {
+			$this->pattern = array($this->pattern);
+		}
 		
-		//Convert URL params into regex patterns, construct a regex for this route
-		$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
-		$patternAsRegex = '@^' . $patternAsRegex . '$@';
-				
-		//Cache URL params' names and values if this route matches the current HTTP request
-		if( $this->method == $this->request->method && preg_match($patternAsRegex, $this->request->resource, $paramValues) ) {
-			array_shift($paramValues);
-			foreach( $paramNames as $index => $value ) {
-				$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
+		foreach ($this->pattern as $_pattern) {
+			
+			// Pattern
+			$_pattern = ltrim($_pattern, '/');
+			
+			//Extract URL params
+			preg_match_all('@:([\w]+)@', $_pattern, $paramNames, PREG_PATTERN_ORDER);
+			$paramNames = $paramNames[0];
+	
+			//Convert URL params into regex patterns, construct a regex for this route
+			$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $_pattern);
+			$patternAsRegex = '@^' . $patternAsRegex . '$@';
+	
+			//Cache URL params' names and values if this route matches the current HTTP request
+			if( $this->method == $this->request->method && preg_match($patternAsRegex, $this->request->resource, $paramValues) ) {
+				array_shift($paramValues);
+				foreach( $paramNames as $index => $value ) {
+					$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
+				}
+				$this->matched = true;
+				break;
 			}
-			$this->matched = true;
+		
 		}
 		
 	}
@@ -257,7 +290,6 @@ class Route {
 	public function params() {
 		return $this->params;
 	}
-	
 }
 
 ?>
