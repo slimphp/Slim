@@ -2,7 +2,7 @@ Slim
 
 Welcome to Slim! Slim is a micro-framework for PHP 5 inspired by the Sinatra framework for Ruby. Slim includes the following features:
 
-- Compatible with PHP 4 >= 4.0.5 (PHP 5 >= 5.3 recommended)
+- Compatible with PHP 5 (PHP 5 >= 5.3 recommended)
 - Clean and simple PHP syntax
 - RESTful routing (GET, POST, PUT, and DELETE)
 - Before and after callbacks
