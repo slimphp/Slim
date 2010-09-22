@@ -222,7 +222,7 @@ class Slim {
 	private static function runCallables($callables) {
 		foreach( $callables as $callable ) {
 			if( is_callable($callable) ) {
-				$callable();
+				call_user_func($callable);
 			}
 		}
 	}
