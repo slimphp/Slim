@@ -2,7 +2,7 @@
 /**
  * Slim
  *
- * A simple PHP framework for PHP 5.3.0 or newer
+ * A simple PHP framework for PHP 5 or newer
  *
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
