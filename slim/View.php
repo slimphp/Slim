@@ -74,17 +74,17 @@ class View {
 	/**
 	 * Render template
 	 *
-	 * This method is responsible for rendering the a template using
-	 * data provided by the Route callback function. The final
-	 * template output should be echo()'d out, NOT returned.
+	 * This method is responsible for rendering a template. The associative
+	 * data array is available for use by the template. The rendered
+	 * template should be echo()'d, NOT returned.
 	 *
 	 * I strongly recommend that you override this method in a subclass if
 	 * you need more advanced templating (ie. Twig or Smarty).
 	 *
-	 * This default view assumes there is a "templates" directory in the same
-	 * directory as your bootstrap.php file.
+	 * The default View class assumes there is a "templates" directory in the 
+	 * same directory as your bootstrap.php file.
 	 *
-	 * @param string $template Name of a template, as specified in Slim::render()
+	 * @param string $template The template name specified in Slim::render()
 	 * @return void
 	 */
 	public function render( $template ) {
