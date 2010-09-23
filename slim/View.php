@@ -53,8 +53,6 @@ class View {
 	
 	/**
 	 * Constructor
-	 *
-	 * @param Response $response The HTTP response object
 	 */
 	final public function __construct() {
 		$this->data = array();
