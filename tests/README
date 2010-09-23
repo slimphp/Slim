@@ -1,0 +1,11 @@
+Slim Tests
+
+This directory contains unit tests for each Slim class. I am using PHPUnit
+to test the Slim class files.
+
+1. Install PHPUnit
+To learn more about PHPUnit, visit http://www.phpunit.de/
+
+2. Run tests
+From the slim/tests/ directory, run `phpunit AllTests`. This command will
+run all available unit tests and display the test results.
