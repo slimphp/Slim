@@ -264,7 +264,7 @@ class Slim {
 	 */
 	public static function view( $viewClass = null ) {
 		if( !is_null($viewClass) ) {
-			self::$app->view = new $viewClass( self::response() );
+			self::$app->view = new $viewClass();
 		}
 		return self::$app->view;
 	}
