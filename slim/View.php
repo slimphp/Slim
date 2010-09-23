@@ -47,11 +47,6 @@
 class View {
 	
 	/**
-	 * @var Response
-	 */
-	protected $response;
-	
-	/**
 	 * @var array Data passed from a Route callback function [ $key => $value, ... ]
 	 */
 	protected $data;
@@ -61,15 +56,14 @@ class View {
 	 *
 	 * @param Response $response The HTTP response object
 	 */
-	final public function __construct( Response $response ) {
-		$this->response = $response;
+	final public function __construct() {
 		$this->data = array();
 	}
 	
 	/**
 	 * Set and/or get View data
 	 *
-	 * @param array $data An array of key => value pairs
+	 * @param array $data An array of key => value pairs; [ key => value, ... ]
 	 * @return array
 	 */
 	final public function data( $data = null ) {
