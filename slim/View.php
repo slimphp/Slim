@@ -61,7 +61,7 @@ class View {
 	/**
 	 * Set and/or get View data
 	 *
-	 * @param array $data An array of key => value pairs
+	 * @param array $data An array of key => value pairs; [ key => value, ... ]
 	 * @return array
 	 */
 	final public function data( $data = null ) {
