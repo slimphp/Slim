@@ -47,7 +47,7 @@
 class View {
 	
 	/**
-	 * @var array Data passed from a Route callback function [ $key => $value, ... ]
+	 * @var array Associative array of data exposed to the template
 	 */
 	protected $data;
 	
