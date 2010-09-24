@@ -50,7 +50,7 @@ class Router {
 	private $request;
 	
 	/**
-	 * @var array Routes that are registered with the Router
+	 * @var array Lookup hash of routes, organized by Request method
 	 */
 	private $routes;
 	
