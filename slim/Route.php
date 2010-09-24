@@ -39,34 +39,9 @@
 class Route {
 	
 	/**
-	 * @var bool Does this route match the current HTTP request?
-	 */
-	private $matched;
-	
-	/**
 	 * @var string The route pattern (ie. "/books/:id")
 	 */
 	private $pattern;
-	
-	/**
-	 * @var string The HTTP request method required for this route (GET, POST, PUT, DELETE)
-	 */
-	private $method;
-	
-	/**
-	 * @var Request
-	 */
-	private $request;
-	
-	/**
-	 * @var array Conditions for this route's URL parameters (not implemented yet)
-	 */
-	private $conditions;
-	
-	/**
-	 * @var array Array of URL parameter names and values
-	 */
-	private $params;
 	
 	/**
 	 * @var mixed The callable associated with this route
@@ -74,9 +49,19 @@ class Route {
 	private $callable;
 	
 	/**
+	 * @var array Conditions for this route's URL parameters (not implemented yet)
+	 */
+	private $conditions;
+	
+	/**
 	 * @var string The name of this route (optional)
 	 */
 	private $name;
+	
+	/**
+	 * @var array Array of URL parameter names and values
+	 */
+	private $params;
 	
 	/**
 	 * Constructor
@@ -92,15 +77,24 @@ class Route {
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
 	 * @param array $conditions Conditions for the route pattern parameters (not implemented yet)
 	 */
-	public function __construct( $pattern, $method, $request, $callable ) {
+	public function __construct( $pattern, $callable ) {
 		
 		$this->pattern = ltrim($pattern, '/');
-		$this->method = $method;
-		$this->request = $request;
 		$this->callable = $callable;
 		$this->conditions = array();
 		$this->params = array();
-		$this->matched = false;
+		
+	}
+	
+	/**
+	 * Matches URI?
+	 *
+	 * Parse this route's pattern, and then compare it to an HTTP resource URI
+	 *
+	 * @param string $resourceUri A Request URI
+	 * @return bool
+	 */
+	public function matches( $resourceUri ) {
 		
 		//Extract URL params		
 		preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
@@ -111,12 +105,14 @@ class Route {
 		$patternAsRegex = '@^' . $patternAsRegex . '$@';
 				
 		//Cache URL params' names and values if this route matches the current HTTP request
-		if( $this->method == $this->request->method && preg_match($patternAsRegex, $this->request->resource, $paramValues) ) {
+		if( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
 			array_shift($paramValues);
 			foreach( $paramNames as $index => $value ) {
 				$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
 			}
-			$this->matched = true;
+			return true;
+		} else {
+			return false;
 		}
 		
 	}
