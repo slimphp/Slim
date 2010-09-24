@@ -65,19 +65,13 @@ class Router {
 	private $notFound;
 	
 	/**
-	 * @var array Paramter names and values extracted from the resource URI for the matching route
-	 */
-	private $params;
-	
-	/**
 	 * Constructor
 	 *
 	 * @param Request $request The current HTTP request object
 	 */
 	public function __construct( Request $request ) {
 		$this->request = $request;
-		$this->routes = array();
-		$this->params = array();
+		$this->routes = array(); // [ get => [], post => [], put => [], delete => [] ]
 	}
 	
 	/**
@@ -88,12 +82,7 @@ class Router {
 	 * @param string $method The HTTP request method (GET, POST, PUT, DELETE)
 	 */
 	public function map( $pattern, $callable, $method ) {
-		$route = new Route( $pattern, $method, $this->request, $callable );
-		if( $route->matched() ) {
-			$this->matchedRoute = $route;
-			$this->params = $route->params();
-		}
-		$this->routes[$method][] = $route;
+		$this->routes[$method][] = new Route( $pattern, $callable );
 	}
 	
 	/**
@@ -115,10 +104,20 @@ class Router {
 	 * @return true|false TRUE if matching route is found and callable, else FALSE
 	 */
 	public function dispatch() {
-		if( !is_null($this->matchedRoute) ) {
+		
+		//Iterate over routes for current Request method
+		foreach( $this->routes[$this->request->method] as $route ) {
+			if ( $route->matches($this->request->resource) ) {
+				$this->matchedRoute = $route;
+				break;
+			}
+		}
+		
+		//If matching route found... else return FALSE
+		if ( !is_null($this->matchedRoute) ) {
 			$callable = $this->matchedRoute->callable();
-			if( is_callable($callable) ) {
-				call_user_func_array($callable, array_values($this->params));
+			if ( is_callable($callable) ) {
+				call_user_func_array($callable, array_values($this->matchedRoute->params()));
 				return true;
 			} else {
 				return false;
@@ -126,6 +125,7 @@ class Router {
 		} else {
 			return false;
 		}
+		
 	}
 	
 }
