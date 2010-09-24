@@ -72,10 +72,7 @@ class Route {
 	 * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
 	 *
 	 * @param string $pattern The URL pattern (ie. "/books/:id")
-	 * @param string $method The HTTP request method required for this route
-	 * @param Request $request The current Request object
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
-	 * @param array $conditions Conditions for the route pattern parameters (not implemented yet)
 	 */
 	public function __construct( $pattern, $callable ) {
 		
