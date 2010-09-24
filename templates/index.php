@@ -23,7 +23,7 @@
 		<p>
 			Slim is created and maintained by <a href="http://www.joshlockhart.com">Josh Lockhart</a>.
 			Slim is released under the <a href="http://www.opensource.org/licenses/mit-license.php">MIT public license</a>.
-		</p>		
+		</p>
 		
 		<h2>Send POST Request</h2>
 		<form action="/post" method="post">
