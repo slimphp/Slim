@@ -64,6 +64,12 @@ class Route {
 	private $params;
 	
 	/**
+	 * @var Router The associated Router that contains this Route
+	 * TODO: Try to decouple Router and Route. For now this serves our purpose
+	 */
+	private $router;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param string $pattern The URL pattern (ie. "/books/:id")
@@ -146,6 +152,25 @@ class Route {
 	}
 	
 	/**
+	 * Set this route's Router
+	 *
+	 * @param Router The router for this Route
+	 * @return void
+	 */
+	public function setRouter( Router $router ) {
+		$this->router = $router;
+	}
+	
+	/**
+	 * Get the pattern for this Route
+	 *
+	 * @return string
+	 */
+	public function pattern() {
+		return $this->pattern;
+	}
+	
+	/**
 	 * Set this route's name
 	 *
 	 * @param string $name The name of the route
@@ -154,6 +179,7 @@ class Route {
 	public function name( $name = null ) {
 		if ( !is_null($name) ) {
 			$this->name = (string)$name;
+			$this->router->cacheNamedRoute($name, $this);
 		}
 		return $this;
 	}

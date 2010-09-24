@@ -14,7 +14,7 @@ Slim::init();
 
 //Register a "before" callback for PHP >=5.3
 Slim::before(function () {
-	Slim::response()->write('Before!');
+	Slim::response()->write('<p>Before!</p>');
 });
 
 //Register a "before" callback for PHP <5.3
@@ -27,7 +27,7 @@ function example_before() {
 
 //Register an "after" callback for PHP >=5.3
 Slim::after(function () {
-	Slim::response()->write('After!');
+	Slim::response()->write('<p>After!</p>');
 });
 
 //Register an "after" callback for PHP <5.3
@@ -56,7 +56,7 @@ function get_example() {
 
 //Sample POST route for PHP >=5.3
 Slim::post('/post', function () {
-	echo '<br/><br/>Here are the details about your POST request:<br/><br/>';
+	echo '<p>Here are the details about your POST request:</p>';
 	print_r(Slim::request());
 });
 
@@ -71,7 +71,7 @@ function post_example() {
 
 //Sample PUT route for PHP >=5.3
 Slim::put('/put', function () {
-	echo '<br/><br/>Here are the details about your PUT request:<br/><br/>';
+	echo '<p>Here are the details about your PUT request:</p>';
 	print_r(Slim::request());
 });
 
@@ -86,7 +86,7 @@ function put_example() {
 
 //Sample DELETE route for PHP >=5.3
 Slim::delete('/delete', function () {
-	echo '<br/><br/>Here are the details about your DELETE request:<br/><br/>';
+	echo '<p>Here are the details about your DELETE request:</p>';
 	print_r(Slim::request());
 });
 
@@ -102,6 +102,10 @@ function delete_example() {
 
 /*** NAMED ROUTES *****/
 
-Slim::get('/hello/:name', function ($name) { echo "Hello, $name!"; })->name('hello');
+Slim::get('/hello/:name', function ($name) {
+	echo "<p>Hello, $name!</p>";
+	echo "<p>This route using name \"Bob\" instead of \"$name\" would be: " . Slim::router()->urlFor('hello', array('name' => 'Bob')) . '</p>';
+})->name('hello')->conditions(array('name' => '\w+'));
+
 
 ?>

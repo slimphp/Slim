@@ -50,9 +50,14 @@ class Router {
 	private $request;
 	
 	/**
-	 * @var array Lookup hash of routes, organized by Request method
+	 * @var array Lookup hash of routes, keyed by Request method
 	 */
 	private $routes;
+	
+	/**
+	 * @var array Lookup hash of named routes, keyed by route name
+	 */
+	private $namedRoutes;
 	
 	/**
 	 * @var Route The Route that matches the current HTTP request, or NULL
@@ -89,8 +94,43 @@ class Router {
 	 */
 	public function map( $pattern, $callable, $method ) {
 		$route = new Route( $pattern, $callable );
+		$route->setRouter($this);
 		$this->routes[$method][] = $route;
 		return $route;
+	}
+	
+	/**
+	 * Cache named route
+	 *
+	 * @param string $name The route name
+	 * @param Route $route The route object
+	 * @throws RuntimeException If a named route already exists with the same name
+	 * @return void
+	 */
+	public function cacheNamedRoute( $name, Route $route ) {
+		if ( isset($this->namedRoutes[(string)$name]) ) {
+			throw RuntimeException('Named route already exists with name: ' . $name);
+		}
+		$this->namedRoutes[$name] = $route;
+	}
+	
+	/**
+	 * Get URL for named route
+	 *
+	 * @param string $name The name of the route
+	 * @param array Associative array of URL parameter names and values
+	 * @throws RuntimeException If named route not found
+	 * @return string The URL for the given route populated with the given parameters
+	 */
+	public function urlFor( $name, $params = array() ) {
+		if ( !isset($this->namedRoutes[(string)$name]) ) {
+			throw RuntimeException('Named route not found for name: ' . $name);
+		}
+		$pattern = $this->namedRoutes[(string)$name]->pattern();
+		foreach( $params as $key => $value ) {
+			$pattern = str_replace(':'.$key, $value, $pattern);
+		}
+		return $this->request->root . $pattern;
 	}
 	
 	/**
