@@ -71,7 +71,12 @@ class Router {
 	 */
 	public function __construct( Request $request ) {
 		$this->request = $request;
-		$this->routes = array(); // [ get => [], post => [], put => [], delete => [] ]
+		$this->routes = array(
+			'GET' => array(),
+			'POST' => array(),
+			'PUT' => array(),
+			'DELETE' => array()
+		);
 	}
 	
 	/**
