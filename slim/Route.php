@@ -146,7 +146,7 @@ class Route {
 	}
 	
 	/**
-	 * Set and/or get this route's name
+	 * Set this route's name
 	 *
 	 * @param string $name The name of the route
 	 * @return Route
@@ -159,7 +159,7 @@ class Route {
 	}
 	
 	/**
-	 * Set and/or get this route's conditions
+	 * Set this route's conditions
 	 *
 	 * @param array $conditions An associative array of URL parameter conditions
 	 * @return Route
