@@ -82,7 +82,9 @@ class Router {
 	 * @param string $method The HTTP request method (GET, POST, PUT, DELETE)
 	 */
 	public function map( $pattern, $callable, $method ) {
-		$this->routes[$method][] = new Route( $pattern, $callable );
+		$route = new Route( $pattern, $callable );
+		$this->routes[$method][] = $route;
+		return $route;
 	}
 	
 	/**
@@ -112,6 +114,8 @@ class Router {
 				break;
 			}
 		}
+		
+		print_r($this->matchedRoute); exit;
 		
 		//If matching route found... else return FALSE
 		if ( !is_null($this->matchedRoute) ) {
