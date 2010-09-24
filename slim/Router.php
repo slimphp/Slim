@@ -85,6 +85,7 @@ class Router {
 	 * @param string $pattern The URL pattern (ie. "/books/:id")
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
 	 * @param string $method The HTTP request method (GET, POST, PUT, DELETE)
+	 * @return Route
 	 */
 	public function map( $pattern, $callable, $method ) {
 		$route = new Route( $pattern, $callable );
