@@ -155,7 +155,7 @@ class Route {
 		if ( !is_null($name) ) {
 			$this->name = (string)$name;
 		}
-		return $this->name;
+		return $this;
 	}
 	
 	/**
@@ -168,7 +168,7 @@ class Route {
 		if ( is_array($conditions) ) {
 			$this->conditions = $conditions;
 		}
-		return $this->conditions;
+		return $this;
 	}
 	 
 }
