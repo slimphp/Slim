@@ -126,12 +126,10 @@ class Router {
 			if ( is_callable($callable) ) {
 				call_user_func_array($callable, array_values($this->matchedRoute->params()));
 				return true;
-			} else {
-				return false;
 			}
-		} else {
-			return false;
 		}
+		
+		return false;
 		
 	}
 	
