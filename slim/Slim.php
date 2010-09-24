@@ -130,7 +130,7 @@ class Slim {
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
 	public static function get($pattern, $callable) {
-		self::router()->map($pattern, $callable, Request::METHOD_GET);
+		return self::router()->map($pattern, $callable, Request::METHOD_GET);
 	}
 	
 	/**
@@ -143,7 +143,7 @@ class Slim {
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
 	public static function post($pattern, $callable) {
-		self::router()->map($pattern, $callable, Request::METHOD_POST);
+		return self::router()->map($pattern, $callable, Request::METHOD_POST);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ class Slim {
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
 	public static function put($pattern, $callable) {
-		self::router()->map($pattern, $callable, Request::METHOD_PUT);
+		return self::router()->map($pattern, $callable, Request::METHOD_PUT);
 	}
 	
 	/**
@@ -169,7 +169,7 @@ class Slim {
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
 	public static function delete($pattern, $callable) {
-		self::router()->map($pattern, $callable, Request::METHOD_DELETE);
+		return self::router()->map($pattern, $callable, Request::METHOD_DELETE);
 	}
 	
 	/**
