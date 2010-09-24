@@ -66,11 +66,6 @@ class Route {
 	/**
 	 * Constructor
 	 *
-	 * This method was modeled after the techniques demonstrated by
-	 * Dan Sosedoff at:
-	 *
-	 * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
-	 *
 	 * @param string $pattern The URL pattern (ie. "/books/:id")
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
 	 */
@@ -87,6 +82,9 @@ class Route {
 	 * Matches URI?
 	 *
 	 * Parse this route's pattern, and then compare it to an HTTP resource URI
+	 * This method was modeled after the techniques demonstrated by Dan Sosedoff at:
+	 *
+	 * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
 	 *
 	 * @param string $resourceUri A Request URI
 	 * @return bool
