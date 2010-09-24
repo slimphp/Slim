@@ -99,4 +99,9 @@ function delete_example() {
 }
 */
 
+
+/*** NAMED ROUTES *****/
+
+Slim::get('/hello/:name', function ($name) { echo "Hello, $name!"; })->name('hello');
+
 ?>
