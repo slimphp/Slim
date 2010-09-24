@@ -92,13 +92,13 @@ class Route {
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
 	 * @param array $conditions Conditions for the route pattern parameters (not implemented yet)
 	 */
-	public function __construct( $pattern, $method, $request, $callable, $conditions = array() ) {
+	public function __construct( $pattern, $method, $request, $callable ) {
 		
 		$this->pattern = ltrim($pattern, '/');
 		$this->method = $method;
 		$this->request = $request;
 		$this->callable = $callable;
-		$this->conditions = $conditions;
+		$this->conditions = array();
 		$this->params = array();
 		$this->matched = false;
 		
