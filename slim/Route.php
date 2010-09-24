@@ -133,15 +133,6 @@ class Route {
 	}
 	
 	/**
-	 * Does this Route match the current request?
-	 *
-	 * @return true|false
-	 */
-	public function matched() {
-		return $this->matched;
-	}
-	
-	/**
 	 * Return the callable for this Route
 	 *
 	 * @return mixed
