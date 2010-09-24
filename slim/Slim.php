@@ -128,6 +128,7 @@ class Slim {
 	 *
 	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
 	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @return Route
 	 */
 	public static function get($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_GET);
@@ -141,6 +142,7 @@ class Slim {
 	 *
 	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
 	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @return Route
 	 */
 	public static function post($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_POST);
@@ -154,6 +156,7 @@ class Slim {
 	 *
 	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
 	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @return Route
 	 */
 	public static function put($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_PUT);
@@ -167,6 +170,7 @@ class Slim {
 	 *
 	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
 	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @return Route
 	 */
 	public static function delete($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_DELETE);
