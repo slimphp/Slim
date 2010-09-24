@@ -35,6 +35,7 @@ set_include_path(realpath(dirname(__FILE__)) . PATH_SEPARATOR . get_include_path
 require('Request.php');
 require('Response.php');
 require('Router.php');
+require('Route.php');
 require('View.php');
 
 class Slim {
