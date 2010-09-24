@@ -149,7 +149,7 @@ class Route {
 	 * Set and/or get this route's name
 	 *
 	 * @param string $name The name of the route
-	 * @return The name of the route as a string, or NULL if name not set
+	 * @return Route
 	 */
 	public function name( $name = null ) {
 		if ( !is_null($name) ) {
@@ -162,7 +162,7 @@ class Route {
 	 * Set and/or get this route's conditions
 	 *
 	 * @param array $conditions An associative array of URL parameter conditions
-	 * @return The array of conditions for the route
+	 * @return Route
 	 */
 	public function conditions( $conditions = null ) {
 		if ( is_array($conditions) ) {
