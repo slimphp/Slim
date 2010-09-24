@@ -115,8 +115,6 @@ class Router {
 			}
 		}
 		
-		print_r($this->matchedRoute); exit;
-		
 		//If matching route found... else return FALSE
 		if ( !is_null($this->matchedRoute) ) {
 			$callable = $this->matchedRoute->callable();
