@@ -105,7 +105,7 @@ class Slim {
 	public static function init($viewClass = null) {
 		self::$app = new Slim();
 		self::notFound(array('Slim', 'defaultNotFound'));
-		if(!is_null($viewClass) {
+		if(!is_null($viewClass)) {
 			self::view($viewClass);
 		}
 	}
