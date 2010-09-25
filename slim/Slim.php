@@ -100,7 +100,7 @@ class Slim {
 	 * This instantiates the actual Slim app, sets a default
 	 * 404 Not Found handler and sets the View class used to render templates.
 	 *
-     * @param string $viewClass The name of the view class Slim will use
+	 * @param string $viewClass The name of the view class Slim will use
 	 */
 	public static function init($viewClass = null) {
 		if(!is_null($viewClass) {
