@@ -92,30 +92,22 @@ class Slim {
 		$this->settings = array();
 	}
 	
-	/***** INITIALIZERS (Choose One) *****/
+	/***** INITIALIZER *****/
 	
 	/**
 	 * Initialize Slim
 	 *
-	 * This instantiates the actual Slim app and sets a default
-	 * 404 Not Found handler.
+	 * This instantiates the actual Slim app, sets a default
+	 * 404 Not Found handler and sets the View class used to render templates.
+	 *
+     * @param string $viewClass The name of the view class Slim will use
 	 */
-	public static function init() {
+	public static function init($viewClass = null) {
+	    if(!is_null($viewClass) {
+	        self::view($viewClass);
+	    }
 		self::$app = new Slim();
 		self::notFound(array('Slim', 'defaultNotFound'));
-	}
-	
-	/**
-	 * Initialize Slim with View
-	 *
-	 * Along with initializing Slim (see above), this also sets the View
-	 * class used to render templates.
-	 *
-	 * @param string $viewClass The name of the view class Slim will use
-	 */
-	public static function initWithView($viewClass) {
-		self::init();
-		self::view($viewClass);
 	}
 	
 	/***** ROUTING *****/
