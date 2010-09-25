@@ -103,11 +103,11 @@ class Slim {
 	 * @param string $viewClass The name of the view class Slim will use
 	 */
 	public static function init($viewClass = null) {
+		self::$app = new Slim();
+		self::notFound(array('Slim', 'defaultNotFound'));
 		if(!is_null($viewClass) {
 			self::view($viewClass);
 		}
-		self::$app = new Slim();
-		self::notFound(array('Slim', 'defaultNotFound'));
 	}
 	
 	/***** ROUTING *****/
