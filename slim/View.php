@@ -80,9 +80,14 @@ class View {
 	 * Set and/or get templates directory
 	 *
 	 * @param string $dir The absolute or relative path to the templates directory
+	 * @throws RuntimeException If specified templates directory does not exist or is not a directory
+	 * @return The current templates directory as a string, or NULL if not set
 	 */
 	final public function templatesDirectory( $dir = null ) {
 		if ( !is_null($dir) ) {
+			if ( !is_dir($dir) ) {
+				throw new RuntimeException('Cannot set templates directory to: ' . $dir . '. Directory does not.');
+			}
 			$this->templatesDirectory = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 		}
 		return $this->templatesDirectory;
