@@ -89,7 +89,7 @@ class View {
 	 */
 	public function render( $template ) {
 		extract($this->data);
-		include( Slim::root() . 'templates' . DIRECTORY_SEPARATOR . $template );
+		include( '.' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $template );
 	}
 	
 }
