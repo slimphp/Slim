@@ -280,6 +280,7 @@ class Slim {
 		if( is_null(self::view()) ) {
 			self::view('View');
 		}
+		self::view()->templatesDirectory(Slim::root() . 'templates');
 		if( !is_null($status) ) {
 			self::response()->status($status);
 		}
