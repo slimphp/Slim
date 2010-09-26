@@ -52,6 +52,11 @@ class View {
 	protected $data;
 	
 	/**
+	 * @var string The templates directory
+	 */
+	protected $templatesDirectory;
+	
+	/**
 	 * Constructor
 	 */
 	final public function __construct() {
@@ -72,6 +77,18 @@ class View {
 	}
 	
 	/**
+	 * Set and/or get templates directory
+	 *
+	 * @param string $dir The absolute or relative path to the templates directory
+	 */
+	final public function templatesDirectory( $dir = null ) {
+		if ( !is_null($dir) ) {
+			$this->templatesDirectory = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+		}
+		return $this->templatesDirectory;
+	}
+	
+	/**
 	 * Render template
 	 *
 	 * This method is responsible for rendering a template. The associative
@@ -89,7 +106,7 @@ class View {
 	 */
 	public function render( $template ) {
 		extract($this->data);
-		include( '.' . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $template );
+		include($this->templatesDirectory() . $template);
 	}
 	
 }
