@@ -49,49 +49,81 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	
 	/***** TESTS *****/
 	
+	/**
+	 * A newly constructed View class' data will be an array
+	 */
 	public function testViewIsConstructedWithDataArray() {
 		$this->assertTrue(is_array($this->view->data()));
 	}
 	
+	/**
+	 * A newly constructed View class' data will be an empty array
+	 */
 	public function testViewIsConstructedWithEmptyDataArray() {
 		$viewData = $this->view->data();
 		$this->assertTrue(empty($viewData));
 	}
 	
+	/**
+	 * The associative array of data you provide will be used as the View's data
+	 */
 	public function testViewReturnsDataWhenSet() {
 		$testData = $this->generateTestData();
 		$returnedData = $this->view->data($testData);
 		$this->assertSame($testData, $returnedData);
 	}
 	
+	/**
+	 * You can pass an associatve array to populate a View's data
+	 */
 	public function testViewAcceptsArrayAsData() {
 		$testData = $this->generateTestData();
 		$this->view->data($testData);
 		$this->assertEquals(count($this->view->data()), 3);
 	}
 	
+	/**
+	 * You cannot pass a non-array to populate a View's data
+	 */
 	public function testViewDoesNotAcceptNonArrayAsData() {
 		$returnedData = $this->view->data(1);
 		$this->assertTrue(empty($returnedData));
 	}
 	
+	/**
+	 * You can set the templates directory for a View
+	 */
 	public function testSetsTemplatesDirectory() {
 		$templatesDirectory = rtrim(realpath('../templates/'), '/') . '/';
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory, $this->view->templatesDirectory());
 	}
 	
+	/**
+	 * When you set the templates directory for a view, your absolute
+	 * or relative path may or may not have a trailing slash. Either way
+	 * should work just fine.
+	 */
 	public function testTemplatesDirectoryHasTrailingSlash() {
 		$templatesDirectory = rtrim(realpath('../templates/'), '/');
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
 	}
 	
+	/**
+	 * When you set the templates directory or a view, if the specified
+	 * templates directory does not exist or is not a directory, an
+	 * Exception will be thrown.
+	 */
 	public function testExceptionForInvalidTemplatesDirectory() {
 		$this->setExpectedException('RuntimeException');
 		$this->view->templatesDirectory('./foo');
 	}
 	
+	/**
+	 * The default View class should successfully echo a rendered template
+	 * using the provided data.
+	 */
 	public function testRendersTemplateWithData() {
 		$this->view->templatesDirectory(realpath('./templates'));
 		ob_start();
