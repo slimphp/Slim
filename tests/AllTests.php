@@ -32,12 +32,14 @@
 
 require_once 'PHPUnit/Framework.php';
 require_once 'ViewTest.php';
+require_once 'RouteTest.php';
 
 class AllTests {
 
 	public static function suite() {
 		$suite = new PHPUnit_Framework_TestSuite('Slim');
 		$suite->addTestSuite('ViewTest');
+		$suite->addTestSuite('RouteTest');
 		return $suite;
 	}
 	
