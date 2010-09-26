@@ -75,6 +75,32 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(empty($returnedData));
 	}
 	
+	public function testSetsTemplatesDirectory() {
+		$templatesDirectory = rtrim(realpath('../templates/'), '/') . '/';
+		$this->view->templatesDirectory($templatesDirectory);
+		$this->assertEquals($templatesDirectory, $this->view->templatesDirectory());
+	}
+	
+	public function testTemplatesDirectoryHasTrailingSlash() {
+		$templatesDirectory = rtrim(realpath('../templates/'), '/');
+		$this->view->templatesDirectory($templatesDirectory);
+		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
+	}
+	
+	public function testExceptionForInvalidTemplatesDirectory() {
+		$this->setExpectedException('RuntimeException');
+		$this->view->templatesDirectory('./foo');
+	}
+	
+	public function testRendersTemplateWithData() {
+		$this->view->templatesDirectory(realpath('./templates'));
+		ob_start();
+		$this->view->data(array('foo' => 'bar'));
+		$this->view->render('test.php');
+		$output = ob_get_clean();
+		$this->assertEquals($output, 'test output bar');
+	}
+	
 }
 
 ?>
