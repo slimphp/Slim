@@ -280,6 +280,7 @@ class Slim {
 		if( is_null(self::view()) ) {
 			self::view('View');
 		}
+		//TODO: Abstract setting the templates directory into Slim::set('templates', '/path') in Phase 3
 		self::view()->templatesDirectory(Slim::root() . 'templates');
 		if( !is_null($status) ) {
 			self::response()->status($status);
