@@ -31,12 +31,21 @@
  */
 
 require_once '../slim/Route.php';
+require_once '../slim/Router.php';
 require_once 'PHPUnit/Framework.php';
  
-//Mock Router object
-class Router {
+/**
+ * Router Mock
+ *
+ * This is a mock for the Router class so that it, 
+ * A) provides the necessary features for this test and
+ * B) removes dependencies on the Request class.
+ */
+class RouterMock extends Router {
 	
 	public $cache = array();
+	
+	public function __construct() {}
 	
 	public function cacheNamedRoute($name, Route $route) {
 		$this->cache[$name] = $route;
@@ -46,13 +55,11 @@ class Router {
 
 class RouteTest extends PHPUnit_Framework_TestCase {
 	
-	/***** TESTS *****/
-	
 	/**
 	 * Route should set name and be cached by Router
 	 */
 	public function testRouteSetsNameAndIsCached() {
-		$router = new Router();
+		$router = new RouterMock();
 		$route = new Route('/foo/bar', function () {});
 		$route->setRouter($router);
 		$route->name('foo');
