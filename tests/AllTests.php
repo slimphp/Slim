@@ -33,6 +33,7 @@
 require_once 'PHPUnit/Framework.php';
 require_once 'ViewTest.php';
 require_once 'RouteTest.php';
+require_once 'RouterTest.php';
 
 class AllTests {
 
@@ -40,6 +41,7 @@ class AllTests {
 		$suite = new PHPUnit_Framework_TestSuite('Slim');
 		$suite->addTestSuite('ViewTest');
 		$suite->addTestSuite('RouteTest');
+		$suite->addTestSuite('RouterTest');
 		return $suite;
 	}
 	
