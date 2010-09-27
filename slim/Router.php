@@ -109,7 +109,7 @@ class Router {
 	 */
 	public function cacheNamedRoute( $name, Route $route ) {
 		if ( isset($this->namedRoutes[(string)$name]) ) {
-			throw RuntimeException('Named route already exists with name: ' . $name);
+			throw new RuntimeException('Named route already exists with name: ' . $name);
 		}
 		$this->namedRoutes[$name] = $route;
 	}
@@ -124,7 +124,7 @@ class Router {
 	 */
 	public function urlFor( $name, $params = array() ) {
 		if ( !isset($this->namedRoutes[(string)$name]) ) {
-			throw RuntimeException('Named route not found for name: ' . $name);
+			throw new RuntimeException('Named route not found for name: ' . $name);
 		}
 		$pattern = $this->namedRoutes[(string)$name]->pattern();
 		foreach( $params as $key => $value ) {
