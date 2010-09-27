@@ -30,9 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
 require_once '../slim/Router.php';
 require_once '../slim/Route.php';
 require_once 'PHPUnit/Framework.php';
