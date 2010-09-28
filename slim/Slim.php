@@ -399,6 +399,4 @@ class Slim {
 	
 }
 
-register_shutdown_function('Slim::run');
-
 ?>
