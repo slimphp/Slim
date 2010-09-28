@@ -31,6 +31,9 @@ function example_hello($name) {
 	echo "Hello! Your name is $name and you are not using PHP 5.3";
 }
 
+//Run Slim
+Slim::run();
+
 ?>
 
 Slim is created and maintained by Josh Lockhart (@codeguy on Twitter). Slim is still in active development and has not been fully tested. Use at your own risk, but feel free to kick the tires and take it for a spin!
