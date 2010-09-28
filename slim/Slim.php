@@ -30,13 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(realpath(dirname(__FILE__)) . PATH_SEPARATOR . get_include_path());
-
-require_once('Request.php');
-require_once('Response.php');
-require_once('Router.php');
-require_once('Route.php');
-require_once('View.php');
+spl_autoload_register(array('Slim', 'autoload'));
 
 class Slim {
 	
@@ -91,6 +85,16 @@ class Slim {
 		$this->after = array();
 		$this->settings = array();
 	}
+	
+	/**
+	 * Slim auto-loader
+	 */
+	public static function autoload($className) {
+		if( file_exists($file = dirname(__FILE__).'/'.$className.'.php')) {
+            require_once($file);
+        }
+	}
+	
 	
 	/***** INITIALIZER *****/
 	
