@@ -34,14 +34,16 @@ require_once 'PHPUnit/Framework.php';
 require_once 'ViewTest.php';
 require_once 'RouteTest.php';
 require_once 'RouterTest.php';
+require_once 'SlimTest.php';
 
 class AllTests {
 
 	public static function suite() {
-		$suite = new PHPUnit_Framework_TestSuite('Slim');
+		$suite = new PHPUnit_Framework_TestSuite('SlimTestSuite');
 		$suite->addTestSuite('ViewTest');
 		$suite->addTestSuite('RouteTest');
 		$suite->addTestSuite('RouterTest');
+		$suite->addTestSuite('SlimTest');
 		return $suite;
 	}
 	
