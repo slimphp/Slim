@@ -34,17 +34,38 @@ require_once '../slim/Router.php';
 require_once '../slim/Route.php';
 require_once 'PHPUnit/Framework.php';
 
-//Mock Request object
-class Request {
-	public $root;
-	public $method;
-	public $resource;
-	public function __construct($method, $resource) {
-		$this->root = '/';
-		$this->method = $method;
-		$this->resource = $resource;
-	}
-}
+//Prepare mock HTTP request
+$_SERVER['REDIRECT_STATUS'] = "200";
+$_SERVER['HTTP_HOST'] = "slim";
+$_SERVER['HTTP_CONNECTION'] = "keep-alive";
+$_SERVER['HTTP_CACHE_CONTROL'] = "max-age=0";
+$_SERVER['HTTP_ACCEPT'] = "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
+$_SERVER['HTTP_USER_AGENT'] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3";
+$_SERVER['HTTP_ACCEPT_ENCODING'] = "gzip,deflate,sdch";
+$_SERVER['HTTP_ACCEPT_LANGUAGE'] = "en-US,en;q=0.8";
+$_SERVER['HTTP_ACCEPT_CHARSET'] = "ISO-8859-1,utf-8;q=0.7,*;q=0.3";
+$_SERVER['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin";
+$_SERVER['SERVER_SIGNATURE'] = "";
+$_SERVER['SERVER_SOFTWARE'] = "Apache";
+$_SERVER['SERVER_NAME'] = "slim";
+$_SERVER['SERVER_ADDR'] = "127.0.0.1";
+$_SERVER['SERVER_PORT'] = "80";
+$_SERVER['REMOTE_ADDR'] = "127.0.0.1";
+$_SERVER['DOCUMENT_ROOT'] = rtrim(dirname(__FILE__), DIRECTORY_SEPARATOR);
+$_SERVER['SERVER_ADMIN'] = "you@example.com";
+$_SERVER['SCRIPT_FILENAME'] = __FILE__;
+$_SERVER['REMOTE_PORT'] = "55426";
+$_SERVER['REDIRECT_URL'] = "/";
+$_SERVER['GATEWAY_INTERFACE'] = "CGI/1.1";
+$_SERVER['SERVER_PROTOCOL'] = "HTTP/1.1";
+$_SERVER['REQUEST_METHOD'] = "GET";
+$_SERVER['QUERY_STRING'] = "";
+$_SERVER['REQUEST_URI'] = "/";
+$_SERVER['SCRIPT_NAME'] = basename(__FILE__);
+$_SERVER['PHP_SELF'] = '/'.basename(__FILE__);
+$_SERVER['REQUEST_TIME'] = "1285647051";
+$_SERVER['argv'] = array();
+$_SERVER['argc'] = 0;
 
 class RouterTest extends PHPUnit_Framework_TestCase {
 	
@@ -53,7 +74,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 * even if no params data is provided.
 	 */
 	public function testUrlForNamedRouteWithoutParams() {
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$route = $router->map('/foo/bar', function () {}, 'GET');
 		$router->cacheNamedRoute('foo', $route);
@@ -65,7 +86,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 * param data is provided.
 	 */
 	public function testUrlForNamedRouteWithParams() {
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$route = $router->map('/foo/:one/and/:two', function ($one, $two) {}, 'GET');
 		$router->cacheNamedRoute('foo', $route);
@@ -78,7 +99,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testUrlForNamedRouteThatDoesNotExist() {
 		$this->setExpectedException('RuntimeException');
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$route = $router->map('/foo/bar', function () {}, 'GET');
 		$router->cacheNamedRoute('bar', $route);
@@ -91,7 +112,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testNamedRouteWithExistingName() {
 		$this->setExpectedException('RuntimeException');
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$route1 = $router->map('/foo/bar', function () {}, 'GET');
 		$route2 = $router->map('/foo/bar/2', function () {}, 'GET');
@@ -103,7 +124,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 * Router should keep reference to a callable NotFound callback
 	 */
 	public function testNotFoundHandler() {
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$notFoundCallback = function () { echo "404"; };
 		$callback = $router->notFound($notFoundCallback);
@@ -114,7 +135,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 	 * Router should NOT keep reference to a callback that is not callable
 	 */
 	public function testNotFoundHandlerIfNotCallable() {
-		$request = new Request('GET', '/');
+		$request = new Request();
 		$router = new Router($request);
 		$notFoundCallback = 'foo';
 		$callback = $router->notFound($notFoundCallback);
