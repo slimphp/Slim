@@ -26,20 +26,20 @@
 		</p>
 		
 		<h2>Send POST Request</h2>
-		<form action="/post" method="post">
+		<form action="post" method="post">
 			<input type="hidden" name="foo" value="bar"/>
 			<input type="submit" value="Send POST"/>
 		</form>
 		
 		<h2>Send PUT Request</h2>
-		<form action="/put" method="post">
+		<form action="put" method="post">
 			<input type="hidden" name="foo" value="bar"/>
 			<input type="hidden" name="_METHOD" value="PUT"/>
 			<input type="submit" value="Send PUT"/>
 		</form>
 		
 		<h2>Send DELETE Request</h2>
-		<form action="/delete" method="post">
+		<form action="delete" method="post">
 			<input type="hidden" name="foo" value="bar"/>
 			<input type="hidden" name="_METHOD" value="DELETE"/>
 			<input type="submit" value="Send DELETE"/>
