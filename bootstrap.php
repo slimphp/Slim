@@ -108,4 +108,8 @@ Slim::get('/hello/:name', function ($name) {
 })->name('hello')->conditions(array('name' => '\w+'));
 
 
+/*** RUN SLIM ***/
+
+Slim::run();
+
 ?>
