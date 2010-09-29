@@ -56,7 +56,6 @@ class SlimException extends Exception {
 	 *
 	 * @param string $message The body message for the HTTP response
 	 * @param int $code The HTTP status code
-	 * @throws RuntimeException If the exception code is not a valid HTTP status code
 	 */
 	public function __construct( $message, $code = 500 ) {
 		//TODO: Do we ensure $code is a valid HTTP status code here? Or upstream?
