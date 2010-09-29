@@ -33,11 +33,11 @@
 /**
  * Slim Exception
  *
- * This specific exception is used to prepare and intercept Slim-specific 
+ * This specific Exception is used to prepare and intercept Slim-specific 
  * response messages; for example, a SlimException may be thrown
  * with code 404 to send a NotFound response to the client.
  *
- * We use a sub-classed Extension to easily differentiate a Slim
+ * We use a sub-classed exception to easily differentiate a Slim
  * exception, used to trigger a specific HTTP response, from a 
  * RuntimeException that represents an application runtime error.
  *
