@@ -40,6 +40,9 @@
  * We use a sub-classed Extension to easily differentiate a Slim
  * exception, used to trigger a specific HTTP response, from a 
  * RuntimeException that represents an application runtime error.
+ *
+ * @author Josh Lockhart <info@joshlockhart.com>
+ * @since Version 1.0
  */
 SlimException extends Exception {
 
