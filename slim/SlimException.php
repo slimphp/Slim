@@ -59,9 +59,7 @@ SlimException extends Exception {
 	 * @throws RuntimeException If the exception code is not a valid HTTP status code
 	 */
 	public function __construct( $message, $code = 500 ) {
-		if( $code < 100 || $code > 505 ) {
-			throw new RuntimeException('SlimException code must be a valid HTTP status code');
-		}
+		//TODO: Do we ensure $code is a valid HTTP status code here? Or upstream?
 		parent::__construct($message, $code);
 	}
 	
