@@ -176,6 +176,38 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
+	 * Test Slim runs Before and After callbacks
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with an accessible route
+	 * that does not throw any Exceptions. You prepend the Response
+	 * body in the before callbacks.
+	 *
+	 * Post-conditions:
+	 * The response body is as expected.
+	 */
+	public function testSlimRunsBeforeAndAfterCallbacks() {
+		Slim::init();
+		Slim::before(function () {
+			Slim::response()->write('One ');
+		});
+		Slim::before(function () {
+			Slim::response()->write('Two ');
+		});
+		Slim::after(function () {
+			Slim::response()->write('Four ');
+		});
+		Slim::after(function () {
+			Slim::response()->write('Five');
+		});
+		Slim::get('/', function () {
+			echo 'Three ';
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->body(), 'One Two Three Four Five');
+	}
+	
+	/**
 	 * Test Slim has and returns Request object
 	 *
 	 * Pre-conditions:
@@ -296,6 +328,102 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init();
 		Slim::status(302);
 		$this->assertSame(Slim::response()->status(), 302);
+	}
+	
+	/**
+	 * Test Slim catches Non-Slim Exceptions
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with an accessible route
+	 * that throws a RuntimeException.
+	 *
+	 * Post-conditions:
+	 * The non-SlimException is caught, and the response body
+	 * is the same as the Exception message, and the response
+	 * status is 500.
+	 */
+	public function testSlimCatchesNonSlimExceptions(){
+		Slim::init();
+		Slim::get('/', function () {
+			throw new RuntimeException('This is a runtime exception', 100);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 500);
+		$this->assertEquals(Slim::response()->body(), 'This is a runtime exception');
+	}
+	
+	/**
+	 * Test Slim raises SlimException
+	 *
+	 * Pre-conditions:
+	 * None
+	 *
+	 * Post-conditions:
+	 * A SlimException is thrown with expected status code and message
+	 */
+	public function testSlimRaisesSlimException(){
+		try {
+			Slim::raise('Page Not Found', 404);
+			$this->fail('SlimException not caught');
+		} catch ( SlimException $e ) {
+			$this->assertEquals($e->getCode(), 404);
+			$this->assertEquals($e->getMessage(), 'Page Not Found');
+		}
+	}
+	
+	/**
+	 * Test SlimException sets Response
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with an accessible route 
+	 * and raise a SlimException in that route.
+	 *
+	 * Post-conditions:
+	 * The response status will match the code and message of the SlimException
+	 */
+	public function testSlimRaiseSetsResponse() {
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::raise('Error!', 501);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 501);
+		$this->assertEquals(Slim::response()->body(), 'Error!');
+	}
+	
+	/**
+	 * Test Slim returns 404 response if route not found
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with a NotFound handler and
+	 * a route that does not match the mock HTTP request.
+	 *
+	 * Post-conditions:
+	 * The response status will be 404
+	 */
+	public function testSlimRouteNotFound() {
+		Slim::init();
+		Slim::get('/foo', function () {});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 404);
+	}
+	
+	/**
+	 * Test Slim returns 200 OK for successful route
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with an accessible route that
+	 * does not throw any Exceptions and does not set a custom status.
+	 *
+	 * Post-conditions:
+	 * The response status is 200 and response body is as expected.
+	 */
+	public function testSlimOkResponse() {
+		Slim::init();
+		Slim::get('/', function () { echo "Ok"; });
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 200);
+		$this->assertEquals(Slim::response()->body(), 'Ok');
 	}
 	
 }
