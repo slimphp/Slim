@@ -314,18 +314,17 @@ class Slim {
 	}
 	
 	/**
-	 * Error!
+	 * Raise Slim Exception
 	 *
-	 * Set the error status and response body, then stop the Slim app and
-	 * send the response to the client.
+	 * Trigger an immediate Response with a given status code and message. This
+	 * may be used to send any type of response: info, success, redirect, client error, or server error.
 	 *
-	 * @param int $status The HTTP response code
-	 * @param string $body Optional response body
+	 * @param string $message The HTTP status message
+	 * @param int $status The HTTP status code
+	 * @throws SlimException
 	 */
-	public static function error( $status = 500, $body = '' ) {
-		self::response()->status($status);
-		self::response()->body($body);
-		self::stop();
+	public static function raise( $message, $status = 500 ) {
+		throw new SlimException($message, $status);
 	}
 	
 	/**
@@ -367,37 +366,51 @@ class Slim {
 	 */
 	public static function run() {
 		
-		//Run before callbacks, tweak the request if you so choose
-		self::runCallables(self::$app->before);
-		
-		//Start primary output buffer
-		ob_start();
-		
-		//Dispatch current request, catch output from View
-		if( !self::router()->dispatch() ) {
-			
-			//If route is not found, use a secondary output buffer
-			//to capture the "Not Found" handler's output. Then
-			//stop the application and send a 404 response.
+		try {
+
+			//Run before callbacks, tweak the request if you so choose
+			self::runCallables(self::$app->before);
+
+			//Start primary output buffer
 			ob_start();
-			$notFoundCallable = self::router()->notFound();
-			call_user_func($notFoundCallable);
-			$notFound = ob_get_clean();
-			self::error(404, $notFound);
+
+			//Dispatch current request, catch output from View
+			if( !self::router()->dispatch() ) {
+
+				//If route is not found, use a secondary output buffer
+				//to capture the "Not Found" handler's output. Then
+				//stop the application and send a 404 response.
+				ob_start();
+				call_user_func(self::router()->notFound());
+				self::raise(ob_get_clean(), 404);
+
+			}
+
+			//Write primary output buffer to Response body
+			self::response()->write(ob_get_contents());
+
+			//End primary output buffer
+			ob_end_clean();
+
+			//Run after callbacks, tweak the response if you so choose
+			self::runCallables(self::$app->after);
+
+			//Send response to client
+			self::response()->send();
+			
+		} catch( SlimException $se ) {
+		
+			self::response()->status($se->getCode());
+			self::response()->body($se->getMessage());
+			self::stop();
+			
+		} catch( Exception $e ) {
+			
+			self::response()->status($e->getCode());
+			self::response()->body($e->getMessage());
+			self::stop();
 			
 		}
-		
-		//Write primary output buffer to Response body
-		self::response()->write(ob_get_contents());
-		
-		//End primary output buffer
-		ob_end_clean();
-		
-		//Run after callbacks, tweak the response if you so choose
-		self::runCallables(self::$app->after);
-		
-		//Send response to client
-		self::response()->send();
 		
 	}
 	
