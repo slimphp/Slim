@@ -376,15 +376,12 @@ class Slim {
 
 			//Dispatch current request, catch output from View
 			if( !self::router()->dispatch() ) {
-
 				//If route is not found, use a secondary output buffer
 				//to capture the "Not Found" handler's output. Then
 				//stop the application and send a 404 response.
 				ob_start();
 				call_user_func(self::router()->notFound());
-				self::raise(ob_get_clean(), 404);
-
-			}
+				self::raise(ob_get_clean(), 404); }
 
 			//Write primary output buffer to Response body
 			self::response()->write(ob_get_contents());
@@ -402,13 +399,13 @@ class Slim {
 		
 			self::response()->status($se->getCode());
 			self::response()->body($se->getMessage());
-			self::stop();
+			self::response()->send();
 			
 		} catch( Exception $e ) {
 			
-			self::response()->status($e->getCode());
+			self::response()->status(500);
 			self::response()->body($e->getMessage());
-			self::stop();
+			self::response()->send();
 			
 		}
 		
