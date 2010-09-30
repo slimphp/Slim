@@ -31,6 +31,8 @@
  */
 
 spl_autoload_register(array('Slim', 'autoload'));
+set_error_handler(array('Slim', 'handleErrors'));
+set_exception_handler(array('Slim', 'handleExceptions'));
 
 class Slim {
 	
@@ -93,6 +95,70 @@ class Slim {
 		if( file_exists($file = dirname(__FILE__).'/'.$className.'.php')) {
             require_once($file);
         }
+	}
+	
+	/**
+	 * Handle user errors
+	 *
+	 * This is the global Error handler that will catch an uncaught Error
+	 * and display a nice-looking error page with details about the Error.
+	 *
+	 * @param int $errno The numeric type of the Error
+	 * @param string $errstr The error message
+	 * @param string $errfile The absolute path to the affected file
+	 * @param int $errline The line number of the error in the affected file
+	 * @return void
+	 */
+	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
+		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
+		$r = new Response();
+		$r->status(500);
+		$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
+		$r->send();
+		exit;
+	}
+	
+	/**
+	 * Handle user exceptions
+	 *
+	 * This is the global Exception handler that will catch an uncaught Exception
+	 * and display a nice-looking error page with details about the Exception.
+	 *
+	 * @param Exception $e
+	 * @return void
+	 */
+	public static function handleExceptions( Exception $e ) {
+		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
+		$r = new Response();
+		$r->status(500);
+		$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+		$r->send();
+		exit;
+	}
+	
+	/**
+	 * Generate markup for error message
+	 *
+	 * This method accepts details about an error or exception and
+	 * generates HTML markup for the 500 response body that will
+	 * be sent to the client.
+	 *
+	 * @param string $message The error message
+	 * @param string $file The absolute file path to the affected file
+	 * @param int $line The line number in the affected file
+	 * @param string $trace A stack trace of the error
+	 * @return string
+	 */
+	public static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
+		$html = "<html><head><title>Slim Application Error</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
+		$html .= "<h1>Slim Application Error</h1>";
+		$html .= "<p>The application could not run because of the following error:</p>";
+		$html .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
+		if( $file !== '' ) $html .= "<strong>File:</strong> $file<br/>";
+		if( $line !== '' ) $html .= "<strong>Line:</strong> $line<br/>";
+		if( $trace !== '' ) $html .= "<h2>Stack Trace:</h2>" . nl2br($trace);
+		$html .= "</body></html>";
+		return $html;
 	}
 	
 	
@@ -173,15 +239,38 @@ class Slim {
 	}
 	
 	/**
-	 * Specify NOT FOUND handler
+	 * Specify or call NotFound Handler
 	 *
-	 * Specify a callback that will be called when a route cannot be
-	 * matched to the current HTTP request.
+	 * This method specifies or calls the application-wide NotFound
+	 * handler. There are two contexts in which this method may be invoked:
+	 *
+	 * 1. When specifying the callback method:
+	 *
+	 * If the $callable parameter is not null and is callable, then this
+	 * method will register the callback method to be called when no
+	 * routes match the current HTTP request. It will not actually invoke
+	 * the NotFound callback, though.
+	 *
+	 * 2. When invoking the NotFound callback method:
+	 *
+	 * If the $callable parameter is null, then Slim assumes you want
+	 * to invoke an already-registered callback method. If the callback
+	 * method has been registered and is callable, then it is invoked
+	 * and sends a 404 HTTP Response whose body is the output of
+	 * the NotFound handler.
 	 *
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
-	public static function notFound($callable) {
-		self::router()->notFound($callable);
+	public static function notFound($callable = null) {
+		if( !is_null($callable) ) {
+			self::router()->notFound($callable);
+		} else {
+			ob_start();
+			call_user_func(self::router()->notFound());
+			self::response()->body(ob_get_clean());
+			self::response()->status(404);
+			self::response()->send();
+		}
 	}
 	
 	/***** CALLBACKS *****/
@@ -316,14 +405,16 @@ class Slim {
 	/**
 	 * Raise Slim Exception
 	 *
-	 * Trigger an immediate Response with a given status code and message. This
-	 * may be used to send any type of response: info, success, redirect, client error, or server error.
+	 * Trigger an immediate HTTP response with a specific status code and body. 
+	 * This may be used to send any type of response: info, success, redirect, 
+	 * client error, or server error. If you need to render a template AND
+	 * customize the response status, you should use Slim::render() instead.
 	 *
-	 * @param string $message The HTTP status message
-	 * @param int $status The HTTP status code
+	 * @param int $status The HTTP response status
+	 * @param string $message The HTTP response body
 	 * @throws SlimException
 	 */
-	public static function raise( $message, $status = 500 ) {
+	public static function raise( $status, $message = '' ) {
 		throw new SlimException($message, $status);
 	}
 	
@@ -363,52 +454,32 @@ class Slim {
 	 * This method is the "meat and potatoes" of Slim and should be the last
 	 * method you call. This fires up Slim, routes the request to the
 	 * appropriate callback, then returns a response to the client.
+	 *
+	 * This method will also invoke the NotFound handler if no matching
+	 * routes are found. This method will also catch any Exceptions
+	 * thrown by Slim::raise or by application errors.
 	 */
 	public static function run() {
-		
 		try {
-
-			//Run before callbacks, tweak the request if you so choose
 			self::runCallables(self::$app->before);
-
-			//Start primary output buffer
 			ob_start();
-
-			//Dispatch current request, catch output from View
-			if( !self::router()->dispatch() ) {
-				//If route is not found, use a secondary output buffer
-				//to capture the "Not Found" handler's output. Then
-				//stop the application and send a 404 response.
-				ob_start();
-				call_user_func(self::router()->notFound());
-				self::raise(ob_get_clean(), 404); }
-
-			//Write primary output buffer to Response body
-			self::response()->write(ob_get_contents());
-
-			//End primary output buffer
-			ob_end_clean();
-
-			//Run after callbacks, tweak the response if you so choose
+			if( !self::router()->dispatch() ) { Slim::notFound(); }
+			self::response()->write(ob_get_clean());
 			self::runCallables(self::$app->after);
-
-			//Send response to client
 			self::response()->send();
-			
-		} catch( SlimException $se ) {
-		
-			self::response()->status($se->getCode());
-			self::response()->body($se->getMessage());
-			self::response()->send();
-			
 		} catch( Exception $e ) {
-			
-			self::response()->status(500);
-			self::response()->body($e->getMessage());
+			if( $e instanceof SlimException ) {
+				$status = $e->getCode();
+				$body = $e->getMessage();
+			} else {
+				$status = 500;
+				$body = self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
+			}
+			self::response()->status($status);
+			self::response()->body($body);
 			self::response()->send();
-			
+			exit;
 		}
-		
 	}
 	
 }
