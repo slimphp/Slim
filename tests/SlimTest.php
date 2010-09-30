@@ -339,6 +339,76 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
+	 * Test Slim URL For
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with an accessible named route.
+	 *
+	 * Post-conditions:
+	 * Slim returns an accurate URL for the named route
+	 */
+	public function testSlimUrlFor(){
+		Slim::init();
+		Slim::get('/hello/:name', function () {})->name('hello');
+		$this->assertEquals('/hello/Josh', Slim::urlFor('hello', array('name' => 'Josh')));
+	}
+	
+	/**
+	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application
+	 *
+	 * Post-conditions:
+	 * The Response status code is set correctly
+	 */
+	public function testSlimRedirectPermanent() {
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 301);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 301);
+	}
+	
+	/**
+	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application
+	 *
+	 * Post-conditions:
+	 * The Response status code is set correctly
+	 */
+	public function testSlimRedirectTemporary() {
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 302);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 302);
+	}
+	
+	/**
+	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application
+	 *
+	 * Post-conditions:
+	 * Slim throws an InvalidArgumentException which is caught by
+	 * the dispatch loop, and the Response status is set to 500.
+	 */
+	public function testSlimRedirectFails() {
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 400);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 500);
+	}
+	
+	/**
 	 * Test Slim catches Non-Slim Exceptions
 	 *
 	 * Pre-conditions:
