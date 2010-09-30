@@ -73,11 +73,15 @@ class CustomView extends View {
 
 class SlimTest extends PHPUnit_Framework_TestCase {
 
+	/************************************************
+	 * SLIM INITIALIZATION
+	 ************************************************/
+	
 	/**
 	 * Test Slim initialization
 	 *
 	 * Pre-conditions:
-	 * None
+	 * You have initialized a Slim application
 	 *
 	 * Post-conditions:
 	 * Slim should have a default NotFound handler that is callable;
@@ -85,169 +89,137 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testSlimInitialization() {
 		Slim::init();
-		$notFound = Slim::router()->notFound();
-		$view = Slim::view();
-		$this->assertTrue(is_callable($notFound));
-		$this->assertTrue($view instanceof View);
+		$this->assertTrue(is_callable(Slim::router()->notFound()));
+		$this->assertTrue(Slim::view() instanceof View);
 	}
 	
 	/**
 	 * Test Slim initialization with custom view
 	 *
 	 * Pre-conditions:
-	 * None
+	 * You have initialized a Slim application with a custom View
 	 * 
 	 * Post-conditions:
 	 * Slim should have a View of a given custom class
 	 */
 	public function testSlimInitializationWithCustomView(){
 		Slim::init('CustomView');
-		$view = Slim::view();
-		$this->assertTrue($view instanceof CustomView);
+		$this->assertTrue(Slim::view() instanceof CustomView);
 	}
+	
+	/************************************************
+	 * SLIM ROUTING
+	 ************************************************/
 	
 	/**
 	 * Test Slim sets GET route
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app with a GET route.
 	 *
 	 * Post-conditions:
-	 * A Route is returned with same pattern and callable
+	 * The GET route is returned, and its pattern and
+	 * callable are as expected.
 	 */
 	public function testSlimGetRoute(){
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::get('/foo/bar', $callable);
-		$routeCallable = $route->callable();
 		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $routeCallable);
+		$this->assertSame($callable, $route->callable());
 	}
 	
 	/**
 	 * Test Slim sets POST route
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app with a POST route.
 	 *
 	 * Post-conditions:
-	 * A Route is returned with same pattern and callable
+	 * The POST route is returned, and its pattern and
+	 * callable are as expected.
 	 */
 	public function testSlimPostRoute(){
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::post('/foo/bar', $callable);
-		$routeCallable = $route->callable();
 		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $routeCallable);
+		$this->assertSame($callable, $route->callable());
 	}
 	
 	/**
 	 * Test Slim sets PUT route
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app with a PUT route.
 	 *
 	 * Post-conditions:
-	 * A Route is returned with same pattern and callable
+	 * The PUT route is returned, and its pattern and
+	 * callable are as expected.
 	 */
 	public function testSlimPutRoute(){
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::put('/foo/bar', $callable);
-		$routeCallable = $route->callable();
 		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $routeCallable);
+		$this->assertSame($callable, $route->callable());
 	}
 	
 	/**
 	 * Test Slim sets DELETE route
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app with a DELETE route.
 	 *
 	 * Post-conditions:
-	 * A Route is returned with same pattern and callable
+	 * The DELETE route is returned and its pattern and
+	 * callable are as expected.
 	 */
 	public function testSlimDeleteRoute(){
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::delete('/foo/bar', $callable);
-		$routeCallable = $route->callable();
 		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $routeCallable);
+		$this->assertSame($callable, $route->callable());
 	}
+	
+	/************************************************
+	 * SLIM BEFORE AND AFTER CALLBACKS
+	 ************************************************/
 	
 	/**
 	 * Test Slim runs Before and After callbacks
 	 *
 	 * Pre-conditions:
 	 * You have initialized a Slim app with an accessible route
-	 * that does not throw any Exceptions. You prepend the Response
-	 * body in the before callbacks.
+	 * that does not throw Exceptions or Errors. You append the Response
+	 * body in the before and after callbacks.
 	 *
 	 * Post-conditions:
 	 * The response body is as expected.
 	 */
 	public function testSlimRunsBeforeAndAfterCallbacks() {
 		Slim::init();
-		Slim::before(function () {
-			Slim::response()->write('One ');
-		});
-		Slim::before(function () {
-			Slim::response()->write('Two ');
-		});
-		Slim::after(function () {
-			Slim::response()->write('Four ');
-		});
-		Slim::after(function () {
-			Slim::response()->write('Five');
-		});
-		Slim::get('/', function () {
-			echo 'Three ';
-		});
+		Slim::before(function () { Slim::response()->write('One '); });
+		Slim::before(function () { Slim::response()->write('Two '); });
+		Slim::after(function () { Slim::response()->write('Four '); });
+		Slim::after(function () { Slim::response()->write('Five'); });
+		Slim::get('/', function () { echo 'Three '; });
 		Slim::run();
 		$this->assertEquals(Slim::response()->body(), 'One Two Three Four Five');
 	}
 	
-	/**
-	 * Test Slim has and returns Request object
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim app
-	 *
-	 * Post-conditions:
-	 * A Request object is returned for the current HTTP request
-	 */
-	public function testSlimReturnsRequestObject(){
-		Slim::init();
-		$request = Slim::request();
-		$this->assertTrue($request instanceof Request);
-	}
-	
-	/**
-	 * Test Slim sets custom View
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim app without a custom view
-	 *
-	 * Post-conditions:
-	 * The Slim app's view is an object of the same Class as you specify
-	 */
-	public function testSlimSetsView(){
-		Slim::init();
-		Slim::view('CustomView');
-		$view = Slim::view();
-		$this->assertTrue($view instanceof CustomView);
-	}
+	/************************************************
+	 * SLIM VIEW
+	 ************************************************/
 	
 	/**
 	 * Test Slim copies data from old View to new View
 	 *
 	 * Pre-conditions:
-	 * You have intialized a Slim app with a View
-	 * You set data for the initial View
-	 * You create a new View
+	 * You have intialized a Slim app with a View;
+	 * You set data for the initial View;
+	 * You tell Slim to use a new View
 	 *
 	 * Post-conditions:
 	 * The data from the original view should be accessible
@@ -261,14 +233,19 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($data, Slim::view()->data());
 	}
 	
+	/************************************************
+	 * SLIM RENDERING
+	 ************************************************/
+	
 	/**
-	 * Test Slim sets default view when rendering if no view set
+	 * Test Slim sets HTTP OK status when rendering
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app and render an existing template
+	 * and no Exceptions or Errors are thrown.
 	 *
 	 * Post-conditions:
-	 * The render method sets the default HTTP status as 200
+	 * The HTTP response status is 200
 	 */
 	public function testSlimRenderSetsResponseStatusOk(){
 		Slim::init();
@@ -277,10 +254,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Test Slim sets view data
+	 * Test Slim sets view data when rendering
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app and render an existing template
 	 *
 	 * Post-conditions:
 	 * The render method passes array of data into View
@@ -296,10 +273,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * Test Slim sets custom status code
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app and render a template while
+	 * specifying a non-200 status code.
 	 *
 	 * Post-conditions:
-	 * The render method sets custom status code
+	 * The HTTP response status code is set correctly.
 	 */
 	public function testSlimRenderSetsStatusCode(){
 		Slim::init();
@@ -308,14 +286,19 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 400);
 	}
 	
+	/************************************************
+	 * SLIM HELPERS
+	 ************************************************/
+	
 	/**
 	 * Test Slim sets ContentType header
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app and set the Content-Type
+	 * HTTP response header.
 	 *
 	 * Post-conditions:
-	 * The Response content type header is set
+	 * The Response content type header is set correctly.
 	 */
 	public function testSlimContentTypeHelperSetsResponseContentType(){
 		Slim::init();
@@ -327,10 +310,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * Test Slim sets status code
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app
+	 * You have initialized a Slim app and set the status code.
 	 *
 	 * Post-conditions:
-	 * The Response status code is set
+	 * The Response status code is set correctly.
 	 */
 	public function testSlimStatusHelperSetsResponseStatusCode(){
 		Slim::init();
@@ -345,7 +328,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * You have initialized a Slim app with an accessible named route.
 	 *
 	 * Post-conditions:
-	 * Slim returns an accurate URL for the named route
+	 * Slim returns an accurate URL for the named route.
 	 */
 	public function testSlimUrlFor(){
 		Slim::init();
@@ -354,10 +337,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 * Test Slim::redirect supports 301 permanent redirects
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application
+	 * You have initialized a Slim application with an accessible route.
+	 * The route invokes the Slim::redirect helper.
 	 *
 	 * Post-conditions:
 	 * The Response status code is set correctly
@@ -372,10 +356,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 * Test Slim::redirect supports 302 temporary redirects
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application
+	 * You have initialized a Slim application with an accessible route.
+	 * The route invokes the Slim::redirect helper.
 	 *
 	 * Post-conditions:
 	 * The Response status code is set correctly
@@ -390,14 +375,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Test Slim::redirect only accepts 301 and 302 status codes
+	 * Test Slim::redirect fails if status is not 301 or 302
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application
+	 * You have initialized a Slim application with an accessible route.
+	 * The route attempts to redirect with an invalid HTTP status code.
 	 *
 	 * Post-conditions:
 	 * Slim throws an InvalidArgumentException which is caught by
-	 * the dispatch loop, and the Response status is set to 500.
+	 * the Slim::run dispatch loop, and the Response status is set to 500.
 	 */
 	public function testSlimRedirectFails() {
 		Slim::init();
@@ -408,6 +394,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 500);
 	}
 	
+	/************************************************
+	 * SLIM ERROR AND EXCEPTION HANDLING
+	 ************************************************/
+	
 	/**
 	 * Test Slim catches Non-Slim Exceptions
 	 *
@@ -416,8 +406,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * that throws a RuntimeException.
 	 *
 	 * Post-conditions:
-	 * The non-SlimException is caught, and the response body
-	 * is the same as the Exception message, and the response
+	 * The non-SlimException is caught, and the response
 	 * status is 500.
 	 */
 	public function testSlimCatchesNonSlimExceptions(){
@@ -436,7 +425,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * None
 	 *
 	 * Post-conditions:
-	 * A SlimException is thrown with expected status code and message
+	 * A SlimException is thrown with the expected status code and message
 	 */
 	public function testSlimRaisesSlimException(){
 		try {
