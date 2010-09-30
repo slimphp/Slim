@@ -80,12 +80,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * None
 	 *
 	 * Post-conditions:
-	 * Slim should have a default NotFound handler that is callable
+	 * Slim should have a default NotFound handler that is callable;
+	 * Slim should have a View
 	 */
 	public function testSlimInitialization() {
 		Slim::init();
 		$notFound = Slim::router()->notFound();
+		$view = Slim::view();
 		$this->assertTrue(is_callable($notFound));
+		$this->assertTrue($view instanceof View);
 	}
 	
 	/**
@@ -239,18 +242,23 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * Test Slim sets default view when rendering if no view set
+	 * Test Slim copies data from old View to new View
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim app without specifying a custom view
+	 * You have intialized a Slim app with a View
+	 * You set data for the initial View
+	 * You create a new View
 	 *
 	 * Post-conditions:
-	 * The render method sets a default view, "View", used to render templates
+	 * The data from the original view should be accessible
+	 * in the new View
 	 */
-	public function testSlimRenderSetsViewIfNoViewSet(){
+	public function testSlimCopiesViewData(){
+		$data = array('foo' => 'bar');
 		Slim::init();
-		Slim::render('test.php', array('foo' => 'bar'));
-		$this->assertTrue(Slim::view() instanceof View);
+		Slim::view()->data($data);
+		Slim::view('CustomView');
+		$this->assertEquals($data, Slim::view()->data());
 	}
 	
 	/**
