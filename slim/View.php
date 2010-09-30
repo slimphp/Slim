@@ -86,7 +86,7 @@ class View {
 	final public function templatesDirectory( $dir = null ) {
 		if ( !is_null($dir) ) {
 			if ( !is_dir($dir) ) {
-				throw new RuntimeException('Cannot set templates directory to: ' . $dir . '. Directory does not exist.');
+				throw new RuntimeException('Cannot set View templates directory to: ' . $dir . '. Directory does not exist.');
 			}
 			$this->templatesDirectory = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 		}
