@@ -74,6 +74,25 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
+	 * Test View appends data rather than overwriting data
+	 *
+	 * Pre-conditions:
+	 * You have instantiated a default View and call the
+	 * data method multiple times to append array data.
+	 *
+	 * Post-conditions:
+	 * The resultant data array should contain all merged
+	 * data from the multiple View::data calls.
+	 */
+	public function testViewMergesData(){
+		$dataOne = array('a' => 'A');
+		$dataTwo = array('b' => 'B');
+		$this->view->data($dataOne);
+		$this->view->data($dataTwo);
+		$this->assertEquals($this->view->data(), array('a' => 'A', 'b' => 'B'));
+	}
+	
+	/**
 	 * You can pass an associatve array to populate a View's data
 	 */
 	public function testViewAcceptsArrayAsData() {
