@@ -377,9 +377,9 @@ class Slim {
 	 * current HTTP response body. How the template is rendered is
 	 * delegated to the current View.
 	 *
-	 * @param string $template The name of the template passed into the View::render method
-	 * @param array $data Associative array of data passed into the View
-	 * @param int $status The HTTP response status code to use (Optional)
+	 * @param string 	$template 	The name of the template passed into the View::render method
+	 * @param array 	$data 		Associative array of data passed for the View
+	 * @param int 		$status 	The HTTP response status code to use (Optional)
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
 		//TODO: Abstract setting the templates directory into Slim::set('templates', '/path') in Phase 3
