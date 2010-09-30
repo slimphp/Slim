@@ -111,6 +111,7 @@ class Slim {
 	 */
 	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
 		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
+		ob_clean();
 		$r = new Response();
 		$r->status(500);
 		$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
@@ -129,6 +130,7 @@ class Slim {
 	 */
 	public static function handleExceptions( Exception $e ) {
 		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
+		ob_clean();
 		$r = new Response();
 		$r->status(500);
 		$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
