@@ -446,6 +446,18 @@ class Slim {
 	}
 	
 	/**
+	 * Get URL for Route
+	 *
+	 * @param 	string 			$name 		The route name
+	 * @param 	array 			$params		Associative array of URL parameter values; [ name => value, ... ]
+	 * @throws 	SlimException 				If named route does not exist
+	 * @return 	string
+	 */
+	public static function urlFor($name, $params = array()) {
+		return self::router()->urlFor($name, $params);
+	}
+	
+	/**
 	 * Default NOT FOUND handler
 	 *
 	 * Default callback that will be called when a route cannot be
