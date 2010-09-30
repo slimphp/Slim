@@ -508,6 +508,7 @@ class Slim {
 			self::runCallables(self::$app->after);
 			self::response()->send();
 		} catch( Exception $e ) {
+			ob_clean();
 			if( $e instanceof SlimException ) {
 				$status = $e->getCode();
 				$body = $e->getMessage();
