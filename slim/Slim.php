@@ -103,11 +103,11 @@ class Slim {
 	 * This is the global Error handler that will catch an uncaught Error
 	 * and display a nice-looking error page with details about the Error.
 	 *
-	 * @param int $errno The numeric type of the Error
-	 * @param string $errstr The error message
-	 * @param string $errfile The absolute path to the affected file
-	 * @param int $errline The line number of the error in the affected file
-	 * @return void
+     * @param   int     $errno      The numeric type of the Error
+     * @param   string  $errstr     The error message
+     * @param   string  $errfile    The absolute path to the affected file
+     * @param   int     $errline    The line number of the error in the affected file
+     * @return  void
 	 */
 	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
 		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
@@ -124,8 +124,8 @@ class Slim {
 	 * This is the global Exception handler that will catch an uncaught Exception
 	 * and display a nice-looking error page with details about the Exception.
 	 *
-	 * @param Exception $e
-	 * @return void
+     * @param   Exception $e
+     * @return  void
 	 */
 	public static function handleExceptions( Exception $e ) {
 		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
@@ -143,11 +143,11 @@ class Slim {
 	 * generates HTML markup for the 500 response body that will
 	 * be sent to the client.
 	 *
-	 * @param string $message The error message
-	 * @param string $file The absolute file path to the affected file
-	 * @param int $line The line number in the affected file
-	 * @param string $trace A stack trace of the error
-	 * @return string
+     * @param   string  $message    The error message
+     * @param   string  $file       The absolute file path to the affected file
+     * @param   int     $line       The line number in the affected file
+     * @param   string  $trace      A stack trace of the error
+     * @return  string
 	 */
 	public static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
 		$html = "<html><head><title>Slim Application Error</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
@@ -167,17 +167,18 @@ class Slim {
 	/**
 	 * Initialize Slim
 	 *
-	 * This instantiates the actual Slim app, sets a default
-	 * 404 Not Found handler and sets the View class used to render templates.
+	 * This instantiates the Slim application, sets a default NotFound
+	 * handler, and sets the View class used to render templates. If the
+	 * view class parameter is null, a default View will be created.
 	 *
-	 * @param string $viewClass The name of the view class Slim will use
+     * @param   string  $viewClass  The name of the view class Slim will use
+     * @return  void
 	 */
 	public static function init($viewClass = null) {
 		self::$app = new Slim();
 		self::notFound(array('Slim', 'defaultNotFound'));
-		if(!is_null($viewClass)) {
-			self::view($viewClass);
-		}
+		$view = is_null($viewClass) ? 'View' : $viewClass;
+		self::view($view);
 	}
 	
 	/***** ROUTING *****/
@@ -188,10 +189,10 @@ class Slim {
 	 * Adds a new GET route to the router with associated callback. This
 	 * route may only be matched with a HTTP GET request.
 	 *
-	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
-	 * @param mixed $callable Anything that returns true for is_callable()
-	 * @return Route
-	 */
+     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @return  Route
+     */
 	public static function get($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_GET);
 	}
@@ -202,10 +203,10 @@ class Slim {
 	 * Adds a new POST route to the router with associated callback. This
 	 * route may only be matched with a HTTP POST request.
 	 *
-	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
-	 * @param mixed $callable Anything that returns true for is_callable()
-	 * @return Route
-	 */
+     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @return  Route
+     */
 	public static function post($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_POST);
 	}
@@ -216,9 +217,9 @@ class Slim {
 	 * Adds a new PUT route to the router with associated callback. This
 	 * route may only be matched with a HTTP PUT request.
 	 *
-	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
-	 * @param mixed $callable Anything that returns true for is_callable()
-	 * @return Route
+     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @return  Route
 	 */
 	public static function put($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_PUT);
@@ -230,9 +231,9 @@ class Slim {
 	 * Adds a new DELETE route to the router with associated callback. This
 	 * route may only be matched with a HTTP DELETE request.
 	 *
-	 * @param string $pattern The URL pattern, ie. "/books/:id/edit"
-	 * @param mixed $callable Anything that returns true for is_callable()
-	 * @return Route
+     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @return  Route
 	 */
 	public static function delete($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_DELETE);
@@ -347,14 +348,21 @@ class Slim {
 	}
 	
 	/**
-	 * Get (and optionally set) the app's View class
+	 * Get and/or set the View
 	 *
-	 * @param string $viewClass The name of the View class that renders templates
-	 * @return View
+	 * This method will instantiate a new View if the $viewClass
+	 * parameter is not null. If a View already exists and this
+	 * method is called to create a new View, data already set
+	 * in the existing View will be transferred to the new View.
+	 *
+     * @param   string $viewClass The name of the View class
+     * @return  View
 	 */
 	public static function view( $viewClass = null ) {
 		if( !is_null($viewClass) ) {
+			$existingData = is_null(self::$app->view) ? array() : self::$app->view->data();
 			self::$app->view = new $viewClass();
+			self::$app->view->data($existingData);
 		}
 		return self::$app->view;
 	}
@@ -367,12 +375,13 @@ class Slim {
 	 * Call this method within a GET, POST, PUT, DELETE, or NOT FOUND
 	 * callback to render a template, whose output is appended to the
 	 * current HTTP response body. How the template is rendered is
-	 * delegated to the current View class.
+	 * delegated to the current View.
+	 *
+	 * @param string $template The name of the template passed into the View::render method
+	 * @param array $data Associative array of data passed into the View
+	 * @param int $status The HTTP response status code to use (Optional)
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
-		if( is_null(self::view()) ) {
-			self::view('View');
-		}
 		//TODO: Abstract setting the templates directory into Slim::set('templates', '/path') in Phase 3
 		self::view()->templatesDirectory(Slim::root() . 'templates');
 		if( !is_null($status) ) {
@@ -410,9 +419,9 @@ class Slim {
 	 * client error, or server error. If you need to render a template AND
 	 * customize the response status, you should use Slim::render() instead.
 	 *
-	 * @param int $status The HTTP response status
-	 * @param string $message The HTTP response body
-	 * @throws SlimException
+     * @param   int             $status     The HTTP response status
+     * @param   string          $message    The HTTP response body
+     * @throws  SlimException
 	 */
 	public static function raise( $status, $message = '' ) {
 		throw new SlimException($message, $status);
@@ -478,7 +487,6 @@ class Slim {
 			self::response()->status($status);
 			self::response()->body($body);
 			self::response()->send();
-			exit;
 		}
 	}
 	
