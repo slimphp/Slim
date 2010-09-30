@@ -50,38 +50,41 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	/***** TESTS *****/
 	
 	/**
-	 * A newly constructed View class' data will be an array
+	 * Test initial View data is an empty array
+	 *
+	 * Pre-conditions:
+	 * You instantiate a new View object
+	 *
+	 * Post-conditions:
+	 * The View object's data attribute is an empty array
 	 */
 	public function testViewIsConstructedWithDataArray() {
-		$this->assertTrue(is_array($this->view->data()));
+		$this->assertEquals($this->view->data(), array());
 	}
 	
 	/**
-	 * A newly constructed View class' data will be an empty array
-	 */
-	public function testViewIsConstructedWithEmptyDataArray() {
-		$viewData = $this->view->data();
-		$this->assertTrue(empty($viewData));
-	}
-	
-	/**
-	 * The associative array of data you provide will be used as the View's data
+	 * Test View data is returned when set
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and set its data
+	 *
+	 * Post-conditions: 
+	 * The latest View data is returned by the View::data method
 	 */
 	public function testViewReturnsDataWhenSet() {
-		$testData = $this->generateTestData();
-		$returnedData = $this->view->data($testData);
-		$this->assertSame($testData, $returnedData);
+		$returnedData = $this->view->data($this->generateTestData());
+		$this->assertEquals($this->generateTestData(), $returnedData);
 	}
 	
 	/**
 	 * Test View appends data rather than overwriting data
 	 *
 	 * Pre-conditions:
-	 * You have instantiated a default View and call the
-	 * data method multiple times to append array data.
+	 * You instantiate a View object and call its data method 
+	 * multiple times to append multiple sets of data
 	 *
 	 * Post-conditions:
-	 * The resultant data array should contain all merged
+	 * The resultant data array should contain the merged
 	 * data from the multiple View::data calls.
 	 */
 	public function testViewMergesData(){
@@ -93,24 +96,29 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * You can pass an associatve array to populate a View's data
-	 */
-	public function testViewAcceptsArrayAsData() {
-		$testData = $this->generateTestData();
-		$this->view->data($testData);
-		$this->assertEquals(count($this->view->data()), 3);
-	}
-	
-	/**
-	 * You cannot pass a non-array to populate a View's data
+	 * Test View does not accept non-Array values
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and pass a non-Array value
+	 * into its data method.
+	 *
+	 * Post-conditions:
+	 * The View ignores the invalid data and the View's
+	 * existing data attribute remains unchanged.
 	 */
 	public function testViewDoesNotAcceptNonArrayAsData() {
-		$returnedData = $this->view->data(1);
-		$this->assertTrue(empty($returnedData));
+		$this->assertEquals($this->view->data(1), array());
 	}
 	
 	/**
-	 * You can set the templates directory for a View
+	 * Test View sets templates directory
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and set its templates directory
+	 * to an existing directory.
+	 *
+	 * Post-conditions:
+	 * The templates directory is set correctly.
 	 */
 	public function testSetsTemplatesDirectory() {
 		$templatesDirectory = rtrim(realpath('../templates/'), '/') . '/';
@@ -119,20 +127,46 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * When you set the templates directory for a view, your absolute
-	 * or relative path may or may not have a trailing slash. Either way
-	 * should work just fine.
+	 * Test View templates directory path may have a trailing slash when set
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and set its template directory to an
+	 * existing directory path with a trailing slash.
+	 *
+	 * Post-conditions:
+	 * The View templates directory path contains a trailing slash.
 	 */
-	public function testTemplatesDirectoryHasTrailingSlash() {
+	public function testTemplatesDirectoryWithTrailingSlash() {
+		$templatesDirectory = realpath('../templates/');
+		$this->view->templatesDirectory($templatesDirectory);
+		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
+	}
+	
+	/**
+	 * Test View templates directory path may not have a trailing slash when set
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and set its template directory to an
+	 * existing directory path without a trailing slash.
+	 *
+	 * Post-conditions:
+	 * The View templates directory path contains a trailing slash.
+	 */
+	public function testTemplatesDirectoryWithoutTrailingSlash() {
 		$templatesDirectory = rtrim(realpath('../templates/'), '/');
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
 	}
 	
 	/**
-	 * When you set the templates directory or a view, if the specified
-	 * templates directory does not exist or is not a directory, an
-	 * Exception will be thrown.
+	 * Test View throws Exception if templates directory does not exist
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object and set its template directory
+	 * to a non-existent directory.
+	 *
+	 * Post-conditions:
+	 * A RuntimeException is thrown
 	 */
 	public function testExceptionForInvalidTemplatesDirectory() {
 		$this->setExpectedException('RuntimeException');
@@ -140,8 +174,15 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
-	 * The default View class should successfully echo a rendered template
-	 * using the provided data.
+	 * Test View class renders template
+	 *
+	 * Pre-conditions:
+	 * You instantiate a View object, sets its templates directory to
+	 * an existing directory. You pass data into the View, and render
+	 * an existing template. No errors or exceptions are thrown.
+	 *
+	 * Post-conditions:
+	 * The contents of the output buffer match the template.
 	 */
 	public function testRendersTemplateWithData() {
 		$this->view->templatesDirectory(realpath('./templates'));
