@@ -104,7 +104,7 @@ function delete_example() {
 
 Slim::get('/hello/:name', function ($name) {
 	echo "<p>Hello, $name!</p>";
-	echo "<p>This route using name \"Bob\" instead of \"$name\" would be: " . Slim::router()->urlFor('hello', array('name' => 'Bob')) . '</p>';
+	echo "<p>This route using name \"Bob\" instead of \"$name\" would be: " . Slim::urlFor('hello', array('name' => 'Bob')) . '</p>';
 })->name('hello')->conditions(array('name' => '\w+'));
 
 
