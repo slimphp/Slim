@@ -161,9 +161,8 @@ class Router {
 					$callable = $this->matchedRoute->callable();
 					if ( is_callable($callable) ) {
 						call_user_func_array($callable, array_values($this->matchedRoute->params()));
-						return true;
 					}
-					break;
+					return true;
 				} catch( PassException $e ) {
 					continue;
 				}
