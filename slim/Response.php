@@ -134,9 +134,13 @@ class Response {
 	 *
 	 * @param int $status
 	 * @return int
+	 * @throws InvalidArgumentException If status parameter does not match a valid HTTP status code
 	 */
 	public function status( $status = null ) {
 		if( !is_null($status) ) {
+			if( !in_array(intval($status), array_keys(self::$messages))) {
+				throw new InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
+			}
 			$this->status = intval($status);
 		}
 		return $this->status;
