@@ -372,10 +372,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	public function testSlimRedirectTemporary() {
 		Slim::init();
 		Slim::get('/', function () {
-			Slim::redirect('/foo', 302);
+			Slim::redirect('/foo', 307);
 		});
 		Slim::run();
-		$this->assertEquals(Slim::response()->status(), 302);
+		$this->assertEquals(Slim::response()->status(), 307);
 	}
 	
 	/**
