@@ -477,15 +477,15 @@ class Slim {
      *
      * @param   string                      $url        The destination URL
      * @param   int                         $status     The HTTP redirect status code (Optional)
-     * @throws  InvalidArgumentException                If status parameter is not 301 or 302
+     * @throws  InvalidArgumentException                If status parameter is not 301 or 307
      */
-	public static function redirect($url, $status = 302) {
-		if( $status === 301 || $status === 302 ) {
+	public static function redirect($url, $status = 307) {
+		if( $status === 301 || $status === 307 ) {
 			self::response()->status($status);
 			self::response()->header('Location', (string)$url);
 			self::response()->send();
 		} else {
-			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301 and HTTP 302 status codes.");
+			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301 and HTTP 307 status codes.");
 		}
 	}
 	
