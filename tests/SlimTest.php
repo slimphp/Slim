@@ -73,6 +73,10 @@ class CustomView extends View {
 
 class SlimTest extends PHPUnit_Framework_TestCase {
 
+	public function setUp() {
+		$_SERVER['REQUEST_URI'] = "/";
+	}
+	
 	/************************************************
 	 * SLIM INITIALIZATION
 	 ************************************************/
@@ -392,6 +396,55 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		});
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 500);
+	}
+	
+	/**
+	 * Test Slim::pass continues to next matching route
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application with two accesible routes.
+	 * The first matching route should be the most specific and should
+	 * invoke Slim::pass(). The second accessible route should be
+	 * the next matching route.
+	 *
+	 * Post-conditions:
+	 * The response body should be set by the second matching route.
+	 */
+	public function testSlimPassWithFallbackRoute() {
+		$_SERVER['REQUEST_URI'] = "/name/Frank";
+		Slim::init();
+		Slim::get('name/Frank', function (){
+			echo "Your name is Frank";
+			Slim::pass();
+		});
+		Slim::get('name/:name', function ($name) {
+			echo "I think your name is $name";
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->body(), "I think your name is Frank");
+	}
+	
+	/**
+	 * Test Slim::pass continues, but next matching route not found
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application with one accesible route.
+	 * The first matching route should be the most specific and should
+	 * invoke Slim::pass().
+	 *
+	 * Post-conditions:
+	 * No second matching route is found, and a HTTP 404 response is
+	 * sent to the client.
+	 */
+	public function testSlimPassWithoutFallbackRoute() {
+		$_SERVER['REQUEST_URI'] = "/name/Frank";
+		Slim::init();
+		Slim::get('name/Frank', function (){
+			echo "Your name is Frank";
+			Slim::pass();
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 404);
 	}
 	
 	/************************************************
