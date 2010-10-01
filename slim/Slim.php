@@ -430,6 +430,19 @@ class Slim {
 	}
 	
 	/**
+	 * Pass
+	 *
+	 * This method will cause the Router::dispatch method to ignore
+	 * this route and continue to the next matching route in the dispatch
+	 * loop. If no subsequent mathing routes are found, a 404 response
+	 * will be sent to the client.
+	 */
+	public static function pass() {
+		ob_clean();
+		throw new PassException();
+	}
+	
+	/**
 	 * Set Content-Type
 	 *
 	 * @param string $type The Content-Type for the Response (ie text/html, application/json, etc)
