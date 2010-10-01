@@ -157,16 +157,16 @@ class Router {
 		foreach( $this->routes[$this->request->method] as $route ) {
 			if ( $route->matches($this->request->resource) ) {
 				$this->matchedRoute = $route;
-				break;
-			}
-		}
-		
-		//If matching route found... else return FALSE
-		if ( !is_null($this->matchedRoute) ) {
-			$callable = $this->matchedRoute->callable();
-			if ( is_callable($callable) ) {
-				call_user_func_array($callable, array_values($this->matchedRoute->params()));
-				return true;
+				try {
+					$callable = $this->matchedRoute->callable();
+					if ( is_callable($callable) ) {
+						call_user_func_array($callable, array_values($this->matchedRoute->params()));
+						return true;
+					}
+					break;
+				} catch( PassException $e ) {
+					continue;
+				}
 			}
 		}
 		
