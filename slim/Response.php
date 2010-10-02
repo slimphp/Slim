@@ -125,6 +125,7 @@ class Response {
 	public function __construct() {
 		$this->status(200);
 		$this->header('Content-Type', 'text/html');
+		$this->cookies = array();
 	}
 	
 	/***** ACCESSORS *****/
