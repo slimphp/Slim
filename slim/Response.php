@@ -210,6 +210,15 @@ class Response {
 		$this->cookies[] = $cookie;
 	}
 	
+	/**
+	 * Get Cookies set in Response
+	 *
+	 * @return array
+	 */
+	public function getCookies() {
+		return $this->cookies;
+	}
+	
 	/***** FINALIZE BEFORE SENDING *****/
 	
 	/**
