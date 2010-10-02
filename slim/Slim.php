@@ -400,8 +400,9 @@ class Slim {
 	 *
 	 * This method will store a persistent session variable that will be accessible
 	 * across multiple HTTP requests until the variable expires or is cleared. This
-	 * implementation uses browser cookies. Soon I will add support for encrypted
-	 * session variables.
+	 * implementation uses browser cookies; because Slim sessions are implemented on 
+	 * top of browser cookies, each session variable's value may not be larger then 
+	 * 4KB in size. Soon I will add support for encrypted session variables.
 	 *
 	 * This method acts as both a getter and setter. If you invoke this method
 	 * and specify only the first parameter, this will return the value of the cookie
@@ -411,8 +412,16 @@ class Slim {
 	 * already exists, that cookie will be overwritten when the Response is sent
 	 * to the client.
 	 *
-	 * Because Slim sessions are implemented on top of browser cookies, each session
-	 * variable's value may not be larger then 4KB in size.
+	 * To "delete" a Session variable, create a new Session variable with the same
+	 * name and set its value to FALSE, NULL, or an empty string.
+	 *
+	 * USAGE:
+	 *
+	 * //Get cookie value
+	 * $value = Slim::session('name');
+	 *
+	 * //Set cookie value
+	 * Slim::session('name', 'value'[, ... ]);
 	 *
      * @param   string  $name       The session variable name
      * @param   string  $value      The session variable value
