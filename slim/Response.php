@@ -201,27 +201,12 @@ class Response {
 	/***** COOKIES *****/
 	
 	/**
-	 * Set HTTP response cookie
+	 * Add Cookie to Response
 	 *
-	 * @param string $name The name of the cookie
-	 * @param string $value The value of the cookie
-	 * @param int $expires The timestamp when the cookie should expire
-	 * @param string $path
-	 * @param string $domain
-	 * @param bool $secure
-	 * @param bool $httponly
+	 * @param Cookie $cookie
 	 */
-	public function setCookie($name, $value, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false) {
-		setcookie($name, $value, $expires, $path, $domain, $secure, $httponly);
-	}
-	
-	/**
-	 * Delete HTTP response cookie
-	 *
-	 * @param string The name of the cookie
-	 */
-	public function deleteCookie($name) {
-		setcookie($name, '', -3600);
+	public function addCookie( Cookie $cookie ) {
+		$this->cookies[] = $cookie;
 	}
 	
 	/***** FINALIZE BEFORE SENDING *****/
@@ -274,7 +259,13 @@ class Response {
 		}
 		
 		//Send cookies
-		//...sent when set... perhaps change this later?
+		foreach( $this->cookies as $cookie ) {
+			if( empty($cookie->value) ) {
+				setcookie($cookie->name, '', time() - 90000, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
+			} else {
+				setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
+			}
+		}
 		
 		//Flush all output to client
 		flush();
