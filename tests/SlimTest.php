@@ -43,6 +43,7 @@ $_SERVER['HTTP_USER_AGENT'] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4;
 $_SERVER['HTTP_ACCEPT_ENCODING'] = "gzip,deflate,sdch";
 $_SERVER['HTTP_ACCEPT_LANGUAGE'] = "en-US,en;q=0.8";
 $_SERVER['HTTP_ACCEPT_CHARSET'] = "ISO-8859-1,utf-8;q=0.7,*;q=0.3";
+$_SERVER['HTTP_COOKIE'] = 'foo=bar; foo2=bar2';
 $_SERVER['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin";
 $_SERVER['SERVER_SIGNATURE'] = "";
 $_SERVER['SERVER_SOFTWARE'] = "Apache";
@@ -74,6 +75,8 @@ class CustomView extends View {
 class SlimTest extends PHPUnit_Framework_TestCase {
 
 	public function setUp() {
+		$_COOKIE['foo'] = 'bar';
+		$_COOKIE['foo2'] = 'bar2';
 		$_SERVER['REQUEST_URI'] = "/";
 	}
 	
@@ -288,6 +291,59 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$data = array('foo' => 'bar');
 		Slim::render('test.php', $data, 400);
 		$this->assertEquals(Slim::response()->status(), 400);
+	}
+	
+	/************************************************
+	 * SLIM SESSIONS
+	 ************************************************/
+	
+	/**
+	 * Test Slim returns existing Cookie value
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application and
+	 * there are existing Cookies sent with the HTTP request.
+	 *
+	 * Post-conditions:
+	 * Slim will return the correct value for the Cookie
+	 */
+	public function testSlimReadsExistingCookieValue(){
+		Slim::init();
+		$this->assertEquals('bar', Slim::session('foo'));
+	}
+	
+	/**
+	 * Test Slim returns NULL for non-existing Cookie value
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application and there are
+	 * no existing Cookies of a given name with the HTTP request.
+	 *
+	 * Post-conditions:
+	 * Slim returns NULL when a non-existing Cookie value is requested
+	 */
+	public function testSlimReadsNonExistingCookieValueAsNull(){
+		Slim::init();
+		$this->assertNull(Slim::session('fake'));
+	}
+	
+	/**
+	 * Test Slim sets Cookies in Response
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application and you
+	 * set a session variable.
+	 *
+	 * Post-conditions:
+	 * The Response has a Cookie object with the expected
+	 * name and value.
+	 */
+	public function testSlimSetsCookie(){
+		Slim::init();
+		Slim::session('testCookie', 'testValue');
+		$cookies = Slim::response()->getCookies();
+		$this->assertEquals('testCookie', $cookies[0]->name);
+		$this->assertEquals('testValue', $cookies[0]->value);
 	}
 	
 	/************************************************
