@@ -185,7 +185,7 @@ class Request {
 	 * @return The cookie value, or NULL if cookie not set
 	 */
 	public function cookie($name) {
-		return isset($_COOKIE[$name]) ? $_COOKIE['name'] : null;
+		return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
 	}
 	
 	/***** HELPERS *****/
