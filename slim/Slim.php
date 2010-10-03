@@ -393,6 +393,67 @@ class Slim {
 		self::view()->render($template);
 	}
 	
+	/***** HTTP CACHING *****/
+
+	/**
+	 * Set Last Modified HTTP Response Header
+	 *
+	 * @param 	int 						$time 	The last modified UNIX timestamp
+	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if time matches existing header timestamp
+	 * @throws 	InvalidArgumentException 			If provided timestamp is not an integer
+	 */
+	public static function lastModified($time) {
+		if( is_integer($time) ) {
+			Slim::response()->header('Last-Modified', date('r', $time));
+			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE')) {
+				Slim::raise(304);
+			}
+		} else {
+			throw new InvalidArgumentException("Slim::lastModified only accepts an integer UNIX timestamp value.");
+		}
+	}
+
+	/**
+	 * Set ETag HTTP Response Header
+	 *
+	 * Set the response entity tag (HTTP `ETag` header) and stop if
+	 * conditional GET matches. The `value` argument is an identifier that
+	 * uniquely identifies the current version of the resource. The `type`
+	 * argument indicates whether the etag should be used as a strong or
+	 * weak cache validator.
+	 *
+	 * When the current request includes an 'If-None-Match' header with
+	 * a matching etag, execution is immediately stopped. If the request
+	 * method is GET or HEAD, a '304 Not Modified' response is sent.
+	 *
+	 * @param 	string 						$value 	The etag value
+	 * @param 	string 						$type 	The type of etag to create; either "strong" or "weak"
+	 * @throws 	InvalidArgumentException 			If provided type is invalid
+	 */
+	public static function etag($value, $type = 'strong'){
+	
+		//Ensure type is correct
+		if( !in_array($type, array('strong', 'weak'))) {
+			throw new InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
+		}
+			
+		//Set etag value
+		$value = '"' . $value . '"';
+		if( $type === 'weak' ) {
+			$value = 'W/'.$value;
+		}
+		Slim::response()->header('ETag', $value);
+		
+		//Check conditional GET
+		if( $etags = Slim::request()->header('IF_NONE_MATCH') ) {
+			$etags = preg_split('@\s*,\s*@', $etags);
+			if( in_array($value, $etags) || in_array('*', $etags) ) {
+				Slim::raise(304);
+			}
+		}
+		
+	}
+	
 	/***** SESSIONS (COOKIE-BASED) *****/
 	
 	/**
