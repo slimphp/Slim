@@ -396,7 +396,13 @@ class Slim {
 	/***** HTTP CACHING *****/
 
 	/**
-	 * Set Last Modified HTTP Response Header
+	 * Set the last modified time of the resource
+	 *
+	 * Set the HTTP 'Last-Modified' header and stop if a conditional
+	 * GET request matches the etag value. The `time` argument is a UNIX
+	 * timestamp integer value. When the current request includes an
+	 * 'If-Modified-Since' header that matches the specified last modified time,
+	 * the application will stop and send a '304 Not Modified' response.
 	 *
 	 * @param 	int 						$time 	The last modified UNIX timestamp
 	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if time matches existing header timestamp
@@ -416,10 +422,9 @@ class Slim {
 	/**
 	 * Set ETag HTTP Response Header
 	 *
-	 * Set the response entity tag (HTTP `ETag` header) and stop if
-	 * conditional GET matches. The `value` argument is an identifier that
-	 * uniquely identifies the current version of the resource. The `type`
-	 * argument indicates whether the etag should be used as a strong or
+	 * Set the etag header and stop if the conditional GET request matches. 
+	 * The `value` argument is a unique identifier for the current resource. 
+	 * The `type` argument indicates whether the etag should be used as a strong or
 	 * weak cache validator.
 	 *
 	 * When the current request includes an 'If-None-Match' header with
