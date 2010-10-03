@@ -43,6 +43,8 @@ $_SERVER['HTTP_USER_AGENT'] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4;
 $_SERVER['HTTP_ACCEPT_ENCODING'] = "gzip,deflate,sdch";
 $_SERVER['HTTP_ACCEPT_LANGUAGE'] = "en-US,en;q=0.8";
 $_SERVER['HTTP_ACCEPT_CHARSET'] = "ISO-8859-1,utf-8;q=0.7,*;q=0.3";
+$_SERVER['HTTP_IF_MODIFIED_SINCE'] = "Sun, 03 Oct 2010 17:00:52 -0400";
+$_SERVER['HTTP_IF_NONE_MATCH'] = '"abc123"';
 $_SERVER['HTTP_COOKIE'] = 'foo=bar; foo2=bar2';
 $_SERVER['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin";
 $_SERVER['SERVER_SIGNATURE'] = "";
@@ -344,6 +346,90 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$cookies = Slim::response()->getCookies();
 		$this->assertEquals('testCookie', $cookies[0]->name);
 		$this->assertEquals('testValue', $cookies[0]->value);
+	}
+	
+	/************************************************
+	 * SLIM HTTP CACHING
+	 ************************************************/
+	
+	/**
+	 * Test Slim returns 304 Not Modified when ETag matches `If-None-Match` request header
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets an ETag for the requested
+	 * resource route. The HTTP `If-None-Match` header is set and matches
+	 * the ETag identifier value.
+	 *
+	 * Post-conditions:
+	 * The Slim application will return an HTTP 304 Not Modified response.
+	 */
+	public function testSlimEtagMatches(){
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::etag('abc123');
+		});
+		Slim::run();
+		$this->assertEquals(304, Slim::response()->status());
+	}
+	
+	/**
+	 * Test Slim returns 200 OK when ETag does not match `If-None-Match` request header
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets an ETag for the requested
+	 * resource route. The HTTP `If-None-Match` header is set and does not match
+	 * the ETag identifier value.
+	 *
+	 * Post-conditions:
+	 * The Slim application will return an HTTP 200 OK response.
+	 */
+	public function testSlimEtagDoesNotMatch(){
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::etag('xyz789');
+		});
+		Slim::run();
+		$this->assertEquals(200, Slim::response()->status());
+	}
+	
+	/**
+	 * Test Slim returns 304 Not Modified when Last Modified date matches `If-Modified-Since` request header
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets the `Last-Modified` response
+	 * header for the requested resource route. The HTTP `If-Modified-Since` header is
+	 * set and matches the `Last-Modified` date.
+	 *
+	 * Post-conditions:
+	 * The Slim application will return an HTTP 304 Not Modified response
+	 */
+	public function testSlimLastModifiedDateMatches(){
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::lastModified(1286139652);
+		});
+		Slim::run();
+		$this->assertEquals(304, Slim::response()->status());
+	}
+	
+	/**
+	 * Test Slim returns 200 OK when Last Modified date does not match `If-Modified-Since` request header
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets the `Last-Modified` response
+	 * header for the requested resource route. The HTTP `If-Modified-Since` header is
+	 * set and does not match the `Last-Modified` date.
+	 *
+	 * Post-conditions:
+	 * The Slim application will return an HTTP 200 OK response
+	 */
+	public function testSlimLastModifiedDateDoesNotMatch(){
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::lastModified(1286139250);
+		});
+		Slim::run();
+		$this->assertEquals(200, Slim::response()->status());
 	}
 	
 	/************************************************
