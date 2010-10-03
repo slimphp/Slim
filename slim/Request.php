@@ -240,6 +240,16 @@ class Request {
 	}
 	
 	/**
+	 * Fetch HTTP header
+	 *
+	 * @param string $name The header name
+	 * @return The header string value, or NULL if header does not exist
+	 */
+	public function header($name) {
+		return isset($this->headers[$name]) ? $this->headers[$name] : null;
+	}
+	
+	/**
 	 * Check for HTTP request method override
 	 *
 	 * Because traditional web browsers do not support PUT and DELETE
