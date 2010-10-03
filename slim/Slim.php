@@ -411,7 +411,7 @@ class Slim {
 	public static function lastModified($time) {
 		if( is_integer($time) ) {
 			Slim::response()->header('Last-Modified', date('r', $time));
-			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE')) {
+			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) {
 				Slim::raise(304);
 			}
 		} else {
