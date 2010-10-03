@@ -399,18 +399,19 @@ class Slim {
 	 * Set the last modified time of the resource
 	 *
 	 * Set the HTTP 'Last-Modified' header and stop if a conditional
-	 * GET request matches the etag value. The `time` argument is a UNIX
-	 * timestamp integer value. When the current request includes an
-	 * 'If-Modified-Since' header that matches the specified last modified time,
-	 * the application will stop and send a '304 Not Modified' response.
+	 * GET request's `If-Modified-Since` header matches the last modified time
+	 * of the resource. The `time` argument is a UNIX timestamp integer value. 
+	 * When the current request includes an 'If-Modified-Since' header that 
+	 * matches the specified last modified time, the application will stop 
+	 * and send a '304 Not Modified' response.
 	 *
 	 * @param 	int 						$time 	The last modified UNIX timestamp
-	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if time matches existing header timestamp
+	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if resource last modified time matches `If-Modified-Since` header
 	 * @throws 	InvalidArgumentException 			If provided timestamp is not an integer
 	 */
 	public static function lastModified($time) {
 		if( is_integer($time) ) {
-			Slim::response()->header('Last-Modified', date('r', $time));
+			Slim::response()->header('Last-Modified', date(DATE_RFC1123, $time));
 			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) {
 				Slim::raise(304);
 			}
@@ -450,8 +451,8 @@ class Slim {
 		Slim::response()->header('ETag', $value);
 		
 		//Check conditional GET
-		if( $etags = Slim::request()->header('IF_NONE_MATCH') ) {
-			$etags = preg_split('@\s*,\s*@', $etags);
+		if( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
+			$etags = preg_split('@\s*,\s*@', $etagsHeader);
 			if( in_array($value, $etags) || in_array('*', $etags) ) {
 				Slim::raise(304);
 			}
