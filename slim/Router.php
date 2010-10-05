@@ -70,6 +70,11 @@ class Router {
 	private $notFound;
 	
 	/**
+	 * @var mixed Error callback function if there is an application error
+	 */
+	private $error;
+	
+	/**
 	 * Constructor
 	 *
 	 * @param Request $request The current HTTP request object
@@ -144,6 +149,19 @@ class Router {
 			$this->notFound = $callable;
 		}
 		return $this->notFound;
+	}
+	
+	/**
+	 * Register a 500 Error callback
+	 *
+	 * @param mixed $callable Anything that returns TRUE for is_callable()
+	 * @return mixed
+	 */
+	public function error( $callable = null ) {
+		if( is_callable($callable) ) {
+			$this->error = $callable;
+		}
+		return $this->error;
 	}
 	
 	/**
