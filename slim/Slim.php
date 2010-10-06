@@ -30,11 +30,24 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-spl_autoload_register(array('Slim', 'autoload'));
+//Set which errors are reported by PHP and logged by Slim
+error_reporting(E_ALL | E_STRICT);
+
+//This will handle errors
 set_error_handler(array('Slim', 'handleErrors'));
+
+//This will handle uncaught exceptions
 set_exception_handler(array('Slim', 'handleExceptions'));
 
+//Slim will auto-load class files in the same directory as Slim.php
+spl_autoload_register(array('Slim', 'autoload'));
+
 class Slim {
+	
+	//Constants helpful when triggering errors or calling Slim::log()
+	const ERROR = 256;
+	const WARNING = 512;
+	const NOTICE = 1024;
 	
 	/**
 	 * @var Slim The actual Slim instance
@@ -85,7 +98,12 @@ class Slim {
 		$this->router = new Router( $this->request );
 		$this->before = array();
 		$this->after = array();
-		$this->settings = array();
+		$this->settings = array(
+			'log' => true,
+			'log_dir' => './logs',
+			'debug' => true,
+			'templates_dir' => './templates'
+		);
 	}
 	
 	/**
@@ -110,13 +128,20 @@ class Slim {
      * @return  void
 	 */
 	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
-		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
-		ob_clean();
-		$r = new Response();
-		$r->status(500);
-		$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
-		$r->send();
-		exit;
+		if( !(error_reporting() & $errno) ) {
+			return; // This error code is not included in error_reporting
+		}
+		if( ob_get_level() !== 0 ) ob_clean();
+		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $errstr, $errfile, $errline), $errno);
+		if( self::config('debug') === true ) {
+			$r = new Response();
+			$r->status(500);
+			$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
+			$r->send();
+		} else {
+			self::error();
+		}
+		die();
 	}
 	
 	/**
@@ -129,13 +154,17 @@ class Slim {
      * @return  void
 	 */
 	public static function handleExceptions( Exception $e ) {
-		//Log error here with error_log() if in DEVELOPMENT mode and logging turned on
-		ob_clean();
-		$r = new Response();
-		$r->status(500);
-		$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
-		$r->send();
-		exit;
+		if( ob_get_level() !== 0 ) ob_clean();
+		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
+		if( self::config('debug') === true ) {
+			$r = new Response();
+			$r->status(500);
+			$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+			$r->send();
+		} else {
+			self::error();
+		}
+		die();
 	}
 	
 	/**
@@ -179,8 +208,42 @@ class Slim {
 	public static function init($viewClass = null) {
 		self::$app = new Slim();
 		self::notFound(array('Slim', 'defaultNotFound'));
+		self::error(array('Slim', 'defaultError'));
 		$view = is_null($viewClass) ? 'View' : $viewClass;
 		self::view($view);
+	}
+	
+	/***** CONFIGURATION *****/
+	
+	/**
+	 * Configure Slim Settings
+	 *
+	 * This method defines application settings and acts as a setter and a getter.
+	 * 
+	 * If only one argument is specified and that argument is a string, the value
+	 * of the setting identified by the first argument will be returned, or NULL if
+	 * that setting does not exist.
+	 *
+	 * If only one argument is specified and that argument is an associative array,
+	 * the array will be merged into the existing application settings.
+	 *
+	 * If two arguments are provided, the first argument is the setting name
+	 * and the second the setting value.
+	 *
+	 * @param mixed $name If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+	 * @param mixed $value If name is a string, the value of the setting identified by $name
+	 * @return mixed The value of a setting if only one argument and argument is a string
+	 */
+	public static function config($name, $value = null) {
+		if( func_num_args() === 1 ) {
+			if( is_array($name) ) {
+				self::$app->settings = array_merge(self::$app->settings, $name);
+			} else {
+				return in_array($name, array_keys(self::$app->settings)) ? self::$app->settings[$name] : null;
+			}
+		} else {
+			self::$app->settings[$name] = $value;
+		}
 	}
 	
 	/***** ROUTING *****/
@@ -270,9 +333,78 @@ class Slim {
 		} else {
 			ob_start();
 			call_user_func(self::router()->notFound());
-			self::response()->body(ob_get_clean());
-			self::response()->status(404);
-			self::response()->send();
+			Slim::raise(404, ob_get_clean());
+		}
+	}
+	
+	/**
+	 * Specify or call Error Handler
+	 *
+	 * This method specifies or calls the application-wide Error
+	 * handler. There are two contexts in which this method may be invoked:
+	 *
+	 * 1. When specifying the Error callback method:
+	 *
+	 * If the $callable parameter is not null and is callable, then this
+	 * method will register the callback method to be called when there
+	 * is an uncaught application Exception or Error. It will not actually invoke
+	 * the Error callback, though.
+	 *
+	 * 2. When invoking the Error callback method:
+	 *
+	 * If the $callable parameter is null, then Slim assumes you want
+	 * to invoke an already-registered callback method. If the callback
+	 * method has been registered and is callable, then it is invoked
+	 * and sends a 500 HTTP Response whose body is the output of
+	 * the Error handler. This method will ONLY be invoked when
+	 * $config['show_errors'] is FALSE.
+	 *
+	 * @param mixed $callable Anything that returns true for is_callable()
+	 */
+	public static function error($callable = null) {
+		if( !is_null($callable) ) {
+			self::router()->error($callable);
+		} else {
+			ob_start();
+			call_user_func(self::router()->error());
+			Slim::raise(500, ob_get_clean());
+		}
+	}
+	
+	/***** LOGGING *****/
+	
+	/**
+	 * Logger
+	 *
+	 * This is an application-wide Logger which will write messages to
+	 * a log file in the log directory (as defined in the app configuration).
+	 * Logging must be enabled for this method to work. A separate log file 
+	 * is created for each day. Each log file is prepended with the type of
+	 * message (ie. Error, Warning, or Notice).
+	 *
+	 * @param string $message The message to send to the Logger
+	 */
+	public static function log($message, $errno = null) {
+		if( self::config('log') ) {
+			$type = '';
+			switch ($errno) {
+			    case E_USER_ERROR :
+				case E_ERROR :
+					$type = '[ERROR]';
+					break;
+				case E_WARNING :
+				case E_USER_WARNING :
+					$type = '[WARNING]';
+					break;
+				case E_NOTICE :
+				case E_USER_NOTICE : 
+					$type = '[NOTICE]';
+					break;
+				default :
+					$type = '[UNKNOWN]';
+					break;
+			}
+			error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log');
 		}
 	}
 	
@@ -384,8 +516,7 @@ class Slim {
 	 * @param int 		$status 	The HTTP response status code to use (Optional)
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
-		//TODO: Abstract setting the templates directory into Slim::set('templates', '/path') in Phase 3
-		self::view()->templatesDirectory(Slim::root() . 'templates');
+		self::view()->templatesDirectory(self::config('templates_dir'));
 		if( !is_null($status) ) {
 			self::response()->status($status);
 		}
@@ -412,9 +543,7 @@ class Slim {
 	public static function lastModified($time) {
 		if( is_integer($time) ) {
 			Slim::response()->header('Last-Modified', date(DATE_RFC1123, $time));
-			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) {
-				Slim::raise(304);
-			}
+			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::raise(304);
 		} else {
 			throw new InvalidArgumentException("Slim::lastModified only accepts an integer UNIX timestamp value.");
 		}
@@ -445,17 +574,13 @@ class Slim {
 			
 		//Set etag value
 		$value = '"' . $value . '"';
-		if( $type === 'weak' ) {
-			$value = 'W/'.$value;
-		}
+		if( $type === 'weak' ) $value = 'W/'.$value;
 		Slim::response()->header('ETag', $value);
 		
 		//Check conditional GET
 		if( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
 			$etags = preg_split('@\s*,\s*@', $etagsHeader);
-			if( in_array($value, $etags) || in_array('*', $etags) ) {
-				Slim::raise(304);
-			}
+			if( in_array($value, $etags) || in_array('*', $etags) ) Slim::raise(304);
 		}
 		
 	}
@@ -553,7 +678,7 @@ class Slim {
 	 * will be sent to the client.
 	 */
 	public static function pass() {
-		ob_clean();
+		if( ob_get_level() !== 0 ) ob_clean();
 		throw new PassException();
 	}
 	
@@ -619,6 +744,16 @@ class Slim {
 		echo "We couldn't find what you are looking for. There's a slim chance you typed in the wrong URL.";
 	}
 	
+	/**
+	 * Default custom error handler
+	 *
+	 * This is the default error handler invoked when the `show_errors` setting
+	 * is set to FALSE.
+	 */
+	public static function defaultError() {
+		echo "Something went wrong. The site administrator has been notified of the issue.";
+	}
+	
 	/***** RUN SLIM *****/
 	
 	/**
@@ -640,17 +775,10 @@ class Slim {
 			self::response()->write(ob_get_clean());
 			self::runCallables(self::$app->after);
 			self::response()->send();
-		} catch( Exception $e ) {
-			ob_clean();
-			if( $e instanceof SlimException ) {
-				$status = $e->getCode();
-				$body = $e->getMessage();
-			} else {
-				$status = 500;
-				$body = self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString());
-			}
-			self::response()->status($status);
-			self::response()->body($body);
+		} catch( SlimException $e ) {
+			if( ob_get_level() !== 0 ) ob_clean();
+			self::response()->status($e->getCode());
+			self::response()->body($e->getMessage());
 			self::response()->send();
 		}
 	}

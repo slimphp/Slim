@@ -117,6 +117,63 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/************************************************
+	 * SLIM SETTINGS
+	 ************************************************/
+	
+	/**
+	 * Test Slim can define an application setting
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * set a single configuration setting.
+	 *
+	 * Post-conditions:
+	 * The configuration setting is accessible.
+	 */
+	public function testSlimSetsSingleSetting(){
+		Slim::init();
+		Slim::config('foo', 'bar');
+		$this->assertEquals(Slim::config('foo'), 'bar');
+	}
+	
+	/**
+	 * Test Slim configuration setting is NULL if non-existant
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * fetch a non-existing configuration setting.
+	 *
+	 * Post-conditions:
+	 * NULL is returned for the value of the setting
+	 */
+	public function testSlimNonExistingSettingValueIsNull(){
+		Slim::init();
+		$this->assertNull(Slim::config('foo'));
+	}
+	
+	/**
+	 * Test Slim can use array to set configuration settings
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * set multiple settings with an associative array.
+	 *
+	 * Post-conditions:
+	 * Multiple settings are set correctly.
+	 */
+	public function testSlimCongfigurationWithArray(){
+		Slim::init();
+		Slim::config(array(
+			'one' => 'A',
+			'two' => 'B',
+			'three' => 'C'
+		));
+		$this->assertEquals(Slim::config('one'), 'A');
+		$this->assertEquals(Slim::config('two'), 'B');
+		$this->assertEquals(Slim::config('three'), 'C');
+	}
+	
+	/************************************************
 	 * SLIM ROUTING
 	 ************************************************/
 	
@@ -393,6 +450,25 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/**
+	 * Test Slim ETag only accepts 'strong' or 'weak' types
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets an ETag with an
+	 * invalid type argument.
+	 *
+	 * Post-conditions:
+	 * An InvalidArgumentExceptio is thrown
+	 */
+	public function testSlimETagThrowsExceptionForInvalidType(){
+		$this->setExpectedException('InvalidArgumentException');
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::etag('123','foo');
+		});
+		Slim::run();
+	}
+	
+	/**
 	 * Test Slim returns 304 Not Modified when Last Modified date matches `If-Modified-Since` request header
 	 *
 	 * Pre-conditions:
@@ -430,6 +506,25 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		});
 		Slim::run();
 		$this->assertEquals(200, Slim::response()->status());
+	}
+	
+	/**
+	 * Test Slim Last Modified only accepts integer values
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim application that sets the Last Modified
+	 * date for a route to a non-integer value.
+	 *
+	 * Post-conditions:
+	 * An InvalidArgumentException is thrown
+	 */
+	public function testSlimLastModifiedOnlyAcceptsIntegers(){
+		$this->setExpectedException('InvalidArgumentException');
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::lastModified('Test');
+		});
+		Slim::run();
 	}
 	
 	/************************************************
@@ -528,16 +623,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 * The route attempts to redirect with an invalid HTTP status code.
 	 *
 	 * Post-conditions:
-	 * Slim throws an InvalidArgumentException which is caught by
-	 * the Slim::run dispatch loop, and the Response status is set to 500.
+	 * Slim throws an InvalidArgumentException
 	 */
-	public function testSlimRedirectFails() {
+	public function testSlimRedirectFailsAndThrowsException() {
+		$this->setExpectedException('InvalidArgumentException');
 		Slim::init();
 		Slim::get('/', function () {
 			Slim::redirect('/foo', 400);
 		});
 		Slim::run();
-		$this->assertEquals(Slim::response()->status(), 500);
 	}
 	
 	/**
@@ -594,26 +688,6 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 ************************************************/
 	
 	/**
-	 * Test Slim catches Non-Slim Exceptions
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim app with an accessible route
-	 * that throws a RuntimeException.
-	 *
-	 * Post-conditions:
-	 * The non-SlimException is caught, and the response
-	 * status is 500.
-	 */
-	public function testSlimCatchesNonSlimExceptions(){
-		Slim::init();
-		Slim::get('/', function () {
-			throw new RuntimeException('This is a runtime exception', 100);
-		});
-		Slim::run();
-		$this->assertEquals(Slim::response()->status(), 500);
-	}
-	
-	/**
 	 * Test Slim raises SlimException
 	 *
 	 * Pre-conditions:
@@ -667,6 +741,23 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::get('/foo', function () {});
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 404);
+	}
+	
+	/**
+	 * Test Slim returns 500 response if error thrown within Slim app
+	 *
+	 * Pre-conditions:
+	 * You have initialized a Slim app with a custom Error handler with
+	 * an accessible route that calls Slim::error().
+	 *
+	 * Post-conditions:
+	 * The response status will be 500
+	 */
+	public function testSlimError() {
+		Slim::init();
+		Slim::get('/', function () { Slim::error(); });
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 500);
 	}
 	
 	/**
