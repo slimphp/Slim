@@ -117,6 +117,63 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 	
 	/************************************************
+	 * SLIM SETTINGS
+	 ************************************************/
+	
+	/**
+	 * Test Slim can define an application setting
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * set a single configuration setting.
+	 *
+	 * Post-conditions:
+	 * The configuration setting is accessible.
+	 */
+	public function testSlimSetsSingleSetting(){
+		Slim::init();
+		Slim::config('foo', 'bar');
+		$this->assertEquals(Slim::config('foo'), 'bar');
+	}
+	
+	/**
+	 * Test Slim configuration setting is NULL if non-existant
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * fetch a non-existing configuration setting.
+	 *
+	 * Post-conditions:
+	 * NULL is returned for the value of the setting
+	 */
+	public function testSlimNonExistingSettingValueIsNull(){
+		Slim::init();
+		$this->assertNull(Slim::config('foo'));
+	}
+	
+	/**
+	 * Test Slim can use array to set configuration settings
+	 *
+	 * Pre-conditions:
+	 * You have intiailized a Slim application, and you
+	 * set multiple settings with an associative array.
+	 *
+	 * Post-conditions:
+	 * Multiple settings are set correctly.
+	 */
+	public function testSlimCongfigurationWithArray(){
+		Slim::init();
+		Slim::config(array(
+			'one' => 'A',
+			'two' => 'B',
+			'three' => 'C'
+		));
+		$this->assertEquals(Slim::config('one'), 'A');
+		$this->assertEquals(Slim::config('two'), 'B');
+		$this->assertEquals(Slim::config('three'), 'C');
+	}
+	
+	/************************************************
 	 * SLIM ROUTING
 	 ************************************************/
 	
