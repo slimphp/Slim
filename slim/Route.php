@@ -129,7 +129,7 @@ class Route {
 		if( array_key_exists($key, $this->conditions) ) {
 			return '(' . $this->conditions[$key] . ')';
 		} else {
-			return '([a-zA-Z0-9_\+\-%]+)';
+			return '([a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
 		}
 	}
 	

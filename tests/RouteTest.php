@@ -153,7 +153,36 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($result);
 		$this->assertEquals($route->params(), array());
 	}
-	
+
+    /*
+     * Route should match URI with valid path component according to rfc2396
+     *
+     * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
+     *
+     * Excludes "+" which is valid but decodes into a space character
+     */
+    public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
+        $symbols = ":@&=$,";
+		$resource = 'rfc2386/'.$symbols;
+		$route = new Route('/rfc2386/:symbols', function () {});
+		$result = $route->matches($resource);
+		$this->assertTrue($result);
+		$this->assertEquals($route->params(), array('symbols' => $symbols));
+    }
+
+    /*
+     * Route should match URI including unreserved punctuation marks from rfc2396
+     *
+     * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
+     */
+    public function testRouteMatchesResourceWithUnreservedMarks() {
+        $marks = "-_.!~*'()";
+		$resource = 'marks/'.$marks;
+		$route = new Route('/marks/:marks', function () {});
+		$result = $route->matches($resource);
+		$this->assertTrue($result);
+		$this->assertEquals($route->params(), array('marks' => $marks));
+    }
 }
 
 ?>
