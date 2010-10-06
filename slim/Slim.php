@@ -239,7 +239,7 @@ class Slim {
 			if( is_array($name) ) {
 				self::$app->settings = array_merge(self::$app->settings, $name);
 			} else {
-				return in_array($name, self::$app->settings) ? self::$app->settings[$name] : null;
+				return in_array($name, array_keys(self::$app->settings)) ? self::$app->settings[$name] : null;
 			}
 		} else {
 			self::$app->settings[$name] = $value;
@@ -375,6 +375,12 @@ class Slim {
 	
 	/**
 	 * Logger
+	 *
+	 * This is an application-wide Logger which will write messages to
+	 * a log file in the log directory (as defined in the app configuration).
+	 * Logging must be enabled for this method to work. A separate log file 
+	 * is created for each day. Each log file is prepended with the type of
+	 * message (ie. Error, Warning, or Notice).
 	 *
 	 * @param string $message The message to send to the Logger
 	 */
