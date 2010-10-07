@@ -655,7 +655,8 @@ class Slim {
 	 * Root directory
 	 */
 	public static function root() {
-		return $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . self::request()->root;
+		$url = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+		return ( self::request()->root !== DIRECTORY_SEPARATOR ) ? $url . self::request()->root : $url;
 	}
 
 	/**
