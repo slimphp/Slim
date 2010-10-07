@@ -68,7 +68,7 @@ $_SERVER['argv'] = array();
 $_SERVER['argc'] = 0;
 
 class RouterTest extends PHPUnit_Framework_TestCase {
-	
+
 	/**
 	 * Router::urlFor should return a full route pattern
 	 * even if no params data is provided.
@@ -80,7 +80,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$router->cacheNamedRoute('foo', $route);
 		$this->assertEquals($router->urlFor('foo'), '/foo/bar');
 	}
-	
+
 	/**
 	 * Router::urlFor should eturn a full route pattern if
 	 * param data is provided.
@@ -92,7 +92,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$router->cacheNamedRoute('foo', $route);
 		$this->assertEquals($router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')), '/foo/Josh/and/John');
 	}
-	
+
 	/**
 	 * Router::urlFor should throw an exception if Route with name
 	 * does not exist.
@@ -105,7 +105,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$router->cacheNamedRoute('bar', $route);
 		$router->urlFor('foo');
 	}
-	
+
 	/**
 	 * Router::cacheNamedRoute should throw na exception if named Route
 	 * with same name already exists.
@@ -119,7 +119,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$router->cacheNamedRoute('bar', $route1);
 		$router->cacheNamedRoute('bar', $route2);
 	}
-	
+
 	/**
 	 * Router should keep reference to a callable NotFound callback
 	 */
@@ -130,7 +130,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$callback = $router->notFound($notFoundCallback);
 		$this->assertSame($notFoundCallback, $callback);
 	}
-	
+
 	/**
 	 * Router should NOT keep reference to a callback that is not callable
 	 */
@@ -141,7 +141,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$callback = $router->notFound($notFoundCallback);
 		$this->assertEquals($callback, null);
 	}
-	
+
 }
 
 ?>

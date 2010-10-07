@@ -43,52 +43,52 @@ set_exception_handler(array('Slim', 'handleExceptions'));
 spl_autoload_register(array('Slim', 'autoload'));
 
 class Slim {
-	
+
 	//Constants helpful when triggering errors or calling Slim::log()
 	const ERROR = 256;
 	const WARNING = 512;
 	const NOTICE = 1024;
-	
+
 	/**
 	 * @var Slim The actual Slim instance
 	 */
 	protected static $app;
-	
+
 	/**
 	 * @var Request
 	 */
 	private $request;
-	
+
 	/**
 	 * @var Response
 	 */
 	private $response;
-	
+
 	/**
 	 * @var Router
 	 */
 	private $router;
-	
+
 	/**
 	 * @var View
 	 */
 	private $view;
-	
+
 	/**
 	 * @var array Before callback functions
 	 */
 	private $before;
-	
+
 	/**
 	 * @var array After callback functions
 	 */
 	private $after;
-	
+
 	/**
 	 * @var array Application settings
 	 */
 	private $settings;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -105,27 +105,27 @@ class Slim {
 			'templates_dir' => './templates'
 		);
 	}
-	
+
 	/**
 	 * Slim auto-loader
 	 */
 	public static function autoload($className) {
 		if( file_exists($file = dirname(__FILE__).'/'.$className.'.php')) {
-            require_once($file);
-        }
+	        require_once($file);
+	    }
 	}
-	
+
 	/**
 	 * Handle user errors
 	 *
 	 * This is the global Error handler that will catch an uncaught Error
 	 * and display a nice-looking error page with details about the Error.
 	 *
-     * @param   int     $errno      The numeric type of the Error
-     * @param   string  $errstr     The error message
-     * @param   string  $errfile    The absolute path to the affected file
-     * @param   int     $errline    The line number of the error in the affected file
-     * @return  void
+	 * @param   int     $errno      The numeric type of the Error
+	 * @param   string  $errstr     The error message
+	 * @param   string  $errfile    The absolute path to the affected file
+	 * @param   int     $errline    The line number of the error in the affected file
+	 * @return  void
 	 */
 	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
 		if( !(error_reporting() & $errno) ) {
@@ -143,15 +143,15 @@ class Slim {
 		}
 		die();
 	}
-	
+
 	/**
 	 * Handle user exceptions
 	 *
 	 * This is the global Exception handler that will catch an uncaught Exception
 	 * and display a nice-looking error page with details about the Exception.
 	 *
-     * @param   Exception $e
-     * @return  void
+	 * @param   Exception $e
+	 * @return  void
 	 */
 	public static function handleExceptions( Exception $e ) {
 		if( ob_get_level() !== 0 ) ob_clean();
@@ -166,7 +166,7 @@ class Slim {
 		}
 		die();
 	}
-	
+
 	/**
 	 * Generate markup for error message
 	 *
@@ -174,11 +174,11 @@ class Slim {
 	 * generates HTML markup for the 500 response body that will
 	 * be sent to the client.
 	 *
-     * @param   string  $message    The error message
-     * @param   string  $file       The absolute file path to the affected file
-     * @param   int     $line       The line number in the affected file
-     * @param   string  $trace      A stack trace of the error
-     * @return  string
+	 * @param   string  $message    The error message
+	 * @param   string  $file       The absolute file path to the affected file
+	 * @param   int     $line       The line number in the affected file
+	 * @param   string  $trace      A stack trace of the error
+	 * @return  string
 	 */
 	public static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
 		$html = "<html><head><title>Slim Application Error</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
@@ -191,10 +191,10 @@ class Slim {
 		$html .= "</body></html>";
 		return $html;
 	}
-	
-	
+
+
 	/***** INITIALIZER *****/
-	
+
 	/**
 	 * Initialize Slim
 	 *
@@ -202,8 +202,8 @@ class Slim {
 	 * handler, and sets the View class used to render templates. If the
 	 * view class parameter is null, a default View will be created.
 	 *
-     * @param   string  $viewClass  The name of the view class Slim will use
-     * @return  void
+	 * @param   string  $viewClass  The name of the view class Slim will use
+	 * @return  void
 	 */
 	public static function init($viewClass = null) {
 		self::$app = new Slim();
@@ -212,9 +212,9 @@ class Slim {
 		$view = is_null($viewClass) ? 'View' : $viewClass;
 		self::view($view);
 	}
-	
+
 	/***** CONFIGURATION *****/
-	
+
 	/**
 	 * Configure Slim Settings
 	 *
@@ -245,65 +245,65 @@ class Slim {
 			self::$app->settings[$name] = $value;
 		}
 	}
-	
+
 	/***** ROUTING *****/
-	
+
 	/**
 	 * Add GET route
 	 *
 	 * Adds a new GET route to the router with associated callback. This
 	 * route may only be matched with a HTTP GET request.
 	 *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
-     * @return  Route
-     */
+	 * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+	 * @param   mixed   $callable   Anything that returns true for is_callable()
+	 * @return  Route
+	 */
 	public static function get($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_GET);
 	}
-	
+
 	/**
 	 * Add POST route
 	 *
 	 * Adds a new POST route to the router with associated callback. This
 	 * route may only be matched with a HTTP POST request.
 	 *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
-     * @return  Route
-     */
+	 * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+	 * @param   mixed   $callable   Anything that returns true for is_callable()
+	 * @return  Route
+	 */
 	public static function post($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_POST);
 	}
-	
+
 	/**
 	 * Add PUT route
 	 *
 	 * Adds a new PUT route to the router with associated callback. This
 	 * route may only be matched with a HTTP PUT request.
 	 *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
-     * @return  Route
+	 * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+	 * @param   mixed   $callable   Anything that returns true for is_callable()
+	 * @return  Route
 	 */
 	public static function put($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_PUT);
 	}
-	
+
 	/**
 	 * Add DELETE route
 	 *
 	 * Adds a new DELETE route to the router with associated callback. This
 	 * route may only be matched with a HTTP DELETE request.
 	 *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
-     * @return  Route
+	 * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
+	 * @param   mixed   $callable   Anything that returns true for is_callable()
+	 * @return  Route
 	 */
 	public static function delete($pattern, $callable) {
 		return self::router()->map($pattern, $callable, Request::METHOD_DELETE);
 	}
-	
+
 	/**
 	 * Specify or call NotFound Handler
 	 *
@@ -336,7 +336,7 @@ class Slim {
 			Slim::raise(404, ob_get_clean());
 		}
 	}
-	
+
 	/**
 	 * Specify or call Error Handler
 	 *
@@ -370,9 +370,9 @@ class Slim {
 			Slim::raise(500, ob_get_clean());
 		}
 	}
-	
+
 	/***** LOGGING *****/
-	
+
 	/**
 	 * Logger
 	 *
@@ -407,9 +407,9 @@ class Slim {
 			error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log');
 		}
 	}
-	
+
 	/***** CALLBACKS *****/
-	
+
 	/**
 	 * Add BEFORE callback
 	 *
@@ -422,7 +422,7 @@ class Slim {
 	public static function before($callable) {
 		self::$app->before[] = $callable;
 	}
-	
+
 	/**
 	 * Add AFTER callback
 	 *
@@ -435,7 +435,7 @@ class Slim {
 	public static function after($callable) {
 		self::$app->after[] = $callable;
 	}
-	
+
 	/**
 	 * Run callbacks
 	 *
@@ -451,9 +451,9 @@ class Slim {
 			}
 		}
 	}
-	
+
 	/***** ACCESSORS *****/
-	
+
 	/**
 	 * Get the Request object
 	 *
@@ -462,7 +462,7 @@ class Slim {
 	public static function request() {
 		return self::$app->request;
 	}
-	
+
 	/**
 	 * Get the Response object
 	 *
@@ -471,7 +471,7 @@ class Slim {
 	public static function response() {
 		return self::$app->response;
 	}
-	
+
 	/**
 	 * Get the application Router
 	 *
@@ -480,7 +480,7 @@ class Slim {
 	public static function router() {
 		return self::$app->router;
 	}
-	
+
 	/**
 	 * Get and/or set the View
 	 *
@@ -489,8 +489,8 @@ class Slim {
 	 * method is called to create a new View, data already set
 	 * in the existing View will be transferred to the new View.
 	 *
-     * @param   string $viewClass The name of the View class
-     * @return  View
+	 * @param   string $viewClass The name of the View class
+	 * @return  View
 	 */
 	public static function view( $viewClass = null ) {
 		if( !is_null($viewClass) ) {
@@ -500,9 +500,9 @@ class Slim {
 		}
 		return self::$app->view;
 	}
-	
+
 	/***** RENDERING *****/
-	
+
 	/**
 	 * Render a template
 	 *
@@ -523,7 +523,7 @@ class Slim {
 		self::view()->data($data);
 		self::view()->render($template);
 	}
-	
+
 	/***** HTTP CACHING *****/
 
 	/**
@@ -566,27 +566,27 @@ class Slim {
 	 * @throws 	InvalidArgumentException 			If provided type is invalid
 	 */
 	public static function etag($value, $type = 'strong'){
-	
+
 		//Ensure type is correct
 		if( !in_array($type, array('strong', 'weak'))) {
 			throw new InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
 		}
-			
+
 		//Set etag value
 		$value = '"' . $value . '"';
 		if( $type === 'weak' ) $value = 'W/'.$value;
 		Slim::response()->header('ETag', $value);
-		
+
 		//Check conditional GET
 		if( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
 			$etags = preg_split('@\s*,\s*@', $etagsHeader);
 			if( in_array($value, $etags) || in_array('*', $etags) ) Slim::raise(304);
 		}
-		
+
 	}
-	
+
 	/***** SESSIONS (COOKIE-BASED) *****/
-	
+
 	/**
 	 * Set session variable
 	 *
@@ -615,14 +615,14 @@ class Slim {
 	 * //Set cookie value
 	 * Slim::session('name', 'value'[, ... ]);
 	 *
-     * @param   string  $name       The session variable name
-     * @param   string  $value      The session variable value
-     * @param   int     $expires    The time this session variable expires (UNIX timestamp)
-     * @param   string  $path       The path on the server in which this variable will be available
-     * @param   string  $domain     The domain on which this variable will be available
-     * @param   bool    $secure     When TRUE the variable will be sent over HTTPS only
-     * @param   bool    $httponly   When TRUE the variable will be made accessible only through the HTTP protocol
-     * @return  mixed
+	 * @param   string  $name       The session variable name
+	 * @param   string  $value      The session variable value
+	 * @param   int     $expires    The time this session variable expires (UNIX timestamp)
+	 * @param   string  $path       The path on the server in which this variable will be available
+	 * @param   string  $domain     The domain on which this variable will be available
+	 * @param   bool    $secure     When TRUE the variable will be sent over HTTPS only
+	 * @param   bool    $httponly   When TRUE the variable will be made accessible only through the HTTP protocol
+	 * @return  mixed
 	 */
 	public static function session($name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false) {
 		if( func_num_args() === 1 ) {
@@ -632,16 +632,16 @@ class Slim {
 			//TODO: Encrypt all Slim::session variables with application salt
 		}
 	}
-	
+
 	/***** HELPERS *****/
-	
+
 	/**
 	 * Root directory
 	 */
 	public static function root() {
 		return $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . self::request()->root;
 	}
-	
+
 	/**
 	 * Stop!
 	 *
@@ -652,7 +652,7 @@ class Slim {
 		self::response()->send();
 		exit;
 	}
-	
+
 	/**
 	 * Raise Slim Exception
 	 *
@@ -661,14 +661,14 @@ class Slim {
 	 * client error, or server error. If you need to render a template AND
 	 * customize the response status, you should use Slim::render() instead.
 	 *
-     * @param   int             $status     The HTTP response status
-     * @param   string          $message    The HTTP response body
-     * @throws  SlimException
+	 * @param   int             $status     The HTTP response status
+	 * @param   string          $message    The HTTP response body
+	 * @throws  SlimException
 	 */
 	public static function raise( $status, $message = '' ) {
 		throw new SlimException($message, $status);
 	}
-	
+
 	/**
 	 * Pass
 	 *
@@ -681,7 +681,7 @@ class Slim {
 		if( ob_get_level() !== 0 ) ob_clean();
 		throw new PassException();
 	}
-	
+
 	/**
 	 * Set Content-Type
 	 *
@@ -690,7 +690,7 @@ class Slim {
 	public static function contentType($type) {
 		self::response()->header('Content-Type', $type);
 	}
-	
+
 	/**
 	 * Set Response status
 	 *
@@ -699,7 +699,7 @@ class Slim {
 	public static function status($code) {
 		self::response()->status($code);
 	}
-	
+
 	/**
 	 * Get URL for Route
 	 *
@@ -711,19 +711,19 @@ class Slim {
 	public static function urlFor($name, $params = array()) {
 		return self::router()->urlFor($name, $params);
 	}
-	
-    /**
-     * Redirect
-     *
+
+	/**
+	 * Redirect
+	 *
 	 * This method immediately redirects the client to a new URL. By default,
 	 * this issues a 307 Temporary Redirect. You may also specify a
 	 * 301 Permanent Redirect if you want. This method will automatically
 	 * set the HTTP Location header for you using the URL parameter.
 	 *
-     * @param   string                      $url        The destination URL
-     * @param   int                         $status     The HTTP redirect status code (Optional)
-     * @throws  InvalidArgumentException                If status parameter is not 301 or 307
-     */
+	 * @param   string                      $url        The destination URL
+	 * @param   int                         $status     The HTTP redirect status code (Optional)
+	 * @throws  InvalidArgumentException                If status parameter is not 301 or 307
+	 */
 	public static function redirect($url, $status = 307) {
 		if( $status === 301 || $status === 307 ) {
 			self::response()->status($status);
@@ -733,7 +733,7 @@ class Slim {
 			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301 and HTTP 307 status codes.");
 		}
 	}
-	
+
 	/**
 	 * Default NOT FOUND handler
 	 *
@@ -743,7 +743,7 @@ class Slim {
 	public static function defaultNotFound() {
 		echo "We couldn't find what you are looking for. There's a slim chance you typed in the wrong URL.";
 	}
-	
+
 	/**
 	 * Default custom error handler
 	 *
@@ -753,9 +753,9 @@ class Slim {
 	public static function defaultError() {
 		echo "Something went wrong. The site administrator has been notified of the issue.";
 	}
-	
+
 	/***** RUN SLIM *****/
-	
+
 	/**
 	 * Run the Slim app
 	 *
@@ -782,7 +782,7 @@ class Slim {
 			self::response()->send();
 		}
 	}
-	
+
 }
 
 ?>

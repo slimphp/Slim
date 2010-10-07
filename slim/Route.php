@@ -37,38 +37,38 @@
  * @since Version 1.0
  */
 class Route {
-	
+
 	/**
 	 * @var string The route pattern (ie. "/books/:id")
 	 */
 	private $pattern;
-	
+
 	/**
 	 * @var mixed The callable associated with this route
 	 */
 	private $callable;
-	
+
 	/**
 	 * @var array Conditions for this route's URL parameters (not implemented yet)
 	 */
 	private $conditions;
-	
+
 	/**
 	 * @var string The name of this route (optional)
 	 */
 	private $name;
-	
+
 	/**
 	 * @var array Array of URL parameter names and values
 	 */
 	private $params;
-	
+
 	/**
 	 * @var Router The associated Router that contains this Route
 	 * TODO: Try to decouple Router and Route. For now this serves our purpose
 	 */
 	private $router;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -81,9 +81,9 @@ class Route {
 		$this->callable = $callable;
 		$this->conditions = array();
 		$this->params = array();
-		
+
 	}
-	
+
 	/**
 	 * Matches URI?
 	 *
@@ -96,15 +96,15 @@ class Route {
 	 * @return bool
 	 */
 	public function matches( $resourceUri ) {
-		
+
 		//Extract URL params		
 		preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
 		$paramNames = $paramNames[0];
-		
+
 		//Convert URL params into regex patterns, construct a regex for this route
 		$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
 		$patternAsRegex = '@^' . $patternAsRegex . '$@';
-				
+
 		//Cache URL params' names and values if this route matches the current HTTP request
 		if( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
 			array_shift($paramValues);
@@ -117,7 +117,7 @@ class Route {
 		}
 		
 	}
-	
+
 	/**
 	 * Convert a URL parameter (ie. ":id") into a regular expression
 	 *
@@ -132,7 +132,7 @@ class Route {
 			return '([a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
 		}
 	}
-	
+
 	/**
 	 * Return the callable for this Route
 	 *
@@ -141,7 +141,7 @@ class Route {
 	public function callable() {
 		return $this->callable;
 	}
-	
+
 	/**
 	 * Return the parameter names and values for this Route
 	 *
@@ -150,7 +150,7 @@ class Route {
 	public function params() {
 		return $this->params;
 	}
-	
+
 	/**
 	 * Set this route's Router
 	 *
@@ -160,7 +160,7 @@ class Route {
 	public function setRouter( Router $router ) {
 		$this->router = $router;
 	}
-	
+
 	/**
 	 * Get the pattern for this Route
 	 *
@@ -169,7 +169,7 @@ class Route {
 	public function pattern() {
 		return $this->pattern;
 	}
-	
+
 	/**
 	 * Set this route's name
 	 *
@@ -183,7 +183,7 @@ class Route {
 		}
 		return $this;
 	}
-	
+
 	/**
 	 * Set this route's conditions
 	 *
@@ -196,7 +196,7 @@ class Route {
 		}
 		return $this;
 	}
-	 
+
 }
 
 ?>

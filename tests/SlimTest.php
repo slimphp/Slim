@@ -81,11 +81,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$_COOKIE['foo2'] = 'bar2';
 		$_SERVER['REQUEST_URI'] = "/";
 	}
-	
+
 	/************************************************
 	 * SLIM INITIALIZATION
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim initialization
 	 *
@@ -101,7 +101,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(is_callable(Slim::router()->notFound()));
 		$this->assertTrue(Slim::view() instanceof View);
 	}
-	
+
 	/**
 	 * Test Slim initialization with custom view
 	 *
@@ -115,11 +115,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init('CustomView');
 		$this->assertTrue(Slim::view() instanceof CustomView);
 	}
-	
+
 	/************************************************
 	 * SLIM SETTINGS
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim can define an application setting
 	 *
@@ -135,7 +135,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::config('foo', 'bar');
 		$this->assertEquals(Slim::config('foo'), 'bar');
 	}
-	
+
 	/**
 	 * Test Slim configuration setting is NULL if non-existant
 	 *
@@ -150,7 +150,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init();
 		$this->assertNull(Slim::config('foo'));
 	}
-	
+
 	/**
 	 * Test Slim can use array to set configuration settings
 	 *
@@ -172,11 +172,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::config('two'), 'B');
 		$this->assertEquals(Slim::config('three'), 'C');
 	}
-	
+
 	/************************************************
 	 * SLIM ROUTING
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim sets GET route
 	 *
@@ -194,7 +194,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('foo/bar', $route->pattern());
 		$this->assertSame($callable, $route->callable());
 	}
-	
+
 	/**
 	 * Test Slim sets POST route
 	 *
@@ -212,7 +212,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('foo/bar', $route->pattern());
 		$this->assertSame($callable, $route->callable());
 	}
-	
+
 	/**
 	 * Test Slim sets PUT route
 	 *
@@ -230,7 +230,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('foo/bar', $route->pattern());
 		$this->assertSame($callable, $route->callable());
 	}
-	
+
 	/**
 	 * Test Slim sets DELETE route
 	 *
@@ -248,11 +248,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('foo/bar', $route->pattern());
 		$this->assertSame($callable, $route->callable());
 	}
-	
+
 	/************************************************
 	 * SLIM BEFORE AND AFTER CALLBACKS
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim runs Before and After callbacks
 	 *
@@ -274,11 +274,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->body(), 'One Two Three Four Five');
 	}
-	
+
 	/************************************************
 	 * SLIM VIEW
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim copies data from old View to new View
 	 *
@@ -298,11 +298,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::view('CustomView');
 		$this->assertEquals($data, Slim::view()->data());
 	}
-	
+
 	/************************************************
 	 * SLIM RENDERING
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim sets HTTP OK status when rendering
 	 *
@@ -318,7 +318,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::render('test.php', array('foo' => 'bar'));
 		$this->assertEquals(Slim::response()->status(), 200);
 	}
-	
+
 	/**
 	 * Test Slim sets view data when rendering
 	 *
@@ -334,7 +334,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::render('test.php', $data);
 		$this->assertSame(Slim::view()->data(), $data);
 	}
-	
+
 	/**
 	 * Test Slim sets custom status code
 	 *
@@ -351,11 +351,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::render('test.php', $data, 400);
 		$this->assertEquals(Slim::response()->status(), 400);
 	}
-	
+
 	/************************************************
 	 * SLIM SESSIONS
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim returns existing Cookie value
 	 *
@@ -370,7 +370,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init();
 		$this->assertEquals('bar', Slim::session('foo'));
 	}
-	
+
 	/**
 	 * Test Slim returns NULL for non-existing Cookie value
 	 *
@@ -385,7 +385,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init();
 		$this->assertNull(Slim::session('fake'));
 	}
-	
+
 	/**
 	 * Test Slim sets Cookies in Response
 	 *
@@ -404,11 +404,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals('testCookie', $cookies[0]->name);
 		$this->assertEquals('testValue', $cookies[0]->value);
 	}
-	
+
 	/************************************************
 	 * SLIM HTTP CACHING
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim returns 304 Not Modified when ETag matches `If-None-Match` request header
 	 *
@@ -428,7 +428,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(304, Slim::response()->status());
 	}
-	
+
 	/**
 	 * Test Slim returns 200 OK when ETag does not match `If-None-Match` request header
 	 *
@@ -448,7 +448,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(200, Slim::response()->status());
 	}
-	
+
 	/**
 	 * Test Slim ETag only accepts 'strong' or 'weak' types
 	 *
@@ -467,7 +467,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		});
 		Slim::run();
 	}
-	
+
 	/**
 	 * Test Slim returns 304 Not Modified when Last Modified date matches `If-Modified-Since` request header
 	 *
@@ -487,7 +487,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(304, Slim::response()->status());
 	}
-	
+
 	/**
 	 * Test Slim returns 200 OK when Last Modified date does not match `If-Modified-Since` request header
 	 *
@@ -507,7 +507,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(200, Slim::response()->status());
 	}
-	
+
 	/**
 	 * Test Slim Last Modified only accepts integer values
 	 *
@@ -526,11 +526,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		});
 		Slim::run();
 	}
-	
+
 	/************************************************
 	 * SLIM HELPERS
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim sets ContentType header
 	 *
@@ -546,7 +546,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::contentType('image/jpeg');
 		$this->assertEquals(Slim::response()->header('Content-Type'), 'image/jpeg');
 	}
-	
+
 	/**
 	 * Test Slim sets status code
 	 *
@@ -561,7 +561,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::status(302);
 		$this->assertSame(Slim::response()->status(), 302);
 	}
-	
+
 	/**
 	 * Test Slim URL For
 	 *
@@ -576,7 +576,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::get('/hello/:name', function () {})->name('hello');
 		$this->assertEquals('/hello/Josh', Slim::urlFor('hello', array('name' => 'Josh')));
 	}
-	
+
 	/**
 	 * Test Slim::redirect supports 301 permanent redirects
 	 *
@@ -595,7 +595,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 301);
 	}
-	
+
 	/**
 	 * Test Slim::redirect supports 302 temporary redirects
 	 *
@@ -614,7 +614,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 307);
 	}
-	
+
 	/**
 	 * Test Slim::redirect fails if status is not 301 or 302
 	 *
@@ -633,7 +633,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		});
 		Slim::run();
 	}
-	
+
 	/**
 	 * Test Slim::pass continues to next matching route
 	 *
@@ -659,7 +659,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->body(), "I think your name is Frank");
 	}
-	
+
 	/**
 	 * Test Slim::pass continues, but next matching route not found
 	 *
@@ -682,11 +682,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 404);
 	}
-	
+
 	/************************************************
 	 * SLIM ERROR AND EXCEPTION HANDLING
 	 ************************************************/
-	
+
 	/**
 	 * Test Slim raises SlimException
 	 *
@@ -705,7 +705,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($e->getMessage(), 'Page Not Found');
 		}
 	}
-	
+
 	/**
 	 * Test SlimException sets Response
 	 *
@@ -725,7 +725,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 501);
 		$this->assertEquals(Slim::response()->body(), 'Error!');
 	}
-	
+
 	/**
 	 * Test Slim returns 404 response if route not found
 	 *
@@ -742,7 +742,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 404);
 	}
-	
+
 	/**
 	 * Test Slim returns 500 response if error thrown within Slim app
 	 *
@@ -759,7 +759,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 500);
 	}
-	
+
 	/**
 	 * Test Slim returns 200 OK for successful route
 	 *
@@ -777,7 +777,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 200);
 		$this->assertEquals(Slim::response()->body(), 'Ok');
 	}
-	
+
 }
 
 ?>

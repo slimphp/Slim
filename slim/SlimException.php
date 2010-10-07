@@ -61,7 +61,7 @@ class SlimException extends Exception {
 		//TODO: Do we ensure $code is a valid HTTP status code here? Or upstream?
 		parent::__construct($message, $code);
 	}
-	
+
 }
 
 ?>

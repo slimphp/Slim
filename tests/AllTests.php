@@ -46,7 +46,7 @@ class AllTests {
 		$suite->addTestSuite('SlimTest');
 		return $suite;
 	}
-	
+
 }
 
 ?>

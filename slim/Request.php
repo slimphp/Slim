@@ -41,63 +41,63 @@
  * @since Version 1.0
  */
 class Request {
-	
+
 	const METHOD_GET = 'GET';
 	const METHOD_POST = 'POST';
 	const METHOD_PUT = 'PUT';
 	const METHOD_DELETE = 'DELETE';
 	const METHOD_OVERRIDE = '_METHOD';
-	
+
 	/**
 	 * @var string The request method
 	 */
 	public $method;
-	
+
 	/**
 	 * @var string The resource string (excluding path to the application root directory)
 	 */
 	public $resource;
-	
+
 	/**
 	 * @var string The path to the application's root directory
 	 */
 	public $root;
-	
+
 	/**
 	 * @var array Array of HTTP request headers
 	 */
 	private $headers;
-	
+
 	/**
 	 * @var array Array of HTTP request cookies
 	 */
 	private $cookies;
-	
+
 	/**
 	 * @var bool Is this an AJAX request?
 	 */
 	public $isAjax;
-	
+
 	/**
 	 * @var array Array of GET paramters' names and values
 	 */
 	private $get;
-	
+
 	/**
 	 * @var array Array of POST paramters' names and values
 	 */
 	private $post;
-	
+
 	/**
 	 * @var array Array of PUT paramters' names and values
 	 */
 	private $put;
-	
+
 	/**
 	 * @var string Raw request input (used with POST and PUT requests)
 	 */
 	private $input;
-	
+
 	/**
 	 * Constructor
 	 */
@@ -115,9 +115,9 @@ class Request {
 		$this->isAjax = isset($request->headers['X_REQUESTED_WITH']) && $request->headers['X_REQUESTED_WITH'] == 'XMLHttpRequest';
 		$this->checkForHttpMethodOverride();
 	}
-	
+
 	/***** PARAM ACCESSORS *****/
-	
+
 	/**
 	 * Return PUT|POST|GET parameter
 	 *
@@ -138,7 +138,7 @@ class Request {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Fetch GET parameter(s)
 	 *
@@ -151,7 +151,7 @@ class Request {
 		}
 		return ( isset($this->get[$key]) ) ? $this->get[$key] : null;
 	}
-	
+
 	/**
 	 * Fetch POST parameter(s)
 	 *
@@ -164,7 +164,7 @@ class Request {
 		}
 		return ( isset($this->post[$key]) ) ? $this->post[$key] : null;
 	}
-	
+
 	/**
 	 * Fetch PUT parameter(s)
 	 *
@@ -177,7 +177,7 @@ class Request {
 		}
 		return ( isset($this->put[$key]) ) ? $this->put[$key] : null;
 	}
-	
+
 	/**
 	 * Fetch COOKIE value
 	 *
@@ -187,9 +187,9 @@ class Request {
 	public function cookie($name) {
 		return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
 	}
-	
+
 	/***** HELPERS *****/
-	
+
 	/**
 	 * Extract Resource URL
 	 *
@@ -208,7 +208,7 @@ class Request {
 		}
 		return $uri;
 	}
-	
+
 	/**
 	 * Fetch and parse raw POST or PUT paramters
 	 *
@@ -217,13 +217,13 @@ class Request {
 	private function getPutParameters() {
 		$putdata = $this->input();
 		if( function_exists('mb_parse_str') ) {
-	    	mb_parse_str($putdata, $outputdata);
+			mb_parse_str($putdata, $outputdata);
 		} else {
 			parse_str($putdata, $outputdata);
 		}
-    	return $outputdata;
+		return $outputdata;
 	}
-	
+
 	/**
 	 * Fetch HTTP request headers
 	 *
@@ -238,7 +238,7 @@ class Request {
 		}
 		return $httpHeaders;
 	}
-	
+
 	/**
 	 * Fetch HTTP header
 	 *
@@ -248,7 +248,7 @@ class Request {
 	public function header($name) {
 		return isset($this->headers[$name]) ? $this->headers[$name] : null;
 	}
-	
+
 	/**
 	 * Check for HTTP request method override
 	 *
@@ -265,7 +265,7 @@ class Request {
 			}
 		}
 	}
-	
+
 }
 
 ?>

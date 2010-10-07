@@ -39,7 +39,7 @@ class Cookie {
 	public $domain;
 	public $secure;
 	public $httponly;
-	
+
 	public function __construct($name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false) {
 		$this->name = $name;
 		$this->value = $value;
@@ -49,7 +49,7 @@ class Cookie {
 		$this->secure = $secure;
 		$this->httponly = $httponly;
 	}
-	
+
 }
 
 ?>

@@ -41,32 +41,32 @@
  * @since Version 1.0
  */
 class Response {
-	
+
 	/**
 	 * @var int The HTTP status code
 	 */
 	private $status;
-	
+
 	/**
 	 * @var array The HTTP response headers; [ name => value, ... ]
 	 */
 	private $headers;
-	
+
 	/**
 	 * @var array The HTTP response cookies (not implemented yet)
 	 */
 	private $cookies;
-	
+
 	/**
 	 * @var string The HTTP response body
 	 */
 	private $body;
-	
+
 	/**
 	 * @var int The Content-Length of the HTTP response body
 	 */
 	private $length;
-	
+
 	/**
 	 * @var array Available HTTP response codes with associated messages
 	 */
@@ -118,7 +118,7 @@ class Response {
 		504 => '504 Gateway Timeout',
 		505 => '505 HTTP Version Not Supported'
 	);
-	
+
 	/**
 	 * Constructor
 	 */
@@ -127,9 +127,9 @@ class Response {
 		$this->header('Content-Type', 'text/html');
 		$this->cookies = array();
 	}
-	
+
 	/***** ACCESSORS *****/
-	
+
 	/**
 	 * Set and/or get the HTTP response status code
 	 *
@@ -146,7 +146,7 @@ class Response {
 		}
 		return $this->status;
 	}
-	
+
 	/**
 	 * Get HTTP response headers
 	 *
@@ -155,7 +155,7 @@ class Response {
 	public function headers() {
 		return $this->headers;
 	}
-	
+
 	/**
 	 * Get and/or set an HTTP response header
 	 *
@@ -169,7 +169,7 @@ class Response {
 		}
 		return $this->headers[$key];
 	}
-	
+
 	/**
 	 * Replace the HTTP response body
 	 *
@@ -184,7 +184,7 @@ class Response {
 		}
 		return $this->body;
 	}
-	
+
 	/**
 	 * Append the HTTP response body
 	 *
@@ -198,9 +198,9 @@ class Response {
 		$this->header('Content-Length', $this->length);
 		return $body;
 	}
-	
+
 	/***** COOKIES *****/
-	
+
 	/**
 	 * Add Cookie to Response
 	 *
@@ -209,7 +209,7 @@ class Response {
 	public function addCookie( Cookie $cookie ) {
 		$this->cookies[] = $cookie;
 	}
-	
+
 	/**
 	 * Get Cookies set in Response
 	 *
@@ -218,9 +218,9 @@ class Response {
 	public function getCookies() {
 		return $this->cookies;
 	}
-	
+
 	/***** FINALIZE BEFORE SENDING *****/
-	
+
 	/**
 	 * Finalize response headers before response is sent
 	 */
@@ -229,9 +229,9 @@ class Response {
 			unset($this->headers['Content-Type']);
 		}
 	}
-	
+
 	/***** HELPER METHODS *****/
-	
+
 	/**
 	 * Get message for HTTP status code
 	 *
@@ -240,7 +240,7 @@ class Response {
 	public static function getMessageForCode($status) {
 		return self::$messages[$status];
 	}
-	
+
 	/**
 	 * Can this HTTP response have a body?
 	 *
@@ -249,25 +249,25 @@ class Response {
 	public function canHaveBody() {
 		return ( $this->status < 100 || $this->status >= 200 ) && $this->status != 204 && $this->status != 304;
 	}
-	
+
 	/***** SEND RESPONSE *****/
-	
+
 	/**
 	 * Send headers for HTTP response
 	 */
 	protected function sendHeaders() {
-		
+
 		//Finalize response
 		$this->finalize();
-		
+
 		//Send HTTP message
 		header('HTTP/1.1 ' . Response::getMessageForCode($this->status()));
-		
+
 		//Send headers
 		foreach( $this->headers() as $name => $value ) {
 			header("$name: $value");
 		}
-		
+
 		//Send cookies
 		foreach( $this->cookies as $cookie ) {
 			if( empty($cookie->value) ) {
@@ -276,12 +276,12 @@ class Response {
 				setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
 			}
 		}
-		
+
 		//Flush all output to client
 		flush();
-		
+
 	}
-	
+
 	/**
 	 * Send HTTP response
 	 */

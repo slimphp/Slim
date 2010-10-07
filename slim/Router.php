@@ -43,37 +43,37 @@
  * @since Version 1.0
  */
 class Router {
-	
+
 	/**
 	 * @var Request
 	 */
 	private $request;
-	
+
 	/**
 	 * @var array Lookup hash of routes, keyed by Request method
 	 */
 	private $routes;
-	
+
 	/**
 	 * @var array Lookup hash of named routes, keyed by route name
 	 */
 	private $namedRoutes;
-	
+
 	/**
 	 * @var Route The Route that matches the current HTTP request, or NULL
 	 */
 	private $matchedRoute;
-	
+
 	/**
 	 * @var mixed 404 Not Found callback function if a matching route is not found
 	 */
 	private $notFound;
-	
+
 	/**
 	 * @var mixed Error callback function if there is an application error
 	 */
 	private $error;
-	
+
 	/**
 	 * Constructor
 	 *
@@ -88,7 +88,7 @@ class Router {
 			'DELETE' => array()
 		);
 	}
-	
+
 	/**
 	 * Map a route to a callback function
 	 *
@@ -103,7 +103,7 @@ class Router {
 		$this->routes[$method][] = $route;
 		return $route;
 	}
-	
+
 	/**
 	 * Cache named route
 	 *
@@ -118,7 +118,7 @@ class Router {
 		}
 		$this->namedRoutes[$name] = $route;
 	}
-	
+
 	/**
 	 * Get URL for named route
 	 *
@@ -137,7 +137,7 @@ class Router {
 		}
 		return $this->request->root . $pattern;
 	}
-	
+
 	/**
 	 * Register a 404 Not Found callback
 	 *
@@ -150,7 +150,7 @@ class Router {
 		}
 		return $this->notFound;
 	}
-	
+
 	/**
 	 * Register a 500 Error callback
 	 *
@@ -163,7 +163,7 @@ class Router {
 		}
 		return $this->error;
 	}
-	
+
 	/**
 	 * Dispatch request
 	 *
@@ -186,11 +186,11 @@ class Router {
 				}
 			}
 		}
-		
+
 		return false;
-		
+
 	}
-	
+
 }
 
 ?>

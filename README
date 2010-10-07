@@ -22,7 +22,7 @@ Slim::init();
   
 //Define routes (PHP 5 >= 5.3)
 Slim::get('/hello/:name', function ($name) {
-      echo "Hello! Your name is $name and you are using PHP 5.3";
+	echo "Hello! Your name is $name and you are using PHP 5.3";
 });
 
 //Define routes (PHP 5 < 5.3)

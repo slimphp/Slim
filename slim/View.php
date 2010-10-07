@@ -45,24 +45,24 @@
  * @since Version 1.0
  */
 class View {
-	
+
 	/**
 	 * @var array Associative array of data exposed to the template
 	 */
 	protected $data;
-	
+
 	/**
 	 * @var string The templates directory
 	 */
 	protected $templatesDirectory;
-	
+
 	/**
 	 * Constructor
 	 */
 	final public function __construct() {
 		$this->data = array();
 	}
-	
+
 	/**
 	 * Set and/or get View data
 	 *
@@ -75,7 +75,7 @@ class View {
 		}
 		return $this->data;
 	}
-	
+
 	/**
 	 * Set and/or get templates directory
 	 *
@@ -92,7 +92,7 @@ class View {
 		}
 		return $this->templatesDirectory;
 	}
-	
+
 	/**
 	 * Render template
 	 *
@@ -113,7 +113,7 @@ class View {
 		extract($this->data);
 		include($this->templatesDirectory() . $template);
 	}
-	
+
 }
 
 ?>

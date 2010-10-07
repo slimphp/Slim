@@ -34,21 +34,21 @@ require_once '../slim/View.php';
 require_once 'PHPUnit/Framework.php';
  
 class ViewTest extends PHPUnit_Framework_TestCase {
-    
+
 	/***** SETUP *****/
-	
+
 	public function setUp() {
 		$this->view = new View();
 	}
-	
+
 	/***** DATA FACTORY *****/
-	
+
 	public function generateTestData() {
 		return array('a' => 1, 'b' => 2, 'c' => 3);
 	}
-	
+
 	/***** TESTS *****/
-	
+
 	/**
 	 * Test initial View data is an empty array
 	 *
@@ -61,7 +61,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	public function testViewIsConstructedWithDataArray() {
 		$this->assertEquals($this->view->data(), array());
 	}
-	
+
 	/**
 	 * Test View data is returned when set
 	 *
@@ -75,7 +75,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$returnedData = $this->view->data($this->generateTestData());
 		$this->assertEquals($this->generateTestData(), $returnedData);
 	}
-	
+
 	/**
 	 * Test View appends data rather than overwriting data
 	 *
@@ -94,7 +94,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->view->data($dataTwo);
 		$this->assertEquals($this->view->data(), array('a' => 'A', 'b' => 'B'));
 	}
-	
+
 	/**
 	 * Test View does not accept non-Array values
 	 *
@@ -109,7 +109,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 	public function testViewDoesNotAcceptNonArrayAsData() {
 		$this->assertEquals($this->view->data(1), array());
 	}
-	
+
 	/**
 	 * Test View sets templates directory
 	 *
@@ -125,7 +125,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory, $this->view->templatesDirectory());
 	}
-	
+
 	/**
 	 * Test View templates directory path may have a trailing slash when set
 	 *
@@ -141,7 +141,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
 	}
-	
+
 	/**
 	 * Test View templates directory path may not have a trailing slash when set
 	 *
@@ -157,7 +157,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->view->templatesDirectory($templatesDirectory);
 		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
 	}
-	
+
 	/**
 	 * Test View throws Exception if templates directory does not exist
 	 *
@@ -172,7 +172,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$this->setExpectedException('RuntimeException');
 		$this->view->templatesDirectory('./foo');
 	}
-	
+
 	/**
 	 * Test View class renders template
 	 *
@@ -192,7 +192,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
 		$output = ob_get_clean();
 		$this->assertEquals($output, 'test output bar');
 	}
-	
+
 }
 
 ?>

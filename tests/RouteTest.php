@@ -42,19 +42,19 @@ require_once 'PHPUnit/Framework.php';
  * B) removes dependencies on the Request class.
  */
 class RouterMock extends Router {
-	
+
 	public $cache = array();
-	
+
 	public function __construct() {}
-	
+
 	public function cacheNamedRoute($name, Route $route) {
 		$this->cache[$name] = $route;
 	}
-	
+
 }
 
 class RouteTest extends PHPUnit_Framework_TestCase {
-	
+
 	/**
 	 * Route should set name and be cached by Router
 	 */
@@ -68,7 +68,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($cacheKeys[0], 'foo');
 		$this->assertSame($cacheValues[0], $route);
 	}
-	
+
 	/**
 	 * Route should set pattern, and the Route pattern should not
 	 * retain the leading slash.
@@ -77,7 +77,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/foo/bar', function () {});
 		$this->assertEquals('foo/bar', $route->pattern());
 	}
-	
+
 	/**
 	 * Route should store a reference to the callable
 	 * anonymous function.
@@ -87,7 +87,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/foo/bar', $callable);
 		$this->assertSame($callable, $route->callable());
 	}
-	
+
 	/**
 	 * Route should store a reference to the callable
 	 * regular function (for PHP 5 < 5.3)
@@ -96,7 +96,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/foo/bar', 'testCallable');
 		$this->assertEquals('testCallable', $route->callable());
 	}
-	
+
 	/**
 	 * If route matches a resource URI, param should be extracted.
 	 */
@@ -107,7 +107,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('name' => 'Josh'));
 	}
-	
+
 	/**
 	 * If route matches a resource URI, multiple params should be extracted.
 	 */
@@ -118,7 +118,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('first' => 'Josh', 'second' => 'John'));
 	}
-	
+
 	/**
 	 * If route does not match a resource URI, params remain an empty array
 	 */
@@ -129,7 +129,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($result);
 		$this->assertEquals($route->params(), array());
 	}
-	
+
 	/**
 	 * Route matches URI with conditions
 	 */
@@ -141,7 +141,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('first' => 'Josh', 'second' => 'John'));
 	}
-	
+
 	/**
 	 * Route does not match URI with conditions
 	 */
@@ -154,35 +154,35 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($route->params(), array());
 	}
 
-    /*
-     * Route should match URI with valid path component according to rfc2396
-     *
-     * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
-     *
-     * Excludes "+" which is valid but decodes into a space character
-     */
-    public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
-        $symbols = ":@&=$,";
+	/*
+	 * Route should match URI with valid path component according to rfc2396
+	 *
+	 * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
+	 *
+	 * Excludes "+" which is valid but decodes into a space character
+	 */
+	public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
+		$symbols = ":@&=$,";
 		$resource = 'rfc2386/'.$symbols;
 		$route = new Route('/rfc2386/:symbols', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('symbols' => $symbols));
-    }
+	}
 
-    /*
-     * Route should match URI including unreserved punctuation marks from rfc2396
-     *
-     * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
-     */
-    public function testRouteMatchesResourceWithUnreservedMarks() {
-        $marks = "-_.!~*'()";
+	/*
+	 * Route should match URI including unreserved punctuation marks from rfc2396
+	 *
+	 * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
+	 */
+	public function testRouteMatchesResourceWithUnreservedMarks() {
+		$marks = "-_.!~*'()";
 		$resource = 'marks/'.$marks;
 		$route = new Route('/marks/:marks', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('marks' => $marks));
-    }
+	}
 }
 
 ?>
