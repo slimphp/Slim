@@ -653,10 +653,14 @@ class Slim {
 
 	/**
 	 * Root directory
+	 *
+	 * This method returns the absolute server path to the Slim application
+	 * directory. If the Slim application is installed in a publically accessible
+	 * sub-directory, the subdirectory path will be included. This method
+	 * will always return a server path WITH a trailing slash.
 	 */
 	public static function root() {
-		$url = rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-		return ( self::request()->root !== DIRECTORY_SEPARATOR ) ? $url . self::request()->root : $url;
+		return rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . self::request()->root;
 	}
 
 	/**
