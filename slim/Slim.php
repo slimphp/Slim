@@ -180,15 +180,31 @@ class Slim {
 	 * @param   string  $trace      A stack trace of the error
 	 * @return  string
 	 */
-	public static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
-		$html = "<html><head><title>Slim Application Error</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
-		$html .= "<h1>Slim Application Error</h1>";
-		$html .= "<p>The application could not run because of the following error:</p>";
-		$html .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
-		if( $file !== '' ) $html .= "<strong>File:</strong> $file<br/>";
-		if( $line !== '' ) $html .= "<strong>Line:</strong> $line<br/>";
-		if( $trace !== '' ) $html .= "<h2>Stack Trace:</h2>" . nl2br($trace);
-		$html .= "</body></html>";
+	private static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
+		$body = '<p>The application could not run because of the following error:</p>';
+		$body .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
+		if( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
+		if( $line !== '' ) $body .= "<strong>Line:</strong> $line<br/>";
+		if( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
+		return self::generateTemplateMarkup('Slim Application Error', $body);
+	}
+	
+	/**
+	 * Generate default template markup
+	 *
+	 * This method accepts a title and body content to generate
+	 * an HTML page. This is primarily used to generate the markup
+	 * for Error handlers and Not Found handlers.
+	 *
+	 * @param	string	$title The title of the HTML template
+	 * @param	string	$body The body content of the HTML template
+	 * @return 	string
+	 */
+	private static function generateTemplateMarkup($title, $body){
+		$html = "<html><head><title>$title</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
+		$html .= "<h1>$title</h1>";
+		$html .= $body;
+		$html .= '</body></html>';
 		return $html;
 	}
 
@@ -741,7 +757,7 @@ class Slim {
 	 * matched to the current HTTP request.
 	 */
 	public static function defaultNotFound() {
-		echo "We couldn't find what you are looking for. There's a slim chance you typed in the wrong URL.";
+		echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="'.Slim::root().'">Visit the Home Page</a>');
 	}
 
 	/**
@@ -751,7 +767,7 @@ class Slim {
 	 * is set to FALSE.
 	 */
 	public static function defaultError() {
-		echo "Something went wrong. The site administrator has been notified of the issue.";
+		echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
 	}
 
 	/***** RUN SLIM *****/
