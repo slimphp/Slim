@@ -425,7 +425,7 @@ class Slim {
 					$type = '[UNKNOWN]';
 					break;
 			}
-			error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . date('Y-m-d') . '.log');
+			error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), '/') . '/' . date('Y-m-d') . '.log');
 		}
 	}
 
@@ -665,7 +665,7 @@ class Slim {
 	 * will always return a server path WITH a trailing slash.
 	 */
 	public static function root() {
-		return rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) . self::request()->root;
+		return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . self::request()->root;
 	}
 
 	/**

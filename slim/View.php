@@ -88,7 +88,7 @@ class View {
 			if ( !is_dir($dir) ) {
 				throw new RuntimeException('Cannot set View templates directory to: ' . $dir . '. Directory does not exist.');
 			}
-			$this->templatesDirectory = rtrim($dir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+			$this->templatesDirectory = rtrim($dir, '/') . '/';
 		}
 		return $this->templatesDirectory;
 	}

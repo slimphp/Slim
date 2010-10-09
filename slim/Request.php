@@ -200,7 +200,7 @@ class Request {
 	 * @return string The resource string
 	 */
 	private function extractQueryString() {
-		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
 		$uri = ltrim( preg_replace('@'.$this->root.'@', '', $_SERVER['REQUEST_URI'], 1), '/');
 		$questionMarkPosition = strpos($uri, '?');
 		if( !!$questionMarkPosition ) {
