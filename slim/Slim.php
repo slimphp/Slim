@@ -42,8 +42,10 @@ set_exception_handler(array('Slim', 'handleExceptions'));
 //Slim will auto-load class files in the same directory as Slim.php
 spl_autoload_register(array('Slim', 'autoload'));
 
-//Ensure timezone is set (defaults to 'UTC')
-date_default_timezone_set(@date_default_timezone_get());
+//Ensure a valid TimeZone is set
+if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
+	date_default_timezone_set('UTC');
+}
 
 class Slim {
 
