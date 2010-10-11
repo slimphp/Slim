@@ -201,7 +201,7 @@ class Request {
 	 */
 	private function extractQueryString() {
 		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
-		$uri = ltrim( preg_replace('@'.$this->root.'@', '', $_SERVER['REQUEST_URI'], 1), '/');
+		$uri = ltrim( preg_replace('@'.preg_quote($this->root,'@').'@', '', $_SERVER['REQUEST_URI'], 1), '/');
 		$questionMarkPosition = strpos($uri, '?');
 		if( !!$questionMarkPosition ) {
 			return substr($uri, 0, $questionMarkPosition);
