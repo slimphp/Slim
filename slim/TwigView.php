@@ -35,13 +35,17 @@
  *
  * The TwigView is a Custom View class that renders templates using the Twig 
  * template language (http://www.twig-project.org/).
+ *
+ * Two fields that you, the developer, will need to change are:
+ * - twigDirectory
+ * - twigOptions
  */
 class TwigView extends View {
 
     /**
-     * @var TwigEnvironment The Twig environment for rendering templates.
+     * @var array The path to the Twig code directory.
      */
-    private $twigEnvironment = null;
+    public  $twigDirectory = null;
 
     /**
      * @var array The options for the Twig environment, see 
@@ -50,10 +54,9 @@ class TwigView extends View {
     public  $twigOptions = array();
 
     /**
-     * @var array The location of the Twig code directory.
-     * Defaults to __DIR__/../lib/Twig/lib/Twig in TwigView::getTwigDirectory().
+     * @var TwigEnvironment The Twig environment for rendering templates.
      */
-    public  $twigDirectory = null;
+    private $twigEnvironment = null;
 
     public function render( $template ) {
         $env = $this->getEnvironment();
@@ -68,9 +71,7 @@ class TwigView extends View {
      */
     private function getEnvironment() {
         if( !$this->twigEnvironment ) {
-            $twigDirectory = $this->getTwigDirectory();
-
-            require_once $twigDirectory . '/Autoloader.php';
+            require_once $this->twigDirectory . '/Autoloader.php';
             Twig_Autoloader::register();
             $loader = new Twig_Loader_Filesystem($this->templatesDirectory());
 
@@ -80,18 +81,5 @@ class TwigView extends View {
             );
         }
         return $this->twigEnvironment;
-    }
-
-    /**
-     * Get the Twig directory, and set it to a reasonable default if it isn't 
-     * already set.
-     *
-     * @return string path to the Twig directory.
-     */
-    private function getTwigDirectory() {
-        if( !$this->twigDirectory ) {
-            $this->twigDirectory = dirname(__FILE__).'/../lib/Twig/lib/Twig';
-        }
-        return $this->twigDirectory;
     }
 }
