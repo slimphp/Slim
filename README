@@ -52,8 +52,8 @@ Thank you for choosing Slim, a micro framework for PHP 5 inspired by Sinatra. Sl
 #####################################################
 
 Slim is created and maintained by Josh Lockhart, a web developer
-by day at New Media Campaigns <http://www.newmediacampaigns.com>,
-and a hacker by night <http://github.com/codeguy>.
+by day at [New Media Campaigns](http://www.newmediacampaigns.com),
+and a [hacker by night](http://github.com/codeguy).
 
 Slim is in active development, and test coverage is improving 
 rapidly as Slim nears its official 1.0 release.
