@@ -237,7 +237,7 @@ class Response {
 	 *
 	 * @return string
 	 */
-	public static function getMessageForCode($status) {
+	public static function getMessageForCode( $status ) {
 		return self::$messages[$status];
 	}
 
