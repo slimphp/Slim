@@ -43,7 +43,7 @@ Thank you for choosing Slim, a micro framework for PHP 5 inspired by Sinatra. Sl
     Slim::get('/hello/:name', 'hello');
     function hello($name) {
         echo "Hello, $name!";
-    });
+    }
     Slim::run();
     ?>
 
