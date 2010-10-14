@@ -645,7 +645,7 @@ class Slim {
 	 * @param   bool    $httponly   When TRUE the variable will be made accessible only through the HTTP protocol
 	 * @return  mixed
 	 */
-	public static function session($name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false) {
+	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
 		if( func_num_args() === 1 ) {
 			return self::request()->cookie($name);
 		} else {
@@ -713,7 +713,7 @@ class Slim {
 	 *
 	 * @param string $type The Content-Type for the Response (ie text/html, application/json, etc)
 	 */
-	public static function contentType($type) {
+	public static function contentType( $type ) {
 		self::response()->header('Content-Type', $type);
 	}
 
@@ -722,7 +722,7 @@ class Slim {
 	 *
 	 * @param int $status The HTTP response status code
 	 */
-	public static function status($code) {
+	public static function status( $code ) {
 		self::response()->status($code);
 	}
 
@@ -734,7 +734,7 @@ class Slim {
 	 * @throws 	SlimException 				If named route does not exist
 	 * @return 	string
 	 */
-	public static function urlFor($name, $params = array()) {
+	public static function urlFor( $name, $params = array() ) {
 		return self::router()->urlFor($name, $params);
 	}
 
@@ -750,7 +750,7 @@ class Slim {
 	 * @param   int                         $status     The HTTP redirect status code (Optional)
 	 * @throws  InvalidArgumentException                If status parameter is not 301 or 307
 	 */
-	public static function redirect($url, $status = 307) {
+	public static function redirect( $url, $status = 307 ) {
 		if( $status === 301 || $status === 307 ) {
 			self::response()->status($status);
 			self::response()->header('Location', (string)$url);

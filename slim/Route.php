@@ -124,7 +124,7 @@ class Route {
 	 * @param array Array of URL params
 	 * @return string Regex for specific URL param's name
 	 */
-	private function convertPatternToRegex($matches) {
+	private function convertPatternToRegex( $matches ) {
 		$key = str_replace(':', '', $matches[0]);
 		if( array_key_exists($key, $this->conditions) ) {
 			return '(' . $this->conditions[$key] . ')';
