@@ -9,7 +9,7 @@ Slim provides the following notable features out-of-the-box:
 
 * Clean and simple DSL for writing powerful web applications
 * RESTful routes (GET, POST, PUT, DELETE)
-    * Named routes
+    * Named routes w/ urlFor() helper
     * Route passing
     * Route redirects
     * Route halting
