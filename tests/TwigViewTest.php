@@ -58,6 +58,7 @@ class TwigViewTest extends PHPUnit_Framework_TestCase {
 	public function testRendersTemplateWithData() {
 		$this->view->templatesDirectory(realpath('./templates'));
 		ob_start();
+        $this->view->twigDirectory = dirname(__FILE__)."/../lib/Twig/lib/Twig/";
 		$this->view->data(array('foo' => 'bar'));
 		$this->view->render('test.twig');
 		$output = ob_get_clean();
