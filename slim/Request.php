@@ -112,7 +112,7 @@ class Request {
 		}
 		$this->headers = $this->getHttpHeaders();
 		$this->cookies = $_COOKIE;
-		$this->isAjax = isset($request->headers['X_REQUESTED_WITH']) && $request->headers['X_REQUESTED_WITH'] == 'XMLHttpRequest';
+		$this->isAjax = isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] == 'XMLHttpRequest';
 		$this->checkForHttpMethodOverride();
 	}
 
