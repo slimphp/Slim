@@ -425,7 +425,7 @@ class Slim {
 					$type = '[UNKNOWN]';
 					break;
 			}
-			error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), '/') . '/' . date('Y-m-d') . '.log');
+			@error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), '/') . '/' . date('Y-m-d') . '.log');
 		}
 	}
 
