@@ -698,7 +698,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testSlimRaisesSlimException(){
 		try {
-			Slim::raise(404, 'Page Not Found');
+			Slim::halt(404, 'Page Not Found');
 			$this->fail('SlimException not caught');
 		} catch ( SlimException $e ) {
 			$this->assertEquals($e->getCode(), 404);
@@ -719,7 +719,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	public function testSlimRaiseSetsResponse() {
 		Slim::init();
 		Slim::get('/', function () {
-			Slim::raise(501, 'Error!');
+			Slim::halt(501, 'Error!');
 		});
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 501);
