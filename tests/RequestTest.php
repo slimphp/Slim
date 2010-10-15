@@ -99,6 +99,34 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($r->root, '/');
 	}
 
+    /**
+     * Test isAjax is set to true, when HTTP_X_REQUESTED_WITH is set to
+     * 'XMLHttpRequest'.
+     *
+     * Pre-conditions:
+     * Case A: HTTP_X_REQUESTED_WITH is set to XMLHttpRequest.
+     * Case B: HTTP_X_REQUESTED_WITH is not set to XMLHttpRequest.
+     * Case C: HTTP_X_REQUESTED_WITH is not set.
+     * 
+     * Post-conditions:
+     * Case A: Request::isAjax should be true.
+     * Case B: Request::isAjax should be false.
+     * Case C: Request::isAjax should be false.
+     */
+    public function testIsAjaxSet(){
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $r = new Request();
+        $this->assertTrue($r->isAjax);
+
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'foo';
+        $r = new Request();
+        $this->assertFalse($r->isAjax);
+
+        unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+        $r = new Request();
+        $this->assertFalse($r->isAjax);
+    }
+
 }
 
 ?>
