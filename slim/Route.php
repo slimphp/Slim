@@ -76,7 +76,6 @@ class Route {
 	 * @param mixed $callable Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
-		
 		$this->pattern = ltrim($pattern, '/');
 		$this->callable = $callable;
 		$this->conditions = array();
@@ -106,9 +105,9 @@ class Route {
 		$patternAsRegex = '@^' . $patternAsRegex . '$@';
 
 		//Cache URL params' names and values if this route matches the current HTTP request
-		if( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
+		if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
 			array_shift($paramValues);
-			foreach( $paramNames as $index => $value ) {
+			foreach ( $paramNames as $index => $value ) {
 				$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
 			}
 			return true;
@@ -126,7 +125,7 @@ class Route {
 	 */
 	private function convertPatternToRegex( $matches ) {
 		$key = str_replace(':', '', $matches[0]);
-		if( array_key_exists($key, $this->conditions) ) {
+		if ( array_key_exists($key, $this->conditions) ) {
 			return '(' . $this->conditions[$key] . ')';
 		} else {
 			return '([a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';

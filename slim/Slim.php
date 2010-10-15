@@ -114,10 +114,10 @@ class Slim {
 	/**
 	 * Slim auto-loader
 	 */
-	public static function autoload($className) {
-		if( file_exists($file = dirname(__FILE__).'/'.$className.'.php')) {
-	        require_once($file);
-	    }
+	public static function autoload( $className ) {
+		if ( file_exists($file = dirname(__FILE__).'/'.$className.'.php') ) {
+	    require_once($file);
+	  }
 	}
 
 	/**
@@ -132,13 +132,13 @@ class Slim {
 	 * @param   int     $errline    The line number of the error in the affected file
 	 * @return  void
 	 */
-	public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '') {
-		if( !(error_reporting() & $errno) ) {
+	public static function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
+		if ( !(error_reporting() & $errno) ) {
 			return; // This error code is not included in error_reporting
 		}
-		if( ob_get_level() !== 0 ) ob_clean();
+		if ( ob_get_level() !== 0 ) ob_clean();
 		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $errstr, $errfile, $errline), $errno);
-		if( self::config('debug') === true ) {
+		if ( self::config('debug') === true ) {
 			$r = new Response();
 			$r->status(500);
 			$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
@@ -159,9 +159,9 @@ class Slim {
 	 * @return  void
 	 */
 	public static function handleExceptions( Exception $e ) {
-		if( ob_get_level() !== 0 ) ob_clean();
+		if ( ob_get_level() !== 0 ) ob_clean();
 		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
-		if( self::config('debug') === true ) {
+		if ( self::config('debug') === true ) {
 			$r = new Response();
 			$r->status(500);
 			$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
@@ -185,12 +185,12 @@ class Slim {
 	 * @param   string  $trace      A stack trace of the error
 	 * @return  string
 	 */
-	private static function generateErrorMarkup($message, $file = '', $line = '', $trace = ''){
+	private static function generateErrorMarkup( $message, $file = '', $line = '', $trace = '' ){
 		$body = '<p>The application could not run because of the following error:</p>';
 		$body .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
-		if( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
-		if( $line !== '' ) $body .= "<strong>Line:</strong> $line<br/>";
-		if( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
+		if ( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
+		if ( $line !== '' ) $body .= "<strong>Line:</strong> $line<br/>";
+		if ( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
 		return self::generateTemplateMarkup('Slim Application Error', $body);
 	}
 	
@@ -205,7 +205,7 @@ class Slim {
 	 * @param	string	$body The body content of the HTML template
 	 * @return 	string
 	 */
-	private static function generateTemplateMarkup($title, $body){
+	private static function generateTemplateMarkup( $title, $body ) {
 		$html = "<html><head><title>$title</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
 		$html .= "<h1>$title</h1>";
 		$html .= $body;
@@ -226,7 +226,7 @@ class Slim {
 	 * @param   string  $viewClass  The name of the view class Slim will use
 	 * @return  void
 	 */
-	public static function init($viewClass = null) {
+	public static function init( $viewClass = null ) {
 		self::$app = new Slim();
 		self::notFound(array('Slim', 'defaultNotFound'));
 		self::error(array('Slim', 'defaultError'));
@@ -255,9 +255,9 @@ class Slim {
 	 * @param mixed $value If name is a string, the value of the setting identified by $name
 	 * @return mixed The value of a setting if only one argument and argument is a string
 	 */
-	public static function config($name, $value = null) {
-		if( func_num_args() === 1 ) {
-			if( is_array($name) ) {
+	public static function config( $name, $value = null ) {
+		if ( func_num_args() === 1 ) {
+			if ( is_array($name) ) {
 				self::$app->settings = array_merge(self::$app->settings, $name);
 			} else {
 				return in_array($name, array_keys(self::$app->settings)) ? self::$app->settings[$name] : null;
@@ -279,7 +279,7 @@ class Slim {
 	 * @param   mixed   $callable   Anything that returns true for is_callable()
 	 * @return  Route
 	 */
-	public static function get($pattern, $callable) {
+	public static function get( $pattern, $callable ) {
 		return self::router()->map($pattern, $callable, Request::METHOD_GET);
 	}
 
@@ -293,7 +293,7 @@ class Slim {
 	 * @param   mixed   $callable   Anything that returns true for is_callable()
 	 * @return  Route
 	 */
-	public static function post($pattern, $callable) {
+	public static function post( $pattern, $callable ) {
 		return self::router()->map($pattern, $callable, Request::METHOD_POST);
 	}
 
@@ -307,7 +307,7 @@ class Slim {
 	 * @param   mixed   $callable   Anything that returns true for is_callable()
 	 * @return  Route
 	 */
-	public static function put($pattern, $callable) {
+	public static function put( $pattern, $callable ) {
 		return self::router()->map($pattern, $callable, Request::METHOD_PUT);
 	}
 
@@ -321,7 +321,7 @@ class Slim {
 	 * @param   mixed   $callable   Anything that returns true for is_callable()
 	 * @return  Route
 	 */
-	public static function delete($pattern, $callable) {
+	public static function delete( $pattern, $callable ) {
 		return self::router()->map($pattern, $callable, Request::METHOD_DELETE);
 	}
 
@@ -348,8 +348,8 @@ class Slim {
 	 *
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
-	public static function notFound($callable = null) {
-		if( !is_null($callable) ) {
+	public static function notFound( $callable = null ) {
+		if ( !is_null($callable) ) {
 			self::router()->notFound($callable);
 		} else {
 			ob_start();
@@ -382,8 +382,8 @@ class Slim {
 	 *
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
-	public static function error($callable = null) {
-		if( !is_null($callable) ) {
+	public static function error( $callable = null ) {
+		if ( !is_null($callable) ) {
 			self::router()->error($callable);
 		} else {
 			ob_start();
@@ -405,8 +405,8 @@ class Slim {
 	 *
 	 * @param string $message The message to send to the Logger
 	 */
-	public static function log($message, $errno = null) {
-		if( self::config('log') ) {
+	public static function log( $message, $errno = null ) {
+		if ( self::config('log') ) {
 			$type = '';
 			switch ($errno) {
 			    case E_USER_ERROR :
@@ -440,7 +440,7 @@ class Slim {
 	 *
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
-	public static function before($callable) {
+	public static function before( $callable ) {
 		self::$app->before[] = $callable;
 	}
 
@@ -453,7 +453,7 @@ class Slim {
 	 *
 	 * @param mixed $callable Anything that returns true for is_callable()
 	 */
-	public static function after($callable) {
+	public static function after( $callable ) {
 		self::$app->after[] = $callable;
 	}
 
@@ -465,9 +465,9 @@ class Slim {
 	 * 
 	 * @param array $callables An array of callable objects
 	 */
-	private static function runCallables($callables) {
-		foreach( $callables as $callable ) {
-			if( is_callable($callable) ) {
+	private static function runCallables( $callables ) {
+		foreach ( $callables as $callable ) {
+			if ( is_callable($callable) ) {
 				call_user_func($callable);
 			}
 		}
@@ -514,7 +514,7 @@ class Slim {
 	 * @return  View
 	 */
 	public static function view( $viewClass = null ) {
-		if( !is_null($viewClass) ) {
+		if ( !is_null($viewClass) ) {
 			$existingData = is_null(self::$app->view) ? array() : self::$app->view->data();
 			self::$app->view = new $viewClass();
 			self::$app->view->data($existingData);
@@ -538,7 +538,7 @@ class Slim {
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
 		self::view()->templatesDirectory(self::config('templates_dir'));
-		if( !is_null($status) ) {
+		if ( !is_null($status) ) {
 			self::response()->status($status);
 		}
 		self::view()->data($data);
@@ -561,10 +561,10 @@ class Slim {
 	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if resource last modified time matches `If-Modified-Since` header
 	 * @throws 	InvalidArgumentException 			If provided timestamp is not an integer
 	 */
-	public static function lastModified($time) {
-		if( is_integer($time) ) {
+	public static function lastModified( $time ) {
+		if ( is_integer($time) ) {
 			Slim::response()->header('Last-Modified', date(DATE_RFC1123, $time));
-			if( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::raise(304);
+			if ( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::raise(304);
 		} else {
 			throw new InvalidArgumentException("Slim::lastModified only accepts an integer UNIX timestamp value.");
 		}
@@ -586,22 +586,22 @@ class Slim {
 	 * @param 	string 						$type 	The type of etag to create; either "strong" or "weak"
 	 * @throws 	InvalidArgumentException 			If provided type is invalid
 	 */
-	public static function etag($value, $type = 'strong'){
+	public static function etag( $value, $type = 'strong' ) {
 
 		//Ensure type is correct
-		if( !in_array($type, array('strong', 'weak'))) {
+		if ( !in_array($type, array('strong', 'weak')) ) {
 			throw new InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
 		}
 
 		//Set etag value
 		$value = '"' . $value . '"';
-		if( $type === 'weak' ) $value = 'W/'.$value;
+		if ( $type === 'weak' ) $value = 'W/'.$value;
 		Slim::response()->header('ETag', $value);
 
 		//Check conditional GET
-		if( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
+		if ( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
 			$etags = preg_split('@\s*,\s*@', $etagsHeader);
-			if( in_array($value, $etags) || in_array('*', $etags) ) Slim::raise(304);
+			if ( in_array($value, $etags) || in_array('*', $etags) ) Slim::raise(304);
 		}
 
 	}
@@ -646,7 +646,7 @@ class Slim {
 	 * @return  mixed
 	 */
 	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
-		if( func_num_args() === 1 ) {
+		if ( func_num_args() === 1 ) {
 			return self::request()->cookie($name);
 		} else {
 			self::response()->addCookie(new Cookie($name, $value, $expires, $path, $domain, $secure, $httponly));
@@ -704,7 +704,7 @@ class Slim {
 	 * will be sent to the client.
 	 */
 	public static function pass() {
-		if( ob_get_level() !== 0 ) ob_clean();
+		if ( ob_get_level() !== 0 ) ob_clean();
 		throw new PassException();
 	}
 
@@ -751,7 +751,7 @@ class Slim {
 	 * @throws  InvalidArgumentException                If status parameter is not 301 or 307
 	 */
 	public static function redirect( $url, $status = 307 ) {
-		if( $status === 301 || $status === 307 ) {
+		if ( $status === 301 || $status === 307 ) {
 			self::response()->status($status);
 			self::response()->header('Location', (string)$url);
 			self::response()->send();
@@ -797,12 +797,12 @@ class Slim {
 		try {
 			self::runCallables(self::$app->before);
 			ob_start();
-			if( !self::router()->dispatch() ) { Slim::notFound(); }
+			if ( !self::router()->dispatch() ) { Slim::notFound(); }
 			self::response()->write(ob_get_clean());
 			self::runCallables(self::$app->after);
 			self::response()->send();
-		} catch( SlimException $e ) {
-			if( ob_get_level() !== 0 ) ob_clean();
+		} catch ( SlimException $e ) {
+			if ( ob_get_level() !== 0 ) ob_clean();
 			self::response()->status($e->getCode());
 			self::response()->body($e->getMessage());
 			self::response()->send();

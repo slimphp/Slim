@@ -132,7 +132,7 @@ class Router {
 			throw new RuntimeException('Named route not found for name: ' . $name);
 		}
 		$pattern = $this->namedRoutes[(string)$name]->pattern();
-		foreach( $params as $key => $value ) {
+		foreach ( $params as $key => $value ) {
 			$pattern = str_replace(':'.$key, $value, $pattern);
 		}
 		return $this->request->root . $pattern;
@@ -145,7 +145,7 @@ class Router {
 	 * @return mixed
 	 */
 	public function notFound( $callable = null ) {
-		if( is_callable($callable) ) {
+		if ( is_callable($callable) ) {
 			$this->notFound = $callable;
 		}
 		return $this->notFound;
@@ -158,7 +158,7 @@ class Router {
 	 * @return mixed
 	 */
 	public function error( $callable = null ) {
-		if( is_callable($callable) ) {
+		if ( is_callable($callable) ) {
 			$this->error = $callable;
 		}
 		return $this->error;
@@ -170,9 +170,8 @@ class Router {
 	 * @return true|false TRUE if matching route is found and callable, else FALSE
 	 */
 	public function dispatch() {
-		
 		//Iterate over routes for current Request method
-		foreach( $this->routes[$this->request->method] as $route ) {
+		foreach ( $this->routes[$this->request->method] as $route ) {
 			if ( $route->matches($this->request->resource) ) {
 				$this->matchedRoute = $route;
 				try {
@@ -181,7 +180,7 @@ class Router {
 						call_user_func_array($callable, array_values($this->matchedRoute->params()));
 					}
 					return true;
-				} catch( PassException $e ) {
+				} catch ( PassException $e ) {
 					continue;
 				}
 			}

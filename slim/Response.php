@@ -138,8 +138,8 @@ class Response {
 	 * @throws InvalidArgumentException If status parameter does not match a valid HTTP status code
 	 */
 	public function status( $status = null ) {
-		if( !is_null($status) ) {
-			if( !in_array(intval($status), array_keys(self::$messages))) {
+		if ( !is_null($status) ) {
+			if ( !in_array(intval($status), array_keys(self::$messages)) ) {
 				throw new InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
 			}
 			$this->status = intval($status);
@@ -164,7 +164,7 @@ class Response {
 	 * @return string The header value
 	 */
 	public function header( $key, $value = null ) {
-		if( !is_null($value) ) {
+		if ( !is_null($value) ) {
 			$this->headers[$key] = $value;
 		}
 		return $this->headers[$key];
@@ -177,7 +177,7 @@ class Response {
 	 * @return string The updated HTTP response body
 	 */
 	public function body( $body = null ) {
-		if( !is_null($body) ) {
+		if ( !is_null($body) ) {
 			$this->body = '';
 			$this->length = 0;
 			$this->write($body);
@@ -225,7 +225,7 @@ class Response {
 	 * Finalize response headers before response is sent
 	 */
 	public function finalize() {
-		if( in_array($this->status, array(204, 304)) ) {
+		if ( in_array($this->status, array(204, 304)) ) {
 			unset($this->headers['Content-Type']);
 		}
 	}
@@ -264,13 +264,13 @@ class Response {
 		header('HTTP/1.1 ' . Response::getMessageForCode($this->status()));
 
 		//Send headers
-		foreach( $this->headers() as $name => $value ) {
+		foreach ( $this->headers() as $name => $value ) {
 			header("$name: $value");
 		}
 
 		//Send cookies
-		foreach( $this->cookies as $cookie ) {
-			if( empty($cookie->value) ) {
+		foreach ( $this->cookies as $cookie ) {
+			if ( empty($cookie->value) ) {
 				setcookie($cookie->name, '', time() - 90000, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
 			} else {
 				setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
@@ -286,10 +286,10 @@ class Response {
 	 * Send HTTP response
 	 */
 	public function send() {
-		if( !headers_sent() ) {
+		if ( !headers_sent() ) {
 			$this->sendHeaders();
 		}
-		if( $this->canHaveBody() ) {
+		if ( $this->canHaveBody() ) {
 			echo $this->body;
 		}
 	}
