@@ -111,7 +111,7 @@ class View {
 	 */
 	public function render( $template ) {
 		extract($this->data);
-		include($this->templatesDirectory() . $template);
+		require($this->templatesDirectory() . $template);
 	}
 
 }
