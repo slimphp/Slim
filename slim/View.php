@@ -70,7 +70,7 @@ class View {
 	 * @return array
 	 */
 	final public function data( $data = null ) {
-		if( is_array($data) ) {
+		if ( is_array($data) ) {
 			$this->data = array_merge($this->data, $data);
 		}
 		return $this->data;
@@ -111,7 +111,7 @@ class View {
 	 */
 	public function render( $template ) {
 		extract($this->data);
-		include($this->templatesDirectory() . $template);
+		require($this->templatesDirectory() . $template);
 	}
 
 }

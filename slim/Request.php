@@ -106,7 +106,7 @@ class Request {
 		$this->resource = $this->extractQueryString();
 		$this->get = $_GET;
 		$this->post = $_POST;
-		if(	$this->method == Request::METHOD_PUT ) {
+		if (	$this->method == Request::METHOD_PUT ) {
 			$this->input = file_get_contents('php://input');
 			$this->put = $this->getPutParameters();
 		}
@@ -127,13 +127,13 @@ class Request {
 	 * @return mixed The parameter value, or NULL if parameter not found
 	 */
 	public function params( $key ) {
-		if( isset($this->put[$key]) ) {
+		if ( isset($this->put[$key]) ) {
 			return $this->put[$key];
 		}
-		if( isset($this->post[$key]) ) {
+		if ( isset($this->post[$key]) ) {
 			return $this->post[$key];
 		}
-		if( isset($this->get[$key]) ) {
+		if ( isset($this->get[$key]) ) {
 			return $this->get[$key];
 		}
 		return null;
@@ -146,7 +146,7 @@ class Request {
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
 	public function get( $key = null ) {
-		if( is_null($key) ) {
+		if ( is_null($key) ) {
 			return $this->get;
 		}
 		return ( isset($this->get[$key]) ) ? $this->get[$key] : null;
@@ -159,7 +159,7 @@ class Request {
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
 	public function post( $key = null ) {
-		if( is_null($key) ) {
+		if ( is_null($key) ) {
 			return $this->post;
 		}
 		return ( isset($this->post[$key]) ) ? $this->post[$key] : null;
@@ -172,7 +172,7 @@ class Request {
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
 	public function put( $key = null ) {
-		if( is_null($key) ) {
+		if ( is_null($key) ) {
 			return $this->put;
 		}
 		return ( isset($this->put[$key]) ) ? $this->put[$key] : null;
@@ -201,9 +201,9 @@ class Request {
 	 */
 	private function extractQueryString() {
 		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
-		$uri = ltrim( preg_replace('@'.preg_quote($this->root,'@').'@', '', $_SERVER['REQUEST_URI'], 1), '/');
+		$uri = ltrim(preg_replace('@'.preg_quote($this->root,'@').'@', '', $_SERVER['REQUEST_URI'], 1), '/');
 		$questionMarkPosition = strpos($uri, '?');
-		if( !!$questionMarkPosition ) {
+		if ( !!$questionMarkPosition ) {
 			return substr($uri, 0, $questionMarkPosition);
 		}
 		return $uri;
@@ -216,7 +216,7 @@ class Request {
 	 */
 	private function getPutParameters() {
 		$putdata = $this->input();
-		if( function_exists('mb_parse_str') ) {
+		if ( function_exists('mb_parse_str') ) {
 			mb_parse_str($putdata, $outputdata);
 		} else {
 			parse_str($putdata, $outputdata);
@@ -231,8 +231,8 @@ class Request {
 	 */
 	private function getHttpHeaders() {
 		$httpHeaders = array();
-		foreach( array_keys($_SERVER) as $key ) {
-			if( substr($key, 0, 5) == 'HTTP_' ) {
+		foreach ( array_keys($_SERVER) as $key ) {
+			if ( substr($key, 0, 5) == 'HTTP_' ) {
 				$httpHeaders[substr($key, 5)] = $_SERVER[$key];
 			}
 		}
@@ -257,10 +257,10 @@ class Request {
 	 * mimic PUT and DELETE requests. We check for this override here.
 	 */
 	private function checkForHttpMethodOverride() {
-		if( array_key_exists(Request::METHOD_OVERRIDE, $this->post) ) {
+		if ( array_key_exists(Request::METHOD_OVERRIDE, $this->post) ) {
 			$this->method = $this->post[Request::METHOD_OVERRIDE];
 			unset($this->post[Request::METHOD_OVERRIDE]);
-			if( $this->method == Request::METHOD_PUT ) {
+			if ( $this->method == Request::METHOD_PUT ) {
 				$this->put = $this->post;
 			}
 		}
