@@ -116,8 +116,8 @@ class Slim {
 	 */
 	public static function autoload( $className ) {
 		if ( file_exists($file = dirname(__FILE__).'/'.$className.'.php') ) {
-	    require_once($file);
-	  }
+			require_once($file);
+		}
 	}
 
 	/**
@@ -354,7 +354,7 @@ class Slim {
 		} else {
 			ob_start();
 			call_user_func(self::router()->notFound());
-			Slim::raise(404, ob_get_clean());
+			Slim::halt(404, ob_get_clean());
 		}
 	}
 
@@ -388,7 +388,7 @@ class Slim {
 		} else {
 			ob_start();
 			call_user_func(self::router()->error());
-			Slim::raise(500, ob_get_clean());
+			Slim::halt(500, ob_get_clean());
 		}
 	}
 
@@ -564,7 +564,7 @@ class Slim {
 	public static function lastModified( $time ) {
 		if ( is_integer($time) ) {
 			Slim::response()->header('Last-Modified', date(DATE_RFC1123, $time));
-			if ( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::raise(304);
+			if ( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::halt(304);
 		} else {
 			throw new InvalidArgumentException("Slim::lastModified only accepts an integer UNIX timestamp value.");
 		}
@@ -601,7 +601,7 @@ class Slim {
 		//Check conditional GET
 		if ( $etagsHeader = Slim::request()->header('IF_NONE_MATCH')) {
 			$etags = preg_split('@\s*,\s*@', $etagsHeader);
-			if ( in_array($value, $etags) || in_array('*', $etags) ) Slim::raise(304);
+			if ( in_array($value, $etags) || in_array('*', $etags) ) Slim::halt(304);
 		}
 
 	}
@@ -680,18 +680,19 @@ class Slim {
 	}
 
 	/**
-	 * Raise Slim Exception
+	 * Halt
 	 *
-	 * Trigger an immediate HTTP response with a specific status code and body. 
-	 * This may be used to send any type of response: info, success, redirect, 
-	 * client error, or server error. If you need to render a template AND
-	 * customize the response status, you should use Slim::render() instead.
+	 * Halt the application and immediately send an HTTP response with a 
+	 * specific status code and body. This may be used to send any type of 
+	 * response: info, success, redirect, client error, or server error. 
+	 * If you need to render a template AND customize the response status, 
+	 * you should use Slim::render() instead.
 	 *
 	 * @param   int             $status     The HTTP response status
 	 * @param   string          $message    The HTTP response body
 	 * @throws  SlimException
 	 */
-	public static function raise( $status, $message = '' ) {
+	public static function halt( $status, $message = '' ) {
 		throw new SlimException($message, $status);
 	}
 
@@ -791,7 +792,7 @@ class Slim {
 	 *
 	 * This method will also invoke the NotFound handler if no matching
 	 * routes are found. This method will also catch any Exceptions
-	 * thrown by Slim::raise or by application errors.
+	 * thrown by Slim::halt or by application errors.
 	 */
 	public static function run() {
 		try {
