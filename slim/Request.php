@@ -104,14 +104,14 @@ class Request {
 	public function __construct() {
 		$this->method = $_SERVER['REQUEST_METHOD'];
 		$this->resource = $this->extractQueryString();
-		$this->get = $_GET;
-		$this->post = $_POST;
-		if (	$this->method == Request::METHOD_PUT ) {
+		$this->get = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_GET) : $_GET;
+		$this->post = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_POST) : $_POST;
+		if ( $this->method == Request::METHOD_PUT ) {
 			$this->input = file_get_contents('php://input');
-			$this->put = $this->getPutParameters();
+			$this->put = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($this->getPutParameters()) : $this->getPutParameters();
 		}
 		$this->headers = $this->getHttpHeaders();
-		$this->cookies = $_COOKIE;
+		$this->cookies = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_COOKIE) : $_COOKIE;
 		$this->isAjax = isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] == 'XMLHttpRequest';
 		$this->checkForHttpMethodOverride();
 	}
@@ -190,6 +190,20 @@ class Request {
 
 	/***** HELPERS *****/
 
+	/**
+	 * Strip slashes from Request data
+	 *
+	 * You can pass an array or a string into this method, and the filtered
+	 * array or string will be returned. This method will strip slashes from 
+	 * the target data. This should only be used if `get_magic_quotes_gpc` is enabled.
+	 *
+	 * @param 	array|string $rawData
+	 * @return 	array|string The filtered array or the filtered string
+	 */
+	public static function stripSlashesFromRequestData( $rawData ) {
+		return is_array($rawData) ? array_map(array('Request', 'stripSlashesFromRequestData'), $rawData) : stripslashes($rawData);
+	}
+	
 	/**
 	 * Extract Resource URL
 	 *
