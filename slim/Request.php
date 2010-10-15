@@ -126,7 +126,7 @@ class Request {
 	 * @param string $key The paramter name
 	 * @return mixed The parameter value, or NULL if parameter not found
 	 */
-	public function params($key) {
+	public function params( $key ) {
 		if( isset($this->put[$key]) ) {
 			return $this->put[$key];
 		}
@@ -145,7 +145,7 @@ class Request {
 	 * @param string $key Name of parameter
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
-	public function get($key = null) {
+	public function get( $key = null ) {
 		if( is_null($key) ) {
 			return $this->get;
 		}
@@ -158,7 +158,7 @@ class Request {
 	 * @param string $key Name of parameter
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
-	public function post($key = null) {
+	public function post( $key = null ) {
 		if( is_null($key) ) {
 			return $this->post;
 		}
@@ -171,7 +171,7 @@ class Request {
 	 * @param string $key Name of parameter
 	 * @return array|string Array of all parameters, or parameter value if $key provided.
 	 */
-	public function put($key = null) {
+	public function put( $key = null ) {
 		if( is_null($key) ) {
 			return $this->put;
 		}
@@ -184,7 +184,7 @@ class Request {
 	 * @param string $name The cookie name
 	 * @return The cookie value, or NULL if cookie not set
 	 */
-	public function cookie($name) {
+	public function cookie( $name ) {
 		return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
 	}
 
@@ -245,7 +245,7 @@ class Request {
 	 * @param string $name The header name
 	 * @return The header string value, or NULL if header does not exist
 	 */
-	public function header($name) {
+	public function header( $name ) {
 		return isset($this->headers[$name]) ? $this->headers[$name] : null;
 	}
 
