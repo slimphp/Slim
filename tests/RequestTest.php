@@ -126,6 +126,31 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $r = new Request();
         $this->assertFalse($r->isAjax);
     }
+
+	/**
+	 * Test `stripSlashesFromRequestData` for $_COOKIE, $_GET, and $_POST data.
+	 * Keep in mind it is not possible to set `magic_quotes_gpc` in a runtime
+	 * context, therefore I am only testing the `stripSlashesFromRequestData`
+	 * method itself as it affects $_GET, $_POST, and $_COOKIE arrays.
+	 *
+	 * Pre-conditions:
+	 * $_COOKIE, $_GET, $_POST contains data with slashes
+	 *
+	 * Post-conditions:
+	 * $_COOKIE, $_GET, $_POST request data does not contain slashes
+	 */
+	public function testStripSlashesFromRequestData() {
+		$_GET['foo1'] = "bar\'d";
+		$_POST['foo2'] = "bar\'d";
+		$_COOKIE['foo3'] = "bar\'d";
+		$getData = Request::stripSlashesFromRequestData($_GET);
+		$postData = Request::stripSlashesFromRequestData($_POST);
+		$cookieData = Request::stripSlashesFromRequestData($_COOKIE);
+		$this->assertEquals($getData['foo1'], "bar'd");
+		$this->assertEquals($postData['foo2'], "bar'd");
+		$this->assertEquals($cookieData['foo3'], "bar'd");
+	}
+	
 }
 
 ?>
