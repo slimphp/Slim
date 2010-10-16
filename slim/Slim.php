@@ -743,21 +743,21 @@ class Slim {
 	 * Redirect
 	 *
 	 * This method immediately redirects the client to a new URL. By default,
-	 * this issues a 307 Temporary Redirect. You may also specify a
-	 * 301 Permanent Redirect if you want. This method will automatically
-	 * set the HTTP Location header for you using the URL parameter.
+	 * this issues a 307 Temporary Redirect. You may also specify another valid
+	 * 3xx status code if you want. This method will automatically set the 
+	 * HTTP Location header for you using the URL parameter.
 	 *
 	 * @param   string                      $url        The destination URL
 	 * @param   int                         $status     The HTTP redirect status code (Optional)
-	 * @throws  InvalidArgumentException                If status parameter is not 301 or 307
+	 * @throws  InvalidArgumentException                If status parameter is not a valid 3xx status code
 	 */
 	public static function redirect( $url, $status = 307 ) {
-		if ( $status === 301 || $status === 307 ) {
+		if ( $status >= 300 && $status <= 307 ) {
 			self::response()->status($status);
 			self::response()->header('Location', (string)$url);
 			self::response()->send();
 		} else {
-			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301 and HTTP 307 status codes.");
+			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301-307 status codes.");
 		}
 	}
 
