@@ -757,7 +757,7 @@ class Slim {
 			self::response()->header('Location', (string)$url);
 			self::response()->send();
 		} else {
-			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 301-307 status codes.");
+			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 300-307 status codes.");
 		}
 	}
 
