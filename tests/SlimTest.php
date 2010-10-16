@@ -578,60 +578,66 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * Test Slim::redirect supports 301 permanent redirects
+	 * Test Slim::redirect
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application with an accessible route.
-	 * The route invokes the Slim::redirect helper.
+	 * Case A: Status code is less than 300
+	 * Case B: Status code is greater than 307
+	 * Case C: Status code is 300
+	 * Case D: Status code is 302 (between 300 and 307)
+	 * Case E: Status code is 307
 	 *
 	 * Post-conditions:
-	 * The Response status code is set correctly
+	 * Case A: An InvalidArgumentException is thrown
+	 * Case B: An InvalidArgumentException is thrown
+	 * Case C: Response code is 300
+	 * Case D: Response code is 302
+	 * Case E: Response code is 307
 	 */
-	public function testSlimRedirectPermanent() {
+	public function testSlimRedirect() {
+		//Case A
 		Slim::init();
 		Slim::get('/', function () {
-			Slim::redirect('/foo', 301);
+			Slim::redirect('/foo', 200);
+		});
+		try {
+			Slim::run();
+			$this->fail('InvalidArgumentException not caught');
+		} catch( InvalidArgumentException $e ) {}
+		
+		//Case B
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 308);
+		});
+		try {
+			Slim::run();
+			$this->fail('InvalidArgumentException not caught');
+		} catch( InvalidArgumentException $e ) {}
+		
+		//Case C
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 300);
 		});
 		Slim::run();
-		$this->assertEquals(Slim::response()->status(), 301);
-	}
-
-	/**
-	 * Test Slim::redirect supports 302 temporary redirects
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim application with an accessible route.
-	 * The route invokes the Slim::redirect helper.
-	 *
-	 * Post-conditions:
-	 * The Response status code is set correctly
-	 */
-	public function testSlimRedirectTemporary() {
+		$this->assertEquals(Slim::response()->status(), 300);
+		
+		//Case D
+		Slim::init();
+		Slim::get('/', function () {
+			Slim::redirect('/foo', 302);
+		});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 302);
+		
+		//Case E
 		Slim::init();
 		Slim::get('/', function () {
 			Slim::redirect('/foo', 307);
 		});
 		Slim::run();
 		$this->assertEquals(Slim::response()->status(), 307);
-	}
-
-	/**
-	 * Test Slim::redirect fails if status is not 301 or 302
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim application with an accessible route.
-	 * The route attempts to redirect with an invalid HTTP status code.
-	 *
-	 * Post-conditions:
-	 * Slim throws an InvalidArgumentException
-	 */
-	public function testSlimRedirectFailsAndThrowsException() {
-		$this->setExpectedException('InvalidArgumentException');
-		Slim::init();
-		Slim::get('/', function () {
-			Slim::redirect('/foo', 400);
-		});
-		Slim::run();
 	}
 
 	/**
