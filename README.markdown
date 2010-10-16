@@ -51,7 +51,7 @@ Slim is in active development, and test coverage is improving  rapidly as Slim n
 
 ## Links and Resources
 
-* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map
+* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
 * Documentation:  <http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation>
 * Source Code:    <http://github.com/codeguy/Slim/>
 * Twitter:        <http://www.twitter.com/codeguy>
