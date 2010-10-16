@@ -33,7 +33,7 @@
 /**
  * TwigView
  *
- * The TwigView is a Custom View class that renders templates using the Twig 
+ * The TwigView is a custom View class that renders templates using the Twig 
  * template language (http://www.twig-project.org/).
  *
  * Two fields that you, the developer, will need to change are:
@@ -43,21 +43,29 @@
 class TwigView extends View {
 
     /**
-     * @var array The path to the Twig code directory.
+     * @var string The path to the Twig code directory WITHOUT the trailing slash
      */
-    public  $twigDirectory = null;
+    public $twigDirectory = null;
 
     /**
      * @var array The options for the Twig environment, see 
      * http://www.twig-project.org/book/03-Twig-for-Developers
      */
-    public  $twigOptions = array();
+    public $twigOptions = array();
 
     /**
      * @var TwigEnvironment The Twig environment for rendering templates.
      */
     private $twigEnvironment = null;
 
+	/**
+	 * Render Twig Template
+	 *
+	 * This method will output the rendered template content
+	 *
+	 * @param 	string $template The path to the Twig template, relative to the Twig templates directory.
+	 * @return 	void
+	 */
     public function render( $template ) {
         $env = $this->getEnvironment();
         $template = $env->loadTemplate($template); 
@@ -70,11 +78,10 @@ class TwigView extends View {
      * @return TwigEnvironment
      */
     private function getEnvironment() {
-        if( !$this->twigEnvironment ) {
+        if ( !$this->twigEnvironment ) {
             require_once $this->twigDirectory . '/Autoloader.php';
             Twig_Autoloader::register();
             $loader = new Twig_Loader_Filesystem($this->templatesDirectory());
-
             $this->twigEnvironment = new Twig_Environment(
                 $loader, 
                 $this->twigOptions
@@ -83,3 +90,5 @@ class TwigView extends View {
         return $this->twigEnvironment;
     }
 }
+
+?>
