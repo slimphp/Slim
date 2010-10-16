@@ -32,7 +32,6 @@
 
 require_once 'PHPUnit/Framework.php';
 require_once 'ViewTest.php';
-require_once 'TwigViewTest.php';
 require_once 'RouteTest.php';
 require_once 'RouterTest.php';
 require_once 'RequestTest.php';
@@ -43,7 +42,6 @@ class AllTests {
 	public static function suite() {
 		$suite = new PHPUnit_Framework_TestSuite('SlimTestSuite');
 		$suite->addTestSuite('ViewTest');
-		$suite->addTestSuite('TwigViewTest');
 		$suite->addTestSuite('RouteTest');
 		$suite->addTestSuite('RouterTest');
 		$suite->addTestSuite('SlimTest');
