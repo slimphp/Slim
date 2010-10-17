@@ -22,6 +22,8 @@ Slim provides the following notable features out-of-the-box:
 
 ## "Hello World" application (PHP 5 >= 5.3)
 
+The Slim Framework supports anonymous routes. This is the preferred method of defining Slim application routes.
+
     <?php
     require('slim/Slim.php');
     Slim::init();
@@ -33,6 +35,8 @@ Slim provides the following notable features out-of-the-box:
 
 ## "Hello World" application (PHP 5 < 5.3)
 
+If you are running PHP 5 < 5.3, the second `Slim::get` parameter will be the name of a callable function instead of an anonymous function.
+
     <?php
     require('slim/Slim.php');
     Slim::init();
@@ -42,6 +46,42 @@ Slim provides the following notable features out-of-the-box:
     }
     Slim::run();
     ?>
+
+## Get Started
+
+### Install Slim
+
+Download the Slim Framework and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
+
+### Setup .htaccess
+
+Ensure the `.htaccess` and `bootstrap.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
+
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^(.*)$ bootstrap.php [QSA,L]
+
+### Build Your Application
+
+Your Slim application will be defined in `boostrap.php`. First, `require` the Slim Framework:
+
+	require 'slim/Slim.php';
+
+Next, initialize the Slim application:
+
+	Slim::init();
+
+Next, define your application's routes:
+
+	Slim::get('/hello/:name', function ($name) {
+		echo "Hello, $name";
+	});
+
+Finally, run your Slim application:
+
+	Slim::run();
+
+For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
 ## About the Author
 
