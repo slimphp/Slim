@@ -63,7 +63,7 @@ Ensure the `.htaccess` and `bootstrap.php` files are in the same public-accessib
 
 ### Build Your Application
 
-Your Slim application will be defined in `boostrap.php`. First, `require` the Slim Framework:
+Your Slim application will be defined in `bootstrap.php`. First, `require` the Slim Framework:
 
 	require 'slim/Slim.php';
 
@@ -74,7 +74,7 @@ Next, initialize the Slim application:
 Next, define your application's routes:
 
 	Slim::get('/hello/:name', function ($name) {
-		echo "Hello, $name";
+		echo "Hello $name";
 	});
 
 Finally, run your Slim application:
