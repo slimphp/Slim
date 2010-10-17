@@ -25,7 +25,7 @@ Slim provides the following notable features out-of-the-box:
 The Slim Framework supports anonymous routes. This is the preferred method of defining Slim application routes.
 
     <?php
-    require('slim/Slim.php');
+    require 'slim/Slim.php';
     Slim::init();
     Slim::get('/hello/:name', function ($name) {
         echo "Hello, $name!";
@@ -38,7 +38,7 @@ The Slim Framework supports anonymous routes. This is the preferred method of de
 If you are running PHP 5 < 5.3, the second `Slim::get` parameter will be the name of a callable function instead of an anonymous function.
 
     <?php
-    require('slim/Slim.php');
+    require 'slim/Slim.php';
     Slim::init();
     Slim::get('/hello/:name', 'hello');
     function hello($name) {
