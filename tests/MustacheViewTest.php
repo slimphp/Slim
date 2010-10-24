@@ -58,7 +58,7 @@ class MustacheViewTest extends PHPUnit_Framework_TestCase {
 	public function testRendersTemplateWithData() {
 		$this->view->templatesDirectory(realpath('./templates'));
 		ob_start();
-        $this->view->mustacheDirectory= dirname(__FILE__)."/../lib/";
+        MustacheView::$mustacheDirectory= dirname(__FILE__)."/../lib/";
 		$this->view->data(array('foo' => 'bar'));
 		$this->view->render('test.mustache');
 		$output = ob_get_clean();
