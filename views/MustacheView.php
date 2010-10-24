@@ -48,7 +48,7 @@ class MustacheView extends View {
 	/**
 	 * @var string The path to the directory containing Mustache.php
 	 */
-	public $mustacheDirectory = null;
+	public static $mustacheDirectory = null;
 
 	/**
 	 * Renders a template using Mustache.php.
@@ -58,7 +58,7 @@ class MustacheView extends View {
 	 * @return void
 	 */
 	public function render( $template ) {
-		require_once $this->mustacheDirectory . '/Mustache.php';
+		require_once self::$mustacheDirectory . '/Mustache.php';
 		$m = new Mustache();
 		$contents = file_get_contents($this->templatesDirectory() . $template);
 		echo $m->render($contents, $this->data);

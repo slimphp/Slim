@@ -31,7 +31,7 @@
  */
 
 require_once '../slim/View.php';
-require_once '../slim/MustacheView.php';
+require_once '../views/MustacheView.php';
 require_once 'PHPUnit/Framework.php';
  
 class MustacheViewTest extends PHPUnit_Framework_TestCase {
