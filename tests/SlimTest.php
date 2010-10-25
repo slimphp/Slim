@@ -114,7 +114,11 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	public function testSlimInitializationWithCustomView(){
 		Slim::init('CustomView');
 		$this->assertTrue(Slim::view() instanceof CustomView);
+
+        $view = new CustomView();
+        $this->assertTrue(Slim::view() instanceOf CustomView);
 	}
+
 
 	/************************************************
 	 * SLIM SETTINGS

@@ -223,7 +223,8 @@ class Slim {
 	 * handler, and sets the View class used to render templates. If the
 	 * view class parameter is null, a default View will be created.
 	 *
-	 * @param   string  $viewClass  The name of the view class Slim will use
+	 * @param   string|View  $viewClass  The name of the view class Slim 
+     *          will use, or an already initialized View object.
 	 * @return  void
 	 */
 	public static function init( $viewClass = null ) {
@@ -506,17 +507,26 @@ class Slim {
 	 * Get and/or set the View
 	 *
 	 * This method will instantiate a new View if the $viewClass
-	 * parameter is not null. If a View already exists and this
-	 * method is called to create a new View, data already set
-	 * in the existing View will be transferred to the new View.
+	 * parameter is not null. If the passed $viewClass parameter is an
+     * object of the type View, it will use this object instead of
+     * creating a new View.
+     *
+     * If a View already exists and this method is called to create a
+     * new View, data already set in the existing View will be 
+     * transferred to the new View.
 	 *
-	 * @param   string $viewClass The name of the View class
+	 * @param   string|View $viewClass The name of the View class, or an
+     *          existing View object.
 	 * @return  View
 	 */
 	public static function view( $viewClass = null ) {
 		if ( !is_null($viewClass) ) {
 			$existingData = is_null(self::$app->view) ? array() : self::$app->view->data();
-			self::$app->view = new $viewClass();
+            if ( $viewClass instanceOf View ) {
+                self::$app->view = $viewClass;
+            } else {
+                self::$app->view = new $viewClass(); 
+            }
 			self::$app->view->data($existingData);
 		}
 		return self::$app->view;
