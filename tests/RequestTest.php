@@ -150,6 +150,84 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($postData['foo2'], "bar'd");
 		$this->assertEquals($cookieData['foo3'], "bar'd");
 	}
+
+    /**
+     * Test overriding HTTP request methods to force unsupported ones.
+     *
+     * Pre-conditions:
+     * The key _METHOD must be present in POST data.
+     *
+     * Post-condition:
+     * The method is now recognised as the specified _METHOD, and other
+     * POST data is usable as PUT data.
+     */
+    public function testHttpMethodOverrides() {
+        $_POST = array(
+            'foo' => 'bar', 
+            '_METHOD' => 'PUT'
+        );
+        $request = new Request();
+        $this->assertEquals($request->method, 'PUT');
+        $this->assertEquals($request->put(), $request->post());
+    }
+        
+    /**
+     * Test setting the resource of the Request.
+     *
+     * Pre-conditions:
+     * The REQUEST_URI is set.
+     *
+     * Post-conditions:
+     * The resource is set to be the REQUEST_URI, without any extra GET data.
+     */
+    public function testSetResource() {
+        $_SERVER['REQUEST_URI'] = '/foo.php?bar';
+        $request = new Request();
+        $this->assertEquals($request->resource, 'foo.php');
+
+        $_SERVER['REQUEST_URI'] = 'bar.php';
+        $request = new Request();
+        $this->assertEquals($request->resource, 'bar.php');
+    }
+
+    /**
+     * Test the params/get/put/post functions for retrieving input data.
+     * 
+     * Pre-conditions:
+     * Data is present in input arrays (POST, GET, COOKIE, etc)
+     *
+     * Post-conditions:
+     * Requested data is returned if it is present, otherwise null.
+     */
+    public function testParamFunctions() {
+        $_GET = array('get_foo' => 'get_bar');
+        $_POST = array('post_foo' => 'post_bar',);
+        $_COOKIE = array('cookie_foo' => 'cookie_bar');
+        $_SERVER['REQUEST_URI'] = '';
+
+        $request = new Request();
+        $this->assertEquals($request->params('get_foo'), 'get_bar');
+        $this->assertEquals($request->params('post_foo'), 'post_bar');
+        $this->assertNull($request->params('null'));
+
+        $this->assertEquals($request->get(), $_GET);
+        $this->assertEquals($request->post(), $_POST);
+
+        $this->assertEquals($request->get('get_foo'), 'get_bar');
+        $this->assertEquals($request->post('post_foo'), 'post_bar');
+
+        $this->assertEquals($request->cookie('cookie_foo'), 'cookie_bar');
+        $this->assertEquals($request->header('HOST'), 'slim');
+
+        // Handle overriding PUT
+        $_POST = array(
+            'put_foo' => 'put_bar',
+            '_METHOD' => 'PUT' 
+        );
+        $request = new Request();
+        $this->assertEquals($request->put('put_foo'), 'put_bar');
+        $this->assertEquals($request->put(), array('put_foo' => 'put_bar'));
+    }
 	
 }
 

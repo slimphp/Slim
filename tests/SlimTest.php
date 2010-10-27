@@ -794,7 +794,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertEquals(Slim::response()->body(), 'Ok');
 	}
 
-
 }
 
 ?>
