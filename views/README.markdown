@@ -13,5 +13,20 @@ The `TwigView` custom View class provides support for the [Twig](http://www.twig
 	//Insert your application routes here
 	Slim::run();
 	?>
-	
+
 You will need to configure the `TwigView::$twigOptions` and `TwigView::$twigDirectory` class variables before using the TwigView class in your application. These variables can be found at the top of the `views/TwigView.php` class definition.
+
+## MustacheView
+
+The `MustacheView` custom View class provides support for the [Mustache template language](http://mustache.github.com/) and the [Mustache.php library](github.com/bobthecow/mustache.php). You can use the MustacheView custom View in your Slim application like this:
+
+	<?php
+	require 'slim/Slim.php';
+	require 'views/MustacheView.php';
+	MustacheView::$mustacheDirectory = 'path/to/mustacheDirectory/';
+	Slim::init('MustacheView');
+	//Insert your application routes here
+	Slim::run();
+	?>
+
+Before you can use the MustacheView class, you will need to set `MustacheView::$mustacheDirectory`. This property should be the relative or absolute path to the directory containing the `Mustache.php` library.

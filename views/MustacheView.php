@@ -65,3 +65,5 @@ class MustacheView extends View {
 	}
 
 }
+
+?>
