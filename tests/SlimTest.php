@@ -567,6 +567,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		Slim::status(302);
 		$this->assertSame(Slim::response()->status(), 302);
+
+        $this->setExpectedException('InvalidArgumentException');
+        Slim::init();
+        Slim::status(900);
 	}
 
 	/**
