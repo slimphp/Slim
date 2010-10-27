@@ -31,7 +31,7 @@
  */
 
 require_once '../slim/Slim.php';
-require_once 'PHPUnit/Framework.php';
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 //Prepare mock HTTP request
 $_SERVER['REDIRECT_STATUS'] = "200";
@@ -74,7 +74,7 @@ class CustomView extends View {
 	function render($template) { echo "Custom view"; }
 }
 
-class SlimTest extends PHPUnit_Framework_TestCase {
+class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
 	public function setUp() {
 		$_COOKIE['foo'] = 'bar';
@@ -276,7 +276,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::after(function () { Slim::response()->write('Five'); });
 		Slim::get('/', function () { echo 'Three '; });
 		Slim::run();
-		$this->assertEquals(Slim::response()->body(), 'One Two Three Four Five');
+
+        $response = 'One Two Three Four Five';
+        $this->expectOutputString($response);
+		$this->assertEquals(Slim::response()->body(), $response);
 	}
 
 	/************************************************
@@ -667,7 +670,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 			echo "I think your name is $name";
 		});
 		Slim::run();
-		$this->assertEquals(Slim::response()->body(), "I think your name is Frank");
+
+        $response = "I think your name is Frank";
+        $this->expectOutputString($response);
+		$this->assertEquals(Slim::response()->body(), $response);
 	}
 
 	/**
@@ -787,6 +793,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 200);
 		$this->assertEquals(Slim::response()->body(), 'Ok');
 	}
+
 
 }
 
