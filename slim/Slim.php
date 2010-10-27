@@ -96,6 +96,11 @@ class Slim {
 
 	/**
 	 * Constructor
+	 *
+	 * This method instantiates the Slim application
+	 * instance, the Request, the Response, the Router,
+	 * the before callbacks, the after callbacks, and the
+	 * default application settings.
 	 */
 	private function __construct() {
 		$this->request = new Request();
@@ -113,18 +118,23 @@ class Slim {
 
 	/**
 	 * Slim auto-loader
+	 *
+	 * This method allows Slim to lazy-load class files as
+	 * the classes are first instantiated. This method expects
+	 * the class files to exist in the same directory as the
+	 * primary Slim class definition.
 	 */
 	public static function autoload( $className ) {
 		if ( file_exists($file = dirname(__FILE__).'/'.$className.'.php') ) {
 			require_once($file);
 		}
 	}
-
+	
 	/**
-	 * Handle user errors
+	 * Handle errors
 	 *
-	 * This is the global Error handler that will catch an uncaught Error
-	 * and display a nice-looking error page with details about the Error.
+	 * This is the global Error handler that will catch uncaught errors
+	 * and display a nice-looking page with details about the error.
 	 *
 	 * @param   int     $errno      The numeric type of the Error
 	 * @param   string  $errstr     The error message
@@ -134,15 +144,11 @@ class Slim {
 	 */
 	public static function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
 		if ( !(error_reporting() & $errno) ) {
-			return; // This error code is not included in error_reporting
+			return;
 		}
-		if ( ob_get_level() !== 0 ) ob_clean();
 		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $errstr, $errfile, $errline), $errno);
 		if ( self::config('debug') === true ) {
-			$r = new Response();
-			$r->status(500);
-			$r->body(self::generateErrorMarkup($errstr, $errfile, $errline));
-			$r->send();
+			Slim::halt(500, self::generateErrorMarkup($errstr, $errfile, $errline));
 		} else {
 			self::error();
 		}
@@ -150,24 +156,22 @@ class Slim {
 	}
 
 	/**
-	 * Handle user exceptions
+	 * Handle exceptions
 	 *
-	 * This is the global Exception handler that will catch an uncaught Exception
-	 * and display a nice-looking error page with details about the Exception.
+	 * This is the global Exception handler that will catch uncaught exceptions
+	 * and display a nice-looking page with details about the exception.
 	 *
 	 * @param   Exception $e
 	 * @return  void
 	 */
 	public static function handleExceptions( Exception $e ) {
-		if ( ob_get_level() !== 0 ) ob_clean();
-		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
-		if ( self::config('debug') === true ) {
-			$r = new Response();
-			$r->status(500);
-			$r->body(self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
-			$r->send();
-		} else {
-			self::error();
+		if ( $e instanceof SlimStopException === false ) {
+			Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
+			if ( self::config('debug') === true ) {
+				Slim::halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+			} else {
+				self::error();
+			}
 		}
 		die();
 	}
@@ -185,7 +189,7 @@ class Slim {
 	 * @param   string  $trace      A stack trace of the error
 	 * @return  string
 	 */
-	private static function generateErrorMarkup( $message, $file = '', $line = '', $trace = '' ){
+	private static function generateErrorMarkup( $message, $file = '', $line = '', $trace = '' ) {
 		$body = '<p>The application could not run because of the following error:</p>';
 		$body .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
 		if ( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
@@ -219,11 +223,12 @@ class Slim {
 	/**
 	 * Initialize Slim
 	 *
-	 * This instantiates the Slim application, sets a default NotFound
-	 * handler, and sets the View class used to render templates. If the
-	 * view class parameter is null, a default View will be created.
+	 * This instantiates the Slim application, sets a default Not Found
+	 * handler, sets a default Error handler, and sets the View class used 
+	 * to render templates. If the View class parameter is null, a default 
+	 * View will be created.
 	 *
-	 * @param   string  $viewClass  The name of the view class Slim will use
+	 * @param   string  $viewClass  The name of the View class
 	 * @return  void
 	 */
 	public static function init( $viewClass = null ) {
@@ -251,9 +256,9 @@ class Slim {
 	 * If two arguments are provided, the first argument is the setting name
 	 * and the second the setting value.
 	 *
-	 * @param mixed $name If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-	 * @param mixed $value If name is a string, the value of the setting identified by $name
-	 * @return mixed The value of a setting if only one argument and argument is a string
+	 * @param	mixed 	$name 	If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+	 * @param	mixed 	$value 	If name is a string, the value of the setting identified by $name
+	 * @return 	mixed 			The value of a setting if only one argument is a string
 	 */
 	public static function config( $name, $value = null ) {
 		if ( func_num_args() === 1 ) {
@@ -669,16 +674,19 @@ class Slim {
 	}
 
 	/**
-	 * Stop!
+	 * Stop
 	 *
-	 * This stops the Slim app in its tracks and sends the response as is 
-	 * to the client.
+	 * Send the current Response as is and stop executing the Slim
+	 * application. The thrown exception will be caught by the Slim
+	 * custom exception handler which exits this script.
+	 *
+	 * @throws SlimStopException
 	 */
 	public static function stop() {
 		self::response()->send();
-		exit;
+		throw new SlimStopException();
 	}
-
+	
 	/**
 	 * Halt
 	 *
@@ -688,12 +696,17 @@ class Slim {
 	 * If you need to render a template AND customize the response status, 
 	 * you should use Slim::render() instead.
 	 *
-	 * @param   int             $status     The HTTP response status
-	 * @param   string          $message    The HTTP response body
-	 * @throws  SlimException
+	 * @param	int             	$status     The HTTP response status
+	 * @param	string          	$message    The HTTP response body
+	 * @throws	SlimHaltException
 	 */
 	public static function halt( $status, $message = '' ) {
-		throw new SlimException($message, $status);
+		if ( ob_get_level() !== 0 ) {
+			ob_clean();
+		}
+		self::response()->status($status);
+		self::response()->body($message);
+		self::stop();
 	}
 
 	/**
@@ -703,9 +716,13 @@ class Slim {
 	 * this route and continue to the next matching route in the dispatch
 	 * loop. If no subsequent mathing routes are found, a 404 response
 	 * will be sent to the client.
+	 *
+	 * @throws PassException
 	 */
 	public static function pass() {
-		if ( ob_get_level() !== 0 ) ob_clean();
+		if ( ob_get_level() !== 0 ) {
+			ob_clean();
+		}
 		throw new PassException();
 	}
 
@@ -753,9 +770,8 @@ class Slim {
 	 */
 	public static function redirect( $url, $status = 307 ) {
 		if ( $status >= 300 && $status <= 307 ) {
-			self::response()->status($status);
 			self::response()->header('Location', (string)$url);
-			self::response()->send();
+			self::halt($status);
 		} else {
 			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 300-307 status codes.");
 		}
@@ -790,24 +806,16 @@ class Slim {
 	 * method you call. This fires up Slim, routes the request to the
 	 * appropriate callback, then returns a response to the client.
 	 *
-	 * This method will also invoke the NotFound handler if no matching
-	 * routes are found. This method will also catch any Exceptions
-	 * thrown by Slim::halt or by application errors.
+	 * This method will invoke the NotFound handler if no matching
+	 * routes are found.
 	 */
 	public static function run() {
-		try {
-			self::runCallables(self::$app->before);
-			ob_start();
-			if ( !self::router()->dispatch() ) { Slim::notFound(); }
-			self::response()->write(ob_get_clean());
-			self::runCallables(self::$app->after);
-			self::response()->send();
-		} catch ( SlimException $e ) {
-			if ( ob_get_level() !== 0 ) ob_clean();
-			self::response()->status($e->getCode());
-			self::response()->body($e->getMessage());
-			self::response()->send();
-		}
+		self::runCallables(self::$app->before);
+		ob_start();
+		if ( !self::router()->dispatch() ) { Slim::notFound(); }
+		self::response()->write(ob_get_clean());
+		self::runCallables(self::$app->after);
+		self::response()->send();
 	}
 
 }
