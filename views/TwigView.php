@@ -45,13 +45,13 @@ class TwigView extends View {
     /**
      * @var string The path to the Twig code directory WITHOUT the trailing slash
      */
-    public $twigDirectory = null;
+    public static $twigDirectory = null;
 
     /**
      * @var array The options for the Twig environment, see 
      * http://www.twig-project.org/book/03-Twig-for-Developers
      */
-    public $twigOptions = array();
+    public static $twigOptions = array();
 
     /**
      * @var TwigEnvironment The Twig environment for rendering templates.
@@ -79,12 +79,12 @@ class TwigView extends View {
      */
     private function getEnvironment() {
         if ( !$this->twigEnvironment ) {
-            require_once $this->twigDirectory . '/Autoloader.php';
+            require_once self::$twigDirectory . '/Autoloader.php';
             Twig_Autoloader::register();
             $loader = new Twig_Loader_Filesystem($this->templatesDirectory());
             $this->twigEnvironment = new Twig_Environment(
                 $loader, 
-                $this->twigOptions
+                self::$twigOptions
             );
         }
         return $this->twigEnvironment;

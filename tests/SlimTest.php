@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim
  *
@@ -33,7 +31,7 @@ ini_set('display_errors', '1');
  */
 
 require_once '../slim/Slim.php';
-require_once 'PHPUnit/Framework.php';
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 //Prepare mock HTTP request
 $_SERVER['REDIRECT_STATUS'] = "200";
@@ -76,7 +74,7 @@ class CustomView extends View {
 	function render($template) { echo "Custom view"; }
 }
 
-class SlimTest extends PHPUnit_Framework_TestCase {
+class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
 	public function setUp() {
 		$_COOKIE['foo'] = 'bar';
@@ -120,7 +118,12 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 	public function testSlimInitWithCustomView(){
 		Slim::init('CustomView');
 		$this->assertTrue(Slim::view() instanceof CustomView);
+
+        $view = new CustomView();
+		Slim::view($view);
+        $this->assertTrue(Slim::view() instanceOf CustomView);
 	}
+
 
 	/************************************************
 	 * SLIM SETTINGS
@@ -278,7 +281,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::after(function () { Slim::response()->write('Five'); });
 		Slim::get('/', function () { echo 'Three '; });
 		Slim::run();
-		$this->assertEquals(Slim::response()->body(), 'One Two Three Four Five');
+
+        $response = 'One Two Three Four Five';
+        $this->expectOutputString($response);
+		$this->assertEquals(Slim::response()->body(), $response);
 	}
 
 	/************************************************
@@ -540,7 +546,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::run();
 		$this->assertEquals(Slim::response()->body(), 'foo');
 	}
-	
+
 	/**
 	 * Test Slim::halt inside route callback
 	 *
@@ -564,7 +570,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(Slim::response()->status(), 404);
 		$this->assertEquals(Slim::response()->body(), 'Halt not found');
 	}
-	
+
 	/**
 	 * Test Slim::halt outside route callback
 	 *
@@ -667,6 +673,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 		Slim::init();
 		Slim::status(302);
 		$this->assertSame(Slim::response()->status(), 302);
+
+        $this->setExpectedException('InvalidArgumentException');
+        Slim::init();
+        Slim::status(900);
 	}
 
 	/**
