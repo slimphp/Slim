@@ -258,6 +258,48 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertSame($callable, $route->callable());
 	}
 
+	/**
+	 * Test Slim routing and trailing slashes
+	 *
+	 * Pre-conditions:
+	 * A route is defined that expects a trailing slash, but
+	 * the resource URI does not have a trailing slash - but
+	 * otherwise matches the route pattern.
+	 *
+	 * Post-conditions:
+	 * Slim will send a 301 redirect response to the same
+	 * resource URI but with a trailing slash.
+	 */
+	public function testRouteWithSlashAndUrlWithout() {
+		$this->setExpectedException('SlimStopException');
+		$_SERVER['REQUEST_URI'] = '/foo/bar/bob';
+		Slim::init();
+		Slim::get('/foo/bar/:name/', function ($name) {});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 301);
+		$this->assertEquals(Slim::response()->header('Location'), '/foo/bar/bob/');
+	}
+	
+	/**
+	 * Test Slim routing and trailing slashes
+	 *
+	 * Pre-conditions:
+	 * A route is defined that expects no trailing slash, but
+	 * the resource URI does have a trailing slash - but
+	 * otherwise matches the route pattern.
+	 *
+	 * Post-conditions:
+	 * Slim will send a 404 Not Found response
+	 */
+	public function testRouteWithoutSlashAndUrlWith() {
+		$this->setExpectedException('SlimStopException');
+		$_SERVER['REQUEST_URI'] = '/foo/bar/bob/';
+		Slim::init();
+		Slim::get('/foo/bar/:name', function ($name) {});
+		Slim::run();
+		$this->assertEquals(Slim::response()->status(), 404);
+	}
+
 	/************************************************
 	 * SLIM BEFORE AND AFTER CALLBACKS
 	 ************************************************/
