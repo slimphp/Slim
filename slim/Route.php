@@ -91,8 +91,18 @@ class Route {
 	 *
 	 * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
 	 *
-	 * @param string $resourceUri A Request URI
-	 * @return bool
+	 * This method is also smart about trailing slashes. If a route is defined
+	 * with a trailing slash, and if the current request URI does not have
+	 * a trailing slash but otherwise matches the route, a SlimRequestSlashException 
+	 * will be thrown triggering a 301 Redirect to the same URI with a trailing slash.
+	 * This exception is caught in the `Slim::run` loop. If a route is
+	 * defined without a trailing slash, and the current request URI does
+	 * have a trailing slash, the route will not be matched and a 404 Not Found
+	 * response will be sent if no subsequent matching routes are found.
+	 *
+	 * @param	string							$resourceUri A Request URI
+	 * @throws	SlimRequestSlashException
+	 * @return	bool
 	 */
 	public function matches( $resourceUri ) {
 
@@ -102,10 +112,18 @@ class Route {
 
 		//Convert URL params into regex patterns, construct a regex for this route
 		$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
+		if ( substr($this->pattern, -1) === '/' ) {
+			$patternAsRegex = $patternAsRegex . '?';
+		}
 		$patternAsRegex = '@^' . $patternAsRegex . '$@';
 
 		//Cache URL params' names and values if this route matches the current HTTP request
 		if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
+			//If route pattern has trailing slash and the resource URL does not have
+			//a trailing slash, throw a SlimRequestSlashException
+			if ( substr($this->pattern, -1) === '/' && substr($resourceUri, -1) !== '/' ) {
+				throw new SlimRequestSlashException();
+			}
 			array_shift($paramValues);
 			foreach ( $paramNames as $index => $value ) {
 				$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
