@@ -820,12 +820,16 @@ class Slim {
 	 * routes are found.
 	 */
 	public static function run() {
-		self::runCallables(self::$app->before);
-		ob_start();
-		if ( !self::router()->dispatch() ) { Slim::notFound(); }
-		self::response()->write(ob_get_clean());
-		self::runCallables(self::$app->after);
-		self::response()->send();
+		try {
+			self::runCallables(self::$app->before);
+			ob_start();
+			if ( !self::router()->dispatch() ) { Slim::notFound(); }
+			self::response()->write(ob_get_clean());
+			self::runCallables(self::$app->after);
+			self::response()->send();
+		} catch ( SlimRequestSlashException $e ) {
+			self::redirect(self::request()->root . self::request()->resource . '/', 301);
+		}
 	}
 
 }
