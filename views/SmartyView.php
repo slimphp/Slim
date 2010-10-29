@@ -43,81 +43,73 @@
  * - smartyCacheDirectory
  *
  * @package Slim
- * @author  Jose da Silva <http://josedasilva.net>
+ * @author	Jose da Silva <http://josedasilva.net>
  */
 class SmartyView extends View {
 
-    /**
-     * @var string The path to the Smarty code directory WITHOUT the trailing slash
-     */
-    public static $smartyDirectory = null;
+	/**
+	 * @var string The path to the Smarty code directory WITHOUT the trailing slash
+	 */
+	public static $smartyDirectory = null;
 
-    /**
-     * @var string The path to the Smarty compiled templates folder WITHOUT the trailing slash
-     */
-    public static $smartyCompileDirectory = null;
+	/**
+	 * @var string The path to the Smarty compiled templates folder WITHOUT the trailing slash
+	 */
+	public static $smartyCompileDirectory = null;
 
-    /**
-     * @var string The path to the Smarty cache folder WITHOUT the trailing slash
-     */
-    public static $smartyCacheDirectory = null;
+	/**
+	 * @var string The path to the Smarty cache folder WITHOUT the trailing slash
+	 */
+	public static $smartyCacheDirectory = null;
 
-    /**
-     * @var string The path to the templates folder WITHOUT the trailing slash
-     */
-    public static $smartyTemplatesDirectory = 'templates';
+	/**
+	 * @var string The path to the templates folder WITHOUT the trailing slash
+	 */
+	public static $smartyTemplatesDirectory = 'templates';
 
-    /**
-     * @var persistent instance of the Smarty object
-     */
-    public static $smartyInstance =	null;
+	/**
+	 * @var persistent instance of the Smarty object
+	 */
+	private static $smartyInstance = null;
 
-    /**
-    * Render Smarty Template
-    *
-    * This method will output the rendered template content
-    *
-    * @param 	string $template The path to the Smarty template, relative to the  templates directory.
-    * @return 	void
-    */
+	/**
+	* Render Smarty Template
+	*
+	* This method will output the rendered template content
+	*
+	* @param	string $template The path to the Smarty template, relative to the  templates directory.
+	* @return	void
+	*/
 
-    public function render( $template ) {
-        $instance = $this->getInstance();
-        $instance->assign($this->data);
-        echo $instance->fetch($template);
-    }
+	public function render( $template ) {
+		$instance = self::getInstance();
+		$instance->assign($this->data);
+		echo $instance->fetch($template);
+	}
 
-    /**
-     * Creates new Smarty object instance if it doesn't already exist, and returns it.
-     *
-     * @return Smarty Instance
-     */
-    public function getInstance() {
-
-        if ( !( self::$smartyInstance instanceof Smarty) ) {
-            
-            if ( !is_dir(self::$smartyDirectory) ) {
-		throw new RuntimeException('Cannot set the Smarty lib directory : ' . self::$smartyDirectory . '. Directory does not exist.');
-            }
-
-            require_once self::$smartyDirectory . '/Smarty.class.php';
-            self::$smartyInstance = new Smarty();
-
-            self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ?
-                                $this->templatesDirectory() : self::$smartyTemplatesDirectory;
-			
-            if ( self::$smartyCompileDirectory ) {
-		self::$smartyInstance->compile_dir  = self::$smartyCompileDirectory;
-            }
-			
-            if ( self::$smartyCompileDirectory ) {
-		self::$smartyInstance->cache_dir  = self::$smartyCacheDirectory;
-            }
-			
-        }
-
-        return self::$smartyInstance;
-    }
+	/**
+	 * Creates new Smarty object instance if it doesn't already exist, and returns it.
+	 *
+	 * @throws RuntimeException If Smarty lib directory does not exist
+	 * @return Smarty Instance
+	 */
+	public static function getInstance() {
+		if ( !(self::$smartyInstance instanceof Smarty) ) {
+			if ( !is_dir(self::$smartyDirectory) ) {
+				throw new RuntimeException('Cannot set the Smarty lib directory : ' . self::$smartyDirectory . '. Directory does not exist.');
+			}
+			require_once self::$smartyDirectory . '/Smarty.class.php';
+			self::$smartyInstance = new Smarty();
+			self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ? $this->templatesDirectory() : self::$smartyTemplatesDirectory;
+			if ( self::$smartyCompileDirectory ) {
+				self::$smartyInstance->compile_dir	= self::$smartyCompileDirectory;
+			}
+			if ( self::$smartyCacheDirectory ) {
+				self::$smartyInstance->cache_dir  = self::$smartyCacheDirectory;
+			}
+		}
+		return self::$smartyInstance;
+	}
 }
 
 ?>
