@@ -43,4 +43,4 @@ The `SmartyView` custom View class provides support for the [Smarty](http://www.
 	Slim::run();
 	?>
 
-You will need to configure the `SmartyView::$smartyDirectory`, `SmartyView::$smartyCompileDirectory` and `SmartyView::$smartyCacheDirectory` class variables before using the SmartyView class in your application. These variables can be found at the top of the `views/SmartyView.php` class definition.
+You will need to configure the `SmartyView::$smartyDirectory`,  `SmartyView::$smartyCompileDirectory` , `SmartyView::$smartyCacheDirectory` and optionally `SmartyView::$smartyTemplatesDirectory`, class variables before using the SmartyView class in your application. These variables can be found at the top of the `views/SmartyView.php` class definition.

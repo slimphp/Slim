@@ -38,6 +38,7 @@
  *
  * Two fields that you, the developer, will need to change are:
  * - smartyDirectory
+ * - smartyTemplatesDirectory
  * - smartyCompileDirectory
  * - smartyCacheDirectory
  *
@@ -61,19 +62,25 @@ class SmartyView extends View {
      */
     public static $smartyCacheDirectory = null;
 
-	/**
-     * @var instance of the Smarty object
+    /**
+     * @var string The path to the templates folder WITHOUT the trailing slash
      */
-	private $smartyInstance =	null;
+    public static $smartyTemplatesDirectory = 'templates';
 
-	/**
-	 * Render Smarty Template
-	 *
-	 * This method will output the rendered template content
-	 *
-	 * @param 	string $template The path to the Smarty template, relative to the  templates directory.
-	 * @return 	void
-	 */
+    /**
+     * @var persistent instance of the Smarty object
+     */
+    public static $smartyInstance =	null;
+
+    /**
+    * Render Smarty Template
+    *
+    * This method will output the rendered template content
+    *
+    * @param 	string $template The path to the Smarty template, relative to the  templates directory.
+    * @return 	void
+    */
+
     public function render( $template ) {
         $instance = $this->getInstance();
         $instance->assign($this->data);
@@ -85,25 +92,31 @@ class SmartyView extends View {
      *
      * @return Smarty Instance
      */
-    private function getInstance() {
-        if ( !$this->smartyInstance ) {
+    public function getInstance() {
+
+        if ( !( self::$smartyInstance instanceof Smarty) ) {
+            
+            if ( !is_dir(self::$smartyDirectory) ) {
+		throw new RuntimeException('Cannot set the Smarty lib directory : ' . self::$smartyDirectory . '. Directory does not exist.');
+            }
+
             require_once self::$smartyDirectory . '/Smarty.class.php';
+            self::$smartyInstance = new Smarty();
 
-			$this->smartyInstance = new Smarty();
-
-			$this->smartyInstance->template_dir = $this->templatesDirectory();
+            self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ?
+                                $this->templatesDirectory() : self::$smartyTemplatesDirectory;
 			
-			if ( self::$smartyCompileDirectory ) {
-				$this->smartyInstance->compile_dir  = self::$smartyCompileDirectory;
-			}
+            if ( self::$smartyCompileDirectory ) {
+		self::$smartyInstance->compile_dir  = self::$smartyCompileDirectory;
+            }
 			
-			if ( self::$smartyCompileDirectory ) {
-				$this->smartyInstance->cache_dir  = self::$smartyCacheDirectory;
-			}
+            if ( self::$smartyCompileDirectory ) {
+		self::$smartyInstance->cache_dir  = self::$smartyCacheDirectory;
+            }
 			
         }
 
-        return $this->smartyInstance;
+        return self::$smartyInstance;
     }
 }
 
