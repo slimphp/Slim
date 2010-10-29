@@ -2,7 +2,7 @@
 
 /*** REQUIRE SLIM ***/
 
-require('slim/Slim.php');
+require 'slim/Slim.php';
 
 
 /*** INITIALIZE SLIM ***/
