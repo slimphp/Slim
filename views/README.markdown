@@ -30,3 +30,17 @@ The `MustacheView` custom View class provides support for the [Mustache template
 	?>
 
 Before you can use the MustacheView class, you will need to set `MustacheView::$mustacheDirectory`. This property should be the relative or absolute path to the directory containing the `Mustache.php` library.
+
+## SmartyView
+
+The `SmartyView` custom View class provides support for the [Smarty](http://www.smarty.net/) template library. You can use the SmartyView custom View in your Slim application like this:
+
+	<?php
+	require 'slim/Slim.php';
+	require 'views/SmartyView.php';
+	Slim::init('SmartyView');
+	//Insert your application routes here
+	Slim::run();
+	?>
+
+You will need to configure the `SmartyView::$smartyDirectory`, `SmartyView::$smartyCompileDirectory` and `SmartyView::$smartyCacheDirectory` class variables before using the SmartyView class in your application. These variables can be found at the top of the `views/SmartyView.php` class definition.
