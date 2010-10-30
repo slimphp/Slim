@@ -45,27 +45,27 @@ class Response {
 	/**
 	 * @var int The HTTP status code
 	 */
-	private $status;
+	private $status = 200;
 
 	/**
 	 * @var array The HTTP response headers; [ name => value, ... ]
 	 */
-	private $headers;
+	private $headers = array();
 
 	/**
 	 * @var array The HTTP response cookies (not implemented yet)
 	 */
-	private $cookies;
+	private $cookies = array();
 
 	/**
 	 * @var string The HTTP response body
 	 */
-	private $body;
+	private $body = '';
 
 	/**
 	 * @var int The Content-Length of the HTTP response body
 	 */
-	private $length;
+	private $length = 0;
 
 	/**
 	 * @var array Available HTTP response codes with associated messages
@@ -123,9 +123,7 @@ class Response {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->status(200);
 		$this->header('Content-Type', 'text/html');
-		$this->cookies = array();
 	}
 
 	/***** ACCESSORS *****/
@@ -159,15 +157,15 @@ class Response {
 	/**
 	 * Get and/or set an HTTP response header
 	 *
-	 * @param string $key The header name
-	 * @param string $value The header value
-	 * @return string The header value
+	 * @param	string $key		The header name
+	 * @param	string $value	The header value
+	 * @return 	string			The header value
 	 */
 	public function header( $key, $value = null ) {
 		if ( !is_null($value) ) {
 			$this->headers[$key] = $value;
 		}
-		return $this->headers[$key];
+		return isset($this->headers[$key]) ? $this->headers[$key] : null;
 	}
 
 	/**
@@ -226,6 +224,7 @@ class Response {
 	 */
 	public function finalize() {
 		if ( in_array($this->status, array(204, 304)) ) {
+			$this->body('');
 			unset($this->headers['Content-Type']);
 		}
 	}
@@ -235,10 +234,10 @@ class Response {
 	/**
 	 * Get message for HTTP status code
 	 *
-	 * @return string
+	 * @return string|null
 	 */
 	public static function getMessageForCode( $status ) {
-		return self::$messages[$status];
+		return isset(self::$messages[$status]) ? self::$messages[$status] : null;
 	}
 
 	/**
