@@ -38,9 +38,10 @@
  * matching route. If no subsequent routes are found, a
  * HTTP 404 Not Found response will be sent to the client.
  *
- * @author Josh Lockhart <info@joshlockhart.com>
- * @since Version 1.0
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
  */
-class PassException extends Exception {}
+class SlimPassException extends Exception {}
 
 ?>

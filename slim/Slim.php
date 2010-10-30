@@ -733,7 +733,7 @@ class Slim {
 		if ( ob_get_level() !== 0 ) {
 			ob_clean();
 		}
-		throw new PassException();
+		throw new SlimPassException();
 	}
 
 	/**

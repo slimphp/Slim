@@ -180,7 +180,7 @@ class Router {
 						call_user_func_array($callable, array_values($this->matchedRoute->params()));
 					}
 					return true;
-				} catch ( PassException $e ) {
+				} catch ( SlimPassException $e ) {
 					continue;
 				}
 			}
