@@ -37,44 +37,45 @@
  * before the response is sent to the client. In particular, this class sets the
  * HTTP response status, headers, cookies, and body.
  *
- * @author Josh Lockhart <info@joshlockhart.com>
- * @since Version 1.0
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
  */
 class Response {
 
 	/**
-	 * @var int The HTTP status code
+	 * @var int HTTP status code
 	 */
 	private $status = 200;
 
 	/**
-	 * @var array The HTTP response headers; [ name => value, ... ]
+	 * @var array HTTP response headers; [ name => value, ... ]
 	 */
 	private $headers = array();
 
 	/**
-	 * @var array The HTTP response cookies (not implemented yet)
+	 * @var array HTTP response cookies
 	 */
 	private $cookies = array();
 
 	/**
-	 * @var string The HTTP response body
+	 * @var string HTTP response body
 	 */
 	private $body = '';
 
 	/**
-	 * @var int The Content-Length of the HTTP response body
+	 * @var int Content-Length of the HTTP response body
 	 */
 	private $length = 0;
 
 	/**
-	 * @var array Available HTTP response codes with associated messages
+	 * @var array HTTP response codes and messages
 	 */
 	private static $messages = array(
-		// [Informational 1xx]
+		//Informational 1xx
 		100 => '100 Continue',
 		101 => '101 Switching Protocols',
-		// [Successful 2xx]
+		//Successful 2xx
 		200 => '200 OK',
 		201 => '201 Created',
 		202 => '202 Accepted',
@@ -82,7 +83,7 @@ class Response {
 		204 => '204 No Content',
 		205 => '205 Reset Content',
 		206 => '206 Partial Content',
-		// [Redirection 3xx]
+		//Redirection 3xx
 		300 => '300 Multiple Choices',
 		301 => '301 Moved Permanently',
 		302 => '302 Found',
@@ -91,7 +92,7 @@ class Response {
 		305 => '305 Use Proxy',
 		306 => '306 (Unused)',
 		307 => '307 Temporary Redirect',
-		// [Client Error 4xx]
+		//Client Error 4xx
 		400 => '400 Bad Request',
 		401 => '401 Unauthorized',
 		402 => '402 Payment Required',
@@ -110,7 +111,7 @@ class Response {
 		415 => '415 Unsupported Media Type',
 		416 => '416 Requested Range Not Satisfiable',
 		417 => '417 Expectation Failed',
-		// [Server Error 5xx]
+		//Server Error 5xx
 		500 => '500 Internal Server Error',
 		501 => '501 Not Implemented',
 		502 => '502 Bad Gateway',
@@ -131,9 +132,9 @@ class Response {
 	/**
 	 * Set and/or get the HTTP response status code
 	 *
-	 * @param int $status
-	 * @return int
-	 * @throws InvalidArgumentException If status parameter does not match a valid HTTP status code
+	 * @param	int $status
+	 * @return 	int
+	 * @throws	InvalidArgumentException If argument is not a valid HTTP status code
 	 */
 	public function status( $status = null ) {
 		if ( !is_null($status) ) {
@@ -157,9 +158,9 @@ class Response {
 	/**
 	 * Get and/or set an HTTP response header
 	 *
-	 * @param	string $key		The header name
-	 * @param	string $value	The header value
-	 * @return 	string			The header value
+	 * @param	string		$key	The header name
+	 * @param	string		$value	The header value
+	 * @return 	string|null			The header value, or NULL if header not set
 	 */
 	public function header( $key, $value = null ) {
 		if ( !is_null($value) ) {
@@ -169,10 +170,10 @@ class Response {
 	}
 
 	/**
-	 * Replace the HTTP response body
+	 * Set the HTTP response body
 	 *
-	 * @param string $body The new HTTP response body
-	 * @return string The updated HTTP response body
+	 * @param	string $body 	The new HTTP response body
+	 * @return 	string 			The new HTTP response body
 	 */
 	public function body( $body = null ) {
 		if ( !is_null($body) ) {
@@ -186,8 +187,8 @@ class Response {
 	/**
 	 * Append the HTTP response body
 	 *
-	 * @param string $body Content to append to the current HTTP response body
-	 * @return string The updated HTTP response body
+	 * @param	string $body 	Content to append to the current HTTP response body
+	 * @return 	string 			The updated HTTP response body
 	 */
 	public function write( $body ) {
 		$body = (string)$body;
@@ -200,16 +201,17 @@ class Response {
 	/***** COOKIES *****/
 
 	/**
-	 * Add Cookie to Response
+	 * Add Response Cookie
 	 *
-	 * @param Cookie $cookie
+	 * @param	Cookie $cookie
+	 * @return 	void
 	 */
 	public function addCookie( Cookie $cookie ) {
 		$this->cookies[] = $cookie;
 	}
 
 	/**
-	 * Get Cookies set in Response
+	 * Get Response Cookies
 	 *
 	 * @return array
 	 */
@@ -221,6 +223,9 @@ class Response {
 
 	/**
 	 * Finalize response headers before response is sent
+	 *
+	 * @return void
+	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function finalize() {
 		if ( in_array($this->status, array(204, 304)) ) {
@@ -235,6 +240,7 @@ class Response {
 	 * Get message for HTTP status code
 	 *
 	 * @return string|null
+	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public static function getMessageForCode( $status ) {
 		return isset(self::$messages[$status]) ? self::$messages[$status] : null;
@@ -243,7 +249,8 @@ class Response {
 	/**
 	 * Can this HTTP response have a body?
 	 *
-	 * @return true|false
+	 * @return bool
+	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function canHaveBody() {
 		return ( $this->status < 100 || $this->status >= 200 ) && $this->status != 204 && $this->status != 304;
@@ -253,6 +260,8 @@ class Response {
 
 	/**
 	 * Send headers for HTTP response
+	 *
+	 * @return void
 	 */
 	protected function sendHeaders() {
 
@@ -283,6 +292,12 @@ class Response {
 
 	/**
 	 * Send HTTP response
+	 *
+	 * This method will set the Response headers and `echo`
+	 * the Response body to the current output buffer.
+	 *
+	 * @return void
+	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function send() {
 		if ( !headers_sent() ) {
