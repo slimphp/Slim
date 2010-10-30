@@ -214,7 +214,8 @@ class Request {
 	 * resource string, excluding the path to the root Slim app directory
 	 * and any query string.
 	 *
-	 * @return string The resource URI
+	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
+	 * @return 	string The resource URI
 	 */
 	private function extractQueryString() {
 		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
@@ -229,6 +230,7 @@ class Request {
 	/**
 	 * Fetch and parse raw POST or PUT paramters
 	 *
+	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
 	 * @return string
 	 */
 	private function getPutParameters() {
@@ -244,6 +246,7 @@ class Request {
 	/**
 	 * Fetch HTTP request headers
 	 *
+	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
 	 * @return array
 	 */
 	private function getHttpHeaders() {
@@ -273,6 +276,7 @@ class Request {
 	 * HTTP methods, we must use a hidden form input field to
 	 * mimic PUT and DELETE requests. We check for this override here.
 	 *
+	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
 	 * @return void
 	 */
 	private function checkForHttpMethodOverride() {
