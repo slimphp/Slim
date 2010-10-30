@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -33,8 +33,9 @@
 /**
  * Slim Route
  *
- * @author Josh Lockhart <info@joshlockhart.com>
- * @since Version 1.0
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
  */
 class Route {
 
@@ -49,38 +50,34 @@ class Route {
 	private $callable;
 
 	/**
-	 * @var array Conditions for this route's URL parameters (not implemented yet)
+	 * @var array Conditions for this route's URL parameters
 	 */
-	private $conditions;
+	private $conditions = array();
 
 	/**
-	 * @var string The name of this route (optional)
+	 * @var string The name of this route
 	 */
 	private $name;
 
 	/**
 	 * @var array Array of URL parameter names and values
 	 */
-	private $params;
+	private $params = array();
 
 	/**
-	 * @var Router The associated Router that contains this Route
-	 * TODO: Try to decouple Router and Route. For now this serves our purpose
+	 * @var Router The Router that contains this Route
 	 */
 	private $router;
 
 	/**
 	 * Constructor
 	 *
-	 * @param string $pattern The URL pattern (ie. "/books/:id")
-	 * @param mixed $callable Anything that returns TRUE for is_callable()
+	 * @param string	$pattern	The URL pattern (ie. "/books/:id")
+	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
 		$this->pattern = ltrim($pattern, '/');
 		$this->callable = $callable;
-		$this->conditions = array();
-		$this->params = array();
-
 	}
 
 	/**
@@ -93,20 +90,20 @@ class Route {
 	 *
 	 * This method is also smart about trailing slashes. If a route is defined
 	 * with a trailing slash, and if the current request URI does not have
-	 * a trailing slash but otherwise matches the route, a SlimRequestSlashException 
+	 * a trailing slash but otherwise matches the route, a SlimRequestSlashException
 	 * will be thrown triggering a 301 Redirect to the same URI with a trailing slash.
 	 * This exception is caught in the `Slim::run` loop. If a route is
 	 * defined without a trailing slash, and the current request URI does
 	 * have a trailing slash, the route will not be matched and a 404 Not Found
 	 * response will be sent if no subsequent matching routes are found.
 	 *
-	 * @param	string							$resourceUri A Request URI
+	 * @param	string						$resourceUri A Request URI
 	 * @throws	SlimRequestSlashException
 	 * @return	bool
 	 */
 	public function matches( $resourceUri ) {
 
-		//Extract URL params		
+		//Extract URL params
 		preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
 		$paramNames = $paramNames[0];
 
@@ -132,14 +129,14 @@ class Route {
 		} else {
 			return false;
 		}
-		
+
 	}
 
 	/**
 	 * Convert a URL parameter (ie. ":id") into a regular expression
 	 *
-	 * @param array Array of URL params
-	 * @return string Regex for specific URL param's name
+	 * @param	array 	URL parameters
+	 * @return 	string	Regular expression for URL parameter
 	 */
 	private function convertPatternToRegex( $matches ) {
 		$key = str_replace(':', '', $matches[0]);
@@ -171,8 +168,8 @@ class Route {
 	/**
 	 * Set this route's Router
 	 *
-	 * @param Router The router for this Route
-	 * @return void
+	 * @param	Router The router for this Route
+	 * @return 	void
 	 */
 	public function setRouter( Router $router ) {
 		$this->router = $router;
@@ -190,8 +187,8 @@ class Route {
 	/**
 	 * Set this route's name
 	 *
-	 * @param string $name The name of the route
-	 * @return Route
+	 * @param	string $name The name of the route
+	 * @return 	Route
 	 */
 	public function name( $name = null ) {
 		if ( !is_null($name) ) {
@@ -204,8 +201,8 @@ class Route {
 	/**
 	 * Set this route's conditions
 	 *
-	 * @param array $conditions An associative array of URL parameter conditions
-	 * @return Route
+	 * @param	array $conditions An associative array of URL parameter conditions
+	 * @return 	Route
 	 */
 	public function conditions( $conditions = null ) {
 		if ( is_array($conditions) ) {
