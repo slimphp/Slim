@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -41,15 +41,16 @@
  * return the output... if you return the output rather than echoing it, the
  * Slim Response body will be empty.
  *
- * @author Josh Lockhart <info@joshlockhart.com>
- * @since Version 1.0
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
  */
 class View {
 
 	/**
-	 * @var array Associative array of data exposed to the template
+	 * @var array Associative array of data available to the template
 	 */
-	protected $data;
+	protected $data = array();
 
 	/**
 	 * @var string The templates directory
@@ -59,15 +60,13 @@ class View {
 	/**
 	 * Constructor
 	 */
-	final public function __construct() {
-		$this->data = array();
-	}
+	final public function __construct() {}
 
 	/**
 	 * Set and/or get View data
 	 *
-	 * @param array $data An array of key => value pairs; [ key => value, ... ]
-	 * @return array
+	 * @param	array $data [ key => value, ... ]
+	 * @return 	array
 	 */
 	final public function data( $data = null ) {
 		if ( is_array($data) ) {
@@ -79,9 +78,9 @@ class View {
 	/**
 	 * Set and/or get templates directory
 	 *
-	 * @param string $dir The absolute or relative path to the templates directory
-	 * @throws RuntimeException If specified templates directory does not exist or is not a directory
-	 * @return The current templates directory as a string, or NULL if not set
+	 * @param	string				$dir	The absolute or relative path to the templates directory
+	 * @throws	RuntimeException			If templates directory does not exist or is not a directory
+	 * @return 	string|null					The templates directory, or NULL if not set
 	 */
 	final public function templatesDirectory( $dir = null ) {
 		if ( !is_null($dir) ) {
@@ -103,11 +102,11 @@ class View {
 	 * I strongly recommend that you override this method in a subclass if
 	 * you need more advanced templating (ie. Twig or Smarty).
 	 *
-	 * The default View class assumes there is a "templates" directory in the 
+	 * The default View class assumes there is a "templates" directory in the
 	 * same directory as your bootstrap.php file.
 	 *
-	 * @param string $template The template name specified in Slim::render()
-	 * @return void
+	 * @param	string $template The template name specified in Slim::render()
+	 * @return 	void
 	 */
 	public function render( $template ) {
 		extract($this->data);
