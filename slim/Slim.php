@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -47,6 +47,17 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
 	date_default_timezone_set('UTC');
 }
 
+/**
+ * Slim
+ *
+ * This is the primary class for the Slim framework that organizes
+ * requests, responses, views, and the routers. This also provides
+ * helper methods to control the flow of your Slim application.
+ *
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
+ */
 class Slim {
 
 	//Constants helpful when triggering errors or calling Slim::log()
@@ -55,7 +66,7 @@ class Slim {
 	const NOTICE = 1024;
 
 	/**
-	 * @var Slim The actual Slim instance
+	 * @var Slim The application instance
 	 */
 	protected static $app;
 
@@ -80,12 +91,12 @@ class Slim {
 	private $view;
 
 	/**
-	 * @var array Before callback functions
+	 * @var array Before callbacks
 	 */
 	private $before;
 
 	/**
-	 * @var array After callback functions
+	 * @var array After callbacks
 	 */
 	private $after;
 
@@ -123,13 +134,15 @@ class Slim {
 	 * the classes are first instantiated. This method expects
 	 * the class files to exist in the same directory as the
 	 * primary Slim class definition.
+	 *
+	 * @return void
 	 */
 	public static function autoload( $className ) {
-		if ( file_exists($file = dirname(__FILE__).'/'.$className.'.php') ) {
+		if ( file_exists($file = dirname(__FILE__) . '/' . $className . '.php') ) {
 			require_once($file);
 		}
 	}
-	
+
 	/**
 	 * Handle errors
 	 *
@@ -197,7 +210,7 @@ class Slim {
 		if ( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
 		return self::generateTemplateMarkup('Slim Application Error', $body);
 	}
-	
+
 	/**
 	 * Generate default template markup
 	 *
@@ -224,11 +237,11 @@ class Slim {
 	 * Initialize Slim
 	 *
 	 * This instantiates the Slim application, sets a default Not Found
-	 * handler, sets a default Error handler, and sets the View class used 
-	 * to render templates. If the View class parameter is null, a default 
+	 * handler, sets a default Error handler, and sets the View class used
+	 * to render templates. If the View class parameter is null, a default
 	 * View will be created.
 	 *
-	 * @param   string|View  $viewClass  The name of the view class Slim 
+	 * @param   string|View  $viewClass  The name of the view class Slim
      *          will use, or an already initialized View object.
 	 * @return  void
 	 */
@@ -246,7 +259,7 @@ class Slim {
 	 * Configure Slim Settings
 	 *
 	 * This method defines application settings and acts as a setter and a getter.
-	 * 
+	 *
 	 * If only one argument is specified and that argument is a string, the value
 	 * of the setting identified by the first argument will be returned, or NULL if
 	 * that setting does not exist.
@@ -352,7 +365,8 @@ class Slim {
 	 * and sends a 404 HTTP Response whose body is the output of
 	 * the NotFound handler.
 	 *
-	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @param	mixed $callable Anything that returns true for is_callable()
+	 * @return 	void
 	 */
 	public static function notFound( $callable = null ) {
 		if ( !is_null($callable) ) {
@@ -386,7 +400,8 @@ class Slim {
 	 * the Error handler. This method will ONLY be invoked when
 	 * $config['show_errors'] is FALSE.
 	 *
-	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @param	mixed $callable Anything that returns true for is_callable()
+	 * @return 	void
 	 */
 	public static function error( $callable = null ) {
 		if ( !is_null($callable) ) {
@@ -405,11 +420,12 @@ class Slim {
 	 *
 	 * This is an application-wide Logger which will write messages to
 	 * a log file in the log directory (as defined in the app configuration).
-	 * Logging must be enabled for this method to work. A separate log file 
+	 * Logging must be enabled for this method to work. A separate log file
 	 * is created for each day. Each log file is prepended with the type of
 	 * message (ie. Error, Warning, or Notice).
 	 *
-	 * @param string $message The message to send to the Logger
+	 * @param	string $message The message to send to the Logger
+	 * @return 	void
 	 */
 	public static function log( $message, $errno = null ) {
 		if ( self::config('log') ) {
@@ -424,7 +440,7 @@ class Slim {
 					$type = '[WARNING]';
 					break;
 				case E_NOTICE :
-				case E_USER_NOTICE : 
+				case E_USER_NOTICE :
 					$type = '[NOTICE]';
 					break;
 				default :
@@ -444,7 +460,8 @@ class Slim {
 	 * is run. Use this to manipulate the request, session, etc. Queued
 	 * callbacks are called in the order they are added.
 	 *
-	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @param	mixed $callable Anything that returns true for is_callable()
+	 * @return 	void
 	 */
 	public static function before( $callable ) {
 		self::$app->before[] = $callable;
@@ -457,7 +474,8 @@ class Slim {
 	 * is run. Use this to manipulate the response, session, etc. Queued
 	 * callbacks are called in the order they are added.
 	 *
-	 * @param mixed $callable Anything that returns true for is_callable()
+	 * @param	mixed $callable Anything that returns true for is_callable()
+	 * @return 	void
 	 */
 	public static function after( $callable ) {
 		self::$app->after[] = $callable;
@@ -468,8 +486,9 @@ class Slim {
 	 *
 	 * This calls each callable object in the $callables array. This
 	 * is used internally to run the Slim app's BEFORE and AFTER callbacks.
-	 * 
-	 * @param array $callables An array of callable objects
+	 *
+	 * @param	array $callables Callable objects
+	 * @return 	void
 	 */
 	private static function runCallables( $callables ) {
 		foreach ( $callables as $callable ) {
@@ -517,7 +536,7 @@ class Slim {
      * creating a new View.
      *
      * If a View already exists and this method is called to create a
-     * new View, data already set in the existing View will be 
+     * new View, data already set in the existing View will be
      * transferred to the new View.
 	 *
 	 * @param   string|View $viewClass The name of the View class, or an
@@ -530,7 +549,7 @@ class Slim {
             if ( $viewClass instanceOf View ) {
                 self::$app->view = $viewClass;
             } else {
-                self::$app->view = new $viewClass(); 
+                self::$app->view = new $viewClass();
             }
 			self::$app->view->data($existingData);
 		}
@@ -547,9 +566,10 @@ class Slim {
 	 * current HTTP response body. How the template is rendered is
 	 * delegated to the current View.
 	 *
-	 * @param string 	$template 	The name of the template passed into the View::render method
-	 * @param array 	$data 		Associative array of data passed for the View
-	 * @param int 		$status 	The HTTP response status code to use (Optional)
+	 * @param	string 	$template 	The name of the template passed into the View::render method
+	 * @param	array 	$data 		Associative array of data passed for the View
+	 * @param	int 	$status 	The HTTP response status code to use (Optional)
+	 * @return 	void
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
 		self::view()->templatesDirectory(self::config('templates_dir'));
@@ -567,29 +587,30 @@ class Slim {
 	 *
 	 * Set the HTTP 'Last-Modified' header and stop if a conditional
 	 * GET request's `If-Modified-Since` header matches the last modified time
-	 * of the resource. The `time` argument is a UNIX timestamp integer value. 
-	 * When the current request includes an 'If-Modified-Since' header that 
-	 * matches the specified last modified time, the application will stop 
+	 * of the resource. The `time` argument is a UNIX timestamp integer value.
+	 * When the current request includes an 'If-Modified-Since' header that
+	 * matches the specified last modified time, the application will stop
 	 * and send a '304 Not Modified' response.
 	 *
 	 * @param 	int 						$time 	The last modified UNIX timestamp
 	 * @throws 	SlimException 						Returns HTTP 304 Not Modified response if resource last modified time matches `If-Modified-Since` header
 	 * @throws 	InvalidArgumentException 			If provided timestamp is not an integer
+	 * @return 	void
 	 */
 	public static function lastModified( $time ) {
 		if ( is_integer($time) ) {
 			Slim::response()->header('Last-Modified', date(DATE_RFC1123, $time));
 			if ( $time === strtotime(Slim::request()->header('IF_MODIFIED_SINCE'))) Slim::halt(304);
 		} else {
-			throw new InvalidArgumentException("Slim::lastModified only accepts an integer UNIX timestamp value.");
+			throw new InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
 		}
 	}
 
 	/**
 	 * Set ETag HTTP Response Header
 	 *
-	 * Set the etag header and stop if the conditional GET request matches. 
-	 * The `value` argument is a unique identifier for the current resource. 
+	 * Set the etag header and stop if the conditional GET request matches.
+	 * The `value` argument is a unique identifier for the current resource.
 	 * The `type` argument indicates whether the etag should be used as a strong or
 	 * weak cache validator.
 	 *
@@ -600,6 +621,7 @@ class Slim {
 	 * @param 	string 						$value 	The etag value
 	 * @param 	string 						$type 	The type of etag to create; either "strong" or "weak"
 	 * @throws 	InvalidArgumentException 			If provided type is invalid
+	 * @return 	void
 	 */
 	public static function etag( $value, $type = 'strong' ) {
 
@@ -628,8 +650,8 @@ class Slim {
 	 *
 	 * This method will store a persistent session variable that will be accessible
 	 * across multiple HTTP requests until the variable expires or is cleared. This
-	 * implementation uses browser cookies; because Slim sessions are implemented on 
-	 * top of browser cookies, each session variable's value may not be larger then 
+	 * implementation uses browser cookies; because Slim sessions are implemented on
+	 * top of browser cookies, each session variable's value may not be larger then
 	 * 4KB in size. Soon I will add support for encrypted session variables.
 	 *
 	 * This method acts as both a getter and setter. If you invoke this method
@@ -665,7 +687,6 @@ class Slim {
 			return self::request()->cookie($name);
 		} else {
 			self::response()->addCookie(new Cookie($name, $value, $expires, $path, $domain, $secure, $httponly));
-			//TODO: Encrypt all Slim::session variables with application salt
 		}
 	}
 
@@ -674,10 +695,12 @@ class Slim {
 	/**
 	 * Root directory
 	 *
-	 * This method returns the absolute server path to the Slim application
-	 * directory. If the Slim application is installed in a publically accessible
-	 * sub-directory, the subdirectory path will be included. This method
+	 * This method returns the absolute path to the Slim application
+	 * directory. If the Slim application is installed in a public-accessible
+	 * sub-directory, the sub-directory path will be included. This method
 	 * will always return a server path WITH a trailing slash.
+	 *
+	 * @return string
 	 */
 	public static function root() {
 		return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . self::request()->root;
@@ -690,25 +713,27 @@ class Slim {
 	 * application. The thrown exception will be caught by the Slim
 	 * custom exception handler which exits this script.
 	 *
-	 * @throws SlimStopException
+	 * @throws	SlimStopException
+	 * @return 	void
 	 */
 	public static function stop() {
 		self::response()->send();
 		throw new SlimStopException();
 	}
-	
+
 	/**
 	 * Halt
 	 *
-	 * Halt the application and immediately send an HTTP response with a 
-	 * specific status code and body. This may be used to send any type of 
-	 * response: info, success, redirect, client error, or server error. 
-	 * If you need to render a template AND customize the response status, 
+	 * Halt the application and immediately send an HTTP response with a
+	 * specific status code and body. This may be used to send any type of
+	 * response: info, success, redirect, client error, or server error.
+	 * If you need to render a template AND customize the response status,
 	 * you should use Slim::render() instead.
 	 *
 	 * @param	int             	$status     The HTTP response status
 	 * @param	string          	$message    The HTTP response body
 	 * @throws	SlimHaltException
+	 * @return 	void
 	 */
 	public static function halt( $status, $message = '' ) {
 		if ( ob_get_level() !== 0 ) {
@@ -727,7 +752,8 @@ class Slim {
 	 * loop. If no subsequent mathing routes are found, a 404 response
 	 * will be sent to the client.
 	 *
-	 * @throws PassException
+	 * @throws	PassException
+	 * @return 	void
 	 */
 	public static function pass() {
 		if ( ob_get_level() !== 0 ) {
@@ -739,7 +765,8 @@ class Slim {
 	/**
 	 * Set Content-Type
 	 *
-	 * @param string $type The Content-Type for the Response (ie text/html, application/json, etc)
+	 * @param	string $type The Content-Type for the Response (ie text/html, application/json, etc)
+	 * @return 	void
 	 */
 	public static function contentType( $type ) {
 		self::response()->header('Content-Type', $type);
@@ -748,7 +775,8 @@ class Slim {
 	/**
 	 * Set Response status
 	 *
-	 * @param int $status The HTTP response status code
+	 * @param	int $status The HTTP response status code
+	 * @return 	void
 	 */
 	public static function status( $code ) {
 		self::response()->status($code);
@@ -771,19 +799,20 @@ class Slim {
 	 *
 	 * This method immediately redirects the client to a new URL. By default,
 	 * this issues a 307 Temporary Redirect. You may also specify another valid
-	 * 3xx status code if you want. This method will automatically set the 
+	 * 3xx status code if you want. This method will automatically set the
 	 * HTTP Location header for you using the URL parameter.
 	 *
-	 * @param   string                      $url        The destination URL
-	 * @param   int                         $status     The HTTP redirect status code (Optional)
-	 * @throws  InvalidArgumentException                If status parameter is not a valid 3xx status code
+	 * @param	string						$url		The destination URL
+	 * @param	int							$status		The HTTP redirect status code (Optional)
+	 * @throws	InvalidArgumentException				If status parameter is not a valid 3xx status code
+	 * @return	void
 	 */
 	public static function redirect( $url, $status = 307 ) {
 		if ( $status >= 300 && $status <= 307 ) {
 			self::response()->header('Location', (string)$url);
 			self::halt($status);
 		} else {
-			throw new InvalidArgumentException("Slim::redirect only accepts HTTP 300-307 status codes.");
+			throw new InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
 		}
 	}
 
@@ -792,9 +821,11 @@ class Slim {
 	 *
 	 * Default callback that will be called when a route cannot be
 	 * matched to the current HTTP request.
+	 *
+	 * @return void
 	 */
 	public static function defaultNotFound() {
-		echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="'.Slim::request()->root.'">Visit the Home Page</a>');
+		echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . Slim::request()->root . '">Visit the Home Page</a>');
 	}
 
 	/**
@@ -802,6 +833,8 @@ class Slim {
 	 *
 	 * This is the default error handler invoked when the `show_errors` setting
 	 * is set to FALSE.
+	 *
+	 * @return void
 	 */
 	public static function defaultError() {
 		echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
@@ -818,6 +851,8 @@ class Slim {
 	 *
 	 * This method will invoke the NotFound handler if no matching
 	 * routes are found.
+	 *
+	 * @return void
 	 */
 	public static function run() {
 		try {
