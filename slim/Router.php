@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -39,8 +39,9 @@
  * and if a matching route is found, executing the associated callback function
  * using any URL parameters in the request URI.
  *
- * @author Josh Lockhart <info@joshlockhart.com>
- * @since Version 1.0
+ * @package	Slim
+ * @author	Josh Lockhart <info@joshlockhart.com>
+ * @since	Version 1.0
  */
 class Router {
 
@@ -92,13 +93,13 @@ class Router {
 	/**
 	 * Map a route to a callback function
 	 *
-	 * @param string $pattern The URL pattern (ie. "/books/:id")
-	 * @param mixed $callable Anything that returns TRUE for is_callable()
-	 * @param string $method The HTTP request method (GET, POST, PUT, DELETE)
-	 * @return Route
+	 * @param	string	$pattern	The URL pattern (ie. "/books/:id")
+	 * @param	mixed	$callable	Anything that returns TRUE for is_callable()
+	 * @param	string	$method		The HTTP request method (GET, POST, PUT, DELETE)
+	 * @return 	Route
 	 */
 	public function map( $pattern, $callable, $method ) {
-		$route = new Route( $pattern, $callable );
+		$route = new Route($pattern, $callable);
 		$route->setRouter($this);
 		$this->routes[$method][] = $route;
 		return $route;
@@ -107,10 +108,10 @@ class Router {
 	/**
 	 * Cache named route
 	 *
-	 * @param string $name The route name
-	 * @param Route $route The route object
-	 * @throws RuntimeException If a named route already exists with the same name
-	 * @return void
+	 * @param	string				$name	The route name
+	 * @param	Route				$route	The route object
+	 * @throws	RuntimeException			If a named route already exists with the same name
+	 * @return 	void
 	 */
 	public function cacheNamedRoute( $name, Route $route ) {
 		if ( isset($this->namedRoutes[(string)$name]) ) {
@@ -122,10 +123,10 @@ class Router {
 	/**
 	 * Get URL for named route
 	 *
-	 * @param string $name The name of the route
-	 * @param array Associative array of URL parameter names and values
-	 * @throws RuntimeException If named route not found
-	 * @return string The URL for the given route populated with the given parameters
+	 * @param	string				$name	The name of the route
+	 * @param	array 						Associative array of URL parameter names and values
+	 * @throws	RuntimeException			If named route not found
+	 * @return 	string						The URL for the given route populated with the given parameters
 	 */
 	public function urlFor( $name, $params = array() ) {
 		if ( !isset($this->namedRoutes[(string)$name]) ) {
@@ -133,7 +134,7 @@ class Router {
 		}
 		$pattern = $this->namedRoutes[(string)$name]->pattern();
 		foreach ( $params as $key => $value ) {
-			$pattern = str_replace(':'.$key, $value, $pattern);
+			$pattern = str_replace(':' . $key, $value, $pattern);
 		}
 		return $this->request->root . $pattern;
 	}
@@ -141,8 +142,8 @@ class Router {
 	/**
 	 * Register a 404 Not Found callback
 	 *
-	 * @param mixed $callable Anything that returns TRUE for is_callable()
-	 * @return mixed
+	 * @param	mixed $callable Anything that returns TRUE for is_callable()
+	 * @return 	mixed
 	 */
 	public function notFound( $callable = null ) {
 		if ( is_callable($callable) ) {
@@ -154,8 +155,8 @@ class Router {
 	/**
 	 * Register a 500 Error callback
 	 *
-	 * @param mixed $callable Anything that returns TRUE for is_callable()
-	 * @return mixed
+	 * @param	mixed $callable Anything that returns TRUE for is_callable()
+	 * @return 	mixed
 	 */
 	public function error( $callable = null ) {
 		if ( is_callable($callable) ) {
@@ -167,10 +168,9 @@ class Router {
 	/**
 	 * Dispatch request
 	 *
-	 * @return true|false TRUE if matching route is found and callable, else FALSE
+	 * @return bool TRUE if matching route is found and callable, else FALSE
 	 */
 	public function dispatch() {
-		//Iterate over routes for current Request method
 		foreach ( $this->routes[$this->request->method] as $route ) {
 			if ( $route->matches($this->request->resource) ) {
 				$this->matchedRoute = $route;
@@ -185,9 +185,7 @@ class Router {
 				}
 			}
 		}
-
 		return false;
-
 	}
 
 }
