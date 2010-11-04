@@ -183,6 +183,44 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($result);
 		$this->assertEquals($route->params(), array('marks' => $marks));
 	}
+	
+	/**
+	 * Route optional parameters
+	 *
+	 * Pre-conditions:
+	 * Route pattern requires :year, optionally accepts :month and :day
+	 *
+	 * Post-conditions:
+	 * All: Year is 2010
+	 * Case A: Month and day default values are used
+	 * Case B: Month is "05" and day default value is used
+	 * Case C: Month is "05" and day is "13"
+	 */
+	public function testRouteOptionalParameters() {
+		$pattern = 'archive/:year(/:month(/:day))';
+		
+		//Case A
+		$routeA = new Route($pattern, function () {});
+		$resourceA = 'archive/2010';
+		$resultA = $routeA->matches($resourceA);
+		$this->assertTrue($resultA);
+		$this->assertEquals($routeA->params(), array('year' => '2010'));
+		
+		//Case B
+		$routeB = new Route($pattern, function () {});
+		$resourceB = 'archive/2010/05';
+		$resultB = $routeB->matches($resourceB);
+		$this->assertTrue($resultB);
+		$this->assertEquals($routeB->params(), array('year' => '2010', 'month' => '05'));
+		
+		//Case C
+		$routeC = new Route($pattern, function () {});
+		$resourceC = 'archive/2010/05/13';
+		$resultC = $routeC->matches($resourceC);
+		$this->assertTrue($resultC);
+		$this->assertEquals($routeC->params(), array('year' => '2010', 'month' => '05', 'day' => '13'));
+	}
+
 }
 
 ?>
