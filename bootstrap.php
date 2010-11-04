@@ -108,6 +108,12 @@ Slim::get('/hello/:name', function ($name) {
 })->name('hello')->conditions(array('name' => '\w+'));
 
 
+/*** ROUTES WITH OPTIONAL SEGMENTS AND DEFAULT ARGUMENTS ***/
+
+Slim::get('/archive/:year(/:month(/:day))', function ( $year, $month = 5, $day = 20 ) {
+	echo "<p>The date is: $month/$day/$year</p>";
+});
+
 /*** RUN SLIM ***/
 
 Slim::run();
