@@ -76,7 +76,7 @@ class Route {
 	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
-		$this->pattern = ltrim($pattern, '/');
+		$this->pattern = str_replace(')', ')?', ltrim($pattern, '/'));
 		$this->callable = $callable;
 	}
 
@@ -123,7 +123,9 @@ class Route {
 			}
 			array_shift($paramValues);
 			foreach ( $paramNames as $index => $value ) {
-				$this->params[substr($value, 1)] = urldecode($paramValues[$index]);
+				if ( isset($paramValues[substr($value, 1)]) ) {
+					$this->params[substr($value, 1)] = urldecode($paramValues[substr($value, 1)]);
+				}
 			}
 			return true;
 		} else {
@@ -141,9 +143,9 @@ class Route {
 	private function convertPatternToRegex( $matches ) {
 		$key = str_replace(':', '', $matches[0]);
 		if ( array_key_exists($key, $this->conditions) ) {
-			return '(' . $this->conditions[$key] . ')';
+			return '(?P<' . $key . '>' . $this->conditions[$key] . ')';
 		} else {
-			return '([a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
+			return '(?P<' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
 		}
 	}
 
