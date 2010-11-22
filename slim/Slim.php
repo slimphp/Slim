@@ -104,6 +104,16 @@ class Slim {
 	 * @var array Application settings
 	 */
 	private $settings;
+	
+	/**
+	 * @var array Plugin hooks
+	 */
+	private $hooks = array(
+		'slim.before_run' => array(),
+		'slim.before_dispatch' => array(),
+		'slim.after_dispatch' => array(),
+		'slim.after_run' => array()
+	);
 
 	/**
 	 * Constructor
@@ -464,7 +474,7 @@ class Slim {
 	 * @return 	void
 	 */
 	public static function before( $callable ) {
-		self::$app->before[] = $callable;
+		self::hook('slim.before_run', $callable);
 	}
 
 	/**
@@ -478,24 +488,7 @@ class Slim {
 	 * @return 	void
 	 */
 	public static function after( $callable ) {
-		self::$app->after[] = $callable;
-	}
-
-	/**
-	 * Run callbacks
-	 *
-	 * This calls each callable object in the $callables array. This
-	 * is used internally to run the Slim app's BEFORE and AFTER callbacks.
-	 *
-	 * @param	array $callables Callable objects
-	 * @return 	void
-	 */
-	private static function runCallables( $callables ) {
-		foreach ( $callables as $callable ) {
-			if ( is_callable($callable) ) {
-				call_user_func($callable);
-			}
-		}
+		self::hook('slim.after_run', $callable);
 	}
 
 	/***** ACCESSORS *****/
@@ -840,6 +833,71 @@ class Slim {
 		echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
 	}
 
+	/***** HOOKS *****/
+	
+	/**
+	 * Invoke or assign hook
+	 *
+	 * @param string $name The hook name
+	 * @param mixed $callable A callable object
+	 * @return void
+	 */
+	public static function hook($name, $callable = null) {
+		if ( !isset(self::$app->hooks[$name]) ) {
+			self::$app->hooks[$name] = array();
+		}
+		if ( !is_null($callable) ) {
+			if ( is_callable($callable) ) {
+				self::$app->hooks[$name][] = $callable;
+			}
+		} else {
+			foreach( self::$app->hooks[$name] as $listener ) {
+				$listener(self::$app);
+			}
+		}
+	}
+	
+	/**
+	 * Get hook listeners
+	 *
+	 * Return an array of registered hooks. If `$name` is a valid
+	 * hook name, only the listeners attached to that hook are returned.
+	 * Else, all listeners are returned as an associative array whose
+	 * keys are hook names and whose values are arrays of listeners.
+	 *
+	 * @param string $name Optional. A hook name.
+	 * @return array|null
+	 */
+	public static function getHooks($name = null) {
+		if ( !is_null($name) ) {
+			return isset(self::$app->hooks[(string)$name]) ? self::$app->hooks[(string)$name] : null;
+		} else {
+			return self::$app->hooks;
+		}
+	}
+	
+	/**
+	 * Clear hook listeners
+	 *
+	 * Clear all listeners for all hooks. If `$name` is
+	 * a valid hook name, only the listeners attached
+	 * to that hook will be cleared.
+	 *
+	 * @param string $name Optional. A hook name.
+	 * @return void
+	 */
+	public static function clearHooks($name = null) {
+		if ( !is_null($name) ) {
+			if ( isset(self::$app->hooks[(string)$name]) ) {
+				self::$app->hooks[(string)$name] = array();
+			}
+		} else {
+			foreach( self::$app->hooks as $key => $value ) {
+				self::$app->hooks[$key] = array();
+			}
+		}
+	}
+	
 	/***** RUN SLIM *****/
 
 	/**
@@ -856,11 +914,11 @@ class Slim {
 	 */
 	public static function run() {
 		try {
-			self::runCallables(self::$app->before);
+			self::hook('slim.before_run');
 			ob_start();
 			if ( !self::router()->dispatch() ) { Slim::notFound(); }
 			self::response()->write(ob_get_clean());
-			self::runCallables(self::$app->after);
+			self::hook('slim.after_run');
 			self::response()->send();
 		} catch ( SlimRequestSlashException $e ) {
 			self::redirect(self::request()->root . self::request()->resource . '/', 301);

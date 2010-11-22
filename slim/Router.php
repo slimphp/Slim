@@ -177,7 +177,9 @@ class Router {
 				try {
 					$callable = $this->matchedRoute->callable();
 					if ( is_callable($callable) ) {
+						Slim::hook('slim.before_dispatch');
 						call_user_func_array($callable, array_values($this->matchedRoute->params()));
+						Slim::hook('slim.after_dispatch');
 					}
 					return true;
 				} catch ( SlimPassException $e ) {
