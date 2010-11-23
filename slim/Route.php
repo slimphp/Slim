@@ -116,11 +116,6 @@ class Route {
 
 		//Cache URL params' names and values if this route matches the current HTTP request
 		if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
-			//If route pattern has trailing slash and the resource URL does not have
-			//a trailing slash, throw a SlimRequestSlashException
-			if ( substr($this->pattern, -1) === '/' && substr($resourceUri, -1) !== '/' ) {
-				throw new SlimRequestSlashException();
-			}
 			array_shift($paramValues);
 			foreach ( $paramNames as $index => $value ) {
 				if ( isset($paramValues[substr($value, 1)]) ) {
@@ -211,6 +206,24 @@ class Route {
 			$this->conditions = $conditions;
 		}
 		return $this;
+	}
+	
+	/**
+	 * Dispatch route
+	 *
+	 * @return bool
+	 */
+	public function dispatch() {
+		//If route pattern has trailing slash and the resource URL does not have
+		//a trailing slash, throw a SlimRequestSlashException
+		if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->resource, -1) !== '/' ) {
+			throw new SlimRequestSlashException();
+		}
+		if ( is_callable($this->callable) ) {
+			call_user_func_array($this->callable, array_values($this->params()));
+			return true;
+		}
+		return false;
 	}
 
 }

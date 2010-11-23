@@ -474,7 +474,7 @@ class Slim {
 	 * @return 	void
 	 */
 	public static function before( $callable ) {
-		self::hook('slim.before_run', $callable);
+		self::hook('slim.before.router', $callable);
 	}
 
 	/**
@@ -488,7 +488,7 @@ class Slim {
 	 * @return 	void
 	 */
 	public static function after( $callable ) {
-		self::hook('slim.after_run', $callable);
+		self::hook('slim.after.router', $callable);
 	}
 
 	/***** ACCESSORS *****/
@@ -914,12 +914,29 @@ class Slim {
 	 */
 	public static function run() {
 		try {
-			self::hook('slim.before_run');
+			self::hook('slim.before');
 			ob_start();
-			if ( !self::router()->dispatch() ) { Slim::notFound(); }
+			self::hook('slim.before.router');
+			$dispatched = false;
+			foreach( self::router() as $route ) {
+				try {
+					Slim::hook('slim.before.dispatch');
+					$dispatched = $route->dispatch();
+					Slim::hook('slim.after.dispatch');
+					if ( $dispatched ) {
+						break;
+					}
+				} catch ( SlimPassException $e ) {
+					continue;
+				}
+			}
+			if ( !$dispatched ) {
+				Slim::notFound();
+			}
 			self::response()->write(ob_get_clean());
-			self::hook('slim.after_run');
+			self::hook('slim.after.router');
 			self::response()->send();
+			self::hook('slim.after');
 		} catch ( SlimRequestSlashException $e ) {
 			self::redirect(self::request()->root . self::request()->resource . '/', 301);
 		}

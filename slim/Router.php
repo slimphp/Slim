@@ -43,7 +43,7 @@
  * @author	Josh Lockhart <info@joshlockhart.com>
  * @since	Version 1.0
  */
-class Router {
+class Router implements Iterator {
 
 	/**
 	 * @var Request
@@ -61,10 +61,10 @@ class Router {
 	private $namedRoutes;
 
 	/**
-	 * @var Route The Route that matches the current HTTP request, or NULL
+	 * @var array Array of routes matching the Request method and URL
 	 */
-	private $matchedRoute;
-
+	private $matchedRoutes;
+	
 	/**
 	 * @var mixed 404 Not Found callback function if a matching route is not found
 	 */
@@ -75,6 +75,11 @@ class Router {
 	 */
 	private $error;
 
+	/**
+	 * @var int Iterator position
+	 */
+	private $position;
+	
 	/**
 	 * Constructor
 	 *
@@ -88,6 +93,7 @@ class Router {
 			'PUT' => array(),
 			'DELETE' => array()
 		);
+		$this->position = 0;
 	}
 
 	/**
@@ -102,6 +108,9 @@ class Router {
 		$route = new Route($pattern, $callable);
 		$route->setRouter($this);
 		$this->routes[$method][] = $route;
+		if ( $method === $this->request->method && $route->matches($this->request->resource) ) {
+			$this->matchedRoutes[] = $route;
+		}
 		return $route;
 	}
 
@@ -164,30 +173,63 @@ class Router {
 		}
 		return $this->error;
 	}
+	
+	/**
+	 * Get router Request object
+	 *
+	 * @return Request
+	 */
+	public function getRequest() {
+		return $this->request;
+	}
+
+	/***** ITERABLE INTERFACE *****/
 
 	/**
-	 * Dispatch request
+	 * Return the current route being dispatched
 	 *
-	 * @return bool TRUE if matching route is found and callable, else FALSE
+	 * @return Route
 	 */
-	public function dispatch() {
-		foreach ( $this->routes[$this->request->method] as $route ) {
-			if ( $route->matches($this->request->resource) ) {
-				$this->matchedRoute = $route;
-				try {
-					$callable = $this->matchedRoute->callable();
-					if ( is_callable($callable) ) {
-						Slim::hook('slim.before_dispatch');
-						call_user_func_array($callable, array_values($this->matchedRoute->params()));
-						Slim::hook('slim.after_dispatch');
-					}
-					return true;
-				} catch ( SlimPassException $e ) {
-					continue;
-				}
-			}
-		}
-		return false;
+	public function current() {
+		return $this->matchedRoutes[$this->position];
+	}
+
+	/**
+	 * Reset the current route to the first matching route
+	 *
+	 * @return void
+	 */
+	public function rewind() {
+		$this->position = 0;
+	}
+
+	/**
+	 * Return the position of the current route being dispatched
+	 * among all matching routes
+	 *
+	 * @return int
+	 */
+	public function key() {
+		return $this->position;
+	}
+
+	/**
+	 * Return the position of the next route to be dispatched
+	 * among all matching routes
+	 *
+	 * @return int
+	 */
+	public function next() {
+		$this->position = $this->position + 1;
+	}
+
+	/**
+	 * Does a matched route exist at a given position?
+	 *
+	 * @return bool
+	 */
+	public function valid() {
+		return isset($this->matchedRoutes[$this->position]);
 	}
 
 }
