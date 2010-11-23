@@ -866,6 +866,112 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertEquals(Slim::response()->body(), 'Ok');
 	}
 
+	/************************************************
+	 * SLIM HOOKS
+	 ************************************************/
+
+	/**
+	 * Test hook listener
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized;
+	 * Hook name does not exist
+	 * Listeners are callable objects
+	 *
+	 * Post-conditions:
+	 * Hook is created;
+	 * Callable objects are assigned to hook
+	 */
+	public function testHookValidListener() {
+		Slim::init();
+		$callable1 = function ($app) {};
+		$callable2 = function ($app) {};
+		Slim::hook('test.hook.one', $callable1);
+		Slim::hook('test.hook.one', $callable2);
+		$hooksByKey = Slim::getHooks('test.hook.one');
+		$this->assertArrayHasKey('test.hook.one', Slim::getHooks());
+		$this->assertSame($hooksByKey[0], $callable1);
+		$this->assertSame($hooksByKey[1], $callable2);
+	}
+
+	/**
+	 * Test hook listener if listener is not callable
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized;
+	 * Hook name does not exist;
+	 * Listener is NOT a callable object
+	 *
+	 * Post-conditions:
+	 * Hook is created;
+	 * Callable object is NOT assigned to hook;
+	 */
+	public function testHookInvalidListener() {
+		Slim::init();
+		$callable = 'test';
+		Slim::hook('test.hook.one', $callable);
+		$this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+	}
+
+	/**
+	 * Test hook invocation
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized;
+	 * Hook name does not exist;
+	 * Listener is a callable object
+	 *
+	 * Post-conditions:
+	 * Hook listener is invoked
+	 */
+	public function testHookInvocation() {
+		$this->expectOutputString('Foo');
+		Slim::init();
+		Slim::hook('test.hook.one', function ($app) {
+			echo 'Foo';
+		});
+		Slim::hook('test.hook.one');
+	}
+	
+	/**
+	 * Test hook invocation if hook does not exist
+	 *
+	 * Pre-conditions:
+	 * Slim app intialized;
+	 * Hook name does not exist
+	 *
+	 * Post-conditions:
+	 * Hook is created;
+	 * Hook initialized with empty array
+	 */
+	public function testHookInvocationIfNotExists() {
+		Slim::init();
+		Slim::hook('test.hook.one');
+		$this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+	}
+	
+	/**
+	 * Test clear hooks
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized
+	 * Two hooks exist, each with one listener
+	 *
+	 * Post-conditions:
+	 * Case A: Listeners for 'test.hook.one' are cleared
+	 * Case B: Listeners for all hooks are cleared
+	 */
+	public function testHookClear() {
+		Slim::init();
+		Slim::hook('test.hook.one', function () {});
+		Slim::hook('test.hook.two', function () {});
+		Slim::clearHooks('test.hook.two');
+		$this->assertEquals(array(), Slim::getHooks('test.hook.two'));
+		$this->assertTrue(count(Slim::getHooks('test.hook.one')) === 1);
+		Slim::clearHooks();
+		$this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+	}
+
 }
 
 ?>
