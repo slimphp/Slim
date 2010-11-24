@@ -95,6 +95,29 @@ class Router implements Iterator {
 		);
 		$this->position = 0;
 	}
+	
+	/***** ACCESSORS *****/
+	
+	/**
+	 * Get Request
+	 *
+	 * @return Request
+	 */
+	public function getRequest() {
+		return $this->request;
+	}
+	
+	/**
+	 * Set Request
+	 *
+	 * @param Request
+	 * @return void
+	 */
+	public function setRequest( Request $req ) {
+		$this->request = $req;
+	}
+	
+	/***** MAPPING *****/
 
 	/**
 	 * Map a route to a callback function
@@ -173,17 +196,8 @@ class Router implements Iterator {
 		}
 		return $this->error;
 	}
-	
-	/**
-	 * Get router Request object
-	 *
-	 * @return Request
-	 */
-	public function getRequest() {
-		return $this->request;
-	}
 
-	/***** ITERABLE INTERFACE *****/
+	/***** ITERATOR INTERFACE *****/
 
 	/**
 	 * Return the current route being dispatched
@@ -204,8 +218,8 @@ class Router implements Iterator {
 	}
 
 	/**
-	 * Return the position of the current route being dispatched
-	 * among all matching routes
+	 * Return the 0-indexed position of the current route 
+	 * being dispatched among all matching routes
 	 *
 	 * @return int
 	 */
@@ -214,8 +228,8 @@ class Router implements Iterator {
 	}
 
 	/**
-	 * Return the position of the next route to be dispatched
-	 * among all matching routes
+	 * Return the 0-indexed position of the next route to 
+	 * be dispatched among all matching routes
 	 *
 	 * @return int
 	 */
@@ -224,7 +238,7 @@ class Router implements Iterator {
 	}
 
 	/**
-	 * Does a matched route exist at a given position?
+	 * Does a matching route exist at a given 0-indexed position?
 	 *
 	 * @return bool
 	 */
@@ -233,5 +247,4 @@ class Router implements Iterator {
 	}
 
 }
-
 ?>
