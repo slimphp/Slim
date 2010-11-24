@@ -109,10 +109,12 @@ class Slim {
 	 * @var array Plugin hooks
 	 */
 	private $hooks = array(
-		'slim.before_run' => array(),
-		'slim.before_dispatch' => array(),
-		'slim.after_dispatch' => array(),
-		'slim.after_run' => array()
+		'slim.before' => array(),
+		'slim.before.router' => array(),
+		'slim.before.dispatch' => array(),
+		'slim.after.dispatch' => array(),
+		'slim.after.router' => array(),
+		'slim.after' => array()
 	);
 
 	/**
@@ -127,8 +129,6 @@ class Slim {
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router( $this->request );
-		$this->before = array();
-		$this->after = array();
 		$this->settings = array(
 			'log' => true,
 			'log_dir' => './logs',
