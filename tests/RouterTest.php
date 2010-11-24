@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL|E_STRICT);
+ini_set('display_errors', '1');
 /**
  * Slim
  *
@@ -31,6 +33,7 @@
  */
 
 require_once '../slim/Router.php';
+require_once '../slim/Request.php';
 require_once '../slim/Route.php';
 require_once 'PHPUnit/Framework.php';
 

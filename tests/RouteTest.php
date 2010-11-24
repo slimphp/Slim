@@ -75,7 +75,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRouteSetsPatternWithoutLeadingSlash() {
 		$route = new Route('/foo/bar', function () {});
-		$this->assertEquals('foo/bar', $route->pattern());
+		$this->assertEquals('foo/bar', $route->getPattern());
 	}
 
 	/**
@@ -85,7 +85,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	public function testRouteSetsCallableAsFunction() {
 		$callable = function () { echo "Foo!"; };
 		$route = new Route('/foo/bar', $callable);
-		$this->assertSame($callable, $route->callable());
+		$this->assertSame($callable, $route->getCallable());
 	}
 
 	/**
@@ -94,7 +94,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRouteSetsCallableAsString() {
 		$route = new Route('/foo/bar', 'testCallable');
-		$this->assertEquals('testCallable', $route->callable());
+		$this->assertEquals('testCallable', $route->getCallable());
 	}
 
 	/**
@@ -105,7 +105,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/hello/:name', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
-		$this->assertEquals($route->params(), array('name' => 'Josh'));
+		$this->assertEquals($route->getParams(), array('name' => 'Josh'));
 	}
 
 	/**
@@ -116,7 +116,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/hello/:first/and/:second', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
-		$this->assertEquals($route->params(), array('first' => 'Josh', 'second' => 'John'));
+		$this->assertEquals($route->getParams(), array('first' => 'Josh', 'second' => 'John'));
 	}
 
 	/**
@@ -127,7 +127,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/hello/:name', function () {});
 		$result = $route->matches($resource);
 		$this->assertFalse($result);
-		$this->assertEquals($route->params(), array());
+		$this->assertEquals($route->getParams(), array());
 	}
 
 	/**
@@ -139,7 +139,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route->conditions(array('first' => '[a-zA-Z]{3,}'));
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
-		$this->assertEquals($route->params(), array('first' => 'Josh', 'second' => 'John'));
+		$this->assertEquals($route->getParams(), array('first' => 'Josh', 'second' => 'John'));
 	}
 
 	/**
@@ -151,7 +151,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route->conditions(array('first' => '[a-z]{3,}'));
 		$result = $route->matches($resource);
 		$this->assertFalse($result);
-		$this->assertEquals($route->params(), array());
+		$this->assertEquals($route->getParams(), array());
 	}
 
 	/*
@@ -167,7 +167,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/rfc2386/:symbols', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
-		$this->assertEquals($route->params(), array('symbols' => $symbols));
+		$this->assertEquals($route->getParams(), array('symbols' => $symbols));
 	}
 
 	/*
@@ -181,7 +181,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$route = new Route('/marks/:marks', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
-		$this->assertEquals($route->params(), array('marks' => $marks));
+		$this->assertEquals($route->getParams(), array('marks' => $marks));
 	}
 	
 	/**
@@ -204,21 +204,21 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$resourceA = 'archive/2010';
 		$resultA = $routeA->matches($resourceA);
 		$this->assertTrue($resultA);
-		$this->assertEquals($routeA->params(), array('year' => '2010'));
+		$this->assertEquals($routeA->getParams(), array('year' => '2010'));
 		
 		//Case B
 		$routeB = new Route($pattern, function () {});
 		$resourceB = 'archive/2010/05';
 		$resultB = $routeB->matches($resourceB);
 		$this->assertTrue($resultB);
-		$this->assertEquals($routeB->params(), array('year' => '2010', 'month' => '05'));
+		$this->assertEquals($routeB->getParams(), array('year' => '2010', 'month' => '05'));
 		
 		//Case C
 		$routeC = new Route($pattern, function () {});
 		$resourceC = 'archive/2010/05/13';
 		$resultC = $routeC->matches($resourceC);
 		$this->assertTrue($resultC);
-		$this->assertEquals($routeC->params(), array('year' => '2010', 'month' => '05', 'day' => '13'));
+		$this->assertEquals($routeC->getParams(), array('year' => '2010', 'month' => '05', 'day' => '13'));
 	}
 
 }
