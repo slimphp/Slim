@@ -131,7 +131,7 @@ class Router implements Iterator {
 		$route = new Route($pattern, $callable);
 		$route->setRouter($this);
 		$this->routes[$method][] = $route;
-		if ( $method === $this->request->method && $route->matches($this->request->resource) ) {
+		if ( $method === $this->getRequest()->method && $route->matches($this->getRequest()->resource) ) {
 			$this->matchedRoutes[] = $route;
 		}
 		return $route;
@@ -164,11 +164,11 @@ class Router implements Iterator {
 		if ( !isset($this->namedRoutes[(string)$name]) ) {
 			throw new RuntimeException('Named route not found for name: ' . $name);
 		}
-		$pattern = $this->namedRoutes[(string)$name]->pattern();
+		$pattern = $this->namedRoutes[(string)$name]->getPattern();
 		foreach ( $params as $key => $value ) {
 			$pattern = str_replace(':' . $key, $value, $pattern);
 		}
-		return $this->request->root . $pattern;
+		return $this->getRequest()->root . $pattern;
 	}
 
 	/**

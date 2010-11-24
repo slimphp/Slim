@@ -200,8 +200,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::get('/foo/bar', $callable);
-		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $route->callable());
+		$this->assertEquals('foo/bar', $route->getPattern());
+		$this->assertSame($callable, $route->getCallable());
 	}
 
 	/**
@@ -218,8 +218,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::post('/foo/bar', $callable);
-		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $route->callable());
+		$this->assertEquals('foo/bar', $route->getPattern());
+		$this->assertSame($callable, $route->getCallable());
 	}
 
 	/**
@@ -236,8 +236,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::put('/foo/bar', $callable);
-		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $route->callable());
+		$this->assertEquals('foo/bar', $route->getPattern());
+		$this->assertSame($callable, $route->getCallable());
 	}
 
 	/**
@@ -254,8 +254,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		$callable = function () { echo "foo"; };
 		$route = Slim::delete('/foo/bar', $callable);
-		$this->assertEquals('foo/bar', $route->pattern());
-		$this->assertSame($callable, $route->callable());
+		$this->assertEquals('foo/bar', $route->getPattern());
+		$this->assertSame($callable, $route->getCallable());
 	}
 
 	/**

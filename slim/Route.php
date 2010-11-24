@@ -76,10 +76,119 @@ class Route {
 	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
-		$this->pattern = str_replace(')', ')?', ltrim($pattern, '/'));
-		$this->callable = $callable;
+		$this->setPattern(str_replace(')', ')?', ltrim($pattern, '/')));
+		$this->setCallable($callable);
 	}
 
+	/***** ACCESSORS *****/
+	
+	/**
+	 * Get route pattern
+	 *
+	 * @return string
+	 */
+	public function getPattern() {
+		return $this->pattern;
+	}
+	
+	/**
+	 * Set route pattern
+	 *
+	 * @param string $pattern
+	 * @return void
+	 */
+	public function setPattern( $pattern ) {
+		$this->pattern = $pattern;
+	}
+	
+	/**
+	 * Get route callable
+	 *
+	 * @return mixed
+	 */
+	public function getCallable() {
+		return $this->callable;
+	}
+	
+	/**
+	 * Set route callable
+	 *
+	 * @param mixed $callable
+	 * @return void
+	 */
+	public function setCallable($callable) {
+		$this->callable = $callable;
+	}
+	
+	/**
+	 * Get route conditions
+	 *
+	 * @return array
+	 */
+	public function getConditions() {
+		return $this->conditions;
+	}
+	
+	/**
+	 * Set route conditions
+	 *
+	 * @param array $conditions
+	 * @return void
+	 */
+	public function setConditions( $conditions ) {
+		$this->conditions = (array)$conditions;
+	}
+	
+	/**
+	 * Get route name
+	 *
+	 * @return string|null
+	 */
+	public function getName() {
+		return $this->name;
+	}
+	
+	/**
+	 * Set route name
+	 *
+	 * @param string $name
+	 * @return void
+	 */
+	public function setName( $name ) {
+		$this->name = $name;
+		$this->getRouter()->cacheNamedRoute($name, $this);
+	}
+	
+	/**
+	 * Get route parameters
+	 *
+	 * @return array
+	 */
+	public function getParams() {
+		return $this->params;
+	}
+	
+	/**
+	 * Get router
+	 *
+	 * @return Router
+	 */
+	public function getRouter() {
+		return $this->router;
+	}
+	
+	/**
+	 * Set router
+	 *
+	 * @param Router $router
+	 * @return void
+	 */
+	public function setRouter( Router $router ) {
+		$this->router = $router;
+	}
+	
+	/***** ROUTE PARSING AND MATCHING *****/
+	
 	/**
 	 * Matches URI?
 	 *
@@ -104,12 +213,12 @@ class Route {
 	public function matches( $resourceUri ) {
 
 		//Extract URL params
-		preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
+		preg_match_all('@:([\w]+)@', $this->getPattern(), $paramNames, PREG_PATTERN_ORDER);
 		$paramNames = $paramNames[0];
 
 		//Convert URL params into regex patterns, construct a regex for this route
-		$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
-		if ( substr($this->pattern, -1) === '/' ) {
+		$patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->getPattern());
+		if ( substr($this->getPattern(), -1) === '/' ) {
 			$patternAsRegex = $patternAsRegex . '?';
 		}
 		$patternAsRegex = '@^' . $patternAsRegex . '$@';
@@ -144,69 +253,33 @@ class Route {
 		}
 	}
 
+	/***** HELPERS *****/
+	
 	/**
-	 * Return the callable for this Route
-	 *
-	 * @return mixed
-	 */
-	public function callable() {
-		return $this->callable;
-	}
-
-	/**
-	 * Return the parameter names and values for this Route
-	 *
-	 * @return array
-	 */
-	public function params() {
-		return $this->params;
-	}
-
-	/**
-	 * Set this route's Router
-	 *
-	 * @param	Router The router for this Route
-	 * @return 	void
-	 */
-	public function setRouter( Router $router ) {
-		$this->router = $router;
-	}
-
-	/**
-	 * Get the pattern for this Route
-	 *
-	 * @return string
-	 */
-	public function pattern() {
-		return $this->pattern;
-	}
-
-	/**
-	 * Set this route's name
+	 * Set route name (alias for Route::setName)
 	 *
 	 * @param	string $name The name of the route
 	 * @return 	Route
 	 */
-	public function name( $name = null ) {
-		if ( !is_null($name) ) {
-			$this->name = (string)$name;
-			$this->router->cacheNamedRoute($name, $this);
-		}
+	public function name( $name ) {
+		$this->setName($name);
 		return $this;
 	}
 
 	/**
-	 * Set this route's conditions
+	 * Set route conditions (alias for Route::setConditions)
 	 *
 	 * @param	array $conditions An associative array of URL parameter conditions
 	 * @return 	Route
 	 */
-	public function conditions( $conditions = null ) {
+	public function conditions( $conditions ) {
 		if ( is_array($conditions) ) {
 			$this->conditions = $conditions;
 		}
 		return $this;
 	}
+	
+	/***** DISPATCHING *****/
 	
 	/**
 	 * Dispatch route
@@ -214,18 +287,15 @@ class Route {
 	 * @return bool
 	 */
 	public function dispatch() {
-		//If route pattern has trailing slash and the resource URL does not have
-		//a trailing slash, throw a SlimRequestSlashException
-		if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->resource, -1) !== '/' ) {
+		if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->resource, -1) !== '/' ) {
 			throw new SlimRequestSlashException();
 		}
-		if ( is_callable($this->callable) ) {
-			call_user_func_array($this->callable, array_values($this->params()));
+		if ( is_callable($this->getCallable()) ) {
+			call_user_func_array($this->getCallable(), array_values($this->getParams()));
 			return true;
 		}
 		return false;
 	}
 
 }
-
 ?>
