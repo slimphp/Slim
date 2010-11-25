@@ -33,13 +33,11 @@
 /**
  * Slim View
  *
- * The View is delegated the responsibility of rendering a template. Usually
- * you will subclass View and, in the subclass, re-implement the render
- * method to use a custom templating engine, such as Smarty, Twig, Markdown, etc.
- *
- * It is very important that the View *echo* the final template output. DO NOT
- * return the output... if you return the output rather than echoing it, the
- * Slim Response body will be empty.
+ * The View is delegated the responsibility of rendering and/or displaying
+ * a template. It is recommended that you subclass View and re-implement the 
+ * `View::render` method to use a custom templating engine such as 
+ * Smarty, Twig, Markdown, etc. It is very important that `View::render`
+ * `return` the final template output. Do not `echo` the output.
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
@@ -48,71 +46,124 @@
 class View {
 
 	/**
-	 * @var array Associative array of data available to the template
+	 * @var array Key-value array of data available to the template
 	 */
 	protected $data = array();
 
 	/**
-	 * @var string The templates directory
+	 * @var string Absolute or relative path to the templates directory
 	 */
 	protected $templatesDirectory;
 
 	/**
 	 * Constructor
+	 *
+	 * This is empty but may be modified in a subclass if required
 	 */
-	final public function __construct() {}
+	public function __construct() {}
+
+	/***** ACCESSORS *****/
 
 	/**
-	 * Set and/or get View data
+	 * Get data
 	 *
-	 * @param	array $data [ key => value, ... ]
-	 * @return 	array
+	 * @param	string $key
+	 * @return 	array|null
 	 */
-	final public function data( $data = null ) {
-		if ( is_array($data) ) {
-			$this->data = array_merge($this->data, $data);
+	public function getData( $key = null ) {
+		if ( !is_null($key) ) {
+			return isset($this->data[$key]) ? $this->data[$key] : null;
+		} else {
+			return $this->data;
 		}
-		return $this->data;
 	}
 
 	/**
-	 * Set and/or get templates directory
+	 * Set data
 	 *
-	 * @param	string				$dir	The absolute or relative path to the templates directory
-	 * @throws	RuntimeException			If templates directory does not exist or is not a directory
-	 * @return 	string|null					The templates directory, or NULL if not set
+	 * This method is overloaded to accept two different method signatures.
+	 * You may use this to set a specific key with a specfic value,
+	 * or you may use this to set all data to a specific array.
+	 *
+	 * USAGE:
+	 *
+	 * View::setData('color', 'red');
+	 * View::setData(array('color' => 'red', 'number' => 1));
+	 * 
+	 * @param	string|array
+	 * @param	mixed Optional. Only use if first argument is a string.
+	 * @return 	void
 	 */
-	final public function templatesDirectory( $dir = null ) {
-		if ( !is_null($dir) ) {
-			if ( !is_dir($dir) ) {
-				throw new RuntimeException('Cannot set View templates directory to: ' . $dir . '. Directory does not exist.');
-			}
-			$this->templatesDirectory = rtrim($dir, '/') . '/';
+	public function setData() {
+		$args = func_get_args();
+		if ( count($args) === 1 && is_array($args[0]) ) {
+			$this->data = $args[0];
+		} else if ( count($args) === 2 ) {
+			$this->data[(string)$args[0]] = $args[1];
+		} else {
+			throw new InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
 		}
+	}
+
+	/**
+	 * Append data
+	 *
+	 * @param	array $data
+	 * @return 	void
+	 */
+	public function appendData( array $data ) {
+		$this->data = array_merge($this->data, $data);
+	}
+
+	/**
+	 * Get templates directory
+	 *
+	 * @return string|null
+	 */
+	public function getTemplatesDirectory() {
 		return $this->templatesDirectory;
+	}
+
+	/**
+	 * Set templates directory
+	 *
+	 * @param	string $dir
+	 * @return 	void
+	 */
+	public function setTemplatesDirectory( $dir ) {
+		if ( !is_dir($dir) ) {
+			throw new RuntimeException('Cannot set View templates directory to: ' . $dir . '. Directory does not exist.');
+		}
+		$this->templatesDirectory = rtrim($dir, '/');
+	}
+
+	/***** RENDERING *****/
+
+	/**
+	 * Display template
+	 *
+	 * @return void
+	 */
+	public function display( $template ) {
+		echo $this->render($template);
 	}
 
 	/**
 	 * Render template
 	 *
-	 * This method is responsible for rendering a template. The associative
-	 * data array is available for use by the template. The rendered
-	 * template should be echo()'d, NOT returned.
-	 *
-	 * I strongly recommend that you override this method in a subclass if
-	 * you need more advanced templating (ie. Twig or Smarty).
-	 *
-	 * The default View class assumes there is a "templates" directory in the
-	 * same directory as your bootstrap.php file.
-	 *
-	 * @param	string $template The template name specified in Slim::render()
-	 * @return 	void
+	 * @param	string $template Path to template file, relative to templates directory
+	 * @return 	string Rendered template
 	 */
 	public function render( $template ) {
 		extract($this->data);
-		require($this->templatesDirectory() . $template);
+		$templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
+		if ( !file_exists($templatePath) ) {
+			throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
+		}
+		ob_start();
+		require $templatePath;
+		return ob_get_clean();
 	}
 
 }
-
 ?>
