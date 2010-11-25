@@ -348,9 +348,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 	public function testSlimCopiesViewData(){
 		$data = array('foo' => 'bar');
 		Slim::init();
-		Slim::view()->data($data);
+		Slim::view()->setData($data);
 		Slim::view('CustomView');
-		$this->assertEquals($data, Slim::view()->data());
+		$this->assertEquals($data, Slim::view()->getData());
 	}
 
 	/************************************************
@@ -374,7 +374,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init();
 		Slim::render('test.php', $data, 404);
 		$this->assertEquals(Slim::response()->status(), 404);
-		$this->assertEquals($data, Slim::view()->data());
+		$this->assertEquals($data, Slim::view()->getData());
 		$this->assertEquals(Slim::response()->status(), 404);
 	}
 

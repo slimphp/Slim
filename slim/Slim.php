@@ -538,13 +538,13 @@ class Slim {
 	 */
 	public static function view( $viewClass = null ) {
 		if ( !is_null($viewClass) ) {
-			$existingData = is_null(self::$app->view) ? array() : self::$app->view->data();
+			$existingData = is_null(self::$app->view) ? array() : self::$app->view->getData();
             if ( $viewClass instanceOf View ) {
                 self::$app->view = $viewClass;
             } else {
                 self::$app->view = new $viewClass();
             }
-			self::$app->view->data($existingData);
+			self::$app->view->appendData($existingData);
 		}
 		return self::$app->view;
 	}
@@ -565,11 +565,11 @@ class Slim {
 	 * @return 	void
 	 */
 	public static function render( $template, $data = array(), $status = null ) {
-		self::view()->templatesDirectory(self::config('templates_dir'));
+		self::view()->setTemplatesDirectory(self::config('templates_dir'));
 		if ( !is_null($status) ) {
 			self::response()->status($status);
 		}
-		self::view()->data($data);
+		self::view()->appendData($data);
 		self::view()->render($template);
 	}
 
