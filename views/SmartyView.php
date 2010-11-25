@@ -84,7 +84,7 @@ class SmartyView extends View {
 	public function render( $template ) {
 		$instance = self::getInstance();
 		$instance->assign($this->data);
-		echo $instance->fetch($template);
+		return $instance->fetch($template);
 	}
 
 	/**
@@ -100,7 +100,7 @@ class SmartyView extends View {
 			}
 			require_once self::$smartyDirectory . '/Smarty.class.php';
 			self::$smartyInstance = new Smarty();
-			self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ? $this->templatesDirectory() : self::$smartyTemplatesDirectory;
+			self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ? $this->getTemplatesDirectory() : self::$smartyTemplatesDirectory;
 			if ( self::$smartyCompileDirectory ) {
 				self::$smartyInstance->compile_dir	= self::$smartyCompileDirectory;
 			}

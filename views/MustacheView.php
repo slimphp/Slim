@@ -55,13 +55,13 @@ class MustacheView extends View {
 	 *
 	 * @see View::render()
 	 * @param string $template The template name specified in Slim::render()
-	 * @return void
+	 * @return string
 	 */
 	public function render( $template ) {
 		require_once self::$mustacheDirectory . '/Mustache.php';
 		$m = new Mustache();
-		$contents = file_get_contents($this->templatesDirectory() . $template);
-		echo $m->render($contents, $this->data);
+		$contents = file_get_contents($this->getTemplatesDirectory() . '/' . ltrim($template, '/'));
+		return $m->render($contents, $this->data);
 	}
 
 }
