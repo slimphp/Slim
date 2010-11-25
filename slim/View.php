@@ -33,13 +33,11 @@
 /**
  * Slim View
  *
- * The View is delegated the responsibility of rendering a template. Usually
- * you will subclass View and, in the subclass, re-implement the render
- * method to use a custom templating engine, such as Smarty, Twig, Markdown, etc.
- *
- * It is very important that the View *echo* the final template output. DO NOT
- * return the output... if you return the output rather than echoing it, the
- * Slim Response body will be empty.
+ * The View is delegated the responsibility of rendering and/or displaying
+ * a template. It is recommended that you subclass View and re-implement the 
+ * `View::render` method to use a custom templating engine such as 
+ * Smarty, Twig, Markdown, etc. It is very important that `View::render`
+ * `return` the final template output. Do not `echo` the output.
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
@@ -48,17 +46,19 @@
 class View {
 
 	/**
-	 * @var array Associative array of data available to the template
+	 * @var array Key-value array of data available to the template
 	 */
 	protected $data = array();
 
 	/**
-	 * @var string The templates directory
+	 * @var string Absolute or relative path to the templates directory
 	 */
 	protected $templatesDirectory;
 
 	/**
 	 * Constructor
+	 *
+	 * This is empty but may be modified in a subclass if required
 	 */
 	public function __construct() {}
 
@@ -67,8 +67,8 @@ class View {
 	/**
 	 * Get data
 	 *
-	 * @param string $key
-	 * @return array
+	 * @param	string $key
+	 * @return 	array|null
 	 */
 	public function getData( $key = null ) {
 		if ( !is_null($key) ) {
@@ -81,25 +81,38 @@ class View {
 	/**
 	 * Set data
 	 *
-	 * @param array $data
-	 * @return void
+	 * This method is overloaded to accept two different method signatures.
+	 * You may use this to set a specific key with a specfic value,
+	 * or you may use this to set all data to a specific array.
+	 *
+	 * USAGE:
+	 *
+	 * View::setData('color', 'red');
+	 * View::setData(array('color' => 'red', 'number' => 1));
+	 * 
+	 * @param	string|array
+	 * @param	mixed Optional. Only use if first argument is a string.
+	 * @return 	void
 	 */
-	public function setData( $data ) {
-		if ( is_array($data) ) {
-			$this->data = $data;
+	public function setData() {
+		$args = func_get_args();
+		if ( count($args) === 1 && is_array($args[0]) ) {
+			$this->data = $args[0];
+		} else if ( count($args) === 2 ) {
+			$this->data[(string)$args[0]] = $args[1];
+		} else {
+			throw new InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
 		}
 	}
 
 	/**
 	 * Append data
 	 *
-	 * @param array $data
-	 * @return void
+	 * @param	array $data
+	 * @return 	void
 	 */
-	public function appendData( $data ) {
-		if ( is_array($data) ) {
-			$this->data = array_merge($this->data, $data);
-		}
+	public function appendData( array $data ) {
+		$this->data = array_merge($this->data, $data);
 	}
 
 	/**
@@ -114,8 +127,8 @@ class View {
 	/**
 	 * Set templates directory
 	 *
-	 * @param string $dir
-	 * @return void
+	 * @param	string $dir
+	 * @return 	void
 	 */
 	public function setTemplatesDirectory( $dir ) {
 		if ( !is_dir($dir) ) {
@@ -138,7 +151,7 @@ class View {
 	/**
 	 * Render template
 	 *
-	 * @param	string $template Path to template file, relative to View::$templatesDirectory
+	 * @param	string $template Path to template file, relative to templates directory
 	 * @return 	string Rendered template
 	 */
 	public function render( $template ) {
@@ -149,7 +162,7 @@ class View {
 		}
 		ob_start();
 		require $templatePath;
-		return ob_end_clean();
+		return ob_get_clean();
 	}
 
 }
