@@ -570,7 +570,7 @@ class Slim {
 			self::response()->status($status);
 		}
 		self::view()->appendData($data);
-		self::view()->render($template);
+		self::view()->display($template);
 	}
 
 	/***** HTTP CACHING *****/
