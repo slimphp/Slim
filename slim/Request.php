@@ -247,13 +247,14 @@ class Request {
 	 * Fetch HTTP request headers
 	 *
 	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
+	 * @author  Jud Stephenson <http://judstephenson.com/blog>
 	 * @return array
 	 */
 	private function getHttpHeaders() {
 		$httpHeaders = array();
 		foreach ( array_keys($_SERVER) as $key ) {
-			if ( substr($key, 0, 5) === 'HTTP_' ) {
-				$httpHeaders[substr($key, 5)] = $_SERVER[$key];
+			if ( (substr($key, 0, 5) === 'HTTP_') || (substr($key, 0, 8) === 'PHP_AUTH') ) {
+				$httpHeaders[((substr($key, 0, 5) == 'HTTP_') ? substr($key, 5) : substr($key, 4))] = $_SERVER[$key];
 			}
 		}
 		return $httpHeaders;
@@ -268,6 +269,7 @@ class Request {
 	public function header( $name ) {
 		return isset($this->headers[$name]) ? $this->headers[$name] : null;
 	}
+ 
 
 	/**
 	 * Check for HTTP request method override
