@@ -75,7 +75,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRouteSetsPatternWithoutLeadingSlash() {
 		$route = new Route('/foo/bar', function () {});
-		$this->assertEquals('foo/bar', $route->getPattern());
+		$this->assertEquals('/foo/bar', $route->pattern());
 	}
 
 	/**
@@ -101,7 +101,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 * If route matches a resource URI, param should be extracted.
 	 */
 	public function testRouteMatchesAndParamExtracted() {
-		$resource = 'hello/Josh';
+		$resource = '/hello/Josh';
 		$route = new Route('/hello/:name', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
@@ -112,7 +112,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 * If route matches a resource URI, multiple params should be extracted.
 	 */
 	public function testRouteMatchesAndMultipleParamsExtracted() {
-		$resource = 'hello/Josh/and/John';
+		$resource = '/hello/Josh/and/John';
 		$route = new Route('/hello/:first/and/:second', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
@@ -123,7 +123,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 * If route does not match a resource URI, params remain an empty array
 	 */
 	public function testRouteDoesNotMatchAndParamsNotExtracted() {
-		$resource = 'foo/bar';
+		$resource = '/foo/bar';
 		$route = new Route('/hello/:name', function () {});
 		$result = $route->matches($resource);
 		$this->assertFalse($result);
@@ -134,7 +134,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 * Route matches URI with conditions
 	 */
 	public function testRouteMatchesResourceWithConditions() {
-		$resource = 'hello/Josh/and/John';
+		$resource = '/hello/Josh/and/John';
 		$route = new Route('/hello/:first/and/:second', function () {});
 		$route->conditions(array('first' => '[a-zA-Z]{3,}'));
 		$result = $route->matches($resource);
@@ -146,7 +146,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 * Route does not match URI with conditions
 	 */
 	public function testRouteDoesNotMatchResourceWithConditions() {
-		$resource = 'hello/Josh/and/John';
+		$resource = '/hello/Josh/and/John';
 		$route = new Route('/hello/:first/and/:second', function () {});
 		$route->conditions(array('first' => '[a-z]{3,}'));
 		$result = $route->matches($resource);
@@ -163,7 +163,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
 		$symbols = ":@&=$,";
-		$resource = 'rfc2386/'.$symbols;
+		$resource = '/rfc2386/'.$symbols;
 		$route = new Route('/rfc2386/:symbols', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);
@@ -177,7 +177,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 	 */
 	public function testRouteMatchesResourceWithUnreservedMarks() {
 		$marks = "-_.!~*'()";
-		$resource = 'marks/'.$marks;
+		$resource = '/marks/'.$marks;
 		$route = new Route('/marks/:marks', function () {});
 		$result = $route->matches($resource);
 		$this->assertTrue($result);

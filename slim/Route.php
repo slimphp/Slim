@@ -76,8 +76,8 @@ class Route {
 	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
-		$this->setPattern(str_replace(')', ')?', ltrim($pattern, '/')));
-		$this->setCallable($callable);
+		$this->pattern = $pattern;
+		$this->callable = $callable;
 	}
 
 	/***** ACCESSORS *****/

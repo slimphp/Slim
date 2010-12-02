@@ -218,12 +218,28 @@ class Request {
 	 * @return 	string The resource URI
 	 */
 	private function extractQueryString() {
-		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/') . '/';
-		$uri = ltrim(preg_replace('@' . preg_quote($this->root, '@') . '@', '', $_SERVER['REQUEST_URI'], 1), '/');
-		$questionMarkPosition = strpos($uri, '?');
-		if ( !!$questionMarkPosition ) {
-			return substr($uri, 0, $questionMarkPosition);
+		//Get application base URI path (no trailing slash)
+		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/');
+
+		//Get the application-specific URI path
+		if ( !empty($_SERVER['PATH_INFO']) ) {
+			$uri = $_SERVER['PATH_INFO'];
+		} else {
+			if ( isset($_SERVER['REQUEST_URI']) ) {
+				$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+				$uri = rawurldecode($uri);
+			} else if ( isset($_SERVER['PHP_SELF']) ) {
+				$uri = $_SERVER['PHP_SELF'];
+			} else {
+				throw new RuntimeException('Unable to detect request URI');
+			}
 		}
+
+		//Remove application base URI path from the application-specific URI path
+		if ( $this->root !== '' && strpos($uri, $this->root) === 0 ) {
+			$uri = substr($uri, strlen($this->root));
+		}
+
 		return $uri;
 	}
 

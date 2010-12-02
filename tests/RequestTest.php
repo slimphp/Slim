@@ -76,11 +76,12 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	 * a scenario where the Slim app resides in the subdirectory /foo/bar/.
 	 *
 	 * Post-conditions:
-	 * The Request root should be "/foo/bar/"
+	 * The Request root should be "/foo/bar"
 	 */
 	public function testRequestRootWithSubdirectory(){
 		$r = new Request();
-		$this->assertEquals($r->root, '/foo/bar/');
+		$this->assertEquals($r->root, '/foo/bar');
+		$this->assertEquals($r->resource, '/');
 	}
 	
 	/**
@@ -96,7 +97,8 @@ class RequestTest extends PHPUnit_Framework_TestCase {
 	public function testRequestRootWithoutSubdirectory(){
 		$_SERVER['PHP_SELF'] = '/bootstrap.php';
 		$r = new Request();
-		$this->assertEquals($r->root, '/');
+		$this->assertEquals($r->root, '');
+		$this->assertEquals($r->resource, '/foo/bar/');
 	}
 
     /**
@@ -183,11 +185,11 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testSetResource() {
         $_SERVER['REQUEST_URI'] = '/foo.php?bar';
         $request = new Request();
-        $this->assertEquals($request->resource, 'foo.php');
+        $this->assertEquals($request->resource, '/foo.php');
 
-        $_SERVER['REQUEST_URI'] = 'bar.php';
+        $_SERVER['REQUEST_URI'] = '/bar.php';
         $request = new Request();
-        $this->assertEquals($request->resource, 'bar.php');
+        $this->assertEquals($request->resource, '/bar.php');
     }
 
     /**
