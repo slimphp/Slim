@@ -290,12 +290,8 @@ class Response {
 		}
 		
 		//Send cookies
-		foreach ( $this->cookies as $cookie ) {
-			if ( empty($cookie->value) ) {
-				setcookie($cookie->name, '', time() - 90000, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
-			} else {
-				setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
-			}
+		foreach ( $this->cookies as $name => $cookie ) {
+			setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
 		}
 
 		//Flush all output to client
