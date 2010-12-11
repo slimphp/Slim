@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim
  *
@@ -507,60 +509,79 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		});
 		Slim::run();
 	}
-	
+
 	/************************************************
-	 * SLIM SESSIONS
+	 * SLIM COOKIES
 	 ************************************************/
-
+	
 	/**
-	 * Test Slim returns existing Cookie value
+	 * Test Slim gets cookie
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application and
-	 * there are existing Cookies sent with the HTTP request.
+	 * Cookie `foo` available in HTTP request;
+	 * Slim app initialized;
+	 * Case A: Cookie `foo` exists;
+	 * Case B: Cookie `bad` does not exist;
 	 *
 	 * Post-conditions:
-	 * Slim will return the correct value for the Cookie
+	 * Case A: Cookie `foo` value is "bar";
+	 * Case B: Cooke `bad` value is NULL;
 	 */
-	public function testSlimReadsExistingCookieValue(){
+	public function testSlimGetsCookie() {
 		Slim::init();
-		$this->assertEquals('bar', Slim::session('foo'));
+		//Case A
+		$this->assertEquals(Slim::getCookie('foo'), 'bar');
+		//Case B
+		$this->assertNull(Slim::getCookie('doesNotExist'));
 	}
-
+	
 	/**
-	 * Test Slim returns NULL for non-existing Cookie value
+	 * Test Slim sets cookie with default time
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application and there are
-	 * no existing Cookies of a given name with the HTTP request.
+	 * Slim app initialized;
+	 * Case A: Cookie time not set;
+	 * Case B: Cookie time set as seconds from now (integer);
+	 * Case C: Cookie time set as string;
+	 * Case D: Cookie time is set to 0;
 	 *
 	 * Post-conditions:
-	 * Slim returns NULL when a non-existing Cookie value is requested
+	 * Cookie available in response;
+	 * Case A: Cookie time set using default value;
+	 * Case B: Cookie time set as `time()` + seconds from now;
+	 * Case C: Cookie time set using `strtotime()`;
+	 * Case D: Cookie time is 0;
 	 */
-	public function testSlimReadsNonExistingCookieValueAsNull(){
+	public function testSlimSetsCookie() {
 		Slim::init();
-		$this->assertNull(Slim::session('fake'));
+		//Case A
+		$timeA = time();
+		Slim::setCookie('myCookie1', 'myValue1');
+		$cookieA = Slim::response()->getCookie('myCookie1');
+		$this->assertEquals($cookieA->name, 'myCookie1');
+		$this->assertEquals($cookieA->value, 'myValue1');
+		$this->assertEquals($cookieA->expires, $timeA + 1200); //default duration is 20 minutes
+		$this->assertNull($cookieA->path);
+		$this->assertNull($cookieA->domain);
+		$this->assertFalse($cookieA->secure);
+		$this->assertFalse($cookieA->httponly);
+		//Case B
+		$timeB = time();
+		Slim::setCookie('myCookie2', 'myValue2', 100);
+		$cookieB = Slim::response()->getCookie('myCookie2');
+		$this->assertEquals($cookieB->expires, $timeB + 100);
+		//Case C
+		$timeC = time();
+		Slim::setCookie('myCookie3', 'myValue3', '1 hour');
+		$cookieC = Slim::response()->getCookie('myCookie3');
+		$this->assertEquals($cookieC->expires, $timeC + 3600);
+		//Case D
+		$timeD = time();
+		Slim::setCookie('myCookie4', 'myValue4', 0);
+		$cookieD = Slim::response()->getCookie('myCookie4');
+		$this->assertEquals($cookieD->expires, 0);
 	}
-
-	/**
-	 * Test Slim sets Cookies in Response
-	 *
-	 * Pre-conditions:
-	 * You have initialized a Slim application and you
-	 * set a session variable.
-	 *
-	 * Post-conditions:
-	 * The Response has a Cookie object with the expected
-	 * name and value.
-	 */
-	public function testSlimSetsCookie(){
-		Slim::init();
-		Slim::session('testCookie', 'testValue');
-		$cookies = Slim::response()->getCookies();
-		$this->assertEquals('testCookie', $cookies[0]->name);
-		$this->assertEquals('testValue', $cookies[0]->value);
-	}
-
+	
 	/************************************************
 	 * SLIM HELPERS
 	 ************************************************/

@@ -133,19 +133,33 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase	 {
 	}
 	
 	/**
-	 * Test cookies
+	 * Test response cookies
 	 *
 	 * Pre-conditions:
-	 * A response is instantiated and assigned a cookie
+	 * A response is instantiated and assigned cookies
 	 *
 	 * Post-conditions:
-	 * The cookie is added to the Response cookies array
+	 * Case A: Array of cookies returned;
+	 * Case B: Cookies with given names are returned;
+	 * Case C: Returns NULL if cookie with given name does not exist;
 	 */
 	public function testCookies() {
 		$r1 = new Response();
-		$cookie = new Cookie('foo', 'bar');
-		$r1->addCookie($cookie);
-		$this->assertContains($cookie, $r1->getCookies(), 'Response does not contain cookie!');
+		$cookie1 = new Cookie('foo1', 'bar1');
+		$cookie2 = new Cookie('foo2', 'bar2');
+		$cookie3 = new Cookie('foo3', 'bar3');
+		$r1->addCookie($cookie1);
+		$r1->addCookie($cookie2);
+		$r1->addCookie($cookie3);
+		//Case A:
+		$cookies = $r1->getCookies();
+		$this->assertEquals(count($cookies), 3);
+		//Case B:
+		$this->assertSame($cookie1, $r1->getCookie('foo1'));
+		$this->assertSame($cookie2, $r1->getCookie('foo2'));
+		$this->assertSame($cookie3, $r1->getCookie('foo3'));
+		//Case C:
+		$this->assertNull($r1->getCookie('doesNotExist'));
 	}
 	
 	/**

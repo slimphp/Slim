@@ -133,7 +133,8 @@ class Slim {
 			'log' => true,
 			'log_dir' => './logs',
 			'debug' => true,
-			'templates_dir' => './templates'
+			'templates_dir' => './templates',
+			'cookies.expire_after' => '20 minutes'
 		);
 	}
 
@@ -636,7 +637,7 @@ class Slim {
 
 	}
 
-	/***** SESSIONS (COOKIE-BASED) *****/
+	/***** SESSIONS (DEPRECATED!!! USE Slim::getCookie and Slim::setCookie instead) *****/
 
 	/**
 	 * Set session variable
@@ -677,10 +678,58 @@ class Slim {
 	 */
 	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
 		if ( func_num_args() === 1 ) {
-			return self::request()->cookie($name);
+			return self::getCookie($name);
 		} else {
-			self::response()->addCookie(new Cookie($name, $value, $expires, $path, $domain, $secure, $httponly));
+			self::addCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
 		}
+	}
+	
+	/***** COOKIES *****/
+	
+	/**
+	 * Set Cookie
+	 *
+	 * @param	string	$name		The cookie name
+	 * @param	mixed	$value		The cookie value
+	 * @param	mixed	$time		The duration of the cookie;
+	 *								If integer, measured in seconds from now;
+	 *								If string, converted to UNIX timestamp with `strtotime`;
+	 * @param	string	$path		The path on the server in which the cookie will be available on
+	 * @param	string	$domain		The domain that the cookie is available to
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 *								HTTPS connection from the client
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @return 	void
+	 */
+	public static function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = false, $httponly = false) {
+		if ( is_null($time) ) {
+			$time = Slim::config('cookies.expire_after');
+		}
+		if ( is_string($time) ) {
+			$time = strtotime($time);
+		} else {
+			//If $time === 0, the cookie will exist for the length of the
+			//browser session; the cookie will be deleted when the browser
+			//is closed by the website visitor. If a non-zero value is
+			//specified, that value is added to the current UNIX timestamp.
+			$time = ($time === 0) ? 0 : time() + (int)$time;
+		}
+		self::response()->addCookie(new Cookie($name, $value, $time, $path, $domain, $secure, $httponly));
+	}
+	
+	/**
+	 * Get Cookie
+	 *
+	 * Return the value of a cookie, or NULL if cookie does not exist in
+	 * the current request. Only cookies sent with the current request
+	 * are accessible by this method. To retrieve a cookie set in the 
+	 * response, use Response::getCookie().
+	 *
+	 * @param	string $name
+	 * @return 	string|null
+	 */
+	public static function getCookie($name) {
+		return self::request()->cookie($name);
 	}
 
 	/***** HELPERS *****/

@@ -201,15 +201,28 @@ class Response {
 	/***** COOKIES *****/
 
 	/**
-	 * Add Response Cookie
+	 * Add Cookie
 	 *
 	 * @param	Cookie $cookie
 	 * @return 	void
 	 */
 	public function addCookie( Cookie $cookie ) {
-		$this->cookies[] = $cookie;
+		$this->cookies[$cookie->name] = $cookie;
 	}
 
+	/**
+	 * Get Cookie
+	 *
+	 * Return the value of a cookie, or NULL if cookie has not been set
+	 * in the response.
+	 *
+	 * @param	string $name The cookie name
+	 * @return 	Cookie|null
+	 */
+	public function getCookie( $name ) {
+		return isset($this->cookies[$name]) ? $this->cookies[$name] : null;
+	}
+	
 	/**
 	 * Get Response Cookies
 	 *
@@ -275,14 +288,10 @@ class Response {
 		foreach ( $this->headers() as $name => $value ) {
 			header("$name: $value");
 		}
-
+		
 		//Send cookies
-		foreach ( $this->cookies as $cookie ) {
-			if ( empty($cookie->value) ) {
-				setcookie($cookie->name, '', time() - 90000, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
-			} else {
-				setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
-			}
+		foreach ( $this->cookies as $name => $cookie ) {
+			setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
 		}
 
 		//Flush all output to client
