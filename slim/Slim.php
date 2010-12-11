@@ -637,7 +637,7 @@ class Slim {
 
 	}
 
-	/***** SESSIONS (COOKIE-BASED) *****/
+	/***** SESSIONS (DEPRECATED!!! USE Slim::getCookie and Slim::setCookie instead) *****/
 
 	/**
 	 * Set session variable
@@ -678,9 +678,9 @@ class Slim {
 	 */
 	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
 		if ( func_num_args() === 1 ) {
-			return self::request()->cookie($name);
+			return self::getCookie($name);
 		} else {
-			self::response()->addCookie(new Cookie($name, $value, $expires, $path, $domain, $secure, $httponly));
+			self::addCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
 		}
 	}
 	
