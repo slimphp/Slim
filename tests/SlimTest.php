@@ -125,6 +125,22 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::view($view);
         $this->assertTrue(Slim::view() instanceOf CustomView);
 	}
+	
+	/**
+	 * Test get Slim instance
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized;
+	 *
+	 * Post-conditions:
+	 * The Slim app instance is returned
+	 */
+	public function testSlimGetInstance() {
+		Slim::init('CustomView');
+		$app = Slim::getInstance();
+		$this->assertTrue( $app instanceof Slim );
+		$this->assertTrue( $app->view() instanceof CustomView );
+	}
 
 
 	/************************************************
