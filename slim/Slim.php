@@ -263,6 +263,18 @@ class Slim {
 		$view = is_null($viewClass) ? 'View' : $viewClass;
 		self::view($view);
 	}
+	
+	/**
+	 * Get Slim application instance
+	 *
+	 * @return Slim
+	 */
+	public static function getInstance() {
+		if ( self::$app instanceof Slim === false ) {
+			self::init();
+		}
+		return self::$app;
+	}
 
 	/***** CONFIGURATION *****/
 
