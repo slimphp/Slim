@@ -165,9 +165,12 @@ class Router implements Iterator {
 			throw new RuntimeException('Named route not found for name: ' . $name);
 		}
 		$pattern = $this->namedRoutes[(string)$name]->getPattern();
+		$search = $replace = array();
 		foreach ( $params as $key => $value ) {
-			$pattern = str_replace(':' . $key, $value, $pattern);
+			$search[] = ':' . $key
+			$replace[] = $value;
 		}
+		$pattern = str_replace($search, $replace, $pattern);
 		return $this->getRequest()->root . $pattern;
 	}
 
