@@ -44,3 +44,17 @@ The `SmartyView` custom View class provides support for the [Smarty](http://www.
 	?>
 
 You will need to configure the `SmartyView::$smartyDirectory`,  `SmartyView::$smartyCompileDirectory` , `SmartyView::$smartyCacheDirectory` and optionally `SmartyView::$smartyTemplatesDirectory`, class variables before using the SmartyView class in your application. These variables can be found at the top of the `views/SmartyView.php` class definition.
+
+## BlitzView
+
+The `BlitzView` custom View class provides support for the Blitz templating system for PHP. Blitz is written as C and compiled to a PHP extension. Which means it is FAST. You can learn more about Blitz at <http://alexeyrybak.com/blitz/blitz_en.html>. You can use the BlitzView custom View in your Slim application like this:
+
+	<?php
+	require 'slim/Slim.php';
+	require 'views/BlitzView.php';
+	Slim::init('BlitzView');
+	//Insert your application routes here
+	Slim::run();
+	?>
+	
+Place your Blitz template files in the designated templates directory.
