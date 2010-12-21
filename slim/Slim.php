@@ -121,7 +121,7 @@ class Slim {
 	 * @var array Plugin filters
 	 */
 	private $filters = array(
-		'slim.before' => array()
+		//'slim.example' => array()
 	);
 
 	/**
