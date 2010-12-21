@@ -920,7 +920,7 @@ class Slim {
 			}
 		} else {
 			foreach( self::$app->hooks[$name] as $listener ) {
-				call_user_func($listener);
+				call_user_func($listener, self:$app);
 			}
 		}
 	}
