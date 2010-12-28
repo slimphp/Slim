@@ -134,7 +134,12 @@ class Slim {
 			'log_dir' => './logs',
 			'debug' => true,
 			'templates_dir' => './templates',
-			'cookies.expire_after' => '20 minutes'
+			'cookies.lifetime' => '20 minutes',
+			'cookies.secret_key' => '',
+			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+			'cookies.encrypt' => true,
+			'cookies.ssl' => false
 		);
 	}
 
