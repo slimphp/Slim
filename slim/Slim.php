@@ -126,9 +126,6 @@ class Slim {
 	 * default application settings.
 	 */
 	private function __construct() {
-		$this->request = new Request();
-		$this->response = new Response();
-		$this->router = new Router( $this->request );
 		$this->settings = array(
 			'log' => true,
 			'log_dir' => './logs',
@@ -141,6 +138,15 @@ class Slim {
 			'cookies.encrypt' => true,
 			'cookies.ssl' => false
 		);
+		$this->request = new Request();
+		$this->response = new Response();
+		$this->router = new Router( $this->request );
+		$this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
+			'high_confidentiality' => $this->settings['cookies.encrypt'],
+			'mcrypt_algorithm' => $this->settings['cookies.cipher'],
+			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
+			'enable_ssl' => $this->settings['cookies.ssl']
+		)));
 	}
 
 	/**
