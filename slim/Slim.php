@@ -132,7 +132,7 @@ class Slim {
 			'debug' => true,
 			'templates_dir' => './templates',
 			'cookies.lifetime' => '20 minutes',
-			'cookies.secret_key' => '',
+			'cookies.secret_key' => 'CHANGE_ME',
 			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
 			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
 			'cookies.encrypt' => true,
@@ -678,7 +678,7 @@ class Slim {
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
 	 */
-	public static function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = false, $httponly = false) {
+	public static function setCookie($name, $value, $time = null, $path = '/', $domain = '', $secure = false, $httponly = false) {
 		if ( is_null($time) ) {
 			$time = Slim::config('cookies.lifetime');
 		}
