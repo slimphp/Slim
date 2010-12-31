@@ -124,9 +124,11 @@ class Slim {
 	 * instance, the Request, the Response, the Router,
 	 * the before callbacks, the after callbacks, and the
 	 * default application settings.
+	 *
+	 * @param array $userSettings
 	 */
-	private function __construct() {
-		$this->settings = array(
+	private function __construct( $userSettings = array() ) {
+		$this->settings = array_merge(array(
 			'log' => true,
 			'log_dir' => './logs',
 			'debug' => true,
@@ -139,7 +141,7 @@ class Slim {
 			'cookies.secure' => false,
 			'cookies.httponly' => false,
 			'cookies.user_id' => 'default'
-		);
+		), $userSettings);
 		$this->request = new Request();
 		$this->response = new Response();
 		$this->router = new Router( $this->request );
@@ -269,12 +271,17 @@ class Slim {
      *          will use, or an already initialized View object.
 	 * @return  void
 	 */
-	public static function init( $viewClass = null ) {
-		self::$app = new Slim();
+	public static function init( $userSettings = array() ) {
+		//Legacy support
+		if ( is_string($userSettings) || $userSettings instanceof View ) {
+			$settings = array('view' => $userSettings);
+		} else {
+			$settings = (array)$userSettings;
+		}
+		self::$app = new Slim($settings);
 		self::notFound(array('Slim', 'defaultNotFound'));
 		self::error(array('Slim', 'defaultError'));
-		$view = is_null($viewClass) ? 'View' : $viewClass;
-		self::view($view);
+		self::view(Slim::config('view'));
 	}
 	
 	/**
@@ -670,7 +677,7 @@ class Slim {
 	 * @param	string	$name		The cookie name
 	 * @param	mixed	$value		The cookie value
 	 * @param	mixed	$time		The duration of the cookie;
-	 *								If integer, measured in seconds from now;
+	 *								If integer, should be UNIX timestamp;
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
@@ -694,7 +701,7 @@ class Slim {
 	 * @param	string	$name		The cookie name
 	 * @param	mixed	$value		The cookie value
 	 * @param	mixed	$time		The duration of the cookie;
-	 *								If integer, measured in seconds from now;
+	 *								If integer, should be UNIX timestamp;
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
