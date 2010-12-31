@@ -118,45 +118,6 @@ class Slim {
 	);
 
 	/**
-	 * Constructor
-	 *
-	 * This method instantiates the Slim application
-	 * instance, the Request, the Response, the Router,
-	 * the before callbacks, the after callbacks, and the
-	 * default application settings.
-	 *
-	 * @param array $userSettings
-	 */
-	private function __construct( $userSettings = array() ) {
-		$this->settings = array_merge(array(
-			'log' => true,
-			'log_dir' => './logs',
-			'debug' => true,
-			'templates_dir' => './templates',
-			'view' => 'View',
-			'cookies.lifetime' => '20 minutes',
-			'cookies.path' => '/',
-			'cookies.domain' => '',
-			'cookies.secure' => false,
-			'cookies.httponly' => false,
-			'cookies.secret_key' => 'CHANGE_ME',
-			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
-			'cookies.encrypt' => true,
-			'cookies.user_id' => 'DEFAULT'
-		), $userSettings);
-		$this->request = new Request();
-		$this->response = new Response();
-		$this->router = new Router( $this->request );
-		$this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
-			'high_confidentiality' => $this->settings['cookies.encrypt'],
-			'mcrypt_algorithm' => $this->settings['cookies.cipher'],
-			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
-			'enable_ssl' => $this->settings['cookies.secure']
-		)));
-	}
-
-	/**
 	 * Slim auto-loader
 	 *
 	 * This method allows Slim to lazy-load class files as
@@ -262,6 +223,45 @@ class Slim {
 
 	/***** INITIALIZER *****/
 
+	/**
+	 * Constructor
+	 *
+	 * This method instantiates the Slim application
+	 * instance, the Request, the Response, the Router,
+	 * the before callbacks, the after callbacks, and the
+	 * default application settings.
+	 *
+	 * @param array $userSettings
+	 */
+	private function __construct( $userSettings = array() ) {
+		$this->settings = array_merge(array(
+			'log' => true,
+			'log_dir' => './logs',
+			'debug' => true,
+			'templates_dir' => './templates',
+			'view' => 'View',
+			'cookies.lifetime' => '20 minutes',
+			'cookies.path' => '/',
+			'cookies.domain' => '',
+			'cookies.secure' => false,
+			'cookies.httponly' => false,
+			'cookies.secret_key' => 'CHANGE_ME',
+			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+			'cookies.encrypt' => true,
+			'cookies.user_id' => 'DEFAULT'
+		), $userSettings);
+		$this->request = new Request();
+		$this->response = new Response();
+		$this->router = new Router( $this->request );
+		$this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
+			'high_confidentiality' => $this->settings['cookies.encrypt'],
+			'mcrypt_algorithm' => $this->settings['cookies.cipher'],
+			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
+			'enable_ssl' => $this->settings['cookies.secure']
+		)));
+	}
+	
 	/**
 	 * Initialize Slim
 	 *
