@@ -85,6 +85,139 @@ class Cookie {
 		$this->secure = $secure;
 		$this->httponly = $httponly;
 	}
+	
+	/**
+	 * Get cookie name
+	 *
+	 * @return string
+	 */
+	public function getName() {
+		return $this->name;
+	}
+	
+	/**
+	 * Set cookie name
+	 *
+	 * @param string $name
+	 * @return void;
+	 */
+	public function setName( $name ) {
+		$this->name = (string)$name;
+	}
+	
+	/**
+	 * Get cookie value
+	 *
+	 * @return string
+	 */
+	public function getValue() {
+		return $this->value;
+	}
+	
+	/**
+	 * Set cookie value
+	 *
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function setValue($value) {
+		$this->value = (string)$value;
+	}
+	
+	/**
+	 * Get cookie expiration time
+	 *
+	 * @return int UNIX timestamp
+	 */
+	public function getExpires() {
+		return $this->expires;
+	}
+	
+	/**
+	 * Set cookie expiration time
+	 *
+	 * @param string|int Cookie expiration time as string w/ strtotime(), or UNIX timestamp
+	 * @return void
+	 */
+	public function setExpires($time) {
+		$this->expires = is_string($time) ? strtotime($time) : (int)$time;
+	}
+
+	/**
+	 * Get cookie path
+	 *
+	 * @return string
+	 */
+	public function getPath() {
+		return $this->path;
+	}
+	
+	/**
+	 * Set cookie path
+	 *
+	 * @param string $path
+	 * @return void
+	 */
+	public function setPath($path) {
+		$this->path = (string)$path;
+	}
+	
+	/**
+	 * Get cookie domain
+	 *
+	 * @return string
+	 */
+	public function getDomain() {
+		return $this->domain;
+	}
+	
+	/**
+	 * Set cookie domain
+	 *
+	 * @param string $domain
+	 * @return void
+	 */
+	public function setDomain($domain) {
+		$this->domain = (string)$domain;
+	}
+	
+	/**
+	 * Is cookie sent over SSL/HTTPS only?
+	 *
+	 * @return bool
+	 */
+	public function getSecure() {
+		return $this->secure;
+	}
+	
+	/**
+	 * Set whether cookie is sent over SSL/HTTPS only
+	 *
+	 * @param bool $secure
+	 * @return void
+	 */
+	public function setSecure($secure) {
+		$this->secure = (bool)$secure;
+	}
+	
+	/**
+	 * Is cookie sent over HTTP protocol only?
+	 *
+	 * @return bool
+	 */
+	public function getHttpOnly() {
+		return $this->httpOnly;
+	}
+	
+	/**
+	 * Set whether cookie is sent over HTTP protocol only
+	 *
+	 * @param bool $httponly
+	 * @return void
+	 */
+	public function setHttpOnly($httpOnly) {
+		$this->httponly = (bool)$httponly;
+	}
 
 }
 
