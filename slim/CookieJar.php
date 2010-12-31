@@ -156,6 +156,16 @@ class CookieJar {
 	}
 	
 	/**
+	 * Get Response Cookie
+	 *
+	 * @param string $cookiename The name of the cookie
+	 * @return Cookie|null
+	 */
+	public function getResponseCookie($cookiename) {
+		return isset($this->_cookies[$cookiename]) ? $this->_cookies[$cookiename] : null;
+	}
+	
+	/**
 	 * Send a secure cookie
 	 *
 	 * @param string $name cookie name
