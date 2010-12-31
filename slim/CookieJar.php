@@ -158,6 +158,7 @@ class CookieJar {
 	/**
 	 * Get Response Cookie
 	 *
+	 * @author Josh Lockhart <info@joshlockhart.com>
 	 * @param string $cookiename The name of the cookie
 	 * @return Cookie|null
 	 */
