@@ -31,7 +31,6 @@
  */
 
 require_once '../slim/Response.php';
-require_once '../slim/Cookie.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class ResponseTest extends PHPUnit_Extensions_OutputTestCase	 {
@@ -50,7 +49,6 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase	 {
 	public function testNewResponse() {
 		$r = new Response();
 		$this->assertEquals($r->status(), 200);
-		$this->assertEquals($r->getCookies(), array());
 		$this->assertEquals($r->headers(), array('Content-Type' => 'text/html'));
 	}
 
@@ -130,36 +128,6 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase	 {
 		$r1->write('xyz');
 		$this->assertEquals($r1->body(), 'abc123xyz');
 		$this->assertEquals($r1->header('Content-Length'), 9);
-	}
-	
-	/**
-	 * Test response cookies
-	 *
-	 * Pre-conditions:
-	 * A response is instantiated and assigned cookies
-	 *
-	 * Post-conditions:
-	 * Case A: Array of cookies returned;
-	 * Case B: Cookies with given names are returned;
-	 * Case C: Returns NULL if cookie with given name does not exist;
-	 */
-	public function testCookies() {
-		$r1 = new Response();
-		$cookie1 = new Cookie('foo1', 'bar1');
-		$cookie2 = new Cookie('foo2', 'bar2');
-		$cookie3 = new Cookie('foo3', 'bar3');
-		$r1->addCookie($cookie1);
-		$r1->addCookie($cookie2);
-		$r1->addCookie($cookie3);
-		//Case A:
-		$cookies = $r1->getCookies();
-		$this->assertEquals(count($cookies), 3);
-		//Case B:
-		$this->assertSame($cookie1, $r1->getCookie('foo1'));
-		$this->assertSame($cookie2, $r1->getCookie('foo2'));
-		$this->assertSame($cookie3, $r1->getCookie('foo3'));
-		//Case C:
-		$this->assertNull($r1->getCookie('doesNotExist'));
 	}
 	
 	/**
