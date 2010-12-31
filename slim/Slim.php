@@ -133,14 +133,17 @@ class Slim {
 			'log_dir' => './logs',
 			'debug' => true,
 			'templates_dir' => './templates',
+			'view' => 'View',
 			'cookies.lifetime' => '20 minutes',
+			'cookies.path' => '/',
+			'cookies.domain' => '',
+			'cookies.secure' => false,
+			'cookies.httponly' => false,
 			'cookies.secret_key' => 'CHANGE_ME',
 			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
 			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
 			'cookies.encrypt' => true,
-			'cookies.secure' => false,
-			'cookies.httponly' => false,
-			'cookies.user_id' => 'default'
+			'cookies.user_id' => 'DEFAULT'
 		), $userSettings);
 		$this->request = new Request();
 		$this->response = new Response();
