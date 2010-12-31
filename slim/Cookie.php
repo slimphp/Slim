@@ -33,7 +33,7 @@
 /**
  * Cookie
  *
- * This class acts as a wrapper for PHP's native `setcookie` method.
+ * Object-oriented representation of a Cookie to be sent in an HTTP response
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
