@@ -64,6 +64,9 @@ class CookieJar {
 
 	/* Enable SSL support */
 	protected $_ssl = false;
+	
+	/* Cookies */
+	protected $_cookies = array();
 
 	/**
 	 * Constructor
@@ -143,6 +146,16 @@ class CookieJar {
 	}
 
 	/**
+	 * Get Response Cookies
+	 *
+	 * @author Josh Lockhart <info@joshlockhart.com>
+	 * @return array Cookies to be sent with HTTP response
+	 */
+	public function getResponseCookies() {
+		return $this->_cookies;
+	}
+	
+	/**
 	 * Send a secure cookie
 	 *
 	 * @param string $name cookie name
@@ -170,7 +183,8 @@ class CookieJar {
 	 */
 	public function deleteCookie($name, $path = '/', $domain = '', $secure = false, $httponly = null) {
 		$expire = 315554400; /* 1980-01-01 */
-		setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
+		$this->_cookies[] = new Cookie($name, $path, $domain, $secure, $httponly);
+		//setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
 	}
 
 	/**
@@ -223,9 +237,11 @@ class CookieJar {
 	public function setClassicCookie($cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null) {
 		/* httponly option is only available for PHP version >= 5.2 */
 		if ( $httponly === null ) {
-			setcookie($cookiename, $value, $expire, $path, $domain, $secure);
+			$this->_cookies[] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure);
+			//setcookie($cookiename, $value, $expire, $path, $domain, $secure);
 		} else {
-			setcookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
+			$this->_cookies[] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
+			//setcookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
 		}
 	}
 
