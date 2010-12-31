@@ -211,7 +211,7 @@ class CookieJar {
 		if ( $this->cookieExists($cookiename) ) {
 			$cookieValues = explode('|', $_COOKIE[$cookiename]);
 			if ( (count($cookieValues) === 4) && ($cookieValues[1] == 0 || $cookieValues[1] >= time()) ) {
-				$key = hash_hmac('sha1', $cookieValues[0].$cookieValues[1], $this->_secret);
+				$key = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1], $this->_secret);
 				$cookieData = base64_decode($cookieValues[2]);
 				if ( $this->getHighConfidentiality() ) {
 					$data = $this->_decrypt($cookieData, $key, md5($cookieValues[1]));
@@ -282,6 +282,9 @@ class CookieJar {
 	 * @return string secured value
 	 */
 	protected function _secureCookieValue($value, $username, $expire) {
+		if ( is_string($expire) ) {
+			$expire = strtotime($expire);
+		}
 		$key = hash_hmac('sha1', $username . $expire, $this->_secret);
 		if ( $this->getHighConfidentiality() ) {
 			$encryptedValue = base64_encode($this->_encrypt($value, $key, md5($expire)));
