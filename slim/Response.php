@@ -277,7 +277,7 @@ class Response {
 		}
 		
 		//Send cookies
-		foreach ( $this->getCookieJar()->getResponseCookies() as $cookie ) {
+		foreach ( $this->getCookieJar()->getResponseCookies() as $name => $cookie ) {
 			setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
 		}
 
