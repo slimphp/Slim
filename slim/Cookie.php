@@ -76,14 +76,29 @@ class Cookie {
 	 */
 	protected $httponly;
 
+	/**
+	 * Constructor
+	 *
+	 * @param	string	$name		The cookie name
+	 * @param	mixed	$value		The cookie value
+	 * @param	mixed	$time		The duration of the cookie;
+	 *								If integer, measured in seconds from now;
+	 *								If string, converted to UNIX timestamp with `strtotime`;
+	 * @param	string	$path		The path on the server in which the cookie will be available on
+	 * @param	string	$domain		The domain that the cookie is available to
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 *								HTTPS connection from the client
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @return 	void
+	 */
 	public function __construct( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
-		$this->name = $name;
-		$this->value = $value;
-		$this->expires = $expires;
-		$this->path = $path;
-		$this->domain = $domain;
-		$this->secure = $secure;
-		$this->httponly = $httponly;
+		$this->setName($name);
+		$this->setValue($value);
+		$this->setExpires($expires);
+		$this->setPath($path);
+		$this->setDomain($domain);
+		$this->setSecure($secure);
+		$this->setHttpOnly($httponly);
 	}
 	
 	/**
@@ -206,7 +221,7 @@ class Cookie {
 	 * @return bool
 	 */
 	public function getHttpOnly() {
-		return $this->httpOnly;
+		return $this->httponly;
 	}
 	
 	/**
@@ -215,7 +230,7 @@ class Cookie {
 	 * @param bool $httponly
 	 * @return void
 	 */
-	public function setHttpOnly($httpOnly) {
+	public function setHttpOnly($httponly) {
 		$this->httponly = (bool)$httponly;
 	}
 
