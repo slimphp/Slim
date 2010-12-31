@@ -704,7 +704,7 @@ class Slim {
 		if ( func_num_args() === 1 ) {
 			return self::getCookie($name);
 		} else {
-			self::addCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
+			self::setCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
 		}
 	}
 	
