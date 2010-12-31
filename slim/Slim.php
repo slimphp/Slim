@@ -701,6 +701,20 @@ class Slim {
 	}
 	
 	/**
+	 * Get Cookie
+	 *
+	 * Return the value of a cookie, or NULL if cookie does not exist in
+	 * the current request. Only cookies sent with the current request
+	 * are accessible by this method.
+	 *
+	 * @param	string $name
+	 * @return 	string|null
+	 */
+	public static function getCookie($name) {
+		return self::request()->cookie($name);
+	}
+	
+	/**
 	 * Set Encrypted Cookie
 	 *
 	 * @param	string	$name		The cookie name
@@ -726,17 +740,18 @@ class Slim {
 	}
 	
 	/**
-	 * Get Cookie
+	 * Get Encrypted Cookie
 	 *
-	 * Return the value of a cookie, or NULL if cookie does not exist in
+	 * Return the value of an encrypted cookie, or NULL if cookie does not exist in
 	 * the current request. Only cookies sent with the current request
 	 * are accessible by this method.
 	 *
 	 * @param	string $name
 	 * @return 	string|null
 	 */
-	public static function getCookie($name) {
-		return self::request()->cookie($name);
+	public static function getEncryptedCookie($name) {
+		$value = self::response()->getCookieJar()->getCookieValue($name);
+		return ($value === false) ? null : $value;
 	}
 
 	/***** HELPERS *****/
