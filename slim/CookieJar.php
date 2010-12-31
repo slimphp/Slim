@@ -183,7 +183,7 @@ class CookieJar {
 	 */
 	public function deleteCookie($name, $path = '/', $domain = '', $secure = false, $httponly = null) {
 		$expire = 315554400; /* 1980-01-01 */
-		$this->_cookies[] = new Cookie($name, $path, $domain, $secure, $httponly);
+		$this->_cookies[$name] = new Cookie($name, '', $path, $domain, $secure, $httponly);
 		//setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
 	}
 
@@ -237,10 +237,10 @@ class CookieJar {
 	public function setClassicCookie($cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null) {
 		/* httponly option is only available for PHP version >= 5.2 */
 		if ( $httponly === null ) {
-			$this->_cookies[] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure);
+			$this->_cookies[$cookiename] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure);
 			//setcookie($cookiename, $value, $expire, $path, $domain, $secure);
 		} else {
-			$this->_cookies[] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
+			$this->_cookies[$cookiename] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
 			//setcookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
 		}
 	}
