@@ -105,25 +105,32 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertTrue(is_callable(Slim::router()->notFound()));
 		$this->assertTrue(is_callable(Slim::router()->error()));
 		$this->assertTrue(Slim::view() instanceof View);
+		$this->assertEquals('20 minutes', Slim::config('cookies.lifetime'));
 	}
 
 	/**
 	 * Test Slim initialization with custom view
 	 *
 	 * Pre-conditions:
-	 * You have initialized a Slim application and specify
-	 * a custom View class.
+	 * Case A: Slim app initialized with string
+	 * Case B: Slim app initialized with View instance
+	 * Case C: Slim app initialized with array
 	 * 
 	 * Post-conditions:
-	 * Slim should have a View of the given class
+	 * Case A: View is instance of CustomView
+	 * Case B: View is instance of CustomView
+	 * Case C: View is instance of CustomView
 	 */
 	public function testSlimInitWithCustomView(){
+		//Case A
 		Slim::init('CustomView');
 		$this->assertTrue(Slim::view() instanceof CustomView);
-
-        $view = new CustomView();
-		Slim::view($view);
+		//Case B
+		Slim::init(new CustomView());
         $this->assertTrue(Slim::view() instanceOf CustomView);
+		//Case C
+		Slim::init(array('view' => 'CustomView'));
+		$this->assertTrue(Slim::view() instanceOf CustomView);
 	}
 	
 	/**
@@ -139,7 +146,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		Slim::init('CustomView');
 		$app = Slim::getInstance();
 		$this->assertTrue( $app instanceof Slim );
-		$this->assertTrue( $app->view() instanceof CustomView );
 	}
 
 
