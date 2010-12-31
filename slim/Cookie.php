@@ -82,7 +82,7 @@ class Cookie {
 	 * @param	string	$name		The cookie name
 	 * @param	mixed	$value		The cookie value
 	 * @param	mixed	$time		The duration of the cookie;
-	 *								If integer, measured in seconds from now;
+	 *								If integer, should be a UNIX timestamp;
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
