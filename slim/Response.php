@@ -54,11 +54,6 @@ class Response {
 	private $headers = array();
 
 	/**
-	 * @var array HTTP response cookies
-	 */
-	private $cookies = array();
-
-	/**
 	 * @var string HTTP response body
 	 */
 	private $body = '';
@@ -119,6 +114,11 @@ class Response {
 		504 => '504 Gateway Timeout',
 		505 => '505 HTTP Version Not Supported'
 	);
+	
+	/**
+	 * @var CookieJar
+	 */
+	protected $cookieJar;
 
 	/**
 	 * Constructor
@@ -201,35 +201,22 @@ class Response {
 	/***** COOKIES *****/
 
 	/**
-	 * Add Cookie
+	 * Set cookie jar
 	 *
-	 * @param	Cookie $cookie
-	 * @return 	void
+	 * @param CookieJar $cookieJar
+	 * @return void
 	 */
-	public function addCookie( Cookie $cookie ) {
-		$this->cookies[$cookie->name] = $cookie;
-	}
-
-	/**
-	 * Get Cookie
-	 *
-	 * Return the value of a cookie, or NULL if cookie has not been set
-	 * in the response.
-	 *
-	 * @param	string $name The cookie name
-	 * @return 	Cookie|null
-	 */
-	public function getCookie( $name ) {
-		return isset($this->cookies[$name]) ? $this->cookies[$name] : null;
+	public function setCookieJar( CookieJar $cookieJar ) {
+		$this->cookieJar = $cookieJar;
 	}
 	
 	/**
-	 * Get Response Cookies
+	 * Get cookie jar
 	 *
-	 * @return array
+	 * @return CookieJar
 	 */
-	public function getCookies() {
-		return $this->cookies;
+	public function getCookieJar() {
+		return $this->cookieJar;
 	}
 
 	/***** FINALIZE BEFORE SENDING *****/
@@ -290,8 +277,8 @@ class Response {
 		}
 		
 		//Send cookies
-		foreach ( $this->cookies as $name => $cookie ) {
-			setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
+		foreach ( $this->getCookieJar()->getResponseCookies() as $cookie ) {
+			setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
 		}
 
 		//Flush all output to client
