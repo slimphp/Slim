@@ -40,7 +40,7 @@
  * - Protection from interception (if using SSL or TLS)
  *
  * This code was originally called "BigOrNot_CookieManager" and written by
- * Matthieu Huguet released under "CopyLeft" license. I have cleaned up the 
+ * Matthieu Huguet released under "CopyLeft" license. I have cleaned up the
  * code formatting to conform with Slim Framework contributor guidelines.
  *
  * @author Matthies Huguet <http://bigornot.blogspot.com/2008/06/security-cookies-and-rest.html>
@@ -64,7 +64,7 @@ class CookieJar {
 
 	/* Enable SSL support */
 	protected $_ssl = false;
-	
+
 	/* Cookies */
 	protected $_cookies = array();
 
@@ -154,7 +154,7 @@ class CookieJar {
 	public function getResponseCookies() {
 		return $this->_cookies;
 	}
-	
+
 	/**
 	 * Get Response Cookie
 	 *
@@ -165,7 +165,7 @@ class CookieJar {
 	public function getResponseCookie($cookiename) {
 		return isset($this->_cookies[$cookiename]) ? $this->_cookies[$cookiename] : null;
 	}
-	
+
 	/**
 	 * Send a secure cookie
 	 *

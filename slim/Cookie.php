@@ -86,7 +86,7 @@ class Cookie {
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
-	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure
 	 *								HTTPS connection from the client
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
@@ -100,7 +100,7 @@ class Cookie {
 		$this->setSecure($secure);
 		$this->setHttpOnly($httponly);
 	}
-	
+
 	/**
 	 * Get cookie name
 	 *
@@ -109,7 +109,7 @@ class Cookie {
 	public function getName() {
 		return $this->name;
 	}
-	
+
 	/**
 	 * Set cookie name
 	 *
@@ -119,7 +119,7 @@ class Cookie {
 	public function setName( $name ) {
 		$this->name = (string)$name;
 	}
-	
+
 	/**
 	 * Get cookie value
 	 *
@@ -128,7 +128,7 @@ class Cookie {
 	public function getValue() {
 		return $this->value;
 	}
-	
+
 	/**
 	 * Set cookie value
 	 *
@@ -138,7 +138,7 @@ class Cookie {
 	public function setValue($value) {
 		$this->value = (string)$value;
 	}
-	
+
 	/**
 	 * Get cookie expiration time
 	 *
@@ -147,7 +147,7 @@ class Cookie {
 	public function getExpires() {
 		return $this->expires;
 	}
-	
+
 	/**
 	 * Set cookie expiration time
 	 *
@@ -166,7 +166,7 @@ class Cookie {
 	public function getPath() {
 		return $this->path;
 	}
-	
+
 	/**
 	 * Set cookie path
 	 *
@@ -176,7 +176,7 @@ class Cookie {
 	public function setPath($path) {
 		$this->path = (string)$path;
 	}
-	
+
 	/**
 	 * Get cookie domain
 	 *
@@ -185,7 +185,7 @@ class Cookie {
 	public function getDomain() {
 		return $this->domain;
 	}
-	
+
 	/**
 	 * Set cookie domain
 	 *
@@ -195,7 +195,7 @@ class Cookie {
 	public function setDomain($domain) {
 		$this->domain = (string)$domain;
 	}
-	
+
 	/**
 	 * Is cookie sent over SSL/HTTPS only?
 	 *
@@ -204,7 +204,7 @@ class Cookie {
 	public function getSecure() {
 		return $this->secure;
 	}
-	
+
 	/**
 	 * Set whether cookie is sent over SSL/HTTPS only
 	 *
@@ -214,7 +214,7 @@ class Cookie {
 	public function setSecure($secure) {
 		$this->secure = (bool)$secure;
 	}
-	
+
 	/**
 	 * Is cookie sent over HTTP protocol only?
 	 *
@@ -223,7 +223,7 @@ class Cookie {
 	public function getHttpOnly() {
 		return $this->httponly;
 	}
-	
+
 	/**
 	 * Set whether cookie is sent over HTTP protocol only
 	 *

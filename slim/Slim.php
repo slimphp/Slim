@@ -104,7 +104,7 @@ class Slim {
 	 * @var array Application settings
 	 */
 	private $settings;
-	
+
 	/**
 	 * @var array Plugin hooks
 	 */
@@ -263,7 +263,7 @@ class Slim {
 			'enable_ssl' => $this->settings['cookies.secure']
 		)));
 	}
-	
+
 	/**
 	 * Initialize Slim
 	 *
@@ -288,7 +288,7 @@ class Slim {
 		self::error(array('Slim', 'defaultError'));
 		self::view(Slim::config('view'));
 	}
-	
+
 	/**
 	 * Get Slim application instance
 	 *
@@ -673,9 +673,9 @@ class Slim {
 		}
 
 	}
-	
+
 	/***** COOKIES *****/
-	
+
 	/**
 	 * Set Normal Cookie
 	 *
@@ -686,7 +686,7 @@ class Slim {
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
-	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure
 	 *								HTTPS connection from the client
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
@@ -699,7 +699,7 @@ class Slim {
 		$httponly = is_null($httponly) ? Slim::config('cookies.httponly') : $httponly;
 		self::response()->getCookieJar()->setClassicCookie($name, $value, $time, $path, $domain, $secure, $httponly);
 	}
-	
+
 	/**
 	 * Get Cookie
 	 *
@@ -713,7 +713,7 @@ class Slim {
 	public static function getCookie($name) {
 		return self::request()->cookie($name);
 	}
-	
+
 	/**
 	 * Set Encrypted Cookie
 	 *
@@ -724,7 +724,7 @@ class Slim {
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
-	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure
 	 *								HTTPS connection from the client
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
@@ -738,7 +738,7 @@ class Slim {
 		$userId = Slim::config('cookies.user_id');
 		self::response()->getCookieJar()->setCookie($name, $value, $userId, $time, $path, $domain, $secure, $httponly);
 	}
-	
+
 	/**
 	 * Get Encrypted Cookie
 	 *
@@ -905,7 +905,7 @@ class Slim {
 	}
 
 	/***** HOOKS *****/
-	
+
 	/**
 	 * Invoke or assign hook
 	 *
@@ -927,7 +927,7 @@ class Slim {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get hook listeners
 	 *
@@ -946,7 +946,7 @@ class Slim {
 			return self::$app->hooks;
 		}
 	}
-	
+
 	/**
 	 * Clear hook listeners
 	 *
@@ -968,7 +968,7 @@ class Slim {
 			}
 		}
 	}
-	
+
 	/***** RUN SLIM *****/
 
 	/**
