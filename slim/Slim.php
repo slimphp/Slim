@@ -136,7 +136,8 @@ class Slim {
 			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
 			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
 			'cookies.encrypt' => true,
-			'cookies.ssl' => false,
+			'cookies.secure' => false,
+			'cookies.httponly' => false,
 			'cookies.user_id' => 'default'
 		);
 		$this->request = new Request();
@@ -146,7 +147,7 @@ class Slim {
 			'high_confidentiality' => $this->settings['cookies.encrypt'],
 			'mcrypt_algorithm' => $this->settings['cookies.cipher'],
 			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
-			'enable_ssl' => $this->settings['cookies.ssl']
+			'enable_ssl' => $this->settings['cookies.secure']
 		)));
 	}
 
@@ -678,10 +679,12 @@ class Slim {
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
 	 */
-	public static function setCookie($name, $value, $time = null, $path = '/', $domain = '', $secure = false, $httponly = false) {
-		if ( is_null($time) ) {
-			$time = Slim::config('cookies.lifetime');
-		}
+	public static function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null) {
+		$time = is_null($time) ? Slim::config('cookies.lifetime') : $time;
+		$path = is_null($path) ? Slim::config('cookies.path') : $path;
+		$domain = is_null($domain) ? Slim::config('cookies.domain') : $domain;
+		$secure = is_null($secure) ? Slim::config('cookies.secure') : $secure;
+		$httponly = is_null($httponly) ? Slim::config('cookies.httponly') : $httponly;
 		self::response()->getCookieJar()->setClassicCookie($name, $value, $time, $path, $domain, $secure, $httponly);
 	}
 	
@@ -700,8 +703,14 @@ class Slim {
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
 	 */
-	public static function setEncryptedCookie($name, $value, $time = null, $path = null, $domain = null, $secure = false, $httponly = false) {
-		self::response()->getCookieJar()->setCookie($name, $value, Slim::config('cookies.user_id'), $time, $path, $domain, $secure, $httponly);
+	public static function setEncryptedCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null) {
+		$time = is_null($time) ? Slim::config('cookies.lifetime') : $time;
+		$path = is_null($path) ? Slim::config('cookies.path') : $path;
+		$domain = is_null($domain) ? Slim::config('cookies.domain') : $domain;
+		$secure = is_null($secure) ? Slim::config('cookies.secure') : $secure;
+		$httponly = is_null($httponly) ? Slim::config('cookies.httponly') : $httponly;
+		$userId = Slim::config('cookies.user_id');
+		self::response()->getCookieJar()->setCookie($name, $value, $userId, $time, $path, $domain, $secure, $httponly);
 	}
 	
 	/**
