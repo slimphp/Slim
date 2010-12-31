@@ -709,8 +709,7 @@ class Slim {
 	 *
 	 * Return the value of a cookie, or NULL if cookie does not exist in
 	 * the current request. Only cookies sent with the current request
-	 * are accessible by this method. To retrieve a cookie set in the 
-	 * response, use Response::getCookie().
+	 * are accessible by this method.
 	 *
 	 * @param	string $name
 	 * @return 	string|null
