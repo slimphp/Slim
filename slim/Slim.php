@@ -240,11 +240,13 @@ class Slim {
 			'debug' => true,
 			'templates_dir' => './templates',
 			'view' => 'View',
+			//Settings for all cookies
 			'cookies.lifetime' => '20 minutes',
 			'cookies.path' => '/',
 			'cookies.domain' => '',
 			'cookies.secure' => false,
 			'cookies.httponly' => false,
+			//Settings for encrypted cookies
 			'cookies.secret_key' => 'CHANGE_ME',
 			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
 			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
