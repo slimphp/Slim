@@ -600,10 +600,44 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 	}
 	
 	/**
-	 * Test Slim sets encrypted cookies
+	 * Test Slim sets encrypted cookie
+	 *
+	 * Pre-conditions:
+	 * Slim app initialized;
+	 * Case A: Cookie time not set;
+	 * Case B: Cookie time set as seconds from now (integer);
+	 * Case C: Cookie time set as string;
+	 * Case D: Cookie time is set to 0;
+	 *
+	 * Post-conditions:
+	 * Cookie available in response;
+	 * Case A: Cookie time set using default value;
+	 * Case C: Cookie time set using `strtotime()`;
+	 * Case D: Cookie time is 0;
 	 */
 	public function testSlimSetsEncryptedCookie() {
-		//TODO: Add unit tests for Slim::setEncryptedCookie()
+		Slim::init();
+		$cj = Slim::response()->getCookieJar();
+		//Case A
+		$timeA = time();
+		Slim::setEncryptedCookie('myCookie1', 'myValue1');
+		$cookieA = $cj->getResponseCookie('myCookie1');
+		$this->assertEquals('myCookie1', $cookieA->getName());
+		$this->assertEquals($timeA + 1200, $cookieA->getExpires()); //default duration is 20 minutes
+		$this->assertEquals('/', $cookieA->getPath());
+		$this->assertEquals('', $cookieA->getDomain());
+		$this->assertFalse($cookieA->getSecure());
+		$this->assertFalse($cookieA->getHttpOnly());
+		//Case C
+		$timeC = time();
+		Slim::setEncryptedCookie('myCookie3', 'myValue3', '1 hour');
+		$cookieC = $cj->getResponseCookie('myCookie3');
+		$this->assertEquals($timeC + 3600, $cookieC->getExpires());
+		//Case D
+		$timeD = time();
+		Slim::setEncryptedCookie('myCookie4', 'myValue4', 0);
+		$cookieD = $cj->getResponseCookie('myCookie4');
+		$this->assertEquals(0, $cookieD->getExpires());
 	}
 	
 	/************************************************
