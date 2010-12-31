@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -52,11 +52,6 @@ class Response {
 	 * @var array HTTP response headers; [ name => value, ... ]
 	 */
 	private $headers = array();
-
-	/**
-	 * @var array HTTP response cookies
-	 */
-	private $cookies = array();
 
 	/**
 	 * @var string HTTP response body
@@ -119,6 +114,11 @@ class Response {
 		504 => '504 Gateway Timeout',
 		505 => '505 HTTP Version Not Supported'
 	);
+
+	/**
+	 * @var CookieJar
+	 */
+	protected $cookieJar;
 
 	/**
 	 * Constructor
@@ -201,35 +201,22 @@ class Response {
 	/***** COOKIES *****/
 
 	/**
-	 * Add Cookie
+	 * Set cookie jar
 	 *
-	 * @param	Cookie $cookie
-	 * @return 	void
+	 * @param CookieJar $cookieJar
+	 * @return void
 	 */
-	public function addCookie( Cookie $cookie ) {
-		$this->cookies[$cookie->name] = $cookie;
+	public function setCookieJar( CookieJar $cookieJar ) {
+		$this->cookieJar = $cookieJar;
 	}
 
 	/**
-	 * Get Cookie
+	 * Get cookie jar
 	 *
-	 * Return the value of a cookie, or NULL if cookie has not been set
-	 * in the response.
-	 *
-	 * @param	string $name The cookie name
-	 * @return 	Cookie|null
+	 * @return CookieJar
 	 */
-	public function getCookie( $name ) {
-		return isset($this->cookies[$name]) ? $this->cookies[$name] : null;
-	}
-	
-	/**
-	 * Get Response Cookies
-	 *
-	 * @return array
-	 */
-	public function getCookies() {
-		return $this->cookies;
+	public function getCookieJar() {
+		return $this->cookieJar;
 	}
 
 	/***** FINALIZE BEFORE SENDING *****/
@@ -288,10 +275,10 @@ class Response {
 		foreach ( $this->headers() as $name => $value ) {
 			header("$name: $value");
 		}
-		
+
 		//Send cookies
-		foreach ( $this->cookies as $name => $cookie ) {
-			setcookie($cookie->name, $cookie->value, $cookie->expires, $cookie->path, $cookie->domain, $cookie->secure, $cookie->httponly);
+		foreach ( $this->getCookieJar()->getResponseCookies() as $name => $cookie ) {
+			setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
 		}
 
 		//Flush all output to client

@@ -104,7 +104,7 @@ class Slim {
 	 * @var array Application settings
 	 */
 	private $settings;
-	
+
 	/**
 	 * @var array Plugin hooks
 	 */
@@ -116,27 +116,6 @@ class Slim {
 		'slim.after.router' => array(),
 		'slim.after' => array()
 	);
-
-	/**
-	 * Constructor
-	 *
-	 * This method instantiates the Slim application
-	 * instance, the Request, the Response, the Router,
-	 * the before callbacks, the after callbacks, and the
-	 * default application settings.
-	 */
-	private function __construct() {
-		$this->request = new Request();
-		$this->response = new Response();
-		$this->router = new Router( $this->request );
-		$this->settings = array(
-			'log' => true,
-			'log_dir' => './logs',
-			'debug' => true,
-			'templates_dir' => './templates',
-			'cookies.expire_after' => '20 minutes'
-		);
-	}
 
 	/**
 	 * Slim auto-loader
@@ -245,6 +224,47 @@ class Slim {
 	/***** INITIALIZER *****/
 
 	/**
+	 * Constructor
+	 *
+	 * This method instantiates the Slim application
+	 * instance, the Request, the Response, the Router,
+	 * the before callbacks, the after callbacks, and the
+	 * default application settings.
+	 *
+	 * @param array $userSettings
+	 */
+	private function __construct( $userSettings = array() ) {
+		$this->settings = array_merge(array(
+			'log' => true,
+			'log_dir' => './logs',
+			'debug' => true,
+			'templates_dir' => './templates',
+			'view' => 'View',
+			//Settings for all cookies
+			'cookies.lifetime' => '20 minutes',
+			'cookies.path' => '/',
+			'cookies.domain' => '',
+			'cookies.secure' => false,
+			'cookies.httponly' => false,
+			//Settings for encrypted cookies
+			'cookies.secret_key' => 'CHANGE_ME',
+			'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+			'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+			'cookies.encrypt' => true,
+			'cookies.user_id' => 'DEFAULT'
+		), $userSettings);
+		$this->request = new Request();
+		$this->response = new Response();
+		$this->router = new Router( $this->request );
+		$this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
+			'high_confidentiality' => $this->settings['cookies.encrypt'],
+			'mcrypt_algorithm' => $this->settings['cookies.cipher'],
+			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
+			'enable_ssl' => $this->settings['cookies.secure']
+		)));
+	}
+
+	/**
 	 * Initialize Slim
 	 *
 	 * This instantiates the Slim application, sets a default Not Found
@@ -256,14 +276,19 @@ class Slim {
      *          will use, or an already initialized View object.
 	 * @return  void
 	 */
-	public static function init( $viewClass = null ) {
-		self::$app = new Slim();
+	public static function init( $userSettings = array() ) {
+		//Legacy support
+		if ( is_string($userSettings) || $userSettings instanceof View ) {
+			$settings = array('view' => $userSettings);
+		} else {
+			$settings = (array)$userSettings;
+		}
+		self::$app = new Slim($settings);
 		self::notFound(array('Slim', 'defaultNotFound'));
 		self::error(array('Slim', 'defaultError'));
-		$view = is_null($viewClass) ? 'View' : $viewClass;
-		self::view($view);
+		self::view(Slim::config('view'));
 	}
-	
+
 	/**
 	 * Get Slim application instance
 	 *
@@ -649,99 +674,84 @@ class Slim {
 
 	}
 
-	/***** SESSIONS (DEPRECATED!!! USE Slim::getCookie and Slim::setCookie instead) *****/
+	/***** COOKIES *****/
 
 	/**
-	 * Set session variable
-	 *
-	 * This method will store a persistent session variable that will be accessible
-	 * across multiple HTTP requests until the variable expires or is cleared. This
-	 * implementation uses browser cookies; because Slim sessions are implemented on
-	 * top of browser cookies, each session variable's value may not be larger then
-	 * 4KB in size. Soon I will add support for encrypted session variables.
-	 *
-	 * This method acts as both a getter and setter. If you invoke this method
-	 * and specify only the first parameter, this will return the value of the cookie
-	 * with the given name, or NULL if said cookie does not exist. If you invoke
-	 * this method with two or more parameters, this method will create a new Cookie
-	 * with the given name, value, and other options. If a Cookie with the same name
-	 * already exists, that cookie will be overwritten when the Response is sent
-	 * to the client.
-	 *
-	 * To "delete" a Session variable, create a new Session variable with the same
-	 * name and set its value to FALSE, NULL, or an empty string.
-	 *
-	 * USAGE:
-	 *
-	 * //Get cookie value
-	 * $value = Slim::session('name');
-	 *
-	 * //Set cookie value
-	 * Slim::session('name', 'value'[, ... ]);
-	 *
-	 * @param   string  $name       The session variable name
-	 * @param   string  $value      The session variable value
-	 * @param   int     $expires    The time this session variable expires (UNIX timestamp)
-	 * @param   string  $path       The path on the server in which this variable will be available
-	 * @param   string  $domain     The domain on which this variable will be available
-	 * @param   bool    $secure     When TRUE the variable will be sent over HTTPS only
-	 * @param   bool    $httponly   When TRUE the variable will be made accessible only through the HTTP protocol
-	 * @return  mixed
-	 */
-	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
-		if ( func_num_args() === 1 ) {
-			return self::getCookie($name);
-		} else {
-			self::addCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
-		}
-	}
-	
-	/***** COOKIES *****/
-	
-	/**
-	 * Set Cookie
+	 * Set Normal Cookie
 	 *
 	 * @param	string	$name		The cookie name
 	 * @param	mixed	$value		The cookie value
 	 * @param	mixed	$time		The duration of the cookie;
-	 *								If integer, measured in seconds from now;
+	 *								If integer, should be UNIX timestamp;
 	 *								If string, converted to UNIX timestamp with `strtotime`;
 	 * @param	string	$path		The path on the server in which the cookie will be available on
 	 * @param	string	$domain		The domain that the cookie is available to
-	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure 
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure
 	 *								HTTPS connection from the client
 	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 * @return 	void
 	 */
-	public static function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = false, $httponly = false) {
-		if ( is_null($time) ) {
-			$time = Slim::config('cookies.expire_after');
-		}
-		if ( is_string($time) ) {
-			$time = strtotime($time);
-		} else {
-			//If $time === 0, the cookie will exist for the length of the
-			//browser session; the cookie will be deleted when the browser
-			//is closed by the website visitor. If a non-zero value is
-			//specified, that value is added to the current UNIX timestamp.
-			$time = ($time === 0) ? 0 : time() + (int)$time;
-		}
-		self::response()->addCookie(new Cookie($name, $value, $time, $path, $domain, $secure, $httponly));
+	public static function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null) {
+		$time = is_null($time) ? Slim::config('cookies.lifetime') : $time;
+		$path = is_null($path) ? Slim::config('cookies.path') : $path;
+		$domain = is_null($domain) ? Slim::config('cookies.domain') : $domain;
+		$secure = is_null($secure) ? Slim::config('cookies.secure') : $secure;
+		$httponly = is_null($httponly) ? Slim::config('cookies.httponly') : $httponly;
+		self::response()->getCookieJar()->setClassicCookie($name, $value, $time, $path, $domain, $secure, $httponly);
 	}
-	
+
 	/**
 	 * Get Cookie
 	 *
 	 * Return the value of a cookie, or NULL if cookie does not exist in
 	 * the current request. Only cookies sent with the current request
-	 * are accessible by this method. To retrieve a cookie set in the 
-	 * response, use Response::getCookie().
+	 * are accessible by this method.
 	 *
 	 * @param	string $name
 	 * @return 	string|null
 	 */
 	public static function getCookie($name) {
 		return self::request()->cookie($name);
+	}
+
+	/**
+	 * Set Encrypted Cookie
+	 *
+	 * @param	string	$name		The cookie name
+	 * @param	mixed	$value		The cookie value
+	 * @param	mixed	$time		The duration of the cookie;
+	 *								If integer, should be UNIX timestamp;
+	 *								If string, converted to UNIX timestamp with `strtotime`;
+	 * @param	string	$path		The path on the server in which the cookie will be available on
+	 * @param	string	$domain		The domain that the cookie is available to
+	 * @param	bool	$secure		Indicates that the cookie should only be transmitted over a secure
+	 *								HTTPS connection from the client
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @return 	void
+	 */
+	public static function setEncryptedCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null) {
+		$time = is_null($time) ? Slim::config('cookies.lifetime') : $time;
+		$path = is_null($path) ? Slim::config('cookies.path') : $path;
+		$domain = is_null($domain) ? Slim::config('cookies.domain') : $domain;
+		$secure = is_null($secure) ? Slim::config('cookies.secure') : $secure;
+		$httponly = is_null($httponly) ? Slim::config('cookies.httponly') : $httponly;
+		$userId = Slim::config('cookies.user_id');
+		self::response()->getCookieJar()->setCookie($name, $value, $userId, $time, $path, $domain, $secure, $httponly);
+	}
+
+	/**
+	 * Get Encrypted Cookie
+	 *
+	 * Return the value of an encrypted cookie, or NULL if cookie does not exist in
+	 * the current request. Only cookies sent with the current request
+	 * are accessible by this method.
+	 *
+	 * @param	string $name
+	 * @return 	string|null
+	 */
+	public static function getEncryptedCookie($name) {
+		$value = self::response()->getCookieJar()->getCookieValue($name);
+		return ($value === false) ? null : $value;
 	}
 
 	/***** HELPERS *****/
@@ -895,7 +905,7 @@ class Slim {
 	}
 
 	/***** HOOKS *****/
-	
+
 	/**
 	 * Invoke or assign hook
 	 *
@@ -917,7 +927,7 @@ class Slim {
 			}
 		}
 	}
-	
+
 	/**
 	 * Get hook listeners
 	 *
@@ -936,7 +946,7 @@ class Slim {
 			return self::$app->hooks;
 		}
 	}
-	
+
 	/**
 	 * Clear hook listeners
 	 *
@@ -958,7 +968,7 @@ class Slim {
 			}
 		}
 	}
-	
+
 	/***** RUN SLIM *****/
 
 	/**
