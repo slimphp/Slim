@@ -660,53 +660,6 @@ class Slim {
 		}
 
 	}
-
-	/***** SESSIONS (DEPRECATED!!! USE Slim::getCookie and Slim::setCookie instead) *****/
-
-	/**
-	 * Set session variable
-	 *
-	 * This method will store a persistent session variable that will be accessible
-	 * across multiple HTTP requests until the variable expires or is cleared. This
-	 * implementation uses browser cookies; because Slim sessions are implemented on
-	 * top of browser cookies, each session variable's value may not be larger then
-	 * 4KB in size. Soon I will add support for encrypted session variables.
-	 *
-	 * This method acts as both a getter and setter. If you invoke this method
-	 * and specify only the first parameter, this will return the value of the cookie
-	 * with the given name, or NULL if said cookie does not exist. If you invoke
-	 * this method with two or more parameters, this method will create a new Cookie
-	 * with the given name, value, and other options. If a Cookie with the same name
-	 * already exists, that cookie will be overwritten when the Response is sent
-	 * to the client.
-	 *
-	 * To "delete" a Session variable, create a new Session variable with the same
-	 * name and set its value to FALSE, NULL, or an empty string.
-	 *
-	 * USAGE:
-	 *
-	 * //Get cookie value
-	 * $value = Slim::session('name');
-	 *
-	 * //Set cookie value
-	 * Slim::session('name', 'value'[, ... ]);
-	 *
-	 * @param   string  $name       The session variable name
-	 * @param   string  $value      The session variable value
-	 * @param   int     $expires    The time this session variable expires (UNIX timestamp)
-	 * @param   string  $path       The path on the server in which this variable will be available
-	 * @param   string  $domain     The domain on which this variable will be available
-	 * @param   bool    $secure     When TRUE the variable will be sent over HTTPS only
-	 * @param   bool    $httponly   When TRUE the variable will be made accessible only through the HTTP protocol
-	 * @return  mixed
-	 */
-	public static function session( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
-		if ( func_num_args() === 1 ) {
-			return self::getCookie($name);
-		} else {
-			self::setCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
-		}
-	}
 	
 	/***** COOKIES *****/
 	
