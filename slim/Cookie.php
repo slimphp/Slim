@@ -44,37 +44,37 @@ class Cookie {
 	/**
 	 * @var string
 	 */
-	public $name;
+	protected $name;
 
 	/**
 	 * @var mixed
 	 */
-	public $value;
+	protected $value;
 
 	/**
 	 * @var int UNIX timestamp
 	 */
-	public $expires;
+	protected $expires;
 
 	/**
 	 * @var string
 	 */
-	public $path;
+	protected $path;
 
 	/**
 	 * @var string
 	 */
-	public $domain;
+	protected $domain;
 
 	/**
 	 * @var bool
 	 */
-	public $secure;
+	protected $secure;
 
 	/**
 	 * @var bool
 	 */
-	public $httponly;
+	protected $httponly;
 
 	public function __construct( $name, $value = null, $expires = 0, $path = null, $domain = null, $secure = false, $httponly = false ) {
 		$this->name = $name;
