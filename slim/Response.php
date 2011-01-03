@@ -268,8 +268,13 @@ class Response {
 		//Finalize response
 		$this->finalize();
 
-		//Send HTTP message
-		header('HTTP/1.1 ' . Response::getMessageForCode($this->status()));
+		if ( substr(PHP_SAPI, 0, 3) === 'cgi') {
+			//Send Status header if running with fastcgi
+		    header('Status: ' . Response::getMessageForCode($this->status()));
+		} else {
+			//Else send HTTP message
+		    header('HTTP/1.1 ' . Response::getMessageForCode($this->status()));
+		}
 
 		//Send headers
 		foreach ( $this->headers() as $name => $value ) {
