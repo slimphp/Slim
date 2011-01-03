@@ -103,7 +103,7 @@ class Slim {
 	/**
 	 * @var array Application settings
 	 */
-	private $settings;
+	private $settings = array();
 
 	/**
 	 * @var array Plugin hooks
