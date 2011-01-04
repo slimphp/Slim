@@ -98,9 +98,11 @@ class CookieJar {
 				$this->_ssl = $config['enable_ssl'];
 			}
 		}
-		$this->_cryptModule = mcrypt_module_open($this->_algorithm, '', $this->_mode, '');
-		if ( $this->_cryptModule === false ) {
-			throw new Exception('Error while loading mcrypt module');
+		if ( extension_loaded('mcrypt') ) {
+			$this->_cryptModule = mcrypt_module_open($this->_algorithm, '', $this->_mode, '');
+			if ( $this->_cryptModule === false ) {
+				throw new Exception('Error while loading mcrypt module');
+			}
 		}
 	}
 
@@ -179,7 +181,7 @@ class CookieJar {
 	 * @param bool $httponly when TRUE the cookie will be made accessible only through the HTTP protocol
 	 */
 	public function setCookie($cookiename, $value, $username, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null) {
-		$secureValue = $this->_secureCookieValue($value, $username, $expire);
+		$secureValue = extension_loaded('mcrypt') ? $this->_secureCookieValue($value, $username, $expire) : $value;
 		$this->setClassicCookie($cookiename, $secureValue, $expire, $path, $domain, $secure, $httponly);
 	}
 
@@ -209,23 +211,27 @@ class CookieJar {
 	 */
 	public function getCookieValue($cookiename, $deleteIfInvalid = true) {
 		if ( $this->cookieExists($cookiename) ) {
-			$cookieValues = explode('|', $_COOKIE[$cookiename]);
-			if ( (count($cookieValues) === 4) && ($cookieValues[1] == 0 || $cookieValues[1] >= time()) ) {
-				$key = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1], $this->_secret);
-				$cookieData = base64_decode($cookieValues[2]);
-				if ( $this->getHighConfidentiality() ) {
-					$data = $this->_decrypt($cookieData, $key, md5($cookieValues[1]));
-				} else {
-					$data = $cookieData;
+			if ( extension_loaded('mcrypt') ) {
+				$cookieValues = explode('|', $_COOKIE[$cookiename]);
+				if ( (count($cookieValues) === 4) && ($cookieValues[1] == 0 || $cookieValues[1] >= time()) ) {
+					$key = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1], $this->_secret);
+					$cookieData = base64_decode($cookieValues[2]);
+					if ( $this->getHighConfidentiality() ) {
+						$data = $this->_decrypt($cookieData, $key, md5($cookieValues[1]));
+					} else {
+						$data = $cookieData;
+					}
+					if ( $this->_ssl && isset($_SERVER['SSL_SESSION_ID']) ) {
+						$verifKey = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1] . $data . $_SERVER['SSL_SESSION_ID'], $key);
+					} else {
+						$verifKey = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1] . $data, $key);
+					}
+					if ( $verifKey == $cookieValues[3] ) {
+						return $data;
+					}
 				}
-				if ( $this->_ssl && isset($_SERVER['SSL_SESSION_ID']) ) {
-					$verifKey = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1] . $data . $_SERVER['SSL_SESSION_ID'], $key);
-				} else {
-					$verifKey = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1] . $data, $key);
-				}
-				if ( $verifKey == $cookieValues[3] ) {
-					return $data;
-				}
+			} else {
+				return $_COOKIES[$cookiename];
 			}
 		}
 		if ( $deleteIfInvalid ) {
