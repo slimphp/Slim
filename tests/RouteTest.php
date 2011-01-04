@@ -220,6 +220,28 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue($resultC);
 		$this->assertEquals($routeC->getParams(), array('year' => '2010', 'month' => '05', 'day' => '13'));
 	}
+	
+	/**
+	 * Test route default conditions
+	 *
+	 * Pre-conditions:
+	 * Route class has default conditions;
+	 *
+	 * Post-conditions:
+	 * Case A: Route instance has default conditions;
+	 * Case B: Route instance has newly merged conditions;
+	 */
+	public function testRouteDefaultConditions() {
+		Route::setDefaultConditions(array('id' => '\d+'));
+		$r = new Route('/foo', function () {});
+		//Case A
+		$this->assertEquals($r->getConditions(), Route::getDefaultConditions());
+		//Case B
+		$r->conditions(array('name' => '[a-z]{2,5}'));
+		$c = $r->getConditions();
+		$this->assertArrayHasKey('id', $c);
+		$this->assertArrayHasKey('name', $c);
+	}
 
 }
 
