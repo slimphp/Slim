@@ -42,32 +42,37 @@ class Route {
 	/**
 	 * @var string The route pattern (ie. "/books/:id")
 	 */
-	private $pattern;
+	protected $pattern;
 
 	/**
 	 * @var mixed The callable associated with this route
 	 */
-	private $callable;
+	protected $callable;
 
 	/**
 	 * @var array Conditions for this route's URL parameters
 	 */
-	private $conditions = array();
+	protected $conditions = array();
+	
+	/**
+	 * @var array Default conditions applied to all Route instances
+	 */
+	protected static $defaultConditions = array();
 
 	/**
 	 * @var string The name of this route
 	 */
-	private $name;
+	protected $name;
 
 	/**
 	 * @var array Array of URL parameter names and values
 	 */
-	private $params = array();
+	protected $params = array();
 
 	/**
 	 * @var Router The Router that contains this Route
 	 */
-	private $router;
+	protected $router;
 
 	/**
 	 * Constructor
@@ -76,11 +81,33 @@ class Route {
 	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
-		$this->setPattern(str_replace(')', ')?', $pattern));
-		$this->callable = $callable;
+		$this->setPattern($pattern);
+		$this->setCallable($callable);
+		$this->setConditions(self::getDefaultConditions());
 	}
 
-	/***** ACCESSORS *****/
+	/***** CLASS METHODS *****/
+	
+	/**
+	 * Set default route conditions for all instances
+	 *
+	 * @param array $defaultConditions
+	 * @return void
+	 */
+	public static function setDefaultConditions( array $defaultConditions ) {
+		self::$defaultConditions = $defaultConditions;
+	}
+	
+	/**
+	 * Get default route conditions for all instances
+	 *
+	 * @return array
+	 */
+	public static function getDefaultConditions() {
+		return self::$defaultConditions;
+	}
+	
+	/***** INSTANCE ACCESSORS *****/
 	
 	/**
 	 * Get route pattern
@@ -98,7 +125,7 @@ class Route {
 	 * @return void
 	 */
 	public function setPattern( $pattern ) {
-		$this->pattern = $pattern;
+		$this->pattern = str_replace(')', ')?', (string)$pattern);
 	}
 	
 	/**
@@ -135,8 +162,8 @@ class Route {
 	 * @param array $conditions
 	 * @return void
 	 */
-	public function setConditions( $conditions ) {
-		$this->conditions = (array)$conditions;
+	public function setConditions( array $conditions ) {
+		$this->conditions = $conditions;
 	}
 	
 	/**
@@ -155,7 +182,7 @@ class Route {
 	 * @return void
 	 */
 	public function setName( $name ) {
-		$this->name = $name;
+		$this->name = (string)$name;
 		$this->getRouter()->cacheNamedRoute($name, $this);
 	}
 	
@@ -268,15 +295,13 @@ class Route {
 	}
 
 	/**
-	 * Set route conditions (alias for Route::setConditions)
+	 * Merge route conditions
 	 *
 	 * @param	array $conditions An associative array of URL parameter conditions
 	 * @return 	Route
 	 */
-	public function conditions( $conditions ) {
-		if ( is_array($conditions) ) {
-			$this->conditions = $conditions;
-		}
+	public function conditions( array $conditions ) {
+		$this->conditions = array_merge($this->conditions, $conditions);
 		return $this;
 	}
 	
