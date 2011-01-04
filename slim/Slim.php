@@ -30,6 +30,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+//Ensure expected constants are available
+if ( !defined('MCRYPT_RIJNDAEL_256') ) {
+	define('MCRYPT_RIJNDAEL_256', 0);
+}
+if ( !defined('MCRYPT_MODE_CBC') ) {
+	define('MCRYPT_MODE_CBC', 0);
+}
+	
 //Set which errors are reported by PHP and logged by Slim
 error_reporting(E_ALL | E_STRICT);
 
