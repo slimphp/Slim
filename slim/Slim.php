@@ -943,25 +943,45 @@ class Slim {
 	/***** HOOKS *****/
 
 	/**
-	 * Invoke or assign hook
+	 * Assign hook
 	 *
 	 * @param string $name The hook name
 	 * @param mixed $callable A callable object
+	 * @param int $priority Priority of the hooked function. Default: 10
 	 * @return void
 	 */
-	public static function hook($name, $callable = null) {
+	public static function hook($name, $callable, $priority = 10) {
 		if ( !isset(self::$app->hooks[$name]) ) {
 			self::$app->hooks[$name] = array();
 		}
 		if ( !is_null($callable) ) {
 			if ( is_callable($callable) ) {
-				self::$app->hooks[$name][] = $callable;
-			}
-		} else {
-			foreach( self::$app->hooks[$name] as $listener ) {
-				call_user_func($listener, self:$app);
+				self::$app->hooks[$name][$priority][] = $callable;
 			}
 		}
+	}
+
+	/**
+	 * Invoke hook
+	 *
+	 * @param string $name The hook name
+	 * @param mixed $var (Optional) Argument for hooked functions
+	 * @return void
+	 */
+	public static function applyHook($name, $var = null) {
+		if ( !isset(self::$app->hooks[$name]) ) {
+			self::$app->hooks[$name] = array();
+		}
+		// Sort if there's more than one priority
+		if ( count(self::$app->hooks[$name]) > 1 ) {
+			ksort(self::$app->hooks[$name]);
+		}
+		foreach( self::$app->hooks[$name] as $priority ) {
+			foreach($priority as $callable) {
+				$var = call_user_func($callable, $var);
+			}
+		}
+		return $var;
 	}
 
 	/**
@@ -973,16 +993,13 @@ class Slim {
 	 * keys are hook names and whose values are arrays of listeners.
 	 *
 	 * @param string $name Optional. A hook name.
-	 * @param string $type Optional. The hook type (hooks or filters)
 	 * @return array|null
 	 */
-	public static function getHooks($name = null, $type = 'hooks') {
-		if ( $type == 'hooks' || $type == 'filters') {
-			if ( !is_null($name) ) {
-				return isset(self::$app->$type[(string)$name]) ? self::$app->$type[(string)$name] : null;
-			} else {
-				return self::$app->$type;
-			}
+	public static function getHooks($name = null) {
+		if ( !is_null($name) ) {
+			return isset(self::$app->hooks[(string)$name]) ? self::$app->hooks[(string)$name] : null;
+		} else {
+			return self::$app->hooks;
 		}
 	}
 
@@ -994,87 +1011,18 @@ class Slim {
 	 * to that hook will be cleared.
 	 *
 	 * @param string $name Optional. A hook name.
-	 * @param string $type Optional. The hook type (hooks or filters)
 	 * @return void
 	 */
-	public static function clearHooks($name = null, $type = 'hooks') {
-		if ( $type == 'hooks' || $type == 'filters') {
-			if ( !is_null($name) ) {
-				if ( isset(self::$app->$type[(string)$name]) ) {
-					self::$app->$type[(string)$name] = array();
-				}
-			} else {
-				foreach( self::$app->$type as $key => $value ) {
-					self::$app->$type[$key] = array();
-				}
+	public static function clearHooks($name = null) {
+		if ( !is_null($name) ) {
+			if ( isset(self::$app->hooks[(string)$name]) ) {
+				self::$app->hooks[(string)$name] = array();
+			}
+		} else {
+			foreach( self::$app->hooks as $key => $value ) {
+				self::$app->hooks[$key] = array();
 			}
 		}
-	}
-
-	/***** FILTERS *****/
-	
-	/**
-	 * Assign a filter
-	 *
-	 * @param string $name The filter name
-	 * @param mixed $callable A callable object
-	 * @return void
-	 */
-	public static function filter($name, $callable = null) {
-		if ( !isset(self::$app->filters[$name]) ) {
-			self::$app->filters[$name] = array();
-		}
-		if ( !is_null($callable) ) {
-			if ( is_callable($callable) ) {
-				self::$app->filters[$name][] = $callable;
-			}
-		}
-	}
-
-	/**
-	 * Apply a filter
-	 *
-	 * @param string $name The filter name
-	 * @param mixed $var The variable to filter
-	 * @return void
-	 */
-	public static function applyFilter($name, $var) {
-		if ( !isset(self::$app->filters[$name]) ) {
-			self::$app->filters[$name] = array();
-		}
-		foreach( self::$app->filters[$name] as $filter ) {
-			$var = call_user_func($filter, $var);
-		}
-		return $var;
-	}
-
-	/**
-	 * Get filter listeners
-	 *
-	 * Return an array of registered filters. If `$name` is a valid
-	 * filter name, only the listeners attached to that filter are returned.
-	 * Else, all listeners are returned as an associative array whose
-	 * keys are filter names and whose values are arrays of listeners.
-	 *
-	 * @param string $name Optional. A filter name.
-	 * @return array|null
-	 */
-	public static function getFilters($name = null) {
-		return Slim::getHooks($name, 'filters');
-	}
-
-	/**
-	 * Clear filter listeners
-	 *
-	 * Clear all listeners for all filters. If `$name` is
-	 * a valid filter name, only the listeners attached
-	 * to that filter will be cleared.
-	 *
-	 * @param string $name Optional. A filter name.
-	 * @return void
-	 */
-	public static function clearFilters($name = null) {
-		Slim::clearHooks($name, 'filters');
 	}
 
 	/***** RUN SLIM *****/
