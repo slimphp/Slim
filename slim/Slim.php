@@ -117,19 +117,12 @@ class Slim {
 	 * @var array Plugin hooks
 	 */
 	private $hooks = array(
-		'slim.before' => array(),
-		'slim.before.router' => array(),
-		'slim.before.dispatch' => array(),
-		'slim.after.dispatch' => array(),
-		'slim.after.router' => array(),
-		'slim.after' => array()
-	);
-
-	/**
-	 * @var array Plugin filters
-	 */
-	private $filters = array(
-		//'slim.example' => array()
+		'slim.before' => array(array()),
+		'slim.before.router' => array(array()),
+		'slim.before.dispatch' => array(array()),
+		'slim.after.dispatch' => array(array()),
+		'slim.after.router' => array(array()),
+		'slim.after' => array(array())
 	);
 
 	/**
@@ -952,11 +945,11 @@ class Slim {
 	 */
 	public static function hook($name, $callable, $priority = 10) {
 		if ( !isset(self::$app->hooks[$name]) ) {
-			self::$app->hooks[$name] = array();
+			self::$app->hooks[$name] = array(array());
 		}
 		if ( !is_null($callable) ) {
 			if ( is_callable($callable) ) {
-				self::$app->hooks[$name][$priority][] = $callable;
+				self::$app->hooks[$name][(int)$priority][] = $callable;
 			}
 		}
 	}
@@ -970,7 +963,7 @@ class Slim {
 	 */
 	public static function applyHook($name, $var = null) {
 		if ( !isset(self::$app->hooks[$name]) ) {
-			self::$app->hooks[$name] = array();
+			self::$app->hooks[$name] = array(array());
 		}
 		// Sort if there's more than one priority
 		if ( count(self::$app->hooks[$name]) > 1 ) {
@@ -1041,15 +1034,15 @@ class Slim {
 	 */
 	public static function run() {
 		try {
-			self::hook('slim.before');
+			self::applyHook('slim.before');
 			ob_start();
-			self::hook('slim.before.router');
+			self::applyHook('slim.before.router');
 			$dispatched = false;
 			foreach( self::router() as $route ) {
 				try {
-					Slim::hook('slim.before.dispatch');
+					Slim::applyHook('slim.before.dispatch');
 					$dispatched = $route->dispatch();
-					Slim::hook('slim.after.dispatch');
+					Slim::applyHook('slim.after.dispatch');
 					if ( $dispatched ) {
 						break;
 					}
@@ -1061,9 +1054,9 @@ class Slim {
 				Slim::notFound();
 			}
 			self::response()->write(ob_get_clean());
-			self::hook('slim.after.router');
+			self::applyHook('slim.after.router');
 			self::response()->send();
-			self::hook('slim.after');
+			self::applyHook('slim.after');
 		} catch ( SlimRequestSlashException $e ) {
 			self::redirect(self::request()->root . self::request()->resource . '/', 301);
 		}
