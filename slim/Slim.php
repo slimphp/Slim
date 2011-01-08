@@ -486,44 +486,6 @@ class Slim {
 		}
 	}
 
-	/***** LOGGING *****/
-
-	/**
-	 * Logger
-	 *
-	 * This is an application-wide Logger which will write messages to
-	 * a log file in the log directory (as defined in the app configuration).
-	 * Logging must be enabled for this method to work. A separate log file
-	 * is created for each day. Each log file is prepended with the type of
-	 * message (ie. Error, Warning, or Notice).
-	 *
-	 * @param	string $message The message to send to the Logger
-	 * @return 	void
-	 */
-	public static function log( $message, $errno = null ) {
-		if ( self::config('log') ) {
-			$type = '';
-			switch ($errno) {
-			    case E_USER_ERROR :
-				case E_ERROR :
-					$type = '[ERROR]';
-					break;
-				case E_WARNING :
-				case E_USER_WARNING :
-					$type = '[WARNING]';
-					break;
-				case E_NOTICE :
-				case E_USER_NOTICE :
-					$type = '[NOTICE]';
-					break;
-				default :
-					$type = '[UNKNOWN]';
-					break;
-			}
-			@error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), '/') . '/' . date('Y-m-d') . '.log');
-		}
-	}
-
 	/***** CALLBACKS *****/
 
 	/**
@@ -581,6 +543,15 @@ class Slim {
 	 */
 	public static function router() {
 		return self::$app->router;
+	}
+	
+	/**
+	 * Get the application Logger
+	 *
+	 * @return mixed
+	 */
+	public static function logger() {
+		return self::$app->logger;
 	}
 
 	/**
