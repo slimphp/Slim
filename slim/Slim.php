@@ -97,6 +97,11 @@ class Slim {
 	 * @var View
 	 */
 	private $view;
+	
+	/**
+	 * @var mixed The Logger
+	 */
+	private $logger;
 
 	/**
 	 * @var array Before callbacks
@@ -243,9 +248,14 @@ class Slim {
 	 */
 	private function __construct( $userSettings = array() ) {
 		$this->settings = array_merge(array(
-			'log' => true,
-			'log_dir' => './logs',
+			//Logging
+			'log.enable' => true,
+			'log.logger' => null,
+			'log.path' => './logs',
+			'log.level' => 4,
+			//Debugging
 			'debug' => true,
+			//View
 			'templates_dir' => './templates',
 			'view' => 'View',
 			//Settings for all cookies
@@ -270,6 +280,13 @@ class Slim {
 			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
 			'enable_ssl' => $this->settings['cookies.secure']
 		)));
+		if ( $this->settings['log.enable'] ) {
+			if ( empty($this->settings['log.logger']) ) {
+				$this->logger = new Logger($this->settings['log.path'], $this->settings['log.level']);
+			} else {
+				$this->logger = $this->settings['log.logger'];
+			}
+		}
 	}
 
 	/**
