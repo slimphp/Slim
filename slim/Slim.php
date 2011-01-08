@@ -249,7 +249,7 @@ class Slim {
 	private function __construct( $userSettings = array() ) {
 		$this->settings = array_merge(array(
 			//Logging
-			'log.enable' => true,
+			'log.enable' => false,
 			'log.logger' => null,
 			'log.path' => './logs',
 			'log.level' => 4,
