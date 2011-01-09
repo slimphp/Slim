@@ -162,7 +162,7 @@ class Slim {
 		if ( !(error_reporting() & $errno) ) {
 			return;
 		}
-		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $errstr, $errfile, $errline), $errno);
+		Log::error(sprintf("Message: %s | File: %s | Line: %d | Level: %d", $errstr, $errfile, $errline, $errno));
 		if ( self::config('debug') === true ) {
 			Slim::halt(500, self::generateErrorMarkup($errstr, $errfile, $errline));
 		} else {
@@ -182,7 +182,7 @@ class Slim {
 	 */
 	public static function handleExceptions( Exception $e ) {
 		if ( $e instanceof SlimStopException === false ) {
-			Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
+			Log::error($e);
 			if ( self::config('debug') === true ) {
 				Slim::halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
 			} else {
@@ -870,7 +870,7 @@ class Slim {
 	public static function redirect( $url, $status = 307 ) {
 		if ( $status >= 300 && $status <= 307 ) {
 			self::response()->header('Location', (string)$url);
-			self::halt($status);
+			self::halt($status, (string)$url);
 		} else {
 			throw new InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
 		}
