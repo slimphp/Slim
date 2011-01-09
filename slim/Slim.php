@@ -280,11 +280,11 @@ class Slim {
 			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
 			'enable_ssl' => $this->settings['cookies.secure']
 		)));
-		if ( $this->settings['log.enable'] ) {
+		if ( $this->settings['log.enable'] === true ) {
 			if ( empty($this->settings['log.logger']) ) {
-				$this->logger = new Logger($this->settings['log.path'], $this->settings['log.level']);
+				Log::setLogger(new Logger($this->settings['log.path'], $this->settings['log.level']));
 			} else {
-				$this->logger = $this->settings['log.logger'];
+				Log::setLogger($this->settings['log.logger']);
 			}
 		}
 	}
