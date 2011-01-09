@@ -68,11 +68,6 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
  */
 class Slim {
 
-	//Constants helpful when triggering errors or calling Slim::log()
-	const ERROR = 256;
-	const WARNING = 512;
-	const NOTICE = 1024;
-
 	/**
 	 * @var Slim The application instance
 	 */
@@ -97,21 +92,6 @@ class Slim {
 	 * @var View
 	 */
 	private $view;
-	
-	/**
-	 * @var mixed The Logger
-	 */
-	private $logger;
-
-	/**
-	 * @var array Before callbacks
-	 */
-	private $before;
-
-	/**
-	 * @var array After callbacks
-	 */
-	private $after;
 
 	/**
 	 * @var array Application settings
@@ -543,15 +523,6 @@ class Slim {
 	 */
 	public static function router() {
 		return self::$app->router;
-	}
-	
-	/**
-	 * Get the application Logger
-	 *
-	 * @return mixed
-	 */
-	public static function logger() {
-		return self::$app->logger;
 	}
 
 	/**
