@@ -57,7 +57,7 @@ class Log {
 	/**
 	 * @var mixed An object that implements expected Logger interface
 	 */
-	private $logger;
+	private static $logger;
 	
 	/**
 	 * Log debug message
