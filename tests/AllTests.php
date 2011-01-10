@@ -38,6 +38,7 @@ require_once 'RequestTest.php';
 require_once 'ResponseTest.php';
 require_once 'SlimTest.php';
 require_once 'LoggerTest.php';
+require_once 'LogTest.php';
 
 class AllTests {
 
@@ -50,6 +51,7 @@ class AllTests {
 		$suite->addTestSuite('RequestTest');
 		$suite->addTestSuite('ResponseTest');
 		$suite->addTestSuite('LoggerTest');
+		$suite->addTestSuite('LogTest');
 		return $suite;
 	}
 

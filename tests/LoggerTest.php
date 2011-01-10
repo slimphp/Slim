@@ -84,7 +84,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	 */
 	public function testLogsDebug() {
 		$l = new TestLogger('./logs', 4);
-		$this->expectOutputString('[DEBUG] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$this->expectOutputString('[DEBUG] ' . date('c') . ' - ' . "Test Info\r\n");
 		$l->debug('Test Info');
 	}
 	
@@ -93,7 +93,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	 */
 	public function testLogsInfo() {
 		$l = new TestLogger('./logs', 3);
-		$this->expectOutputString('[INFO] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$this->expectOutputString('[INFO] ' . date('c') . ' - ' . "Test Info\r\n");
 		$l->debug('Test Info');
 		$l->info('Test Info');
 	}
@@ -103,7 +103,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	 */
 	public function testLogsWarn() {
 		$l = new TestLogger('./logs', 2);
-		$this->expectOutputString('[WARN] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$this->expectOutputString('[WARN] ' . date('c') . ' - ' . "Test Info\r\n");
 		$l->info('Test Info');
 		$l->warn('Test Info');
 	}
@@ -113,7 +113,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	 */
 	public function testLogsError() {
 		$l = new TestLogger('./logs', 1);
-		$this->expectOutputString('[ERROR] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$this->expectOutputString('[ERROR] ' . date('c') . ' - ' . "Test Info\r\n");
 		$l->warn('test Info');
 		$l->error('Test Info');
 	}
@@ -123,7 +123,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	 */
 	public function testLogsFatal() {
 		$l = new TestLogger('./logs', 0);
-		$this->expectOutputString('[FATAL] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$this->expectOutputString('[FATAL] ' . date('c') . ' - ' . "Test Info\r\n");
 		$l->error('Test Info');
 		$l->fatal('Test Info');
 	}

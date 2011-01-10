@@ -33,7 +33,7 @@
 require_once '../slim/Log.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
-class Logger {
+class MyLogger {
 	
 	public function debug( $object ) {
 		return 'debug';
@@ -69,7 +69,7 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
 	 * Logger set as Log logger
 	 */
 	public function testSetsLogger() {
-		$logger = new Logger();
+		$logger = new MyLogger();
 		Log::setLogger($logger);
 		$this->assertSame($logger, Log::getLogger());
 	}
@@ -84,7 +84,7 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
 	 * Expected responses are returned proving Logger was called;
 	 */
 	public function testLoggerMethods() {
-		Log::setLogger(new Logger());
+		Log::setLogger(new MyLogger());
 		$this->assertEquals('debug', Log::debug('Test'));
 		$this->assertEquals('info', Log::info('Test'));
 		$this->assertEquals('warn', Log::warn('Test'));
