@@ -195,7 +195,7 @@ class Logger {
 	 */
 	protected function log( $data, $level ) {
 		if ( $level <= $this->getLevel() ) {
-			$this->write(sprintf('[%s] %s - %s', $this->levels[$level], strftime(DATE_ISO8601), (string)$data));
+			$this->write(sprintf('[%s] %s - %s', $this->levels[$level], strftime('%c'), (string)$data));
 		}
 	}
 	
