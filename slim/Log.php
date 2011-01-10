@@ -42,7 +42,8 @@
  * error( mixed $object )
  * fatal( mixed $object )
  *
- * YOU WILL USE THIS CLASS TO LOG ACTIVITY IN YOUR SLIM APPLICATION.
+ * USE THIS ADAPTER CLASS TO LOG ACTIVITY IN YOUR SLIM APPLICATION.
+ * DO NOT CALL YOUR OWN LOGGER DIRECTLY.
  *
  * This class assumes nothing else about your custom Logger, so you are free
  * to use Apache's Log4PHP logger or any other log class that, at the
