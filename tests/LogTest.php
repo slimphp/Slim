@@ -91,6 +91,24 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertEquals('error', Log::error('Test'));
 		$this->assertEquals('fatal', Log::fatal('Test'));
 	}
+	
+	/**
+	 * Test Log adapter methods if no logger set
+	 *
+	 * Pre-conditions
+	 * Logger not set
+	 *
+	 * Post-conditions:
+	 * All calls to adapter return false
+	 */
+	public function testLoggerMethodsIfNoLogger() {
+		Log::setLogger(null);
+		$this->assertFalse(Log::debug('Test'));
+		$this->assertFalse(Log::info('Test'));
+		$this->assertFalse(Log::warn('Test'));
+		$this->assertFalse(Log::error('Test'));
+		$this->assertFalse(Log::fatal('Test'));
+	}
 
 }
 ?>
