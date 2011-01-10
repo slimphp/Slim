@@ -183,7 +183,7 @@ class Logger {
 	 * @return string
 	 */
 	protected function getFile() {
-		return $this->getDirectory() . strftime('Y-m-d') . '.log';
+		return $this->getDirectory() . strftime('%Y-%m-%d') . '.log';
 	}
 	
 	/**
