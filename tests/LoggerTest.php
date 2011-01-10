@@ -94,6 +94,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	public function testLogsInfo() {
 		$l = new TestLogger('./logs', 3);
 		$this->expectOutputString('[INFO] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$l->debug('Test Info');
 		$l->info('Test Info');
 	}
 	
@@ -103,6 +104,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	public function testLogsWarn() {
 		$l = new TestLogger('./logs', 2);
 		$this->expectOutputString('[WARN] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$l->info('Test Info');
 		$l->warn('Test Info');
 	}
 	
@@ -112,6 +114,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	public function testLogsError() {
 		$l = new TestLogger('./logs', 1);
 		$this->expectOutputString('[ERROR] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$l->warn('test Info');
 		$l->error('Test Info');
 	}
 	
@@ -121,6 +124,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 	public function testLogsFatal() {
 		$l = new TestLogger('./logs', 0);
 		$this->expectOutputString('[FATAL] ' . strftime(DATE_ISO8601) . ' - ' . 'Test Info');
+		$l->error('Test Info');
 		$l->fatal('Test Info');
 	}
 
