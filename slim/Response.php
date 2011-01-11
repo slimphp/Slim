@@ -31,14 +31,19 @@
  */
 
 /**
- * Slim Response
+ * Response
  *
- * The Response object is responsible for preparing the HTTP response
- * before the response is sent to the client. In particular, this class sets the
- * HTTP response status, headers, cookies, and body.
+ * Object-oriented representation of an HTTP response that is
+ * returned to the client. This class is responsible for:
+ *
+ * - HTTP response status
+ * - HTTP response body
+ * - HTTP response headers
+ * - HTTP response cookies
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
+ * @author	Kris Jordan <http://github.com/KrisJordan>
  * @since	Version 1.0
  */
 class Response {
@@ -49,7 +54,7 @@ class Response {
 	private $status = 200;
 
 	/**
-	 * @var array HTTP response headers; [ name => value, ... ]
+	 * @var array Key-value array of HTTP response headers
 	 */
 	private $headers = array();
 
@@ -59,7 +64,7 @@ class Response {
 	private $body = '';
 
 	/**
-	 * @var int Content-Length of the HTTP response body
+	 * @var int Length of HTTP response body
 	 */
 	private $length = 0;
 
@@ -116,7 +121,7 @@ class Response {
 	);
 
 	/**
-	 * @var CookieJar
+	 * @var CookieJar Manages Cookies to be sent with this Response
 	 */
 	protected $cookieJar;
 
@@ -203,8 +208,8 @@ class Response {
 	/**
 	 * Set cookie jar
 	 *
-	 * @param CookieJar $cookieJar
-	 * @return void
+	 * @param	CookieJar $cookieJar
+	 * @return 	void
 	 */
 	public function setCookieJar( CookieJar $cookieJar ) {
 		$this->cookieJar = $cookieJar;
@@ -225,7 +230,6 @@ class Response {
 	 * Finalize response headers before response is sent
 	 *
 	 * @return void
-	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function finalize() {
 		if ( in_array($this->status, array(204, 304)) ) {
@@ -240,7 +244,6 @@ class Response {
 	 * Get message for HTTP status code
 	 *
 	 * @return string|null
-	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public static function getMessageForCode( $status ) {
 		return isset(self::$messages[$status]) ? self::$messages[$status] : null;
@@ -250,7 +253,6 @@ class Response {
 	 * Can this HTTP response have a body?
 	 *
 	 * @return bool
-	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function canHaveBody() {
 		return ( $this->status < 100 || $this->status >= 200 ) && $this->status != 204 && $this->status != 304;
@@ -294,11 +296,10 @@ class Response {
 	/**
 	 * Send HTTP response
 	 *
-	 * This method will set the Response headers and `echo`
-	 * the Response body to the current output buffer.
+	 * This method will set Response headers, set Response cookies,
+	 * and `echo` the Response body to the current output buffer.
 	 *
 	 * @return void
-	 * @author Kris Jordan <http://github.com/KrisJordan>
 	 */
 	public function send() {
 		if ( !headers_sent() ) {
