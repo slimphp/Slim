@@ -33,7 +33,7 @@
 /**
  * Stop Exception
  *
- * This Exception is thrown when the Slim app needs to abort
+ * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  *
  * @package	Slim
