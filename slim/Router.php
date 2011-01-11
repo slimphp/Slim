@@ -31,13 +31,12 @@
  */
 
 /**
- * Slim Router
+ * Router
  *
- * The Router is responsible for registering route paths with associated
- * callback functions. When a Slim application is run, the Router is then
- * responsible for matching a registered route with the current HTTP request,
- * and if a matching route is found, executing the associated callback function
- * using any URL parameters in the request URI.
+ * Responsible for registering route paths with associated callables.
+ * When a Slim application is run, the Router finds a matching Route for
+ * the current HTTP request, and if a matching route is found, executes
+ * the Route's associated callable passing it parameters from the Request URI.
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
@@ -61,17 +60,17 @@ class Router implements Iterator {
 	private $namedRoutes;
 
 	/**
-	 * @var array Array of routes matching the Request method and URL
+	 * @var array Array of routes that match the Request method and URL
 	 */
 	private $matchedRoutes;
-	
+
 	/**
-	 * @var mixed 404 Not Found callback function if a matching route is not found
+	 * @var mixed Callable to be invoked if no matching routes are found
 	 */
 	private $notFound;
 
 	/**
-	 * @var mixed Error callback function if there is an application error
+	 * @var mixed Callable to be invoked if application error
 	 */
 	private $error;
 
@@ -79,11 +78,11 @@ class Router implements Iterator {
 	 * @var int Iterator position
 	 */
 	private $position;
-	
+
 	/**
 	 * Constructor
 	 *
-	 * @param Request $request The current HTTP request object
+	 * @param Request $request The HTTP request object
 	 */
 	public function __construct( Request $request ) {
 		$this->request = $request;
@@ -95,9 +94,9 @@ class Router implements Iterator {
 		);
 		$this->position = 0;
 	}
-	
+
 	/***** ACCESSORS *****/
-	
+
 	/**
 	 * Get Request
 	 *
@@ -106,17 +105,17 @@ class Router implements Iterator {
 	public function getRequest() {
 		return $this->request;
 	}
-	
+
 	/**
 	 * Set Request
 	 *
-	 * @param Request
-	 * @return void
+	 * @param	Request
+	 * @return 	void
 	 */
 	public function setRequest( Request $req ) {
 		$this->request = $req;
 	}
-	
+
 	/***** MAPPING *****/
 
 	/**
@@ -218,7 +217,7 @@ class Router implements Iterator {
 	}
 
 	/**
-	 * Return the 0-indexed position of the current route 
+	 * Return the 0-indexed position of the current route
 	 * being dispatched among all matching routes
 	 *
 	 * @return int
@@ -228,7 +227,7 @@ class Router implements Iterator {
 	}
 
 	/**
-	 * Return the 0-indexed position of the next route to 
+	 * Return the 0-indexed position of the next route to
 	 * be dispatched among all matching routes
 	 *
 	 * @return int
