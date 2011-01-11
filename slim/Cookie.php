@@ -47,7 +47,7 @@ class Cookie {
 	protected $name;
 
 	/**
-	 * @var mixed
+	 * @var string
 	 */
 	protected $value;
 
@@ -80,7 +80,7 @@ class Cookie {
 	 * Constructor
 	 *
 	 * @param	string	$name		The cookie name
-	 * @param	mixed	$value		The cookie value
+	 * @param	string	$value		The cookie value
 	 * @param	mixed	$time		The duration of the cookie;
 	 *								If integer, should be a UNIX timestamp;
 	 *								If string, converted to UNIX timestamp with `strtotime`;
@@ -113,8 +113,8 @@ class Cookie {
 	/**
 	 * Set cookie name
 	 *
-	 * @param string $name
-	 * @return void;
+	 * @param	string $name
+	 * @return 	void
 	 */
 	public function setName( $name ) {
 		$this->name = (string)$name;
@@ -132,10 +132,10 @@ class Cookie {
 	/**
 	 * Set cookie value
 	 *
-	 * @param mixed $value
-	 * @return void
+	 * @param 	string $value
+	 * @return 	void
 	 */
-	public function setValue($value) {
+	public function setValue( $value ) {
 		$this->value = (string)$value;
 	}
 
@@ -151,10 +151,10 @@ class Cookie {
 	/**
 	 * Set cookie expiration time
 	 *
-	 * @param string|int Cookie expiration time as string w/ strtotime(), or UNIX timestamp
-	 * @return void
+	 * @param 	string|int Cookie expiration time
+	 * @return 	void
 	 */
-	public function setExpires($time) {
+	public function setExpires( $time ) {
 		$this->expires = is_string($time) ? strtotime($time) : (int)$time;
 	}
 
@@ -170,10 +170,10 @@ class Cookie {
 	/**
 	 * Set cookie path
 	 *
-	 * @param string $path
-	 * @return void
+	 * @param	string $path
+	 * @return 	void
 	 */
-	public function setPath($path) {
+	public function setPath( $path ) {
 		$this->path = (string)$path;
 	}
 
@@ -189,15 +189,15 @@ class Cookie {
 	/**
 	 * Set cookie domain
 	 *
-	 * @param string $domain
-	 * @return void
+	 * @param	string $domain
+	 * @return 	void
 	 */
-	public function setDomain($domain) {
+	public function setDomain( $domain ) {
 		$this->domain = (string)$domain;
 	}
 
 	/**
-	 * Is cookie sent over SSL/HTTPS only?
+	 * Is cookie sent only if SSL/HTTPS is used?
 	 *
 	 * @return bool
 	 */
@@ -206,17 +206,17 @@ class Cookie {
 	}
 
 	/**
-	 * Set whether cookie is sent over SSL/HTTPS only
+	 * Set whether cookie is sent only if SSL/HTTPS is used
 	 *
-	 * @param bool $secure
-	 * @return void
+	 * @param	bool $secure
+	 * @return 	void
 	 */
-	public function setSecure($secure) {
+	public function setSecure( $secure ) {
 		$this->secure = (bool)$secure;
 	}
 
 	/**
-	 * Is cookie sent over HTTP protocol only?
+	 * Is cookie sent with HTTP protocol only?
 	 *
 	 * @return bool
 	 */
@@ -225,12 +225,12 @@ class Cookie {
 	}
 
 	/**
-	 * Set whether cookie is sent over HTTP protocol only
+	 * Set whether cookie is sent with HTTP protocol only
 	 *
-	 * @param bool $httponly
-	 * @return void
+	 * @param	bool $httponly
+	 * @return 	void
 	 */
-	public function setHttpOnly($httponly) {
+	public function setHttpOnly( $httponly ) {
 		$this->httponly = (bool)$httponly;
 	}
 
