@@ -7,7 +7,7 @@
  * @author		Josh Lockhart <info@joshlockhart.com>
  * @link		http://slim.joshlockhart.com
  * @copyright	2010 Josh Lockhart
- * 
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +17,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -31,15 +31,25 @@
  */
 
 /**
- * Slim Request
+ * Request
  *
- * This class is responsible for parsing the raw HTTP request into
- * a usable form for the Slim application. This class also interprets
- * the HTTP request resource URI (taking into account sub-directories),
- * GET params, POST params, PUT params, cookies, and headers.
+ * Object-oriented representation of an HTTP request. This class
+ * is responsible for parsing the raw HTTP request into a format
+ * usable by the Slim application; parsed data includes:
+ *
+ * - Resource URI (ie. "/person/1")
+ * - GET parameters
+ * - POST parameters
+ * - PUT parameters
+ * - Cookies
+ * - Headers
+ *
+ * This class will automatically remove slashes from GET, POST, PUT,
+ * and Cookie data if magic quotes are enabled.
  *
  * @package Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
+ * @author	Kris Jordan <http://www.github.com/KrisJordan>
  * @since	Version 1.0
  */
 class Request {
@@ -51,52 +61,55 @@ class Request {
 	const METHOD_OVERRIDE = '_METHOD';
 
 	/**
-	 * @var string Request method
+	 * @var string	Request method (ie. "GET", "POST", "PUT", or "DELETE")
 	 */
 	public $method;
 
 	/**
-	 * @var string Resource URI (excluding the application directory path)
+	 * @var string	Resource URI (ie. "/person/1")
 	 */
 	public $resource;
 
 	/**
-	 * @var string Path to the application directory
+	 * @var string	The root URI of the Slim application with trailing slash.
+	 *				This will be "/" if the app is installed at the web
+	 *				document root.  If the app is installed in a
+	 * 				sub-directory "/foo", this will be "/foo/".
 	 */
 	public $root;
 
 	/**
-	 * @var array HTTP request headers
+	 * @var array 	Key-value array of HTTP request headers
 	 */
 	private $headers;
 
 	/**
-	 * @var array HTTP request cookies
+	 * @var array 	Key-value array of HTTP cookies
 	 */
 	private $cookies;
 
 	/**
-	 * @var bool Is this an AJAX request?
+	 * @var bool	Is this an AJAX request?
 	 */
 	public $isAjax;
 
 	/**
-	 * @var array GET paramters' names and values
+	 * @var array 	Key-value array of HTTP GET parameters
 	 */
 	private $get;
 
 	/**
-	 * @var array POST paramters' names and values
+	 * @var array 	Key-value array of HTTP POST parameters
 	 */
 	private $post;
 
 	/**
-	 * @var array PUT paramters' names and values
+	 * @var array 	Key-value array of HTTP PUT parameters
 	 */
 	private $put;
 
 	/**
-	 * @var string Raw request input (for POST and PUT requests)
+	 * @var string	Raw HTTP request input from POST and PUT requests
 	 */
 	private $input;
 
@@ -118,16 +131,16 @@ class Request {
 		$this->checkForHttpMethodOverride();
 	}
 
-	/***** PARAM ACCESSORS *****/
+	/***** ACCESSOR METHODS FOR GET, POST, AND PUT DATA *****/
 
 	/**
-	 * Fetch PUT|POST|GET parameter
+	 * Fetch PUT|POST|GET parameter value
 	 *
 	 * This is the preferred method to fetch the value of a
 	 * PUT, POST, or GET parameter (searched in that order).
-	 * 
-	 * @param	string		$key The paramter name
-	 * @return 	string|null
+	 *
+	 * @param	string		$key	The paramter name
+	 * @return 	string|null			The value of parameter, or NULL if parameter not found
 	 */
 	public function params( $key ) {
 		if ( isset($this->put[$key]) ) {
@@ -146,7 +159,9 @@ class Request {
 	 * Fetch GET parameter(s)
 	 *
 	 * @param	string				$key	Name of parameter
-	 * @return 	array|string|null			All parameters, or parameter value if $key provided.
+	 * @return 	array|string|null			All parameters, parameter value if $key
+	 *										and parameter exists, or NULL if $key
+	 *										and parameter does not exist.
 	 */
 	public function get( $key = null ) {
 		if ( is_null($key) ) {
@@ -159,7 +174,9 @@ class Request {
 	 * Fetch POST parameter(s)
 	 *
 	 * @param	string				$key	Name of parameter
-	 * @return 	array|string|null			All parameters, or parameter value if $key provided.
+	 * @return 	array|string|null			All parameters, parameter value if $key
+	 *										and parameter exists, or NULL if $key
+	 *										and parameter does not exist.
 	 */
 	public function post( $key = null ) {
 		if ( is_null($key) ) {
@@ -172,7 +189,9 @@ class Request {
 	 * Fetch PUT parameter(s)
 	 *
 	 * @param	string				$key	Name of parameter
-	 * @return 	array|string|null			All parameters, or parameter value if $key provided.
+	 * @return 	array|string|null			All parameters, parameter value if $key
+	 *										and parameter exists, or NULL if $key
+	 *										and parameter does not exist.
 	 */
 	public function put( $key = null ) {
 		if ( is_null($key) ) {
@@ -194,11 +213,7 @@ class Request {
 	/***** HELPERS *****/
 
 	/**
-	 * Strip slashes from Request data
-	 *
-	 * You can pass an array or a string into this method, and the filtered
-	 * array or string will be returned. This method will strip slashes from 
-	 * the data. This should only be used if `get_magic_quotes_gpc` is enabled.
+	 * Strip slashes from string or array of strings
 	 *
 	 * @param 	array|string $rawData
 	 * @return 	array|string
@@ -206,22 +221,17 @@ class Request {
 	public static function stripSlashesFromRequestData( $rawData ) {
 		return is_array($rawData) ? array_map(array('Request', 'stripSlashesFromRequestData'), $rawData) : stripslashes($rawData);
 	}
-	
+
 	/**
-	 * Extract Resource URL
+	 * Extract resource URL
 	 *
-	 * This method converts the raw HTTP request URL into the desired
-	 * resource string, excluding the path to the root Slim app directory
-	 * and any query string.
+	 * Convert raw HTTP request URL into an application resource URI.
+	 * Exclude the application root URI and query string.
 	 *
-	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
-	 * @return 	string The resource URI
+	 * @return 	string
 	 */
 	private function extractQueryString() {
-		//Get application base URI path (no trailing slash)
 		$this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/');
-
-		//Get the application-specific URI path
 		if ( !empty($_SERVER['PATH_INFO']) ) {
 			$uri = $_SERVER['PATH_INFO'];
 		} else {
@@ -234,19 +244,15 @@ class Request {
 				throw new RuntimeException('Unable to detect request URI');
 			}
 		}
-
-		//Remove application base URI path from the application-specific URI path
 		if ( $this->root !== '' && strpos($uri, $this->root) === 0 ) {
 			$uri = substr($uri, strlen($this->root));
 		}
-
 		return $uri;
 	}
 
 	/**
-	 * Fetch and parse raw POST or PUT paramters
+	 * Get PUT parameters
 	 *
-	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
 	 * @return string
 	 */
 	private function getPutParameters() {
@@ -260,11 +266,11 @@ class Request {
 	}
 
 	/**
-	 * Fetch HTTP request headers
+	 * Get HTTP request headers
 	 *
 	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
-	 * @author  Jud Stephenson <http://judstephenson.com/blog>
-	 * @return array
+	 * @author 	Jud Stephenson <http://judstephenson.com/blog>
+	 * @return 	array
 	 */
 	private function getHttpHeaders() {
 		$httpHeaders = array();
@@ -277,7 +283,7 @@ class Request {
 	}
 
 	/**
-	 * Fetch HTTP header
+	 * Get HTTP request header
 	 *
 	 * @param	string		$name	The header name
 	 * @return 	string|null			The header value, or NULL if header does not exist
@@ -285,17 +291,15 @@ class Request {
 	public function header( $name ) {
 		return isset($this->headers[$name]) ? $this->headers[$name] : null;
 	}
- 
 
 	/**
 	 * Check for HTTP request method override
 	 *
 	 * Because traditional web browsers do not support PUT and DELETE
-	 * HTTP methods, we must use a hidden form input field to
+	 * HTTP methods, we use a hidden form input field to
 	 * mimic PUT and DELETE requests. We check for this override here.
 	 *
-	 * @author	Kris Jordan <http://www.github.com/KrisJordan>
-	 * @return void
+	 * @return 	void
 	 */
 	private function checkForHttpMethodOverride() {
 		if ( array_key_exists(Request::METHOD_OVERRIDE, $this->post) ) {
