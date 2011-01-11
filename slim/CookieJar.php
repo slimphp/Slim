@@ -33,39 +33,59 @@
 /**
  * Cooke Jar
  *
- * Manages secure cookies and provides:
- * - Cookie data integrity and authenticity (with HMAC)
- * - Confidentiality (with symmetric encryption)
- * - Protection from replay attack (if using SSL or TLS)
- * - Protection from interception (if using SSL or TLS)
+ * Used to manage signed, encrypted Cookies. Provides:
+ *
+ * - Cookie integrity and authenticity with HMAC
+ * - Confidentiality with symmetric encryption
+ * - Protection from replay attack if using SSL or TLS
+ * - Protection from interception if using SSL or TLS
  *
  * This code was originally called "BigOrNot_CookieManager" and written by
  * Matthieu Huguet released under "CopyLeft" license. I have cleaned up the
- * code formatting to conform with Slim Framework contributor guidelines.
+ * code formatting to conform with Slim Framework contributor guidelines and
+ * added additional code where necessary to play nice with Slim Cookie objects.
+ *
+ * Requirements:
+ *
+ * - libmcrypt > 2.4.x
  *
  * @author Matthies Huguet <http://bigornot.blogspot.com/2008/06/security-cookies-and-rest.html>
  */
 class CookieJar {
 
-	/* Server secret key */
+	/**
+	 * @var string Server secret key
+	 */
 	protected $_secret = '';
 
-	/* Cryptographic algorithm used to encrypt cookies data */
+	/**
+	 * @var int Cryptographic algorithm used to encrypt cookies data
+	 */
  	protected $_algorithm = MCRYPT_RIJNDAEL_256;
 
-	/* Cryptographic mode (CBC, CFB ...)*/
+	/**
+	 * @var int Cryptographic mode (CBC, CFB ...)
+	 */
 	protected $_mode = MCRYPT_MODE_CBC;
 
-	/* mcrypt module resource */
+	/**
+	 * @var resource mcrypt module resource
+	 */
 	protected $_cryptModule = null;
 
-	/* Enable high confidentiality for cookie value (symmetric encryption) */
+	/**
+	 * @var bool Enable high confidentiality for cookie value (symmetric encryption)
+	 */
 	protected $_highConfidentiality = true;
 
-	/* Enable SSL support */
+	/**
+	 * @var bool Enable SSL support
+	 */
 	protected $_ssl = false;
 
-	/* Cookies */
+	/**
+	 * @var array[Cookie] Cookie objects
+	 */
 	protected $_cookies = array();
 
 	/**
@@ -73,10 +93,12 @@ class CookieJar {
 	 *
 	 * Initialize cookie manager and mcrypt module.
 	 *
-	 * @param string $secret  server's secret key
-	 * @param array $config
+	 * @param	string		$secret		Server's secret key
+	 * @param	array 		$config
+	 * @throws	Exception				If secret key is empty
+	 * @throws	Exception				If unable to open mcypt module
 	 */
-	public function __construct($secret, $config = null) {
+	public function __construct( $secret, $config = null ) {
 		if ( empty($secret) ) {
 			throw new Exception('You must provide a secret key');
 		}
@@ -116,13 +138,13 @@ class CookieJar {
 	}
 
 	/**
-	 * Set the high confidentiality mode
 	 * Enable or disable cookie data encryption
 	 *
-	 * @param bool $enable  TRUE to enable, FALSE to disable
+	 * @param	bool		$enable  TRUE to enable, FALSE to disable
+	 * @return 	CookieJar
 	 */
-	public function setHighConfidentiality($enable) {
-		$this->_highConfidentiality = $enable;
+	public function setHighConfidentiality( $enable ) {
+		$this->_highConfidentiality = (bool)$enable;
 		return $this;
 	}
 
@@ -132,55 +154,57 @@ class CookieJar {
 	 * @return bool TRUE if SSL support is enabled, or FALSE if it isn't
 	 */
 	public function getSSL() {
-		return ($this->_ssl);
+		return $this->_ssl;
 	}
 
 	/**
 	 * Enable SSL support (not enabled by default)
-	 * pro: protect against replay attack
-	 * con: cookie's lifetime is limited to SSL session's lifetime
 	 *
-	 * @param bool $enable TRUE to enable, FALSE to disable
+	 * Pro: Protect against replay attack
+	 * Con: Cookie's lifetime is limited to SSL session's lifetime
+	 *
+	 * @param	bool		$enable TRUE to enable, FALSE to disable
+	 * @return 	CookieJar
 	 */
-	public function setSSL($enable) {
-		$this->_ssl = $enable;
+	public function setSSL( $enable ) {
+		$this->_ssl = (bool)$enable;
 		return $this;
 	}
 
 	/**
-	 * Get Response Cookies
+	 * Get Cookies for Response
 	 *
 	 * @author Josh Lockhart <info@joshlockhart.com>
-	 * @return array Cookies to be sent with HTTP response
+	 * @return array[Cookie]
 	 */
 	public function getResponseCookies() {
 		return $this->_cookies;
 	}
 
 	/**
-	 * Get Response Cookie
+	 * Get Cookie with name for Response
 	 *
-	 * @author Josh Lockhart <info@joshlockhart.com>
-	 * @param string $cookiename The name of the cookie
-	 * @return Cookie|null
+	 * @author	Josh Lockhart <info@joshlockhart.com>
+	 * @param	string $cookiename The name of the Cookie
+	 * @return 	Cookie|null Cookie, or NULL if Cookie with name not found
 	 */
-	public function getResponseCookie($cookiename) {
+	public function getResponseCookie( $cookiename ) {
 		return isset($this->_cookies[$cookiename]) ? $this->_cookies[$cookiename] : null;
 	}
 
 	/**
-	 * Send a secure cookie
+	 * Set a secure cookie
 	 *
-	 * @param string $name cookie name
-	 * @param string $value cookie value
-	 * @param string $username user name (or ID)
-	 * @param integer $expire expiration time
-	 * @param string $path cookie path
-	 * @param string $domain cookie domain
-	 * @param bool $secure when TRUE, send the cookie only on a secure connection
-	 * @param bool $httponly when TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @param	string	$name		Cookie name
+	 * @param	string	$value		Cookie value
+	 * @param	string	$username	User identifier
+	 * @param	integer	$expire		Expiration time
+	 * @param	string	$path		Cookie path
+	 * @param	string	$domain		Cookie domain
+	 * @param	bool	$secure		When TRUE, send the cookie only on a secure connection
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 */
-	public function setCookie($cookiename, $value, $username, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null) {
+	public function setCookie( $cookiename, $value, $username, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null ) {
 		$secureValue = extension_loaded('mcrypt') ? $this->_secureCookieValue($value, $username, $expire) : $value;
 		$this->setClassicCookie($cookiename, $secureValue, $expire, $path, $domain, $secure, $httponly);
 	}
@@ -188,13 +212,13 @@ class CookieJar {
 	/**
 	 * Delete a cookie
 	 *
-	 * @param string $name cookie name
-	 * @param string $path cookie path
-	 * @param string $domain cookie domain
-	 * @param bool $secure when TRUE, send the cookie only on a secure connection
-	 * @param bool $httponly when TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @param	string	$name		Cookie name
+	 * @param	string	$path		Cookie path
+	 * @param	string	$domain		Cookie domain
+	 * @param	bool	$secure		When TRUE, send the cookie only on a secure connection
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 */
-	public function deleteCookie($name, $path = '/', $domain = '', $secure = false, $httponly = null) {
+	public function deleteCookie( $name, $path = '/', $domain = '', $secure = false, $httponly = null ) {
 		$expire = 315554400; /* 1980-01-01 */
 		$this->_cookies[$name] = new Cookie($name, '', $path, $domain, $secure, $httponly);
 		//setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
@@ -203,13 +227,14 @@ class CookieJar {
 	/**
 	 * Get a secure cookie value
 	 *
-	 * Verify the integrity of cookie data and decrypt it.
-	 * If the cookie is invalid, it can be automatically destroyed (default behaviour)
+	 * Verify the integrity of cookie data and decrypt it. If the cookie
+	 * is invalid, it can be automatically destroyed (default behaviour)
 	 *
-	 * @param string $cookiename cookie name
-	 * @param bool $deleteIfInvalid destroy the cookie if invalid
+	 * @param	string			$cookiename	Cookie name
+	 * @param	bool			$delete 	Destroy the cookie if invalid?
+	 * @return 	string|false				The Cookie value, or FALSE if Cookie invalid
 	 */
-	public function getCookieValue($cookiename, $deleteIfInvalid = true) {
+	public function getCookieValue( $cookiename, $deleteIfInvalid = true ) {
 		if ( $this->cookieExists($cookiename) ) {
 			if ( extension_loaded('mcrypt') ) {
 				$cookieValues = explode('|', $_COOKIE[$cookiename]);
@@ -237,21 +262,21 @@ class CookieJar {
 		if ( $deleteIfInvalid ) {
 			$this->deleteCookie($cookiename);
 		}
-		return (false);
+		return false;
 	}
 
 	/**
 	 * Send a classic (unsecure) cookie
 	 *
-	 * @param string $name cookie name
-	 * @param string $value cookie value
-	 * @param integer $expire expiration time
-	 * @param string $path cookie path
-	 * @param string $domain cookie domain
-	 * @param bool $secure when TRUE, send the cookie only on a secure connection
-	 * @param bool $httponly when TRUE the cookie will be made accessible only through the HTTP protocol
+	 * @param	string	$name		Cookie name
+	 * @param	string	$value		Cookie value
+	 * @param	integer	$expire		Expiration time
+	 * @param	string	$path		Cookie path
+	 * @param	string	$domain		Cookie domain
+	 * @param	bool	$secure		When TRUE, send the cookie only on a secure connection
+	 * @param	bool	$httponly	When TRUE the cookie will be made accessible only through the HTTP protocol
 	 */
-	public function setClassicCookie($cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null) {
+	public function setClassicCookie( $cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null ) {
 		/* httponly option is only available for PHP version >= 5.2 */
 		if ( $httponly === null ) {
 			$this->_cookies[$cookiename] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure);
@@ -265,8 +290,8 @@ class CookieJar {
 	/**
 	 * Verify if a cookie exists
 	 *
-	 * @param string $cookiename
-	 * @return bool TRUE if cookie exist, or FALSE if not
+	 * @param	string	$cookiename
+	 * @return 	bool	TRUE if cookie exist, or FALSE if not
 	 */
 	public function cookieExists($cookiename) {
 		return isset($_COOKIE[$cookiename]);
@@ -275,19 +300,19 @@ class CookieJar {
 	/**
 	 * Secure a cookie value
 	 *
-	 * The initial value is transformed with this protocol :
+	 * The initial value is transformed with this protocol:
 	 *
 	 *  secureValue = username|expire|base64((value)k,expire)|HMAC(user|expire|value,k)
 	 *  where k = HMAC(user|expire, sk)
 	 *  and sk is server's secret key
 	 *  (value)k,md5(expire) is the result an cryptographic function (ex: AES256) on "value" with key k and initialisation vector = md5(expire)
 	 *
-	 * @param string $value unsecure value
-	 * @param string $username user name (or ID)
-	 * @param integer $expire expiration time
-	 * @return string secured value
+	 * @param	string	$value		Unsecure value
+	 * @param	string	$username	User identifier
+	 * @param	integer	$expire		Expiration time
+	 * @return 	string				Secured value
 	 */
-	protected function _secureCookieValue($value, $username, $expire) {
+	protected function _secureCookieValue( $value, $username, $expire ) {
 		if ( is_string($expire) ) {
 			$expire = strtotime($expire);
 		}
@@ -303,18 +328,18 @@ class CookieJar {
 			$verifKey = hash_hmac('sha1', $username . $expire . $value, $key);
 		}
 		$result = array($username, $expire, $encryptedValue, $verifKey);
-		return(implode('|', $result));
+		return implode('|', $result);
 	}
 
 	/**
 	 * Encrypt a given data with a given key and a given initialisation vector
 	 *
-	 * @param string $data data to crypt
-	 * @param string $key secret key
-	 * @param string $iv initialisation vector
-	 * @return string encrypted data
+	 * @param	string	$data	Data to crypt
+	 * @param	string	$key	Secret key
+	 * @param	string	$iv		Initialisation vector
+	 * @return 	string			Encrypted data
 	 */
-	protected function _encrypt($data, $key, $iv) {
+	protected function _encrypt( $data, $key, $iv ) {
 		$iv = $this->_validateIv($iv);
 		$key = $this->_validateKey($key);
 		mcrypt_generic_init($this->_cryptModule, $key, $iv);
@@ -326,12 +351,12 @@ class CookieJar {
 	/**
 	 * Decrypt a given data with a given key and a given initialisation vector
 	 *
-	 * @param string $data data to crypt
-	 * @param string $key secret key
-	 * @param string $iv initialisation vector
-	 * @return string encrypted data
+	 * @param	string	$data	Data to crypt
+	 * @param	string	$key	Secret key
+	 * @param	string	$iv		Initialisation vector
+	 * @return string			Encrypted data
 	 */
-	protected function _decrypt($data, $key, $iv) {
+	protected function _decrypt( $data, $key, $iv ) {
 		$iv = $this->_validateIv($iv);
 		$key = $this->_validateKey($key);
 		mcrypt_generic_init($this->_cryptModule, $key, $iv);
@@ -346,7 +371,8 @@ class CookieJar {
 	 *
 	 * If given IV is too long for the selected mcrypt algorithm, it will be truncated
 	 *
-	 * @param string $iv Initialization vector
+	 * @param	string $iv Initialization vector
+	 * @return 	string
 	 */
 	protected function _validateIv($iv) {
 		$ivSize = mcrypt_enc_get_iv_size($this->_cryptModule);
@@ -361,7 +387,8 @@ class CookieJar {
 	 *
 	 * If given key is too long for the selected mcrypt algorithm, it will be truncated
 	 *
-	 * @param string $key key
+	 * @param	string $key key
+	 * @param	string
 	 */
 	protected function _validateKey($key) {
 		$keySize = mcrypt_enc_get_key_size($this->_cryptModule);
