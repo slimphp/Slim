@@ -33,7 +33,7 @@
 /**
  * Logger
  *
- * A simple logger class that writes to a daily-unique log file in
+ * A simple Logger that writes to a daily-unique log file in
  * a user-specified directory. By default, this class will write log
  * messages for all log levels; the log level may be changed to filter
  * unwanted log messages from the log file.
@@ -45,7 +45,7 @@
 class Logger {
 
 	/***** INSTANCES PROPERTIES *****/
-	
+
 	/**
 	 * @var array Log levels
 	 */
@@ -56,31 +56,31 @@ class Logger {
 		3 => 'INFO',
 		4 => 'DEBUG'
 	);
-	
+
 	/**
 	 * @var string Absolute path to log directory with trailing slash
 	 */
 	protected $directory;
 
 	/***** INSTANCE METHODS *****/
-	
+
 	/**
 	 * Constructor
 	 *
-	 * @param string $directory Absolute or relative path to log directory
-	 * @param int $level The maximum log level reported by this Logger
+	 * @param	string	$directory	Absolute or relative path to log directory
+	 * @param	int		$level		The maximum log level reported by this Logger
 	 */
 	public function __construct( $directory, $level = 4 ) {
 		$this->setDirectory($directory);
 		$this->setLevel($level);
 	}
-	
+
 	/**
 	 * Set log directory
 	 *
-	 * @param string $directory Absolute or relative path to log directory
-	 * @return void
-	 * @throws RuntimeException If log directory not found or not writable
+	 * @param	string			$directory	Absolute or relative path to log directory
+	 * @return 	void
+	 * @throws	RuntimeException			If log directory not found or not writable
 	 */
 	public function setDirectory( $directory ) {
 		$fullPath = realpath((string)$directory);
@@ -92,7 +92,7 @@ class Logger {
 		}
 		$this->directory = rtrim($fullPath, '/') . '/';
 	}
-	
+
 	/**
 	 * Get log directory
 	 *
@@ -101,13 +101,13 @@ class Logger {
 	public function getDirectory() {
 		return $this->directory;
 	}
-	
+
 	/**
 	 * Set log level
 	 *
-	 * @param int The maximum log level reported by this Logger
-	 * @return void
-	 * @throws InvalidArgumentException If level specified is not 0..4
+	 * @param	int							The maximum log level reported by this Logger
+	 * @return 	void
+	 * @throws	InvalidArgumentException	If level specified is not 0, 1, 2, 3, 4
 	 */
 	public function setLevel( $level ) {
 		$theLevel = (int)$level;
@@ -117,7 +117,7 @@ class Logger {
 			throw new InvalidArgumentException("Invalid Log Level. Must be one of: 0, 1, 2, 3, 4.");
 		}
 	}
-	
+
 	/**
 	 * Get log level
 	 *
@@ -126,22 +126,22 @@ class Logger {
 	public function getLevel() {
 		return $this->level;
 	}
-	
+
 	/**
 	 * Log debug data
 	 *
-	 * @param mixed $data
-	 * @return void
+	 * @param	mixed $data
+	 * @return 	void
 	 */
 	public function debug( $data ) {
 		$this->log($data, 4);
 	}
-	
+
 	/**
 	 * Log info data
 	 *
-	 * @param mixed $data
-	 * @return void
+	 * @param	mixed $data
+	 * @return 	void
 	 */
 	public function info( $data ) {
 		$this->log($data, 3);
@@ -150,8 +150,8 @@ class Logger {
 	/**
 	 * Log warn data
 	 *
-	 * @param mixed $data
-	 * @return void
+	 * @param	mixed $data
+	 * @return 	void
 	 */
 	public function warn( $data ) {
 		$this->log($data, 2);
@@ -160,8 +160,8 @@ class Logger {
 	/**
 	 * Log error data
 	 *
-	 * @param mixed $data
-	 * @return void
+	 * @param	mixed $data
+	 * @return 	void
 	 */
 	public function error( $data ) {
 		$this->log($data, 1);
@@ -170,8 +170,8 @@ class Logger {
 	/**
 	 * Log fatal data
 	 *
-	 * @param mixed $data
-	 * @return void
+	 * @param	mixed $data
+	 * @return 	void
 	 */
 	public function fatal( $data ) {
 		$this->log($data, 0);
@@ -185,25 +185,25 @@ class Logger {
 	protected function getFile() {
 		return $this->getDirectory() . strftime('%Y-%m-%d') . '.log';
 	}
-	
+
 	/**
 	 * Log data to file
 	 *
-	 * @param mixed $data
-	 * @param int $level
-	 * @return void
+	 * @param	mixed	$data
+	 * @param	int		$level
+	 * @return 	void
 	 */
 	protected function log( $data, $level ) {
 		if ( $level <= $this->getLevel() ) {
 			$this->write(sprintf("[%s] %s - %s\r\n", $this->levels[$level], date('c'), (string)$data));
 		}
 	}
-	
+
 	/**
 	 * Persist data to log
 	 *
-	 * @param string Log message
-	 * @return void
+	 * @param	string Log message
+	 * @return 	void
 	 */
 	protected function write( $data ) {
 		@file_put_contents($this->getFile(), $data, FILE_APPEND | LOCK_EX);
