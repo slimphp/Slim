@@ -76,6 +76,9 @@ class CustomView extends View {
 	function render($template) { echo "Custom view"; }
 }
 
+//Mock custom Logger
+class CustomLogger {}
+
 class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
 	public function setUp() {
@@ -107,7 +110,40 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 		$this->assertTrue(Slim::view() instanceof View);
 		$this->assertEquals('20 minutes', Slim::config('cookies.lifetime'));
 	}
+	
+	/**
+	 * Test Slim initialization
+	 *
+	 * Pre-conditions:
+	 * Case A: Slim application initialized with logging, without custom Logger
+	 *
+	 * Post-conditions:
+	 * Case A: Default Logger is set
+	 */
+	public function testSlimInitWithDefaultLogger() {
+		Slim::init(array(
+			'log.enable' => true
+		));
+		$this->assertTrue(Log::getLogger() instanceof Logger);
+	}
 
+	/**
+	 * Test Slim initialization
+	 *
+	 * Pre-conditions:
+	 * Case A: Slim application initialized with logging, with custom Logger
+	 *
+	 * Post-conditions:
+	 * Case A: Custom Logger is set
+	 */
+	public function testSlimInitWithCustomLogger() {
+		Slim::init(array(
+			'log.enable' => true,
+			'log.logger' => new CustomLogger()
+		));
+		$this->assertTrue(Log::getLogger() instanceof CustomLogger);
+	}
+	
 	/**
 	 * Test Slim initialization with custom view
 	 *
