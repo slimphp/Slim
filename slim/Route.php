@@ -31,7 +31,7 @@
  */
 
 /**
- * Slim Route
+ * Route
  *
  * @package	Slim
  * @author	Josh Lockhart <info@joshlockhart.com>
@@ -53,32 +53,32 @@ class Route {
 	 * @var array Conditions for this route's URL parameters
 	 */
 	protected $conditions = array();
-	
+
 	/**
 	 * @var array Default conditions applied to all Route instances
 	 */
 	protected static $defaultConditions = array();
 
 	/**
-	 * @var string The name of this route
+	 * @var string The name of this route (optional)
 	 */
 	protected $name;
 
 	/**
-	 * @var array Array of URL parameter names and values
+	 * @var array Key-value array of URL parameters
 	 */
 	protected $params = array();
 
 	/**
-	 * @var Router The Router that contains this Route
+	 * @var Router The Router to which this Route belongs
 	 */
 	protected $router;
 
 	/**
 	 * Constructor
 	 *
-	 * @param string	$pattern	The URL pattern (ie. "/books/:id")
-	 * @param mixed		$callable	Anything that returns TRUE for is_callable()
+	 * @param	string	$pattern	The URL pattern (ie. "/books/:id")
+	 * @param	mixed	$callable	Anything that returns TRUE for is_callable()
 	 */
 	public function __construct( $pattern, $callable ) {
 		$this->setPattern($pattern);
@@ -87,17 +87,17 @@ class Route {
 	}
 
 	/***** CLASS METHODS *****/
-	
+
 	/**
 	 * Set default route conditions for all instances
 	 *
-	 * @param array $defaultConditions
-	 * @return void
+	 * @param	array $defaultConditions
+	 * @return 	void
 	 */
 	public static function setDefaultConditions( array $defaultConditions ) {
 		self::$defaultConditions = $defaultConditions;
 	}
-	
+
 	/**
 	 * Get default route conditions for all instances
 	 *
@@ -106,9 +106,9 @@ class Route {
 	public static function getDefaultConditions() {
 		return self::$defaultConditions;
 	}
-	
+
 	/***** INSTANCE ACCESSORS *****/
-	
+
 	/**
 	 * Get route pattern
 	 *
@@ -117,17 +117,17 @@ class Route {
 	public function getPattern() {
 		return $this->pattern;
 	}
-	
+
 	/**
 	 * Set route pattern
 	 *
-	 * @param string $pattern
-	 * @return void
+	 * @param	string $pattern
+	 * @return 	void
 	 */
 	public function setPattern( $pattern ) {
 		$this->pattern = str_replace(')', ')?', (string)$pattern);
 	}
-	
+
 	/**
 	 * Get route callable
 	 *
@@ -136,17 +136,17 @@ class Route {
 	public function getCallable() {
 		return $this->callable;
 	}
-	
+
 	/**
 	 * Set route callable
 	 *
-	 * @param mixed $callable
-	 * @return void
+	 * @param	mixed $callable
+	 * @return 	void
 	 */
 	public function setCallable($callable) {
 		$this->callable = $callable;
 	}
-	
+
 	/**
 	 * Get route conditions
 	 *
@@ -155,17 +155,17 @@ class Route {
 	public function getConditions() {
 		return $this->conditions;
 	}
-	
+
 	/**
 	 * Set route conditions
 	 *
-	 * @param array $conditions
-	 * @return void
+	 * @param	array $conditions
+	 * @return 	void
 	 */
 	public function setConditions( array $conditions ) {
 		$this->conditions = $conditions;
 	}
-	
+
 	/**
 	 * Get route name
 	 *
@@ -174,18 +174,18 @@ class Route {
 	public function getName() {
 		return $this->name;
 	}
-	
+
 	/**
 	 * Set route name
 	 *
-	 * @param string $name
-	 * @return void
+	 * @param	string $name
+	 * @return 	void
 	 */
 	public function setName( $name ) {
 		$this->name = (string)$name;
 		$this->getRouter()->cacheNamedRoute($name, $this);
 	}
-	
+
 	/**
 	 * Get route parameters
 	 *
@@ -194,7 +194,7 @@ class Route {
 	public function getParams() {
 		return $this->params;
 	}
-	
+
 	/**
 	 * Get router
 	 *
@@ -203,19 +203,19 @@ class Route {
 	public function getRouter() {
 		return $this->router;
 	}
-	
+
 	/**
 	 * Set router
 	 *
-	 * @param Router $router
-	 * @return void
+	 * @param	Router $router
+	 * @return 	void
 	 */
 	public function setRouter( Router $router ) {
 		$this->router = $router;
 	}
-	
+
 	/***** ROUTE PARSING AND MATCHING *****/
-	
+
 	/**
 	 * Matches URI?
 	 *
@@ -224,17 +224,7 @@ class Route {
 	 *
 	 * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
 	 *
-	 * This method is also smart about trailing slashes. If a route is defined
-	 * with a trailing slash, and if the current request URI does not have
-	 * a trailing slash but otherwise matches the route, a SlimRequestSlashException
-	 * will be thrown triggering a 301 Redirect to the same URI with a trailing slash.
-	 * This exception is caught in the `Slim::run` loop. If a route is
-	 * defined without a trailing slash, and the current request URI does
-	 * have a trailing slash, the route will not be matched and a 404 Not Found
-	 * response will be sent if no subsequent matching routes are found.
-	 *
-	 * @param	string						$resourceUri A Request URI
-	 * @throws	SlimRequestSlashException
+	 * @param	string	$resourceUri A Request URI
 	 * @return	bool
 	 */
 	public function matches( $resourceUri ) {
@@ -281,9 +271,9 @@ class Route {
 	}
 
 	/***** HELPERS *****/
-	
+
 	/**
-	 * Set route name (alias for Route::setName)
+	 * Set route name
 	 *
 	 * @param	string $name The name of the route
 	 * @return 	Route
@@ -296,20 +286,30 @@ class Route {
 	/**
 	 * Merge route conditions
 	 *
-	 * @param	array $conditions An associative array of URL parameter conditions
+	 * @param	array $conditions Key-value array of URL parameter conditions
 	 * @return 	Route
 	 */
 	public function conditions( array $conditions ) {
 		$this->conditions = array_merge($this->conditions, $conditions);
 		return $this;
 	}
-	
+
 	/***** DISPATCHING *****/
-	
+
 	/**
 	 * Dispatch route
 	 *
-	 * @return bool
+	 * This method is smart about trailing slashes. If this route is defined
+	 * with a trailing slash, and if the current request URI does not have
+	 * a trailing slash but otherwise matches this route, a SlimRequestSlashException
+	 * will be thrown triggering a 301 Redirect to the same URI with a trailing slash.
+	 * This exception is caught in the `Slim::run` loop. If this route is
+	 * defined without a trailing slash, and the current request URI does
+	 * have a trailing slash, this route will not be matched and a 404 Not Found
+	 * response will be sent if no subsequent matching routes are found.
+	 *
+	 * @return 	bool Was route callable invoked successfully?
+	 * @throws	SlimRequestSlashException
 	 */
 	public function dispatch() {
 		if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->resource, -1) !== '/' ) {
