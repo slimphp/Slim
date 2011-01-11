@@ -33,10 +33,10 @@
 /**
  * Slim View
  *
- * The View is delegated the responsibility of rendering and/or displaying
- * a template. It is recommended that you subclass View and re-implement the 
- * `View::render` method to use a custom templating engine such as 
- * Smarty, Twig, Markdown, etc. It is very important that `View::render`
+ * The View is responsible for rendering and/or displaying a template.
+ * It is recommended that you subclass View and re-implement the
+ * `View::render` method to use a custom templating engine such as
+ * Smarty, Twig, Mustache, etc. It is important that `View::render`
  * `return` the final template output. Do not `echo` the output.
  *
  * @package	Slim
@@ -58,7 +58,7 @@ class View {
 	/**
 	 * Constructor
 	 *
-	 * This is empty but may be modified in a subclass if required
+	 * This is empty but may be overridden in a subclass
 	 */
 	public function __construct() {}
 
@@ -68,7 +68,9 @@ class View {
 	 * Get data
 	 *
 	 * @param	string $key
-	 * @return 	array|null
+	 * @return 	array|mixed|null	All View data if no $key, value of datum
+	 *								if $key, or NULL if $key but datum
+	 *								does not exist.
 	 */
 	public function getData( $key = null ) {
 		if ( !is_null($key) ) {
@@ -89,10 +91,11 @@ class View {
 	 *
 	 * View::setData('color', 'red');
 	 * View::setData(array('color' => 'red', 'number' => 1));
-	 * 
+	 *
 	 * @param	string|array
 	 * @param	mixed Optional. Only use if first argument is a string.
 	 * @return 	void
+	 * @throws	InvalidArgumentException If incorrect method signature
 	 */
 	public function setData() {
 		$args = func_get_args();
@@ -106,7 +109,7 @@ class View {
 	}
 
 	/**
-	 * Append data
+	 * Append data to existing View data
 	 *
 	 * @param	array $data
 	 * @return 	void
@@ -118,7 +121,7 @@ class View {
 	/**
 	 * Get templates directory
 	 *
-	 * @return string|null
+	 * @return string|null Path to templates directory without trailing slash
 	 */
 	public function getTemplatesDirectory() {
 		return $this->templatesDirectory;
@@ -129,6 +132,7 @@ class View {
 	 *
 	 * @param	string $dir
 	 * @return 	void
+	 * @throws	RuntimeException If directory is not a directory or does not exist
 	 */
 	public function setTemplatesDirectory( $dir ) {
 		if ( !is_dir($dir) ) {
@@ -142,7 +146,10 @@ class View {
 	/**
 	 * Display template
 	 *
-	 * @return void
+	 * This method echoes the rendered template to the current output buffer
+	 *
+	 * @param	string $template Path to template file relative to templates directoy
+	 * @return 	void
 	 */
 	public function display( $template ) {
 		echo $this->render($template);
@@ -151,8 +158,9 @@ class View {
 	/**
 	 * Render template
 	 *
-	 * @param	string $template Path to template file, relative to templates directory
-	 * @return 	string Rendered template
+	 * @param	string $template	Path to template file relative to templates directory
+	 * @return 	string				Rendered template
+	 * @throws	RuntimeException	If template does not exist
 	 */
 	public function render( $template ) {
 		extract($this->data);
