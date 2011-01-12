@@ -34,9 +34,6 @@ Slim::init();
  * Slim::get('/hello/:name', 'myFunction');
  * function myFunction($name) { echo "Hello, $name"; }
  *
- * The last two routes demonstrate how to use named routes, the `urlFor` helper,
- * route parameter conditions, and optional route segments.
- *
  * The routes below work with PHP >= 5.3.
  */
 
@@ -47,38 +44,24 @@ Slim::get('/', function () {
 
 //POST route
 Slim::post('/post', function () {
-	echo '<p>Here are the details about your POST request:</p>';
-	print_r(Slim::request());
+	Slim::render('post.php', array('request' => Slim::request()));
 });
 
 //PUT route
 Slim::put('/put', function () {
-	echo '<p>Here are the details about your PUT request:</p>';
-	print_r(Slim::request());
+	Slim::render('put.php', array('request' => Slim::request()));
 });
 
 //DELETE route
 Slim::delete('/delete', function () {
-	echo '<p>Here are the details about your DELETE request:</p>';
-	print_r(Slim::request());
-});
-
-//Named GET route with URL parameter conditions
-Slim::get('/hello/:name', function ($name) {
-	echo "<p>Hello, $name!</p>";
-	echo "<p>This route using name \"Bob\" instead of \"$name\" would be: " . Slim::urlFor('hello', array('name' => 'Bob')) . '</p>';
-})->name('hello')->conditions(array('name' => '\w+'));
-
-//GET route with optional URL segments
-Slim::get('/archive/:year(/:month(/:day))', function ( $year, $month = 5, $day = 20 ) {
-	echo "<p>The date is: $month/$day/$year</p>";
+	Slim::render('delete.php', array('request' => Slim::request()));
 });
 
 /**
  * Step 4: Run the Slim application
  *
  * This method should be called last. This is responsible for executing
- * the Slim application using the settings and/or routes defined above.
+ * the Slim application using the settings and routes defined above.
  */
 Slim::run();
 
