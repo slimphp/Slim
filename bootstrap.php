@@ -44,17 +44,17 @@ Slim::get('/', function () {
 
 //POST route
 Slim::post('/post', function () {
-	Slim::render('post.php', array('request' => Slim::request()));
+	echo 'This is a POST route';
 });
 
 //PUT route
 Slim::put('/put', function () {
-	Slim::render('put.php', array('request' => Slim::request()));
+	echo 'This is a PUT route';
 });
 
 //DELETE route
 Slim::delete('/delete', function () {
-	Slim::render('delete.php', array('request' => Slim::request()));
+	echo 'This is a DELETE route';
 });
 
 /**
