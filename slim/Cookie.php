@@ -1,12 +1,10 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
- *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
+ * @author		Josh Lockhart
+ * @link		http://www.slimframework.com
+ * @copyright	2011 Josh Lockhart
  *
  * MIT LICENSE
  *
