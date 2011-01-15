@@ -68,11 +68,6 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
  */
 class Slim {
 
-	//Constants helpful when triggering errors or calling Slim::log()
-	const ERROR = 256;
-	const WARNING = 512;
-	const NOTICE = 1024;
-
 	/**
 	 * @var Slim The application instance
 	 */
@@ -97,16 +92,6 @@ class Slim {
 	 * @var View
 	 */
 	private $view;
-
-	/**
-	 * @var array Before callbacks
-	 */
-	private $before;
-
-	/**
-	 * @var array After callbacks
-	 */
-	private $after;
 
 	/**
 	 * @var array Application settings
@@ -178,7 +163,7 @@ class Slim {
 		if ( !(error_reporting() & $errno) ) {
 			return;
 		}
-		Slim::log(sprintf("Message: %s | File: %s | Line: %d", $errstr, $errfile, $errline), $errno);
+		Log::error(sprintf("Message: %s | File: %s | Line: %d | Level: %d", $errstr, $errfile, $errline, $errno));
 		if ( self::config('debug') === true ) {
 			Slim::halt(500, self::generateErrorMarkup($errstr, $errfile, $errline));
 		} else {
@@ -198,7 +183,7 @@ class Slim {
 	 */
 	public static function handleExceptions( Exception $e ) {
 		if ( $e instanceof SlimStopException === false ) {
-			Slim::log(sprintf("Message: %s | File: %s | Line: %d", $e->getMessage(), $e->getFile(), $e->getLine()));
+			Log::error($e);
 			if ( self::config('debug') === true ) {
 				Slim::halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
 			} else {
@@ -264,9 +249,14 @@ class Slim {
 	 */
 	private function __construct( $userSettings = array() ) {
 		$this->settings = array_merge(array(
-			'log' => true,
-			'log_dir' => './logs',
+			//Logging
+			'log.enable' => false,
+			'log.logger' => null,
+			'log.path' => './logs',
+			'log.level' => 4,
+			//Debugging
 			'debug' => true,
+			//View
 			'templates_dir' => './templates',
 			'view' => 'View',
 			//Settings for all cookies
@@ -291,6 +281,13 @@ class Slim {
 			'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
 			'enable_ssl' => $this->settings['cookies.secure']
 		)));
+		if ( $this->settings['log.enable'] === true ) {
+			if ( empty($this->settings['log.logger']) ) {
+				Log::setLogger(new Logger($this->settings['log.path'], $this->settings['log.level']));
+			} else {
+				Log::setLogger($this->settings['log.logger']);
+			}
+		}
 	}
 
 	/**
@@ -487,44 +484,6 @@ class Slim {
 			ob_start();
 			call_user_func(self::router()->error());
 			Slim::halt(500, ob_get_clean());
-		}
-	}
-
-	/***** LOGGING *****/
-
-	/**
-	 * Logger
-	 *
-	 * This is an application-wide Logger which will write messages to
-	 * a log file in the log directory (as defined in the app configuration).
-	 * Logging must be enabled for this method to work. A separate log file
-	 * is created for each day. Each log file is prepended with the type of
-	 * message (ie. Error, Warning, or Notice).
-	 *
-	 * @param	string $message The message to send to the Logger
-	 * @return 	void
-	 */
-	public static function log( $message, $errno = null ) {
-		if ( self::config('log') ) {
-			$type = '';
-			switch ($errno) {
-			    case E_USER_ERROR :
-				case E_ERROR :
-					$type = '[ERROR]';
-					break;
-				case E_WARNING :
-				case E_USER_WARNING :
-					$type = '[WARNING]';
-					break;
-				case E_NOTICE :
-				case E_USER_NOTICE :
-					$type = '[NOTICE]';
-					break;
-				default :
-					$type = '[UNKNOWN]';
-					break;
-			}
-			@error_log(sprintf("%s %s %s\r\n", $type, date('c'), $message), 3, rtrim(self::config('log_dir'), '/') . '/' . date('Y-m-d') . '.log');
 		}
 	}
 
@@ -903,7 +862,7 @@ class Slim {
 	public static function redirect( $url, $status = 307 ) {
 		if ( $status >= 300 && $status <= 307 ) {
 			self::response()->header('Location', (string)$url);
-			self::halt($status);
+			self::halt($status, (string)$url);
 		} else {
 			throw new InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
 		}
