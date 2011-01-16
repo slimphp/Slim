@@ -2,10 +2,10 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
- * 
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -15,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -31,8 +31,8 @@
 /**
  * MustacheView
  *
- * The MustacheView is a Custom View class that renders templates using the 
- * Mustache template language (http://mustache.github.com/) and the 
+ * The MustacheView is a Custom View class that renders templates using the
+ * Mustache template language (http://mustache.github.com/) and the
  * [Mustache.php library](github.com/bobthecow/mustache.php).
  *
  * There is one field that you, the developer, will need to change:
@@ -43,24 +43,24 @@
  */
 class MustacheView extends View {
 
-	/**
-	 * @var string The path to the directory containing Mustache.php
-	 */
-	public static $mustacheDirectory = null;
+    /**
+     * @var string The path to the directory containing Mustache.php
+     */
+    public static $mustacheDirectory = null;
 
-	/**
-	 * Renders a template using Mustache.php.
-	 *
-	 * @see View::render()
-	 * @param string $template The template name specified in Slim::render()
-	 * @return string
-	 */
-	public function render( $template ) {
-		require_once self::$mustacheDirectory . '/Mustache.php';
-		$m = new Mustache();
-		$contents = file_get_contents($this->getTemplatesDirectory() . '/' . ltrim($template, '/'));
-		return $m->render($contents, $this->data);
-	}
+    /**
+     * Renders a template using Mustache.php.
+     *
+     * @see View::render()
+     * @param string $template The template name specified in Slim::render()
+     * @return string
+     */
+    public function render( $template ) {
+        require_once self::$mustacheDirectory . '/Mustache.php';
+        $m = new Mustache();
+        $contents = file_get_contents($this->getTemplatesDirectory() . '/' . ltrim($template, '/'));
+        return $m->render($contents, $this->data);
+    }
 
 }
 

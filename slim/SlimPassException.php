@@ -2,9 +2,9 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
  *
@@ -36,9 +36,9 @@
  * matching route. If no subsequent routes are found, a
  * HTTP 404 Not Found response will be sent to the client.
  *
- * @package	Slim
- * @author	Josh Lockhart <info@joshlockhart.com>
- * @since	Version 1.0
+ * @package Slim
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @since   Version 1.0
  */
 class SlimPassException extends Exception {}
 

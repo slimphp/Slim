@@ -39,22 +39,22 @@ Slim::init();
 
 //GET route
 Slim::get('/', function () {
-	Slim::render('index.php');
+    Slim::render('index.php');
 });
 
 //POST route
 Slim::post('/post', function () {
-	echo 'This is a POST route';
+    echo 'This is a POST route';
 });
 
 //PUT route
 Slim::put('/put', function () {
-	echo 'This is a PUT route';
+    echo 'This is a PUT route';
 });
 
 //DELETE route
 Slim::delete('/delete', function () {
-	echo 'This is a DELETE route';
+    echo 'This is a DELETE route';
 });
 
 /**

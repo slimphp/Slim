@@ -2,9 +2,9 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
  *
@@ -34,9 +34,9 @@
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  *
- * @package	Slim
- * @author	Josh Lockhart <info@joshlockhart.com>
- * @since	Version 1.0
+ * @package Slim
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @since   Version 1.0
  */
 class SlimStopException extends Exception {}
 
