@@ -2,9 +2,9 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
  *
@@ -37,9 +37,9 @@
  * exception will be caught in `Slim::run` and trigger a 301 redirect
  * to the same resource URI with a trailing slash.
  *
- * @package	Slim
- * @author	Josh Lockhart <info@joshlockhart.com>
- * @since	Version 1.0
+ * @package Slim
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @since   Version 1.0
  */
 class SlimRequestSlashException extends Exception {}
 

@@ -2,10 +2,10 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
- * 
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -15,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -37,7 +37,7 @@
  *
  * <http://alexeyrybak.com/blitz/blitz_en.html>
  *
- * The xBlitz extended blitz class provides better block handling 
+ * The xBlitz extended blitz class provides better block handling
  * (load assoc arrays correctly, one level)
  *
  * @author Tobias O. <https://github.com/tobsn>
@@ -45,20 +45,20 @@
 class xBlitz extends Blitz{function xblock($k,$a){foreach($a as $v){$this->block('/'.$k,$v,true);}}}
 class BlitzView extends View {
 
-	private $blitzEnvironment = null;
+    private $blitzEnvironment = null;
 
-	public function render( $template ) {
-		$env = $this->getEnvironment( $template );
-		return $env->parse( $this->getData() );
-	}
+    public function render( $template ) {
+        $env = $this->getEnvironment( $template );
+        return $env->parse( $this->getData() );
+    }
 
-	private function getEnvironment( $template ) {
-		if ( !$this->blitzEnvironment ) {
-			ini_set( 'blitz.path', $this->getTemplatesDirectory() . '/' );
-			$this->blitzEnvironment = new xBlitz( $template );
-		}
-		return $this->blitzEnvironment;
-	}
+    private function getEnvironment( $template ) {
+        if ( !$this->blitzEnvironment ) {
+            ini_set( 'blitz.path', $this->getTemplatesDirectory() . '/' );
+            $this->blitzEnvironment = new xBlitz( $template );
+        }
+        return $this->blitzEnvironment;
+    }
 
 }
 

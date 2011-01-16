@@ -2,10 +2,10 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author		Josh Lockhart
- * @link		http://www.slimframework.com
- * @copyright	2011 Josh Lockhart
- * 
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
+ *
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -15,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -31,48 +31,48 @@
 require_once '../slim/Cookie.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
-class CookieTest extends PHPUnit_Extensions_OutputTestCase	 {
+class CookieTest extends PHPUnit_Extensions_OutputTestCase   {
 
-	/**
-	 * Test cookie sets and gets properties
-	 *
-	 * Pre-conditions:
-	 * A cookie is instantiated
-	 *
-	 * Post-conditions:
-	 * Case A: Name is set and is as string
-	 * Case B: Value is set and is as string
-	 * Case C: Expires is set as an integer
-	 * Case D: Expires is set as a string
-	 * Case E: Path is set and is a string
-	 * Case F: Domain is set and is a string
-	 * Case G: Secure is set and is bool
-	 * Case H: HTTP only is set and is bool
-	 */
-	public function testNewCookie() {
-		$hourFromNow = time() + 3600;
-		$c1 = new Cookie('foo1', 'bar1', time() + 3600, '/foo', 'domain.com', true, true);
-		$c2 = new Cookie('foo2', 'bar2', '1 hour', '/foo', 'domain.com', false, false);
-		//Case A
-		$this->assertEquals('foo1', $c1->getName());
-		//Case B
-		$this->assertEquals('bar1', $c1->getValue());
-		//Case C
-		$this->assertEquals($hourFromNow, $c1->getExpires());
-		//Case D
-		$this->assertEquals($hourFromNow, $c2->getExpires());
-		//Case E
-		$this->assertEquals('/foo', $c1->getPath());
-		//Case F
-		$this->assertEquals('domain.com', $c1->getDomain());
-		//Case G
-		$this->assertTrue($c1->getSecure());
-		$this->assertFalse($c2->getSecure());
-		//Case H
-		$this->assertTrue($c1->getHttpOnly());
-		$this->assertFalse($c2->getHttpOnly());
-	}
-	
+    /**
+     * Test cookie sets and gets properties
+     *
+     * Pre-conditions:
+     * A cookie is instantiated
+     *
+     * Post-conditions:
+     * Case A: Name is set and is as string
+     * Case B: Value is set and is as string
+     * Case C: Expires is set as an integer
+     * Case D: Expires is set as a string
+     * Case E: Path is set and is a string
+     * Case F: Domain is set and is a string
+     * Case G: Secure is set and is bool
+     * Case H: HTTP only is set and is bool
+     */
+    public function testNewCookie() {
+        $hourFromNow = time() + 3600;
+        $c1 = new Cookie('foo1', 'bar1', time() + 3600, '/foo', 'domain.com', true, true);
+        $c2 = new Cookie('foo2', 'bar2', '1 hour', '/foo', 'domain.com', false, false);
+        //Case A
+        $this->assertEquals('foo1', $c1->getName());
+        //Case B
+        $this->assertEquals('bar1', $c1->getValue());
+        //Case C
+        $this->assertEquals($hourFromNow, $c1->getExpires());
+        //Case D
+        $this->assertEquals($hourFromNow, $c2->getExpires());
+        //Case E
+        $this->assertEquals('/foo', $c1->getPath());
+        //Case F
+        $this->assertEquals('domain.com', $c1->getDomain());
+        //Case G
+        $this->assertTrue($c1->getSecure());
+        $this->assertFalse($c2->getSecure());
+        //Case H
+        $this->assertTrue($c1->getHttpOnly());
+        $this->assertFalse($c2->getHttpOnly());
+    }
+
 }
 
 ?>
