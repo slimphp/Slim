@@ -29,17 +29,37 @@
  */
 
 /**
- * Pass Exception
+ * BlitzView
  *
- * This Exception will cause the Router::dispatch method
- * to skip the current matching route and continue to the next
- * matching route. If no subsequent routes are found, a
- * HTTP 404 Not Found response will be sent to the client.
+ * The BlitzView provides native support for the Blitz templating system
+ * for PHP. Blitz is written as C and compiled to a PHP extension. Which means
+ * it is FAST. You can learn more about Blitz at:
  *
- * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   Version 1.0
+ * <http://alexeyrybak.com/blitz/blitz_en.html>
+ *
+ * The xBlitz extended blitz class provides better block handling
+ * (load assoc arrays correctly, one level)
+ *
+ * @author Tobias O. <https://github.com/tobsn>
  */
-class SlimPassException extends Exception {}
+class xBlitz extends Blitz{function xblock($k,$a){foreach($a as $v){$this->block('/'.$k,$v,true);}}}
+class BlitzView extends View {
+
+    private $blitzEnvironment = null;
+
+    public function render( $template ) {
+        $env = $this->getEnvironment( $template );
+        return $env->parse( $this->getData() );
+    }
+
+    private function getEnvironment( $template ) {
+        if ( !$this->blitzEnvironment ) {
+            ini_set( 'blitz.path', $this->getTemplatesDirectory() . '/' );
+            $this->blitzEnvironment = new xBlitz( $template );
+        }
+        return $this->blitzEnvironment;
+    }
+
+}
 
 ?>

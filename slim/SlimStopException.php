@@ -1,12 +1,10 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
- *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
  *
@@ -33,12 +31,12 @@
 /**
  * Stop Exception
  *
- * This Exception is thrown when the Slim app needs to abort
+ * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  *
- * @package	Slim
- * @author	Josh Lockhart <info@joshlockhart.com>
- * @since	Version 1.0
+ * @package Slim
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @since   Version 1.0
  */
 class SlimStopException extends Exception {}
 

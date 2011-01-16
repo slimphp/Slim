@@ -1,13 +1,11 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
- * 
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -31,168 +29,177 @@
  */
 
 require_once '../slim/View.php';
-require_once 'PHPUnit/Framework.php';
- 
-class ViewTest extends PHPUnit_Framework_TestCase {
+require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
-	/***** SETUP *****/
+class ViewTest extends PHPUnit_Extensions_OutputTestCase {
 
-	public function setUp() {
-		$this->view = new View();
-	}
+    /***** SETUP *****/
 
-	/***** DATA FACTORY *****/
+    public function setUp() {
+        $this->view = new View();
+    }
 
-	public function generateTestData() {
-		return array('a' => 1, 'b' => 2, 'c' => 3);
-	}
+    /***** DATA FACTORY *****/
 
-	/***** TESTS *****/
+    public function generateTestData() {
+        return array('a' => 1, 'b' => 2, 'c' => 3);
+    }
 
-	/**
-	 * Test initial View data is an empty array
-	 *
-	 * Pre-conditions:
-	 * You instantiate a new View object
-	 *
-	 * Post-conditions:
-	 * The View object's data attribute is an empty array
-	 */
-	public function testViewIsConstructedWithDataArray() {
-		$this->assertEquals($this->view->data(), array());
-	}
+    /***** TESTS *****/
 
-	/**
-	 * Test View data is returned when set
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and set its data
-	 *
-	 * Post-conditions: 
-	 * The latest View data is returned by the View::data method
-	 */
-	public function testViewReturnsDataWhenSet() {
-		$returnedData = $this->view->data($this->generateTestData());
-		$this->assertEquals($this->generateTestData(), $returnedData);
-	}
+    /**
+     * Test initial View data is an empty array
+     *
+     * Pre-conditions:
+     * You instantiate a new View object
+     *
+     * Post-conditions:
+     * The View object's data attribute is an empty array
+     */
+    public function testViewIsConstructedWithDataArray() {
+        $this->assertEquals($this->view->getData(), array());
+    }
 
-	/**
-	 * Test View appends data rather than overwriting data
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and call its data method 
-	 * multiple times to append multiple sets of data
-	 *
-	 * Post-conditions:
-	 * The resultant data array should contain the merged
-	 * data from the multiple View::data calls.
-	 */
-	public function testViewMergesData(){
-		$dataOne = array('a' => 'A');
-		$dataTwo = array('b' => 'B');
-		$this->view->data($dataOne);
-		$this->view->data($dataTwo);
-		$this->assertEquals($this->view->data(), array('a' => 'A', 'b' => 'B'));
-	}
+    /**
+     * Test View sets and gets data
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * Case A: Set view data key/value
+     * Case B: Set view data as array
+     * Case C: Set view data with one argument that is not an array
+     *
+     * Post-conditions:
+     * Case A: Data key/value are set
+     * Case B: Data is set to array
+     * Case C: An InvalidArgumentException is thrown
+     */
+    public function testViewSetAndGetData() {
+        //Case A
+        $this->view->setData('one', 1);
+        $this->assertEquals($this->view->getData('one'), 1);
 
-	/**
-	 * Test View does not accept non-Array values
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and pass a non-Array value
-	 * into its data method.
-	 *
-	 * Post-conditions:
-	 * The View ignores the invalid data and the View's
-	 * existing data attribute remains unchanged.
-	 */
-	public function testViewDoesNotAcceptNonArrayAsData() {
-		$this->assertEquals($this->view->data(1), array());
-	}
+        //Case B
+        $data = array('foo' => 'bar', 'a' => 'A');
+        $this->view->setData($data);
+        $this->assertSame($this->view->getData(), $data);
 
-	/**
-	 * Test View sets templates directory
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and set its templates directory
-	 * to an existing directory.
-	 *
-	 * Post-conditions:
-	 * The templates directory is set correctly.
-	 */
-	public function testSetsTemplatesDirectory() {
-		$templatesDirectory = rtrim(realpath('../templates/'), '/') . '/';
-		$this->view->templatesDirectory($templatesDirectory);
-		$this->assertEquals($templatesDirectory, $this->view->templatesDirectory());
-	}
+        //Case C
+        try {
+            $this->view->setData('foo');
+            $this->fail('Setting View data with non-array single argument did not throw exception');
+        } catch ( InvalidArgumentException $e ) {}
+    }
 
-	/**
-	 * Test View templates directory path may have a trailing slash when set
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and set its template directory to an
-	 * existing directory path with a trailing slash.
-	 *
-	 * Post-conditions:
-	 * The View templates directory path contains a trailing slash.
-	 */
-	public function testTemplatesDirectoryWithTrailingSlash() {
-		$templatesDirectory = realpath('../templates/');
-		$this->view->templatesDirectory($templatesDirectory);
-		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
-	}
+    /**
+     * Test View appends data
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * Append data to View several times
+     *
+     * Post-conditions:
+     * The View data contains all appended data
+     */
+    public function testViewAppendsData(){
+        $this->view->appendData(array('a' => 'A'));
+        $this->view->appendData(array('b' => 'B'));
+        $this->assertEquals($this->view->getData(), array('a' => 'A', 'b' => 'B'));
+    }
 
-	/**
-	 * Test View templates directory path may not have a trailing slash when set
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and set its template directory to an
-	 * existing directory path without a trailing slash.
-	 *
-	 * Post-conditions:
-	 * The View templates directory path contains a trailing slash.
-	 */
-	public function testTemplatesDirectoryWithoutTrailingSlash() {
-		$templatesDirectory = rtrim(realpath('../templates/'), '/');
-		$this->view->templatesDirectory($templatesDirectory);
-		$this->assertEquals($templatesDirectory . '/', $this->view->templatesDirectory());
-	}
+    /**
+     * Test View templates directory
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * View templates directory is set to an existing directory
+     *
+     * Post-conditions:
+     * The templates directory is set correctly.
+     */
+    public function testSetsTemplatesDirectory() {
+        $templatesDirectory = '../templates';
+        $this->view->setTemplatesDirectory($templatesDirectory);
+        $this->assertEquals($templatesDirectory, $this->view->getTemplatesDirectory());
+    }
 
-	/**
-	 * Test View throws Exception if templates directory does not exist
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object and set its template directory
-	 * to a non-existent directory.
-	 *
-	 * Post-conditions:
-	 * A RuntimeException is thrown
-	 */
-	public function testExceptionForInvalidTemplatesDirectory() {
-		$this->setExpectedException('RuntimeException');
-		$this->view->templatesDirectory('./foo');
-	}
+    /**
+     * Test View templates directory may have a trailing slash when set
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * View templates directory is set to an existing directory with a trailing slash
+     *
+     * Post-conditions:
+     * The View templates directory is set correctly without a trailing slash
+     */
+    public function testTemplatesDirectoryWithTrailingSlash() {
+        $this->view->setTemplatesDirectory('../templates/');
+        $this->assertEquals('../templates', $this->view->getTemplatesDirectory());
+    }
 
-	/**
-	 * Test View class renders template
-	 *
-	 * Pre-conditions:
-	 * You instantiate a View object, sets its templates directory to
-	 * an existing directory. You pass data into the View, and render
-	 * an existing template. No errors or exceptions are thrown.
-	 *
-	 * Post-conditions:
-	 * The contents of the output buffer match the template.
-	 */
-	public function testRendersTemplateWithData() {
-		$this->view->templatesDirectory(realpath('./templates'));
-		ob_start();
-		$this->view->data(array('foo' => 'bar'));
-		$this->view->render('test.php');
-		$output = ob_get_clean();
-		$this->assertEquals($output, 'test output bar');
-	}
+    /**
+     * Test View throws Exception if templates directory does not exist
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * View templates directory is set to a non-existent directory
+     *
+     * Post-conditions:
+     * A RuntimeException is thrown
+     */
+    public function testExceptionForInvalidTemplatesDirectory() {
+        $this->setExpectedException('RuntimeException');
+        $this->view->setTemplatesDirectory('./foo');
+    }
+
+    /**
+     * Test View renders template
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * View templates directory is set to an existing directory.
+     * View data is set without errors
+     * Case A: View renders an existing template
+     * Case B: View renders a non-existing template
+     *
+     * Post-conditions:
+     * Case A: The rendered template is returned as a string
+     * Case B: A RuntimeException is thrown
+     */
+    public function testRendersTemplateWithData() {
+        $this->view->setTemplatesDirectory('./templates');
+        $this->view->setData(array('foo' => 'bar'));
+
+        //Case A
+        $output = $this->view->render('test.php');
+        $this->assertEquals($output, 'test output bar');
+
+        //Case B
+        try {
+            $output = $this->view->render('foo.php');
+            $this->fail('Rendering non-existent template did not throw exception');
+        } catch ( RuntimeException $e ) {}
+    }
+
+    /**
+     * Test View displays template
+     *
+     * Pre-conditions:
+     * View is instantiated
+     * View templates directory is set to an existing directory.
+     * View data is set without errors
+     * View is displayed
+     *
+     * Post-conditions:
+     * The output buffer contains the rendered template
+     */
+    public function testDisplaysTemplateWithData() {
+        $this->expectOutputString('test output bar');
+        $this->view->setTemplatesDirectory('./templates');
+        $this->view->setData(array('foo' => 'bar'));
+        $this->view->display('test.php');
+    }
 
 }
-
 ?>

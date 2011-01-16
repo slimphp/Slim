@@ -12,10 +12,13 @@ Slim provides the following notable features out-of-the-box:
   * Route passing
   * Route redirects
   * Route halting
-  * Custom 404 and Error handlers
+  * Custom **Not Found** handler
+  * Custom **Error** handler
+  * Optional route segments... /archive(/:year(/:month(/:day)))
+* Easy app configuration
 * Easy templating with custom Views (ie. Twig, Smarty, Mustache, ...)
-* HTTP Caching
-* Session handling
+* Cookie handling with optional AES-256 encryption
+* HTTP caching (ETag and Last-Modified)
 * Logging
 * Error handling
 * Supports PHP 5+
