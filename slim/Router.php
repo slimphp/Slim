@@ -169,7 +169,7 @@ class Router implements Iterator {
             $replace[] = $value;
         }
         $pattern = str_replace($search, $replace, $pattern);
-        return $this->getRequest()->root . $pattern;
+        return Slim::applyHook('slim.url', $this->getRequest()->root . $pattern);
     }
 
     /**

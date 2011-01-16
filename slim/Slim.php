@@ -122,7 +122,8 @@ class Slim {
         'slim.before.dispatch' => array(array()),
         'slim.after.dispatch' => array(array()),
         'slim.after.router' => array(array()),
-        'slim.after' => array(array())
+        'slim.after' => array(array()),
+        'slim.url' => array(array())
     );
 
     /**
