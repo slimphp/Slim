@@ -246,7 +246,6 @@ class Router implements Iterator {
     public function valid() {
         return isset($this->matchedRoutes[$this->position]);
     }
->>>>>>> 55838924915b4c421cc5bebb47adb5ffd1f852a5
 
 }
 ?>
