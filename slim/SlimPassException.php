@@ -1,13 +1,11 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
- * 
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -33,14 +31,14 @@
 /**
  * Pass Exception
  *
- * This Exception is will cause the Router::dispatch method
- * to pass the current matching route and continue to the next
+ * This Exception will cause the Router::dispatch method
+ * to skip the current matching route and continue to the next
  * matching route. If no subsequent routes are found, a
  * HTTP 404 Not Found response will be sent to the client.
  *
- * @package	Slim
- * @author	Josh Lockhart <info@joshlockhart.com>
- * @since	Version 1.0
+ * @package Slim
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @since   Version 1.0
  */
 class SlimPassException extends Exception {}
 

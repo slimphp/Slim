@@ -1,13 +1,11 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
- * 
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -42,18 +40,18 @@ require_once 'LogTest.php';
 
 class AllTests {
 
-	public static function suite() {
-		$suite = new PHPUnit_Framework_TestSuite('SlimTestSuite');
-		$suite->addTestSuite('ViewTest');
-		$suite->addTestSuite('RouteTest');
-		$suite->addTestSuite('RouterTest');
-		$suite->addTestSuite('SlimTest');
-		$suite->addTestSuite('RequestTest');
-		$suite->addTestSuite('ResponseTest');
-		$suite->addTestSuite('LoggerTest');
-		$suite->addTestSuite('LogTest');
-		return $suite;
-	}
+    public static function suite() {
+        $suite = new PHPUnit_Framework_TestSuite('SlimTestSuite');
+        $suite->addTestSuite('ViewTest');
+        $suite->addTestSuite('RouteTest');
+        $suite->addTestSuite('RouterTest');
+        $suite->addTestSuite('SlimTest');
+        $suite->addTestSuite('RequestTest');
+        $suite->addTestSuite('ResponseTest');
+        $suite->addTestSuite('LoggerTest');
+        $suite->addTestSuite('LogTest');
+        return $suite;
+    }
 
 }
 

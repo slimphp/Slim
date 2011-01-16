@@ -1,13 +1,11 @@
 <?php
 /**
- * Slim
+ * Slim - a micro PHP 5 framework
  *
- * A simple PHP framework for PHP 5 or newer
+ * @author      Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @copyright   2011 Josh Lockhart
  *
- * @author		Josh Lockhart <info@joshlockhart.com>
- * @link		http://slim.joshlockhart.com
- * @copyright	2010 Josh Lockhart
- * 
  * MIT LICENSE
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -17,10 +15,10 @@
  * distribute, sublicense, and/or sell copies of the Software, and to
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
  * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -33,7 +31,7 @@
 /**
  * SmartyView
  *
- * The SmartyView is a custom View class that renders templates using the Smarty 
+ * The SmartyView is a custom View class that renders templates using the Smarty
  * template language (http://www.smarty.net).
  *
  * Two fields that you, the developer, will need to change are:
@@ -43,73 +41,73 @@
  * - smartyCacheDirectory
  *
  * @package Slim
- * @author	Jose da Silva <http://josedasilva.net>
+ * @author  Jose da Silva <http://josedasilva.net>
  */
 class SmartyView extends View {
 
-	/**
-	 * @var string The path to the Smarty code directory WITHOUT the trailing slash
-	 */
-	public static $smartyDirectory = null;
+    /**
+     * @var string The path to the Smarty code directory WITHOUT the trailing slash
+     */
+    public static $smartyDirectory = null;
 
-	/**
-	 * @var string The path to the Smarty compiled templates folder WITHOUT the trailing slash
-	 */
-	public static $smartyCompileDirectory = null;
+    /**
+     * @var string The path to the Smarty compiled templates folder WITHOUT the trailing slash
+     */
+    public static $smartyCompileDirectory = null;
 
-	/**
-	 * @var string The path to the Smarty cache folder WITHOUT the trailing slash
-	 */
-	public static $smartyCacheDirectory = null;
+    /**
+     * @var string The path to the Smarty cache folder WITHOUT the trailing slash
+     */
+    public static $smartyCacheDirectory = null;
 
-	/**
-	 * @var string The path to the templates folder WITHOUT the trailing slash
-	 */
-	public static $smartyTemplatesDirectory = 'templates';
+    /**
+     * @var string The path to the templates folder WITHOUT the trailing slash
+     */
+    public static $smartyTemplatesDirectory = 'templates';
 
-	/**
-	 * @var persistent instance of the Smarty object
-	 */
-	private static $smartyInstance = null;
+    /**
+     * @var persistent instance of the Smarty object
+     */
+    private static $smartyInstance = null;
 
-	/**
-	* Render Smarty Template
-	*
-	* This method will output the rendered template content
-	*
-	* @param	string $template The path to the Smarty template, relative to the  templates directory.
-	* @return	void
-	*/
+    /**
+    * Render Smarty Template
+    *
+    * This method will output the rendered template content
+    *
+    * @param    string $template The path to the Smarty template, relative to the  templates directory.
+    * @return   void
+    */
 
-	public function render( $template ) {
-		$instance = self::getInstance();
-		$instance->assign($this->data);
-		return $instance->fetch($template);
-	}
+    public function render( $template ) {
+        $instance = self::getInstance();
+        $instance->assign($this->data);
+        return $instance->fetch($template);
+    }
 
-	/**
-	 * Creates new Smarty object instance if it doesn't already exist, and returns it.
-	 *
-	 * @throws RuntimeException If Smarty lib directory does not exist
-	 * @return Smarty Instance
-	 */
-	public static function getInstance() {
-		if ( !(self::$smartyInstance instanceof Smarty) ) {
-			if ( !is_dir(self::$smartyDirectory) ) {
-				throw new RuntimeException('Cannot set the Smarty lib directory : ' . self::$smartyDirectory . '. Directory does not exist.');
-			}
-			require_once self::$smartyDirectory . '/Smarty.class.php';
-			self::$smartyInstance = new Smarty();
-			self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ? $this->getTemplatesDirectory() : self::$smartyTemplatesDirectory;
-			if ( self::$smartyCompileDirectory ) {
-				self::$smartyInstance->compile_dir	= self::$smartyCompileDirectory;
-			}
-			if ( self::$smartyCacheDirectory ) {
-				self::$smartyInstance->cache_dir  = self::$smartyCacheDirectory;
-			}
-		}
-		return self::$smartyInstance;
-	}
+    /**
+     * Creates new Smarty object instance if it doesn't already exist, and returns it.
+     *
+     * @throws RuntimeException If Smarty lib directory does not exist
+     * @return Smarty Instance
+     */
+    public static function getInstance() {
+        if ( !(self::$smartyInstance instanceof Smarty) ) {
+            if ( !is_dir(self::$smartyDirectory) ) {
+                throw new RuntimeException('Cannot set the Smarty lib directory : ' . self::$smartyDirectory . '. Directory does not exist.');
+            }
+            require_once self::$smartyDirectory . '/Smarty.class.php';
+            self::$smartyInstance = new Smarty();
+            self::$smartyInstance->template_dir = is_null(self::$smartyTemplatesDirectory) ? $this->getTemplatesDirectory() : self::$smartyTemplatesDirectory;
+            if ( self::$smartyCompileDirectory ) {
+                self::$smartyInstance->compile_dir  = self::$smartyCompileDirectory;
+            }
+            if ( self::$smartyCacheDirectory ) {
+                self::$smartyInstance->cache_dir  = self::$smartyCacheDirectory;
+            }
+        }
+        return self::$smartyInstance;
+    }
 }
 
 ?>
