@@ -280,7 +280,7 @@ class Slim {
 			'cookies.user_id' => 'DEFAULT'
 		), $userSettings);
 		$this->request = new Request();
-		$this->response = new Response();
+		$this->response = new Response($this->request);
 		$this->router = new Router($this->request);
 		$this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
 			'high_confidentiality' => $this->settings['cookies.encrypt'],

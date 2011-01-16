@@ -127,8 +127,9 @@ class Router implements Iterator {
 	public function map( $pattern, $callable, $method ) {
 		$route = new Route($pattern, $callable);
 		$route->setRouter($this);
-		$this->routes[$method][] = $route;
-		if ( $method === $this->getRequest()->method && $route->matches($this->getRequest()->resource) ) {
+		$methodKey = ( $method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $method;
+		$this->routes[$methodKey][] = $route;
+		if ( ( ( $this->getRequest()->method === Request::METHOD_HEAD && $method === Request::METHOD_GET ) || ( $method === $this->getRequest()->method ) ) && $route->matches($this->getRequest()->resource) ) {
 			$this->matchedRoutes[] = $route;
 		}
 		return $route;

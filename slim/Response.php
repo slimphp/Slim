@@ -46,6 +46,11 @@
  */
 class Response {
 
+    /**
+     * @var Request
+     */
+    private $request;
+    
 	/**
 	 * @var int HTTP status code
 	 */
@@ -126,7 +131,8 @@ class Response {
 	/**
 	 * Constructor
 	 */
-	public function __construct() {
+	public function __construct( Request $req ) {
+	    $this->request = $req;
 		$this->header('Content-Type', 'text/html');
 	}
 
@@ -267,7 +273,12 @@ class Response {
 
 		//Finalize response
 		$this->finalize();
-
+        
+        //Remove body BUT NOT HEADERS if HEAD request
+        if ( $this->request->method === Request::METHOD_HEAD ) {
+            $this->body = '';
+        }
+        
 		if ( substr(PHP_SAPI, 0, 3) === 'cgi') {
 			//Send Status header if running with fastcgi
 		    header('Status: ' . Response::getMessageForCode($this->status()));
