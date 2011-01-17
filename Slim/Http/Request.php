@@ -117,15 +117,15 @@ class Slim_Http_Request {
      */
     public function __construct() {
         $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->resource = $this->extractQueryString();
-        $this->get = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_GET) : $_GET;
-        $this->post = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_POST) : $_POST;
+        $this->root = Slim_Http_Uri::getBaseUri(true);
+        $this->resource = Slim_Http_Uri::getUri(true);
+        $this->get = self::stripSlashesIfMagicQuotes($_GET);
+        $this->post = self::stripSlashesIfMagicQuotes($_POST);
         if ( $this->method === self::METHOD_PUT ) {
-            $this->input = file_get_contents('php://input');
-            $this->put = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($this->getPutParameters()) : $this->getPutParameters();
+            $this->put = self::stripSlashesIfMagicQuotes($this->getPutParameters());
         }
         $this->headers = $this->getHttpHeaders();
-        $this->cookies = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_COOKIE) : $_COOKIE;
+        $this->cookies = self::stripSlashesIfMagicQuotes($_COOKIE);
         $this->isAjax = isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest';
         $this->checkForHttpMethodOverride();
     }
@@ -217,36 +217,12 @@ class Slim_Http_Request {
      * @param   array|string $rawData
      * @return  array|string
      */
-    public static function stripSlashesFromRequestData( $rawData ) {
-        return is_array($rawData) ? array_map(array('self', 'stripSlashesFromRequestData'), $rawData) : stripslashes($rawData);
-    }
-
-    /**
-     * Extract resource URL
-     *
-     * Convert raw HTTP request URL into an application resource URI.
-     * Exclude the application root URI and query string.
-     *
-     * @return  string
-     */
-    private function extractQueryString() {
-        $this->root = rtrim(dirname($_SERVER['PHP_SELF']), '/');
-        if ( !empty($_SERVER['PATH_INFO']) ) {
-            $uri = $_SERVER['PATH_INFO'];
+    public static function stripSlashesIfMagicQuotes( $rawData ) {
+        if ( get_magic_quotes_gpc() ) {
+            return is_array($rawData) ? array_map(array('self', 'stripSlashesIfMagicQuotes'), $rawData) : stripslashes($rawData);
         } else {
-            if ( isset($_SERVER['REQUEST_URI']) ) {
-                $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-                $uri = rawurldecode($uri);
-            } else if ( isset($_SERVER['PHP_SELF']) ) {
-                $uri = $_SERVER['PHP_SELF'];
-            } else {
-                throw new RuntimeException('Unable to detect request URI');
-            }
+            return $rawData;
         }
-        if ( $this->root !== '' && strpos($uri, $this->root) === 0 ) {
-            $uri = substr($uri, strlen($this->root));
-        }
-        return $uri;
     }
 
     /**
@@ -255,7 +231,7 @@ class Slim_Http_Request {
      * @return string
      */
     private function getPutParameters() {
-        $putdata = $this->input();
+        $putdata = file_get_contents('php://input');
         if ( function_exists('mb_parse_str') ) {
             mb_parse_str($putdata, $outputdata);
         } else {

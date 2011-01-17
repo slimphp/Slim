@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -28,6 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+require_once '../Slim/Http/Uri.php';
 require_once '../Slim/Http/Request.php';
 require_once 'PHPUnit/Framework.php';
 
@@ -77,9 +80,11 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * The Request root should be "/foo/bar"
      */
     public function testRequestRootWithSubdirectory(){
+        $_SERVER['REQUEST_URI'] = '/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/foo/boostrap.php';
         $r = new Slim_Http_Request();
-        $this->assertEquals($r->root, '/foo/bar');
-        $this->assertEquals($r->resource, '/');
+        $this->assertEquals($r->root, '/foo');
+        $this->assertEquals($r->resource, '/bar/');
     }
 
     /**
@@ -93,7 +98,8 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * The Request root should be "/"
      */
     public function testRequestRootWithoutSubdirectory(){
-        $_SERVER['PHP_SELF'] = '/bootstrap.php';
+        $_SERVER['REQUEST_URI'] = '/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $r = new Slim_Http_Request();
         $this->assertEquals($r->root, '');
         $this->assertEquals($r->resource, '/foo/bar/');
@@ -143,9 +149,9 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $_GET['foo1'] = "bar\'d";
         $_POST['foo2'] = "bar\'d";
         $_COOKIE['foo3'] = "bar\'d";
-        $getData = Slim_Http_Request::stripSlashesFromRequestData($_GET);
-        $postData = Slim_Http_Request::stripSlashesFromRequestData($_POST);
-        $cookieData = Slim_Http_Request::stripSlashesFromRequestData($_COOKIE);
+        $getData = Slim_Http_Request::stripSlashesIfMagicQuotes($_GET);
+        $postData = Slim_Http_Request::stripSlashesIfMagicQuotes($_POST);
+        $cookieData = Slim_Http_Request::stripSlashesIfMagicQuotes($_COOKIE);
         $this->assertEquals($getData['foo1'], "bar'd");
         $this->assertEquals($postData['foo2'], "bar'd");
         $this->assertEquals($cookieData['foo3'], "bar'd");
