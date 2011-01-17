@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -28,7 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Slim.php';
+require_once '../Slim/Slim.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 //Prepare mock HTTP request
@@ -68,7 +70,7 @@ $_SERVER['argv'] = array();
 $_SERVER['argc'] = 0;
 
 //Mock custom view
-class CustomView extends View {
+class CustomView extends Slim_View {
     function render($template) { echo "Custom view"; }
 }
 
@@ -103,7 +105,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::init();
         $this->assertTrue(is_callable(Slim::router()->notFound()));
         $this->assertTrue(is_callable(Slim::router()->error()));
-        $this->assertTrue(Slim::view() instanceof View);
+        $this->assertTrue(Slim::view() instanceof Slim_View);
         $this->assertEquals('20 minutes', Slim::config('cookies.lifetime'));
     }
 
@@ -120,7 +122,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::init(array(
             'log.enable' => true
         ));
-        $this->assertTrue(Log::getLogger() instanceof Logger);
+        $this->assertTrue(Slim_Log::getLogger() instanceof Slim_Logger);
     }
 
     /**
@@ -137,7 +139,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
             'log.enable' => true,
             'log.logger' => new CustomLogger()
         ));
-        $this->assertTrue(Log::getLogger() instanceof CustomLogger);
+        $this->assertTrue(Slim_Log::getLogger() instanceof CustomLogger);
     }
 
     /**
@@ -327,7 +329,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * resource URI but with a trailing slash.
      */
     public function testRouteWithSlashAndUrlWithout() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob';
         Slim::init();
         Slim::get('/foo/bar/:name/', function ($name) {});
@@ -348,7 +350,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim will send a 404 Not Found response
      */
     public function testRouteWithoutSlashAndUrlWith() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob/';
         Slim::init();
         Slim::get('/foo/bar/:name', function ($name) {});
@@ -382,7 +384,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
         $response = 'One Two Three Four Five';
         $this->expectOutputString($response);
-        $this->assertEquals(Slim::response()->body(), $response);
+        $this->assertEquals($response, Slim::response()->body());
     }
 
     /************************************************
@@ -451,7 +453,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * because the ETag value matches `If-None-Match` request header.
      */
     public function testSlimEtagMatches(){
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::get('/', function () {
             Slim::etag('abc123');
@@ -514,7 +516,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * because the Last Modified date matches `If-Modified-Since` header.
      */
     public function testSlimLastModifiedDateMatches(){
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::get('/', function () {
             Slim::lastModified(1286139652);
@@ -694,7 +696,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
                 echo "foo";
                 Slim::stop();
                 echo "bar";
-            } catch ( SlimStopException $e ) {}
+            } catch ( Slim_Exception_Stop $e ) {}
         });
         Slim::run();
         $this->assertEquals(Slim::response()->body(), 'foo');
@@ -712,7 +714,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callback are ignored.
      */
     public function testSlimHaltInsideCallback() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::get('/', function () {
             echo "foo";
@@ -736,7 +738,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callback's expected output.
      */
     public function testSlimHaltOutsideCallback() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::halt(500, 'External error');
         Slim::get('/', function () {
@@ -786,7 +788,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * sent to the client.
      */
     public function testSlimPassWithoutFallbackRoute() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = "/name/Frank";
         Slim::init();
         Slim::get('name/Frank', function (){
@@ -893,7 +895,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         try {
             Slim::run();
             $this->fail("SlimStopException not caught");
-        } catch ( SlimStopException $e ) {}
+        } catch ( Slim_Exception_Stop $e ) {}
         $this->assertEquals(Slim::response()->status(), 300);
 
         //Case D
@@ -904,7 +906,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         try {
             Slim::run();
             $this->fail("SlimStopException not caught");
-        } catch ( SlimStopException $e ) {}
+        } catch ( Slim_Exception_Stop $e ) {}
         $this->assertEquals(Slim::response()->status(), 302);
 
         //Case E
@@ -915,7 +917,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         try {
             Slim::run();
             $this->fail("SlimStopException not caught");
-        } catch ( SlimStopException $e ) {}
+        } catch ( Slim_Exception_Stop $e ) {}
         $this->assertEquals(Slim::response()->status(), 307);
     }
 
@@ -934,7 +936,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The response status will be 404
      */
     public function testSlimRouteNotFound() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::get('/foo', function () {});
         Slim::run();
@@ -952,7 +954,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The response status will be 500
      */
     public function testSlimError() {
-        $this->setExpectedException('SlimStopException');
+        $this->setExpectedException('Slim_Exception_Stop');
         Slim::init();
         Slim::get('/', function () { Slim::error(); });
         Slim::run();

@@ -28,7 +28,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/View.php';
+require_once '../Slim/View.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class ViewTest extends PHPUnit_Extensions_OutputTestCase {
@@ -36,7 +36,7 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     /***** SETUP *****/
 
     public function setUp() {
-        $this->view = new View();
+        $this->view = new Slim_View();
     }
 
     /***** DATA FACTORY *****/

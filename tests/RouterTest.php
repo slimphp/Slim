@@ -28,9 +28,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Router.php';
-require_once '../slim/Request.php';
-require_once '../slim/Route.php';
+require_once '../Slim/Router.php';
+require_once '../Slim/Http/Request.php';
+require_once '../Slim/Route.php';
 require_once 'PHPUnit/Framework.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase {
@@ -74,8 +74,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * even if no params data is provided.
      */
     public function testUrlForNamedRouteWithoutParams() {
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $route = $router->map('/foo/bar', function () {}, 'GET');
         $router->cacheNamedRoute('foo', $route);
         $this->assertEquals($router->urlFor('foo'), '/foo/bar');
@@ -86,8 +86,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * param data is provided.
      */
     public function testUrlForNamedRouteWithParams() {
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {}, 'GET');
         $router->cacheNamedRoute('foo', $route);
         $this->assertEquals($router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')), '/foo/Josh/and/John');
@@ -99,8 +99,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testUrlForNamedRouteThatDoesNotExist() {
         $this->setExpectedException('RuntimeException');
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $route = $router->map('/foo/bar', function () {}, 'GET');
         $router->cacheNamedRoute('bar', $route);
         $router->urlFor('foo');
@@ -112,8 +112,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testNamedRouteWithExistingName() {
         $this->setExpectedException('RuntimeException');
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $route1 = $router->map('/foo/bar', function () {}, 'GET');
         $route2 = $router->map('/foo/bar/2', function () {}, 'GET');
         $router->cacheNamedRoute('bar', $route1);
@@ -124,8 +124,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should keep reference to a callable NotFound callback
      */
     public function testNotFoundHandler() {
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $notFoundCallback = function () { echo "404"; };
         $callback = $router->notFound($notFoundCallback);
         $this->assertSame($notFoundCallback, $callback);
@@ -135,8 +135,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should NOT keep reference to a callback that is not callable
      */
     public function testNotFoundHandlerIfNotCallable() {
-        $request = new Request();
-        $router = new Router($request);
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
         $notFoundCallback = 'foo';
         $callback = $router->notFound($notFoundCallback);
         $this->assertEquals($callback, null);
@@ -147,8 +147,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouterConsidersHeadAsGet() {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
-        $router = new Router(new Request());
-        $route = $router->map('/', function () {}, Request::METHOD_GET);
+        $router = new Slim_Router(new Slim_Http_Request());
+        $route = $router->map('/', function () {}, Slim_Http_Request::METHOD_GET);
         $numberOfMatchingRoutes = 0;
         foreach( $router as $matchingRoute ) {
             $numberOfMatchingRoutes++;
