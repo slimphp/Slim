@@ -134,9 +134,13 @@ class Slim {
      *
      * @return void
      */
-    public static function autoload( $className ) {
-        if ( file_exists($file = dirname(__FILE__) . '/' . $className . '.php') ) {
-            require_once($file);
+    public static function autoload( $class ) {
+        if ( strpos($class, 'Slim') !== 0 ) {
+            return;
+        }
+        $file = dirname(__FILE__) . '/../' . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+        if ( file_exists($file) ) {
+            require $file;
         }
     }
 
