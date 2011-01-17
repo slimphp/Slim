@@ -29,15 +29,17 @@
  */
 
 /**
- * Stop Exception
+ * Pass Exception
  *
- * This Exception is thrown when the Slim application needs to abort
- * processing and return control flow to the outer PHP script.
+ * This Exception will cause the Router::dispatch method
+ * to skip the current matching route and continue to the next
+ * matching route. If no subsequent routes are found, a
+ * HTTP 404 Not Found response will be sent to the client.
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class SlimStopException extends Exception {}
+class Slim_Exception_Pass extends Exception {}
 
 ?>

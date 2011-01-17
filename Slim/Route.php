@@ -35,7 +35,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Route {
+class Slim_Route {
 
     /**
      * @var string The route pattern (ie. "/books/:id")
@@ -68,7 +68,7 @@ class Route {
     protected $params = array();
 
     /**
-     * @var Router The Router to which this Route belongs
+     * @var Slim_Router The Router to which this Route belongs
      */
     protected $router;
 
@@ -196,7 +196,7 @@ class Route {
     /**
      * Get router
      *
-     * @return Router
+     * @return Slim_Router
      */
     public function getRouter() {
         return $this->router;
@@ -205,10 +205,10 @@ class Route {
     /**
      * Set router
      *
-     * @param   Router $router
+     * @param   Slim_Router $router
      * @return  void
      */
-    public function setRouter( Router $router ) {
+    public function setRouter( Slim_Router $router ) {
         $this->router = $router;
     }
 
@@ -312,7 +312,7 @@ class Route {
      */
     public function dispatch() {
         if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->resource, -1) !== '/' ) {
-            throw new SlimRequestSlashException();
+            throw new Slim_Exception_RequestSlash();
         }
         if ( is_callable($this->getCallable()) ) {
             call_user_func_array($this->getCallable(), array_values($this->getParams()));

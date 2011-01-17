@@ -40,7 +40,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Logger {
+class Slim_Logger {
 
     /***** INSTANCES PROPERTIES *****/
 

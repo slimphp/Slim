@@ -37,7 +37,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Cookie {
+class Slim_Http_Cookie {
 
     /**
      * @var string

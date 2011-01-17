@@ -41,7 +41,7 @@
  * @package Slim
  * @author  Johnson Page <http://johnsonpage.org>
  */
-class MustacheView extends View {
+class MustacheView extends Slim_View {
 
     /**
      * @var string The path to the directory containing Mustache.php

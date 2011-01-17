@@ -28,7 +28,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Request.php';
+require_once '../Slim/Http/Request.php';
 require_once 'PHPUnit/Framework.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase {
@@ -77,7 +77,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * The Request root should be "/foo/bar"
      */
     public function testRequestRootWithSubdirectory(){
-        $r = new Request();
+        $r = new Slim_Http_Request();
         $this->assertEquals($r->root, '/foo/bar');
         $this->assertEquals($r->resource, '/');
     }
@@ -94,7 +94,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testRequestRootWithoutSubdirectory(){
         $_SERVER['PHP_SELF'] = '/bootstrap.php';
-        $r = new Request();
+        $r = new Slim_Http_Request();
         $this->assertEquals($r->root, '');
         $this->assertEquals($r->resource, '/foo/bar/');
     }
@@ -115,15 +115,15 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testIsAjaxSet(){
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-        $r = new Request();
+        $r = new Slim_Http_Request();
         $this->assertTrue($r->isAjax);
 
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'foo';
-        $r = new Request();
+        $r = new Slim_Http_Request();
         $this->assertFalse($r->isAjax);
 
         unset($_SERVER['HTTP_X_REQUESTED_WITH']);
-        $r = new Request();
+        $r = new Slim_Http_Request();
         $this->assertFalse($r->isAjax);
     }
 
@@ -143,9 +143,9 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $_GET['foo1'] = "bar\'d";
         $_POST['foo2'] = "bar\'d";
         $_COOKIE['foo3'] = "bar\'d";
-        $getData = Request::stripSlashesFromRequestData($_GET);
-        $postData = Request::stripSlashesFromRequestData($_POST);
-        $cookieData = Request::stripSlashesFromRequestData($_COOKIE);
+        $getData = Slim_Http_Request::stripSlashesFromRequestData($_GET);
+        $postData = Slim_Http_Request::stripSlashesFromRequestData($_POST);
+        $cookieData = Slim_Http_Request::stripSlashesFromRequestData($_COOKIE);
         $this->assertEquals($getData['foo1'], "bar'd");
         $this->assertEquals($postData['foo2'], "bar'd");
         $this->assertEquals($cookieData['foo3'], "bar'd");
@@ -166,7 +166,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
             'foo' => 'bar',
             '_METHOD' => 'PUT'
         );
-        $request = new Request();
+        $request = new Slim_Http_Request();
         $this->assertEquals($request->method, 'PUT');
         $this->assertEquals($request->put(), $request->post());
     }
@@ -182,11 +182,11 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testSetResource() {
         $_SERVER['REQUEST_URI'] = '/foo.php?bar';
-        $request = new Request();
+        $request = new Slim_Http_Request();
         $this->assertEquals($request->resource, '/foo.php');
 
         $_SERVER['REQUEST_URI'] = '/bar.php';
-        $request = new Request();
+        $request = new Slim_Http_Request();
         $this->assertEquals($request->resource, '/bar.php');
     }
 
@@ -205,7 +205,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $_COOKIE = array('cookie_foo' => 'cookie_bar');
         $_SERVER['REQUEST_URI'] = '';
 
-        $request = new Request();
+        $request = new Slim_Http_Request();
         $this->assertEquals($request->params('get_foo'), 'get_bar');
         $this->assertEquals($request->params('post_foo'), 'post_bar');
         $this->assertNull($request->params('null'));
@@ -224,7 +224,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
             'put_foo' => 'put_bar',
             '_METHOD' => 'PUT'
         );
-        $request = new Request();
+        $request = new Slim_Http_Request();
         $this->assertEquals($request->put('put_foo'), 'put_bar');
         $this->assertEquals($request->put(), array('put_foo' => 'put_bar'));
     }
