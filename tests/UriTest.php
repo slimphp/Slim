@@ -160,6 +160,23 @@ class UriTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertEquals('/one/two/', Slim_Http_Uri::getUri(true));
         
     }
+    
+    /**
+     * Test URIs if SERVER[REQUEST_URI] is not available (ie. IIS)
+     */
+    public function testUrisIfNoRequestUri() {
+        unset($_SERVER['REQUEST_URI']);
+        //With htaccess
+        $_SERVER['PHP_SELF'] = '/foo/one/two';
+        $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
+        $this->assertEquals('/foo', Slim_Http_Uri::getBaseUri(true));
+        $this->assertEquals('/one/two', Slim_Http_Uri::getUri(true));
+        //Without htaccess
+        $_SERVER['PHP_SELF'] = '/foo/bootstrap.php/one/two';
+        $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
+        $this->assertEquals('/foo/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
+        $this->assertEquals('/one/two', Slim_Http_Uri::getUri(true));
+    }
 
 }
 ?>

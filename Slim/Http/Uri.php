@@ -66,7 +66,7 @@ class Slim_Http_Uri {
      */
     public static function getBaseUri( $reload = false ) {
         if ( $reload || is_null(self::$baseUri) ) {
-            $requestUri = $_SERVER['REQUEST_URI']; //Full Request URI
+            $requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF']; //Full Request URI
             $scriptName = $_SERVER['SCRIPT_NAME']; //Script path from docroot
             $baseUri = strpos($requestUri, $scriptName) === 0 ? $scriptName : dirname($scriptName);
             self::$baseUri = rtrim($baseUri, '/');
@@ -78,6 +78,7 @@ class Slim_Http_Uri {
      * Get URI with leading slash
      *
      * @return string
+     * @throws RuntimeException If unable if unable to determine URI
      */
     public static function getUri( $reload = false ) {
         if ( $reload || is_null(self::$uri) ) {
@@ -85,8 +86,14 @@ class Slim_Http_Uri {
             if ( !empty($_SERVER['PATH_INFO']) ) {
                 $uri = $_SERVER['PATH_INFO'];
             } else {
-                $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-                $uri = rawurldecode($uri);
+                if ( isset($_SERVER['REQUEST_URI']) ) {
+                    $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+                    $uri = rawurldecode($uri);
+                } else if ( isset($_SERVER['PHP_SELF']) ) {
+                    $uri = $_SERVER['PHP_SELF'];
+                } else {
+                    throw new RuntimeException('Unable to detect request URI');
+                }
             }
             if ( self::getBaseUri() !== '' && strpos($uri, self::getBaseUri()) === 0 ) {
                 $uri = substr($uri, strlen(self::getBaseUri()));
