@@ -38,6 +38,6 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class SlimStopException extends Exception {}
+class Slim_Exception_Stop extends Exception {}
 
 ?>

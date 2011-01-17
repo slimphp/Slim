@@ -43,7 +43,7 @@
  * @author Tobias O. <https://github.com/tobsn>
  */
 class xBlitz extends Blitz{function xblock($k,$a){foreach($a as $v){$this->block('/'.$k,$v,true);}}}
-class BlitzView extends View {
+class BlitzView extends Slim_View {
 
     private $blitzEnvironment = null;
 

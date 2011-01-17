@@ -38,7 +38,7 @@
  * - twigDirectory
  * - twigOptions
  */
-class TwigView extends View {
+class TwigView extends Slim_View {
 
     /**
      * @var string The path to the Twig code directory WITHOUT the trailing slash

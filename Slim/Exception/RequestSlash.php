@@ -41,6 +41,6 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class SlimRequestSlashException extends Exception {}
+class Slim_Exception_RequestSlash extends Exception {}
 
 ?>

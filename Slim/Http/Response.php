@@ -44,10 +44,10 @@
  * @author  Kris Jordan <http://github.com/KrisJordan>
  * @since   Version 1.0
  */
-class Response {
+class Slim_Http_Response {
 
     /**
-     * @var Request
+     * @var Slim_Http_Request
      */
     private $request;
 
@@ -131,7 +131,7 @@ class Response {
     /**
      * Constructor
      */
-    public function __construct( Request $req ) {
+    public function __construct( Slim_Http_Request $req ) {
         $this->request = $req;
         $this->header('Content-Type', 'text/html');
     }
@@ -212,17 +212,17 @@ class Response {
     /**
      * Set cookie jar
      *
-     * @param   CookieJar $cookieJar
+     * @param   Slim_Http_CookieJar $cookieJar
      * @return  void
      */
-    public function setCookieJar( CookieJar $cookieJar ) {
+    public function setCookieJar( Slim_Http_CookieJar $cookieJar ) {
         $this->cookieJar = $cookieJar;
     }
 
     /**
      * Get cookie jar
      *
-     * @return CookieJar
+     * @return Slim_Http_CookieJar
      */
     public function getCookieJar() {
         return $this->cookieJar;
@@ -276,10 +276,10 @@ class Response {
 
         if ( substr(PHP_SAPI, 0, 3) === 'cgi') {
             //Send Status header if running with fastcgi
-            header('Status: ' . Response::getMessageForCode($this->status()));
+            header('Status: ' . self::getMessageForCode($this->status()));
         } else {
             //Else send HTTP message
-            header('HTTP/1.1 ' . Response::getMessageForCode($this->status()));
+            header('HTTP/1.1 ' . self::getMessageForCode($this->status()));
         }
 
         //Send headers
@@ -309,7 +309,7 @@ class Response {
         if ( !headers_sent() ) {
             $this->sendHeaders();
         }
-        if ( $this->canHaveBody() && $this->request->method !== Request::METHOD_HEAD ) {
+        if ( $this->canHaveBody() && $this->request->method !== Slim_Http_Request::METHOD_HEAD ) {
             echo $this->body;
         }
     }

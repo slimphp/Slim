@@ -40,10 +40,10 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Router implements Iterator {
+class Slim_Router implements Iterator {
 
     /**
-     * @var Request
+     * @var Slim_Http_Request
      */
     private $request;
 
@@ -82,7 +82,7 @@ class Router implements Iterator {
      *
      * @param Request $request The HTTP request object
      */
-    public function __construct( Request $request ) {
+    public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
         $this->routes = array(
             'GET' => array(),
@@ -98,7 +98,7 @@ class Router implements Iterator {
     /**
      * Get Request
      *
-     * @return Request
+     * @return Slim_Http_Request
      */
     public function getRequest() {
         return $this->request;
@@ -107,10 +107,10 @@ class Router implements Iterator {
     /**
      * Set Request
      *
-     * @param   Request
+     * @param   Slim_Http_Request
      * @return  void
      */
-    public function setRequest( Request $req ) {
+    public function setRequest( Slim_Http_Request $req ) {
         $this->request = $req;
     }
 
@@ -122,14 +122,14 @@ class Router implements Iterator {
      * @param   string  $pattern    The URL pattern (ie. "/books/:id")
      * @param   mixed   $callable   Anything that returns TRUE for is_callable()
      * @param   string  $method     The HTTP request method (GET, POST, PUT, DELETE)
-     * @return  Route
+     * @return  Slim_Route
      */
     public function map( $pattern, $callable, $method ) {
-        $route = new Route($pattern, $callable);
+        $route = new Slim_Route($pattern, $callable);
         $route->setRouter($this);
-        $methodKey = ( $method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $method;
+        $methodKey = ( $method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $method;
         $this->routes[$methodKey][] = $route;
-        if ( ( ( $this->getRequest()->method === Request::METHOD_HEAD && $method === Request::METHOD_GET ) || ( $method === $this->getRequest()->method ) ) && $route->matches($this->getRequest()->resource) ) {
+        if ( ( ( $this->getRequest()->method === Slim_Http_Request::METHOD_HEAD && $method === Slim_Http_Request::METHOD_GET ) || ( $method === $this->getRequest()->method ) ) && $route->matches($this->getRequest()->resource) ) {
             $this->matchedRoutes[] = $route;
         }
         return $route;
@@ -139,11 +139,11 @@ class Router implements Iterator {
      * Cache named route
      *
      * @param   string              $name   The route name
-     * @param   Route               $route  The route object
+     * @param   Slim_Route          $route  The route object
      * @throws  RuntimeException            If a named route already exists with the same name
      * @return  void
      */
-    public function cacheNamedRoute( $name, Route $route ) {
+    public function cacheNamedRoute( $name, Slim_Route $route ) {
         if ( isset($this->namedRoutes[(string)$name]) ) {
             throw new RuntimeException('Named route already exists with name: ' . $name);
         }

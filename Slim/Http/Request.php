@@ -50,7 +50,7 @@
  * @author  Kris Jordan <http://www.github.com/KrisJordan>
  * @since   Version 1.0
  */
-class Request {
+class Slim_Http_Request {
 
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
@@ -120,7 +120,7 @@ class Request {
         $this->resource = $this->extractQueryString();
         $this->get = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_GET) : $_GET;
         $this->post = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($_POST) : $_POST;
-        if ( $this->method === Request::METHOD_PUT ) {
+        if ( $this->method === self::METHOD_PUT ) {
             $this->input = file_get_contents('php://input');
             $this->put = get_magic_quotes_gpc() ? self::stripSlashesFromRequestData($this->getPutParameters()) : $this->getPutParameters();
         }
@@ -218,7 +218,7 @@ class Request {
      * @return  array|string
      */
     public static function stripSlashesFromRequestData( $rawData ) {
-        return is_array($rawData) ? array_map(array('Request', 'stripSlashesFromRequestData'), $rawData) : stripslashes($rawData);
+        return is_array($rawData) ? array_map(array('self', 'stripSlashesFromRequestData'), $rawData) : stripslashes($rawData);
     }
 
     /**
@@ -301,10 +301,10 @@ class Request {
      * @return  void
      */
     private function checkForHttpMethodOverride() {
-        if ( array_key_exists(Request::METHOD_OVERRIDE, $this->post) ) {
-            $this->method = $this->post[Request::METHOD_OVERRIDE];
-            unset($this->post[Request::METHOD_OVERRIDE]);
-            if ( $this->method === Request::METHOD_PUT ) {
+        if ( array_key_exists(self::METHOD_OVERRIDE, $this->post) ) {
+            $this->method = $this->post[self::METHOD_OVERRIDE];
+            unset($this->post[self::METHOD_OVERRIDE]);
+            if ( $this->method === self::METHOD_PUT ) {
                 $this->put = $this->post;
             }
         }
