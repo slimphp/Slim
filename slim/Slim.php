@@ -916,13 +916,17 @@ class Slim {
         if ( !isset(self::$app->hooks[$name]) ) {
             self::$app->hooks[$name] = array(array());
         }
-        // Sort if there's more than one priority
-        if ( count(self::$app->hooks[$name]) > 1 ) {
-            ksort(self::$app->hooks[$name]);
-        }
-        foreach( self::$app->hooks[$name] as $priority ) {
-            foreach($priority as $callable) {
-                $var = call_user_func($callable, $var);
+        if( !empty(self::$app->hooks[$name]) ) {
+            // Sort if there's more than one priority
+            if ( count(self::$app->hooks[$name]) > 1 ) {
+                ksort(self::$app->hooks[$name]);
+            }
+            foreach( self::$app->hooks[$name] as $priority ) {
+                if( !empty($priority) ) {
+                    foreach($priority as $callable) {
+                        $var = call_user_func($callable, $var);
+                    }
+                }
             }
         }
         return $var;
