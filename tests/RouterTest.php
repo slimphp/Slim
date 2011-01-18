@@ -150,7 +150,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Router(new Request());
         $route = $router->map('/', function () {}, Request::METHOD_GET);
         $numberOfMatchingRoutes = 0;
-        foreach( $router as $matchingRoute ) {
+        foreach( $router->getMatchedRoutes() as $matchingRoute ) {
             $numberOfMatchingRoutes++;
         }
         $this->assertEquals(1, $numberOfMatchingRoutes);

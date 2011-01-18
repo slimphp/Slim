@@ -117,6 +117,24 @@ class Router implements Iterator {
     /***** MAPPING *****/
 
     /**
+     * Return routes that match the current request
+     *
+     * @return array[Route]
+     */
+    public function getMatchedRoutes( $reload = false ) {
+        if ( $reload || is_null($this->matchedRoutes) ) {
+            $this->matchedRoutes = array();
+            $method = ( $this->getRequest()->method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $this->getRequest()->method;
+            foreach( $this->routes[$method] as $route ) {
+                if ( $route->matches($this->getRequest()->resource) ) {
+                    $this->matchedRoutes[] = $route;
+                }
+            }
+        }
+        return $this->matchedRoutes;
+    }
+
+    /**
      * Map a route to a callback function
      *
      * @param   string  $pattern    The URL pattern (ie. "/books/:id")
@@ -129,9 +147,6 @@ class Router implements Iterator {
         $route->setRouter($this);
         $methodKey = ( $method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $method;
         $this->routes[$methodKey][] = $route;
-        if ( ( ( $this->getRequest()->method === Request::METHOD_HEAD && $method === Request::METHOD_GET ) || ( $method === $this->getRequest()->method ) ) && $route->matches($this->getRequest()->resource) ) {
-            $this->matchedRoutes[] = $route;
-        }
         return $route;
     }
 
