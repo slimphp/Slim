@@ -972,7 +972,7 @@ class Slim {
             ob_start();
             self::hook('slim.before.router');
             $dispatched = false;
-            foreach( self::router() as $route ) {
+            foreach( self::router()->getMatchedRoutes() as $route ) {
                 try {
                     self::hook('slim.before.dispatch');
                     $dispatched = $route->dispatch();

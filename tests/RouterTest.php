@@ -150,7 +150,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Slim_Router(new Slim_Http_Request());
         $route = $router->map('/', function () {}, Slim_Http_Request::METHOD_GET);
         $numberOfMatchingRoutes = 0;
-        foreach( $router as $matchingRoute ) {
+        foreach( $router->getMatchedRoutes() as $matchingRoute ) {
             $numberOfMatchingRoutes++;
         }
         $this->assertEquals(1, $numberOfMatchingRoutes);
