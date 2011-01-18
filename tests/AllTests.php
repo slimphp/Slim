@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -39,6 +37,7 @@ require_once 'ResponseTest.php';
 require_once 'SlimTest.php';
 require_once 'LoggerTest.php';
 require_once 'LogTest.php';
+require_once 'UriTest.php';
 
 class AllTests {
 
@@ -52,6 +51,7 @@ class AllTests {
         $suite->addTestSuite('ResponseTest');
         $suite->addTestSuite('LoggerTest');
         $suite->addTestSuite('LogTest');
+        $suite->addTestSuite('UriTest');
         return $suite;
     }
 

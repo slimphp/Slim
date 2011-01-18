@@ -52,7 +52,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $_SERVER['SERVER_ADDR'] = "127.0.0.1";
         $_SERVER['SERVER_PORT'] = "80";
         $_SERVER['REMOTE_ADDR'] = "127.0.0.1";
-        $_SERVER['DOCUMENT_ROOT'] = rtrim(dirname(__FILE__), '/');
+        $_SERVER['DOCUMENT_ROOT'] = "/home/account/public";
         $_SERVER['SERVER_ADMIN'] = "you@example.com";
         $_SERVER['SCRIPT_FILENAME'] = __FILE__;
         $_SERVER['REMOTE_PORT'] = "55426";
@@ -62,8 +62,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_METHOD'] = "GET";
         $_SERVER['QUERY_STRING'] = "";
         $_SERVER['REQUEST_URI'] = "/";
-        $_SERVER['SCRIPT_NAME'] = basename(__FILE__);
-        $_SERVER['PHP_SELF'] = '/'.basename(__FILE__);
+        $_SERVER['SCRIPT_NAME'] = "/bootstrap.php";
+        $_SERVER['PHP_SELF'] = "/bootstrap.php";
         $_SERVER['REQUEST_TIME'] = "1285647051";
         $_SERVER['argv'] = array();
         $_SERVER['argc'] = 0;
