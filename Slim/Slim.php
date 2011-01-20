@@ -996,7 +996,7 @@ class Slim {
             ob_start();
             self::applyHook('slim.before.router');
             $dispatched = false;
-            foreach( self::router() as $route ) {
+            foreach( self::router()->getMatchedRoutes() as $route ) {
                 try {
                     Slim::applyHook('slim.before.dispatch');
                     $dispatched = $route->dispatch();

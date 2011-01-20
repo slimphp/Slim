@@ -117,21 +117,36 @@ class Slim_Router implements Iterator {
     /***** MAPPING *****/
 
     /**
+     * Return routes that match the current request
+     *
+     * @return array[Route]
+     */
+    public function getMatchedRoutes( $reload = false ) {
+        if ( $reload || is_null($this->matchedRoutes) ) {
+            $this->matchedRoutes = array();
+            $method = ( $this->getRequest()->method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $this->getRequest()->method;
+            foreach( $this->routes[$method] as $route ) {
+                if ( $route->matches($this->getRequest()->resource) ) {
+                    $this->matchedRoutes[] = $route;
+                }
+            }
+        }
+        return $this->matchedRoutes;
+    }
+
+    /**
      * Map a route to a callback function
      *
      * @param   string  $pattern    The URL pattern (ie. "/books/:id")
      * @param   mixed   $callable   Anything that returns TRUE for is_callable()
      * @param   string  $method     The HTTP request method (GET, POST, PUT, DELETE)
-     * @return  Slim_Route
+     * @return  Route
      */
     public function map( $pattern, $callable, $method ) {
         $route = new Slim_Route($pattern, $callable);
         $route->setRouter($this);
         $methodKey = ( $method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $method;
         $this->routes[$methodKey][] = $route;
-        if ( ( ( $this->getRequest()->method === Slim_Http_Request::METHOD_HEAD && $method === Slim_Http_Request::METHOD_GET ) || ( $method === $this->getRequest()->method ) ) && $route->matches($this->getRequest()->resource) ) {
-            $this->matchedRoutes[] = $route;
-        }
         return $route;
     }
 
