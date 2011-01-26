@@ -230,13 +230,12 @@ class Route {
         //Extract URL params
         preg_match_all('@:([\w]+)@', $this->getPattern(), $paramNames, PREG_PATTERN_ORDER);
         $paramNames = $paramNames[0];
-
         //Convert URL params into regex patterns, construct a regex for this route
         $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->getPattern());
         if ( substr($this->getPattern(), -1) === '/' ) {
             $patternAsRegex = $patternAsRegex . '?';
         }
-        $patternAsRegex = '@^' . $patternAsRegex . '$@';
+        $patternAsRegex = '@^' . $patternAsRegex . '$@u';
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
@@ -264,7 +263,7 @@ class Route {
         if ( array_key_exists($key, $this->conditions) ) {
             return '(?P<' . $key . '>' . $this->conditions[$key] . ')';
         } else {
-            return '(?P<' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
+            return '(?P<' . $key . '>[\w\pL\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
         }
     }
 
