@@ -105,6 +105,19 @@ class Route {
         return self::$defaultConditions;
     }
 
+    /**
+     * Check whether PCRE extension was compiled with unicode support
+     * 
+     * @return bool
+     */
+    public static function checkPcreUnicodeSupport() {
+        static $pcreCheck;
+        if ( !isset($pcreCheck) ) {
+            $pcreCheck = (@preg_match('/\pL/u', 'a') == 1) ? true : false;
+        }
+        return $pcreCheck;
+    }
+
     /***** INSTANCE ACCESSORS *****/
 
     /**
@@ -230,12 +243,16 @@ class Route {
         //Extract URL params
         preg_match_all('@:([\w]+)@', $this->getPattern(), $paramNames, PREG_PATTERN_ORDER);
         $paramNames = $paramNames[0];
+
         //Convert URL params into regex patterns, construct a regex for this route
         $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->getPattern());
         if ( substr($this->getPattern(), -1) === '/' ) {
             $patternAsRegex = $patternAsRegex . '?';
         }
-        $patternAsRegex = '@^' . $patternAsRegex . '$@u';
+        $patternAsRegex = '@^' . $patternAsRegex . '$@';
+        if ( self::checkPcreUnicodeSupport() ) {
+            $patternAsRegex .= 'u';
+        }
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
@@ -263,7 +280,12 @@ class Route {
         if ( array_key_exists($key, $this->conditions) ) {
             return '(?P<' . $key . '>' . $this->conditions[$key] . ')';
         } else {
-            return '(?P<' . $key . '>[\w\pL\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
+            if ( self::checkPcreUnicodeSupport() ) {
+                $word_chars = '0-9_\pL';
+            } else {
+                $word_chars = '\w';
+            }
+            return '(?P<' . $key . '>[' . $word_chars . '\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
         }
     }
 
