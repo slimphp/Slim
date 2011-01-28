@@ -104,6 +104,44 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/bar/', $r->getResourceUri());
     }
     
+    /**
+     * Test request URI without htaccess
+     *
+     * Pre-conditions:
+     * The HTTP request URI is /index.php/foo/bar/. The mock HTTP request simulates
+     * a scenario where the Slim app resides in the base document root directory
+     * without htaccess URL rewriting.
+     *
+     * Post-conditions:
+     * The Request root should be "/index.php" and the resource "/foo/bar"
+     */
+    public function testRequestUriInRootDirectoryWitoutHtaccess(){
+        $_SERVER['REQUEST_URI'] = '/bootstrap.php/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('/bootstrap.php', $r->getRootUri());
+        $this->assertEquals('/foo/bar/', $r->getResourceUri());
+    }
+    
+    /**
+     * Test request URI without htaccess
+     *
+     * Pre-conditions:
+     * The HTTP request URI is /foo/index.php/foo/bar/. The mock HTTP request simulates
+     * a scenario where the Slim app resides in a subdirectory of the document root directory
+     * without htaccess URL rewriting.
+     *
+     * Post-conditions:
+     * The Request root should be "/foo/index.php" and the resource "/foo/bar"
+     */
+    public function testRequestUriInSubDirectoryWitoutHtaccess(){
+        $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('/foo/bootstrap.php', $r->getRootUri());
+        $this->assertEquals('/foo/bar/', $r->getResourceUri());
+    }
+    
     /* TEST STRIP SLASHES */
     
     public function testStripSlashesIfMagicQuotes() {
