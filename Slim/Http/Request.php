@@ -33,14 +33,7 @@
  *
  * Object-oriented representation of an HTTP request. This class
  * is responsible for parsing the raw HTTP request into a format
- * usable by the Slim application; parsed data includes:
- *
- * - Resource URI (ie. "/person/1")
- * - GET parameters
- * - POST parameters
- * - PUT parameters
- * - Cookies
- * - Headers
+ * usable by the Slim application.
  *
  * This class will automatically remove slashes from GET, POST, PUT,
  * and Cookie data if magic quotes are enabled.
@@ -52,6 +45,8 @@
  */
 class Slim_Http_Request {
 
+    /***** CLASS CONSTANTS *****/
+
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
@@ -59,97 +54,126 @@ class Slim_Http_Request {
     const METHOD_DELETE = 'DELETE';
     const METHOD_OVERRIDE = '_METHOD';
 
-    /**
-     * @var string  Request method (ie. "GET", "POST", "PUT", or "DELETE")
-     */
-    public $method;
+    /***** INSTANCE VARIABLES *****/
 
     /**
-     * @var string  Resource URI (ie. "/person/1")
+     * @var string  Request method (ie. "GET", "POST", "PUT", "DELETE", "HEAD")
      */
-    public $resource;
-
-    /**
-     * @var string  The root URI of the Slim application with trailing slash.
-     *              This will be "/" if the app is installed at the web
-     *              document root.  If the app is installed in a
-     *              sub-directory "/foo", this will be "/foo/".
-     */
-    public $root;
+    protected $method;
 
     /**
      * @var array   Key-value array of HTTP request headers
      */
-    private $headers;
+    protected $headers;
 
     /**
-     * @var array   Key-value array of HTTP cookies
+     * @var array   Names of additional headers to parse from the current
+     *              HTTP request that are not prefixed with "HTTP_"
      */
-    private $cookies;
+    protected $additionalHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'AUTH_TYPE', 'X_REQUESTED_WITH');
 
     /**
-     * @var bool    Is this an AJAX request?
+     * @var array   Key-value array of cookies sent with the
+     *              current HTTP request
      */
-    public $isAjax;
+    protected $cookies;
 
     /**
      * @var array   Key-value array of HTTP GET parameters
      */
-    private $get;
+    protected $get;
 
     /**
      * @var array   Key-value array of HTTP POST parameters
      */
-    private $post;
+    protected $post;
 
     /**
      * @var array   Key-value array of HTTP PUT parameters
      */
-    private $put;
+    protected $put;
 
     /**
-     * @var string  Raw HTTP request input from POST and PUT requests
+     * @var string  Raw body of HTTP request
      */
-    private $input;
+    protected $body;
 
     /**
-     * Constructor
+     * @var string  Content type of HTTP request
      */
+    protected $contentType;
+
+    /**
+     * @var string  Resource URI (ie. "/person/1")
+     */
+    protected $resource;
+
+    /**
+     * @var string  The root URI of the Slim application without trailing slash.
+     *              This will be "" if the app is installed at the web
+     *              document root.  If the app is installed in a
+     *              sub-directory "/foo", this will be "/foo".
+     */
+    protected $root;
+
+    /***** CONSTRUCTOR *****/
+
     public function __construct() {
-        $this->method = $_SERVER['REQUEST_METHOD'];
-        $this->root = Slim_Http_Uri::getBaseUri(true);
-        $this->resource = Slim_Http_Uri::getUri(true);
+        $this->method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : false;
+        $this->headers = $this->loadHttpHeaders();
+        $this->body = @file_get_contents('php://input');
         $this->get = self::stripSlashesIfMagicQuotes($_GET);
         $this->post = self::stripSlashesIfMagicQuotes($_POST);
-        if ( $this->method === self::METHOD_PUT ) {
-            $this->put = self::stripSlashesIfMagicQuotes($this->getPutParameters());
-        }
-        $this->headers = $this->getHttpHeaders();
+        $this->put = self::stripSlashesIfMagicQuotes($this->loadPutParameters());
         $this->cookies = self::stripSlashesIfMagicQuotes($_COOKIE);
-        $this->isAjax = isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest';
+        $this->root = Slim_Http_Uri::getBaseUri(true);
+        $this->resource = Slim_Http_Uri::getUri(true);
         $this->checkForHttpMethodOverride();
     }
 
-    /***** ACCESSOR METHODS FOR GET, POST, AND PUT DATA *****/
+    /***** HELPER METHODS *****/
+
+    public function isGet() {
+        return $this->method === self::METHOD_GET;
+    }
+
+    public function isPost() {
+        return $this->method === self::METHOD_POST;
+    }
+
+    public function isPut() {
+        return $this->method === self::METHOD_PUT;
+    }
+
+    public function isDelete() {
+        return $this->method === self::METHOD_DELETE;
+    }
+
+    public function isHead() {
+        return $this->method === self::METHOD_HEAD;
+    }
+
+    public function isAjax() {
+        return $this->headers('X_REQUESTED_WITH') === 'XMLHttpRequest';
+    }
+
+    /***** PARAMETER ACCESSORS *****/
 
     /**
-     * Fetch PUT|POST|GET parameter value
+     * Fetch a PUT|POST|GET parameter value
      *
-     * This is the preferred method to fetch the value of a
+     * The preferred method to fetch the value of a
      * PUT, POST, or GET parameter (searched in that order).
      *
      * @param   string      $key    The paramter name
      * @return  string|null         The value of parameter, or NULL if parameter not found
      */
     public function params( $key ) {
-        if ( isset($this->put[$key]) ) {
-            return $this->put[$key];
-        }
-        if ( isset($this->post[$key]) ) {
-            return $this->post[$key];
-        }
-        if ( isset($this->get[$key]) ) {
-            return $this->get[$key];
+        foreach ( array('put', 'post', 'get') as $dataSource ) {
+            $source = $this->$dataSource;
+            if ( isset($source[(string)$key]) ) {
+                return $source[(string)$key];
+            }
         }
         return null;
     }
@@ -163,10 +187,7 @@ class Slim_Http_Request {
      *                                      and parameter does not exist.
      */
     public function get( $key = null ) {
-        if ( is_null($key) ) {
-            return $this->get;
-        }
-        return ( isset($this->get[$key]) ) ? $this->get[$key] : null;
+        return $this->arrayOrArrayValue($this->get, $key);
     }
 
     /**
@@ -178,10 +199,7 @@ class Slim_Http_Request {
      *                                      and parameter does not exist.
      */
     public function post( $key = null ) {
-        if ( is_null($key) ) {
-            return $this->post;
-        }
-        return ( isset($this->post[$key]) ) ? $this->post[$key] : null;
+        return $this->arrayOrArrayValue($this->post, $key);
     }
 
     /**
@@ -193,23 +211,105 @@ class Slim_Http_Request {
      *                                      and parameter does not exist.
      */
     public function put( $key = null ) {
-        if ( is_null($key) ) {
-            return $this->put;
-        }
-        return ( isset($this->put[$key]) ) ? $this->put[$key] : null;
+        return $this->arrayOrArrayValue($this->put, $key);
     }
 
     /**
-     * Fetch COOKIE value
+     * Fetch COOKIE value(s)
      *
-     * @param   string      $name   The cookie name
-     * @return  string|null         The cookie value, or NULL if cookie not set
+     * @param   string      $key    The cookie name
+     * @return  array|string|null   All parameters, parameter value if $key
+     *                              and parameter exists, or NULL if $key
+     *                              and parameter does not exist.
      */
-    public function cookie( $name ) {
-        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+    public function cookies( $key = null ) {
+        return $this->arrayOrArrayValue($this->cookies, $key);
     }
 
-    /***** HELPERS *****/
+    /***** HEADER & BODY ACCESSORS *****/
+
+    /**
+     * Get HTTP request header
+     *
+     * @param   string      $key    The header name
+     * @return  array|string|null   All parameters, parameter value if $key
+     *                              and parameter exists, or NULL if $key
+     *                              and parameter does not exist.
+     */
+    public function headers( $key = null ) {
+        return $this->arrayOrArrayValue($this->headers, $key);
+    }
+
+    /**
+     * Get HTTP request body
+     *
+     * @return string|false String, or FALSE if body could not be read
+     */
+    public function getBody() {
+        return $this->body;
+    }
+
+    /**
+     * Get HTTP method
+     *
+     * @return string
+     */
+    public function getMethod() {
+        return $this->method;
+    }
+
+    /**
+     * Get HTTP request content type
+     *
+     * @return string
+     */
+    public function getContentType() {
+        if ( !isset($this->contentType) ) {
+            $header = $this->headers('CONTENT_TYPE');
+            $this->contentType = is_null($header) ? 'application/x-www-form-urlencoded' : $header;
+        }
+        return $this->contentType;
+    }
+
+    /**
+     * Get HTTP request resource URI
+     *
+     * @return string
+     */
+    public function getResourceUri() {
+        return $this->resource;
+    }
+
+    /**
+     * Get HTTP request root URI
+     *
+     * @return string
+     */
+    public function getRootUri() {
+        return $this->root;
+    }
+
+    /***** UTILITY METHODS *****/
+
+    /**
+     * Fetch array or array value
+     *
+     * @param   array           $array
+     * @param   string          $key
+     * @return  array|mixed     Array if key is null, else array value
+     */
+    protected function arrayOrArrayValue( array &$array, $key = null ) {
+        return is_null($key) ? $array : $this->arrayValueForKey($array, $key);
+    }
+
+    /**
+     * Fetch value from array
+     *
+     * @return mixed|null
+     */
+    protected function arrayValueForKey( array &$array, $key ) {
+        return isset($array[(string)$key]) ? $array[(string)$key] : null;
+    }
 
     /**
      * Strip slashes from string or array of strings
@@ -228,43 +328,36 @@ class Slim_Http_Request {
     /**
      * Get PUT parameters
      *
-     * @return string
+     * @return array Key-value array of HTTP request PUT parameters
      */
-    private function getPutParameters() {
-        $putdata = file_get_contents('php://input');
-        if ( function_exists('mb_parse_str') ) {
-            mb_parse_str($putdata, $outputdata);
+    protected function loadPutParameters() {
+        if ( $this->getContentType() === 'application/x-www-form-urlencoded' ) {
+            $input = is_string($this->body) ? $this->body : '';
+            if ( function_exists('mb_parse_str') ) {
+                mb_parse_str($input, $output);
+            } else {
+                parse_str($input, $output);
+            }
+            return $output;
         } else {
-            parse_str($putdata, $outputdata);
+            return array();
         }
-        return $outputdata;
     }
 
     /**
      * Get HTTP request headers
      *
-     * @author  Kris Jordan <http://www.github.com/KrisJordan>
-     * @author  Jud Stephenson <http://judstephenson.com/blog>
-     * @return  array
+     * @return array Key-value array of HTTP request headers
      */
-    private function getHttpHeaders() {
-        $httpHeaders = array();
-        foreach ( array_keys($_SERVER) as $key ) {
-            if ( (substr($key, 0, 5) === 'HTTP_') || (substr($key, 0, 8) === 'PHP_AUTH') ) {
-                $httpHeaders[((substr($key, 0, 5) == 'HTTP_') ? substr($key, 5) : substr($key, 4))] = $_SERVER[$key];
+    protected function loadHttpHeaders() {
+        $headers = array();
+        foreach ( $_SERVER as $key => $value ) {
+            if ( strpos($key, 'HTTP_') === 0 || in_array($key, $this->additionalHeaders) ) {
+                $name = str_replace('HTTP_', '', $key);
+                $headers[$name] = $value;
             }
         }
-        return $httpHeaders;
-    }
-
-    /**
-     * Get HTTP request header
-     *
-     * @param   string      $name   The header name
-     * @return  string|null         The header value, or NULL if header does not exist
-     */
-    public function header( $name ) {
-        return isset($this->headers[$name]) ? $this->headers[$name] : null;
+        return $headers;
     }
 
     /**
@@ -276,11 +369,11 @@ class Slim_Http_Request {
      *
      * @return  void
      */
-    private function checkForHttpMethodOverride() {
-        if ( array_key_exists(self::METHOD_OVERRIDE, $this->post) ) {
+    protected function checkForHttpMethodOverride() {
+        if ( isset($this->post[self::METHOD_OVERRIDE]) ) {
             $this->method = $this->post[self::METHOD_OVERRIDE];
             unset($this->post[self::METHOD_OVERRIDE]);
-            if ( $this->method === self::METHOD_PUT ) {
+            if ( $this->isPut() ) {
                 $this->put = $this->post;
             }
         }
