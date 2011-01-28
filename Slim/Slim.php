@@ -636,7 +636,7 @@ class Slim {
     public static function lastModified( $time ) {
         if ( is_integer($time) ) {
             self::response()->header('Last-Modified', date(DATE_RFC1123, $time));
-            if ( $time === strtotime(self::request()->header('IF_MODIFIED_SINCE')) ) {
+            if ( $time === strtotime(self::request()->headers('IF_MODIFIED_SINCE')) ) {
                 self::halt(304);
             }
         } else {
@@ -674,7 +674,7 @@ class Slim {
         self::response()->header('ETag', $value);
 
         //Check conditional GET
-        if ( $etagsHeader = self::request()->header('IF_NONE_MATCH')) {
+        if ( $etagsHeader = self::request()->headers('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if ( in_array($value, $etags) || in_array('*', $etags) ) self::halt(304);
         }
@@ -718,7 +718,7 @@ class Slim {
      * @return  string|null
      */
     public static function getCookie( $name ) {
-        return self::request()->cookie($name);
+        return self::request()->cookies($name);
     }
 
     /**
@@ -992,7 +992,7 @@ class Slim {
             self::response()->send();
             self::hook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
-            self::redirect(self::request()->root . self::request()->resource . '/', 301);
+            self::redirect(self::request()->getRootUri() . self::request()->getResourceUri() . '/', 301);
         }
     }
 

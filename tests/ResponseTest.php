@@ -289,8 +289,8 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     function testResponseBodyIfHeadRequest() {
         $this->expectOutputString('');
+        $_SERVER['REQUEST_METHOD'] = 'HEAD';
         $req = new Slim_Http_Request();
-        $req->method = Slim_Http_Request::METHOD_HEAD;
         $res = new Slim_Http_Response($req);
         $res->body('This is a test body');
         $res->send();
