@@ -310,7 +310,7 @@ class Slim_Route {
      * @throws  SlimRequestSlashException
      */
     public function dispatch() {
-        if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->resource, -1) !== '/' ) {
+        if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->getResourceUri(), -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
         if ( is_callable($this->getCallable()) ) {

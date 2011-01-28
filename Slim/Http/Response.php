@@ -309,7 +309,7 @@ class Slim_Http_Response {
         if ( !headers_sent() ) {
             $this->sendHeaders();
         }
-        if ( $this->canHaveBody() && $this->request->method !== Slim_Http_Request::METHOD_HEAD ) {
+        if ( $this->canHaveBody() && $this->request->isHead() === false ) {
             echo $this->body;
         }
     }

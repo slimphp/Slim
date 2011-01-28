@@ -124,9 +124,9 @@ class Slim_Router implements Iterator {
     public function getMatchedRoutes( $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
-            $method = ( $this->getRequest()->method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $this->getRequest()->method;
+            $method = $this->getRequest()->isHead() ? Slim_Http_Request::METHOD_GET : $this->getRequest()->getMethod();
             foreach( $this->routes[$method] as $route ) {
-                if ( $route->matches($this->getRequest()->resource) ) {
+                if ( $route->matches($this->getRequest()->getResourceUri()) ) {
                     $this->matchedRoutes[] = $route;
                 }
             }
