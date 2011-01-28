@@ -217,7 +217,7 @@ class Slim_Http_Request {
     /**
      * Fetch COOKIE value(s)
      *
-     * @param   string      $name   The cookie name
+     * @param   string      $key    The cookie name
      * @return  array|string|null   All parameters, parameter value if $key
      *                              and parameter exists, or NULL if $key
      *                              and parameter does not exist.
@@ -231,7 +231,7 @@ class Slim_Http_Request {
     /**
      * Get HTTP request header
      *
-     * @param   string      $name   The header name
+     * @param   string      $key    The header name
      * @return  array|string|null   All parameters, parameter value if $key
      *                              and parameter exists, or NULL if $key
      *                              and parameter does not exist.
