@@ -288,13 +288,6 @@ class Slim {
             'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
             'enable_ssl' => $this->settings['cookies.secure']
         )));
-        if ( $this->settings['log.enable'] === true ) {
-            if ( empty($this->settings['log.logger']) ) {
-                Log::setLogger(new Logger($this->settings['log.path'], $this->settings['log.level']));
-            } else {
-                Log::setLogger($this->settings['log.logger']);
-            }
-        }
     }
 
     /**
@@ -329,6 +322,14 @@ class Slim {
         self::notFound(array('Slim', 'defaultNotFound'));
         self::error(array('Slim', 'defaultError'));
         self::view(Slim::config('view'));
+        if ( Slim::config('log.enable') === true ) {
+            $logger = Slim::config('log.logger');
+            if ( empty($logger) ) {
+                Log::setLogger(new Logger(Slim::config('log.path'), Slim::config('log.level')));
+            } else {
+                Log::setLogger($logger);
+            }
+        }
     }
 
     /**
