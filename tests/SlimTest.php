@@ -358,6 +358,29 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertEquals(Slim::response()->status(), 404);
     }
 
+    /**
+     * Test Slim routing with URL encoded characters
+     *
+     * Pre-conditions:
+     * Slim initialized;
+     * Route defined and matches current request;
+     * URL encoded spaces in URL
+     *
+     * Post-conditions:
+     * Route matched;
+     * Route callable invoked;
+     * Route callable arguments are URL decoded;
+     */
+    public function testRouteWithUrlEncodedParameters() {
+        $_SERVER['REQUEST_URI'] = '/foo/jo%20hn/smi%20th';
+        Slim::init();
+        Slim::get('/foo/:one/:two', function ($one, $two) {
+            echo "$one and $two";
+        });
+        Slim::run();
+        $this->expectOutputString('jo hn and smi th');
+    }
+
     /************************************************
      * SLIM BEFORE AND AFTER CALLBACKS
      ************************************************/

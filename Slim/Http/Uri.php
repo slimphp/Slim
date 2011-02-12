@@ -88,7 +88,7 @@ class Slim_Http_Uri {
             } else {
                 if ( isset($_SERVER['REQUEST_URI']) ) {
                     $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-                    $uri = rawurldecode($uri);
+                    //$uri = rawurldecode($uri);
                 } else if ( isset($_SERVER['PHP_SELF']) ) {
                     $uri = $_SERVER['PHP_SELF'];
                 } else {
