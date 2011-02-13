@@ -70,7 +70,7 @@ class Slim_Http_Request {
      * @var array   Names of additional headers to parse from the current
      *              HTTP request that are not prefixed with "HTTP_"
      */
-    protected $additionalHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'AUTH_TYPE', 'X_REQUESTED_WITH');
+    protected $additionalHeaders = array('content-type', 'content-length', 'php-auth-user', 'php-auth-pw', 'auth-type', 'x-requested-with');
 
     /**
      * @var array   Key-value array of cookies sent with the
@@ -237,7 +237,7 @@ class Slim_Http_Request {
      *                              and parameter does not exist.
      */
     public function headers( $key = null ) {
-        return $this->arrayOrArrayValue($this->headers, $key);
+        return is_null($key) ? $this->headers : $this->arrayOrArrayValue($this->headers, $this->convertHttpHeaderName($key));
     }
 
     /**
@@ -352,12 +352,22 @@ class Slim_Http_Request {
     protected function loadHttpHeaders() {
         $headers = array();
         foreach ( $_SERVER as $key => $value ) {
-            if ( strpos($key, 'HTTP_') === 0 || in_array($key, $this->additionalHeaders) ) {
-                $name = str_replace('HTTP_', '', $key);
+            $key = $this->convertHttpHeaderName($key);
+            if ( strpos($key, 'http-') === 0 || in_array($key, $this->additionalHeaders) ) {
+                $name = str_replace('http-', '', $key);
                 $headers[$name] = $value;
             }
         }
         return $headers;
+    }
+
+    /**
+     * Convert HTTP header name
+     *
+     * @return string
+     */
+    protected function convertHttpHeaderName( $name ) {
+        return str_replace('_', '-', strtolower($name));
     }
 
     /**
