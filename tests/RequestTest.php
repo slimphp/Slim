@@ -27,6 +27,8 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
 require_once '../Slim/Http/Uri.php';
 require_once '../Slim/Http/Request.php';
@@ -261,11 +263,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     /* TEST HEADERS */
     
     public function testHeaders() {
+        //Case A
         $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
         $r = new Slim_Http_Request();
         $this->assertEquals('slim', $r->headers('HOST'));
         $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
         $this->assertTrue(is_array($r->headers()));
+        //Case B - HTTP headers may be case insensitive
+        $_SERVER['x-requested-with'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
+        //Case C - HTTP headers may be case insensitive
+        $_SERVER['X-Requested-With'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
     }
     
     /* MISC TESTS */
