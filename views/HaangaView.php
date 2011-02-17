@@ -5,21 +5,16 @@
  * The HaangaView is a custom View class that renders templates using the Haanga
  * template language (http://haanga.org/).
  *
- * Properties that you, the developer, will need to change are:
- * - haangaDirectory
- * - haangaTemplatesDirectory
- * - haangaCompiledDirectory
+ * Currently, to use HaangaView, developer must instantiate this class and pass these params:
+ * - path to Haanga directory which contain `lib`
+ * - path to templates directory
+ * - path to compiled templates directory
  *
  * Example:
  * {{{
  *      require_once 'views/HaangaView.php';
- *
- *      HaangaView::$haangaDirectory = __DIR__ . '/Haanga';
- *      HaangaView::$haangaTemplatesDirectory = __DIR__ . '/templates';
- *      HaangaView::$haangaCompiledDirectory = __DIR__ . '/tmp';
- *
  *      Slim::init(array(
- *          'view' => new HaangaView()
+ *          'view' => new HaangaView('/path/to/Haanga/dir', '/path/to/templates/dir', '/path/to/compiled/dir')
  *      ));
  * }}}
  *
@@ -29,19 +24,15 @@
 class HaangaView extends View {
 
     /**
-     * @var string The path to the Haanga code directory WITHOUT the trailing slash
+     * Configure Haanga environment
      */
-    public static $haangaDirectory = null;
-
-    /**
-     * @var string The path to the Haanga templates directory WITHOUT the trailing slash
-     */
-    public static $haangaTemplatesDirectory = null;
-
-    /**
-     * @var string The path to the Haanga compiled templates directory WITHOUT the trailing slash
-     */
-    public static $haangaCompiledDirectory = null;
+    public function __construct( $haangaDir, $templatesDir, $compiledDir ) {
+        require_once $haangaDir . '/lib/Haanga.php';
+        Haanga::configure(array(
+            'template_dir' => $templatesDir,
+            'cache_dir' => $compiledDir
+        ));
+    }
 
     /**
      * Render Haanga Template
@@ -52,11 +43,6 @@ class HaangaView extends View {
      * @return  string|NULL
      */
     public function render( $template ) {
-        require_once self::$haangaDirectory . '/lib/Haanga.php';
-        Haanga::configure(array(
-            'template_dir' => self::$haangaTemplatesDirectory,
-            'cache_dir' => self::$haangaCompiledDirectory
-        ));
         return Haanga::load($template, $this->data);
     }
 }
