@@ -1,3 +1,3 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ bootstrap.php [QSA,L]
+RewriteRule ^(.*)$ index.php [QSA,L]
