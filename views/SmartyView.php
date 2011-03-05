@@ -43,7 +43,7 @@
  * @package Slim
  * @author  Jose da Silva <http://josedasilva.net>
  */
-class SmartyView extends View {
+class SmartyView extends Slim_View {
 
     /**
      * @var string The path to the Smarty code directory WITHOUT the trailing slash

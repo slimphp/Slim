@@ -27,13 +27,17 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
-require_once '../slim/Request.php';
+require_once '../Slim/Http/Uri.php';
+require_once '../Slim/Http/Request.php';
 require_once 'PHPUnit/Framework.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase {
 
     public function setUp(){
+        ini_set('magic_quotes_gpc', 1);
         $_SERVER['REDIRECT_STATUS'] = "200";
         $_SERVER['HTTP_HOST'] = "slim";
         $_SERVER['HTTP_CONNECTION'] = "keep-alive";
@@ -65,23 +69,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $_SERVER['argv'] = array();
         $_SERVER['argc'] = 0;
     }
-
-    /**
-     * Test request Root is set when not in subdirectory
-     *
-     * Pre-conditions:
-     * The HTTP request URI is /foo/bar/. The mock HTTP request simulates
-     * a scenario where the Slim app resides in the subdirectory /foo/bar/.
-     *
-     * Post-conditions:
-     * The Request root should be "/foo/bar"
-     */
-    public function testRequestRootWithSubdirectory(){
-        $r = new Request();
-        $this->assertEquals($r->root, '/foo/bar');
-        $this->assertEquals($r->resource, '/');
-    }
-
+    
     /**
      * Test request Root is set when in subdirectory
      *
@@ -92,143 +80,223 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * The Request root should be "/"
      */
-    public function testRequestRootWithoutSubdirectory(){
-        $_SERVER['PHP_SELF'] = '/bootstrap.php';
-        $r = new Request();
-        $this->assertEquals($r->root, '');
-        $this->assertEquals($r->resource, '/foo/bar/');
+    public function testRequestUriInRootDirectory(){
+        $_SERVER['REQUEST_URI'] = '/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('', $r->getRootUri());
+        $this->assertEquals('/foo/bar/', $r->getResourceUri());
     }
-
+    
     /**
-     * Test isAjax is set to true, when HTTP_X_REQUESTED_WITH is set to
-     * 'XMLHttpRequest'.
+     * Test request Root is set when not in subdirectory
      *
      * Pre-conditions:
-     * Case A: HTTP_X_REQUESTED_WITH is set to XMLHttpRequest.
-     * Case B: HTTP_X_REQUESTED_WITH is not set to XMLHttpRequest.
-     * Case C: HTTP_X_REQUESTED_WITH is not set.
+     * The HTTP request URI is /foo/bar/. The mock HTTP request simulates
+     * a scenario where the Slim app resides in the subdirectory /foo/bar/.
      *
      * Post-conditions:
-     * Case A: Request::isAjax should be true.
-     * Case B: Request::isAjax should be false.
-     * Case C: Request::isAjax should be false.
+     * The Request root should be "/foo/bar"
      */
-    public function testIsAjaxSet(){
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-        $r = new Request();
-        $this->assertTrue($r->isAjax);
-
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'foo';
-        $r = new Request();
-        $this->assertFalse($r->isAjax);
-
-        unset($_SERVER['HTTP_X_REQUESTED_WITH']);
-        $r = new Request();
-        $this->assertFalse($r->isAjax);
+    public function testRequestUriInSubDirectory() {
+        $_SERVER['REQUEST_URI'] = '/foo/bar/?foo=bar';
+        $_SERVER['SCRIPT_NAME'] = '/foo/boostrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('/foo', $r->getRootUri());
+        $this->assertEquals('/bar/', $r->getResourceUri());
     }
-
+    
     /**
-     * Test `stripSlashesFromRequestData` for $_COOKIE, $_GET, and $_POST data.
-     * Keep in mind it is not possible to set `magic_quotes_gpc` in a runtime
-     * context, therefore I am only testing the `stripSlashesFromRequestData`
-     * method itself as it affects $_GET, $_POST, and $_COOKIE arrays.
+     * Test request URI without htaccess
      *
      * Pre-conditions:
-     * $_COOKIE, $_GET, $_POST contains data with slashes
+     * The HTTP request URI is /index.php/foo/bar/. The mock HTTP request simulates
+     * a scenario where the Slim app resides in the base document root directory
+     * without htaccess URL rewriting.
      *
      * Post-conditions:
-     * $_COOKIE, $_GET, $_POST request data does not contain slashes
+     * The Request root should be "/index.php" and the resource "/foo/bar"
      */
-    public function testStripSlashesFromRequestData() {
+    public function testRequestUriInRootDirectoryWitoutHtaccess(){
+        $_SERVER['REQUEST_URI'] = '/bootstrap.php/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('/bootstrap.php', $r->getRootUri());
+        $this->assertEquals('/foo/bar/', $r->getResourceUri());
+    }
+    
+    /**
+     * Test request URI without htaccess
+     *
+     * Pre-conditions:
+     * The HTTP request URI is /foo/index.php/foo/bar/. The mock HTTP request simulates
+     * a scenario where the Slim app resides in a subdirectory of the document root directory
+     * without htaccess URL rewriting.
+     *
+     * Post-conditions:
+     * The Request root should be "/foo/index.php" and the resource "/foo/bar"
+     */
+    public function testRequestUriInSubDirectoryWitoutHtaccess(){
+        $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php/foo/bar/';
+        $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('/foo/bootstrap.php', $r->getRootUri());
+        $this->assertEquals('/foo/bar/', $r->getResourceUri());
+    }
+    
+    /* TEST STRIP SLASHES */
+    
+    public function testStripSlashesIfMagicQuotes() {
         $_GET['foo1'] = "bar\'d";
-        $_POST['foo2'] = "bar\'d";
-        $_COOKIE['foo3'] = "bar\'d";
-        $getData = Request::stripSlashesFromRequestData($_GET);
-        $postData = Request::stripSlashesFromRequestData($_POST);
-        $cookieData = Request::stripSlashesFromRequestData($_COOKIE);
+        $getData = Slim_Http_Request::stripSlashesIfMagicQuotes($_GET);
         $this->assertEquals($getData['foo1'], "bar'd");
-        $this->assertEquals($postData['foo2'], "bar'd");
-        $this->assertEquals($cookieData['foo3'], "bar'd");
+    }
+    
+    /* TEST REQUEST METHODS */
+    
+    public function testIsGet() {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isGet());
+    }
+    
+    public function testIsPost() {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isPost());
+    }
+    
+    public function testIsPut() {
+        //Case A
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isPut());
+        //Case B
+        $_POST['_METHOD'] = 'PUT';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isPut());
+    }
+    
+    public function testIsDelete() {
+        //Case A
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isDelete());
+        //Case B
+        $_POST['_METHOD'] = 'DELETE';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isDelete());
+    }
+    
+    public function testIsHead() {
+        $_SERVER['REQUEST_METHOD'] = 'HEAD';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isHead());
+    }
+    
+    public function testIsAjax() {
+        //Case A
+        $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isAjax());
+        //Case B
+        $_SERVER['X_REQUESTED_WITH'] = 'foo';
+        $r = new Slim_Http_Request();
+        $this->assertFalse($r->isAjax());
+        //Case C
+        unset($_SERVER['X_REQUESTED_WITH']);
+        $r = new Slim_Http_Request();
+        $this->assertFalse($r->isAjax());
     }
 
-    /**
-     * Test overriding HTTP request methods to force unsupported ones.
-     *
-     * Pre-conditions:
-     * The key _METHOD must be present in POST data.
-     *
-     * Post-condition:
-     * The method is now recognised as the specified _METHOD, and other
-     * POST data is usable as PUT data.
-     */
-    public function testHttpMethodOverrides() {
+    /* TEST REQUEST PARAMS */
+    
+    public function testParams() {
+        //Case A: PUT params
+        $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = array(
-            'foo' => 'bar',
-            '_METHOD' => 'PUT'
+            '_METHOD' => 'PUT',
+            'foo1' => 'bar1'
         );
-        $request = new Request();
-        $this->assertEquals($request->method, 'PUT');
-        $this->assertEquals($request->put(), $request->post());
+        $r = new Slim_Http_Request();
+        $this->assertEquals('bar1', $r->params('foo1'));
+        $this->assertEquals('bar1', $r->put('foo1'));
+        $this->assertEquals(array('foo1' => 'bar1'), $r->put());
+        
+        //Case B: POST params
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = array('foo1' => 'bar1');
+        $r = new Slim_Http_Request();
+        $this->assertEquals('bar1', $r->params('foo1'));
+        $this->assertEquals('bar1', $r->post('foo1'));
+        $this->assertEquals($_POST, $r->post());
+        
+        //Case C: GET params
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_POST = array();
+        $_GET = array('foo1' => 'bar1');
+        $r = new Slim_Http_Request();
+        $this->assertEquals('bar1', $r->params('foo1'));
+        $this->assertEquals('bar1', $r->get('foo1'));
+        $this->assertEquals($_GET, $r->get());
+        
+        //Case D: COOKIE params
+        $_COOKIE['foo'] = 'bar';
+        $r = new Slim_Http_Request();
+        $this->assertEquals($_COOKIE, $r->cookies());
+        $this->assertEquals('bar', $r->cookies('foo'));
+        
+        //Case E: NULL params
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_GET = array();
+        $_POST = array();
+        $r = new Slim_Http_Request();
+        $this->assertNull($r->params('foo1'));
+        $this->assertNull($r->put('foo1'));
+        $this->assertNull($r->post('foo1'));
+        $this->assertNull($r->get('foo1'));
+        $this->assertNull($r->cookies('foo1'));
     }
-
-    /**
-     * Test setting the resource of the Request.
-     *
-     * Pre-conditions:
-     * The REQUEST_URI is set.
-     *
-     * Post-conditions:
-     * The resource is set to be the REQUEST_URI, without any extra GET data.
-     */
-    public function testSetResource() {
-        $_SERVER['REQUEST_URI'] = '/foo.php?bar';
-        $request = new Request();
-        $this->assertEquals($request->resource, '/foo.php');
-
-        $_SERVER['REQUEST_URI'] = '/bar.php';
-        $request = new Request();
-        $this->assertEquals($request->resource, '/bar.php');
+    
+    /* TEST HEADERS */
+    
+    public function testHeaders() {
+        //Case A
+        $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('slim', $r->headers('HOST'));
+        $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
+        $this->assertTrue(is_array($r->headers()));
+        //Case B - HTTP headers may be case insensitive
+        $_SERVER['x-requested-with'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
+        //Case C - HTTP headers may be case insensitive
+        $_SERVER['X-Requested-With'] = 'XMLHttpRequest';
+        $r = new Slim_Http_Request();
+        $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
     }
-
-    /**
-     * Test the params/get/put/post functions for retrieving input data.
-     *
-     * Pre-conditions:
-     * Data is present in input arrays (POST, GET, COOKIE, etc)
-     *
-     * Post-conditions:
-     * Requested data is returned if it is present, otherwise null.
-     */
-    public function testParamFunctions() {
-        $_GET = array('get_foo' => 'get_bar');
-        $_POST = array('post_foo' => 'post_bar',);
-        $_COOKIE = array('cookie_foo' => 'cookie_bar');
-        $_SERVER['REQUEST_URI'] = '';
-
-        $request = new Request();
-        $this->assertEquals($request->params('get_foo'), 'get_bar');
-        $this->assertEquals($request->params('post_foo'), 'post_bar');
-        $this->assertNull($request->params('null'));
-
-        $this->assertEquals($request->get(), $_GET);
-        $this->assertEquals($request->post(), $_POST);
-
-        $this->assertEquals($request->get('get_foo'), 'get_bar');
-        $this->assertEquals($request->post('post_foo'), 'post_bar');
-
-        $this->assertEquals($request->cookie('cookie_foo'), 'cookie_bar');
-        $this->assertEquals($request->header('HOST'), 'slim');
-
-        // Handle overriding PUT
-        $_POST = array(
-            'put_foo' => 'put_bar',
-            '_METHOD' => 'PUT'
-        );
-        $request = new Request();
-        $this->assertEquals($request->put('put_foo'), 'put_bar');
-        $this->assertEquals($request->put(), array('put_foo' => 'put_bar'));
+    
+    /* MISC TESTS */
+    
+    public function testGetMethod() {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $r = new Slim_Http_Request();
+        $this->assertEquals($_SERVER['REQUEST_METHOD'], $r->getMethod());
     }
-
+    
+    public function testGetContentType() {
+        //Case A
+        $_SERVER['CONTENT_TYPE'] = 'application/json';
+        $r = new Slim_Http_Request();
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $r->getContentType());
+        //Case B
+        unset($_SERVER['CONTENT_TYPE']);
+        $r = new Slim_Http_Request();
+        $this->assertEquals('application/x-www-form-urlencoded', $r->getContentType());
+    }
 }
 
 ?>

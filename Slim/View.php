@@ -41,7 +41,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class View {
+class Slim_View {
 
     /**
      * @var array Key-value array of data available to the template

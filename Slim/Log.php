@@ -51,7 +51,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Log {
+class Slim_Log {
 
     /**
      * @var mixed An object that implements expected Logger interface

@@ -28,8 +28,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Request.php';
-require_once '../slim/Response.php';
+require_once '../Slim/Http/Request.php';
+require_once '../Slim/Http/Response.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
@@ -81,7 +81,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      * Cookies array is empty
      */
     public function testNewResponse() {
-        $r = new Response(new Request());
+        $r = new Slim_Http_Response(new Slim_Http_Request());
         $this->assertEquals($r->status(), 200);
         $this->assertEquals($r->headers(), array('Content-Type' => 'text/html'));
     }
@@ -99,12 +99,12 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testResponseStatus() {
         //Case A
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $newStatus = $r1->status(201);
         $this->assertEquals($newStatus, 201);
 
         //Case B
-        $r2 = new Response(new Request());
+        $r2 = new Slim_Http_Response(new Slim_Http_Request());
         try {
             $r2->status(700);
             $this->fail('Did not throw exception when status code invalid');
@@ -124,7 +124,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testResponseHeaders() {
         //Case A
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->header('Content-Type', 'application/json');
         $this->assertEquals($r1->header('Content-Type'), 'application/json');
         $this->assertEquals($r1->headers(), array('Content-Type' => 'application/json'));
@@ -148,7 +148,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testBody() {
         //Case A
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->body('Foo bar');
         $this->assertEquals($r1->body(), 'Foo bar');
         $this->assertEquals($r1->header('Content-Length'), 7);
@@ -179,14 +179,14 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testFinalize() {
         //Case A
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->body('body1');
         $r1->finalize();
         $this->assertEquals($r1->body(), 'body1');
         $this->assertEquals($r1->header('Content-Length'), 5);
 
         //Case B
-        $r2 = new Response(new Request());
+        $r2 = new Slim_Http_Response(new Slim_Http_Request());
         $r2->body('body2');
         $r2->status(204);
         $r2->finalize();
@@ -194,7 +194,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $this->assertNull($r2->header('Content-Type'));
 
         //Case C
-        $r3 = new Response(new Request());
+        $r3 = new Slim_Http_Response(new Slim_Http_Request());
         $r3->body('body3');
         $r3->status(304);
         $r3->finalize();
@@ -217,13 +217,13 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testGetMessageForCode() {
         //Case A
-        $this->assertEquals(Response::getMessageForCode(200), '200 OK');
+        $this->assertEquals(Slim_Http_Response::getMessageForCode(200), '200 OK');
 
         //Case B
-        $this->assertEquals(Response::getMessageForCode(304), '304 Not Modified');
+        $this->assertEquals(Slim_Http_Response::getMessageForCode(304), '304 Not Modified');
 
         //Case C
-        $this->assertNull(Response::getMessageForCode(420));
+        $this->assertNull(Slim_Http_Response::getMessageForCode(420));
     }
 
     /**
@@ -242,7 +242,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      * Case D: false
      */
     public function testCanHaveBody() {
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
 
         //Case A
         $r1->status(100);
@@ -272,7 +272,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     function testSendResponse() {
         $this->expectOutputString('foo bar');
-        $r1 = new Response(new Request());
+        $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->body('foo bar');
         $r1->send();
     }
@@ -289,9 +289,9 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     function testResponseBodyIfHeadRequest() {
         $this->expectOutputString('');
-        $req = new Request();
-        $req->method = Request::METHOD_HEAD;
-        $res = new Response($req);
+        $_SERVER['REQUEST_METHOD'] = 'HEAD';
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
         $res->body('This is a test body');
         $res->send();
         $this->assertEquals('text/html', $res->header('Content-Type'));

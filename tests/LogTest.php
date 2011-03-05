@@ -28,7 +28,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Log.php';
+require_once '../Slim/Log.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
 class MyLogger {
@@ -68,8 +68,8 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSetsLogger() {
         $logger = new MyLogger();
-        Log::setLogger($logger);
-        $this->assertSame($logger, Log::getLogger());
+        Slim_Log::setLogger($logger);
+        $this->assertSame($logger, Slim_Log::getLogger());
     }
 
     /**
@@ -82,12 +82,12 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * Expected responses are returned proving Logger was called;
      */
     public function testLoggerMethods() {
-        Log::setLogger(new MyLogger());
-        $this->assertEquals('debug', Log::debug('Test'));
-        $this->assertEquals('info', Log::info('Test'));
-        $this->assertEquals('warn', Log::warn('Test'));
-        $this->assertEquals('error', Log::error('Test'));
-        $this->assertEquals('fatal', Log::fatal('Test'));
+        Slim_Log::setLogger(new MyLogger());
+        $this->assertEquals('debug', Slim_Log::debug('Test'));
+        $this->assertEquals('info', Slim_Log::info('Test'));
+        $this->assertEquals('warn', Slim_Log::warn('Test'));
+        $this->assertEquals('error', Slim_Log::error('Test'));
+        $this->assertEquals('fatal', Slim_Log::fatal('Test'));
     }
 
     /**
@@ -100,12 +100,12 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * All calls to adapter return false
      */
     public function testLoggerMethodsIfNoLogger() {
-        Log::setLogger(null);
-        $this->assertFalse(Log::debug('Test'));
-        $this->assertFalse(Log::info('Test'));
-        $this->assertFalse(Log::warn('Test'));
-        $this->assertFalse(Log::error('Test'));
-        $this->assertFalse(Log::fatal('Test'));
+        Slim_Log::setLogger(null);
+        $this->assertFalse(Slim_Log::debug('Test'));
+        $this->assertFalse(Slim_Log::info('Test'));
+        $this->assertFalse(Slim_Log::warn('Test'));
+        $this->assertFalse(Slim_Log::error('Test'));
+        $this->assertFalse(Slim_Log::fatal('Test'));
     }
 
 }

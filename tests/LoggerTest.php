@@ -28,10 +28,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../slim/Logger.php';
+require_once '../Slim/Logger.php';
 require_once 'PHPUnit/Extensions/OutputTestCase.php';
 
-class TestLogger extends Logger {
+class TestLogger extends Slim_Logger {
 
     protected function write( $data ) {
         print $data;
@@ -58,19 +58,19 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testLoggerInstantiation() {
         //Case A
-        $l1 = new Logger('./logs');
+        $l1 = new Slim_Logger('./logs');
         $this->assertEquals(4, $l1->getLevel());
         //Case B
         try {
-            $l2 = new Logger('./foo');
+            $l2 = new Slim_Logger('./foo');
             $this->fail("Did not catch RuntimeException thrown from Logger with non-existant directory");
         } catch ( RuntimeException $e) {}
         //Case C
-        $l3 = new Logger('./logs', 1);
+        $l3 = new Slim_Logger('./logs', 1);
         $this->assertEquals(1, $l3->getLevel());
         //Case D
         try {
-            $l4 = new Logger('./logs', 5);
+            $l4 = new Slim_Logger('./logs', 5);
             $this->fail("Did not catch RuntimeException thrown from Logger with invalid level");
         } catch ( InvalidArgumentException $e) {}
     }

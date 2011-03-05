@@ -40,10 +40,10 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Router implements Iterator {
+class Slim_Router implements Iterator {
 
     /**
-     * @var Request
+     * @var Slim_Http_Request
      */
     private $request;
 
@@ -82,7 +82,7 @@ class Router implements Iterator {
      *
      * @param Request $request The HTTP request object
      */
-    public function __construct( Request $request ) {
+    public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
         $this->routes = array(
             'GET' => array(),
@@ -98,7 +98,7 @@ class Router implements Iterator {
     /**
      * Get Request
      *
-     * @return Request
+     * @return Slim_Http_Request
      */
     public function getRequest() {
         return $this->request;
@@ -107,10 +107,10 @@ class Router implements Iterator {
     /**
      * Set Request
      *
-     * @param   Request
+     * @param   Slim_Http_Request
      * @return  void
      */
-    public function setRequest( Request $req ) {
+    public function setRequest( Slim_Http_Request $req ) {
         $this->request = $req;
     }
 
@@ -124,9 +124,9 @@ class Router implements Iterator {
     public function getMatchedRoutes( $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
-            $method = ( $this->getRequest()->method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $this->getRequest()->method;
+            $method = $this->getRequest()->isHead() ? Slim_Http_Request::METHOD_GET : $this->getRequest()->getMethod();
             foreach( $this->routes[$method] as $route ) {
-                if ( $route->matches($this->getRequest()->resource) ) {
+                if ( $route->matches($this->getRequest()->getResourceUri()) ) {
                     $this->matchedRoutes[] = $route;
                 }
             }
@@ -143,9 +143,9 @@ class Router implements Iterator {
      * @return  Route
      */
     public function map( $pattern, $callable, $method ) {
-        $route = new Route($pattern, $callable);
+        $route = new Slim_Route($pattern, $callable);
         $route->setRouter($this);
-        $methodKey = ( $method === Request::METHOD_HEAD ) ? Request::METHOD_GET : $method;
+        $methodKey = ( $method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $method;
         $this->routes[$methodKey][] = $route;
         return $route;
     }
@@ -154,11 +154,11 @@ class Router implements Iterator {
      * Cache named route
      *
      * @param   string              $name   The route name
-     * @param   Route               $route  The route object
+     * @param   Slim_Route          $route  The route object
      * @throws  RuntimeException            If a named route already exists with the same name
      * @return  void
      */
-    public function cacheNamedRoute( $name, Route $route ) {
+    public function cacheNamedRoute( $name, Slim_Route $route ) {
         if ( isset($this->namedRoutes[(string)$name]) ) {
             throw new RuntimeException('Named route already exists with name: ' . $name);
         }
@@ -181,7 +181,7 @@ class Router implements Iterator {
         foreach ( $params as $key => $value ) {
             $pattern = str_replace(':' . $key, $value, $pattern);
         }
-        return $this->getRequest()->root . $pattern;
+        return $this->getRequest()->getRootUri() . $pattern;
     }
 
     /**
