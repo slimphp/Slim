@@ -58,15 +58,15 @@ Download the Slim Framework and unzip the downloaded file into your virtual host
 
 ### Setup .htaccess
 
-Ensure the `.htaccess` and `bootstrap.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
+Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
 
 	RewriteEngine On
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^(.*)$ bootstrap.php [QSA,L]
+	RewriteRule ^(.*)$ index.php [QSA,L]
 
 ### Build Your Application
 
-Your Slim application will be defined in `bootstrap.php`. First, `require` the Slim Framework:
+Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
 	require 'slim/Slim.php';
 
@@ -93,6 +93,10 @@ Slim is created and maintained by Josh Lockhart, a web developer by day at [New 
 Slim is in active development, and test coverage is continually improving.
 
 ## Links and Resources
+
+For the most up-to-date information and news, follow the Slim PHP 5 micro framework on Twitter:
+
+<http://www.twitter.com/slimphp>
 
 * Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
 * Documentation:  <http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation>
