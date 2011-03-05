@@ -7,7 +7,7 @@ Thank you for choosing Slim, a micro-framework for PHP 5 inspired by [Sinatra](h
 Slim provides the following notable features out-of-the-box:
 
 * Clean and simple DSL for writing powerful web applications
-* RESTful routes (GET, POST, PUT, DELETE)
+* RESTful HTTP routes (GET, POST, PUT, DELETE)
   * Named routes w/ `urlFor()` helper
   * Route passing
   * Route redirects
@@ -90,14 +90,14 @@ For more information about building an application with the Slim Framework, refe
 
 Slim is created and maintained by Josh Lockhart, a web developer by day at [New Media Campaigns](http://www.newmediacampaigns.com), and a [hacker by night](http://github.com/codeguy).
 
-Slim is in active development, and test coverage is improving  rapidly as Slim nears its official 1.0 release.
+Slim is in active development, and test coverage is continually improving.
 
 ## Links and Resources
 
 * Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
 * Documentation:  <http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation>
 * Source Code:    <http://github.com/codeguy/Slim/>
-* Twitter:        <http://www.twitter.com/codeguy>
+* Twitter:        <http://www.twitter.com/slimphp>
 * LinkedIn:       <http://www.linkedin.com/in/joshlockhart>
 * Email:          [info@joshlockhart.com](info@joshlockhart.com)
 
