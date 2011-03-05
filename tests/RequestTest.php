@@ -209,6 +209,11 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         unset($_SERVER['X_REQUESTED_WITH']);
         $r = new Slim_Http_Request();
         $this->assertFalse($r->isAjax());
+        //Case D
+        unset($_SERVER['X_REQUESTED_WITH']);
+        $_GET['isajax'] = 1;
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isAjax());
     }
 
     /* TEST REQUEST PARAMS */
