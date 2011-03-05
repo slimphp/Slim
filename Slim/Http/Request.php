@@ -154,7 +154,7 @@ class Slim_Http_Request {
     }
 
     public function isAjax() {
-        return $this->headers('X_REQUESTED_WITH') === 'XMLHttpRequest';
+        return ( $this->params('isajax') || $this->headers('X_REQUESTED_WITH') === 'XMLHttpRequest' );
     }
 
     /***** PARAMETER ACCESSORS *****/
