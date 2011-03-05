@@ -58,3 +58,17 @@ The `BlitzView` custom View class provides support for the Blitz templating syst
 	?>
 	
 Place your Blitz template files in the designated templates directory.
+
+## HaangaView
+
+The `HaangaView` custom View class provides support for the Haanga templating system for PHP. Refer to the `views/HaangaView.php` file for further documentation.
+
+    <?php
+	require 'slim/Slim.php';
+	require_once 'views/HaangaView.php';
+	Slim::init(array(
+        'view' => new HaangaView('/path/to/Haanga/dir', '/path/to/templates/dir', '/path/to/compiled/dir')
+    ));
+	//Insert your application routes here
+	Slim::run();
+	?>
