@@ -340,7 +340,7 @@ class Slim {
         if ( $sessionHandler instanceOf Slim_Session_Handler ) {
             $sessionHandler->register();
         }
-        session_start();
+        @session_start(); //Ignores E_NOTICE errors if called more than once
     }
 
     /**
