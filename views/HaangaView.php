@@ -50,7 +50,7 @@
  * @package Slim
  * @author  Isman Firmansyah
  */
-class HaangaView extends View {
+class HaangaView extends Slim_View {
 
     /**
      * Configure Haanga environment
