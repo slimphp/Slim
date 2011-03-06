@@ -281,7 +281,9 @@ class Slim {
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             'cookies.encrypt' => true,
-            'cookies.user_id' => 'DEFAULT'
+            'cookies.user_id' => 'DEFAULT',
+            //Session handler
+            'session.handler' => null
         ), $userSettings);
         $this->request = new Slim_Http_Request();
         $this->response = new Slim_Http_Response($this->request);
@@ -334,6 +336,11 @@ class Slim {
                 Slim_Log::setLogger($logger);
             }
         }
+        $sessionHandler = Slim::config('session.handler');
+        if ( $sessionHandler instanceOf Slim_Session_Handler ) {
+            $sessionHandler->register();
+        }
+        session_start();
     }
 
     /**
@@ -760,6 +767,31 @@ class Slim {
     public static function getEncryptedCookie( $name ) {
         $value = self::response()->getCookieJar()->getCookieValue($name);
         return ($value === false) ? null : $value;
+    }
+    
+    /**
+     * Delete a Cookie (for both normal or encrypted Cookies)
+     *
+     * Remove a Cookie from the client. This method will overwrite an existing Cookie
+     * with a new, empty, auto-expiring Cookie. This method's arguments must match
+     * the original Cookie's respective arguments for the original Cookie to be
+     * removed. If any of this method's arguments are omitted or set to NULL, the
+     * default Cookie setting values (set during Slim::init) will be used instead.
+     *
+     * @param   string  $name       The cookie name
+     * @param   string  $path       The path on the server in which the cookie will be available on
+     * @param   string  $domain     The domain that the cookie is available to
+     * @param   bool    $secure     Indicates that the cookie should only be transmitted over a secure
+     *                              HTTPS connection from the client
+     * @param   bool    $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @return  void
+     */
+    public static function deleteCookie( $name, $path = null, $domain = null, $secure = null, $httponly = null ) {
+        $path = is_null($path) ? self::config('cookies.path') : $path;
+        $domain = is_null($domain) ? self::config('cookies.domain') : $domain;
+        $secure = is_null($secure) ? self::config('cookies.secure') : $secure;
+        $httponly = is_null($httponly) ? self::config('cookies.httponly') : $httponly;
+        self::response()->getCookieJar()->deleteCookie( $name, $path, $domain, $secure, $httponly );
     }
 
     /***** HELPERS *****/
