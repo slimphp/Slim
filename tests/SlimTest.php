@@ -713,12 +713,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         //Case A
         Slim::setCookie('foo1', 'bar1');
         $this->assertEquals('bar1', $cj->getResponseCookie('foo1')->getValue());
+        $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() > time());
         Slim::deleteCookie('foo1');
         $this->assertEquals('', Slim::getCookie('foo1'));
         $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() < time());
         //Case B
         Slim::setEncryptedCookie('foo2', 'bar2');
         $this->assertTrue(strlen($cj->getResponseCookie('foo2')->getValue()) > 0);
+        $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() > time());
         Slim::deleteCookie('foo2');
         $this->assertEquals('', $cj->getResponseCookie('foo2')->getValue());
         $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() < time());
