@@ -341,6 +341,7 @@ class Slim {
             $result = $sessionHandler->register();
         }
         @session_start(); //Ignores E_NOTICE errors if called more than once
+        session_regenerate_id(true);
     }
 
     /**
