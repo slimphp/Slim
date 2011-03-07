@@ -338,7 +338,7 @@ class Slim {
         }
         $sessionHandler = Slim::config('session.handler');
         if ( $sessionHandler instanceOf Slim_Session_Handler ) {
-            $sessionHandler->register();
+            $result = $sessionHandler->register();
         }
         @session_start(); //Ignores E_NOTICE errors if called more than once
     }
@@ -1022,6 +1022,7 @@ class Slim {
             }
             self::response()->write(ob_get_clean());
             self::hook('slim.after.router');
+            session_write_close();
             self::response()->send();
             self::hook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
