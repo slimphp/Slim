@@ -350,7 +350,7 @@ class Slim {
         //Init session handling
         $sessionHandler = Slim::config('session.handler');
         if ( $sessionHandler === false ) {
-            $sesionHandler = new Slim_Session_Handler_Cookies();
+            $sessionHandler = new Slim_Session_Handler_Cookies();
             Slim::config('session.handler', $sessionHandler);
         }
         if ( $sessionHandler instanceOf Slim_Session_Handler ) {
