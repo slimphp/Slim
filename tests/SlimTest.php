@@ -455,7 +455,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::init();
         Slim::render('test.php', $data, 404);
         $this->assertEquals(Slim::response()->status(), 404);
-        $this->assertEquals($data, Slim::view()->getData());
         $this->assertEquals(Slim::response()->status(), 404);
     }
 
