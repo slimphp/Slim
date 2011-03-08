@@ -28,33 +28,44 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once 'PHPUnit/Framework.php';
-require_once 'ViewTest.php';
-require_once 'RouteTest.php';
-require_once 'RouterTest.php';
-require_once 'RequestTest.php';
-require_once 'ResponseTest.php';
-require_once 'SlimTest.php';
-require_once 'LoggerTest.php';
-require_once 'LogTest.php';
-require_once 'UriTest.php';
-require_once 'FlashTest.php';
+/**
+ * Session Cookie Handler
+ *
+ * This class is used as an adapter for PHP's $_SESSION handling.
+ * Session data will be written to and read from signed, encrypted
+ * cookies. If the current PHP installation does not have the `mcrypt`
+ * extension, session data will be written to signed but unencrypted
+ * cookies; however, the session cookies will still be secure and will
+ * become invalid if manually edited after set by PHP.
+ *
+ * @package Slim
+ * @author Josh Lockhart
+ * @since Version 1.3
+ */
+class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
 
-class AllTests {
+    public function open( $savePath, $sessionName ) {
+        return true; //Not used
+    }
 
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('SlimTestSuite');
-        $suite->addTestSuite('ViewTest');
-        $suite->addTestSuite('RouteTest');
-        $suite->addTestSuite('RouterTest');
-        $suite->addTestSuite('SlimTest');
-        $suite->addTestSuite('RequestTest');
-        $suite->addTestSuite('ResponseTest');
-        $suite->addTestSuite('LoggerTest');
-        $suite->addTestSuite('LogTest');
-        $suite->addTestSuite('UriTest');
-        $suite->addTestSuite('FlashTest');
-        return $suite;
+    public function close() {
+        return true; //Not used
+    }
+
+    public function read( $id ) {
+        return Slim::getEncryptedCookie($id);
+    }
+
+    public function write( $id, $sessionData ) {
+        Slim::setEncryptedCookie($id, $sessionData, 0);
+    }
+
+    public function destroy( $id ) {
+        Slim::deleteCookie($id);
+    }
+
+    public function gc( $maxLifetime ) {
+        return true; //Not used
     }
 
 }

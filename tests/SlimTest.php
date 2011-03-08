@@ -75,7 +75,7 @@ class CustomView extends Slim_View {
 }
 
 //Mock custom Logger
-class CustomLogger {}
+class CustomLogger{}
 
 class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
@@ -455,7 +455,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::init();
         Slim::render('test.php', $data, 404);
         $this->assertEquals(Slim::response()->status(), 404);
-        $this->assertEquals($data, Slim::view()->getData());
         $this->assertEquals(Slim::response()->status(), 404);
     }
 
@@ -695,6 +694,35 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::setEncryptedCookie('myCookie4', 'myValue4', 0);
         $cookieD = $cj->getResponseCookie('myCookie4');
         $this->assertEquals(0, $cookieD->getExpires());
+    }
+
+    /**
+     * Test Slim deletes cookies
+     *
+     * Pre-conditions:
+     * Case A: Classic cookie
+     * Case B: Encrypted cookie
+     *
+     * Post-conditions:
+     * Response Cookies replaced with empty, auto-expiring Cookies
+     */
+    public function testSlimDeletesCookies() {
+        Slim::init();
+        $cj = Slim::response()->getCookieJar();
+        //Case A
+        Slim::setCookie('foo1', 'bar1');
+        $this->assertEquals('bar1', $cj->getResponseCookie('foo1')->getValue());
+        $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() > time());
+        Slim::deleteCookie('foo1');
+        $this->assertEquals('', Slim::getCookie('foo1'));
+        $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() < time());
+        //Case B
+        Slim::setEncryptedCookie('foo2', 'bar2');
+        $this->assertTrue(strlen($cj->getResponseCookie('foo2')->getValue()) > 0);
+        $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() > time());
+        Slim::deleteCookie('foo2');
+        $this->assertEquals('', $cj->getResponseCookie('foo2')->getValue());
+        $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() < time());
     }
 
     /************************************************

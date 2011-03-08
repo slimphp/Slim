@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -29,6 +31,7 @@
  */
 
 require_once '../Slim/Router.php';
+require_once '../Slim/Http/Uri.php';
 require_once '../Slim/Http/Request.php';
 require_once '../Slim/Route.php';
 require_once 'PHPUnit/Framework.php';
