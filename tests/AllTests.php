@@ -38,6 +38,7 @@ require_once 'SlimTest.php';
 require_once 'LoggerTest.php';
 require_once 'LogTest.php';
 require_once 'UriTest.php';
+require_once 'FlashTest.php';
 
 class AllTests {
 
@@ -52,6 +53,7 @@ class AllTests {
         $suite->addTestSuite('LoggerTest');
         $suite->addTestSuite('LogTest');
         $suite->addTestSuite('UriTest');
+        $suite->addTestSuite('FlashTest');
         return $suite;
     }
 
