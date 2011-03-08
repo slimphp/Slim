@@ -87,6 +87,11 @@ class Slim {
      * @var Slim The application instance
      */
     protected static $app;
+    
+    /**
+     * @var bool
+     */
+    private static $sessionStarted = false;
 
     /**
      * @var Slim_Http_Request
@@ -347,21 +352,26 @@ class Slim {
             }
         }
 
-        //Init session handling
-        $sessionHandler = Slim::config('session.handler');
-        if ( $sessionHandler === false ) {
-            $sessionHandler = new Slim_Session_Handler_Cookies();
-            Slim::config('session.handler', $sessionHandler);
+        //Init session handling (do not run for PHP-CLI)
+        if ( defined('STDIN') === false ) {
+            if ( Slim::config('session.handler') === false ) {
+                Slim::config('session.handler', new Slim_Session_Handler_Cookies());
+            }
+            $sessionHandler = Slim::config('session.handler');
+            if ( is_subclass_of($sessionHandler, 'Slim_Session_Handler') ) {
+                $sessionHandler->register();
+            }
+            if ( !self::$sessionStarted ) {
+                session_start();
+                session_regenerate_id(true);
+                self::$sessionStarted = true;
+            }
         }
-        if ( $sessionHandler instanceOf Slim_Session_Handler ) {
-            $sessionHandler->register();
-        }
-        @session_start(); //Ignore E_NOTICE errors if called more than once
-        @session_regenerate_id(true); //Using @... else this breaks unit tests. Why?
 
         //Init flash messaging
         self::$app->flash = new Slim_Session_Flash(self::config('session.flash_key'));
         self::view()->setData('flash', self::$app->flash);
+
     }
 
     /**
