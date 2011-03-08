@@ -109,6 +109,11 @@ class Slim {
     private $view;
 
     /**
+     * @var Slim_Session_Flash
+     */
+    private $flash;
+
+    /**
      * @var array Key-value array of application settings
      */
     private $settings = array();
@@ -283,7 +288,8 @@ class Slim {
             'cookies.encrypt' => true,
             'cookies.user_id' => 'DEFAULT',
             //Session handler
-            'session.handler' => null
+            'session.handler' => false,
+            'session.flash_key' => 'flash'
         ), $userSettings);
         $this->request = new Slim_Http_Request();
         $this->response = new Slim_Http_Response($this->request);
@@ -300,11 +306,7 @@ class Slim {
      * Initialize Slim
      *
      * This instantiates the Slim application using the provided
-     * application settings if available. This also:
-     *
-     * - Sets a default Not Found handler
-     * - Sets a default Error handler
-     * - Sets the view class
+     * application settings if available.
      *
      * Legacy Support:
      *
@@ -324,10 +326,18 @@ class Slim {
         } else {
             $settings = (array)$userSettings;
         }
+
+        //Init app
         self::$app = new Slim($settings);
+
+        //Init Not Found and Error handlers
         self::notFound(array('Slim', 'defaultNotFound'));
         self::error(array('Slim', 'defaultError'));
+
+        //Init view
         self::view(Slim::config('view'));
+
+        //Init logging
         if ( Slim::config('log.enable') === true ) {
             $logger = Slim::config('log.logger');
             if ( empty($logger) ) {
@@ -336,12 +346,22 @@ class Slim {
                 Slim_Log::setLogger($logger);
             }
         }
+
+        //Init session handling
         $sessionHandler = Slim::config('session.handler');
-        if ( $sessionHandler instanceOf Slim_Session_Handler ) {
-            $result = $sessionHandler->register();
+        if ( $sessionHandler === false ) {
+            $sesionHandler = new Slim_Session_Handler_Cookies();
+            Slim::config('session.handler', $sessionHandler);
         }
-        @session_start(); //Ignores E_NOTICE errors if called more than once
-        session_regenerate_id(true);
+        if ( $sessionHandler instanceOf Slim_Session_Handler ) {
+            $sessionHandler->register();
+        }
+        @session_start(); //Ignore E_NOTICE errors if called more than once
+        @session_regenerate_id(true); //Using @... else this breaks unit tests. Why?
+
+        //Init flash messaging
+        self::$app->flash = new Slim_Session_Flash(self::config('session.flash_key'));
+        self::view()->setData('flash', self::$app->flash);
     }
 
     /**
@@ -822,6 +842,8 @@ class Slim {
      * @return  void
      */
     public static function stop() {
+        self::$app->flash->save();
+        session_write_close();
         self::response()->send();
         throw new Slim_Exception_Stop();
     }
@@ -919,6 +941,20 @@ class Slim {
         } else {
             throw new InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
         }
+    }
+
+    /***** FLASH *****/
+
+    public static function flash( $key, $value ) {
+        self::$app->flash->set($key, $value);
+    }
+
+    public static function flashNow( $key, $value ) {
+        self::$app->flash->now($key, $value);
+    }
+
+    public static function flashKeep() {
+        self::$app->flash->keep();
     }
 
     /***** HOOKS *****/
@@ -1023,6 +1059,7 @@ class Slim {
             }
             self::response()->write(ob_get_clean());
             self::hook('slim.after.router');
+            self::$app->flash->save();
             session_write_close();
             self::response()->send();
             self::hook('slim.after');
