@@ -181,6 +181,7 @@ class Slim_Router implements Iterator {
         foreach ( $params as $key => $value ) {
             $pattern = str_replace(':' . $key, $value, $pattern);
         }
+        //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace(array(
             '@\(\/?:\w+?\)\??@',
             '@\?|\(|\)@'
