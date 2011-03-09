@@ -181,7 +181,10 @@ class Slim_Router implements Iterator {
         foreach ( $params as $key => $value ) {
             $pattern = str_replace(':' . $key, $value, $pattern);
         }
-        return $this->getRequest()->getRootUri() . $pattern;
+        return preg_replace(array(
+            '@\(\/?:\w+?\)\??@',
+            '@\?|\(|\)@'
+        ), '', $this->getRequest()->getRootUri() . $pattern);
     }
 
     /**
