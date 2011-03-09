@@ -183,7 +183,7 @@ class Slim_Router implements Iterator {
         }
         //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace(array(
-            '@\(\/?:\w+?\)\??@',
+            '@\(\/?:.+\/??\)\??@',
             '@\?|\(|\)@'
         ), '', $this->getRequest()->getRootUri() . $pattern);
     }
