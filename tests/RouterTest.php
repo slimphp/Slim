@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -29,6 +31,7 @@
  */
 
 require_once '../Slim/Router.php';
+require_once '../Slim/Http/Uri.php';
 require_once '../Slim/Http/Request.php';
 require_once '../Slim/Route.php';
 require_once 'PHPUnit/Framework.php';
@@ -154,6 +157,47 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             $numberOfMatchingRoutes++;
         }
         $this->assertEquals(1, $numberOfMatchingRoutes);
+    }
+
+    /**
+     * Router::urlFor
+     */
+    public function testRouterUrlFor() {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $route1 = $router->map('/foo/bar', function () {}, 'GET');
+        $route2 = $router->map('/foo/:one/:two', function () {}, 'GET');
+        $route3 = $router->map('/foo/:one(/:two)', function () {}, 'GET');
+        $route4 = $router->map('/foo/:one/(:two/)', function () {}, 'GET');
+        $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {}, 'GET');
+        $route1->setName('route1');
+        $route2->setName('route2');
+        $route3->setName('route3');
+        $route4->setName('route4');
+        $route5->setName('route5');
+        //Route
+        $this->assertEquals('/foo/bar', $router->urlFor('route1'));
+        //Route with params
+        $this->assertEquals('/foo/foo/bar', $router->urlFor('route2', array('one' => 'foo', 'two' => 'bar')));
+        $this->assertEquals('/foo/foo/:two', $router->urlFor('route2', array('one' => 'foo')));
+        $this->assertEquals('/foo/:one/bar', $router->urlFor('route2', array('two' => 'bar')));
+        //Route with params and optional segments
+        $this->assertEquals('/foo/foo/bar', $router->urlFor('route3', array('one' => 'foo', 'two' => 'bar')));
+        $this->assertEquals('/foo/foo', $router->urlFor('route3', array('one' => 'foo')));
+        $this->assertEquals('/foo/:one/bar', $router->urlFor('route3', array('two' => 'bar')));
+        $this->assertEquals('/foo/:one', $router->urlFor('route3'));
+        //Route with params and optional segments
+        $this->assertEquals('/foo/foo/bar/', $router->urlFor('route4', array('one' => 'foo', 'two' => 'bar')));
+        $this->assertEquals('/foo/foo/', $router->urlFor('route4', array('one' => 'foo')));
+        $this->assertEquals('/foo/:one/bar/', $router->urlFor('route4', array('two' => 'bar')));
+        $this->assertEquals('/foo/:one/', $router->urlFor('route4'));
+        //Route with params and optional segments
+        $this->assertEquals('/foo/foo/bar/what/', $router->urlFor('route5', array('one' => 'foo', 'two' => 'bar', 'three' => 'what')));
+        $this->assertEquals('/foo/foo/', $router->urlFor('route5', array('one' => 'foo')));
+        $this->assertEquals('/foo/:one/bar/', $router->urlFor('route5', array('two' => 'bar')));
+        $this->assertEquals('/foo/:one/bar/what/', $router->urlFor('route5', array('two' => 'bar', 'three' => 'what')));
+        $this->assertEquals('/foo/:one/', $router->urlFor('route5'));
     }
 
 }
