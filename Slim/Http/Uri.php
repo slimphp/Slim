@@ -68,7 +68,7 @@ class Slim_Http_Uri {
         if ( $reload || is_null(self::$baseUri) ) {
             $requestUri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['PHP_SELF']; //Full Request URI
             $scriptName = $_SERVER['SCRIPT_NAME']; //Script path from docroot
-            $baseUri = strpos($requestUri, $scriptName) === 0 ? $scriptName : dirname($scriptName);
+            $baseUri = strpos($requestUri, $scriptName) === 0 ? $scriptName : str_replace('\\', '/', dirname($scriptName));
             self::$baseUri = rtrim($baseUri, '/');
         }
         return self::$baseUri;
