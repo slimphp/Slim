@@ -363,6 +363,9 @@ class Slim {
             }
             if ( !self::$sessionStarted ) {
                 session_start();
+                if ( isset($_COOKIE[session_id()]) ) {
+                    Slim::deleteCookie(session_id());
+                }
                 session_regenerate_id(true);
                 self::$sessionStarted = true;
             }
