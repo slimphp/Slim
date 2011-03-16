@@ -218,7 +218,7 @@ class Slim_Http_CookieJar {
      */
     public function deleteCookie( $name, $path = '/', $domain = '', $secure = false, $httponly = null ) {
         $expire = 315554400; /* 1980-01-01 */
-        $this->_cookies[$name] = new Slim_Http_Cookie($name, '', $path, $domain, $secure, $httponly);
+        $this->_cookies[$name] = new Slim_Http_Cookie($name, '', $expire, $path, $domain, $secure, $httponly);
         //setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
     }
 
