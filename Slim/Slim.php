@@ -544,38 +544,6 @@ class Slim {
         }
     }
 
-    /***** CALLBACKS *****/
-
-    /**
-     * Before Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked before the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function before( $callable ) {
-        self::applyHook('slim.before.router', $callable);
-    }
-
-    /**
-     * After Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked after the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function after( $callable ) {
-        self::applyHook('slim.after.router', $callable);
-    }
-
     /***** ACCESSORS *****/
 
     /**

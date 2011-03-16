@@ -180,7 +180,7 @@ class Slim_Router implements Iterator {
         $pattern = $this->namedRoutes[(string)$name]->getPattern();
         $search = $replace = array();
         foreach ( $params as $key => $value ) {
-            $search[] = ':' . $key
+            $search[] = ':' . $key;
             $replace[] = $value;
         }
         $pattern = str_replace($search, $replace, $pattern);

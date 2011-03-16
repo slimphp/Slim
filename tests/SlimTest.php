@@ -75,7 +75,23 @@ class CustomView extends Slim_View {
 }
 
 //Mock custom Logger
-class CustomLogger{}
+class CustomLogger{
+    public function debug( $var ) {
+        print_r($var);
+    }
+    public function info( $var ) {
+        print_r($var);
+    }
+    public function warn( $var ) {
+        print_r($var);
+    }
+    public function error( $var ) {
+        print_r($var);
+    }
+    public function fatal( $var ) {
+        print_r($var);
+    }
+}
 
 class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
@@ -379,35 +395,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         });
         Slim::run();
         $this->expectOutputString('jo hn and smi th');
-    }
-
-    /************************************************
-     * SLIM BEFORE AND AFTER CALLBACKS
-     ************************************************/
-
-    /**
-     * Test Slim runs Before and After callbacks
-     *
-     * Pre-conditions:
-     * You have initialized a Slim app with an accessible route
-     * that does not throw Exceptions or Errors. You append the Response
-     * body in the before and after callbacks.
-     *
-     * Post-conditions:
-     * The response body is set correctly.
-     */
-    public function testSlimRunsBeforeAndAfterCallbacks() {
-        Slim::init();
-        Slim::before(function () { Slim::response()->write('One '); });
-        Slim::before(function () { Slim::response()->write('Two '); });
-        Slim::after(function () { Slim::response()->write('Four '); });
-        Slim::after(function () { Slim::response()->write('Five'); });
-        Slim::get('/', function () { echo 'Three '; });
-        Slim::run();
-
-        $response = 'One Two Three Four Five';
-        $this->expectOutputString($response);
-        $this->assertEquals($response, Slim::response()->body());
     }
 
     /************************************************
@@ -1039,23 +1026,21 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * Slim app initialized;
-     * Hook name does not exist
-     * Listeners are callable objects
+     * Hook name does not exist;
+     * Listeners are callable objects;
      *
      * Post-conditions:
-     * Hook is created;
-     * Callable objects are assigned to hook
+     * Callables are invoked in expected order
      */
-    public function testHookValidListener() {
+    public function testRegistersAndCallsHooksByPriority() {
+        $this->expectOutputString('barfoobarslimfooslim');
         Slim::init();
-        $callable1 = function ($app) {};
-        $callable2 = function ($app) {};
-        Slim::hook('test.hook.one', $callable1);
-        Slim::hook('test.hook.one', $callable2);
-        $hooksByKey = Slim::getHooks('test.hook.one');
-        $this->assertArrayHasKey('test.hook.one', Slim::getHooks());
-        $this->assertSame($hooksByKey[0], $callable1);
-        $this->assertSame($hooksByKey[1], $callable2);
+        $callable1 = function ($arg = '') { echo "foo" . $arg; };
+        $callable2 = function ($arg = '') { echo "bar" . $arg; };
+        Slim::hook('test.hook.one', $callable1); //default is 10
+        Slim::hook('test.hook.one', $callable2, 8);
+        Slim::applyHook('test.hook.one');
+        Slim::applyHook('test.hook.one', 'slim');
     }
 
     /**
@@ -1068,33 +1053,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Post-conditions:
      * Hook is created;
-     * Callable object is NOT assigned to hook;
+     * Callable is NOT assigned to hook;
      */
-    public function testHookInvalidListener() {
+    public function testHookInvalidCallable() {
         Slim::init();
-        $callable = 'test';
+        $callable = 'test'; //NOT callable
         Slim::hook('test.hook.one', $callable);
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
-    }
-
-    /**
-     * Test hook invocation
-     *
-     * Pre-conditions:
-     * Slim app initialized;
-     * Hook name does not exist;
-     * Listener is a callable object
-     *
-     * Post-conditions:
-     * Hook listener is invoked
-     */
-    public function testHookInvocation() {
-        $this->expectOutputString('Foo');
-        Slim::init();
-        Slim::hook('test.hook.one', function ($app) {
-            echo 'Foo';
-        });
-        Slim::hook('test.hook.one');
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
     }
 
     /**
@@ -1102,7 +1067,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * Slim app intialized;
-     * Hook name does not exist
+     * Hook name does not exist;
      *
      * Post-conditions:
      * Hook is created;
@@ -1110,8 +1075,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testHookInvocationIfNotExists() {
         Slim::init();
-        Slim::hook('test.hook.one');
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+        Slim::applyHook('test.hook.one');
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
     }
 
     /**
@@ -1130,10 +1095,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::hook('test.hook.one', function () {});
         Slim::hook('test.hook.two', function () {});
         Slim::clearHooks('test.hook.two');
-        $this->assertEquals(array(), Slim::getHooks('test.hook.two'));
-        $this->assertTrue(count(Slim::getHooks('test.hook.one')) === 1);
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.two'));
+        $hookOne = Slim::getHooks('test.hook.one');
+        $this->assertTrue(count($hookOne[10]) === 1);
         Slim::clearHooks();
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
     }
 
 }
