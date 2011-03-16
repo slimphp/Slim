@@ -183,6 +183,7 @@ class Slim_Router implements Iterator {
             $search[] = ':' . $key
             $replace[] = $value;
         }
+        $pattern = str_replace($search, $replace, $pattern);
         //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace(array(
             '@\(\/?:.+\/??\)\??@',

@@ -132,8 +132,7 @@ class Slim {
         'slim.before.dispatch' => array(array()),
         'slim.after.dispatch' => array(array()),
         'slim.after.router' => array(array()),
-        'slim.after' => array(array()),
-        'slim.url' => array(array())
+        'slim.after' => array(array())
     );
 
     /**
@@ -975,48 +974,46 @@ class Slim {
     /***** HOOKS *****/
 
     /**
-     * Invoke or assign hook
+     * Assign hook
      *
      * @param   string  $name       The hook name
      * @param   mixed   $callable   A callable object
+     * @param   int     $priority   The hook priority; 0 = high, 10 = low
      * @return  void
      */
-    public static function hook($name, $callable, $priority = 10) {
+    public static function hook( $name, $callable, $priority = 10 ) {
         if ( !isset(self::$app->hooks[$name]) ) {
             self::$app->hooks[$name] = array(array());
         }
-        if ( !is_null($callable) ) {
-            if ( is_callable($callable) ) {
-                self::$app->hooks[$name][(int)$priority][] = $callable;
-            }
+        if ( is_callable($callable) ) {
+            self::$app->hooks[$name][(int)$priority][] = $callable;
         }
     }
 
     /**
      * Invoke hook
      *
-     * @param string $name The hook name
-     * @param mixed $var (Optional) Argument for hooked functions
-     * @return void
+     * @param   string  $name       The hook name
+     * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
+     * @return  void
      */
-    public static function applyHook($name, $var = null) {
+    public static function applyHook( $name, $hookArg = null ) {
         if ( !isset(self::$app->hooks[$name]) ) {
             self::$app->hooks[$name] = array(array());
         }
         if( !empty(self::$app->hooks[$name]) ) {
-            // Sort if there's more than one priority
+            // Sort by priority, low to high, if there's more than one priority
             if ( count(self::$app->hooks[$name]) > 1 ) {
                 ksort(self::$app->hooks[$name]);
             }
             foreach( self::$app->hooks[$name] as $priority ) {
                 if( !empty($priority) ) {
                     foreach($priority as $callable) {
-                        $var = call_user_func($callable, $var);
+                        call_user_func($callable, $hookArg);
                     }
                 }
             }
         }
-        return $var;
     }
 
     /**
@@ -1045,17 +1042,15 @@ class Slim {
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param   string  $name   Optional. A hook name.
+     * @param   string  $name   A hook name (Optional)
      * @return  void
      */
     public static function clearHooks( $name = null ) {
-        if ( !is_null($name) ) {
-            if ( isset(self::$app->hooks[(string)$name]) ) {
-                self::$app->hooks[(string)$name] = array();
-            }
+        if ( !is_null($name) && isset(self::$app->hooks[(string)$name]) ) {
+            self::$app->hooks[(string)$name] = array(array());
         } else {
             foreach( self::$app->hooks as $key => $value ) {
-                self::$app->hooks[$key] = array();
+                self::$app->hooks[$key] = array(array());
             }
         }
     }
