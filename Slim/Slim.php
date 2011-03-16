@@ -127,12 +127,12 @@ class Slim {
      * @var array Plugin hooks
      */
     private $hooks = array(
-        'slim.before' => array(),
-        'slim.before.router' => array(),
-        'slim.before.dispatch' => array(),
-        'slim.after.dispatch' => array(),
-        'slim.after.router' => array(),
-        'slim.after' => array()
+        'slim.before' => array(array()),
+        'slim.before.router' => array(array()),
+        'slim.before.dispatch' => array(array()),
+        'slim.after.dispatch' => array(array()),
+        'slim.after.router' => array(array()),
+        'slim.after' => array(array())
     );
 
     /**
@@ -544,38 +544,6 @@ class Slim {
         }
     }
 
-    /***** CALLBACKS *****/
-
-    /**
-     * Before Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked before the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function before( $callable ) {
-        self::hook('slim.before.router', $callable);
-    }
-
-    /**
-     * After Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked after the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function after( $callable ) {
-        self::hook('slim.after.router', $callable);
-    }
-
     /***** ACCESSORS *****/
 
     /**
@@ -974,23 +942,44 @@ class Slim {
     /***** HOOKS *****/
 
     /**
-     * Invoke or assign hook
+     * Assign hook
      *
      * @param   string  $name       The hook name
      * @param   mixed   $callable   A callable object
+     * @param   int     $priority   The hook priority; 0 = high, 10 = low
      * @return  void
      */
-    public static function hook( $name, $callable = null ) {
+    public static function hook( $name, $callable, $priority = 10 ) {
         if ( !isset(self::$app->hooks[$name]) ) {
-            self::$app->hooks[$name] = array();
+            self::$app->hooks[$name] = array(array());
         }
-        if ( !is_null($callable) ) {
-            if ( is_callable($callable) ) {
-                self::$app->hooks[$name][] = $callable;
+        if ( is_callable($callable) ) {
+            self::$app->hooks[$name][(int)$priority][] = $callable;
+        }
+    }
+
+    /**
+     * Invoke hook
+     *
+     * @param   string  $name       The hook name
+     * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
+     * @return  void
+     */
+    public static function applyHook( $name, $hookArg = null ) {
+        if ( !isset(self::$app->hooks[$name]) ) {
+            self::$app->hooks[$name] = array(array());
+        }
+        if( !empty(self::$app->hooks[$name]) ) {
+            // Sort by priority, low to high, if there's more than one priority
+            if ( count(self::$app->hooks[$name]) > 1 ) {
+                ksort(self::$app->hooks[$name]);
             }
-        } else {
-            foreach( self::$app->hooks[$name] as $listener ) {
-                $listener(self::$app);
+            foreach( self::$app->hooks[$name] as $priority ) {
+                if( !empty($priority) ) {
+                    foreach($priority as $callable) {
+                        call_user_func($callable, $hookArg);
+                    }
+                }
             }
         }
     }
@@ -1021,17 +1010,15 @@ class Slim {
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param   string  $name   Optional. A hook name.
+     * @param   string  $name   A hook name (Optional)
      * @return  void
      */
     public static function clearHooks( $name = null ) {
-        if ( !is_null($name) ) {
-            if ( isset(self::$app->hooks[(string)$name]) ) {
-                self::$app->hooks[(string)$name] = array();
-            }
+        if ( !is_null($name) && isset(self::$app->hooks[(string)$name]) ) {
+            self::$app->hooks[(string)$name] = array(array());
         } else {
             foreach( self::$app->hooks as $key => $value ) {
-                self::$app->hooks[$key] = array();
+                self::$app->hooks[$key] = array(array());
             }
         }
     }
@@ -1052,15 +1039,15 @@ class Slim {
      */
     public static function run() {
         try {
-            self::hook('slim.before');
+            self::applyHook('slim.before');
             ob_start();
-            self::hook('slim.before.router');
+            self::applyHook('slim.before.router');
             $dispatched = false;
             foreach( self::router()->getMatchedRoutes() as $route ) {
                 try {
-                    self::hook('slim.before.dispatch');
+                    Slim::applyHook('slim.before.dispatch');
                     $dispatched = $route->dispatch();
-                    self::hook('slim.after.dispatch');
+                    Slim::applyHook('slim.after.dispatch');
                     if ( $dispatched ) {
                         break;
                     }
@@ -1072,11 +1059,11 @@ class Slim {
                 self::notFound();
             }
             self::response()->write(ob_get_clean());
-            self::hook('slim.after.router');
+            self::applyHook('slim.after.router');
             self::$app->flash->save();
             session_write_close();
             self::response()->send();
-            self::hook('slim.after');
+            self::applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             self::redirect(self::request()->getRootUri() . self::request()->getResourceUri() . '/', 301);
         }
