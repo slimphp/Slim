@@ -869,7 +869,8 @@ class Slim {
      * Redirect
      *
      * This method immediately redirects to a new URL. By default,
-     * this issues a 307 Temporary Redirect. You may also specify another valid
+     * this issues a 302 Found response; this is considered the default
+     * generic redirect response. You may also specify another valid
      * 3xx status code if you want. This method will automatically set the
      * HTTP Location header for you using the URL parameter and place the
      * destination URL into the response body.
@@ -879,7 +880,7 @@ class Slim {
      * @throws  InvalidArgumentException                If status parameter is not a valid 3xx status code
      * @return  void
      */
-    public static function redirect( $url, $status = 307 ) {
+    public static function redirect( $url, $status = 302 ) {
         if ( $status >= 300 && $status <= 307 ) {
             self::response()->header('Location', (string)$url);
             self::halt($status, (string)$url);
