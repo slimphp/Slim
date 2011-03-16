@@ -242,8 +242,9 @@ class Slim_Route {
         if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
             array_shift($paramValues);
             foreach ( $paramNames as $index => $value ) {
-                if ( isset($paramValues[substr($value, 1)]) ) {
-                    $this->params[substr($value, 1)] = urldecode($paramValues[substr($value, 1)]);
+                $val = substr($value, 1);
+                if ( isset($paramValues[$val]) ) {
+                    $this->params[$val] = urldecode($paramValues[$val]);
                 }
             }
             return true;
