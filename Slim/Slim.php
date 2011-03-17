@@ -430,12 +430,41 @@ class Slim {
      * Adds a new GET route to the router with associated callable. This
      * route may only be matched with an HTTP GET request.
      *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * ARGUMENTS:
+     *
+     * First:       string  The URL pattern (REQUIRED)
+     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
+     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     *
+     * The first argument is required and must always be the 
+     * route pattern (ie. '/books/:id').
+     *
+     * The last argument is required and must always be the callable object 
+     * to be invoked when the route matches an HTTP request.
+     *
+     * You may also provide an unlimited number of in-between arguments; 
+     * each interior argument must be callable and will be invoked in the 
+     * order specified before the route's callable is invoked.
+     *
+     * USAGE:
+     *
+     * Slim::get('/foo'[, middleware, middleware, ...], callable);
+     *
+     * @throws  InvalidArgumentException If less than two arguments are provided
      * @return  Slim_Route
      */
-    public static function get( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_GET);
+    public static function get() {
+        $args = func_get_args();
+        if ( count($args) < 2 ) {
+            throw new InvalidArgumentException('Pattern and callable are required to create a route');
+        }
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $route = self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_GET);
+        if ( count($args) > 0 ) {
+            $route->setMiddleware($args);
+        }
+        return $route;
     }
 
     /**
@@ -444,12 +473,41 @@ class Slim {
      * Adds a new POST route to the router with associated callable. This
      * route may only be matched with an HTTP POST request.
      *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * ARGUMENTS:
+     *
+     * First:       string  The URL pattern (REQUIRED)
+     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
+     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     *
+     * The first argument is required and must always be the 
+     * route pattern (ie. '/books/:id').
+     *
+     * The last argument is required and must always be the callable object 
+     * to be invoked when the route matches an HTTP request.
+     *
+     * You may also provide an unlimited number of in-between arguments; 
+     * each interior argument must be callable and will be invoked in the 
+     * order specified before the route's callable is invoked.
+     *
+     * USAGE:
+     *
+     * Slim::post('/foo'[, middleware, middleware, ...], callable);
+     *
+     * @throws  InvalidArgumentException If less than two arguments are provided
      * @return  Slim_Route
      */
-    public static function post( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_POST);
+    public static function post() {
+        $args = func_get_args();
+        if ( count($args) < 2 ) {
+            throw new InvalidArgumentException('Pattern and callable are required to create a route');
+        }
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $route = self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_POST);
+        if ( count($args) > 0 ) {
+            $route->setMiddleware($args);
+        }
+        return $route;
     }
 
     /**
@@ -458,12 +516,41 @@ class Slim {
      * Adds a new PUT route to the router with associated callable. This
      * route may only be matched with an HTTP PUT request.
      *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * ARGUMENTS:
+     *
+     * First:       string  The URL pattern (REQUIRED)
+     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
+     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     *
+     * The first argument is required and must always be the 
+     * route pattern (ie. '/books/:id').
+     *
+     * The last argument is required and must always be the callable object 
+     * to be invoked when the route matches an HTTP request.
+     *
+     * You may also provide an unlimited number of in-between arguments; 
+     * each interior argument must be callable and will be invoked in the 
+     * order specified before the route's callable is invoked.
+     *
+     * USAGE:
+     *
+     * Slim::put('/foo'[, middleware, middleware, ...], callable);
+     *
+     * @throws  InvalidArgumentException If less than two arguments are provided
      * @return  Slim_Route
      */
-    public static function put( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_PUT);
+    public static function put() {
+        $args = func_get_args();
+        if ( count($args) < 2 ) {
+            throw new InvalidArgumentException('Pattern and callable are required to create a route');
+        }
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $route = self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_PUT);
+        if ( count($args) > 0 ) {
+            $route->setMiddleware($args);
+        }
+        return $route;
     }
 
     /**
@@ -472,12 +559,41 @@ class Slim {
      * Adds a new DELETE route to the router with associated callable. This
      * route may only be matched with an HTTP DELETE request.
      *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * ARGUMENTS:
+     *
+     * First:       string  The URL pattern (REQUIRED)
+     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
+     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     *
+     * The first argument is required and must always be the 
+     * route pattern (ie. '/books/:id').
+     *
+     * The last argument is required and must always be the callable object 
+     * to be invoked when the route matches an HTTP request.
+     *
+     * You may also provide an unlimited number of in-between arguments; 
+     * each interior argument must be callable and will be invoked in the 
+     * order specified before the route's callable is invoked.
+     *
+     * USAGE:
+     *
+     * Slim::delete('/foo'[, middleware, middleware, ...], callable);
+     *
+     * @throws  InvalidArgumentException If less than two arguments are provided
      * @return  Slim_Route
      */
-    public static function delete( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_DELETE);
+    public static function delete() {
+        $args = func_get_args();
+        if ( count($args) < 2 ) {
+            throw new InvalidArgumentException('Pattern and callable are required to create a route');
+        }
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $route = self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_DELETE);
+        if ( count($args) > 0 ) {
+            $route->setMiddleware($args);
+        }
+        return $route;
     }
 
     /**

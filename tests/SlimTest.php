@@ -96,6 +96,7 @@ class CustomLogger{
 class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
     public function setUp() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
         $_COOKIE['foo'] = 'bar';
         $_COOKIE['foo2'] = 'bar2';
         $_SERVER['REQUEST_URI'] = "/";
@@ -261,7 +262,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim sets GET route
+     * Test Slim GET route
      *
      * Pre-conditions:
      * You have initialized a Slim app with a GET route.
@@ -276,6 +277,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $route = Slim::get('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim GET route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a GET route and middleware
+     *
+     * Post-conditions:
+     * The GET route is returned, and its pattern and
+     * callable are set correctly.
+     */
+    public function testSlimGetRouteWithMiddleware(){ 
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::get('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
     }
 
     /**
@@ -297,6 +318,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim POST route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a POST route and middleware
+     *
+     * Post-conditions:
+     * The POST route and its middleware are invoked
+     */
+    public function testSlimPostRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::post('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
+    }
+
+    /**
      * Test Slim sets PUT route
      *
      * Pre-conditions:
@@ -315,6 +356,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim PUT route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a PUT route and middleware
+     *
+     * Post-conditions:
+     * The PUT route and its middleware are invoked
+     */
+    public function testSlimPutRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::put('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
+    }
+
+    /**
      * Test Slim sets DELETE route
      *
      * Pre-conditions:
@@ -330,6 +391,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $route = Slim::delete('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim DELETE route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a DELETE route and middleware
+     *
+     * Post-conditions:
+     * The DELETE route and its middleware are invoked
+     */
+    public function testSlimDeleteRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::delete('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
     }
 
     /**

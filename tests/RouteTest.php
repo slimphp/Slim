@@ -241,6 +241,39 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('name', $c);
     }
 
+    /**
+     * Test route sets and gets middleware
+     *
+     * Pre-conditions:
+     * Route instantiated
+     *
+     * Post-conditions:
+     * Case A: Middleware set as callable, not array
+     * Case B: Middleware set after other middleware already set
+     * Case C: Middleware set as array of callables
+     */
+    public function testRouteMiddleware() {
+        $callable1 = function () {};
+        $callable2 = function () {};
+        //Case A
+        $r1 = new Slim_Route('/foo', function () {});
+        $r1->setMiddleware($callable1);
+        $mw = $r1->getMiddleware();
+        $this->assertType('array', $mw);
+        $this->assertEquals(1, count($mw));
+        //Case B
+        $r1->setMiddleware($callable2);
+        $mw = $r1->getMiddleware();
+        $this->assertEquals(2, count($mw));
+        //Case C
+        $r2 = new Slim_Route('/foo', function () {});
+        $r2->setMiddleware(array($callable1, $callable2));
+        $mw = $r2->getMiddleware();
+        $this->assertType('array', $mw);
+        $this->assertEquals(2, count($mw));
+    }
+
+
 }
 
 ?>
