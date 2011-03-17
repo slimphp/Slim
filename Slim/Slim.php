@@ -136,6 +136,11 @@ class Slim {
     );
 
     /**
+     * @var string The current application mode
+     */
+    private $mode;
+
+    /**
      * Slim auto-loader
      *
      * This method lazy-loads class files when a given class if first used.
@@ -375,6 +380,14 @@ class Slim {
         self::$app->flash = new Slim_Session_Flash(self::config('session.flash_key'));
         self::view()->setData('flash', self::$app->flash);
 
+        //Determine mode
+        if ( isset($_ENV['SLIM_MODE']) ) {
+            self::$app->mode = (string)$_ENV['SLIM_MODE'];
+        } else {
+            $configMode = Slim::config('mode');
+            self::$app->mode = ( $configMode ) ? (string)$configMode : 'development';
+        }
+
     }
 
     /**
@@ -390,6 +403,24 @@ class Slim {
     }
 
     /***** CONFIGURATION *****/
+
+    /**
+     * Configure Slim for a given mode
+     *
+     * This method will immediately invoke the callable if
+     * the specified mode matches the current application mode.
+     * Otherwise, the callable is ignored. This should be called
+     * only _after_ you initialize your Slim app.
+     *
+     * @param   string  $mode
+     * @param   mixed   $callable
+     * @return  void
+     */
+    public static function configureMode( $mode, $callable ) {
+        if ( self::$app && $mode === self::$app->mode && is_callable($callable) ) {
+            call_user_func($callable);
+        }
+    }
 
     /**
      * Configure Slim Settings
