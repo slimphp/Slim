@@ -229,11 +229,26 @@ class Slim_Route {
     /**
      * Set middleware
      *
+     * This method allows middleware to be assigned to a specific Route.
+     * If the method argument `is_callable` (including callable arrays!),
+     * we directly append the argument to `$this->middleware`. Else, we
+     * assume the argument is an array of callables and merge the array
+     * with `$this->middleware`. Even if non-callables are included in the
+     * argument array, we still merge them; we lazily check each item
+     * against `is_callable` during Route::dispatch().
+     *
      * @param   Callable|array[Callable]
      * @return  Slim_Router
+     * @throws  InvalidArgumentException If argument is not callable or not an array
      */
     public function setMiddleware( $middleware ) {
-        $this->middleware = array_merge($this->middleware, is_array($middleware) ? $middleware : array($middleware));
+        if ( is_callable($middleware) ) {
+            $this->middleware[] = $middleware;
+        } else if ( is_array($middleware) ) {
+            $this->middleware = array_merge($this->middleware, $middleware);
+        } else {
+            throw new InvalidArgumentException('Route middleware must be callable or an array of callables');
+        }
         return $this;
     }
 

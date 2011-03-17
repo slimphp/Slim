@@ -251,6 +251,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case A: Middleware set as callable, not array
      * Case B: Middleware set after other middleware already set
      * Case C: Middleware set as array of callables
+     * Case D: Middleware set as a callable array
+     * Case E: Middleware is invalid; throws InvalidArgumentException
      */
     public function testRouteMiddleware() {
         $callable1 = function () {};
@@ -271,8 +273,20 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $mw = $r2->getMiddleware();
         $this->assertType('array', $mw);
         $this->assertEquals(2, count($mw));
+        //Case D
+        $r3 = new Slim_Route('/foo', function () {});
+        $r3->setMiddleware(array($this, 'callableTestFunction'));
+        $mw = $r3->getMiddleware();
+        $this->assertType('array', $mw);
+        $this->assertEquals(1, count($mw));
+        //Case E
+        try {
+            $r3->setMiddleware('sdjfsoi788');
+            $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
+        } catch ( InvalidArgumentException $e ) {}
     }
 
+    public function callableTestFunction() {}
 
 }
 
