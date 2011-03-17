@@ -238,7 +238,7 @@ class Slim_Route {
      * against `is_callable` during Route::dispatch().
      *
      * @param   Callable|array[Callable]
-     * @return  Slim_Router
+     * @return  Slim_Route
      * @throws  InvalidArgumentException If argument is not callable or not an array
      */
     public function setMiddleware( $middleware ) {
