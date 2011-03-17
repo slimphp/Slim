@@ -97,6 +97,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
     public function setUp() {
         $_SERVER['REQUEST_METHOD'] = "GET";
+        $_ENV['SLIM_MODE'] = null;
         $_COOKIE['foo'] = 'bar';
         $_COOKIE['foo2'] = 'bar2';
         $_SERVER['REQUEST_URI'] = "/";
@@ -203,6 +204,74 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     /************************************************
      * SLIM SETTINGS
      ************************************************/
+
+    /**
+     * Test Slim mode with ENV[SLIM_MODE]
+     *
+     * Pre-conditions:
+     * SLIM_MODE environment variable set;
+     * Slim app initialized with config mode;
+     *
+     * Post-conditions:
+     * Only the production configuration is called;
+     */
+    public function testSlimModeEnvironment() {
+        $this->expectOutputString('production mode');
+        $_ENV['SLIM_MODE'] = 'production';
+        Slim::init(array(
+            'mode' => 'test'
+        ));
+        Slim::configureMode('test', function () {
+            echo "test mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
+
+    /**
+     * Test Slim mode with Config
+     *
+     * Pre-conditions:
+     * ENV[SLIM_MODE] not set;
+     * Slim app initialized with config mode;
+     *
+     * Post-conditions:
+     * Only the test configuration is called;
+     */
+    public function testSlimModeConfig() {
+        $this->expectOutputString('test mode');
+        Slim::init(array(
+            'mode' => 'test'
+        ));
+        Slim::configureMode('test', function () {
+            echo "test mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
+
+    /**
+     * Test Slim mode with default
+     *
+     * Pre-conditions:
+     * ENV[SLIM_MODE] not set;
+     * Slim app initialized without config mode;
+     *
+     * Post-conditions:
+     * Only the development configuration is called;
+     */
+    public function testSlimModeDefault() {
+        $this->expectOutputString('dev mode');
+        Slim::init();
+        Slim::configureMode('development', function () {
+            echo "dev mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
 
     /**
      * Test Slim defines one application setting
