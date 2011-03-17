@@ -68,7 +68,7 @@ Ensure the `.htaccess` and `index.php` files are in the same public-accessible d
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
-	require 'slim/Slim.php';
+	require 'Slim/Slim.php';
 
 Next, initialize the Slim application:
 
@@ -109,4 +109,4 @@ For the most up-to-date information and news, follow the Slim PHP 5 micro framew
 
 Slim is released under the MIT public license.
 
-<http://slim.joshlockhart.com/license.txt>
+<http://www.slimframework.com/license>
