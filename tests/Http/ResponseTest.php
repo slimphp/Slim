@@ -30,10 +30,11 @@ ini_set('display_errors', '1');
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Http/Uri.php';
-require_once '../Slim/Http/Request.php';
-require_once '../Slim/Http/Response.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Http/Uri.php';
+require_once 'Slim/Http/Request.php';
+require_once 'Slim/Http/Response.php';
 
 class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
 

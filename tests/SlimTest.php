@@ -30,8 +30,9 @@ ini_set('display_errors', '1');
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Slim.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Slim.php';
 
 //Prepare mock HTTP request
 $_SERVER['REDIRECT_STATUS'] = "200";
@@ -589,7 +590,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRenderSetsResponseStatusOk(){
         $data = array('foo' => 'bar');
-        Slim::init();
+        Slim::init(array(
+            'templates_dir' => dirname(__FILE__) . '/templates'
+        ));
         Slim::render('test.php', $data, 404);
         $this->assertEquals(Slim::response()->status(), 404);
         $this->assertEquals(Slim::response()->status(), 404);

@@ -28,8 +28,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/View.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/View.php';
 
 class ViewTest extends PHPUnit_Extensions_OutputTestCase {
 
@@ -118,7 +119,7 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * The templates directory is set correctly.
      */
     public function testSetsTemplatesDirectory() {
-        $templatesDirectory = '../templates';
+        $templatesDirectory = dirname(__FILE__) . '/templates';
         $this->view->setTemplatesDirectory($templatesDirectory);
         $this->assertEquals($templatesDirectory, $this->view->getTemplatesDirectory());
     }
@@ -134,8 +135,8 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * The View templates directory is set correctly without a trailing slash
      */
     public function testTemplatesDirectoryWithTrailingSlash() {
-        $this->view->setTemplatesDirectory('../templates/');
-        $this->assertEquals('../templates', $this->view->getTemplatesDirectory());
+        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates/');
+        $this->assertEquals(dirname(__FILE__) . '/templates', $this->view->getTemplatesDirectory());
     }
 
     /**
@@ -168,7 +169,7 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * Case B: A RuntimeException is thrown
      */
     public function testRendersTemplateWithData() {
-        $this->view->setTemplatesDirectory('./templates');
+        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
         $this->view->setData(array('foo' => 'bar'));
 
         //Case A
@@ -196,7 +197,7 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testDisplaysTemplateWithData() {
         $this->expectOutputString('test output bar');
-        $this->view->setTemplatesDirectory('./templates');
+        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
         $this->view->setData(array('foo' => 'bar'));
         $this->view->display('test.php');
     }

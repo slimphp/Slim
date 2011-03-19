@@ -27,12 +27,11 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 
-require_once '../Slim/Http/Uri.php';
-require_once '../Slim/Http/Request.php';
-require_once 'PHPUnit/Framework.php';
+set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Http/Uri.php';
+require_once 'Slim/Http/Request.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase {
 

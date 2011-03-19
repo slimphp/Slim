@@ -28,9 +28,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Route.php';
-require_once '../Slim/Router.php';
-require_once 'PHPUnit/Framework.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Route.php';
+require_once 'Slim/Router.php';
 
 /**
  * Router Mock
@@ -261,7 +262,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $r1 = new Slim_Route('/foo', function () {});
         $r1->setMiddleware($callable1);
         $mw = $r1->getMiddleware();
-        $this->assertType('array', $mw);
+        $this->assertInternalType('array', $mw);
         $this->assertEquals(1, count($mw));
         //Case B
         $r1->setMiddleware($callable2);
@@ -271,13 +272,13 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $r2 = new Slim_Route('/foo', function () {});
         $r2->setMiddleware(array($callable1, $callable2));
         $mw = $r2->getMiddleware();
-        $this->assertType('array', $mw);
+        $this->assertInternalType('array', $mw);
         $this->assertEquals(2, count($mw));
         //Case D
         $r3 = new Slim_Route('/foo', function () {});
         $r3->setMiddleware(array($this, 'callableTestFunction'));
         $mw = $r3->getMiddleware();
-        $this->assertType('array', $mw);
+        $this->assertInternalType('array', $mw);
         $this->assertEquals(1, count($mw));
         //Case E
         try {
