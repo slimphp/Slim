@@ -139,6 +139,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimInitWithDefaultLogger() {
         Slim::init(array(
+            'log.path' => dirname(__FILE__) . '/logs',
             'log.enable' => true
         ));
         $this->assertTrue(Slim_Log::getLogger() instanceof Slim_Logger);
