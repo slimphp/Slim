@@ -96,15 +96,20 @@ Slim::get('/', function () {
                 your first time using Slim, start with this <a href="http://www.slimframework.com/learn" target="_blank">"Hello World" Tutorial</a>.
             </p>
             <section>
-                <h2>Getting Started</h2>
-                <p>Here's some information to help you get started.</p>
+                <h2>Get Started</h2>
                 <ol>
                     <li>The application code is in <code>index.php</code></li>
-                    <li>Find <a href="https://github.com/codeguy/Slim-Extras" target="_blank">custom Views for Twig, Smarty, and more</a> online</li>
                     <li>Read the <a href="https://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation" target="_blank">online documentation</a></li>
                     <li>Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter</li>
                 </ol>
             </section>
+            <section>
+                <h2>Slim Framework Extras</h2>
+                <p>
+                    Custom View classes for Smarty, Twig, Mustache, and other template
+                    frameworks are available online in a separate repository.
+                </p>
+                <p><a href="https://github.com/codeguy/Slim-Extras" target="_blank">Browse custom Views</a></p>
         </body>
     </html>
 EOT;
