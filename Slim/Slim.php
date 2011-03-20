@@ -1027,7 +1027,7 @@ class Slim {
      *
      * @param   string  $name       The hook name
      * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
-     * @return  void
+     * @return  mixed
      */
     public static function applyHook( $name, $hookArg = null ) {
         if ( !isset(self::$app->hooks[$name]) ) {
@@ -1041,10 +1041,11 @@ class Slim {
             foreach( self::$app->hooks[$name] as $priority ) {
                 if( !empty($priority) ) {
                     foreach($priority as $callable) {
-                        call_user_func($callable, $hookArg);
+                        $hookArg = call_user_func($callable, $hookArg);
                     }
                 }
             }
+            return $hookArg;
         }
     }
 
