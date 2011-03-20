@@ -1187,14 +1187,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Callables are invoked in expected order
      */
     public function testRegistersAndCallsHooksByPriority() {
-        $this->expectOutputString('barfoobarslimfooslim');
+        $this->expectOutputString('barfoo');
         Slim::init();
-        $callable1 = function ($arg = '') { echo "foo" . $arg; };
-        $callable2 = function ($arg = '') { echo "bar" . $arg; };
+        $callable1 = function () { echo "foo"; };
+        $callable2 = function () { echo "bar"; };
         Slim::hook('test.hook.one', $callable1); //default is 10
         Slim::hook('test.hook.one', $callable2, 8);
         Slim::applyHook('test.hook.one');
-        Slim::applyHook('test.hook.one', 'slim');
     }
 
     /**
@@ -1254,6 +1253,16 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertTrue(count($hookOne[10]) === 1);
         Slim::clearHooks();
         $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
+    }
+
+    /**
+     * Test hook filter behavior
+     *
+     */
+    public function testHookFilterBehavior() {
+        Slim::init();
+        Slim::hook('test.hook', function ($arg) { return $arg . 'foo'; });
+        $this->assertEquals('barfoo', Slim::applyHook('test.hook', 'bar'));
     }
 
 }
