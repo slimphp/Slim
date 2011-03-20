@@ -341,7 +341,7 @@ class Slim_Http_CookieJar {
         $iv = $this->_validateIv($iv);
         $key = $this->_validateKey($key);
         mcrypt_generic_init($this->_cryptModule, $key, $iv);
-        $res = mcrypt_generic($this->_cryptModule, $data);
+        $res = @mcrypt_generic($this->_cryptModule, $data);
         mcrypt_generic_deinit($this->_cryptModule);
         return $res;
     }
