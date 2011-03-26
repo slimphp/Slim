@@ -282,24 +282,28 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $r = new Slim_Http_Request();
         $this->assertEquals('XMLHttpRequest', $r->headers('X_REQUESTED_WITH'));
     }
-    
+
     /* MISC TESTS */
-    
+
     public function testGetMethod() {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $r = new Slim_Http_Request();
         $this->assertEquals($_SERVER['REQUEST_METHOD'], $r->getMethod());
     }
-    
+
     public function testGetContentType() {
         //Case A
         $_SERVER['CONTENT_TYPE'] = 'application/json';
-        $r = new Slim_Http_Request();
-        $this->assertEquals($_SERVER['CONTENT_TYPE'], $r->getContentType());
+        $r1 = new Slim_Http_Request();
+        $this->assertEquals($_SERVER['CONTENT_TYPE'], $r1->getContentType());
         //Case B
         unset($_SERVER['CONTENT_TYPE']);
-        $r = new Slim_Http_Request();
-        $this->assertEquals('application/x-www-form-urlencoded', $r->getContentType());
+        $r2 = new Slim_Http_Request();
+        $this->assertEquals('application/x-www-form-urlencoded', $r2->getContentType());
+        //Case C
+        $_SERVER['CONTENT_TYPE'] = 'text/html; charset=ISO-8859-4';
+        $r3 = new Slim_Http_Request();
+        $this->assertEquals('text/html', $r3->getContentType());
     }
 }
 
