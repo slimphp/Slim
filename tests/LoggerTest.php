@@ -28,8 +28,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Logger.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Logger.php';
 
 class TestLogger extends Slim_Logger {
 
@@ -58,7 +59,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testLoggerInstantiation() {
         //Case A
-        $l1 = new Slim_Logger('./logs');
+        $l1 = new Slim_Logger(dirname(__FILE__) . '/logs');
         $this->assertEquals(4, $l1->getLevel());
         //Case B
         try {
@@ -66,11 +67,11 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
             $this->fail("Did not catch RuntimeException thrown from Logger with non-existant directory");
         } catch ( RuntimeException $e) {}
         //Case C
-        $l3 = new Slim_Logger('./logs', 1);
+        $l3 = new Slim_Logger(dirname(__FILE__) . '/logs', 1);
         $this->assertEquals(1, $l3->getLevel());
         //Case D
         try {
-            $l4 = new Slim_Logger('./logs', 5);
+            $l4 = new Slim_Logger(dirname(__FILE__) . '/logs', 5);
             $this->fail("Did not catch RuntimeException thrown from Logger with invalid level");
         } catch ( InvalidArgumentException $e) {}
     }
@@ -79,7 +80,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test debug log
      */
     public function testLogsDebug() {
-        $l = new TestLogger('./logs', 4);
+        $l = new TestLogger(dirname(__FILE__) . '/logs', 4);
         $this->expectOutputString('[DEBUG] ' . date('c') . ' - ' . "Test Info\r\n");
         $l->debug('Test Info');
     }
@@ -88,7 +89,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test info log
      */
     public function testLogsInfo() {
-        $l = new TestLogger('./logs', 3);
+        $l = new TestLogger(dirname(__FILE__) . '/logs', 3);
         $this->expectOutputString('[INFO] ' . date('c') . ' - ' . "Test Info\r\n");
         $l->debug('Test Info');
         $l->info('Test Info');
@@ -98,7 +99,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test info log
      */
     public function testLogsWarn() {
-        $l = new TestLogger('./logs', 2);
+        $l = new TestLogger(dirname(__FILE__) . '/logs', 2);
         $this->expectOutputString('[WARN] ' . date('c') . ' - ' . "Test Info\r\n");
         $l->info('Test Info');
         $l->warn('Test Info');
@@ -108,7 +109,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test info log
      */
     public function testLogsError() {
-        $l = new TestLogger('./logs', 1);
+        $l = new TestLogger(dirname(__FILE__) . '/logs', 1);
         $this->expectOutputString('[ERROR] ' . date('c') . ' - ' . "Test Info\r\n");
         $l->warn('test Info');
         $l->error('Test Info');
@@ -118,7 +119,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test info log
      */
     public function testLogsFatal() {
-        $l = new TestLogger('./logs', 0);
+        $l = new TestLogger(dirname(__FILE__) . '/logs', 0);
         $this->expectOutputString('[FATAL] ' . date('c') . ' - ' . "Test Info\r\n");
         $l->error('Test Info');
         $l->fatal('Test Info');

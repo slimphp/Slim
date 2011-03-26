@@ -30,8 +30,9 @@ ini_set('display_errors', '1');
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Slim.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Slim.php';
 
 //Prepare mock HTTP request
 $_SERVER['REDIRECT_STATUS'] = "200";
@@ -75,11 +76,29 @@ class CustomView extends Slim_View {
 }
 
 //Mock custom Logger
-class CustomLogger {}
+class CustomLogger{
+    public function debug( $var ) {
+        print_r($var);
+    }
+    public function info( $var ) {
+        print_r($var);
+    }
+    public function warn( $var ) {
+        print_r($var);
+    }
+    public function error( $var ) {
+        print_r($var);
+    }
+    public function fatal( $var ) {
+        print_r($var);
+    }
+}
 
 class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
     public function setUp() {
+        $_SERVER['REQUEST_METHOD'] = "GET";
+        $_ENV['SLIM_MODE'] = null;
         $_COOKIE['foo'] = 'bar';
         $_COOKIE['foo2'] = 'bar2';
         $_SERVER['REQUEST_URI'] = "/";
@@ -120,6 +139,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimInitWithDefaultLogger() {
         Slim::init(array(
+            'log.path' => dirname(__FILE__) . '/logs',
             'log.enable' => true
         ));
         $this->assertTrue(Slim_Log::getLogger() instanceof Slim_Logger);
@@ -188,6 +208,74 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
+     * Test Slim mode with ENV[SLIM_MODE]
+     *
+     * Pre-conditions:
+     * SLIM_MODE environment variable set;
+     * Slim app initialized with config mode;
+     *
+     * Post-conditions:
+     * Only the production configuration is called;
+     */
+    public function testSlimModeEnvironment() {
+        $this->expectOutputString('production mode');
+        $_ENV['SLIM_MODE'] = 'production';
+        Slim::init(array(
+            'mode' => 'test'
+        ));
+        Slim::configureMode('test', function () {
+            echo "test mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
+
+    /**
+     * Test Slim mode with Config
+     *
+     * Pre-conditions:
+     * ENV[SLIM_MODE] not set;
+     * Slim app initialized with config mode;
+     *
+     * Post-conditions:
+     * Only the test configuration is called;
+     */
+    public function testSlimModeConfig() {
+        $this->expectOutputString('test mode');
+        Slim::init(array(
+            'mode' => 'test'
+        ));
+        Slim::configureMode('test', function () {
+            echo "test mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
+
+    /**
+     * Test Slim mode with default
+     *
+     * Pre-conditions:
+     * ENV[SLIM_MODE] not set;
+     * Slim app initialized without config mode;
+     *
+     * Post-conditions:
+     * Only the development configuration is called;
+     */
+    public function testSlimModeDefault() {
+        $this->expectOutputString('dev mode');
+        Slim::init();
+        Slim::configureMode('development', function () {
+            echo "dev mode";
+        });
+        Slim::configureMode('production', function () {
+            echo "production mode";
+        });
+    }
+
+    /**
      * Test Slim defines one application setting
      *
      * Pre-conditions:
@@ -245,7 +333,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim sets GET route
+     * Test Slim GET route
      *
      * Pre-conditions:
      * You have initialized a Slim app with a GET route.
@@ -260,6 +348,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $route = Slim::get('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim GET route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a GET route and middleware
+     *
+     * Post-conditions:
+     * The GET route is returned, and its pattern and
+     * callable are set correctly.
+     */
+    public function testSlimGetRouteWithMiddleware(){ 
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::get('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
     }
 
     /**
@@ -281,6 +389,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim POST route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a POST route and middleware
+     *
+     * Post-conditions:
+     * The POST route and its middleware are invoked
+     */
+    public function testSlimPostRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::post('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
+    }
+
+    /**
      * Test Slim sets PUT route
      *
      * Pre-conditions:
@@ -299,6 +427,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim PUT route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a PUT route and middleware
+     *
+     * Post-conditions:
+     * The PUT route and its middleware are invoked
+     */
+    public function testSlimPutRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'PUT';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::put('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
+    }
+
+    /**
      * Test Slim sets DELETE route
      *
      * Pre-conditions:
@@ -314,6 +462,26 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $route = Slim::delete('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim DELETE route with middleware
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app with a DELETE route and middleware
+     *
+     * Post-conditions:
+     * The DELETE route and its middleware are invoked
+     */
+    public function testSlimDeleteRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        Slim::init();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = Slim::delete('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        Slim::run();
     }
 
     /**
@@ -382,35 +550,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /************************************************
-     * SLIM BEFORE AND AFTER CALLBACKS
-     ************************************************/
-
-    /**
-     * Test Slim runs Before and After callbacks
-     *
-     * Pre-conditions:
-     * You have initialized a Slim app with an accessible route
-     * that does not throw Exceptions or Errors. You append the Response
-     * body in the before and after callbacks.
-     *
-     * Post-conditions:
-     * The response body is set correctly.
-     */
-    public function testSlimRunsBeforeAndAfterCallbacks() {
-        Slim::init();
-        Slim::before(function () { Slim::response()->write('One '); });
-        Slim::before(function () { Slim::response()->write('Two '); });
-        Slim::after(function () { Slim::response()->write('Four '); });
-        Slim::after(function () { Slim::response()->write('Five'); });
-        Slim::get('/', function () { echo 'Three '; });
-        Slim::run();
-
-        $response = 'One Two Three Four Five';
-        $this->expectOutputString($response);
-        $this->assertEquals($response, Slim::response()->body());
-    }
-
-    /************************************************
      * SLIM VIEW
      ************************************************/
 
@@ -452,10 +591,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRenderSetsResponseStatusOk(){
         $data = array('foo' => 'bar');
-        Slim::init();
+        Slim::init(array(
+            'templates_dir' => dirname(__FILE__) . '/templates'
+        ));
         Slim::render('test.php', $data, 404);
         $this->assertEquals(Slim::response()->status(), 404);
-        $this->assertEquals($data, Slim::view()->getData());
         $this->assertEquals(Slim::response()->status(), 404);
     }
 
@@ -695,6 +835,35 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::setEncryptedCookie('myCookie4', 'myValue4', 0);
         $cookieD = $cj->getResponseCookie('myCookie4');
         $this->assertEquals(0, $cookieD->getExpires());
+    }
+
+    /**
+     * Test Slim deletes cookies
+     *
+     * Pre-conditions:
+     * Case A: Classic cookie
+     * Case B: Encrypted cookie
+     *
+     * Post-conditions:
+     * Response Cookies replaced with empty, auto-expiring Cookies
+     */
+    public function testSlimDeletesCookies() {
+        Slim::init();
+        $cj = Slim::response()->getCookieJar();
+        //Case A
+        Slim::setCookie('foo1', 'bar1');
+        $this->assertEquals('bar1', $cj->getResponseCookie('foo1')->getValue());
+        $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() > time());
+        Slim::deleteCookie('foo1');
+        $this->assertEquals('', Slim::getCookie('foo1'));
+        $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() < time());
+        //Case B
+        Slim::setEncryptedCookie('foo2', 'bar2');
+        $this->assertTrue(strlen($cj->getResponseCookie('foo2')->getValue()) > 0);
+        $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() > time());
+        Slim::deleteCookie('foo2');
+        $this->assertEquals('', $cj->getResponseCookie('foo2')->getValue());
+        $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() < time());
     }
 
     /************************************************
@@ -1011,23 +1180,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * Slim app initialized;
-     * Hook name does not exist
-     * Listeners are callable objects
+     * Hook name does not exist;
+     * Listeners are callable objects;
      *
      * Post-conditions:
-     * Hook is created;
-     * Callable objects are assigned to hook
+     * Callables are invoked in expected order
      */
-    public function testHookValidListener() {
+    public function testRegistersAndCallsHooksByPriority() {
+        $this->expectOutputString('barfoo');
         Slim::init();
-        $callable1 = function ($app) {};
-        $callable2 = function ($app) {};
-        Slim::hook('test.hook.one', $callable1);
-        Slim::hook('test.hook.one', $callable2);
-        $hooksByKey = Slim::getHooks('test.hook.one');
-        $this->assertArrayHasKey('test.hook.one', Slim::getHooks());
-        $this->assertSame($hooksByKey[0], $callable1);
-        $this->assertSame($hooksByKey[1], $callable2);
+        $callable1 = function () { echo "foo"; };
+        $callable2 = function () { echo "bar"; };
+        Slim::hook('test.hook.one', $callable1); //default is 10
+        Slim::hook('test.hook.one', $callable2, 8);
+        Slim::applyHook('test.hook.one');
     }
 
     /**
@@ -1040,33 +1206,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Post-conditions:
      * Hook is created;
-     * Callable object is NOT assigned to hook;
+     * Callable is NOT assigned to hook;
      */
-    public function testHookInvalidListener() {
+    public function testHookInvalidCallable() {
         Slim::init();
-        $callable = 'test';
+        $callable = 'test'; //NOT callable
         Slim::hook('test.hook.one', $callable);
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
-    }
-
-    /**
-     * Test hook invocation
-     *
-     * Pre-conditions:
-     * Slim app initialized;
-     * Hook name does not exist;
-     * Listener is a callable object
-     *
-     * Post-conditions:
-     * Hook listener is invoked
-     */
-    public function testHookInvocation() {
-        $this->expectOutputString('Foo');
-        Slim::init();
-        Slim::hook('test.hook.one', function ($app) {
-            echo 'Foo';
-        });
-        Slim::hook('test.hook.one');
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
     }
 
     /**
@@ -1074,7 +1220,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * Slim app intialized;
-     * Hook name does not exist
+     * Hook name does not exist;
      *
      * Post-conditions:
      * Hook is created;
@@ -1082,8 +1228,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testHookInvocationIfNotExists() {
         Slim::init();
-        Slim::hook('test.hook.one');
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+        Slim::applyHook('test.hook.one');
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
     }
 
     /**
@@ -1102,10 +1248,21 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         Slim::hook('test.hook.one', function () {});
         Slim::hook('test.hook.two', function () {});
         Slim::clearHooks('test.hook.two');
-        $this->assertEquals(array(), Slim::getHooks('test.hook.two'));
-        $this->assertTrue(count(Slim::getHooks('test.hook.one')) === 1);
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.two'));
+        $hookOne = Slim::getHooks('test.hook.one');
+        $this->assertTrue(count($hookOne[10]) === 1);
         Slim::clearHooks();
-        $this->assertEquals(array(), Slim::getHooks('test.hook.one'));
+        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
+    }
+
+    /**
+     * Test hook filter behavior
+     *
+     */
+    public function testHookFilterBehavior() {
+        Slim::init();
+        Slim::hook('test.hook', function ($arg) { return $arg . 'foo'; });
+        $this->assertEquals('barfoo', Slim::applyHook('test.hook', 'bar'));
     }
 
 }

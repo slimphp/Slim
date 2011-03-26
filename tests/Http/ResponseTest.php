@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -28,9 +30,11 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Http/Request.php';
-require_once '../Slim/Http/Response.php';
-require_once 'PHPUnit/Extensions/OutputTestCase.php';
+set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Http/Uri.php';
+require_once 'Slim/Http/Request.php';
+require_once 'Slim/Http/Response.php';
 
 class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
 
@@ -261,42 +265,6 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $this->assertFalse($r1->canHaveBody());
     }
 
-    /**
-     * Test send response
-     *
-     * Pre-conditions:
-     * Response instantiated with body "foo bar"
-     *
-     * Post-conditions:
-     * Output buffer will equal "foo bar"
-     */
-    function testSendResponse() {
-        $this->expectOutputString('foo bar');
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
-        $r1->body('foo bar');
-        $r1->send();
-    }
-
-    /**
-     * Test response body if HEAD request
-     *
-     * Pre-conditions:
-     * HTTP method is HEAD
-     *
-     * Post-conditions:
-     * Response body is NOT set;
-     * Response headers are set;
-     */
-    function testResponseBodyIfHeadRequest() {
-        $this->expectOutputString('');
-        $_SERVER['REQUEST_METHOD'] = 'HEAD';
-        $req = new Slim_Http_Request();
-        $res = new Slim_Http_Response($req);
-        $res->body('This is a test body');
-        $res->send();
-        $this->assertEquals('text/html', $res->header('Content-Type'));
-        $this->assertEquals(19, $res->header('Content-Length'));
-    }
 }
 
 ?>

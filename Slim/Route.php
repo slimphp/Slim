@@ -73,6 +73,11 @@ class Slim_Route {
     protected $router;
 
     /**
+     * @var array[Callable] Middleware
+     */
+    protected $middleware = array();
+
+    /**
      * Constructor
      *
      * @param   string  $pattern    The URL pattern (ie. "/books/:id")
@@ -212,6 +217,41 @@ class Slim_Route {
         $this->router = $router;
     }
 
+    /**
+     * Get middleware
+     *
+     * @return array[Callable]
+     */
+    public function getMiddleware() {
+        return $this->middleware;
+    }
+
+    /**
+     * Set middleware
+     *
+     * This method allows middleware to be assigned to a specific Route.
+     * If the method argument `is_callable` (including callable arrays!),
+     * we directly append the argument to `$this->middleware`. Else, we
+     * assume the argument is an array of callables and merge the array
+     * with `$this->middleware`. Even if non-callables are included in the
+     * argument array, we still merge them; we lazily check each item
+     * against `is_callable` during Route::dispatch().
+     *
+     * @param   Callable|array[Callable]
+     * @return  Slim_Route
+     * @throws  InvalidArgumentException If argument is not callable or not an array
+     */
+    public function setMiddleware( $middleware ) {
+        if ( is_callable($middleware) ) {
+            $this->middleware[] = $middleware;
+        } else if ( is_array($middleware) ) {
+            $this->middleware = array_merge($this->middleware, $middleware);
+        } else {
+            throw new InvalidArgumentException('Route middleware must be callable or an array of callables');
+        }
+        return $this;
+    }
+
     /***** ROUTE PARSING AND MATCHING *****/
 
     /**
@@ -242,8 +282,9 @@ class Slim_Route {
         if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
             array_shift($paramValues);
             foreach ( $paramNames as $index => $value ) {
-                if ( isset($paramValues[substr($value, 1)]) ) {
-                    $this->params[substr($value, 1)] = urldecode($paramValues[substr($value, 1)]);
+                $val = substr($value, 1);
+                if ( isset($paramValues[$val]) ) {
+                    $this->params[$val] = urldecode($paramValues[$val]);
                 }
             }
             return true;
@@ -297,13 +338,19 @@ class Slim_Route {
     /**
      * Dispatch route
      *
-     * This method is smart about trailing slashes. If this route is defined
-     * with a trailing slash, and if the current request URI does not have
-     * a trailing slash but otherwise matches this route, a SlimRequestSlashException
-     * will be thrown triggering a 301 Redirect to the same URI with a trailing slash.
-     * This exception is caught in the `Slim::run` loop. If this route is
-     * defined without a trailing slash, and the current request URI does
-     * have a trailing slash, this route will not be matched and a 404 Not Found
+     * This method invokes the this route's callable. If middleware is
+     * registered for this route, each callable middleware is invoked in
+     *  the order specified.
+     *
+     * This method is smart about trailing slashes on the route pattern. 
+     * If this route's pattern is defined with a trailing slash, and if the 
+     * current request URI does not have a trailing slash but otherwise 
+     * matches this route's pattern, a SlimRequestSlashException
+     * will be thrown triggering an HTTP 301 Permanent Redirect to the same 
+     * URI _with_ a trailing slash. This Exception is caught in the 
+     * `Slim::run` loop. If this route's pattern is defined without a 
+     * trailing slash, and if the current request URI does have a trailing 
+     * slash, this route will not be matched and a 404 Not Found
      * response will be sent if no subsequent matching routes are found.
      *
      * @return  bool Was route callable invoked successfully?
@@ -313,6 +360,13 @@ class Slim_Route {
         if ( substr($this->getPattern(), -1) === '/' && substr($this->getRouter()->getRequest()->getResourceUri(), -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
+        //Invoke middleware
+        foreach ( $this->middleware as $mw ) {
+            if ( is_callable($mw) ) {
+                call_user_func($mw);
+            }
+        }
+        //Invoke callable
         if ( is_callable($this->getCallable()) ) {
             call_user_func_array($this->getCallable(), array_values($this->getParams()));
             return true;

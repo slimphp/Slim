@@ -87,6 +87,11 @@ class Slim {
      * @var Slim The application instance
      */
     protected static $app;
+    
+    /**
+     * @var bool
+     */
+    private static $sessionStarted = false;
 
     /**
      * @var Slim_Http_Request
@@ -109,6 +114,11 @@ class Slim {
     private $view;
 
     /**
+     * @var Slim_Session_Flash
+     */
+    private $flash;
+
+    /**
      * @var array Key-value array of application settings
      */
     private $settings = array();
@@ -117,13 +127,18 @@ class Slim {
      * @var array Plugin hooks
      */
     private $hooks = array(
-        'slim.before' => array(),
-        'slim.before.router' => array(),
-        'slim.before.dispatch' => array(),
-        'slim.after.dispatch' => array(),
-        'slim.after.router' => array(),
-        'slim.after' => array()
+        'slim.before' => array(array()),
+        'slim.before.router' => array(array()),
+        'slim.before.dispatch' => array(array()),
+        'slim.after.dispatch' => array(array()),
+        'slim.after.router' => array(array()),
+        'slim.after' => array(array())
     );
+
+    /**
+     * @var string The current application mode
+     */
+    private $mode;
 
     /**
      * Slim auto-loader
@@ -281,7 +296,10 @@ class Slim {
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             'cookies.encrypt' => true,
-            'cookies.user_id' => 'DEFAULT'
+            'cookies.user_id' => 'DEFAULT',
+            //Session handler
+            'session.handler' => false,
+            'session.flash_key' => 'flash'
         ), $userSettings);
         $this->request = new Slim_Http_Request();
         $this->response = new Slim_Http_Response($this->request);
@@ -298,11 +316,7 @@ class Slim {
      * Initialize Slim
      *
      * This instantiates the Slim application using the provided
-     * application settings if available. This also:
-     *
-     * - Sets a default Not Found handler
-     * - Sets a default Error handler
-     * - Sets the view class
+     * application settings if available.
      *
      * Legacy Support:
      *
@@ -322,10 +336,18 @@ class Slim {
         } else {
             $settings = (array)$userSettings;
         }
+
+        //Init app
         self::$app = new Slim($settings);
+
+        //Init Not Found and Error handlers
         self::notFound(array('Slim', 'defaultNotFound'));
         self::error(array('Slim', 'defaultError'));
+
+        //Init view
         self::view(Slim::config('view'));
+
+        //Init logging
         if ( Slim::config('log.enable') === true ) {
             $logger = Slim::config('log.logger');
             if ( empty($logger) ) {
@@ -334,6 +356,38 @@ class Slim {
                 Slim_Log::setLogger($logger);
             }
         }
+
+        //Init session handling (do not run for PHP-CLI)
+        if ( defined('STDIN') === false ) {
+            if ( Slim::config('session.handler') === false ) {
+                Slim::config('session.handler', new Slim_Session_Handler_Cookies());
+            }
+            $sessionHandler = Slim::config('session.handler');
+            if ( is_subclass_of($sessionHandler, 'Slim_Session_Handler') ) {
+                $sessionHandler->register();
+            }
+            if ( !self::$sessionStarted ) {
+                session_start();
+                if ( isset($_COOKIE[session_id()]) ) {
+                    Slim::deleteCookie(session_id());
+                }
+                session_regenerate_id(true);
+                self::$sessionStarted = true;
+            }
+        }
+
+        //Init flash messaging
+        self::$app->flash = new Slim_Session_Flash(self::config('session.flash_key'));
+        self::view()->setData('flash', self::$app->flash);
+
+        //Determine mode
+        if ( isset($_ENV['SLIM_MODE']) ) {
+            self::$app->mode = (string)$_ENV['SLIM_MODE'];
+        } else {
+            $configMode = Slim::config('mode');
+            self::$app->mode = ( $configMode ) ? (string)$configMode : 'development';
+        }
+
     }
 
     /**
@@ -349,6 +403,24 @@ class Slim {
     }
 
     /***** CONFIGURATION *****/
+
+    /**
+     * Configure Slim for a given mode
+     *
+     * This method will immediately invoke the callable if
+     * the specified mode matches the current application mode.
+     * Otherwise, the callable is ignored. This should be called
+     * only _after_ you initialize your Slim app.
+     *
+     * @param   string  $mode
+     * @param   mixed   $callable
+     * @return  void
+     */
+    public static function configureMode( $mode, $callable ) {
+        if ( self::$app && $mode === self::$app->mode && is_callable($callable) ) {
+            call_user_func($callable);
+        }
+    }
 
     /**
      * Configure Slim Settings
@@ -384,59 +456,92 @@ class Slim {
     /***** ROUTING *****/
 
     /**
-     * Add GET route
+     * Add GET|POST|PUT|DELETE route
      *
-     * Adds a new GET route to the router with associated callable. This
-     * route may only be matched with an HTTP GET request.
+     * Adds a new route to the router with associated callable. This
+     * route will only be invoked when the HTTP request's method matches
+     * this route's method.
      *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * ARGUMENTS:
+     *
+     * First:       string  The URL pattern (REQUIRED)
+     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
+     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     *
+     * The first argument is required and must always be the 
+     * route pattern (ie. '/books/:id').
+     *
+     * The last argument is required and must always be the callable object 
+     * to be invoked when the route matches an HTTP request.
+     *
+     * You may also provide an unlimited number of in-between arguments; 
+     * each interior argument must be callable and will be invoked in the 
+     * order specified before the route's callable is invoked.
+     *
+     * USAGE:
+     *
+     * Slim::get('/foo'[, middleware, middleware, ...], callable);
+     *
+     * @param   string                      The HTTP method (ie. GET, POST, PUT, DELETE)
+     * @param   array                       See notes above
+     * @throws  InvalidArgumentException    If less than two arguments are provided
      * @return  Slim_Route
      */
-    public static function get( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_GET);
+    protected static function mapRoute($type, $args) {
+        if ( count($args) < 2 ) {
+            throw new InvalidArgumentException('Pattern and callable are required to create a route');
+        }
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $route = self::router()->map($pattern, $callable, $type);
+        if ( count($args) > 0 ) {
+            $route->setMiddleware($args);
+        }
+        return $route;
+    }
+
+    /**
+     * Add GET route
+     *
+     * @see     Slim::mapRoute
+     * @return  Slim_Route
+     */
+    public static function get() {
+        $args = func_get_args();
+        return self::mapRoute(Slim_Http_Request::METHOD_GET, $args);
     }
 
     /**
      * Add POST route
      *
-     * Adds a new POST route to the router with associated callable. This
-     * route may only be matched with an HTTP POST request.
-     *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @see     Slim::mapRoute
      * @return  Slim_Route
      */
-    public static function post( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_POST);
+    public static function post() {
+        $args = func_get_args();
+        return self::mapRoute(Slim_Http_Request::METHOD_POST, $args);
     }
 
     /**
      * Add PUT route
      *
-     * Adds a new PUT route to the router with associated callable. This
-     * route may only be matched with an HTTP PUT request.
-     *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @see     Slim::mapRoute
      * @return  Slim_Route
      */
-    public static function put( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_PUT);
+    public static function put() {
+        $args = func_get_args();
+        return self::mapRoute(Slim_Http_Request::METHOD_PUT, $args);
     }
 
     /**
      * Add DELETE route
      *
-     * Adds a new DELETE route to the router with associated callable. This
-     * route may only be matched with an HTTP DELETE request.
-     *
-     * @param   string  $pattern    The URL pattern, ie. "/books/:id/edit"
-     * @param   mixed   $callable   Anything that returns true for is_callable()
+     * @see     Slim::mapRoute
      * @return  Slim_Route
      */
-    public static function delete( $pattern, $callable ) {
-        return self::router()->map($pattern, $callable, Slim_Http_Request::METHOD_DELETE);
+    public static function delete() {
+        $args = func_get_args();
+        return self::mapRoute(Slim_Http_Request::METHOD_DELETE, $args);
     }
 
     /**
@@ -501,38 +606,6 @@ class Slim {
             call_user_func(self::router()->error());
             self::halt(500, ob_get_clean());
         }
-    }
-
-    /***** CALLBACKS *****/
-
-    /**
-     * Before Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked before the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function before( $callable ) {
-        self::hook('slim.before.router', $callable);
-    }
-
-    /**
-     * After Callback (DEPRECATION WARNING!)
-     *
-     * This queues a callable to be invoked after the Slim application
-     * is run. Queued callables are invoked in the order they are added.
-     *
-     * THIS METHOD WILL BE DEPRECATED IN THE NEXT VERSION. USE `Slim::hook()` INSTEAD.
-     *
-     * @param   mixed $callable Anything that returns true for is_callable()
-     * @return  void
-     */
-    public static function after( $callable ) {
-        self::hook('slim.after.router', $callable);
     }
 
     /***** ACCESSORS *****/
@@ -761,6 +834,31 @@ class Slim {
         $value = self::response()->getCookieJar()->getCookieValue($name);
         return ($value === false) ? null : $value;
     }
+    
+    /**
+     * Delete a Cookie (for both normal or encrypted Cookies)
+     *
+     * Remove a Cookie from the client. This method will overwrite an existing Cookie
+     * with a new, empty, auto-expiring Cookie. This method's arguments must match
+     * the original Cookie's respective arguments for the original Cookie to be
+     * removed. If any of this method's arguments are omitted or set to NULL, the
+     * default Cookie setting values (set during Slim::init) will be used instead.
+     *
+     * @param   string  $name       The cookie name
+     * @param   string  $path       The path on the server in which the cookie will be available on
+     * @param   string  $domain     The domain that the cookie is available to
+     * @param   bool    $secure     Indicates that the cookie should only be transmitted over a secure
+     *                              HTTPS connection from the client
+     * @param   bool    $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @return  void
+     */
+    public static function deleteCookie( $name, $path = null, $domain = null, $secure = null, $httponly = null ) {
+        $path = is_null($path) ? self::config('cookies.path') : $path;
+        $domain = is_null($domain) ? self::config('cookies.domain') : $domain;
+        $secure = is_null($secure) ? self::config('cookies.secure') : $secure;
+        $httponly = is_null($httponly) ? self::config('cookies.httponly') : $httponly;
+        self::response()->getCookieJar()->deleteCookie( $name, $path, $domain, $secure, $httponly );
+    }
 
     /***** HELPERS *****/
 
@@ -789,6 +887,8 @@ class Slim {
      * @return  void
      */
     public static function stop() {
+        self::$app->flash->save();
+        session_write_close();
         self::response()->send();
         throw new Slim_Exception_Stop();
     }
@@ -889,27 +989,63 @@ class Slim {
         }
     }
 
+    /***** FLASH *****/
+
+    public static function flash( $key, $value ) {
+        self::$app->flash->set($key, $value);
+    }
+
+    public static function flashNow( $key, $value ) {
+        self::$app->flash->now($key, $value);
+    }
+
+    public static function flashKeep() {
+        self::$app->flash->keep();
+    }
+
     /***** HOOKS *****/
 
     /**
-     * Invoke or assign hook
+     * Assign hook
      *
      * @param   string  $name       The hook name
      * @param   mixed   $callable   A callable object
+     * @param   int     $priority   The hook priority; 0 = high, 10 = low
      * @return  void
      */
-    public static function hook( $name, $callable = null ) {
+    public static function hook( $name, $callable, $priority = 10 ) {
         if ( !isset(self::$app->hooks[$name]) ) {
-            self::$app->hooks[$name] = array();
+            self::$app->hooks[$name] = array(array());
         }
-        if ( !is_null($callable) ) {
-            if ( is_callable($callable) ) {
-                self::$app->hooks[$name][] = $callable;
+        if ( is_callable($callable) ) {
+            self::$app->hooks[$name][(int)$priority][] = $callable;
+        }
+    }
+
+    /**
+     * Invoke hook
+     *
+     * @param   string  $name       The hook name
+     * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
+     * @return  mixed
+     */
+    public static function applyHook( $name, $hookArg = null ) {
+        if ( !isset(self::$app->hooks[$name]) ) {
+            self::$app->hooks[$name] = array(array());
+        }
+        if( !empty(self::$app->hooks[$name]) ) {
+            // Sort by priority, low to high, if there's more than one priority
+            if ( count(self::$app->hooks[$name]) > 1 ) {
+                ksort(self::$app->hooks[$name]);
             }
-        } else {
-            foreach( self::$app->hooks[$name] as $listener ) {
-                $listener(self::$app);
+            foreach( self::$app->hooks[$name] as $priority ) {
+                if( !empty($priority) ) {
+                    foreach($priority as $callable) {
+                        $hookArg = call_user_func($callable, $hookArg);
+                    }
+                }
             }
+            return $hookArg;
         }
     }
 
@@ -939,17 +1075,15 @@ class Slim {
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param   string  $name   Optional. A hook name.
+     * @param   string  $name   A hook name (Optional)
      * @return  void
      */
     public static function clearHooks( $name = null ) {
-        if ( !is_null($name) ) {
-            if ( isset(self::$app->hooks[(string)$name]) ) {
-                self::$app->hooks[(string)$name] = array();
-            }
+        if ( !is_null($name) && isset(self::$app->hooks[(string)$name]) ) {
+            self::$app->hooks[(string)$name] = array(array());
         } else {
             foreach( self::$app->hooks as $key => $value ) {
-                self::$app->hooks[$key] = array();
+                self::$app->hooks[$key] = array(array());
             }
         }
     }
@@ -970,15 +1104,15 @@ class Slim {
      */
     public static function run() {
         try {
-            self::hook('slim.before');
+            self::applyHook('slim.before');
             ob_start();
-            self::hook('slim.before.router');
+            self::applyHook('slim.before.router');
             $dispatched = false;
             foreach( self::router()->getMatchedRoutes() as $route ) {
                 try {
-                    self::hook('slim.before.dispatch');
+                    Slim::applyHook('slim.before.dispatch');
                     $dispatched = $route->dispatch();
-                    self::hook('slim.after.dispatch');
+                    Slim::applyHook('slim.after.dispatch');
                     if ( $dispatched ) {
                         break;
                     }
@@ -990,9 +1124,11 @@ class Slim {
                 self::notFound();
             }
             self::response()->write(ob_get_clean());
-            self::hook('slim.after.router');
+            self::applyHook('slim.after.router');
+            self::$app->flash->save();
+            session_write_close();
             self::response()->send();
-            self::hook('slim.after');
+            self::applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             self::redirect(self::request()->getRootUri() . self::request()->getResourceUri() . '/', 301);
         }

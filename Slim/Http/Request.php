@@ -265,8 +265,13 @@ class Slim_Http_Request {
      */
     public function getContentType() {
         if ( !isset($this->contentType) ) {
+            $contentType = 'application/x-www-form-urlencoded';
             $header = $this->headers('CONTENT_TYPE');
-            $this->contentType = is_null($header) ? 'application/x-www-form-urlencoded' : $header;
+            if ( !is_null($header) ) {
+                $headerParts = preg_split('/\s*;\s*/', $header);
+                $contentType = $headerParts[0];
+            }
+            $this->contentType = $contentType;
         }
         return $this->contentType;
     }

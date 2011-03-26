@@ -1,11 +1,20 @@
-Slim Tests
+Slim Framework Unit Tests
 
-This directory contains unit tests for each Slim class. I am using PHPUnit
-to test the Slim class files.
+I use PHPUnit 3.5.13. To run these unit tests on your system, follow the directions below. To save development time, these unit tests currently require PHP >= 5.3. However, the Slim Framework itself only requires PHP >= 5.1.
+
+To run these unit tests:
 
 1. Install PHPUnit
-To learn more about PHPUnit, visit http://www.phpunit.de/
+Visit http://www.phpunit.de/ for installation instructions.
 
-2. Run tests
-From the slim/tests/ directory, run `phpunit AllTests`. This command will
-run all available unit tests and display the test results.
+2. Run PHPUnit
+From the filesystem directory that contains the `tests` directory, you may run all unit tests or specific unit tests. Here are several examples. The '$>' in the examples below is your command prompt.
+
+To run all tests:
+$> phpunit tests
+
+To run all HTTP-related tests:
+$> phpunit tests/Http
+
+To run only the HTTP Request tests:
+$> phpunit tests/Http/RequestTest

@@ -28,9 +28,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-require_once '../Slim/Route.php';
-require_once '../Slim/Router.php';
-require_once 'PHPUnit/Framework.php';
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Route.php';
+require_once 'Slim/Router.php';
 
 /**
  * Router Mock
@@ -240,6 +241,53 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('id', $c);
         $this->assertArrayHasKey('name', $c);
     }
+
+    /**
+     * Test route sets and gets middleware
+     *
+     * Pre-conditions:
+     * Route instantiated
+     *
+     * Post-conditions:
+     * Case A: Middleware set as callable, not array
+     * Case B: Middleware set after other middleware already set
+     * Case C: Middleware set as array of callables
+     * Case D: Middleware set as a callable array
+     * Case E: Middleware is invalid; throws InvalidArgumentException
+     */
+    public function testRouteMiddleware() {
+        $callable1 = function () {};
+        $callable2 = function () {};
+        //Case A
+        $r1 = new Slim_Route('/foo', function () {});
+        $r1->setMiddleware($callable1);
+        $mw = $r1->getMiddleware();
+        $this->assertInternalType('array', $mw);
+        $this->assertEquals(1, count($mw));
+        //Case B
+        $r1->setMiddleware($callable2);
+        $mw = $r1->getMiddleware();
+        $this->assertEquals(2, count($mw));
+        //Case C
+        $r2 = new Slim_Route('/foo', function () {});
+        $r2->setMiddleware(array($callable1, $callable2));
+        $mw = $r2->getMiddleware();
+        $this->assertInternalType('array', $mw);
+        $this->assertEquals(2, count($mw));
+        //Case D
+        $r3 = new Slim_Route('/foo', function () {});
+        $r3->setMiddleware(array($this, 'callableTestFunction'));
+        $mw = $r3->getMiddleware();
+        $this->assertInternalType('array', $mw);
+        $this->assertEquals(1, count($mw));
+        //Case E
+        try {
+            $r3->setMiddleware('sdjfsoi788');
+            $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
+        } catch ( InvalidArgumentException $e ) {}
+    }
+
+    public function callableTestFunction() {}
 
 }
 

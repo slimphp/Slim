@@ -1,10 +1,10 @@
 # Slim Framework for PHP 5
 
-Thank you for choosing Slim, a micro-framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com).
+Thank you for choosing the Slim Framework, a micro-framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com).
 
 ## Features
 
-Slim provides the following notable features out-of-the-box:
+The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
 
 * Clean and simple DSL for writing powerful web applications
 * RESTful HTTP routes (GET, POST, PUT, DELETE)
@@ -17,7 +17,9 @@ Slim provides the following notable features out-of-the-box:
   * Optional route segments... /archive(/:year(/:month(/:day)))
 * Easy app configuration
 * Easy templating with custom Views (ie. Twig, Smarty, Mustache, ...)
-* Cookie handling with optional AES-256 encryption
+* Secure sessions
+* Signed cookies with AES-256 encryption
+* Flash messaging
 * HTTP caching (ETag and Last-Modified)
 * Logging
 * Error handling
@@ -25,10 +27,10 @@ Slim provides the following notable features out-of-the-box:
 
 ## "Hello World" application (PHP 5 >= 5.3)
 
-The Slim Framework supports anonymous routes. This is the preferred method of defining Slim application routes.
+The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
 
     <?php
-    require 'slim/Slim.php';
+    require 'Slim/Slim.php';
     Slim::init();
     Slim::get('/hello/:name', function ($name) {
         echo "Hello, $name!";
@@ -41,7 +43,7 @@ The Slim Framework supports anonymous routes. This is the preferred method of de
 If you are running PHP 5 < 5.3, the second `Slim::get` parameter will be the name of a callable function instead of an anonymous function.
 
     <?php
-    require 'slim/Slim.php';
+    require 'Slim/Slim.php';
     Slim::init();
     Slim::get('/hello/:name', 'hello');
     function hello($name) {
@@ -54,7 +56,7 @@ If you are running PHP 5 < 5.3, the second `Slim::get` parameter will be the nam
 
 ### Install Slim
 
-Download the Slim Framework and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
+Download the Slim Framework for PHP 5 and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
 
 ### Setup .htaccess
 
@@ -97,6 +99,12 @@ Slim is in active development, and test coverage is continually improving.
 For the most up-to-date information and news, follow the Slim PHP 5 micro framework on Twitter:
 
 <http://www.twitter.com/slimphp>
+
+Additional resources (ie. custom Views and plugins) are available online in a separate repository so this primary repository remains as light-weight as possible.
+
+<https://github.com/codeguy/Slim-Extras>
+
+Other helpful links:
 
 * Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
 * Documentation:  <http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation>
