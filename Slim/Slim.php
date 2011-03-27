@@ -30,6 +30,7 @@
 
 //Ensure PHP session IDs only use the characters [a-z0-9]
 ini_set('session.hash_bits_per_character', 4);
+ini_set('session.hash_function', 0);
 
 //Slim's Encryted Cookies rely on libmcyrpt and these two constants.
 //If libmycrpt is unavailable, we ensure the expected constants
