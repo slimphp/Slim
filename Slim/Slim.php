@@ -28,6 +28,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+//Ensure PHP session IDs only use the characters [a-z0-9]
+ini_set('session.hash_bits_per_character', 4);
+
 //Slim's Encryted Cookies rely on libmcyrpt and these two constants.
 //If libmycrpt is unavailable, we ensure the expected constants
 //are available to avoid errors.
@@ -355,10 +358,13 @@ class Slim {
         //Start session if not already started
         if ( session_id() === '' ) {
             $sessionHandler = Slim::config('session.handler');
-            if ( $sessionHandler instanceof 'Slim_Session_Handler' ) {
+            if ( $sessionHandler instanceof Slim_Session_Handler ) {
                 $sessionHandler->register();
             }
             session_start();
+            if ( isset($_COOKIE[session_id()]) ) {
+                Slim::deleteCookie(session_id());
+            }
             session_regenerate_id(true);
         }
 
