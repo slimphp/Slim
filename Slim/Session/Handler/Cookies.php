@@ -45,9 +45,6 @@
 class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
 
     public function open( $savePath, $sessionName ) {
-        if ( isset($_COOKIE[$sessionName]) ) {
-            Slim::deleteCookie($sessionName);
-        }
         return true;
     }
 
