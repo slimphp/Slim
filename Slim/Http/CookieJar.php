@@ -254,7 +254,7 @@ class Slim_Http_CookieJar {
                     }
                 }
             } else {
-                return $_COOKIES[$cookiename];
+                return $_COOKIE[$cookiename];
             }
         }
         if ( $deleteIfInvalid ) {
