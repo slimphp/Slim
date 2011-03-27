@@ -45,7 +45,7 @@
 class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
 
     public function open( $savePath, $sessionName ) {
-        return true; //Not used
+        return true;
     }
 
     public function close() {
