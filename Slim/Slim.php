@@ -87,11 +87,6 @@ class Slim {
      * @var Slim The application instance
      */
     protected static $app;
-    
-    /**
-     * @var bool
-     */
-    private static $sessionStarted = false;
 
     /**
      * @var Slim_Http_Request
@@ -298,7 +293,7 @@ class Slim {
             'cookies.encrypt' => true,
             'cookies.user_id' => 'DEFAULT',
             //Session handler
-            'session.handler' => false,
+            'session.handler' => new Slim_Session_Handler_Cookies(),
             'session.flash_key' => 'flash'
         ), $userSettings);
         $this->request = new Slim_Http_Request();
@@ -357,23 +352,14 @@ class Slim {
             }
         }
 
-        //Init session handling (do not run for PHP-CLI)
-        if ( defined('STDIN') === false ) {
-            if ( Slim::config('session.handler') === false ) {
-                Slim::config('session.handler', new Slim_Session_Handler_Cookies());
-            }
+        //Start session if not already started
+        if ( session_id() === '' ) {
             $sessionHandler = Slim::config('session.handler');
-            if ( is_subclass_of($sessionHandler, 'Slim_Session_Handler') ) {
+            if ( $sessionHandler instanceof 'Slim_Session_Handler' ) {
                 $sessionHandler->register();
             }
-            if ( !self::$sessionStarted ) {
-                session_start();
-                if ( isset($_COOKIE[session_id()]) ) {
-                    Slim::deleteCookie(session_id());
-                }
-                session_regenerate_id(true);
-                self::$sessionStarted = true;
-            }
+            session_start();
+            session_regenerate_id(true);
         }
 
         //Init flash messaging
