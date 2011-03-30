@@ -363,10 +363,6 @@ class Slim {
                 $sessionHandler->register();
             }
             session_start();
-            if ( isset($_COOKIE[session_id()]) ) {
-                Slim::deleteCookie(session_id());
-            }
-            session_regenerate_id(true);
         }
 
         //Init flash messaging
