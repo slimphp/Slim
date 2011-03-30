@@ -282,7 +282,7 @@ class Slim {
             //Debugging
             'debug' => true,
             //View
-            'templates_dir' => './templates',
+            'templates.path' => './templates',
             'view' => 'Slim_View',
             //Settings for all cookies
             'cookies.lifetime' => '20 minutes',
@@ -363,10 +363,6 @@ class Slim {
                 $sessionHandler->register();
             }
             session_start();
-            if ( isset($_COOKIE[session_id()]) ) {
-                Slim::deleteCookie(session_id());
-            }
-            session_regenerate_id(true);
         }
 
         //Init flash messaging
@@ -675,7 +671,12 @@ class Slim {
      * @return  void
      */
     public static function render( $template, $data = array(), $status = null ) {
-        self::view()->setTemplatesDirectory(self::config('templates_dir'));
+        $templatesPath = Slim::config('templates.path');
+        //Legacy support
+        if ( is_null($templatesPath) ) {
+            $templatesPath = Slim::config('templates_dir');
+        }
+        self::view()->setTemplatesDirectory($templatesPath);
         if ( !is_null($status) ) {
             self::response()->status($status);
         }

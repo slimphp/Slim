@@ -578,7 +578,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim::render
+     * Test Slim::render legacy
      *
      * Pre-conditions:
      * You have initialized a Slim app and render an existing
@@ -587,16 +587,35 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Post-conditions:
      * The response status is 404;
      * The View data is set correctly;
-     * The response status code is set correctly
+     * The response status code is set correctly;
+     * The response body is correct;
      */
     public function testSlimRenderSetsResponseStatusOk(){
-        $data = array('foo' => 'bar');
+        $this->expectOutputString('test output bar');
         Slim::init(array(
+            'templates.path' => null,
             'templates_dir' => dirname(__FILE__) . '/templates'
         ));
-        Slim::render('test.php', $data, 404);
+        Slim::render('test.php', array('foo' => 'bar'), 404);
         $this->assertEquals(Slim::response()->status(), 404);
-        $this->assertEquals(Slim::response()->status(), 404);
+    }
+
+    /**
+     * Test Slim::render
+     *
+     * Pre-conditions:
+     * You have initialized a Slim app and render an existing
+     * template. No Exceptions or Errors are thrown.
+     *
+     * Post-conditions:
+     * The response body is correct
+     */
+    public function testSlimRender(){
+        $this->expectOutputString('test output bar');
+        Slim::init(array(
+            'templates.path' => dirname(__FILE__) . '/templates'
+        ));
+        Slim::render('test.php', array('foo' => 'bar'));
     }
 
     /************************************************
