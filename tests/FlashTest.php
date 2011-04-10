@@ -158,6 +158,21 @@ class FlashTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertArrayHasKey('error', $_SESSION['flash']);
         $this->assertEquals('New error message', $_SESSION['flash']['error']);
     }
+    
+    /**
+     * Tests flash can store array/object, not only strings.
+     */
+    public function testFlashKeepsObjects() {
+        $c = new StdClass;
+        $c->foo = 'bar';
+        
+        $f1 = new Slim_Session_Flash();
+        $f1->set('object', $c);
+        $f1->save();
+        $f1->load();
+        
+        $this->assertObjectHasAttribute( $f1['object'], 'foo' );
+    }
 
 }
 ?>
