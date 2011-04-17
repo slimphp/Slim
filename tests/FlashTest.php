@@ -171,7 +171,7 @@ class FlashTest extends PHPUnit_Extensions_OutputTestCase {
         $f1->save();
         $f1->load();
         
-        $this->assertObjectHasAttribute( $f1['object'], 'foo' );
+        $this->assertObjectHasAttribute('foo', $f1['object']);
     }
 
 }
