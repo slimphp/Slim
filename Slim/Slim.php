@@ -881,7 +881,9 @@ class Slim {
      * @return  void
      */
     public static function stop() {
-        self::$app->flash->save();
+        if ( self::$app->flash ) {
+            self::$app->flash->save();
+        }
         session_write_close();
         self::response()->send();
         throw new Slim_Exception_Stop();
