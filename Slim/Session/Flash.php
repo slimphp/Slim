@@ -109,7 +109,7 @@ class Slim_Session_Flash implements ArrayAccess {
      * @return Slim_Session_Flash
      */
     public function now( $key, $value ) {
-        $this->messages['now'][(string)$key] = (string)$value;
+        $this->messages['now'][(string)$key] = $value;
         return $this->save();
     }
 
@@ -121,7 +121,7 @@ class Slim_Session_Flash implements ArrayAccess {
      * @return Slim_Session_Flash
      */
     public function set( $key, $value ) {
-        $this->messages['next'][(string)$key] = (string)$value;
+        $this->messages['next'][(string)$key] = $value;
         return $this->save();
     }
 
