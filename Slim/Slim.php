@@ -152,7 +152,7 @@ class Slim {
         if ( strpos($class, 'Slim') !== 0 ) {
             return;
         }
-        $file = dirname(__FILE__) . '/../' . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+        $file = dirname(__FILE__) . '/' . str_replace('_', DIRECTORY_SEPARATOR, substr($class,4)) . '.php';
         if ( file_exists($file) ) {
             require $file;
         }
