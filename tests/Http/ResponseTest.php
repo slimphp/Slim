@@ -267,4 +267,3 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
 
 }
 
-?>
