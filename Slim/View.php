@@ -172,4 +172,4 @@ class Slim_View {
     }
 
 }
-?>
+

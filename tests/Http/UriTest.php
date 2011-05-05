@@ -180,4 +180,4 @@ class UriTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-?>
+

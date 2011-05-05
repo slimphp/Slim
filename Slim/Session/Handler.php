@@ -118,4 +118,3 @@ abstract class Slim_Session_Handler {
 
 }
 
-?>
