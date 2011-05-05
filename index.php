@@ -139,4 +139,3 @@ Slim::delete('/delete', function () {
  */
 Slim::run();
 
-?>

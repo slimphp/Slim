@@ -203,4 +203,4 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-?>
+

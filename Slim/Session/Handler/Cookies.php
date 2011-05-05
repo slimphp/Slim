@@ -70,4 +70,3 @@ class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
 
 }
 
-?>

@@ -189,4 +189,3 @@ class Slim_Session_Flash implements ArrayAccess {
 
 }
 
-?>
