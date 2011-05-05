@@ -43,4 +43,3 @@
  */
 class Slim_Exception_RequestSlash extends Exception {}
 
-?>

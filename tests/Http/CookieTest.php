@@ -76,4 +76,3 @@ class CookieTest extends PHPUnit_Extensions_OutputTestCase   {
 
 }
 
-?>

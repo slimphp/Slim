@@ -40,4 +40,3 @@
  */
 class Slim_Exception_Stop extends Exception {}
 
-?>

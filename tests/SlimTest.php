@@ -1286,4 +1286,3 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
 }
 
-?>

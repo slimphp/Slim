@@ -110,4 +110,4 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-?>
+
