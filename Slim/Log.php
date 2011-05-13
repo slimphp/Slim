@@ -56,7 +56,43 @@ class Slim_Log {
     /**
      * @var mixed An object that implements expected Logger interface
      */
-    private static $logger;
+    protected $logger;
+
+    /**
+     * @var bool Enable logging?
+     */
+    protected $enabled;
+
+    /**
+     * Constructor
+     *
+     */
+    public function __construct() {
+        $this->enabled = true;
+    }
+
+    /**
+     * Enable or disable logging
+     *
+     * @param bool
+     * @return void
+     */
+    public function setEnabled( $enabled ) {
+        if ( $enabled ) {
+            $this->enabled = true;
+        } else {
+            $this->enabled = false;
+        }
+    }
+
+    /**
+     * Is logging enabled?
+     *
+     * @return bool
+     */
+    public function isEnabled() {
+        return $this->enabled;
+    }
 
     /**
      * Log debug message
@@ -64,8 +100,8 @@ class Slim_Log {
      * @param   mixed   $object
      * @return  mixed   What the Logger returns, or false if Logger not set
      */
-    public static function debug( $object ) {
-        return isset(self::$logger) ? self::$logger->debug($object) : false;
+    public function debug( $object ) {
+        return isset($this->logger) && $this->isEnabled() ? $this->logger->debug($object) : false;
     }
 
     /**
@@ -74,8 +110,8 @@ class Slim_Log {
      * @param   mixed   $object
      * @return  mixed   What the Logger returns, or false if Logger not set
      */
-    public static function info( $object ) {
-        return isset(self::$logger) ? self::$logger->info($object) : false;
+    public function info( $object ) {
+        return isset($this->logger) && $this->isEnabled() ? $this->logger->info($object) : false;
     }
 
     /**
@@ -84,8 +120,8 @@ class Slim_Log {
      * @param   mixed   $object
      * @return  mixed   What the Logger returns, or false if Logger not set
      */
-    public static function warn( $object ) {
-        return isset(self::$logger) ? self::$logger->warn($object) : false;
+    public function warn( $object ) {
+        return isset($this->logger) && $this->isEnabled() ? $this->logger->warn($object) : false;
     }
 
     /**
@@ -94,8 +130,8 @@ class Slim_Log {
      * @param   mixed   $object
      * @return  mixed   What the Logger returns, or false if Logger not set
      */
-    public static function error( $object ) {
-        return isset(self::$logger) ? self::$logger->error($object) : false;
+    public function error( $object ) {
+        return isset($this->logger) && $this->isEnabled() ? $this->logger->error($object) : false;
     }
 
     /**
@@ -104,28 +140,27 @@ class Slim_Log {
      * @param   mixed   $object
      * @return  mixed   What the Logger returns, or false if Logger not set
      */
-    public static function fatal( $object ) {
-        return isset(self::$logger) ? self::$logger->fatal($object) : false;
+    public function fatal( $object ) {
+        return isset($this->logger) && $this->isEnabled() ? $this->logger->fatal($object) : false;
     }
 
     /**
-     * Set the Logger object
+     * Set Logger
      *
-     * @param   mixed   $logger Instance of your custom Logger
+     * @param   Slim_Logger   $logger Instance of your custom Logger
      * @return  void
      */
-    public static function setLogger( $logger ) {
-        self::$logger = $logger;
+    public function setLogger( $logger ) {
+        $this->logger = $logger;
     }
 
     /**
-     * Get the Logger object
+     * Get Logger
      *
-     * @return  mixed   Instance of your custom Logger
+     * @return Slim_Logger Instance of your custom Logger
      */
-    public static function getLogger() {
-        return self::$logger;
+    public function getLogger() {
+        return $this->logger;
     }
 
 }
-
