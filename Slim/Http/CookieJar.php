@@ -397,4 +397,3 @@ class Slim_Http_CookieJar {
     }
 
 }
-

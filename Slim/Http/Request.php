@@ -395,4 +395,3 @@ class Slim_Http_Request {
     }
 
 }
-

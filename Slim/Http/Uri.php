@@ -127,4 +127,3 @@ class Slim_Http_Uri {
     }
 
 }
-

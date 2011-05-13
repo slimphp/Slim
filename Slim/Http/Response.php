@@ -315,4 +315,3 @@ class Slim_Http_Response {
     }
 
 }
-
