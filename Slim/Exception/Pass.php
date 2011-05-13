@@ -41,4 +41,3 @@
  * @since   Version 1.0
  */
 class Slim_Exception_Pass extends Exception {}
-
