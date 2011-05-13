@@ -175,4 +175,3 @@ class FlashTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-
