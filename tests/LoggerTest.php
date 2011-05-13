@@ -126,4 +126,3 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-

@@ -208,4 +208,3 @@ class Slim_Logger {
     }
 
 }
-
