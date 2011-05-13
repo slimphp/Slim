@@ -49,32 +49,32 @@ class Slim_Http_Response {
     /**
      * @var Slim_Http_Request
      */
-    private $request;
+    protected $request;
 
     /**
      * @var int HTTP status code
      */
-    private $status = 200;
+    protected $status = 200;
 
     /**
      * @var array Key-value array of HTTP response headers
      */
-    private $headers = array();
+    protected $headers = array();
 
     /**
      * @var string HTTP response body
      */
-    private $body = '';
+    protected $body = '';
 
     /**
      * @var int Length of HTTP response body
      */
-    private $length = 0;
+    protected $length = 0;
 
     /**
      * @var array HTTP response codes and messages
      */
-    private static $messages = array(
+    protected static $messages = array(
         //Informational 1xx
         100 => '100 Continue',
         101 => '101 Switching Protocols',
