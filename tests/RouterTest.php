@@ -1,12 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -82,11 +82,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Slim_Router($request);
         $route = $router->map('/foo/bar', function () {}, 'GET');
         $router->cacheNamedRoute('foo', $route);
-        $this->assertEquals($router->urlFor('foo'), '/foo/bar');
+        $this->assertEquals('/foo/bar', $router->urlFor('foo'));
     }
 
     /**
-     * Router::urlFor should eturn a full route pattern if
+     * Router::urlFor should return a full route pattern if
      * param data is provided.
      */
     public function testUrlForNamedRouteWithParams() {
@@ -94,7 +94,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Slim_Router($request);
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {}, 'GET');
         $router->cacheNamedRoute('foo', $route);
-        $this->assertEquals($router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')), '/foo/Josh/and/John');
+        $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
     }
 
     /**
@@ -111,7 +111,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Router::cacheNamedRoute should throw na exception if named Route
+     * Router::cacheNamedRoute should throw an exception if named Route
      * with same name already exists.
      */
     public function testNamedRouteWithExistingName() {
@@ -153,10 +153,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         $router = new Slim_Router(new Slim_Http_Request());
         $route = $router->map('/', function () {}, Slim_Http_Request::METHOD_GET);
-        $numberOfMatchingRoutes = 0;
-        foreach( $router->getMatchedRoutes() as $matchingRoute ) {
-            $numberOfMatchingRoutes++;
-        }
+        $numberOfMatchingRoutes = count($router->getMatchedRoutes());
         $this->assertEquals(1, $numberOfMatchingRoutes);
     }
 
@@ -202,4 +199,3 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
 }
-
