@@ -47,37 +47,32 @@ class Slim_Router {
     /**
      * @var Slim_Http_Request
      */
-    private $request;
+    protected $request;
 
     /**
      * @var array Lookup hash of routes, keyed by Request method
      */
-    private $routes;
+    protected $routes;
 
     /**
      * @var array Lookup hash of named routes, keyed by route name
      */
-    private $namedRoutes;
+    protected $namedRoutes;
 
     /**
      * @var array Array of routes that match the Request method and URL
      */
-    private $matchedRoutes;
+    protected $matchedRoutes;
 
     /**
      * @var mixed Callable to be invoked if no matching routes are found
      */
-    private $notFound;
+    protected $notFound;
 
     /**
      * @var mixed Callable to be invoked if application error
      */
-    private $error;
-
-    /**
-     * @var int Iterator position
-     */
-    private $position;
+    protected $error;
 
     /**
      * Constructor
