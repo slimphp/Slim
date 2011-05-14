@@ -171,4 +171,32 @@ class UriTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertEquals('/one/two', Slim_Http_Uri::getUri(true));
     }
 
+    /**
+     * Test URI if PATH_INFO
+     */
+    public function testUriWithPathInfo() {
+        $_SERVER['PATH_INFO'] = '/foo/bar';
+        $this->assertEquals('/foo/bar', Slim_Http_Uri::getUri(true));
+    }
+
+    /**
+     * Test URI if no information source available
+     */
+    public function testUriWithoutDataSource() {
+        unset($_SERVER['PATH_INFO']);
+        unset($_SERVER['REQUEST_URI']);
+        unset($_SERVER['PHP_SELF']);
+        try {
+            $uri = Slim_Http_Uri::getUri(true);
+            $this->fail('Did not catch RuntimeException when determining URI without a data source');
+        } catch( RuntimeException $e ) {}
+    }
+
+    /**
+     * Test query string
+     */
+    public function testQueryString() {
+        $_SERVER['QUERY_STRING'] = 'foo=bar&one=1';
+        $this->assertEquals('foo=bar&one=1', Slim_Http_Uri::getQueryString());
+    }
 }
