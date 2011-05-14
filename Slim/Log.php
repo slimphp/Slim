@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -40,9 +42,6 @@
  * error( mixed $object )
  * fatal( mixed $object )
  *
- * USE THIS ADAPTER CLASS TO LOG ACTIVITY IN YOUR SLIM APPLICATION.
- * DO NOT CALL YOUR OWN LOGGER DIRECTLY.
- *
  * This class assumes nothing else about your custom Logger, so you are free
  * to use Apache's Log4PHP logger or any other log class that, at the
  * very least, implements the five public instance methods shown above.
@@ -65,7 +64,6 @@ class Slim_Log {
 
     /**
      * Constructor
-     *
      */
     public function __construct() {
         $this->enabled = true;
@@ -73,9 +71,8 @@ class Slim_Log {
 
     /**
      * Enable or disable logging
-     *
-     * @param bool
-     * @return void
+     * @param   bool    $enabled
+     * @return  void
      */
     public function setEnabled( $enabled ) {
         if ( $enabled ) {
@@ -87,7 +84,6 @@ class Slim_Log {
 
     /**
      * Is logging enabled?
-     *
      * @return bool
      */
     public function isEnabled() {
@@ -96,9 +92,8 @@ class Slim_Log {
 
     /**
      * Log debug message
-     *
-     * @param   mixed   $object
-     * @return  mixed   What the Logger returns, or false if Logger not set
+     * @param   mixed           $object
+     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
      */
     public function debug( $object ) {
         return isset($this->logger) && $this->isEnabled() ? $this->logger->debug($object) : false;
@@ -106,9 +101,8 @@ class Slim_Log {
 
     /**
      * Log info message
-     *
-     * @param   mixed   $object
-     * @return  mixed   What the Logger returns, or false if Logger not set
+     * @param   mixed           $object
+     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
      */
     public function info( $object ) {
         return isset($this->logger) && $this->isEnabled() ? $this->logger->info($object) : false;
@@ -116,9 +110,8 @@ class Slim_Log {
 
     /**
      * Log warn message
-     *
-     * @param   mixed   $object
-     * @return  mixed   What the Logger returns, or false if Logger not set
+     * @param   mixed           $object
+     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
      */
     public function warn( $object ) {
         return isset($this->logger) && $this->isEnabled() ? $this->logger->warn($object) : false;
@@ -126,9 +119,8 @@ class Slim_Log {
 
     /**
      * Log error message
-     *
-     * @param   mixed   $object
-     * @return  mixed   What the Logger returns, or false if Logger not set
+     * @param   mixed           $object
+     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
      */
     public function error( $object ) {
         return isset($this->logger) && $this->isEnabled() ? $this->logger->error($object) : false;
@@ -136,9 +128,8 @@ class Slim_Log {
 
     /**
      * Log fatal message
-     *
-     * @param   mixed   $object
-     * @return  mixed   What the Logger returns, or false if Logger not set
+     * @param   mixed           $object
+     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
      */
     public function fatal( $object ) {
         return isset($this->logger) && $this->isEnabled() ? $this->logger->fatal($object) : false;
@@ -146,8 +137,7 @@ class Slim_Log {
 
     /**
      * Set Logger
-     *
-     * @param   Slim_Logger   $logger Instance of your custom Logger
+     * @param   mixed   $logger
      * @return  void
      */
     public function setLogger( $logger ) {
@@ -156,8 +146,7 @@ class Slim_Log {
 
     /**
      * Get Logger
-     *
-     * @return Slim_Logger Instance of your custom Logger
+     * @return mixed
      */
     public function getLogger() {
         return $this->logger;
