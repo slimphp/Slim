@@ -181,11 +181,12 @@ class Slim_Session_Flash implements ArrayAccess {
     }
 
     public function offsetSet( $offset, $value ) {
-        $this->set($offset, $value);
+        $this->now($offset, $value);
     }
 
     public function offsetUnset( $offset ) {
-        unset($this->messages['next'][$offset]);
+        unset($this->messages['prev'][$offset]);
+        unset($this->messages['now'][$offset]);
     }
 
 }
