@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -48,14 +50,15 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Pre-conditions:
      * Case A: Logger instantiated with existing directory
      * Case B: Logger instantiated with non existing directory
-     * Case C: Logger instantiated with valid level
-     * Case D: Logger instantiated with invalid level
+     * Case C: Logger instantiated with non existing directory
+     * Case D: Logger instantiated with valid level
+     * Case E: Logger instantiated with invalid level
      *
      * Post-conditions:
-     * Case A: Logger created
+     * Case A: Logger level is 4
      * Case B: RuntimeException not thrown during instantiation with invalid log directory
      * Case C: RuntimeException thrown during log method invocation with invalid log directory
-     * Case D: Logger created
+     * Case D: Logger level is 1
      * Case E: InvalidArgumentException thrown
      */
     public function testLoggerInstantiation() {
