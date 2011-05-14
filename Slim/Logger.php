@@ -164,7 +164,7 @@ class Slim_Logger {
      * Get absolute path to current daily log file
      * @return string
      */
-    protected function getFile() {
+    public function getFile() {
         return $this->getDirectory() . strftime('%Y-%m-%d') . '.log';
     }
 
@@ -194,7 +194,7 @@ class Slim_Logger {
      * @return  void
      */
     protected function write( $data ) {
-        file_put_contents($this->getFile(), $data, FILE_APPEND | LOCK_EX);
+        @file_put_contents($this->getFile(), $data, FILE_APPEND | LOCK_EX);
     }
 
 }
