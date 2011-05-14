@@ -123,8 +123,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimDefaults() {
         $app = new Slim();
-        $this->assertTrue(is_callable($app->router()->notFound()));
-        $this->assertTrue(is_callable($app->router()->error()));
         $this->assertTrue($app->view() instanceof Slim_View);
         $this->assertEquals('20 minutes', $app->config('cookies.lifetime'));
     }
@@ -550,7 +548,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app = new Slim();
         $app->view()->setData($data);
         $app->view('CustomView');
-        $this->assertEquals($data, Slim::view()->getData());
+        $this->assertEquals($data, $app->view()->getData());
     }
 
     /************************************************
