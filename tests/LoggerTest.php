@@ -53,9 +53,10 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Post-conditions:
      * Case A: Logger created
-     * Case B: RuntimeException thrown
-     * Case C: Logger created
-     * Case D: InvalidArgumentException thrown
+     * Case B: RuntimeException not thrown during instantiation with invalid log directory
+     * Case C: RuntimeException thrown during log method invocation with invalid log directory
+     * Case D: Logger created
+     * Case E: InvalidArgumentException thrown
      */
     public function testLoggerInstantiation() {
         //Case A
@@ -64,12 +65,18 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
         //Case B
         try {
             $l2 = new Slim_Logger('./foo');
-            $this->fail("Did not catch RuntimeException thrown from Logger with non-existant directory");
-        } catch ( RuntimeException $e) {}
+        } catch ( RuntimeException $e) {
+            $this->fail('Instantiating Slim_Logger with bad log directory should only fail when invoking Slim_Logger::log');
+        }
         //Case C
+        try {
+            $l2->warn('Foo');
+            $this->fail('Did not catch RuntimeException when invoking Slim_Logger::log with invalid log directory');
+        } catch ( RuntimeException $e ) {}
+        //Case D
         $l3 = new Slim_Logger(dirname(__FILE__) . '/logs', 1);
         $this->assertEquals(1, $l3->getLevel());
-        //Case D
+        //Case E
         try {
             $l4 = new Slim_Logger(dirname(__FILE__) . '/logs', 5);
             $this->fail("Did not catch RuntimeException thrown from Logger with invalid level");
