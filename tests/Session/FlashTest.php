@@ -172,4 +172,23 @@ class FlashTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertObjectHasAttribute('foo', $f1['object']);
     }
 
+    /**
+     * Test flash information iteration
+     */
+    public function testFlashIteration() {
+        $f = new Slim_Session_Flash();
+        $data = array('one' => 'This is one', 'two' => 'This is two', 'three' => 'This is three');
+        $f->now('info', $data);
+        if ( isset($f['info']) ) {
+            foreach ( $f['info'] as $key => $value ) {
+                $this->assertArrayHasKey($key, $data);
+                $this->assertEquals($data[$key], $value);
+            }
+            unset($f['info']);
+            $this->assertNull($f['info']);
+        }
+        $f['test'] = $data;
+        $this->assertEquals($data, $f['test']);
+    }
+
 }
