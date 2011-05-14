@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -61,8 +63,8 @@ class Slim_Http_Uri {
     
     /**
      * Get Base URI without trailing slash
-     *
-     * @return string
+     * @param   bool    $reload Force reparse the base URI?
+     * @return  string
      */
     public static function getBaseUri( $reload = false ) {
         if ( $reload || is_null(self::$baseUri) ) {
@@ -76,9 +78,9 @@ class Slim_Http_Uri {
 
     /**
      * Get URI with leading slash
-     *
-     * @return string
-     * @throws RuntimeException If unable if unable to determine URI
+     * @param   bool    $reload     Force reparse the URI?
+     * @return  string
+     * @throws  RuntimeException    If unable if unable to determine URI
      */
     public static function getUri( $reload = false ) {
         if ( $reload || is_null(self::$uri) ) {
@@ -104,8 +106,8 @@ class Slim_Http_Uri {
 
     /**
      * Get URI Scheme
-     *
-     * @return string "https" or "http"
+     * @param   bool    $reload For reparse the URL scheme?
+     * @return  string  "https" or "http"
      */
     public static function getScheme( $reload = false ) {
         if ( $reload || is_null(self::$scheme) ) {
@@ -116,8 +118,8 @@ class Slim_Http_Uri {
 
     /**
      * Get URI Query String
-     *
-     * @return string
+     * @param   bool    $reload For reparse the URL query string?
+     * @return  string
      */
     public static function getQueryString( $reload = false ) {
         if ( $reload || is_null(self::$queryString) ) {
