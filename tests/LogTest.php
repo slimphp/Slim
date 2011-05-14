@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -62,7 +64,7 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Log enabling and disabling
      *
      * Pre-conditions:
-     * Log created with default settings
+     * None
      *
      * Post-conditions:
      * A) Logging enabled
@@ -70,10 +72,13 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * C) Logging enabled
      */
     public function testEnableAndDisableLogging() {
+        //Case A
         $log = new Slim_Log();
         $this->assertTrue($log->isEnabled());
+        //Case B
         $log->setEnabled(false);
         $this->assertFalse($log->isEnabled());
+        //Case C
         $log->setEnabled(true);
         $this->assertTrue($log->isEnabled());
     }
@@ -85,7 +90,7 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * None
      *
      * Post-conditions:
-     * Log's logger is set correctly
+     * Logger is set correctly
      */
     public function testSetsLogger() {
         $log = new Slim_Log();
@@ -98,22 +103,23 @@ class LogTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Log adapter methods
      *
      * Pre-conditions
-     * Log instantiated with associated Logger
+     * Log instantiated with MyLogger instance
      *
      * Post-conditions:
-     * All Log adapter methods return expected results
+     * A) All Log adapter methods return expected results
+     * B) All Log adapter methods return false
      */
     public function testLoggerMethods() {
         $log = new Slim_Log();
         $logger = new MyLogger();
         $log->setLogger($logger);
-        //When logging enabled
+        //Case A: Logging enabled
         $this->assertEquals('debug', $log->debug('Test'));
         $this->assertEquals('info', $log->info('Test'));
         $this->assertEquals('warn', $log->warn('Test'));
         $this->assertEquals('error', $log->error('Test'));
         $this->assertEquals('fatal', $log->fatal('Test'));
-        //When logging disabled
+        //Case B: Logging disabled
         $log->setEnabled(false);
         $this->assertFalse($log->debug('Test'));
         $this->assertFalse($log->info('Test'));
