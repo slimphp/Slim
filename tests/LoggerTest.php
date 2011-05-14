@@ -34,14 +34,6 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/Logger.php';
 
-class TestLogger extends Slim_Logger {
-
-    protected function write( $data ) {
-        print $data;
-    }
-
-}
-
 class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 
     protected $logDir;
