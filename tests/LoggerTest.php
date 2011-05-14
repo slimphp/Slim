@@ -44,6 +44,16 @@ class TestLogger extends Slim_Logger {
 
 class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
 
+    protected $logDir;
+
+    public function setUp() {
+        $this->logDir = dirname(__FILE__) . '/logs';
+    }
+
+    public function tearDown() {
+        @unlink($this->logDir . '/' . strftime('%Y-%m-%d') . '.log');
+    }
+
     /**
      * Test Logger instantiation
      *
@@ -63,7 +73,7 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testLoggerInstantiation() {
         //Case A
-        $l1 = new Slim_Logger(dirname(__FILE__) . '/logs');
+        $l1 = new Slim_Logger($this->logDir);
         $this->assertEquals(4, $l1->getLevel());
         //Case B
         try {
@@ -77,11 +87,11 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
             $this->fail('Did not catch RuntimeException when invoking Slim_Logger::log with invalid log directory');
         } catch ( RuntimeException $e ) {}
         //Case D
-        $l3 = new Slim_Logger(dirname(__FILE__) . '/logs', 1);
+        $l3 = new Slim_Logger($this->logDir, 1);
         $this->assertEquals(1, $l3->getLevel());
         //Case E
         try {
-            $l4 = new Slim_Logger(dirname(__FILE__) . '/logs', 5);
+            $l4 = new Slim_Logger($this->logDir, 5);
             $this->fail("Did not catch RuntimeException thrown from Logger with invalid level");
         } catch ( InvalidArgumentException $e) {}
     }
@@ -90,49 +100,54 @@ class LoggerTest extends PHPUnit_Extensions_OutputTestCase {
      * Test debug log
      */
     public function testLogsDebug() {
-        $l = new TestLogger(dirname(__FILE__) . '/logs', 4);
-        $this->expectOutputString('[DEBUG] ' . date('c') . ' - ' . "Test Info\r\n");
+        $l = new Slim_Logger($this->logDir, 4);
+        $message = '[DEBUG] ' . date('c') . ' - ' . "Test Info\r\n";
         $l->debug('Test Info');
+        $this->assertEquals(file_get_contents($l->getFile()), $message);
     }
 
     /**
      * Test info log
      */
     public function testLogsInfo() {
-        $l = new TestLogger(dirname(__FILE__) . '/logs', 3);
-        $this->expectOutputString('[INFO] ' . date('c') . ' - ' . "Test Info\r\n");
+        $l = new Slim_Logger($this->logDir, 3);
+        $message = '[INFO] ' . date('c') . ' - ' . "Test Info\r\n";
         $l->debug('Test Info');
         $l->info('Test Info');
+        $this->assertEquals(file_get_contents($l->getFile()), $message);
     }
 
     /**
      * Test info log
      */
     public function testLogsWarn() {
-        $l = new TestLogger(dirname(__FILE__) . '/logs', 2);
-        $this->expectOutputString('[WARN] ' . date('c') . ' - ' . "Test Info\r\n");
+        $l = new Slim_Logger($this->logDir, 2);
+        $message = '[WARN] ' . date('c') . ' - ' . "Test Info\r\n";
         $l->info('Test Info');
         $l->warn('Test Info');
+        $this->assertEquals(file_get_contents($l->getFile()), $message);
     }
 
     /**
      * Test info log
      */
     public function testLogsError() {
-        $l = new TestLogger(dirname(__FILE__) . '/logs', 1);
-        $this->expectOutputString('[ERROR] ' . date('c') . ' - ' . "Test Info\r\n");
+        $l = new Slim_Logger($this->logDir, 1);
+        $message = '[ERROR] ' . date('c') . ' - ' . "Test Info\r\n";
         $l->warn('test Info');
         $l->error('Test Info');
+        $this->assertEquals(file_get_contents($l->getFile()), $message);
     }
 
     /**
      * Test info log
      */
     public function testLogsFatal() {
-        $l = new TestLogger(dirname(__FILE__) . '/logs', 0);
-        $this->expectOutputString('[FATAL] ' . date('c') . ' - ' . "Test Info\r\n");
+        $l = new Slim_Logger($this->logDir, 0);
+        $message = '[FATAL] ' . date('c') . ' - ' . "Test Info\r\n";
         $l->error('Test Info');
         $l->fatal('Test Info');
+        $this->assertEquals(file_get_contents($l->getFile()), $message);
     }
 
 }
