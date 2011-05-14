@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -76,7 +78,6 @@ class Slim_Http_Cookie {
 
     /**
      * Constructor
-     *
      * @param   string  $name       The cookie name
      * @param   string  $value      The cookie value
      * @param   mixed   $time       The duration of the cookie;
@@ -101,7 +102,6 @@ class Slim_Http_Cookie {
 
     /**
      * Get cookie name
-     *
      * @return string
      */
     public function getName() {
@@ -110,7 +110,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set cookie name
-     *
      * @param   string $name
      * @return  void
      */
@@ -120,7 +119,6 @@ class Slim_Http_Cookie {
 
     /**
      * Get cookie value
-     *
      * @return string
      */
     public function getValue() {
@@ -129,7 +127,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set cookie value
-     *
      * @param   string $value
      * @return  void
      */
@@ -139,7 +136,6 @@ class Slim_Http_Cookie {
 
     /**
      * Get cookie expiration time
-     *
      * @return int UNIX timestamp
      */
     public function getExpires() {
@@ -148,7 +144,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set cookie expiration time
-     *
      * @param   string|int Cookie expiration time
      * @return  void
      */
@@ -158,7 +153,6 @@ class Slim_Http_Cookie {
 
     /**
      * Get cookie path
-     *
      * @return string
      */
     public function getPath() {
@@ -167,7 +161,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set cookie path
-     *
      * @param   string $path
      * @return  void
      */
@@ -177,7 +170,6 @@ class Slim_Http_Cookie {
 
     /**
      * Get cookie domain
-     *
      * @return string
      */
     public function getDomain() {
@@ -186,7 +178,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set cookie domain
-     *
      * @param   string $domain
      * @return  void
      */
@@ -196,7 +187,6 @@ class Slim_Http_Cookie {
 
     /**
      * Is cookie sent only if SSL/HTTPS is used?
-     *
      * @return bool
      */
     public function getSecure() {
@@ -205,7 +195,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set whether cookie is sent only if SSL/HTTPS is used
-     *
      * @param   bool $secure
      * @return  void
      */
@@ -215,7 +204,6 @@ class Slim_Http_Cookie {
 
     /**
      * Is cookie sent with HTTP protocol only?
-     *
      * @return bool
      */
     public function getHttpOnly() {
@@ -224,7 +212,6 @@ class Slim_Http_Cookie {
 
     /**
      * Set whether cookie is sent with HTTP protocol only
-     *
      * @param   bool $httponly
      * @return  void
      */
