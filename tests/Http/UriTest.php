@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -68,100 +70,90 @@ class UriTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     public function testUris() {
-        
         //BASE ROUTE IN ROOT DIRECTORY WITH HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         //BASE ROUTE IN ROOT DIRECTORY WITHOUT HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/bootstrap.php';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/bootstrap.php/';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         //BASE ROUTE IN A SUBDIRECTORY WITH HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/foo';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/foo/';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         //BASE ROUTE IN A SUBDIRECTORY WITHOUT HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php/';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/', Slim_Http_Uri::getUri(true));
-        
+
         //EXTENDED ROUTE IN ROOT DIRECTORY WITH HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/foo/bar';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/foo/bar', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/foo/bar/';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/foo/bar/', Slim_Http_Uri::getUri(true));
-        
+
         //EXTENDED ROUTE IN ROOT DIRECTORY WITOUT HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/bootstrap.php/foo/bar';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/foo/bar', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/bootstrap.php/foo/bar/';
         $_SERVER['SCRIPT_NAME'] = '/bootstrap.php';
         $this->assertEquals('/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/foo/bar/', Slim_Http_Uri::getUri(true));
-        
+
         //EXTENDED ROUTE IN SUBDIRECTORY WITH HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/foo/one/two';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/one/two', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/foo/one/two/';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/one/two/', Slim_Http_Uri::getUri(true));
-        
+
         //EXTENDED ROUTE IN SUBDIRECTORY WITOUT HTACCESS
-        
         $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php/one/two';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/one/two', Slim_Http_Uri::getUri(true));
-        
+
         $_SERVER['REQUEST_URI'] = '/foo/bootstrap.php/one/two/';
         $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
         $this->assertEquals('/foo/bootstrap.php', Slim_Http_Uri::getBaseUri(true));
         $this->assertEquals('/one/two/', Slim_Http_Uri::getUri(true));
-        
     }
-    
+
     /**
      * Test URIs if SERVER[REQUEST_URI] is not available (ie. IIS)
      */
@@ -180,4 +172,3 @@ class UriTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-
