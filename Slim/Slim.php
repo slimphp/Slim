@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -223,7 +225,6 @@ class Slim {
 
     /**
      * Default Not Found handler
-     *
      * @return void
      */
     protected static function defaultNotFound() {
@@ -232,7 +233,6 @@ class Slim {
 
     /**
      * Default Error handler
-     *
      * @return void
      */
     protected static function defaultError() {
@@ -243,12 +243,11 @@ class Slim {
 
     /**
      * Constructor
-     *
      * @param   array $userSettings
      * @return  void
      */
     public function __construct( $userSettings = array() ) {
-        //Application settings
+        //Merge application settings
         $this->settings = array_merge(array(
             //Mode
             'mode' => 'development',
@@ -279,14 +278,14 @@ class Slim {
             'session.flash_key' => 'flash'
         ), $userSettings);
 
-        //Application mode
+        //Determine application mode
         $this->getMode();
 
-        //Error and Exception handling
+        //Set Error and Exception handling
         set_error_handler(array($this, 'handleErrors'));
         set_exception_handler(array($this, 'handleExceptions'));
 
-        //HTTP request and response handling
+        //Setup HTTP request and response handling
         $this->request = new Slim_Http_Request();
         $this->response = new Slim_Http_Response($this->request);
         $this->response->setCookieJar(new Slim_Http_CookieJar($this->settings['cookies.secret_key'], array(
@@ -306,13 +305,12 @@ class Slim {
             session_start();
         }
 
-        //View with flash messaging
+        //Setup view with flash messaging
         $this->view($this->config('view'))->setData('flash', new Slim_Session_Flash($this->config('session.flash_key')));
     }
 
     /**
      * Get application mode
-     *
      * @return string
      */
     public function getMode() {
@@ -330,7 +328,6 @@ class Slim {
 
     /**
      * Get application Log (lazy-loaded)
-     *
      * @return Slim_Log
      */
     public function getLog() {
@@ -447,7 +444,6 @@ class Slim {
 
     /**
      * Add GET route
-     *
      * @see     Slim::mapRoute
      * @return  Slim_Route
      */
@@ -458,7 +454,6 @@ class Slim {
 
     /**
      * Add POST route
-     *
      * @see     Slim::mapRoute
      * @return  Slim_Route
      */
@@ -469,7 +464,6 @@ class Slim {
 
     /**
      * Add PUT route
-     *
      * @see     Slim::mapRoute
      * @return  Slim_Route
      */
@@ -480,7 +474,6 @@ class Slim {
 
     /**
      * Add DELETE route
-     *
      * @see     Slim::mapRoute
      * @return  Slim_Route
      */
@@ -567,7 +560,6 @@ class Slim {
 
     /**
      * Get the Request object
-     *
      * @return Slim_Http_Request
      */
     public function request() {
@@ -576,7 +568,6 @@ class Slim {
 
     /**
      * Get the Response object
-     *
      * @return Slim_Http_Response
      */
     public function response() {
@@ -585,7 +576,6 @@ class Slim {
 
     /**
      * Get the Router object
-     *
      * @return Slim_Router
      */
     public function router() {
@@ -898,7 +888,6 @@ class Slim {
 
     /**
      * Set the HTTP response Content-Type
-     *
      * @param   string $type The Content-Type for the Response (ie. text/html)
      * @return  void
      */
@@ -908,7 +897,6 @@ class Slim {
 
     /**
      * Set the HTTP response status code
-     *
      * @param   int $status The HTTP response status code
      * @return  void
      */
@@ -918,7 +906,6 @@ class Slim {
 
     /**
      * Get the URL for a named Route
-     *
      * @param   string          $name       The route name
      * @param   array           $params     Key-value array of URL parameters
      * @throws  RuntimeException            If named route does not exist
@@ -954,14 +941,30 @@ class Slim {
 
     /***** FLASH *****/
 
+    /**
+     * Set flash message for subsequent request
+     * @param   string    $key
+     * @param   mixed     $value
+     * @return  void
+     */
     public function flash( $key, $value ) {
         $this->view->getData('flash')->set($key, $value);
     }
 
+    /**
+     * Set flash message for current request
+     * @param   string    $key
+     * @param   mixed     $value
+     * @return  void
+     */
     public function flashNow( $key, $value ) {
         $this->view->getData('flash')->now($key, $value);
     }
 
+    /**
+     * Keep flash messages from previous request for subsequent request
+     * @return void
+     */
     public function flashKeep() {
         $this->view->getData('flash')->keep();
     }
@@ -970,7 +973,6 @@ class Slim {
 
     /**
      * Assign hook
-     *
      * @param   string  $name       The hook name
      * @param   mixed   $callable   A callable object
      * @param   int     $priority   The hook priority; 0 = high, 10 = low
@@ -987,7 +989,6 @@ class Slim {
 
     /**
      * Invoke hook
-     *
      * @param   string  $name       The hook name
      * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
      * @return  mixed
