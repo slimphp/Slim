@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -69,10 +71,9 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Route should set pattern, and the Route pattern should not
-     * retain the leading slash.
+     * Route should set pattern
      */
-    public function testRouteSetsPatternWithoutLeadingSlash() {
+    public function testRouteSetsPattern() {
         $route = new Slim_Route('/foo/bar', function () {});
         $this->assertEquals('/foo/bar', $route->getPattern());
     }
@@ -104,7 +105,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/:name', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals($route->getParams(), array('name' => 'Josh'));
+        $this->assertEquals(array('name' => 'Josh'), $route->getParams());
     }
 
     /**
@@ -115,7 +116,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/:first/and/:second', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals($route->getParams(), array('first' => 'Josh', 'second' => 'John'));
+        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
     }
 
     /**
@@ -126,7 +127,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/:name', function () {});
         $result = $route->matches($resource);
         $this->assertFalse($result);
-        $this->assertEquals($route->getParams(), array());
+        $this->assertEquals(array(), $route->getParams());
     }
 
     /**
@@ -138,7 +139,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route->conditions(array('first' => '[a-zA-Z]{3,}'));
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals($route->getParams(), array('first' => 'Josh', 'second' => 'John'));
+        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
     }
 
     /**
@@ -150,7 +151,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route->conditions(array('first' => '[a-z]{3,}'));
         $result = $route->matches($resource);
         $this->assertFalse($result);
-        $this->assertEquals($route->getParams(), array());
+        $this->assertEquals(array(), $route->getParams());
     }
 
     /*
@@ -161,12 +162,12 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Excludes "+" which is valid but decodes into a space character
      */
     public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
-        $symbols = ":@&=$,";
-        $resource = '/rfc2386/'.$symbols;
+        $symbols = ':@&=$,';
+        $resource = '/rfc2386/' . $symbols;
         $route = new Slim_Route('/rfc2386/:symbols', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals($route->getParams(), array('symbols' => $symbols));
+        $this->assertEquals(array('symbols' => $symbols), $route->getParams());
     }
 
     /*
@@ -176,11 +177,11 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithUnreservedMarks() {
         $marks = "-_.!~*'()";
-        $resource = '/marks/'.$marks;
+        $resource = '/marks/' . $marks;
         $route = new Slim_Route('/marks/:marks', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals($route->getParams(), array('marks' => $marks));
+        $this->assertEquals(array('marks' => $marks), $route->getParams());
     }
 
     /**
@@ -203,21 +204,21 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $resourceA = '/archive/2010';
         $resultA = $routeA->matches($resourceA);
         $this->assertTrue($resultA);
-        $this->assertEquals($routeA->getParams(), array('year' => '2010'));
+        $this->assertEquals(array('year' => '2010'), $routeA->getParams());
 
         //Case B
         $routeB = new Slim_Route($pattern, function () {});
         $resourceB = '/archive/2010/05';
         $resultB = $routeB->matches($resourceB);
         $this->assertTrue($resultB);
-        $this->assertEquals($routeB->getParams(), array('year' => '2010', 'month' => '05'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05'), $routeB->getParams());
 
         //Case C
         $routeC = new Slim_Route($pattern, function () {});
         $resourceC = '/archive/2010/05/13';
         $resultC = $routeC->matches($resourceC);
         $this->assertTrue($resultC);
-        $this->assertEquals($routeC->getParams(), array('year' => '2010', 'month' => '05', 'day' => '13'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $routeC->getParams());
     }
 
     /**
@@ -234,7 +235,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         Slim_Route::setDefaultConditions(array('id' => '\d+'));
         $r = new Slim_Route('/foo', function () {});
         //Case A
-        $this->assertEquals($r->getConditions(), Slim_Route::getDefaultConditions());
+        $this->assertEquals(Slim_Route::getDefaultConditions(), $r->getConditions());
         //Case B
         $r->conditions(array('name' => '[a-z]{2,5}'));
         $c = $r->getConditions();
@@ -290,4 +291,3 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function callableTestFunction() {}
 
 }
-
