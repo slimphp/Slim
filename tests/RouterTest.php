@@ -74,6 +74,18 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test sets and gets Request
+     */
+    public function testGetsAndSetsRequest() {
+        $request1 = new Slim_Http_Request();
+        $request2 = new Slim_Http_Request();
+        $router = new Slim_Router($request1);
+        $this->assertSame($request1, $router->getRequest());
+        $router->setRequest($request2);
+        $this->assertSame($request2, $router->getRequest());
+    }
+
+    /**
      * Router::urlFor should return a full route pattern
      * even if no params data is provided.
      */
@@ -143,6 +155,28 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Slim_Router($request);
         $notFoundCallback = 'foo';
         $callback = $router->notFound($notFoundCallback);
+        $this->assertEquals($callback, null);
+    }
+
+    /**
+     * Router should keep reference to a callable NotFound callback
+     */
+    public function testErrorHandler() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $errCallback = function () { echo "404"; };
+        $callback = $router->error($errCallback);
+        $this->assertSame($errCallback, $callback);
+    }
+
+    /**
+     * Router should NOT keep reference to a callback that is not callable
+     */
+    public function testErrorHandlerIfNotCallable() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $errCallback = 'foo';
+        $callback = $router->error($errCallback);
         $this->assertEquals($callback, null);
     }
 
