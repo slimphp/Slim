@@ -76,8 +76,7 @@ class Slim_Router {
 
     /**
      * Constructor
-     *
-     * @param Request $request The HTTP request object
+     * @param Slim_Http_Request $request The HTTP request object
      */
     public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
@@ -87,14 +86,10 @@ class Slim_Router {
             'PUT' => array(),
             'DELETE' => array()
         );
-        $this->position = 0;
     }
-
-    /***** ACCESSORS *****/
 
     /**
      * Get Request
-     *
      * @return Slim_Http_Request
      */
     public function getRequest() {
@@ -103,27 +98,23 @@ class Slim_Router {
 
     /**
      * Set Request
-     *
-     * @param   Slim_Http_Request
+     * @param   Slim_Http_Request   $req
      * @return  void
      */
     public function setRequest( Slim_Http_Request $req ) {
         $this->request = $req;
     }
 
-    /***** MAPPING *****/
-
     /**
      * Return routes that match the current request
-     *
-     * @return array[Route]
+     * @return array[Slim_Route]
      */
     public function getMatchedRoutes( $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
-            $method = $this->getRequest()->isHead() ? Slim_Http_Request::METHOD_GET : $this->getRequest()->getMethod();
-            foreach( $this->routes[$method] as $route ) {
-                if ( $route->matches($this->getRequest()->getResourceUri()) ) {
+            $method = $this->request->isHead() ? Slim_Http_Request::METHOD_GET : $this->request->getMethod();
+            foreach ( $this->routes[$method] as $route ) {
+                if ( $route->matches($this->request->getResourceUri()) ) {
                     $this->matchedRoutes[] = $route;
                 }
             }
@@ -133,11 +124,10 @@ class Slim_Router {
 
     /**
      * Map a route to a callback function
-     *
-     * @param   string  $pattern    The URL pattern (ie. "/books/:id")
-     * @param   mixed   $callable   Anything that returns TRUE for is_callable()
-     * @param   string  $method     The HTTP request method (GET, POST, PUT, DELETE)
-     * @return  Route
+     * @param   string      $pattern    The URL pattern (ie. "/books/:id")
+     * @param   mixed       $callable   Anything that returns TRUE for is_callable()
+     * @param   string      $method     The HTTP request method (GET, POST, PUT, DELETE)
+     * @return  Slim_Route
      */
     public function map( $pattern, $callable, $method ) {
         $route = new Slim_Route($pattern, $callable);
@@ -149,7 +139,6 @@ class Slim_Router {
 
     /**
      * Cache named route
-     *
      * @param   string              $name   The route name
      * @param   Slim_Route          $route  The route object
      * @throws  RuntimeException            If a named route already exists with the same name
@@ -164,7 +153,6 @@ class Slim_Router {
 
     /**
      * Get URL for named route
-     *
      * @param   string              $name   The name of the route
      * @param   array                       Associative array of URL parameter names and values
      * @throws  RuntimeException            If named route not found
@@ -185,12 +173,11 @@ class Slim_Router {
         return preg_replace(array(
             '@\(\/?:.+\/??\)\??@',
             '@\?|\(|\)@'
-        ), '', $this->getRequest()->getRootUri() . $pattern);
+        ), '', $this->request->getRootUri() . $pattern);
     }
 
     /**
      * Register a 404 Not Found callback
-     *
      * @param   mixed $callable Anything that returns TRUE for is_callable()
      * @return  mixed
      */
@@ -203,7 +190,6 @@ class Slim_Router {
 
     /**
      * Register a 500 Error callback
-     *
      * @param   mixed $callable Anything that returns TRUE for is_callable()
      * @return  mixed
      */
