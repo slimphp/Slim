@@ -96,35 +96,7 @@ class Slim {
     /**
      * @var array Key-value array of application settings
      */
-    protected $settings = array(
-        //Mode
-        'mode' => 'development',
-        //Logging
-        'log.enable' => false,
-        'log.logger' => null,
-        'log.path' => './logs',
-        'log.level' => 4,
-        //Debugging
-        'debug' => true,
-        //View
-        'templates.path' => './templates',
-        'view' => 'Slim_View',
-        //Settings for all cookies
-        'cookies.lifetime' => '20 minutes',
-        'cookies.path' => '/',
-        'cookies.domain' => '',
-        'cookies.secure' => false,
-        'cookies.httponly' => false,
-        //Settings for encrypted cookies
-        'cookies.secret_key' => 'CHANGE_ME',
-        'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-        'cookies.cipher_mode' => MCRYPT_MODE_CBC,
-        'cookies.encrypt' => true,
-        'cookies.user_id' => 'DEFAULT',
-        //Session handler
-        'session.handler' => new Slim_Session_Handler_Cookies(),
-        'session.flash_key' => 'flash'
-    );
+    protected $settings;
 
     /**
      * @var string The application mode
@@ -277,7 +249,35 @@ class Slim {
      */
     public function __construct( $userSettings = array() ) {
         //Application settings
-        $this->settings = array_merge($this->settings, $userSettings);
+        $this->settings = array_merge(array(
+            //Mode
+            'mode' => 'development',
+            //Logging
+            'log.enable' => false,
+            'log.logger' => null,
+            'log.path' => './logs',
+            'log.level' => 4,
+            //Debugging
+            'debug' => true,
+            //View
+            'templates.path' => './templates',
+            'view' => 'Slim_View',
+            //Settings for all cookies
+            'cookies.lifetime' => '20 minutes',
+            'cookies.path' => '/',
+            'cookies.domain' => '',
+            'cookies.secure' => false,
+            'cookies.httponly' => false,
+            //Settings for encrypted cookies
+            'cookies.secret_key' => 'CHANGE_ME',
+            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+            'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+            'cookies.encrypt' => true,
+            'cookies.user_id' => 'DEFAULT',
+            //Session handler
+            'session.handler' => new Slim_Session_Handler_Cookies(),
+            'session.flash_key' => 'flash'
+        ), $userSettings);
 
         //Application mode
         $this->getMode();
