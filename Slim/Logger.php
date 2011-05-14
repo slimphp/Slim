@@ -78,17 +78,14 @@ class Slim_Logger {
      *
      * @param   string          $directory  Absolute or relative path to log directory
      * @return  void
-     * @throws  RuntimeException            If log directory not found or not writable
      */
     public function setDirectory( $directory ) {
-        $fullPath = realpath((string)$directory);
-        if ( $fullPath === false || !is_dir($fullPath) ) {
-            throw new RuntimeException("Log directory '$directory' invalid.");
+        $realPath = realpath($directory);
+        if ( $realPath ) {
+            $this->directory = rtrim($realPath, '/') . '/';
+        } else {
+            $this->directory = false;
         }
-        if ( !is_writable($fullPath) ) {
-            throw new RuntimeException("Log directory '$directory' not writable.");
-        }
-        $this->directory = rtrim($fullPath, '/') . '/';
     }
 
     /**
@@ -187,11 +184,19 @@ class Slim_Logger {
     /**
      * Log data to file
      *
-     * @param   mixed   $data
-     * @param   int     $level
+     * @param   mixed               $data
+     * @param   int                 $level
      * @return  void
+     * @throws  RuntimeException    If log directory not found or not writable
      */
     protected function log( $data, $level ) {
+        $dir = $this->getDirectory();
+        if ( $dir == false || !is_dir($dir) ) {
+            throw new RuntimeException("Log directory '$dir' invalid.");
+        }
+        if ( !is_writable($dir) ) {
+            throw new RuntimeException("Log directory '$dir' not writable.");
+        }
         if ( $level <= $this->getLevel() ) {
             $this->write(sprintf("[%s] %s - %s\r\n", $this->levels[$level], date('c'), (string)$data));
         }
