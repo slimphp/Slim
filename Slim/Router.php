@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -40,7 +42,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Slim_Router implements Iterator {
+class Slim_Router {
 
     /**
      * @var Slim_Http_Request
@@ -215,55 +217,6 @@ class Slim_Router implements Iterator {
             $this->error = $callable;
         }
         return $this->error;
-    }
-
-    /***** ITERATOR INTERFACE *****/
-
-    /**
-     * Return the current route being dispatched
-     *
-     * @return Route
-     */
-    public function current() {
-        return $this->matchedRoutes[$this->position];
-    }
-
-    /**
-     * Reset the current route to the first matching route
-     *
-     * @return void
-     */
-    public function rewind() {
-        $this->position = 0;
-    }
-
-    /**
-     * Return the 0-indexed position of the current route
-     * being dispatched among all matching routes
-     *
-     * @return int
-     */
-    public function key() {
-        return $this->position;
-    }
-
-    /**
-     * Return the 0-indexed position of the next route to
-     * be dispatched among all matching routes
-     *
-     * @return int
-     */
-    public function next() {
-        $this->position = $this->position + 1;
-    }
-
-    /**
-     * Does a matching route exist at a given 0-indexed position?
-     *
-     * @return bool
-     */
-    public function valid() {
-        return isset($this->matchedRoutes[$this->position]);
     }
 
 }
