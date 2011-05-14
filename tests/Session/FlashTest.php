@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -34,13 +36,9 @@ require_once 'Slim/Session/Flash.php';
 
 class FlashTest extends PHPUnit_Extensions_OutputTestCase {
 
-    /***** SETUP *****/
-
     public function setUp() {
         $_SESSION['flash'] = array('info' => 'Info message');
     }
-
-    /***** DATA FACTORY *****/
 
     /**
      * Test Flash session key
@@ -158,19 +156,19 @@ class FlashTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertArrayHasKey('error', $_SESSION['flash']);
         $this->assertEquals('New error message', $_SESSION['flash']['error']);
     }
-    
+
     /**
      * Tests flash can store array/object, not only strings.
      */
     public function testFlashKeepsObjects() {
         $c = new StdClass;
         $c->foo = 'bar';
-        
+
         $f1 = new Slim_Session_Flash();
         $f1->set('object', $c);
         $f1->save();
         $f1->load();
-        
+
         $this->assertObjectHasAttribute('foo', $f1['object']);
     }
 
