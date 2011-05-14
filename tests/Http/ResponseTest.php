@@ -32,6 +32,7 @@
 
 set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
 
+require_once 'Slim/Http/CookieJar.php';
 require_once 'Slim/Http/Uri.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Http/Response.php';
@@ -264,4 +265,13 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $this->assertFalse($r1->canHaveBody());
     }
 
+    /**
+     * Test sets and gets CookieJar
+     */
+    public function testSetsAndGetsCookieJar() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $cj = new Slim_Http_CookieJar('secret');
+        $r->setCookieJar($cj);
+        $this->assertSame($cj, $r->getCookieJar());
+    }
 }
