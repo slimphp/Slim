@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -29,6 +27,9 @@ ini_set('display_errors', '1');
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
@@ -120,12 +121,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim should have a default Error hanlder that is callable;
      * Slim should have a default View
      */
-    public function testSlimInit() {
-        Slim::init();
-        $this->assertTrue(is_callable(Slim::router()->notFound()));
-        $this->assertTrue(is_callable(Slim::router()->error()));
-        $this->assertTrue(Slim::view() instanceof Slim_View);
-        $this->assertEquals('20 minutes', Slim::config('cookies.lifetime'));
+    public function testSlimDefaults() {
+        $app = new Slim();
+        $this->assertTrue(is_callable($app->router()->notFound()));
+        $this->assertTrue(is_callable($app->router()->error()));
+        $this->assertTrue($app->view() instanceof Slim_View);
+        $this->assertEquals('20 minutes', $app->config('cookies.lifetime'));
     }
 
     /**
@@ -138,11 +139,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case A: Default Logger is set
      */
     public function testSlimInitWithDefaultLogger() {
-        Slim::init(array(
+        $app = new Slim(array(
             'log.path' => dirname(__FILE__) . '/logs',
             'log.enable' => true
         ));
-        $this->assertTrue(Slim_Log::getLogger() instanceof Slim_Logger);
+        $this->assertTrue($app->getLog()->getLogger() instanceof Slim_Logger);
     }
 
     /**
@@ -155,11 +156,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case A: Custom Logger is set
      */
     public function testSlimInitWithCustomLogger() {
-        Slim::init(array(
+        $app = new Slim(array(
             'log.enable' => true,
             'log.logger' => new CustomLogger()
         ));
-        $this->assertTrue(Slim_Log::getLogger() instanceof CustomLogger);
+        $this->assertTrue($app->getLog()->getLogger() instanceof CustomLogger);
     }
 
     /**
@@ -168,40 +169,19 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Pre-conditions:
      * Case A: Slim app initialized with string
      * Case B: Slim app initialized with View instance
-     * Case C: Slim app initialized with array
      *
      * Post-conditions:
      * Case A: View is instance of CustomView
      * Case B: View is instance of CustomView
-     * Case C: View is instance of CustomView
      */
     public function testSlimInitWithCustomView(){
         //Case A
-        Slim::init('CustomView');
-        $this->assertTrue(Slim::view() instanceof CustomView);
+        $app1 = new Slim(array('view' => 'CustomView'));
+        $this->assertTrue($app1->view() instanceof CustomView);
         //Case B
-        Slim::init(new CustomView());
-        $this->assertTrue(Slim::view() instanceOf CustomView);
-        //Case C
-        Slim::init(array('view' => 'CustomView'));
-        $this->assertTrue(Slim::view() instanceOf CustomView);
+        $app2 = new Slim(array('view' => new CustomView()));
+        $this->assertTrue($app2->view() instanceOf CustomView);
     }
-
-    /**
-     * Test get Slim instance
-     *
-     * Pre-conditions:
-     * Slim app initialized;
-     *
-     * Post-conditions:
-     * The Slim app instance is returned
-     */
-    public function testSlimGetInstance() {
-        Slim::init('CustomView');
-        $app = Slim::getInstance();
-        $this->assertTrue( $app instanceof Slim );
-    }
-
 
     /************************************************
      * SLIM SETTINGS
@@ -220,13 +200,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testSlimModeEnvironment() {
         $this->expectOutputString('production mode');
         $_ENV['SLIM_MODE'] = 'production';
-        Slim::init(array(
+        $app = new Slim(array(
             'mode' => 'test'
         ));
-        Slim::configureMode('test', function () {
+        $app->configureMode('test', function () {
             echo "test mode";
         });
-        Slim::configureMode('production', function () {
+        $app->configureMode('production', function () {
             echo "production mode";
         });
     }
@@ -243,13 +223,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimModeConfig() {
         $this->expectOutputString('test mode');
-        Slim::init(array(
+        $app = new Slim(array(
             'mode' => 'test'
         ));
-        Slim::configureMode('test', function () {
+        $app->configureMode('test', function () {
             echo "test mode";
         });
-        Slim::configureMode('production', function () {
+        $app->configureMode('production', function () {
             echo "production mode";
         });
     }
@@ -266,11 +246,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimModeDefault() {
         $this->expectOutputString('dev mode');
-        Slim::init();
-        Slim::configureMode('development', function () {
+        $app = new Slim();
+        $app->configureMode('development', function () {
             echo "dev mode";
         });
-        Slim::configureMode('production', function () {
+        $app->configureMode('production', function () {
             echo "production mode";
         });
     }
@@ -286,9 +266,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The configuration setting is set correctly.
      */
     public function testSlimConfigSetsOneSetting(){
-        Slim::init();
-        Slim::config('foo', 'bar');
-        $this->assertEquals(Slim::config('foo'), 'bar');
+        $app = new Slim();
+        $app->config('foo', 'bar');
+        $this->assertEquals('bar', $app->config('foo'));
     }
 
     /**
@@ -302,8 +282,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * NULL is returned for the value of the setting
      */
     public function testSlimConfigIfSettingDoesNotExist(){
-        Slim::init();
-        $this->assertNull(Slim::config('foo'));
+        $app = new Slim();
+        $this->assertNull($app->config('foo'));
     }
 
     /**
@@ -317,15 +297,15 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Multiple settings are set correctly.
      */
     public function testSlimCongfigurationWithArray(){
-        Slim::init();
-        Slim::config(array(
+        $app = new Slim();
+        $app->config(array(
             'one' => 'A',
             'two' => 'B',
             'three' => 'C'
         ));
-        $this->assertEquals(Slim::config('one'), 'A');
-        $this->assertEquals(Slim::config('two'), 'B');
-        $this->assertEquals(Slim::config('three'), 'C');
+        $this->assertEquals('A', $app->config('one'));
+        $this->assertEquals('B', $app->config('two'));
+        $this->assertEquals('C', $app->config('three'));
     }
 
     /************************************************
@@ -343,9 +323,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callable are set correctly.
      */
     public function testSlimGetRoute(){
-        Slim::init();
+        $app = new Slim();
         $callable = function () { echo "foo"; };
-        $route = Slim::get('/foo/bar', $callable);
+        $route = $app->get('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -361,13 +341,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callable are set correctly.
      */
     public function testSlimGetRouteWithMiddleware(){ 
-        Slim::init();
+        $app = new Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
-        $route = Slim::get('/', $mw1, $mw2, $callable);
+        $route = $app->get('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
-        Slim::run();
+        $app->run();
     }
 
     /**
@@ -381,9 +361,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callable are set correctly.
      */
     public function testSlimPostRoute(){
-        Slim::init();
+        $app = new Slim();
         $callable = function () { echo "foo"; };
-        $route = Slim::post('/foo/bar', $callable);
+        $route = $app->post('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -399,13 +379,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimPostRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        Slim::init();
+        $app = new Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
-        $route = Slim::post('/', $mw1, $mw2, $callable);
+        $route = $app->post('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
-        Slim::run();
+        $app->run();
     }
 
     /**
@@ -419,9 +399,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callable are set correctly.
      */
     public function testSlimPutRoute(){
-        Slim::init();
+        $app = new Slim();
         $callable = function () { echo "foo"; };
-        $route = Slim::put('/foo/bar', $callable);
+        $route = $app->put('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -437,13 +417,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimPutRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'PUT';
-        Slim::init();
+        $app = new Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
-        $route = Slim::put('/', $mw1, $mw2, $callable);
+        $route = $app->put('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
-        Slim::run();
+        $app->run();
     }
 
     /**
@@ -457,9 +437,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * callable are set correctly.
      */
     public function testSlimDeleteRoute(){
-        Slim::init();
+        $app = new Slim();
         $callable = function () { echo "foo"; };
-        $route = Slim::delete('/foo/bar', $callable);
+        $route = $app->delete('/foo/bar', $callable);
         $this->assertEquals('/foo/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -475,13 +455,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimDeleteRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        Slim::init();
+        $app = new Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
-        $route = Slim::delete('/', $mw1, $mw2, $callable);
+        $route = $app->delete('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
-        Slim::run();
+        $app->run();
     }
 
     /**
@@ -499,11 +479,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testRouteWithSlashAndUrlWithout() {
         $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob';
-        Slim::init();
-        Slim::get('/foo/bar/:name/', function ($name) {});
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 301);
-        $this->assertEquals(Slim::response()->header('Location'), '/foo/bar/bob/');
+        $app = new Slim();
+        $app->get('/foo/bar/:name/', function ($name) {});
+        $app->run();
+        $this->assertEquals(301, $app->response()->status());
+        $this->assertEquals('/foo/bar/bob/', $app->response()->header('Location'));
     }
 
     /**
@@ -520,10 +500,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testRouteWithoutSlashAndUrlWith() {
         $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob/';
-        Slim::init();
-        Slim::get('/foo/bar/:name', function ($name) {});
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 404);
+        $app = new Slim();
+        $app->get('/foo/bar/:name', function ($name) {});
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
     }
 
     /**
@@ -541,11 +521,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testRouteWithUrlEncodedParameters() {
         $_SERVER['REQUEST_URI'] = '/foo/jo%20hn/smi%20th';
-        Slim::init();
-        Slim::get('/foo/:one/:two', function ($one, $two) {
+        $app = new Slim();
+        $app->get('/foo/:one/:two', function ($one, $two) {
             echo "$one and $two";
         });
-        Slim::run();
+        $app->run();
         $this->expectOutputString('jo hn and smi th');
     }
 
@@ -567,9 +547,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimCopiesViewData(){
         $data = array('foo' => 'bar');
-        Slim::init();
-        Slim::view()->setData($data);
-        Slim::view('CustomView');
+        $app = new Slim();
+        $app->view()->setData($data);
+        $app->view('CustomView');
         $this->assertEquals($data, Slim::view()->getData());
     }
 
@@ -592,12 +572,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRenderSetsResponseStatusOk(){
         $this->expectOutputString('test output bar');
-        Slim::init(array(
+        $app = new Slim(array(
             'templates.path' => null,
             'templates_dir' => dirname(__FILE__) . '/templates'
         ));
-        Slim::render('test.php', array('foo' => 'bar'), 404);
-        $this->assertEquals(Slim::response()->status(), 404);
+        $app->render('test.php', array('foo' => 'bar'), 404);
+        $this->assertEquals(404, $app->response()->status());
     }
 
     /**
@@ -612,10 +592,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRender(){
         $this->expectOutputString('test output bar');
-        Slim::init(array(
+        $app = new Slim(array(
             'templates.path' => dirname(__FILE__) . '/templates'
         ));
-        Slim::render('test.php', array('foo' => 'bar'));
+        $app->render('test.php', array('foo' => 'bar'));
     }
 
     /************************************************
@@ -636,12 +616,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimEtagMatches(){
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::etag('abc123');
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->etag('abc123');
         });
-        Slim::run();
-        $this->assertEquals(304, Slim::response()->status());
+        $app->run();
+        $this->assertEquals(304, $app->response()->status());
     }
 
     /**
@@ -657,12 +637,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * ETag does not match `If-None-Match` request header
      */
     public function testSlimEtagDoesNotMatch(){
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::etag('xyz789');
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->etag('xyz789');
         });
-        Slim::run();
-        $this->assertEquals(200, Slim::response()->status());
+        $app->run();
+        $this->assertEquals(200, $app->response()->status());
     }
 
     /**
@@ -677,11 +657,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimETagThrowsExceptionForInvalidType(){
         $this->setExpectedException('InvalidArgumentException');
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::etag('123','foo');
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->etag('123','foo');
         });
-        Slim::run();
+        $app->run();
     }
 
     /**
@@ -699,12 +679,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimLastModifiedDateMatches(){
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::lastModified(1286139652);
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->lastModified(1286139652);
         });
-        Slim::run();
-        $this->assertEquals(304, Slim::response()->status());
+        $app->run();
+        $this->assertEquals(304, $app->response()->status());
     }
 
     /**
@@ -721,12 +701,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * request header.
      */
     public function testSlimLastModifiedDateDoesNotMatch(){
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::lastModified(1286139250);
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->lastModified(1286139250);
         });
-        Slim::run();
-        $this->assertEquals(200, Slim::response()->status());
+        $app->run();
+        $this->assertEquals(200, $app->response()->status());
     }
 
     /**
@@ -741,11 +721,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimLastModifiedOnlyAcceptsIntegers(){
         $this->setExpectedException('InvalidArgumentException');
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::lastModified('Test');
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->lastModified('Test');
         });
-        Slim::run();
+        $app->run();
     }
 
     /************************************************
@@ -766,11 +746,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case B: Cooke `bad` value is NULL;
      */
     public function testSlimGetsCookie() {
-        Slim::init();
+        $app = new Slim();
         //Case A
-        $this->assertEquals(Slim::getCookie('foo'), 'bar');
+        $this->assertEquals('bar', $app->getCookie('foo'));
         //Case B
-        $this->assertNull(Slim::getCookie('doesNotExist'));
+        $this->assertNull($app->getCookie('doesNotExist'));
     }
 
     /**
@@ -790,11 +770,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case D: Cookie time is 0;
      */
     public function testSlimSetsCookie() {
-        Slim::init();
-        $cj = Slim::response()->getCookieJar();
+        $app = new Slim();
+        $cj = $app->response()->getCookieJar();
         //Case A
         $timeA = time();
-        Slim::setCookie('myCookie1', 'myValue1');
+        $app->setCookie('myCookie1', 'myValue1');
         $cookieA = $cj->getResponseCookie('myCookie1');
         $this->assertEquals('myCookie1', $cookieA->getName());
         $this->assertEquals('myValue1', $cookieA->getValue());
@@ -805,12 +785,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertFalse($cookieA->getHttpOnly());
         //Case C
         $timeC = time();
-        Slim::setCookie('myCookie3', 'myValue3', '1 hour');
+        $app->setCookie('myCookie3', 'myValue3', '1 hour');
         $cookieC = $cj->getResponseCookie('myCookie3');
         $this->assertEquals($timeC + 3600, $cookieC->getExpires());
         //Case D
         $timeD = time();
-        Slim::setCookie('myCookie4', 'myValue4', 0);
+        $app->setCookie('myCookie4', 'myValue4', 0);
         $cookieD = $cj->getResponseCookie('myCookie4');
         $this->assertEquals(0, $cookieD->getExpires());
     }
@@ -832,11 +812,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case D: Cookie time is 0;
      */
     public function testSlimSetsEncryptedCookie() {
-        Slim::init();
-        $cj = Slim::response()->getCookieJar();
+        $app = new Slim();
+        $cj = $app->response()->getCookieJar();
         //Case A
         $timeA = time();
-        Slim::setEncryptedCookie('myCookie1', 'myValue1');
+        $app->setEncryptedCookie('myCookie1', 'myValue1');
         $cookieA = $cj->getResponseCookie('myCookie1');
         $this->assertEquals('myCookie1', $cookieA->getName());
         $this->assertEquals($timeA + 1200, $cookieA->getExpires()); //default duration is 20 minutes
@@ -846,12 +826,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertFalse($cookieA->getHttpOnly());
         //Case C
         $timeC = time();
-        Slim::setEncryptedCookie('myCookie3', 'myValue3', '1 hour');
+        $app->setEncryptedCookie('myCookie3', 'myValue3', '1 hour');
         $cookieC = $cj->getResponseCookie('myCookie3');
         $this->assertEquals($timeC + 3600, $cookieC->getExpires());
         //Case D
         $timeD = time();
-        Slim::setEncryptedCookie('myCookie4', 'myValue4', 0);
+        $app->setEncryptedCookie('myCookie4', 'myValue4', 0);
         $cookieD = $cj->getResponseCookie('myCookie4');
         $this->assertEquals(0, $cookieD->getExpires());
     }
@@ -867,20 +847,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Response Cookies replaced with empty, auto-expiring Cookies
      */
     public function testSlimDeletesCookies() {
-        Slim::init();
-        $cj = Slim::response()->getCookieJar();
+        $app = new Slim();
+        $cj = $app->response()->getCookieJar();
         //Case A
-        Slim::setCookie('foo1', 'bar1');
+        $app->setCookie('foo1', 'bar1');
         $this->assertEquals('bar1', $cj->getResponseCookie('foo1')->getValue());
         $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() > time());
-        Slim::deleteCookie('foo1');
-        $this->assertEquals('', Slim::getCookie('foo1'));
+        $app->deleteCookie('foo1');
+        $this->assertEquals('', $app->getCookie('foo1'));
         $this->assertTrue($cj->getResponseCookie('foo1')->getExpires() < time());
         //Case B
-        Slim::setEncryptedCookie('foo2', 'bar2');
+        $app->setEncryptedCookie('foo2', 'bar2');
         $this->assertTrue(strlen($cj->getResponseCookie('foo2')->getValue()) > 0);
         $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() > time());
-        Slim::deleteCookie('foo2');
+        $app->deleteCookie('foo2');
         $this->assertEquals('', $cj->getResponseCookie('foo2')->getValue());
         $this->assertTrue($cj->getResponseCookie('foo2')->getExpires() < time());
     }
@@ -901,16 +881,16 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The response is unaffected by code after Slim::stop is called
      */
     public function testSlimStop() {
-        Slim::init();
-        Slim::get('/', function () {
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
             try {
                 echo "foo";
-                Slim::stop();
+                $app->stop();
                 echo "bar";
             } catch ( Slim_Exception_Stop $e ) {}
         });
-        Slim::run();
-        $this->assertEquals(Slim::response()->body(), 'foo');
+        $app->run();
+        $this->assertEquals('foo', $app->response()->body());
     }
 
     /**
@@ -926,15 +906,15 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimHaltInsideCallback() {
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::get('/', function () {
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
             echo "foo";
-            Slim::halt(404, 'Halt not found');
+            $app->halt(404, 'Halt not found');
             echo "bar";
         });
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 404);
-        $this->assertEquals(Slim::response()->body(), 'Halt not found');
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
+        $this->assertEquals('Halt not found', $app->response()->body());
     }
 
     /**
@@ -950,14 +930,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimHaltOutsideCallback() {
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::halt(500, 'External error');
-        Slim::get('/', function () {
+        $app = new Slim();
+        $app->halt(500, 'External error');
+        $app->get('/', function () {
             echo "foo";
         });
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 500);
-        $this->assertEquals(Slim::response()->body(), 'External error');
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
+        $this->assertEquals('External error', $app->response()->body());
     }
 
     /**
@@ -974,16 +954,16 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimPassWithFallbackRoute() {
         $_SERVER['REQUEST_URI'] = "/name/Frank";
-        Slim::init();
-        Slim::get('/name/Frank', function (){
+        $app = new Slim();
+        $app->get('/name/Frank', function () use ($app) {
             echo "Your name is Frank";
-            Slim::pass();
+            $app->pass();
         });
-        Slim::get('/name/:name', function ($name) {
+        $app->get('/name/:name', function ($name) {
             echo "I think your name is $name";
         });
-        Slim::run();
-        $this->assertEquals(Slim::response()->body(), "I think your name is Frank");
+        $app->run();
+        $this->assertEquals('I think your name is Frank', $app->response()->body());
     }
 
     /**
@@ -1001,13 +981,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testSlimPassWithoutFallbackRoute() {
         $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = "/name/Frank";
-        Slim::init();
-        Slim::get('name/Frank', function (){
+        $app = new Slim();
+        $app->get('name/Frank', function () use ($app) {
             echo "Your name is Frank";
-            Slim::pass();
+            $app->pass();
         });
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 404);
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
     }
 
     /**
@@ -1021,9 +1001,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The Response content type header is set correctly.
      */
     public function testSlimContentType(){
-        Slim::init();
-        Slim::contentType('image/jpeg');
-        $this->assertEquals(Slim::response()->header('Content-Type'), 'image/jpeg');
+        $app = new Slim();
+        $app->contentType('image/jpeg');
+        $this->assertEquals('image/jpeg', $app->response()->header('Content-Type'));
     }
 
     /**
@@ -1036,13 +1016,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The Response status code is set correctly.
      */
     public function testSlimStatus(){
-        Slim::init();
-        Slim::status(302);
-        $this->assertSame(Slim::response()->status(), 302);
+        $app1 = new Slim();
+        $app1->status(302);
+        $this->assertSame($app1->response()->status(), 302);
 
         $this->setExpectedException('InvalidArgumentException');
-        Slim::init();
-        Slim::status(900);
+        $app2 = new Slim();
+        $app2->status(900);
     }
 
     /**
@@ -1055,9 +1035,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim returns an accurate URL for the named route.
      */
     public function testSlimUrlFor(){
-        Slim::init();
-        Slim::get('/hello/:name', function () {})->name('hello');
-        $this->assertEquals('/hello/Josh', Slim::urlFor('hello', array('name' => 'Josh')));
+        $app = new Slim();
+        $app->get('/hello/:name', function () {})->name('hello');
+        $this->assertEquals('/hello/Josh', $app->urlFor('hello', array('name' => 'Josh')));
     }
 
     /**
@@ -1079,57 +1059,57 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRedirect() {
         //Case A
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::redirect('/foo', 200);
+        $app1 = new Slim();
+        $app1->get('/', function () use ($app1) {
+            $app1->redirect('/foo', 200);
         });
         try {
-            Slim::run();
+            $app1->run();
             $this->fail('InvalidArgumentException not caught');
         } catch( InvalidArgumentException $e ) {}
 
         //Case B
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::redirect('/foo', 308);
+        $app2 = new Slim();
+        $app2->get('/', function () use ($app2) {
+            $app2->redirect('/foo', 308);
         });
         try {
-            Slim::run();
+            $app2->run();
             $this->fail('InvalidArgumentException not caught');
         } catch( InvalidArgumentException $e ) {}
 
         //Case C
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::redirect('/foo', 300);
+        $app3 = new Slim();
+        $app3->get('/', function () use ($app3) {
+            $app3->redirect('/foo', 300);
         });
         try {
-            Slim::run();
+            $app3->run();
             $this->fail("SlimStopException not caught");
         } catch ( Slim_Exception_Stop $e ) {}
-        $this->assertEquals(Slim::response()->status(), 300);
+        $this->assertEquals(300, $app3->response()->status());
 
         //Case D
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::redirect('/foo', 302);
+        $app4 = new Slim();
+        $app4->get('/', function () use ($app4) {
+            $app4->redirect('/foo', 302);
         });
         try {
-            Slim::run();
+            $app4->run();
             $this->fail("SlimStopException not caught");
         } catch ( Slim_Exception_Stop $e ) {}
-        $this->assertEquals(Slim::response()->status(), 302);
+        $this->assertEquals(302, $app4->response()->status());
 
         //Case E
-        Slim::init();
-        Slim::get('/', function () {
-            Slim::redirect('/foo', 307);
+        $app5 = new Slim();
+        $app5->get('/', function () use ($app5) {
+            $app5->redirect('/foo', 307);
         });
         try {
-            Slim::run();
+            $app5->run();
             $this->fail("SlimStopException not caught");
         } catch ( Slim_Exception_Stop $e ) {}
-        $this->assertEquals(Slim::response()->status(), 307);
+        $this->assertEquals(307, $app5->response()->status());
     }
 
     /************************************************
@@ -1148,10 +1128,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimRouteNotFound() {
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::get('/foo', function () {});
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 404);
+        $app = new Slim();
+        $app->get('/foo', function () {});
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
     }
 
     /**
@@ -1166,10 +1146,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimError() {
         $this->setExpectedException('Slim_Exception_Stop');
-        Slim::init();
-        Slim::get('/', function () { Slim::error(); });
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 500);
+        $app = new Slim();
+        $app->get('/', function () use ($app) { $app->error(); });
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
     }
 
     /**
@@ -1183,11 +1163,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * The response status is 200 and response body is as expected.
      */
     public function testSlimOkResponse() {
-        Slim::init();
-        Slim::get('/', function () { echo "Ok"; });
-        Slim::run();
-        $this->assertEquals(Slim::response()->status(), 200);
-        $this->assertEquals(Slim::response()->body(), 'Ok');
+        $app = new Slim();
+        $app->get('/', function () { echo "Ok"; });
+        $app->run();
+        $this->assertEquals(200, $app->response()->status());
+        $this->assertEquals('Ok', $app->response()->body());
     }
 
     /************************************************
@@ -1207,12 +1187,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testRegistersAndCallsHooksByPriority() {
         $this->expectOutputString('barfoo');
-        Slim::init();
+        $app = new Slim();
         $callable1 = function () { echo "foo"; };
         $callable2 = function () { echo "bar"; };
-        Slim::hook('test.hook.one', $callable1); //default is 10
-        Slim::hook('test.hook.one', $callable2, 8);
-        Slim::applyHook('test.hook.one');
+        $app->hook('test.hook.one', $callable1); //default is 10
+        $app->hook('test.hook.one', $callable2, 8);
+        $app->applyHook('test.hook.one');
     }
 
     /**
@@ -1228,10 +1208,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Callable is NOT assigned to hook;
      */
     public function testHookInvalidCallable() {
-        Slim::init();
+        $app = new Slim();
         $callable = 'test'; //NOT callable
-        Slim::hook('test.hook.one', $callable);
-        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
+        $app->hook('test.hook.one', $callable);
+        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
 
     /**
@@ -1246,9 +1226,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Hook initialized with empty array
      */
     public function testHookInvocationIfNotExists() {
-        Slim::init();
-        Slim::applyHook('test.hook.one');
-        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
+        $app = new Slim();
+        $app->applyHook('test.hook.one');
+        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
 
     /**
@@ -1263,26 +1243,24 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case B: Listeners for all hooks are cleared
      */
     public function testHookClear() {
-        Slim::init();
-        Slim::hook('test.hook.one', function () {});
-        Slim::hook('test.hook.two', function () {});
-        Slim::clearHooks('test.hook.two');
-        $this->assertEquals(array(array()), Slim::getHooks('test.hook.two'));
-        $hookOne = Slim::getHooks('test.hook.one');
+        $app = new Slim();
+        $app->hook('test.hook.one', function () {});
+        $app->hook('test.hook.two', function () {});
+        $app->clearHooks('test.hook.two');
+        $this->assertEquals(array(array()), $app->getHooks('test.hook.two'));
+        $hookOne = $app->getHooks('test.hook.one');
         $this->assertTrue(count($hookOne[10]) === 1);
-        Slim::clearHooks();
-        $this->assertEquals(array(array()), Slim::getHooks('test.hook.one'));
+        $app->clearHooks();
+        $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
 
     /**
      * Test hook filter behavior
-     *
      */
     public function testHookFilterBehavior() {
-        Slim::init();
-        Slim::hook('test.hook', function ($arg) { return $arg . 'foo'; });
-        $this->assertEquals('barfoo', Slim::applyHook('test.hook', 'bar'));
+        $app = new Slim();
+        $app->hook('test.hook', function ($arg) { return $arg . 'foo'; });
+        $this->assertEquals('barfoo', $app->applyHook('test.hook', 'bar'));
     }
 
 }
-
