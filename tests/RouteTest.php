@@ -66,6 +66,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route->name('foo');
         $cacheKeys = array_keys($router->cache);
         $cacheValues = array_values($router->cache);
+        $this->assertEquals('foo', $route->getName());
+        $this->assertSame($router, $route->getRouter());
         $this->assertEquals($cacheKeys[0], 'foo');
         $this->assertSame($cacheValues[0], $route);
     }
@@ -74,8 +76,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route should set pattern
      */
     public function testRouteSetsPattern() {
-        $route = new Slim_Route('/foo/bar', function () {});
-        $this->assertEquals('/foo/bar', $route->getPattern());
+        $route1 = new Slim_Route('/foo/bar', function () {});
+        $this->assertEquals('/foo/bar', $route1->getPattern());
     }
 
     /**
@@ -128,6 +130,18 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $result = $route->matches($resource);
         $this->assertFalse($result);
         $this->assertEquals(array(), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with trailing slash
+     *
+     */
+    public function testRouteMatchesWithTrailingSlash() {
+        $resource1 = '/foo/bar/';
+        $resource2 = '/foo/bar';
+        $route = new Slim_Route('/foo/:one/', function () {});
+        $this->assertTrue($route->matches($resource1));
+        $this->assertTrue($route->matches($resource2));
     }
 
     /**
