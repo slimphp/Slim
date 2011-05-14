@@ -286,15 +286,6 @@ class Slim {
         set_error_handler(array($this, 'handleErrors'));
         set_exception_handler(array($this, 'handleExceptions'));
 
-        //Start session if not already started
-        if ( session_id() === '' ) {
-            $sessionHandler = $this->config('session.handler');
-            if ( $sessionHandler instanceof Slim_Session_Handler ) {
-                $sessionHandler->register();
-            }
-            session_start();
-        }
-
         //HTTP request and response handling
         $this->request = new Slim_Http_Request();
         $this->response = new Slim_Http_Response($this->request);
@@ -305,6 +296,15 @@ class Slim {
             'enable_ssl' => $this->settings['cookies.secure']
         )));
         $this->router = new Slim_Router($this->request);
+
+        //Start session if not already started
+        if ( session_id() === '' ) {
+            $sessionHandler = $this->config('session.handler');
+            if ( $sessionHandler instanceof Slim_Session_Handler ) {
+                $sessionHandler->register($this);
+            }
+            session_start();
+        }
 
         //View with flash messaging
         $this->view($this->config('view'))->setData('flash', new Slim_Session_Flash($this->config('session.flash_key')));
@@ -338,7 +338,7 @@ class Slim {
             $this->log = new Slim_Log();
             $this->log->setEnabled($this->config('log.enable'));
             $logger = $this->config('log.logger');
-            if ( $logger instanceof Slim_Logger ) {
+            if ( $logger ) {
                 $this->log->setLogger($logger);
             } else {
                 $this->log->setLogger(new Slim_Logger($this->config('log.path'), $this->config('log.level')));
