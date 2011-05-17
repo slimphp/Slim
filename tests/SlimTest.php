@@ -528,6 +528,17 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /************************************************
+     * SLIM ACCESSORS
+     ************************************************/
+
+    public function testSlimAccessors() {
+        $app = new Slim();
+        $this->assertTrue($app->request() instanceof Slim_Http_Request);
+        $this->assertTrue($app->response() instanceof Slim_Http_Response);
+        $this->assertTrue($app->router() instanceof Slim_Router);
+    }
+
+    /************************************************
      * SLIM VIEW
      ************************************************/
 
@@ -1108,6 +1119,68 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
             $this->fail("SlimStopException not caught");
         } catch ( Slim_Exception_Stop $e ) {}
         $this->assertEquals(307, $app5->response()->status());
+    }
+
+    /************************************************
+     * SLIM FLASH MESSAGING
+     ************************************************/
+
+    /**
+     * Slim Flash
+     *
+     * Pre-conditions:
+     * Slim app sets Flash message for next request
+     *
+     * Post-conditions:
+     * Message is persisted to $_SESSION after app is run
+     */
+    public function testSlimFlash() {
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->flash('info', 'Foo');
+        });
+        $app->run();
+        $this->assertArrayHasKey('info', $_SESSION['flash']);
+        $this->assertEquals('Foo', $_SESSION['flash']['info']);
+    }
+
+    /**
+     * Slim Flash Now
+     *
+     * Pre-conditions:
+     * Slim app sets Flash message for current request
+     *
+     * Post-conditions:
+     * Message is persisted to View data
+     */
+    public function testSlimFlashNow() {
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->flashNow('info', 'Foo');
+        });
+        $app->run();
+        $flash = $app->view()->getData('flash');
+        $this->assertEquals('Foo', $flash['info']);
+    }
+
+    /**
+     * Slim Keep Flash
+     *
+     * Pre-conditions:
+     * Slim app receives existing Flash message from $_SESSION
+     *
+     * Post-conditions:
+     * Message is re-persisted to $_SESSION after app is run
+     */
+    public function testSlimFlashKeep() {
+        $_SESSION['flash'] = array('info' => 'Foo');
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->flashKeep();
+        });
+        $app->run();
+        $this->assertArrayHasKey('info', $_SESSION['flash']);
+        $this->assertEquals('Foo', $_SESSION['flash']['info']);
     }
 
     /************************************************
