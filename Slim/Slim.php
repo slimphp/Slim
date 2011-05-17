@@ -817,7 +817,7 @@ class Slim {
      * @return string
      */
     public function root() {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $this->request->root;
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
     }
 
     /**
