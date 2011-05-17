@@ -656,9 +656,7 @@ class Slim {
     public function lastModified( $time ) {
         if ( is_integer($time) ) {
             $this->response->header('Last-Modified', date(DATE_RFC1123, $time));
-            if ( $time === strtotime($this->request->headers('IF_MODIFIED_SINCE')) ) {
-                $this->halt(304);
-            }
+            if ( $time === strtotime($this->request->headers('IF_MODIFIED_SINCE')) ) $this->halt(304);
         } else {
             throw new InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
         }
