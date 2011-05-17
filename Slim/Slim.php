@@ -61,6 +61,9 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
     date_default_timezone_set('UTC');
 }
 
+//Set global Error handler
+set_error_handler(array('Slim', 'handleErrors'));
+
 /**
  * Slim
  *
@@ -136,109 +139,6 @@ class Slim {
         }
     }
 
-    /**
-     * Handle errors
-     *
-     * This is the global Error handler that will catch uncaught errors
-     * and display a nice-looking page with details about the error.
-     *
-     * @param   int     $errno      The numeric type of the Error
-     * @param   string  $errstr     The error message
-     * @param   string  $errfile    The absolute path to the affected file
-     * @param   int     $errline    The line number of the error in the affected file
-     * @return  void
-     */
-    public function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
-        if ( !(error_reporting() & $errno) ) {
-            return;
-        }
-        $this->getLog()->error(sprintf("Message: %s | File: %s | Line: %d | Level: %d", $errstr, $errfile, $errline, $errno));
-        if ( $this->config('debug') === true ) {
-            $this->halt(500, self::generateErrorMarkup($errstr, $errfile, $errline));
-        } else {
-            $this->error();
-        }
-        die();
-    }
-
-    /**
-     * Handle exceptions
-     *
-     * This is the global Exception handler that will catch uncaught exceptions
-     * and display a nice-looking page with details about the exception.
-     *
-     * @param   Exception $e
-     * @return  void
-     */
-    public function handleExceptions( Exception $e ) {
-        if ( $e instanceof Slim_Exception_Stop === false ) {
-            $this->getLog()->error($e);
-            if ( $this->config('debug') === true ) {
-                $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
-            } else {
-                $this->error();
-            }
-        }
-        die();
-    }
-
-    /**
-     * Generate markup for error message
-     *
-     * This method accepts details about an error or exception and
-     * generates HTML markup for the 500 response body that will
-     * be sent to the client.
-     *
-     * @param   string  $message    The error message
-     * @param   string  $file       The absolute file path to the affected file
-     * @param   int     $line       The line number in the affected file
-     * @param   string  $trace      A stack trace of the error
-     * @return  string
-     */
-    protected static function generateErrorMarkup( $message, $file = '', $line = '', $trace = '' ) {
-        $body = '<p>The application could not run because of the following error:</p>';
-        $body .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
-        if ( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
-        if ( $line !== '' ) $body .= "<strong>Line:</strong> $line<br/>";
-        if ( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
-        return self::generateTemplateMarkup('Slim Application Error', $body);
-    }
-
-    /**
-     * Generate default template markup
-     *
-     * This method accepts a title and body content to generate
-     * an HTML page. This is primarily used to generate the layout markup
-     * for Error handlers and Not Found handlers.
-     *
-     * @param   string  $title The title of the HTML template
-     * @param   string  $body The body content of the HTML template
-     * @return  string
-     */
-    protected static function generateTemplateMarkup( $title, $body ) {
-        $html = "<html><head><title>$title</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
-        $html .= "<h1>$title</h1>";
-        $html .= $body;
-        $html .= '</body></html>';
-        return $html;
-    }
-
-    /**
-     * Default Not Found handler
-     * @return void
-     */
-    protected static function defaultNotFound() {
-        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . Slim::request()->getRootUri() . '">Visit the Home Page</a>');
-    }
-
-    /**
-     * Default Error handler
-     * @return void
-     */
-    protected static function defaultError() {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
-    }
-
     /***** INITIALIZATION *****/
 
     /**
@@ -280,10 +180,6 @@ class Slim {
 
         //Determine application mode
         $this->getMode();
-
-        //Set Error and Exception handling
-        set_error_handler(array($this, 'handleErrors'));
-        set_exception_handler(array($this, 'handleExceptions'));
 
         //Setup HTTP request and response handling
         $this->request = new Slim_Http_Request();
@@ -821,6 +717,22 @@ class Slim {
     }
 
     /**
+     * Shutdown
+     *
+     * This will perform all final tasks necessary to send the application
+     * response and prepare the application to hand control to the parent
+     * process. This will NOT exit the PHP script (see Slim::stop for that).
+     */
+    protected function shutdown() {
+        $flash = $this->view->getData('flash');
+        if ( $flash ) {
+            $flash->save();
+        }
+        //session_write_close();
+        $this->response->send();
+    }
+
+    /**
      * Stop
      *
      * Send the current Response as is and stop executing the Slim
@@ -831,12 +743,7 @@ class Slim {
      * @return  void
      */
     public function stop() {
-        $flash = $this->view->getData('flash');
-        if ( $flash ) {
-            $flash->save();
-        }
-        session_write_close();
-        $this->response->send();
+        $this->shutdown();
         throw new Slim_Exception_Stop();
     }
 
@@ -1058,6 +965,10 @@ class Slim {
      * This method will invoke the Not Found handler if no matching
      * routes are found.
      *
+     * This method will also catch any unexpected Exceptions thrown by this
+     * application; the Exceptions will be logged to this application's log 
+     * and rethrown to the global Exception handler.
+     *
      * @return void
      */
     public function run() {
@@ -1089,7 +1000,96 @@ class Slim {
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->redirect($this->request->getRootUri() . $this->request->getResourceUri() . '/', 301);
+        } catch ( Slim_Exception_Stop $e ) {
+            //Exit application context
+        } catch ( Exception $e ) {
+            $this->getLog()->error($e);
+            if ( $this->config('debug') === true ) {
+                $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+            } else {
+                $this->error();
+            }
         }
+    }
+
+    /***** EXCEPTION AND ERROR HANDLING *****/
+
+    /**
+     * Handle errors
+     *
+     * This is the global Error handler that will catch reportable Errors
+     * and convert them into ErrorExceptions that are caught and handled
+     * by each Slim application.
+     * 
+     * @param   int     $errno      The numeric type of the Error
+     * @param   string  $errstr     The error message
+     * @param   string  $errfile    The absolute path to the affected file
+     * @param   int     $errline    The line number of the error in the affected file
+     * @return  true
+     * @throws  ErrorException
+     */
+    public static function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
+        if ( error_reporting() & $errno ) {
+            throw new ErrorException($errstr, $errno, 0, $errFile, $errLine);
+        }
+        return true;
+    }
+
+    /**
+     * Generate markup for error message
+     *
+     * This method accepts details about an error or exception and
+     * generates HTML markup for the 500 response body that will
+     * be sent to the client.
+     *
+     * @param   string  $message    The error message
+     * @param   string  $file       The absolute file path to the affected file
+     * @param   int     $line       The line number in the affected file
+     * @param   string  $trace      A stack trace of the error
+     * @return  string
+     */
+    protected static function generateErrorMarkup( $message, $file = '', $line = '', $trace = '' ) {
+        $body = '<p>The application could not run because of the following error:</p>';
+        $body .= "<h2>Details:</h2><strong>Message:</strong> $message<br/>";
+        if ( $file !== '' ) $body .= "<strong>File:</strong> $file<br/>";
+        if ( $line !== '' ) $body .= "<strong>Line:</strong> $line<br/>";
+        if ( $trace !== '' ) $body .= '<h2>Stack Trace:</h2>' . nl2br($trace);
+        return self::generateTemplateMarkup('Slim Application Error', $body);
+    }
+
+    /**
+     * Generate default template markup
+     *
+     * This method accepts a title and body content to generate
+     * an HTML page. This is primarily used to generate the layout markup
+     * for Error handlers and Not Found handlers.
+     *
+     * @param   string  $title The title of the HTML template
+     * @param   string  $body The body content of the HTML template
+     * @return  string
+     */
+    protected static function generateTemplateMarkup( $title, $body ) {
+        $html = "<html><head><title>$title</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>";
+        $html .= "<h1>$title</h1>";
+        $html .= $body;
+        $html .= '</body></html>';
+        return $html;
+    }
+
+    /**
+     * Default Not Found handler
+     * @return void
+     */
+    protected static function defaultNotFound() {
+        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . Slim::request()->getRootUri() . '">Visit the Home Page</a>');
+    }
+
+    /**
+     * Default Error handler
+     * @return void
+     */
+    protected static function defaultError() {
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 
 }
