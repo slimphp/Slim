@@ -879,6 +879,39 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
+     * Test Slim Root
+     *
+     * Pre-conditions:
+     * Slim app is installed in document root directory
+     *
+     * Post-conditions:
+     * Slim correctly reports root path
+     */
+    public function testRootPathInBaseDirectory() {
+        $rootPath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/';
+        $app = new Slim();
+        $this->assertEquals($rootPath, $app->root());
+    }
+
+    /**
+     * Test Slim Root From Subdirectory
+     *
+     * Pre-conditions:
+     * Slim app is installed in a physical subdirectory of document root
+     *
+     * Post-conditions:
+     * Slim correctly reports root path
+     */
+    public function testRootPathInSubDirectory() {
+        $_SERVER['REQUEST_URI'] = '/foo/bar';
+        $_SERVER['SCRIPT_NAME'] = '/foo/bootstrap.php';
+        $_SERVER['PHP_SELF'] = '/foo/bootstrap.php';
+        $rootPath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/foo/';
+        $app = new Slim();
+        $this->assertEquals($rootPath, $app->root());
+    }
+
+    /**
      * Test Slim Stop
      *
      * Pre-conditions:
