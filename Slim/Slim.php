@@ -426,13 +426,9 @@ class Slim {
      *
      * @param   string                      The HTTP method (ie. GET, POST, PUT, DELETE)
      * @param   array                       See notes above
-     * @throws  InvalidArgumentException    If less than two arguments are provided
      * @return  Slim_Route
      */
     protected function mapRoute($type, $args) {
-        if ( count($args) < 2 ) {
-            throw new InvalidArgumentException('Pattern and callable are required to create a route');
-        }
         $pattern = array_shift($args);
         $callable = array_pop($args);
         $route = $this->router->map($pattern, $callable, $type);
