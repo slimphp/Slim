@@ -434,15 +434,15 @@ class Slim {
      * @return  void
      */
     public function error( $callable = null ) {
-        if ( !is_null($callable) ) {
+        if ( !is_null($callable) && $callable instanceof Exception === false ) {
             $this->router->error($callable);
         } else {
             ob_start();
             $customErrorHandler = $this->router->error();
             if ( is_callable($customErrorHandler) ) {
-                call_user_func($customErrorHandler);
+                call_user_func_array($customErrorHandler, array($callable));
             } else {
-                call_user_func(array('self', 'defaultErrorHandler'));
+                call_user_func_array(array('self', 'defaultErrorHandler'), array($callable));
             }
             $this->halt(500, ob_get_clean());
         }
@@ -717,22 +717,6 @@ class Slim {
     }
 
     /**
-     * Shutdown
-     *
-     * This will perform all final tasks necessary to send the application
-     * response and prepare the application to hand control to the parent
-     * process. This will NOT exit the PHP script (see Slim::stop for that).
-     */
-    protected function shutdown() {
-        $flash = $this->view->getData('flash');
-        if ( $flash ) {
-            $flash->save();
-        }
-        //session_write_close();
-        $this->response->send();
-    }
-
-    /**
      * Stop
      *
      * Send the current Response as is and stop executing the Slim
@@ -743,7 +727,12 @@ class Slim {
      * @return  void
      */
     public function stop() {
-        $this->shutdown();
+        $flash = $this->view->getData('flash');
+        if ( $flash ) {
+            $flash->save();
+        }
+        //session_write_close();
+        $this->response->send();
         throw new Slim_Exception_Stop();
     }
 
@@ -760,7 +749,7 @@ class Slim {
      * @param   string              $message    The HTTP response body
      * @return  void
      */
-    public function halt( $status, $message = '' ) {
+    public function halt( $status, $message = '') {
         if ( ob_get_level() !== 0 ) {
             ob_clean();
         }
@@ -995,7 +984,7 @@ class Slim {
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after.router');
             $this->view->getData('flash')->save();
-            session_write_close();
+            //session_write_close();
             $this->response->send();
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
@@ -1004,10 +993,14 @@ class Slim {
             //Exit application context
         } catch ( Exception $e ) {
             $this->getLog()->error($e);
-            if ( $this->config('debug') === true ) {
-                $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
-            } else {
-                $this->error();
+            try {
+                if ( $this->config('debug') === true ) {
+                    $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
+                } else {
+                    $this->error($e);
+                }
+            } catch ( Slim_Exception_Stop $e2 ) {
+                //Ignore Slim_Exception_Stop and exit application context
             }
         }
     }
@@ -1030,7 +1023,7 @@ class Slim {
      */
     public static function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
         if ( error_reporting() & $errno ) {
-            throw new ErrorException($errstr, $errno, 0, $errFile, $errLine);
+            throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
         }
         return true;
     }
