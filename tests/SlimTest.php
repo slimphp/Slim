@@ -1216,8 +1216,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testSlimError() {
         $app1 = new Slim();
         $app2 = new Slim();
-        $app1->get('/', function () use ($app) {
-            $app->error();
+        $app1->get('/', function () use ($app1) {
+            $app1->error();
         });
         $app2->get('/', function () {
             trigger_error('error');
