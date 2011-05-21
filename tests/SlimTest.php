@@ -1221,6 +1221,59 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
+     * Test Slim catches Errors
+     *
+     * Pre-conditions:
+     * Slim app triggers Error
+     *
+     * Post-conditions:
+     * Slim converts Error into ErrorException
+     */
+    public function testError() {
+        $app = new Slim(array(
+            'debug' => false
+        ));
+        $app->error(function () {
+            echo 'foo';
+        });
+        $app->get('/', function () {
+            trigger_error('Foo');
+        });
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
+        $this->assertEquals('foo', $app->response()->body());
+    }
+
+    /**
+     * Test error triggered with multiple applications
+     *
+     * Pre-conditions:
+     * Multiple Slim apps are instantiated;
+     * Both apps are run;
+     * One app returns 200 OK;
+     * One app triggers an error;
+     *
+     * Post-conditions:
+     * One app returns 200 OK with no Exceptions;
+     * One app returns 500 Error;
+     * Error triggered does not affect other app;
+     */
+    public function testErrorWithMultipleApps() {
+        $app1 = new Slim();
+        $app2 = new Slim();
+        $app1->get('/', function () {
+            trigger_error('error');
+        });
+        $app2->get('/', function () {
+            echo 'success';
+        });
+        $app1->run();
+        $app2->run();
+        $this->assertEquals(500, $app1->response()->status());
+        $this->assertEquals(200, $app2->response()->status());
+    }
+
+    /**
      * Test Slim Not Found handler
      *
      * Pre-conditions:
