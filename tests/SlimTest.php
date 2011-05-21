@@ -1093,8 +1093,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Case E: Status code is 307
      *
      * Post-conditions:
-     * Case A: An InvalidArgumentException is thrown
-     * Case B: An InvalidArgumentException is thrown
+     * Case A: Response code is 500 (due to invalid redirect status)
+     * Case B: Response code is 500 (due to invalid redirect status)
      * Case C: Response code is 300
      * Case D: Response code is 302
      * Case E: Response code is 307
@@ -1105,30 +1105,23 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app1->get('/', function () use ($app1) {
             $app1->redirect('/foo', 200);
         });
-        try {
-            $app1->run();
-            $this->fail('InvalidArgumentException not caught');
-        } catch( InvalidArgumentException $e ) {}
+        $app1->run();
+        $this->assertEquals(500, $app1->response()->status());
 
         //Case B
         $app2 = new Slim();
         $app2->get('/', function () use ($app2) {
             $app2->redirect('/foo', 308);
         });
-        try {
-            $app2->run();
-            $this->fail('InvalidArgumentException not caught');
-        } catch( InvalidArgumentException $e ) {}
+        $app2->run();
+        $this->assertEquals(500, $app2->response()->status());
 
         //Case C
         $app3 = new Slim();
         $app3->get('/', function () use ($app3) {
             $app3->redirect('/foo', 300);
         });
-        try {
-            $app3->run();
-            $this->fail("SlimStopException not caught");
-        } catch ( Slim_Exception_Stop $e ) {}
+        $app3->run();
         $this->assertEquals(300, $app3->response()->status());
 
         //Case D
@@ -1136,10 +1129,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app4->get('/', function () use ($app4) {
             $app4->redirect('/foo', 302);
         });
-        try {
-            $app4->run();
-            $this->fail("SlimStopException not caught");
-        } catch ( Slim_Exception_Stop $e ) {}
+        $app4->run();
         $this->assertEquals(302, $app4->response()->status());
 
         //Case E
@@ -1147,10 +1137,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app5->get('/', function () use ($app5) {
             $app5->redirect('/foo', 307);
         });
-        try {
-            $app5->run();
-            $this->fail("SlimStopException not caught");
-        } catch ( Slim_Exception_Stop $e ) {}
+        $app5->run();
         $this->assertEquals(307, $app5->response()->status());
     }
 
