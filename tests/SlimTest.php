@@ -28,9 +28,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Slim.php';
@@ -70,6 +67,17 @@ $_SERVER['PHP_SELF'] = '/bootstrap.php';
 $_SERVER['REQUEST_TIME'] = "1285647051";
 $_SERVER['argv'] = array();
 $_SERVER['argc'] = 0;
+
+//Register non-Slim autoloader
+function customAutoLoader( $class ) {
+    $file = rtrim(dirname(__FILE__), '/') . '/' . $class . '.php';
+    if ( file_exists($file) ) {
+        require $file;
+    } else {
+        return;
+    }
+}
+spl_autoload_register('customAutoLoader');
 
 //Mock custom view
 class CustomView extends Slim_View {
@@ -179,6 +187,19 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         //Case B
         $app2 = new Slim(array('view' => new CustomView()));
         $this->assertTrue($app2->view() instanceOf CustomView);
+    }
+
+    /**
+     * Test Slim autoloader ignores non-Slim classes
+     *
+     * Pre-conditions:
+     * Require a non-Slim class;
+     *
+     * Post-conditions:
+     * Slim autoloader returns without requiring a class file;
+     */
+    public function testSlimAutoloaderIgnoresNonSlimClass() {
+        $foo = new Foo();
     }
 
     /************************************************
@@ -1211,20 +1232,33 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test default and custom error handlers
      *
      * Pre-conditions:
-     * One app calls the user-defined error handler;
+     * One app calls the user-defined error handler directly;
      * One app triggers a generic PHP error;
+     * One app has debugging disabled, throws Exception to invoke error handler indirectly;
      *
      * Post-conditions:
-     * Both apps' response status is 500;
+     * All apps' response status is 500;
+     * App with debugging disabled catches ErrorException in user-defined error handler;
      */
     public function testSlimError() {
         $app1 = new Slim();
-        $app2 = new Slim();
         $app1->get('/', function () use ($app1) {
             $app1->error();
         });
+        $app2 = new Slim();
         $app2->get('/', function () {
             trigger_error('error');
+        });
+        $app3 = new Slim(array(
+            'debug' => false
+        ));
+        $app3->error(function ( $e ) {
+            if ( $e instanceof Exception ) {
+                echo get_class($e);
+            }
+        });
+        $app3->get('/', function () {
+            $result = 1 / 0;
         });
         ob_start();
         $app1->run();
@@ -1232,8 +1266,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         ob_start();
         $app2->run();
         $app2Out = ob_get_clean();
+        ob_start();
+        $app3->run();
+        $app3Out = ob_get_clean();
         $this->assertEquals(500, $app1->response()->status());
         $this->assertEquals(500, $app2->response()->status());
+        $this->assertEquals('ErrorException', $app3Out);
     }
 
     /**
@@ -1269,17 +1307,31 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Not Found handler
      *
      * Pre-conditions:
-     * Initialize Slim app;
-     * Add GET route that does not match current HTTP request;
+     * Initialize one Slim app without custom Not Found handler;
+     * Initialize one Slim app with custom Not Found Handler;
+     * Both app's routes do not match HTTP request;
      *
      * Post-conditions:
-     * The Slim app response status is 404
+     * Both Slim apps' response status is 404;
+     * Custom Not Found handler is invoked if specified;
      */
     public function testSlimRouteNotFound() {
-        $app = new Slim();
-        $app->get('/foo', function () {});
-        $app->run();
-        $this->assertEquals(404, $app->response()->status());
+        $app1 = new Slim();
+        $app1->get('/foo', function () {});
+        ob_start();
+        $app1->run();
+        $app1Out = ob_get_clean();
+        $app2 = new Slim();
+        $app2->notFound(function () {
+            echo 'Not Found';
+        });
+        $app2->get('/bar', function () {});
+        ob_start();
+        $app2->run();
+        $app2Out = ob_get_clean();
+        $this->assertEquals(404, $app1->response()->status());
+        $this->assertEquals(404, $app2->response()->status());
+        $this->assertEquals('Not Found', $app2->response()->body());
     }
 
     /**
