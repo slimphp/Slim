@@ -1221,27 +1221,28 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim catches Errors
+     * Test default and custom error handlers
      *
      * Pre-conditions:
-     * Slim app triggers Error
+     * One app calls the user-defined error handler;
+     * One app triggers a generic PHP error;
      *
      * Post-conditions:
-     * Slim converts Error into ErrorException
+     * Both apps' response status is 500;
      */
-    public function testError() {
-        $app = new Slim(array(
-            'debug' => false
-        ));
-        $app->error(function () {
-            echo 'foo';
+    public function testSlimError() {
+        $app1 = new Slim();
+        $app2 = new Slim();
+        $app1->get('/', function () use ($app) {
+            $app->error();
         });
-        $app->get('/', function () {
-            trigger_error('Foo');
+        $app2->get('/', function () {
+            trigger_error('error');
         });
-        $app->run();
-        $this->assertEquals(500, $app->response()->status());
-        $this->assertEquals('foo', $app->response()->body());
+        $app1->run();
+        $app2->run();
+        $this->assertEquals(500, $app1->response()->status());
+        $this->assertEquals(500, $app2->response()->status());
     }
 
     /**
@@ -1291,36 +1292,19 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim returns 500 response if error thrown within Slim app
+     * Test Slim app without errors
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a custom Error handler with
-     * an accessible route that calls Slim::error().
+     * Slim app does not have Errors and Exceptions;
      *
      * Post-conditions:
-     * The response status will be 500
-     */
-    public function testSlimError() {
-        $this->setExpectedException('Slim_Exception_Stop');
-        $app = new Slim();
-        $app->get('/', function () use ($app) { $app->error(); });
-        $app->run();
-        $this->assertEquals(500, $app->response()->status());
-    }
-
-    /**
-     * Test Slim returns 200 OK for successful route
-     *
-     * Pre-conditions:
-     * You have initialized a Slim app with an accessible route that
-     * does not throw any Exceptions and does not set a custom status.
-     *
-     * Post-conditions:
-     * The response status is 200 and response body is as expected.
+     * Slim app response status is 200;
      */
     public function testSlimOkResponse() {
         $app = new Slim();
-        $app->get('/', function () { echo "Ok"; });
+        $app->get('/', function () {
+            echo 'Ok';
+        });
         $app->run();
         $this->assertEquals(200, $app->response()->status());
         $this->assertEquals('Ok', $app->response()->body());
