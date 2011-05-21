@@ -442,7 +442,7 @@ class Slim {
             if ( is_callable($customErrorHandler) ) {
                 call_user_func_array($customErrorHandler, array($callable));
             } else {
-                call_user_func_array(array($this, 'defaultErrorHandler'), array($callable));
+                call_user_func_array(array($this, 'defaultError'), array($callable));
             }
             $this->halt(500, ob_get_clean());
         }
