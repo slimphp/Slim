@@ -615,16 +615,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim HTTP caching if ETag match
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets an ETag
-     * for a route. The HTTP `If-None-Match` header is set and matches
-     * the ETag identifier value.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route sets ETag header, matches request's `If-None-Match` header;
      *
      * Post-conditions:
-     * The Slim application will return a 304 Not Modified response
-     * because the ETag value matches `If-None-Match` request header.
+     * Slim app response status is 304;
      */
     public function testSlimEtagMatches(){
-        $this->setExpectedException('Slim_Exception_Stop');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->etag('abc123');
@@ -658,19 +656,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim::etag only accepts 'strong' or 'weak' types
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets an ETag
-     * with an invalid type argument.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route sets ETag header with an invalid argument;
      *
      * Post-conditions:
-     * An InvalidArgumentException is thrown
+     * Slim app response status is 500;
      */
     public function testSlimETagThrowsExceptionForInvalidType(){
-        $this->setExpectedException('InvalidArgumentException');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->etag('123','foo');
         });
         $app->run();
+        $this->assertEquals(500, $app->response()->status());
     }
 
     /**
