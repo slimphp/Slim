@@ -677,17 +677,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim HTTP caching with Last Modified match
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets the
-     * `Last-Modified` response header for a route. The
-     * HTTP `If-Modified-Since` header is set and matches the
-     * `Last-Modified` date in the HTTP request.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route correctly sets a Last-Modified header;
      *
      * Post-conditions:
-     * The Slim application will return an HTTP 304 Not Modified response
-     * because the Last Modified date matches `If-Modified-Since` header.
+     * Slim app response status is 304 Not Modified;
      */
     public function testSlimLastModifiedDateMatches(){
-        $this->setExpectedException('Slim_Exception_Stop');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->lastModified(1286139652);
@@ -722,19 +719,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Last Modified only accepts integer values
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets the Last Modified
-     * date for a route to a non-integer value.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route sets LastModified header value incorrectly;
      *
      * Post-conditions:
-     * An InvalidArgumentException is thrown
+     * Slim app response status is 500;
      */
     public function testSlimLastModifiedOnlyAcceptsIntegers(){
-        $this->setExpectedException('InvalidArgumentException');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->lastModified('Test');
         });
         $app->run();
+        $this->assertEquals(500, $app->response()->status());
     }
 
     /************************************************
