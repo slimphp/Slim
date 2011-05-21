@@ -939,20 +939,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim::halt inside route callback
      *
      * Pre-conditions:
-     * Slim::halt is invoked inside a route callback
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Halt app from within invoked route;
      *
      * Post-conditions:
-     * The new response should be set correctly, and preivous
-     * and subsequent invocations from within the route
-     * callback are ignored.
+     * Slim app response status is 404;
+     * Slim app response body is 'Halt not found';
      */
     public function testSlimHaltInsideCallback() {
-        $this->setExpectedException('Slim_Exception_Stop');
         $app = new Slim();
         $app->get('/', function () use ($app) {
-            echo "foo";
+            echo 'foo';
             $app->halt(404, 'Halt not found');
-            echo "bar";
+            echo 'bar';
         });
         $app->run();
         $this->assertEquals(404, $app->response()->status());
@@ -1012,20 +1012,19 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim::pass continues, but next matching route not found
      *
      * Pre-conditions:
-     * You have initialized a Slim application with one accesible route.
-     * The first matching route should be the most specific and should
-     * invoke Slim::pass().
+     * Slim app initiated;
+     * Define route that matches current HTTP request;
+     * Route passes;
+     * No subsequent routes available;
      *
      * Post-conditions:
-     * No second matching route is found, and a HTTP 404 response is
-     * sent to the client.
+     * Slim app response status is 404;
      */
     public function testSlimPassWithoutFallbackRoute() {
-        $this->setExpectedException('Slim_Exception_Stop');
-        $_SERVER['REQUEST_URI'] = "/name/Frank";
+        $_SERVER['REQUEST_URI'] = '/name/Frank';
         $app = new Slim();
-        $app->get('name/Frank', function () use ($app) {
-            echo "Your name is Frank";
+        $app->get('/name/Frank', function () use ($app) {
+            echo 'Your name is Frank';
             $app->pass();
         });
         $app->run();
