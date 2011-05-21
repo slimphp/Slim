@@ -488,15 +488,15 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim routing and trailing slashes
      *
      * Pre-conditions:
-     * A route is defined that expects no trailing slash, but
-     * the resource URI does have a trailing slash - but
-     * otherwise matches the route pattern.
+     * Slim app instantiated;
+     * Route defined that matches current HTTP request;
+     * Route does NOT expect trailing slash;
+     * HTTP request DOES have trailing slash;
      *
      * Post-conditions:
-     * Slim will send a 404 Not Found response
+     * Slim response status is 404;
      */
     public function testRouteWithoutSlashAndUrlWith() {
-        $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob/';
         $app = new Slim();
         $app->get('/foo/bar/:name', function ($name) {});
@@ -1101,7 +1101,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app1->get('/', function () use ($app1) {
             $app1->redirect('/foo', 200);
         });
+        ob_start();
         $app1->run();
+        $app1Out = ob_get_clean();
         $this->assertEquals(500, $app1->response()->status());
 
         //Case B
@@ -1109,7 +1111,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app2->get('/', function () use ($app2) {
             $app2->redirect('/foo', 308);
         });
+        ob_start();
         $app2->run();
+        $app2Out = ob_get_clean();
         $this->assertEquals(500, $app2->response()->status());
 
         //Case C
@@ -1222,8 +1226,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app2->get('/', function () {
             trigger_error('error');
         });
+        ob_start();
         $app1->run();
+        $app1Out = ob_get_clean();
+        ob_start();
         $app2->run();
+        $app2Out = ob_get_clean();
         $this->assertEquals(500, $app1->response()->status());
         $this->assertEquals(500, $app2->response()->status());
     }
