@@ -1277,14 +1277,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Not Found handler
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a NotFound handler and
-     * a route that does not match the mock HTTP request.
+     * Initialize Slim app;
+     * Add GET route that does not match current HTTP request;
      *
      * Post-conditions:
-     * The response status will be 404
+     * The Slim app response status is 404
      */
     public function testSlimRouteNotFound() {
-        $this->setExpectedException('Slim_Exception_Stop');
         $app = new Slim();
         $app->get('/foo', function () {});
         $app->run();

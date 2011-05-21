@@ -405,7 +405,7 @@ class Slim {
             if ( is_callable($customNotFoundHandler) ) {
                 call_user_func($customNotFoundHandler);
             } else {
-                call_user_func(array('self', 'defaultNotFound'));
+                call_user_func(array($this, 'defaultNotFound'));
             }
             $this->halt(404, ob_get_clean());
         }
@@ -442,7 +442,7 @@ class Slim {
             if ( is_callable($customErrorHandler) ) {
                 call_user_func_array($customErrorHandler, array($callable));
             } else {
-                call_user_func_array(array('self', 'defaultErrorHandler'), array($callable));
+                call_user_func_array(array($this, 'defaultErrorHandler'), array($callable));
             }
             $this->halt(500, ob_get_clean());
         }
@@ -1073,15 +1073,15 @@ class Slim {
      * Default Not Found handler
      * @return void
      */
-    protected static function defaultNotFound() {
-        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . Slim::request()->getRootUri() . '">Visit the Home Page</a>');
+    protected function defaultNotFound() {
+        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '">Visit the Home Page</a>');
     }
 
     /**
      * Default Error handler
      * @return void
      */
-    protected static function defaultError() {
+    protected function defaultError() {
         echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 
