@@ -1369,12 +1369,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test hook listener
      *
      * Pre-conditions:
-     * Slim app initialized;
+     * Slim app instantiated;
      * Hook name does not exist;
      * Listeners are callable objects;
      *
      * Post-conditions:
-     * Callables are invoked in expected order
+     * Callables are invoked in expected order;
      */
     public function testRegistersAndCallsHooksByPriority() {
         $this->expectOutputString('barfoo');
@@ -1392,9 +1392,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test hook listener if listener is not callable
      *
      * Pre-conditions:
-     * Slim app initialized;
+     * Slim app instantiated;
      * Hook name does not exist;
-     * Listener is NOT a callable object
+     * Listener is NOT a callable object;
      *
      * Post-conditions:
      * Hook is created;
@@ -1411,12 +1411,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test hook invocation if hook does not exist
      *
      * Pre-conditions:
-     * Slim app intialized;
+     * Slim app instantiated;
      * Hook name does not exist;
      *
      * Post-conditions:
      * Hook is created;
-     * Hook initialized with empty array
+     * Hook initialized with empty array;
      */
     public function testHookInvocationIfNotExists() {
         $app = new Slim();
@@ -1428,12 +1428,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test clear hooks
      *
      * Pre-conditions:
-     * Slim app initialized
-     * Two hooks exist, each with one listener
+     * Slim app instantiated;
+     * Two hooks exist, each with one listener;
      *
      * Post-conditions:
-     * Case A: Listeners for 'test.hook.one' are cleared
-     * Case B: Listeners for all hooks are cleared
+     * Case A: Listeners for 'test.hook.one' are cleared;
+     * Case B: Listeners for all hooks are cleared;
      */
     public function testHookClear() {
         $app = new Slim();
