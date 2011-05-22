@@ -22,7 +22,7 @@ The Slim Framework for PHP 5 provides the following notable features out-of-the-
 * Flash messaging
 * HTTP caching (ETag and Last-Modified)
 * Logging
-* Error handling
+* Error and Exception handling
 * Supports PHP 5+
 
 ## "Hello World" application (PHP 5 >= 5.3)
@@ -31,25 +31,25 @@ The Slim Framework for PHP 5 supports anonymous functions. This is the preferred
 
     <?php
     require 'Slim/Slim.php';
-    Slim::init();
-    Slim::get('/hello/:name', function ($name) {
+    $app = new Slim();
+    $app->get('/hello/:name', function ($name) {
         echo "Hello, $name!";
     });
-    Slim::run();
+    $app->run();
     ?>
 
 ## "Hello World" application (PHP 5 < 5.3)
 
-If you are running PHP 5 < 5.3, the second `Slim::get` parameter will be the name of a callable function instead of an anonymous function.
+If you are running PHP 5 < 5.3, the second `Slim::get` app instance method parameter will be the name of a callable function instead of an anonymous function.
 
     <?php
     require 'Slim/Slim.php';
-    Slim::init();
-    Slim::get('/hello/:name', 'hello');
+    $app = new Slim();
+    $app->get('/hello/:name', 'hello');
     function hello($name) {
         echo "Hello, $name!";
     }
-    Slim::run();
+    $app->run();
     ?>
 
 ## Get Started
@@ -62,29 +62,29 @@ Download the Slim Framework for PHP 5 and unzip the downloaded file into your vi
 
 Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
 
-	RewriteEngine On
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^(.*)$ index.php [QSA,L]
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php [QSA,L]
 
 ### Build Your Application
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
-	require 'Slim/Slim.php';
+    require 'Slim/Slim.php';
 
 Next, initialize the Slim application:
 
-	Slim::init();
+    $app = new Slim();
 
 Next, define your application's routes:
 
-	Slim::get('/hello/:name', function ($name) {
-		echo "Hello $name";
-	});
+    $app->get('/hello/:name', function ($name) {
+        echo "Hello $name";
+    });
 
 Finally, run your Slim application:
 
-	Slim::run();
+    $app->run();
 
 For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
