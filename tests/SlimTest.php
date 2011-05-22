@@ -767,9 +767,8 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim gets cookie
      *
      * Pre-conditions:
-     * Cookie `foo` available in HTTP request;
-     * Slim app initialized;
-     * Case A: Cookie `foo` exists;
+     * Slim app instantiated;
+     * Case A: Cookie `foo` exists, available in HTTP request;
      * Case B: Cookie `bad` does not exist;
      *
      * Post-conditions:
@@ -788,7 +787,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim sets cookie with default time
      *
      * Pre-conditions:
-     * Slim app initialized;
+     * Slim app instantiated;
      * Case A: Cookie time not set;
      * Case B: Cookie time set as seconds from now (integer);
      * Case C: Cookie time set as string;
@@ -830,7 +829,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim sets encrypted cookie
      *
      * Pre-conditions:
-     * Slim app initialized;
+     * Slim app instantiated;
      * Case A: Cookie time not set;
      * Case B: Cookie time set as seconds from now (integer);
      * Case C: Cookie time set as string;
