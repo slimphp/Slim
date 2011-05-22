@@ -903,10 +903,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Root
      *
      * Pre-conditions:
-     * Slim app is installed in document root directory
+     * Slim app instantiated;
+     * Slim app installed in document root directory;
      *
      * Post-conditions:
-     * Slim correctly reports root path
+     * Slim correctly reports root path;
      */
     public function testRootPathInBaseDirectory() {
         $rootPath = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/';
@@ -918,10 +919,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Root From Subdirectory
      *
      * Pre-conditions:
-     * Slim app is installed in a physical subdirectory of document root
+     * Slim app instantiated;
+     * Slim app installed in a physical, public subdirectory of document root;
      *
      * Post-conditions:
-     * Slim correctly reports root path
+     * Slim correctly reports root path;
      */
     public function testRootPathInSubDirectory() {
         $_SERVER['REQUEST_URI'] = '/foo/bar';
@@ -936,12 +938,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim Stop
      *
      * Pre-conditions:
-     * You have initialized a Slim application and stop
-     * the application inside of a route callback.
+     * Slim app instantiated;
+     * Slim app stopped while route invocation in process;
      *
      * Post-conditions:
-     * A SlimStopException is thrown;
-     * The response is unaffected by code after Slim::stop is called
+     * Slim ignores output after `stop()` is invoked;
      */
     public function testSlimStop() {
         $app = new Slim();
@@ -957,7 +958,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim::halt inside route callback
+     * Test Slim Halt inside route callback
      *
      * Pre-conditions:
      * Slim app instantiated;
@@ -981,10 +982,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim::halt outside route callback
+     * Test Slim Halt outside route callback
      *
      * Pre-conditions:
-     * Slim::halt is invoked outside of a route callback
+     * Slim app instantiated;
+     * Slim::halt is invoked outside of a route callback;
      *
      * Post-conditions:
      * The new response should be returned with the expected
@@ -1004,16 +1006,15 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim::pass continues to next matching route
+     * Test Slim Pass continues to next matching route
      *
      * Pre-conditions:
-     * You have initialized a Slim application with two accesible routes.
-     * The first matching route should be the most specific and should
-     * invoke Slim::pass(). The second accessible route should be
-     * the next matching route.
+     * Slim app instantiated with two routes;
+     * First route is most specific, invokes `pass()`;
+     * Second route is next matching route;
      *
      * Post-conditions:
-     * The response body should be set by the second matching route.
+     * The response body is set by the second matching route;
      */
     public function testSlimPassWithFallbackRoute() {
         $_SERVER['REQUEST_URI'] = "/name/Frank";
@@ -1030,7 +1031,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim::pass continues, but next matching route not found
+     * Test Slim Pass continues, but next matching route not found
      *
      * Pre-conditions:
      * Slim app initiated;
@@ -1056,11 +1057,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim::contentType
      *
      * Pre-conditions:
-     * You have initialized a Slim app and set the Content-Type
-     * HTTP response header.
+     * Slim app instantiated;
+     * Content-Type header is set using helper method;
      *
      * Post-conditions:
-     * The Response content type header is set correctly.
+     * The Response content type header is set correctly;
      */
     public function testSlimContentType(){
         $app = new Slim();
@@ -1072,16 +1073,20 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim::status
      *
      * Pre-conditions:
-     * You have initialized a Slim app and set the status code.
+     * Slim app instantiated;
+     * Case A: Valid HTTP status is set using helper method;
+     * Case B: Invalid HTTP status is set using helper method;
      *
      * Post-conditions:
-     * The Response status code is set correctly.
+     * Case A: The Response status code is set correctly;
+     * Case B: InvalidArgumentException is thrown;
      */
     public function testSlimStatus(){
         $app1 = new Slim();
+        //Case A
         $app1->status(302);
         $this->assertSame($app1->response()->status(), 302);
-
+        //Case B
         $this->setExpectedException('InvalidArgumentException');
         $app2 = new Slim();
         $app2->status(900);
@@ -1091,10 +1096,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim URL For
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a named route.
+     * Slim app instantiatd with named route;
      *
      * Post-conditions:
-     * Slim returns an accurate URL for the named route.
+     * Slim returns an accurate URL for the named route;
      */
     public function testSlimUrlFor(){
         $app = new Slim();
