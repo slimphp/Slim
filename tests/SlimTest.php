@@ -211,7 +211,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * SLIM_MODE environment variable set;
-     * Slim app initialized with config mode;
+     * Slim app instantiated with config mode;
      *
      * Post-conditions:
      * Only the production configuration is called;
@@ -235,7 +235,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * ENV[SLIM_MODE] not set;
-     * Slim app initialized with config mode;
+     * Slim app instantiated with config mode;
      *
      * Post-conditions:
      * Only the test configuration is called;
@@ -258,7 +258,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      *
      * Pre-conditions:
      * ENV[SLIM_MODE] not set;
-     * Slim app initialized without config mode;
+     * Slim app instantiated without config mode;
      *
      * Post-conditions:
      * Only the development configuration is called;
@@ -278,11 +278,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim defines one application setting
      *
      * Pre-conditions:
-     * You have intiailized a Slim application, and you
-     * set a single configuration setting.
+     * Slim app instantiated;
+     * One configuration setting is set;
      *
      * Post-conditions:
-     * The configuration setting is set correctly.
+     * Configuration setting `foo` === `bar`;
      */
     public function testSlimConfigSetsOneSetting(){
         $app = new Slim();
@@ -294,11 +294,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim setting is NULL if non-existant
      *
      * Pre-conditions:
-     * You have intiailized a Slim application, and you
-     * fetch a non-existing config setting.
+     * Slim app instantiated;
+     * Fetch non-existing configuration setting;
      *
      * Post-conditions:
-     * NULL is returned for the value of the setting
+     * NULL is returned for the value of the setting;
      */
     public function testSlimConfigIfSettingDoesNotExist(){
         $app = new Slim();
@@ -309,11 +309,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim defines multiple settings with array
      *
      * Pre-conditions:
-     * You have intiailized a Slim application, and you
-     * pass an associative array into Slim::config
+     * Slim app instantiated;
+     * Batch-define multiple configuration settings with associative array;
      *
      * Post-conditions:
-     * Multiple settings are set correctly.
+     * Multiple settings are set correctly;
      */
     public function testSlimCongfigurationWithArray(){
         $app = new Slim();
