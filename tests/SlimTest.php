@@ -275,6 +275,34 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim Logging for given mode
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Set custom Logger for current app mode;
+     *
+     * Post-conditions:
+     * Slim app Logger correct based on mode;
+     */
+    public function testSlimLoggerInMode() {
+        $app = new Slim(array(
+            'mode' => 'test'
+        ));
+        $app->configureMode('test', function () use ($app) {
+            $app->config(array(
+                'log.enable' => true,
+                'log.logger' => new CustomLogger()
+            ));
+        });
+        $app->configureMode('development', function () use ($app) {
+            $app->config(array(
+                'log.enable' => true
+            ));
+        });
+        $this->assertTrue($app->getLog()->getLogger() instanceof CustomLogger);
+    }
+
+    /**
      * Test Slim defines one application setting
      *
      * Pre-conditions:
