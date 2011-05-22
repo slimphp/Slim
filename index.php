@@ -11,13 +11,13 @@
 require 'Slim/Slim.php';
 
 /**
- * Step 2: Initialize the Slim application
+ * Step 2: Instantiate the Slim application
  *
- * Here we initialize the Slim application with its default settings.
+ * Here we instantiate the Slim application with its default settings.
  * However, we could also pass a key-value array of settings.
  * Refer to the online documentation for available settings.
  */
-Slim::init();
+$app = new Slim();
 
 /**
  * Step 3: Define the Slim application routes
@@ -29,14 +29,15 @@ Slim::init();
  * second argument should be any variable that returns `true` for
  * `is_callable()`. An example GET route for PHP < 5.3 is:
  *
- * Slim::get('/hello/:name', 'myFunction');
+ * $app = new Slim();
+ * $app->get('/hello/:name', 'myFunction');
  * function myFunction($name) { echo "Hello, $name"; }
  *
  * The routes below work with PHP >= 5.3.
  */
 
 //GET route
-Slim::get('/', function () {
+$app->get('/', function () {
     $template = <<<EOT
 <!DOCTYPE html>
     <html>
@@ -117,17 +118,17 @@ EOT;
 });
 
 //POST route
-Slim::post('/post', function () {
+$app->post('/post', function () {
     echo 'This is a POST route';
 });
 
 //PUT route
-Slim::put('/put', function () {
+$app->put('/put', function () {
     echo 'This is a PUT route';
 });
 
 //DELETE route
-Slim::delete('/delete', function () {
+$app->delete('/delete', function () {
     echo 'This is a DELETE route';
 });
 
@@ -137,5 +138,4 @@ Slim::delete('/delete', function () {
  * This method should be called last. This is responsible for executing
  * the Slim application using the settings and routes defined above.
  */
-Slim::run();
-
+$app->run();

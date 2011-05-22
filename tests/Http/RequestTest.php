@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -148,7 +150,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testStripSlashesIfMagicQuotes() {
         $_GET['foo1'] = "bar\'d";
         $getData = Slim_Http_Request::stripSlashesIfMagicQuotes($_GET);
-        $this->assertEquals($getData['foo1'], "bar'd");
+        $this->assertEquals("bar'd", $getData['foo1']);
     }
     
     /* TEST REQUEST METHODS */
@@ -306,4 +308,3 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('text/html', $r3->getContentType());
     }
 }
-
