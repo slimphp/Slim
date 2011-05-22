@@ -1178,10 +1178,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim Flash
      *
      * Pre-conditions:
-     * Slim app sets Flash message for next request
+     * Slim app sets Flash message for next request;
      *
      * Post-conditions:
-     * Message is persisted to $_SESSION after app is run
+     * Message is persisted to $_SESSION after app is run;
      */
     public function testSlimFlash() {
         $app = new Slim();
@@ -1197,10 +1197,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim Flash Now
      *
      * Pre-conditions:
-     * Slim app sets Flash message for current request
+     * Slim app sets Flash message for current request;
      *
      * Post-conditions:
-     * Message is persisted to View data
+     * Message is persisted to View data;
      */
     public function testSlimFlashNow() {
         $app = new Slim();
@@ -1216,10 +1216,10 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim Keep Flash
      *
      * Pre-conditions:
-     * Slim app receives existing Flash message from $_SESSION
+     * Slim app receives existing Flash message from $_SESSION;
      *
      * Post-conditions:
-     * Message is re-persisted to $_SESSION after app is run
+     * Message is re-persisted to $_SESSION after app is run;
      */
     public function testSlimFlashKeep() {
         $_SESSION['flash'] = array('info' => 'Foo');
