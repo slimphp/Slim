@@ -335,11 +335,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim GET route
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a GET route.
+     * Slim app instantiated;
+     * One GET route defined;
      *
      * Post-conditions:
-     * The GET route is returned, and its pattern and
-     * callable are set correctly.
+     * The GET route is returned;
+     * The GET route's pattern and callable are set correctly;
      */
     public function testSlimGetRoute(){
         $app = new Slim();
@@ -353,18 +354,18 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim GET route with middleware
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a GET route and middleware
+     * Slim app instantiated and run;
+     * One GET route defined with middleware;
      *
      * Post-conditions:
-     * The GET route is returned, and its pattern and
-     * callable are set correctly.
+     * The GET route and its middleware are invoked in sequence;
      */
     public function testSlimGetRouteWithMiddleware(){ 
         $app = new Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
-        $route = $app->get('/', $mw1, $mw2, $callable);
+        $app->get('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
         $app->run();
     }
@@ -373,11 +374,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim sets POST route
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a POST route.
+     * Slim app instantiated;
+     * One POST route defined;
      *
      * Post-conditions:
-     * The POST route is returned, and its pattern and
-     * callable are set correctly.
+     * The POST route is returned;
+     * The POST route's pattern and callable are set correctly;
      */
     public function testSlimPostRoute(){
         $app = new Slim();
@@ -391,10 +393,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim POST route with middleware
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a POST route and middleware
+     * Slim app instantiated and run;
+     * One POST route defined with middleware;
      *
      * Post-conditions:
-     * The POST route and its middleware are invoked
+     * The POST route and its middleware are invoked in sequence;
      */
     public function testSlimPostRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -411,11 +414,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim sets PUT route
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a PUT route.
+     * Slim app instantiated;
+     * One PUT request defined;
      *
      * Post-conditions:
-     * The PUT route is returned, and its pattern and
-     * callable are set correctly.
+     * The PUT route is returned;
+     * The PUT route's pattern and callable are set correctly;
      */
     public function testSlimPutRoute(){
         $app = new Slim();
@@ -429,10 +433,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim PUT route with middleware
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a PUT route and middleware
+     * Slim app instantiated and run;
+     * One PUT request defined with middleware;
      *
      * Post-conditions:
-     * The PUT route and its middleware are invoked
+     * The PUT route and its middleware are invoked in sequence;
      */
     public function testSlimPutRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'PUT';
@@ -449,11 +454,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim sets DELETE route
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a DELETE route.
+     * Slim app instantiated;
+     * One DELETE route defined;
      *
      * Post-conditions:
-     * The DELETE route is returned and its pattern and
-     * callable are set correctly.
+     * The DELETE route is returned;
+     * The DELETE route's pattern and callable are set correctly;
      */
     public function testSlimDeleteRoute(){
         $app = new Slim();
@@ -467,10 +473,11 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim DELETE route with middleware
      *
      * Pre-conditions:
-     * You have initialized a Slim app with a DELETE route and middleware
+     * Slim app instatiated and run;
+     * One DELETE route defined with middleware;
      *
      * Post-conditions:
-     * The DELETE route and its middleware are invoked
+     * The DELETE route and its middleware are invoked in sequence;
      */
     public function testSlimDeleteRouteWithMiddleware(){ 
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
@@ -496,7 +503,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * resource URI but with a trailing slash.
      */
     public function testRouteWithSlashAndUrlWithout() {
-        $this->setExpectedException('Slim_Exception_Stop');
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob';
         $app = new Slim();
         $app->get('/foo/bar/:name/', function ($name) {});
@@ -531,7 +537,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Pre-conditions:
      * Slim initialized;
      * Route defined and matches current request;
-     * URL encoded spaces in URL
+     * URL encoded spaces in URL;
      *
      * Post-conditions:
      * Route matched;

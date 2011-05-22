@@ -988,7 +988,11 @@ class Slim {
             $this->response->send();
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
-            $this->redirect($this->request->getRootUri() . $this->request->getResourceUri() . '/', 301);
+            try {
+                $this->redirect($this->request->getRootUri() . $this->request->getResourceUri() . '/', 301);
+            } catch ( Slim_Exception_Stop $e2 ) {
+                //Ignore Slim_Exception_Stop and exit application context
+            }
         } catch ( Slim_Exception_Stop $e ) {
             //Exit application context
         } catch ( Exception $e ) {
