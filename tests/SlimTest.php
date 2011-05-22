@@ -662,13 +662,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim HTTP caching if ETag does not match
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets an ETag for the requested
-     * resource route. The HTTP `If-None-Match` header is set and does not match
-     * the ETag identifier value.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route sets ETag header, does not match request's `If-None-Match` header;
      *
      * Post-conditions:
-     * The Slim application returns a 200 OK response because the
-     * ETag does not match `If-None-Match` request header
+     * Slim app response status is 200;
      */
     public function testSlimEtagDoesNotMatch(){
         $app = new Slim();
@@ -723,14 +722,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim HTTP caching if Last Modified does not match
      *
      * Pre-conditions:
-     * You have initialized a Slim application that sets the `Last-Modified` response
-     * header for the requested resource route. The HTTP `If-Modified-Since` header is
-     * set and does not match the `Last-Modified` date.
+     * Slim app instantiated;
+     * Define route that matches current HTTP request;
+     * Route sets `Last-Modified` header;
+     * The HTTP `If-Modified-Since` header does not match the `Last-Modified` date;
      *
      * Post-conditions:
-     * The Slim application will return an HTTP 200 OK response because
-     * the Last Modified date does not match the `If-Modified-Since`
-     * request header.
+     * Slim app response status is 200;
      */
     public function testSlimLastModifiedDateDoesNotMatch(){
         $app = new Slim();
