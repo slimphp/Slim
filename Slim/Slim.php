@@ -74,6 +74,16 @@ set_error_handler(array('Slim', 'handleErrors'));
 class Slim {
 
     /**
+     * @var array[Slim]
+     */
+    protected static $apps = array();
+
+    /**
+     * @var string
+     */
+    protected $name;
+
+    /**
      * @var Slim_Http_Request
      */
     protected $request;
@@ -203,6 +213,11 @@ class Slim {
 
         //Setup view with flash messaging
         $this->view($this->config('view'))->setData('flash', new Slim_Session_Flash($this->config('session.flash_key')));
+
+        //Set app name
+        if ( !isset(self::$apps['default']) ) {
+            $this->setName('default');
+        }
     }
 
     /**
@@ -218,6 +233,35 @@ class Slim {
             }
         }
         return $this->mode;
+    }
+
+    /***** NAMING *****/
+
+    /**
+     * Get Slim application with name
+     * @param   string      $name The name of the Slim application to fetch
+     * @return  Slim|null
+     */
+    public static function getInstance( $name = 'default' ) {
+        return isset(self::$apps[(string)$name]) ? self::$apps[(string)$name] : null;
+    }
+
+    /**
+     * Set Slim application name
+     * @param string $name The name of this Slim application
+     * @return void
+     */
+    public function setName( $name ) {
+        $this->name = $name;
+        self::$apps[$name] = $this;
+    }
+
+    /**
+     * Get Slim application name
+     * @return string|null
+     */
+    public function getName() {
+        return $this->name;
     }
 
     /***** LOGGING *****/

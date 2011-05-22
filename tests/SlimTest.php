@@ -204,6 +204,25 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $foo = new Foo();
     }
 
+    /**
+     * Test Slim get instance
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Set app name;
+     *
+     * Post-conditions:
+     * A default app exists;
+     * The instantiated app is returned by the name assigned to it;
+     */
+    public function testGetInstance() {
+        $app = new Slim();
+        $app->setName('foo');
+        $this->assertTrue(Slim::getInstance() instanceof Slim);
+        $this->assertEquals('foo', $app->getName());
+        $this->assertSame($app, Slim::getInstance('foo'));
+    }
+
     /************************************************
      * SLIM SETTINGS
      ************************************************/
