@@ -573,19 +573,21 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test Slim copies data from old View to new View
      *
      * Pre-conditions:
-     * You have intialized a Slim app with a View;
-     * You set data for the initial View;
-     * You tell Slim to use a new View
+     * Slim app instantiated;
+     * Data set in default View;
+     * New View is defined;
      *
      * Post-conditions:
-     * The data from the original view should be accessible
-     * in the new View
+     * The data from the original View is accessible in the new View;
      */
     public function testSlimCopiesViewData(){
         $data = array('foo' => 'bar');
         $app = new Slim();
         $app->view()->setData($data);
+        $this->assertTrue($app->view() instanceof Slim_View);
+        $this->assertEquals($data, $app->view()->getData());
         $app->view('CustomView');
+        $this->assertTrue($app->view() instanceof CustomView);
         $this->assertEquals($data, $app->view()->getData());
     }
 
