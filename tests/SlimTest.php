@@ -596,16 +596,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim::render legacy
+     * Test Slim rendering with custom status
      *
      * Pre-conditions:
-     * You have initialized a Slim app and render an existing
-     * template. No Exceptions or Errors are thrown.
+     * Slim app instantiated;
+     * Render an existing template with custom data and status;
      *
      * Post-conditions:
      * The response status is 404;
-     * The View data is set correctly;
-     * The response status code is set correctly;
      * The response body is correct;
      */
     public function testSlimRenderSetsResponseStatusOk(){
@@ -619,14 +617,14 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test Slim::render
+     * Test Slim rendering
      *
      * Pre-conditions:
-     * You have initialized a Slim app and render an existing
-     * template. No Exceptions or Errors are thrown.
+     * Slim app instantiated;
+     * Render an existing template with custom data;
      *
      * Post-conditions:
-     * The response body is correct
+     * The response body is correct;
      */
     public function testSlimRender(){
         $this->expectOutputString('test output bar');
