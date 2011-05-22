@@ -118,63 +118,25 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      ************************************************/
 
     /**
-     * Test Slim initialization
+     * Test Slim default View
      *
      * Pre-conditions:
-     * You have initialized a Slim application without specifying
-     * a custom View class.
+     * Slim app instantiated with default View;
      *
      * Post-conditions:
-     * Slim should have a default Not Found handler that is callable;
-     * Slim should have a default Error hanlder that is callable;
-     * Slim should have a default View
+     * Slim app has default View of class Slim_View;
      */
-    public function testSlimDefaults() {
+    public function testSlimDefaultView() {
         $app = new Slim();
         $this->assertTrue($app->view() instanceof Slim_View);
-        $this->assertEquals('20 minutes', $app->config('cookies.lifetime'));
     }
 
     /**
-     * Test Slim initialization
+     * Test Slim custom View
      *
      * Pre-conditions:
-     * Case A: Slim application initialized with logging, without custom Logger
-     *
-     * Post-conditions:
-     * Case A: Default Logger is set
-     */
-    public function testSlimInitWithDefaultLogger() {
-        $app = new Slim(array(
-            'log.path' => dirname(__FILE__) . '/logs',
-            'log.enable' => true
-        ));
-        $this->assertTrue($app->getLog()->getLogger() instanceof Slim_Logger);
-    }
-
-    /**
-     * Test Slim initialization
-     *
-     * Pre-conditions:
-     * Case A: Slim application initialized with logging, with custom Logger
-     *
-     * Post-conditions:
-     * Case A: Custom Logger is set
-     */
-    public function testSlimInitWithCustomLogger() {
-        $app = new Slim(array(
-            'log.enable' => true,
-            'log.logger' => new CustomLogger()
-        ));
-        $this->assertTrue($app->getLog()->getLogger() instanceof CustomLogger);
-    }
-
-    /**
-     * Test Slim initialization with custom view
-     *
-     * Pre-conditions:
-     * Case A: Slim app initialized with string
-     * Case B: Slim app initialized with View instance
+     * Case A: Slim app instantiated with View setting as string;
+     * Case B: Slim app instantiated with View as instance;
      *
      * Post-conditions:
      * Case A: View is instance of CustomView
@@ -190,10 +152,48 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Test Slim default Logger
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Logging enabled;
+     * Default Logger used;
+     *
+     * Post-conditions:
+     * Slim app has default Logger of class Slim_Logger;
+     */
+    public function testSlimInitWithDefaultLogger() {
+        $app = new Slim(array(
+            'log.path' => dirname(__FILE__) . '/logs',
+            'log.enable' => true
+        ));
+        $this->assertTrue($app->getLog()->getLogger() instanceof Slim_Logger);
+    }
+
+    /**
+     * Test Slim custom Logger
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Logging enabled;
+     * Custom Logger used;
+     *
+     * Post-conditions:
+     * Slim app has custom Logger of class CustomLogger;
+     */
+    public function testSlimInitWithCustomLogger() {
+        $app = new Slim(array(
+            'log.enable' => true,
+            'log.logger' => new CustomLogger()
+        ));
+        $this->assertTrue($app->getLog()->getLogger() instanceof CustomLogger);
+    }
+
+    /**
      * Test Slim autoloader ignores non-Slim classes
      *
      * Pre-conditions:
-     * Require a non-Slim class;
+     * Instantiate a non-Slim class;
      *
      * Post-conditions:
      * Slim autoloader returns without requiring a class file;
