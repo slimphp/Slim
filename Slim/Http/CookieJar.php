@@ -239,7 +239,7 @@ class Slim_Http_CookieJar {
                 if ( (count($cookieValues) === 4) && ($cookieValues[1] == 0 || $cookieValues[1] >= time()) ) {
                     $key = hash_hmac('sha1', $cookieValues[0] . $cookieValues[1], $this->_secret);
                     $cookieData = base64_decode($cookieValues[2]);
-                    if ( $this->getHighConfidentiality() ) {
+                    if ( $cookieData !== '' && $this->getHighConfidentiality() ) {
                         $data = $this->_decrypt($cookieData, $key, md5($cookieValues[1]));
                     } else {
                         $data = $cookieData;
@@ -315,7 +315,7 @@ class Slim_Http_CookieJar {
             $expire = strtotime($expire);
         }
         $key = hash_hmac('sha1', $username . $expire, $this->_secret);
-        if ( $this->getHighConfidentiality() ) {
+        if ( $value !== '' && $this->getHighConfidentiality() ) {
             $encryptedValue = base64_encode($this->_encrypt($value, $key, md5($expire)));
         } else {
             $encryptedValue = base64_encode($value);
