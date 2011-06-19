@@ -37,8 +37,7 @@ Slim::init();
 
 //GET route
 Slim::get('/', function () {
-    $template = <<<EOT
-<!DOCTYPE html>
+    ?>
     <html>
         <head>
             <meta charset="utf-8"/>
@@ -112,8 +111,7 @@ Slim::get('/', function () {
                 <p><a href="https://github.com/codeguy/Slim-Extras" target="_blank">Browse custom Views</a></p>
         </body>
     </html>
-EOT;
-    echo $template;
+    <?php
 });
 
 //POST route
