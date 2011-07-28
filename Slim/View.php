@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -60,12 +62,9 @@ class Slim_View {
      */
     public function __construct() {}
 
-    /***** ACCESSORS *****/
-
     /**
      * Get data
-     *
-     * @param   string $key
+     * @param   string              $key
      * @return  array|mixed|null    All View data if no $key, value of datum
      *                              if $key, or NULL if $key but datum
      *                              does not exist.
@@ -91,9 +90,9 @@ class Slim_View {
      * View::setData(array('color' => 'red', 'number' => 1));
      *
      * @param   string|array
-     * @param   mixed Optional. Only use if first argument is a string.
+     * @param   mixed                       Optional. Only use if first argument is a string.
      * @return  void
-     * @throws  InvalidArgumentException If incorrect method signature
+     * @throws  InvalidArgumentException    If incorrect method signature
      */
     public function setData() {
         $args = func_get_args();
@@ -108,7 +107,6 @@ class Slim_View {
 
     /**
      * Append data to existing View data
-     *
      * @param   array $data
      * @return  void
      */
@@ -118,7 +116,6 @@ class Slim_View {
 
     /**
      * Get templates directory
-     *
      * @return string|null Path to templates directory without trailing slash
      */
     public function getTemplatesDirectory() {
@@ -127,7 +124,6 @@ class Slim_View {
 
     /**
      * Set templates directory
-     *
      * @param   string $dir
      * @return  void
      * @throws  RuntimeException If directory is not a directory or does not exist
@@ -138,8 +134,6 @@ class Slim_View {
         }
         $this->templatesDirectory = rtrim($dir, '/');
     }
-
-    /***** RENDERING *****/
 
     /**
      * Display template
@@ -155,7 +149,6 @@ class Slim_View {
 
     /**
      * Render template
-     *
      * @param   string $template    Path to template file relative to templates directory
      * @return  string              Rendered template
      * @throws  RuntimeException    If template does not exist
@@ -172,4 +165,3 @@ class Slim_View {
     }
 
 }
-
