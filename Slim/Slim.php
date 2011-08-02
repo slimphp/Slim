@@ -61,9 +61,6 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
     date_default_timezone_set('UTC');
 }
 
-//Set global Error handler
-set_error_handler(array('Slim', 'handleErrors'));
-
 /**
  * Slim
  *
@@ -218,6 +215,9 @@ class Slim {
         if ( !isset(self::$apps['default']) ) {
             $this->setName('default');
         }
+
+        //Set global Error handler after Slim app instantiated
+        set_error_handler(array('Slim', 'handleErrors'));
     }
 
     /**
@@ -350,14 +350,14 @@ class Slim {
      * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
      * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
      *
-     * The first argument is required and must always be the 
+     * The first argument is required and must always be the
      * route pattern (ie. '/books/:id').
      *
-     * The last argument is required and must always be the callable object 
+     * The last argument is required and must always be the callable object
      * to be invoked when the route matches an HTTP request.
      *
-     * You may also provide an unlimited number of in-between arguments; 
-     * each interior argument must be callable and will be invoked in the 
+     * You may also provide an unlimited number of in-between arguments;
+     * each interior argument must be callable and will be invoked in the
      * order specified before the route's callable is invoked.
      *
      * USAGE:
@@ -718,7 +718,7 @@ class Slim {
         $value = $this->response->getCookieJar()->getCookieValue($name);
         return ($value === false) ? null : $value;
     }
-    
+
     /**
      * Delete a Cookie (for both normal or encrypted Cookies)
      *
@@ -999,7 +999,7 @@ class Slim {
      * routes are found.
      *
      * This method will also catch any unexpected Exceptions thrown by this
-     * application; the Exceptions will be logged to this application's log 
+     * application; the Exceptions will be logged to this application's log
      * and rethrown to the global Exception handler.
      *
      * @return void
@@ -1061,7 +1061,7 @@ class Slim {
      * This is the global Error handler that will catch reportable Errors
      * and convert them into ErrorExceptions that are caught and handled
      * by each Slim application.
-     * 
+     *
      * @param   int     $errno      The numeric type of the Error
      * @param   string  $errstr     The error message
      * @param   string  $errfile    The absolute path to the affected file
