@@ -61,9 +61,6 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
     date_default_timezone_set('UTC');
 }
 
-//Set global Error handler
-set_error_handler(array('Slim', 'handleErrors'));
-
 /**
  * Slim
  *
@@ -218,6 +215,9 @@ class Slim {
         if ( !isset(self::$apps['default']) ) {
             $this->setName('default');
         }
+        
+        //Set global Error handler after Slim app instantiated
+        set_error_handler(array('Slim', 'handleErrors'));
     }
 
     /**
