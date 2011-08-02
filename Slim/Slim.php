@@ -1028,7 +1028,7 @@ class Slim {
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after.router');
             $this->view->getData('flash')->save();
-            //session_write_close();
+            session_write_close();
             $this->response->send();
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
