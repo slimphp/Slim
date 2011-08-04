@@ -304,4 +304,31 @@ class RouteTest extends PHPUnit_Framework_TestCase {
 
     public function callableTestFunction() {}
 
+    /**
+     * Test that a Route manages the HTTP methods that it supports
+     *
+     * Case A: Route initially supports no HTTP methods
+     * Case B: Route can set its supported HTTP methods
+     * Case C: Route can append supported HTTP methods
+     * Case D: Route can test if it supports an HTTP method
+     * Case E: Route can lazily declare supported HTTP methods with `via`
+     */
+    public function testHttpMethods() {
+        //Case A
+        $r = new Slim_Route('/foo', function () {});
+        $this->assertEmpty($r->getHttpMethods());
+        //Case B
+        $r->setHttpMethods('GET');
+        $this->assertEquals(array('GET'), $r->getHttpMethods());
+        //Case C
+        $r->appendHttpMethods('POST', 'PUT');
+        $this->assertEquals(array('GET', 'POST', 'PUT'), $r->getHttpMethods());
+        //Case D
+        $this->assertTrue($r->supportsHttpMethod('GET'));
+        $this->assertFalse($r->supportsHttpMethod('DELETE'));
+        //Case E
+        $viaResult = $r->via('DELETE');
+        $this->assertTrue($viaResult instanceof Slim_Route);
+        $this->assertTrue($r->supportsHttpMethod('DELETE'));
+    }
 }
