@@ -70,6 +70,11 @@ class Slim_Route {
     protected $params = array();
 
     /**
+     * @var array HTTP methods supported by this Route
+     */
+    protected $methods = array();
+
+    /**
      * @var Slim_Router The Router to which this Route belongs
      */
     protected $router;
@@ -182,6 +187,50 @@ class Slim_Route {
      */
     public function getParams() {
         return $this->params;
+    }
+
+    /**
+     * Add supported HTTP method(s)
+     * @return void
+     */
+    public function setHttpMethods() {
+        $args = func_get_args();
+        $this->methods = $args;
+    }
+
+    /**
+     * Get supported HTTP methods
+     * @return array
+     */
+    public function getHttpMethods() {
+        return $this->methods;
+    }
+
+    /**
+     * Append supported HTTP methods
+     * @return void
+     */
+    public function appendHttpMethods() {
+        $args = func_get_args();
+        $this->methods = array_merge($this->methods, $args);
+    }
+
+    /**
+     * Append supported HTTP methods (alias for Route::appendHttpMethods)
+     * @return Slim_Route
+     */
+    public function via() {
+        $args = func_get_args();
+        $this->methods = array_merge($this->methods, $args);
+        return $this;
+    }
+
+    /**
+     * Detect support for an HTTP method
+     * @return bool
+     */
+    public function supportsHttpMethod( $method ) {
+        return in_array($method, $this->methods);
     }
 
     /**
