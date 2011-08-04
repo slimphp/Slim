@@ -364,18 +364,27 @@ class Slim {
      *
      * Slim::get('/foo'[, middleware, middleware, ...], callable);
      *
-     * @param   string                      The HTTP method (ie. GET, POST, PUT, DELETE)
-     * @param   array                       See notes above
+     * @param   array (See notes above)
      * @return  Slim_Route
      */
-    protected function mapRoute($type, $args) {
+    protected function mapRoute($args) {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = $this->router->map($pattern, $callable, $type);
+        $route = $this->router->map($pattern, $callable);
         if ( count($args) > 0 ) {
             $route->setMiddleware($args);
         }
         return $route;
+    }
+
+    /**
+     * Add generic route without associated HTTP method
+     * @see Slim::mapRoute
+     * @return Slim_Route
+     */
+    public function map() {
+        $args = func_get_args();
+        return $this->mapRoute($args);
     }
 
     /**
@@ -385,7 +394,7 @@ class Slim {
      */
     public function get() {
         $args = func_get_args();
-        return $this->mapRoute(Slim_Http_Request::METHOD_GET, $args);
+        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_GET, Slim_Http_Request::METHOD_HEAD);
     }
 
     /**
@@ -395,7 +404,7 @@ class Slim {
      */
     public function post() {
         $args = func_get_args();
-        return $this->mapRoute(Slim_Http_Request::METHOD_POST, $args);
+        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_POST);
     }
 
     /**
@@ -405,7 +414,7 @@ class Slim {
      */
     public function put() {
         $args = func_get_args();
-        return $this->mapRoute(Slim_Http_Request::METHOD_PUT, $args);
+        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_PUT);
     }
 
     /**
@@ -415,7 +424,7 @@ class Slim {
      */
     public function delete() {
         $args = func_get_args();
-        return $this->mapRoute(Slim_Http_Request::METHOD_DELETE, $args);
+        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_DELETE);
     }
 
     /**
@@ -1006,50 +1015,57 @@ class Slim {
      */
     public function run() {
         try {
-            $this->applyHook('slim.before');
-            ob_start();
-            $this->applyHook('slim.before.router');
-            $dispatched = false;
-            foreach( $this->router->getMatchedRoutes() as $route ) {
-                try {
-                    $this->applyHook('slim.before.dispatch');
-                    $dispatched = $route->dispatch();
-                    $this->applyHook('slim.after.dispatch');
-                    if ( $dispatched ) {
-                        break;
+            try {
+                $this->applyHook('slim.before');
+                ob_start();
+                $this->applyHook('slim.before.router');
+                $matchedRoutes = $this->router->getMatchedRoutes();
+                $dispatched = false;
+                $httpMethod = $this->request()->getMethod();
+                $httpMethodsAllowed = array();
+                foreach ( $matchedRoutes as $route ) {
+                    if ( $route->supportsHttpMethod($httpMethod) ) {
+                        try {
+                            $this->applyHook('slim.before.dispatch');
+                            $dispatched = $route->dispatch();
+                            $this->applyHook('slim.after.dispatch');
+                            if ( $dispatched ) {
+                                break;
+                            }
+                        } catch ( Slim_Exception_Pass $e ) {
+                            continue;
+                        }
+                    } else {
+                        $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods());
                     }
-                } catch ( Slim_Exception_Pass $e ) {
-                    continue;
                 }
-            }
-            if ( !$dispatched ) {
-                $this->notFound();
-            }
-            $this->response()->write(ob_get_clean());
-            $this->applyHook('slim.after.router');
-            $this->view->getData('flash')->save();
-            session_write_close();
-            $this->response->send();
-            $this->applyHook('slim.after');
-        } catch ( Slim_Exception_RequestSlash $e ) {
-            try {
+                if ( !$dispatched ) {
+                    if ( $httpMethodsAllowed ) {
+                        $this->response()->header('Allow', implode(' ', $httpMethodsAllowed));
+                        $this->halt(405);
+                    } else {
+                        $this->notFound();
+                    }
+                }
+                $this->response()->write(ob_get_clean());
+                $this->applyHook('slim.after.router');
+                $this->view->getData('flash')->save();
+                session_write_close();
+                $this->response->send();
+                $this->applyHook('slim.after');
+            } catch ( Slim_Exception_RequestSlash $e ) {
                 $this->redirect($this->request->getRootUri() . $this->request->getResourceUri() . '/', 301);
-            } catch ( Slim_Exception_Stop $e2 ) {
-                //Ignore Slim_Exception_Stop and exit application context
-            }
-        } catch ( Slim_Exception_Stop $e ) {
-            //Exit application context
-        } catch ( Exception $e ) {
-            $this->getLog()->error($e);
-            try {
+            } catch ( Exception $e ) {
+                if ( $e instanceof Slim_Exception_Stop ) throw $e;
+                $this->getLog()->error($e);
                 if ( $this->config('debug') === true ) {
                     $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
                 } else {
                     $this->error($e);
                 }
-            } catch ( Slim_Exception_Stop $e2 ) {
-                //Ignore Slim_Exception_Stop and exit application context
             }
+        } catch ( Slim_Exception_Stop $e ) {
+            //Exit application context
         }
     }
 
