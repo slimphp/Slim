@@ -428,6 +428,16 @@ class Slim {
     }
 
     /**
+     * Add OPTIONS route
+     * @see     Slim::mapRoute
+     * @return  Slim_Route
+     */
+    public function options() {
+        $args = func_get_args();
+        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_OPTIONS);
+    }
+
+    /**
      * Not Found Handler
      *
      * This method defines or invokes the application-wide Not Found handler.

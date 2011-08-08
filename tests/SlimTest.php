@@ -538,6 +538,46 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->expectOutputString('foobarfoo');
         $app->run();
     }
+    
+    /**
+     * Test Slim sets DELETE route
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * One OPTIONS route defined;
+     *
+     * Post-conditions:
+     * The OPTIONS route is returned;
+     * The OPTIONS route's pattern and callable are set correctly;
+     */
+    public function testSlimOptionsRoute(){
+        $app = new Slim();
+        $callable = function () { echo "foo"; };
+        $route = $app->options('/foo/bar', $callable);
+        $this->assertEquals('/foo/bar', $route->getPattern());
+        $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim DELETE route with middleware
+     *
+     * Pre-conditions:
+     * Slim app instatiated and run;
+     * One OPTIONS route defined with middleware;
+     *
+     * Post-conditions:
+     * The OPTIONS route and its middleware are invoked in sequence;
+     */
+    public function testSlimOptionsRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        $app = new Slim();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = $app->options('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        $app->run();
+    }
 
     /**
      * Test Slim routing and trailing slashes
