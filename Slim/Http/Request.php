@@ -52,6 +52,7 @@ class Slim_Http_Request {
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
+    const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_OVERRIDE = '_METHOD';
 
     /**
@@ -168,6 +169,14 @@ class Slim_Http_Request {
      */
     public function isHead() {
         return $this->method === self::METHOD_HEAD;
+    }
+
+    /**
+     * Is this a OPTIONS request?
+     * @return bool
+     */
+    public function isOptions() {
+        return $this->method === self::METHOD_OPTIONS;
     }
 
     /**

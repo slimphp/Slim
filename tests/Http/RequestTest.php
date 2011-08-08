@@ -70,7 +70,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $_SERVER['argv'] = array();
         $_SERVER['argc'] = 0;
     }
-    
+
     /**
      * Test request Root is set when in subdirectory
      *
@@ -88,7 +88,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('', $r->getRootUri());
         $this->assertEquals('/foo/bar/', $r->getResourceUri());
     }
-    
+
     /**
      * Test request Root is set when not in subdirectory
      *
@@ -106,7 +106,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/foo', $r->getRootUri());
         $this->assertEquals('/bar/', $r->getResourceUri());
     }
-    
+
     /**
      * Test request URI without htaccess
      *
@@ -125,7 +125,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/bootstrap.php', $r->getRootUri());
         $this->assertEquals('/foo/bar/', $r->getResourceUri());
     }
-    
+
     /**
      * Test request URI without htaccess
      *
@@ -144,29 +144,29 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/foo/bootstrap.php', $r->getRootUri());
         $this->assertEquals('/foo/bar/', $r->getResourceUri());
     }
-    
+
     /* TEST STRIP SLASHES */
-    
+
     public function testStripSlashesIfMagicQuotes() {
         $_GET['foo1'] = "bar\'d";
         $getData = Slim_Http_Request::stripSlashesIfMagicQuotes($_GET);
         $this->assertEquals("bar'd", $getData['foo1']);
     }
-    
+
     /* TEST REQUEST METHODS */
-    
+
     public function testIsGet() {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $r = new Slim_Http_Request();
         $this->assertTrue($r->isGet());
     }
-    
+
     public function testIsPost() {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $r = new Slim_Http_Request();
         $this->assertTrue($r->isPost());
     }
-    
+
     public function testIsPut() {
         //Case A
         $_SERVER['REQUEST_METHOD'] = 'PUT';
@@ -178,7 +178,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $r = new Slim_Http_Request();
         $this->assertTrue($r->isPut());
     }
-    
+
     public function testIsDelete() {
         //Case A
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
@@ -190,13 +190,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $r = new Slim_Http_Request();
         $this->assertTrue($r->isDelete());
     }
-    
+
     public function testIsHead() {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         $r = new Slim_Http_Request();
         $this->assertTrue($r->isHead());
     }
-    
+
+    public function testIsOptions() {
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        $r = new Slim_Http_Request();
+        $this->assertTrue($r->isOptions());
+    }
+
     public function testIsAjax() {
         //Case A
         $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
@@ -218,7 +224,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /* TEST REQUEST PARAMS */
-    
+
     public function testParams() {
         //Case A: PUT params
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -230,7 +236,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('bar1', $r->params('foo1'));
         $this->assertEquals('bar1', $r->put('foo1'));
         $this->assertEquals(array('foo1' => 'bar1'), $r->put());
-        
+
         //Case B: POST params
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_POST = array('foo1' => 'bar1');
@@ -238,7 +244,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('bar1', $r->params('foo1'));
         $this->assertEquals('bar1', $r->post('foo1'));
         $this->assertEquals($_POST, $r->post());
-        
+
         //Case C: GET params
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_POST = array();
@@ -247,13 +253,13 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('bar1', $r->params('foo1'));
         $this->assertEquals('bar1', $r->get('foo1'));
         $this->assertEquals($_GET, $r->get());
-        
+
         //Case D: COOKIE params
         $_COOKIE['foo'] = 'bar';
         $r = new Slim_Http_Request();
         $this->assertEquals($_COOKIE, $r->cookies());
         $this->assertEquals('bar', $r->cookies('foo'));
-        
+
         //Case E: NULL params
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $_GET = array();
@@ -265,9 +271,9 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($r->get('foo1'));
         $this->assertNull($r->cookies('foo1'));
     }
-    
+
     /* TEST HEADERS */
-    
+
     public function testHeaders() {
         //Case A
         $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
