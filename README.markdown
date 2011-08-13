@@ -1,13 +1,14 @@
 # Slim Framework for PHP 5
 
-Thank you for choosing the Slim Framework, a micro-framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com).
+Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com) released under the MIT public license.
 
 ## Features
 
 The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
 
 * Clean and simple DSL for writing powerful web applications
-* RESTful HTTP routes (GET, POST, PUT, DELETE)
+* HTTP routing
+  * Supports all standard and custom HTTP request methods
   * Named routes w/ `urlFor()` helper
   * Route passing
   * Route redirects
@@ -88,30 +89,41 @@ Finally, run your Slim application:
 
 For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
+## Documentation 
+
+[Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
+[Development Branch Documentation](http://www.slimframework.com/documentation/develop)
+
+## Community
+
+### Forum
+
+Join the Slim Framework official forum at <http://forum.slimframework.com> where you can find announcements, chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps. Membership is free; create an account or login with OpenID or your Google account.
+
+### Twitter
+
+Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive the very latest news and updates about the framework.
+
+### IRC
+
+You can find me, Josh Lockhart, hanging out in the ##slim chat room during the day. Feel free to say hi, ask questions, or just hang out. If you're on a Mac, check out Colloquy; if you're on a PC, check out mIRC; if you're on Linux, I'm sure you already know what you're doing.
+
+## Resources
+
+Additional resources (ie. custom Views and plugins) are available online in a separate repository.
+
+<https://github.com/codeguy/Slim-Extras>
+
+Here are more links that may also be useful.
+
+* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
+* Source Code:    <http://github.com/codeguy/Slim/>
+
 ## About the Author
 
 Slim is created and maintained by Josh Lockhart, a web developer by day at [New Media Campaigns](http://www.newmediacampaigns.com), and a [hacker by night](http://github.com/codeguy).
 
 Slim is in active development, and test coverage is continually improving.
-
-## Links and Resources
-
-For the most up-to-date information and news, follow the Slim PHP 5 micro framework on Twitter:
-
-<http://www.twitter.com/slimphp>
-
-Additional resources (ie. custom Views and plugins) are available online in a separate repository so this primary repository remains as light-weight as possible.
-
-<https://github.com/codeguy/Slim-Extras>
-
-Other helpful links:
-
-* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
-* Documentation:  <http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation>
-* Source Code:    <http://github.com/codeguy/Slim/>
-* Twitter:        <http://www.twitter.com/slimphp>
-* LinkedIn:       <http://www.linkedin.com/in/joshlockhart>
-* Email:          [info@joshlockhart.com](info@joshlockhart.com)
 
 ## Open Source License
 
