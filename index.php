@@ -74,10 +74,10 @@ $app->get('/', function () {
                 input,select{vertical-align:middle;}
                 html{ background: #EDEDED; height: 100%; }
                 body{background:#FFF;margin:0 auto;min-height:100%;padding:0 30px;width:440px;color:#666;font:14px/23px Arial,Verdana,sans-serif;}
-                h1,h2,h3,p,ul,ol,form{margin:0 0 20px 0;}
+                h1,h2,h3,p,ul,ol,form,section{margin:0 0 20px 0;}
                 h1{color:#333;font-size:20px;}
-                h2,h3{margin:0;color:#333;font-size:14px;}
-                h3{font-size:12px;font-weight:normal;}
+                h2,h3{color:#333;font-size:14px;}
+                h3{margin:0;font-size:12px;font-weight:bold;}
                 ul,ol{list-style-position:inside;color:#999;}
                 ul{list-style-type:square;}
                 code,kbd{background:#EEE;border:1px solid #DDD;border:1px solid #DDD;border-radius:4px;-moz-border-radius:4px;-webkit-border-radius:4px;padding:0 4px;color:#666;font-size:12px;}
@@ -100,17 +100,40 @@ $app->get('/', function () {
                 <h2>Get Started</h2>
                 <ol>
                     <li>The application code is in <code>index.php</code></li>
-                    <li>Read the <a href="https://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation" target="_blank">online documentation</a></li>
+                    <li>Read the <a href="http://www.slimframework.com/documentation/stable" target="_blank">online documentation</a></li>
                     <li>Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter</li>
                 </ol>
             </section>
             <section>
+                <h2>Slim Framework Community</h2>
+
+                <h3>Support Forum</h3>
+                <p>
+                    Join the <a href="http://forum.slimframework.com" target="_blank">Slim Framework forum</a>
+                    to read announcements, chat with fellow Slim users, ask questions, help others, or show off your cool 
+                    Slim Framework apps.
+                </p>
+
+                <h3>Twitter</h3>
+                <p>
+                    Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter to receive the very latest news
+                    and updates about the framework.
+                </p>
+
+                <h3>IRC</h3>
+                <p>
+                    Find Josh Lockhart in the "##slim" chat room during the day. Say hi, ask questions,
+                    or just hang out with fellow Slim users.
+                </p>
+            </section>
+            <section style="padding-bottom: 20px">
                 <h2>Slim Framework Extras</h2>
                 <p>
                     Custom View classes for Smarty, Twig, Mustache, and other template
                     frameworks are available online in a separate repository.
                 </p>
-                <p><a href="https://github.com/codeguy/Slim-Extras" target="_blank">Browse custom Views</a></p>
+                <p><a href="https://github.com/codeguy/Slim-Extras" target="_blank">Browse the Extras Repository</a></p>
+            </section>
         </body>
     </html>
 EOT;
