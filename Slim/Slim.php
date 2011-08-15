@@ -775,7 +775,7 @@ class Slim {
         if ( $flash ) {
             $flash->save();
         }
-        //session_write_close();
+        session_write_close();
         $this->response->send();
         throw new Slim_Exception_Stop();
     }
