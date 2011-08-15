@@ -1283,6 +1283,27 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
+     * Slim Flash with Redirect
+     *
+     * Pre-conditions:
+     * Slim app sets Flash message for next request;
+     * Slim app halts with 302 redirect
+     *
+     * Post-conditions:
+     * Message is persisted to $_SESSION after app is run;
+     */
+    public function testSlimFlashWithRedirect() {
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->flash('info', 'Foo redirect');
+            $app->redirect('/foo');
+        });
+        $app->run();
+        $this->assertArrayHasKey('info', $_SESSION['flash']);
+        $this->assertEquals('Foo redirect', $_SESSION['flash']['info']);
+    }
+
+    /**
      * Slim Flash Now
      *
      * Pre-conditions:
