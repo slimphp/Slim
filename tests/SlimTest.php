@@ -32,6 +32,10 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
+//Start session before PHPUnit sends output. This only prevents us from using
+//the default Slim Session cookie store.
+session_start();
+
 require_once 'Slim/Slim.php';
 
 //Prepare mock HTTP request
