@@ -1354,46 +1354,75 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test default and custom error handlers
      *
      * Pre-conditions:
-     * One app calls the user-defined error handler directly;
-     * One app triggers a generic PHP error;
-     * One app has debugging disabled, throws Exception to invoke error handler indirectly;
+     * Invoked app route calls default error handler;
      *
      * Post-conditions:
-     * All apps' response status is 500;
-     * App with debugging disabled catches ErrorException in user-defined error handler;
+     * Response status code is 500;
      */
     public function testSlimError() {
-        $app1 = new Slim();
-        $app1->get('/', function () use ($app1) {
-            $app1->error();
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->error();
         });
-        $app2 = new Slim();
-        $app2->get('/', function () {
-            trigger_error('error');
-        });
-        $app3 = new Slim(array(
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
+    }
+
+    /**
+     * Test triggered errors are converted to ErrorExceptions
+     *
+     * Pre-conditions:
+     * Custom error handler defined;
+     * Invoked app route triggers error;
+     *
+     * Post-conditions:
+     * Response status is 500;
+     * Response body is equal to triggered error message;
+     * Error handler's argument is ErrorException instance;
+     */
+    public function testTriggeredErrorsAreConvertedToErrorExceptions() {
+        $app = new Slim(array(
             'debug' => false
         ));
-        $app3->error(function ( $e ) {
+        $app->error(function ( $e ) {
+            if ( $e instanceof ErrorException ) {
+                echo $e->getMessage();
+            }
+        });
+        $app->get('/', function () {
+            trigger_error('Foo I say!');
+        });
+        $app->run();
+        $this->assertEquals('Foo I say!', $app->response()->body());
+        $this->assertEquals(500, $app->response()->status());
+    }
+
+    /**
+     * Test error handler receives Exception as argument
+     *
+     * Pre-conditions:
+     * Custom error handler defined;
+     * Invoked app route throws Exception;
+     *
+     * Post-conditions:
+     * Response status is 500;
+     * Error handler's argument is the thrown Exception
+     */
+    public function testErrorHandlerReceivesException() {
+        $this->expectOutputString('ErrorException');
+        $app = new Slim(array(
+            'debug' => false
+        ));
+        $app->error(function ( $e ) {
             if ( $e instanceof Exception ) {
                 echo get_class($e);
             }
         });
-        $app3->get('/', function () {
+        $app->get('/', function () {
             $result = 1 / 0;
         });
-        ob_start();
-        $app1->run();
-        $app1Out = ob_get_clean();
-        ob_start();
-        $app2->run();
-        $app2Out = ob_get_clean();
-        ob_start();
-        $app3->run();
-        $app3Out = ob_get_clean();
-        $this->assertEquals(500, $app1->response()->status());
-        $this->assertEquals(500, $app2->response()->status());
-        $this->assertEquals('ErrorException', $app3Out);
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
     }
 
     /**
