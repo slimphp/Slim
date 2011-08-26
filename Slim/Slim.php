@@ -482,30 +482,34 @@ class Slim {
      *
      * 1. When declaring the handler:
      *
-     * If the $callable parameter is not null and is callable, this
+     * If the $argument parameter is callable, this
      * method will register the callable to be invoked when an uncaught
-     * Exception or Error is detected. It WILL NOT invoke the handler.
+     * Exception is detected, or when otherwise explicitly invoked.
+     * The handler WILL NOT be invoked in this context.
      *
      * 2. When invoking the handler:
      *
-     * If the $callable parameter is null, Slim assumes you want
+     * If the $argument parameter is not callable, Slim assumes you want
      * to invoke an already-registered handler. If the handler has been
-     * registered and is callable, it is invoked and sends a 500 HTTP Response
-     * whose body is the output of the Error handler.
+     * registered and is callable, it is invoked and passed the caught Exception
+     * as its one and only argument. The error handler's output is captured
+     * into an output buffer and sent as the body of a 500 HTTP Response.
      *
-     * @param   mixed $callable Anything that returns true for is_callable()
+     * @param   mixed $argument Callable|Exception
      * @return  void
      */
-    public function error( $callable = null ) {
-        if ( !is_null($callable) && $callable instanceof Exception === false ) {
-            $this->router->error($callable);
+    public function error( $argument = null ) {
+        if ( is_callable($argument) ) {
+            //Register error handler
+            $this->router->error($argument);
         } else {
+            //Invoke error handler
             ob_start();
             $customErrorHandler = $this->router->error();
             if ( is_callable($customErrorHandler) ) {
-                call_user_func_array($customErrorHandler, array($callable));
+                call_user_func_array($customErrorHandler, array($argument));
             } else {
-                call_user_func_array(array($this, 'defaultError'), array($callable));
+                call_user_func_array(array($this, 'defaultError'), array($argument));
             }
             $this->halt(500, ob_get_clean());
         }
