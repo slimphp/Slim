@@ -1036,11 +1036,10 @@ class Slim {
                 $this->applyHook('slim.before');
                 ob_start();
                 $this->applyHook('slim.before.router');
-                $matchedRoutes = $this->router->getMatchedRoutes();
                 $dispatched = false;
                 $httpMethod = $this->request()->getMethod();
                 $httpMethodsAllowed = array();
-                foreach ( $matchedRoutes as $route ) {
+                foreach ( $this->router as $route ) {
                     if ( $route->supportsHttpMethod($httpMethod) ) {
                         try {
                             $this->applyHook('slim.before.dispatch');
