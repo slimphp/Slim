@@ -50,6 +50,11 @@ class Slim_Router implements IteratorAggregate {
     protected $request;
 
     /**
+     * @var Slim_Http_Response
+     */
+    protected $response;
+
+    /**
      * @var array Lookup hash of routes, keyed by Request method
      */
     protected $routes;
@@ -78,8 +83,9 @@ class Slim_Router implements IteratorAggregate {
      * Constructor
      * @param Slim_Http_Request $request The HTTP request object
      */
-    public function __construct( Slim_Http_Request $request ) {
+    public function __construct( Slim_Http_Request $request, Slim_Http_Response $response ) {
         $this->request = $request;
+        $this->response = $response;
         $this->routes = array();
     }
 
@@ -97,6 +103,14 @@ class Slim_Router implements IteratorAggregate {
      */
     public function getRequest() {
         return $this->request;
+    }
+
+    /**
+     * Get Response
+     * @return Slim_Http_Response
+     */
+    public function getResponse() {
+        return $this->response;
     }
 
     /**
