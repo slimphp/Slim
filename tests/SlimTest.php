@@ -227,6 +227,27 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertSame($app, Slim::getInstance('foo'));
     }
 
+    /**
+     * Test Slim does not affect default Response HTTP status
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Case A: Use default settings;
+     * Case B: Set to "1.0";
+     *
+     * Post-conditions:
+     * Case A: Response HTTP version is "1.1";
+     * Case B: Response HTTP version is "1.0";
+     */
+    public function testSlimSetsResponseHttpVersion() {
+        $app1 = new Slim();
+        $app2 = new Slim(array(
+            'http.version' => '1.0'
+        ));
+        $this->assertEquals('1.1', $app1->response()->httpVersion());
+        $this->assertEquals('1.0', $app2->response()->httpVersion());
+    }
+
     /************************************************
      * SLIM SETTINGS
      ************************************************/
@@ -1685,5 +1706,25 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         })->via('GET');
         $app->run();
         $this->assertEquals(404, $app->response()->status());
+    }
+
+    /**
+     * Test that app sends response with default HTTP version
+     */
+    public function testAppSendsResponseWithDefaultHttpVersion() {
+        $app = new Slim();
+        $app->get('/', function () {});
+        $app->run();
+        $this->assertEquals('1.1', $app->response()->httpVersion());
+    }
+
+    /**
+     * Test that app sends response with custom HTTP version
+     */
+    public function testAppSendsResponseWithCustomHttpVersion() {
+        $app = new Slim(array('http.version' => '1.0'));
+        $app->get('/', function () {});
+        $app->run();
+        $this->assertEquals('1.0', $app->response()->httpVersion());
     }
 }
