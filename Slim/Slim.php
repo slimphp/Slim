@@ -200,7 +200,7 @@ class Slim {
             'enable_ssl' => $this->settings['cookies.secure']
         )));
         $this->response->httpVersion($this->settings['http.version']);
-        $this->router = new Slim_Router($this->request);
+        $this->router = new Slim_Router($this->request, $this->response);
 
         //Start session if not already started
         if ( session_id() === '' ) {
