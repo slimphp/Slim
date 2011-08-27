@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -404,6 +406,59 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     /************************************************
      * SLIM ROUTING
      ************************************************/
+
+    /**
+     * Test Slim middleware receives Request and Response objects as arguments
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * One GET route defined;
+     * Middleware defined for invoked GET route;
+     *
+     * Post-conditions:
+     * The middleware receives Request and Response objects as arguments;
+     */
+    public function testMiddlewareReceivesRequestAndResponse() {
+        $_SERVER['REQUEST_URI'] = "/foo/John/Doe";
+        $this->expectOutputString('Pass');
+        $app = new Slim();
+        $mw = function ($req, $res, $route) use ($app) {
+            if ( $app->request() === $req && $app->response() === $res ) {
+                echo "Pass";
+            } else {
+                echo "Fail";
+            }
+        };
+        $app->get('/foo/:first/:last', $mw, function ($first, $last) {});
+        $app->run();
+    }
+
+    /**
+     * Test Slim middleware receives related Route as last argument
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * One GET route defined;
+     * Middleware defined for invoked GET route;
+     *
+     * Post-conditions:
+     * The middleware receives related Route as last argument
+     */
+    public function testMiddlewareReceivesRoute() {
+        $_SERVER['REQUEST_URI'] = "/foo/John/Doe";
+        $this->expectOutputString('Pass');
+        $app = new Slim();
+        $mw = function ($req, $res, $route) use ($app) {
+            $params = $route->getParams();
+            if ( count($params) === 2 && isset($params['first']) && isset($params['last']) && $params['first'] === 'John' && $params['last'] === 'Doe' ) {
+                echo "Pass";
+            } else {
+                echo "Fail";
+            }
+        };
+        $app->get('/foo/:first/:last', $mw, function ($first, $last) {});
+        $app->run();
+    }
 
     /**
      * Test Slim GET route
