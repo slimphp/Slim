@@ -247,4 +247,19 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
         $this->assertEquals(3, count($router->getMatchedRoutes()));
     }
+
+    /**
+     * Test that Router implements IteratorAggregate interface
+     */
+    public function testRouterImplementsIteratorAggregate() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $router->map('/', function () {})->via('GET');
+        $router->map('/foo1', function () {})->via('POST');
+        $router->map('/', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $iterator = $router->getIterator();
+        $this->assertInstanceOf('ArrayIterator', $iterator);
+        $this->assertEquals(2, $iterator->count());
+    }
 }
