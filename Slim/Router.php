@@ -42,7 +42,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Slim_Router {
+class Slim_Router implements IteratorAggregate {
 
     /**
      * @var Slim_Http_Request
@@ -81,6 +81,14 @@ class Slim_Router {
     public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
         $this->routes = array();
+    }
+
+    /**
+     * Get Iterator
+     * @return ArrayIterator
+     */
+    public function getIterator() {
+        return new ArrayIterator($this->getMatchedRoutes());
     }
 
     /**
