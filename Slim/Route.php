@@ -381,12 +381,16 @@ class Slim_Route {
         if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
+
         //Invoke middleware
+        $req = $this->router->getRequest();
+        $res = $this->router->getResponse();
         foreach ( $this->middleware as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func_array($mw, array($req, $res, $this));
             }
         }
+
         //Invoke callable
         if ( is_callable($this->getCallable()) ) {
             call_user_func_array($this->callable, array_values($this->params));
