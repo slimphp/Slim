@@ -35,6 +35,7 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 require_once 'Slim/Router.php';
 require_once 'Slim/Http/Uri.php';
 require_once 'Slim/Http/Request.php';
+require_once 'Slim/Http/Response.php';
 require_once 'Slim/Route.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase {
@@ -74,15 +75,14 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test sets and gets Request
+     * Test sets and gets Request and Response
      */
-    public function testGetsAndSetsRequest() {
-        $request1 = new Slim_Http_Request();
-        $request2 = new Slim_Http_Request();
-        $router = new Slim_Router($request1);
-        $this->assertSame($request1, $router->getRequest());
-        $router->setRequest($request2);
-        $this->assertSame($request2, $router->getRequest());
+    public function testRouterRequestAndResponse() {
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
+        $this->assertSame($req, $router->getRequest());
+        $this->assertSame($res, $router->getResponse());
     }
 
     /**
@@ -90,8 +90,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * even if no params data is provided.
      */
     public function testUrlForNamedRouteWithoutParams() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->cacheNamedRoute('foo', $route);
         $this->assertEquals('/foo/bar', $router->urlFor('foo'));
@@ -102,8 +103,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * param data is provided.
      */
     public function testUrlForNamedRouteWithParams() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
         $router->cacheNamedRoute('foo', $route);
         $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
@@ -115,8 +117,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testUrlForNamedRouteThatDoesNotExist() {
         $this->setExpectedException('RuntimeException');
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->cacheNamedRoute('bar', $route);
         $router->urlFor('foo');
@@ -128,8 +131,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testNamedRouteWithExistingName() {
         $this->setExpectedException('RuntimeException');
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
         $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
         $router->cacheNamedRoute('bar', $route1);
@@ -140,8 +144,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should keep reference to a callable NotFound callback
      */
     public function testNotFoundHandler() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $notFoundCallback = function () { echo "404"; };
         $callback = $router->notFound($notFoundCallback);
         $this->assertSame($notFoundCallback, $callback);
@@ -151,8 +156,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should NOT keep reference to a callback that is not callable
      */
     public function testNotFoundHandlerIfNotCallable() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $notFoundCallback = 'foo';
         $callback = $router->notFound($notFoundCallback);
         $this->assertEquals($callback, null);
@@ -162,8 +168,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should keep reference to a callable NotFound callback
      */
     public function testErrorHandler() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $errCallback = function () { echo "404"; };
         $callback = $router->error($errCallback);
         $this->assertSame($errCallback, $callback);
@@ -173,8 +180,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should NOT keep reference to a callback that is not callable
      */
     public function testErrorHandlerIfNotCallable() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $errCallback = 'foo';
         $callback = $router->error($errCallback);
         $this->assertEquals($callback, null);
@@ -185,7 +193,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouterConsidersHeadAsGet() {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
-        $router = new Slim_Router(new Slim_Http_Request());
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route = $router->map('/', function () {})->via('GET', 'HEAD');
         $numberOfMatchingRoutes = count($router->getMatchedRoutes());
         $this->assertEquals(1, $numberOfMatchingRoutes);
@@ -196,8 +206,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouterUrlFor() {
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
         $route2 = $router->map('/foo/:one/:two', function () {})->via('GET');
         $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
@@ -239,8 +250,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     public function testRouterMatchesRoutesByUriOnly() {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/foo';
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $router->map('/foo', function () {})->via('GET');
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
@@ -252,8 +264,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Test that Router implements IteratorAggregate interface
      */
     public function testRouterImplementsIteratorAggregate() {
-        $request = new Slim_Http_Request();
-        $router = new Slim_Router($request);
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
         $router->map('/', function () {})->via('GET');
         $router->map('/foo1', function () {})->via('POST');
         $router->map('/', function () {})->via('PUT');
