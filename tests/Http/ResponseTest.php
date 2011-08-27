@@ -274,4 +274,32 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $r->setCookieJar($cj);
         $this->assertSame($cj, $r->getCookieJar());
     }
+
+    /**
+     * Test default HTTP version
+     */
+    public function testDefaultHttpVersion() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $this->assertEquals('1.1', $r->httpVersion());
+    }
+
+    /**
+     * Test can set HTTP version
+     */
+    public function testCanSetValidHttpVersion() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $r->httpVersion('1.0');
+        $this->assertEquals('1.0', $r->httpVersion());
+        $r->httpVersion('1.1');
+        $this->assertEquals('1.1', $r->httpVersion());
+    }
+
+    /**
+     * Test can set HTTP version
+     */
+    public function testCannotSetInvalidHttpVersion() {
+        $this->setExpectedException('InvalidArgumentException');
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $r->httpVersion('1.2');
+    }
 }

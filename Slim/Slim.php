@@ -182,7 +182,9 @@ class Slim {
             'cookies.user_id' => 'DEFAULT',
             //Session handler
             'session.handler' => new Slim_Session_Handler_Cookies(),
-            'session.flash_key' => 'flash'
+            'session.flash_key' => 'flash',
+            //HTTP
+            'http.version' => null
         ), $userSettings);
 
         //Determine application mode
@@ -197,6 +199,7 @@ class Slim {
             'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
             'enable_ssl' => $this->settings['cookies.secure']
         )));
+        $this->response->httpVersion($this->settings['http.version']);
         $this->router = new Slim_Router($this->request);
 
         //Start session if not already started
