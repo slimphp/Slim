@@ -94,7 +94,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response($req);
         $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/bar', function () {})->via('GET');
-        $router->cacheNamedRoute('foo', $route);
+        $router->addNamedRoute('foo', $route);
         $this->assertEquals('/foo/bar', $router->urlFor('foo'));
     }
 
@@ -107,7 +107,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response($req);
         $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
-        $router->cacheNamedRoute('foo', $route);
+        $router->addNamedRoute('foo', $route);
         $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
     }
 
@@ -121,12 +121,12 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response($req);
         $router = new Slim_Router($req, $res);
         $route = $router->map('/foo/bar', function () {})->via('GET');
-        $router->cacheNamedRoute('bar', $route);
+        $router->addNamedRoute('bar', $route);
         $router->urlFor('foo');
     }
 
     /**
-     * Router::cacheNamedRoute should throw an exception if named Route
+     * Router::addNamedRoute should throw an exception if named Route
      * with same name already exists.
      */
     public function testNamedRouteWithExistingName() {
@@ -136,8 +136,73 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router = new Slim_Router($req, $res);
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
         $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
-        $router->cacheNamedRoute('bar', $route1);
-        $router->cacheNamedRoute('bar', $route2);
+        $router->addNamedRoute('bar', $route1);
+        $router->addNamedRoute('bar', $route2);
+    }
+
+    /**
+     * Test if named route exists
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Named route created;
+     *
+     * Post-conditions:
+     * Named route found to exist;
+     * Non-existant route found not to exist;
+     */
+    public function testHasNamedRoute() {
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
+        $route = $router->map('/foo', function () {})->via('GET');
+        $router->addNamedRoute('foo', $route);
+        $this->assertTrue($router->hasNamedRoute('foo'));
+        $this->assertFalse($router->hasNamedRoute('bar'));
+    }
+
+    /**
+     * Test Router gets named route
+     *
+     * Pre-conditions;
+     * Slim app instantiated;
+     * Named route created;
+     *
+     * Post-conditions:
+     * Named route fetched by named;
+     * NULL is returned if named route does not exist;
+     */
+    public function testGetNamedRoute() {
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
+        $route1 = $router->map('/foo', function () {})->via('GET');
+        $router->addNamedRoute('foo', $route1);
+        $this->assertSame($route1, $router->getNamedRoute('foo'));
+        $this->assertNull($router->getNamedRoute('bar'));
+    }
+
+    /**
+     * Test external iterator for Router's named routes
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Named routes created;
+     *
+     * Post-conditions:
+     * Array iterator returned for named routes;
+     */
+    public function testGetNamedRoutes() {
+        $req = new Slim_Http_Request();
+        $res = new Slim_Http_Response($req);
+        $router = new Slim_Router($req, $res);
+        $route1 = $router->map('/foo', function () {})->via('GET');
+        $route2 = $router->map('/bar', function () {})->via('POST');
+        $router->addNamedRoute('foo', $route1);
+        $router->addNamedRoute('bar', $route2);
+        $namedRoutesIterator = $router->getNamedRoutes();
+        $this->assertInstanceOf('ArrayIterator', $namedRoutesIterator);
+        $this->assertEquals(2, $namedRoutesIterator->count());
     }
 
     /**
