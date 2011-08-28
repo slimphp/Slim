@@ -178,7 +178,7 @@ class Slim_Route {
      */
     public function setName( $name ) {
         $this->name = (string)$name;
-        $this->router->cacheNamedRoute($this->name, $this);
+        $this->router->addNamedRoute($this->name, $this);
     }
 
     /**
