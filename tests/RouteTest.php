@@ -48,7 +48,7 @@ class RouterMock extends Slim_Router {
 
     public function __construct() {}
 
-    public function cacheNamedRoute($name, Slim_Route $route) {
+    public function addNamedRoute($name, Slim_Route $route) {
         $this->cache[$name] = $route;
     }
 
