@@ -63,7 +63,7 @@ class CookieTest extends PHPUnit_Extensions_OutputTestCase   {
         //Case C
         $this->assertEquals($hourFromNow, $c1->getExpires());
         //Case D
-        $this->assertEquals($hourFromNow, $c2->getExpires());
+        $this->assertGreaterThanOrEqual($hourFromNow, $c2->getExpires());
         //Case E
         $this->assertEquals('/foo', $c1->getPath());
         //Case F
