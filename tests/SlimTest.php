@@ -227,6 +227,27 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertSame($app, Slim::getInstance('foo'));
     }
 
+    /**
+     * Test Slim does not affect default Response HTTP status
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Case A: Use default settings;
+     * Case B: Set to "1.0";
+     *
+     * Post-conditions:
+     * Case A: Response HTTP version is "1.1";
+     * Case B: Response HTTP version is "1.0";
+     */
+    public function testSlimSetsResponseHttpVersion() {
+        $app1 = new Slim();
+        $app2 = new Slim(array(
+            'http.version' => '1.0'
+        ));
+        $this->assertEquals('1.1', $app1->response()->httpVersion());
+        $this->assertEquals('1.0', $app2->response()->httpVersion());
+    }
+
     /************************************************
      * SLIM SETTINGS
      ************************************************/
@@ -539,6 +560,46 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "foo"; };
         $route = $app->delete('/', $mw1, $mw2, $callable);
+        $this->expectOutputString('foobarfoo');
+        $app->run();
+    }
+    
+    /**
+     * Test Slim sets DELETE route
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * One OPTIONS route defined;
+     *
+     * Post-conditions:
+     * The OPTIONS route is returned;
+     * The OPTIONS route's pattern and callable are set correctly;
+     */
+    public function testSlimOptionsRoute(){
+        $app = new Slim();
+        $callable = function () { echo "foo"; };
+        $route = $app->options('/foo/bar', $callable);
+        $this->assertEquals('/foo/bar', $route->getPattern());
+        $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
+     * Test Slim DELETE route with middleware
+     *
+     * Pre-conditions:
+     * Slim app instatiated and run;
+     * One OPTIONS route defined with middleware;
+     *
+     * Post-conditions:
+     * The OPTIONS route and its middleware are invoked in sequence;
+     */
+    public function testSlimOptionsRouteWithMiddleware(){ 
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        $app = new Slim();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "foo"; };
+        $route = $app->options('/', $mw1, $mw2, $callable);
         $this->expectOutputString('foobarfoo');
         $app->run();
     }
@@ -1314,46 +1375,75 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test default and custom error handlers
      *
      * Pre-conditions:
-     * One app calls the user-defined error handler directly;
-     * One app triggers a generic PHP error;
-     * One app has debugging disabled, throws Exception to invoke error handler indirectly;
+     * Invoked app route calls default error handler;
      *
      * Post-conditions:
-     * All apps' response status is 500;
-     * App with debugging disabled catches ErrorException in user-defined error handler;
+     * Response status code is 500;
      */
     public function testSlimError() {
-        $app1 = new Slim();
-        $app1->get('/', function () use ($app1) {
-            $app1->error();
+        $app = new Slim();
+        $app->get('/', function () use ($app) {
+            $app->error();
         });
-        $app2 = new Slim();
-        $app2->get('/', function () {
-            trigger_error('error');
-        });
-        $app3 = new Slim(array(
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
+    }
+
+    /**
+     * Test triggered errors are converted to ErrorExceptions
+     *
+     * Pre-conditions:
+     * Custom error handler defined;
+     * Invoked app route triggers error;
+     *
+     * Post-conditions:
+     * Response status is 500;
+     * Response body is equal to triggered error message;
+     * Error handler's argument is ErrorException instance;
+     */
+    public function testTriggeredErrorsAreConvertedToErrorExceptions() {
+        $app = new Slim(array(
             'debug' => false
         ));
-        $app3->error(function ( $e ) {
+        $app->error(function ( $e ) {
+            if ( $e instanceof ErrorException ) {
+                echo $e->getMessage();
+            }
+        });
+        $app->get('/', function () {
+            trigger_error('Foo I say!');
+        });
+        $app->run();
+        $this->assertEquals('Foo I say!', $app->response()->body());
+        $this->assertEquals(500, $app->response()->status());
+    }
+
+    /**
+     * Test error handler receives Exception as argument
+     *
+     * Pre-conditions:
+     * Custom error handler defined;
+     * Invoked app route throws Exception;
+     *
+     * Post-conditions:
+     * Response status is 500;
+     * Error handler's argument is the thrown Exception
+     */
+    public function testErrorHandlerReceivesException() {
+        $this->expectOutputString('ErrorException');
+        $app = new Slim(array(
+            'debug' => false
+        ));
+        $app->error(function ( $e ) {
             if ( $e instanceof Exception ) {
                 echo get_class($e);
             }
         });
-        $app3->get('/', function () {
+        $app->get('/', function () {
             $result = 1 / 0;
         });
-        ob_start();
-        $app1->run();
-        $app1Out = ob_get_clean();
-        ob_start();
-        $app2->run();
-        $app2Out = ob_get_clean();
-        ob_start();
-        $app3->run();
-        $app3Out = ob_get_clean();
-        $this->assertEquals(500, $app1->response()->status());
-        $this->assertEquals(500, $app2->response()->status());
-        $this->assertEquals('ErrorException', $app3Out);
+        $app->run();
+        $this->assertEquals(500, $app->response()->status());
     }
 
     /**
@@ -1530,4 +1620,140 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertEquals('barfoo', $app->applyHook('test.hook', 'bar'));
     }
 
+    /************************************************
+     * SLIM RUN LOOP
+     ************************************************/
+
+    /**
+     * Test that a route returns 200 OK response when the route is
+     * manually assigned multiple HTTP methods
+     */
+    public function testMatchingRouteWithMultipleMethods() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $app = new Slim();
+        $app->map('/foo', function () {
+            echo "Foo!";
+        })->via('GET', 'POST');
+        $app->run();
+        $this->assertEquals(200, $app->response()->status());
+        $this->assertEquals('Foo!', $app->response()->body());
+    }
+
+    /**
+     * Test that a route returns 200 OK response when a prior matching
+     * route was not invoked because it did not support HTTP request method.
+     */
+    public function testMatchingRoutesThatSupportDifferentMethods() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $app = new Slim();
+        //GET route
+        $app->map('/foo', function () {
+            echo "Foo GET";
+        })->via('GET');
+        //POST route
+        $app->map('/foo', function () {
+            echo "Foo POST";
+        })->via('POST');
+        $app->run();
+        $this->assertEquals(200, $app->response()->status());
+        $this->assertEquals('Foo POST', $app->response()->body());
+    }
+    
+    /**
+     * Test that app returns 405 response when matching routes
+     * are round but do not support the HTTP request method. Ensure the 
+     * response's Allow header is also set and aggregates all matching
+     * routes' supported methods into the response header.
+     */
+    public function testMatchingRoutesThatDoNotSupportRequestMethod() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'DELETE';
+        $app = new Slim();
+        //GET route
+        $app->map('/foo', function () {
+            echo "Foo GET";
+        })->via('GET');
+        //POST and PUT route
+        $app->map('/foo', function () {
+            echo "Foo POST and PUT";
+        })->via('POST', 'PUT');
+        $app->run();
+        $this->assertEquals(405, $app->response()->status());
+        $this->assertEquals('GET POST PUT', $app->response()->header('Allow'));
+    }
+
+    /**
+     * Test that app returns 405 response when matched, invoked route calls
+     * $app->pass(); the subsequent matching route does not support the current
+     * HTTP request method.
+     */
+    public function testInvokedRoutePassesToAnotherRouteThatDoesNotSupportMethod() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $app = new Slim();
+        //GET route
+        $app->map('/foo', function () use ($app) {
+            $app->pass();
+            echo "Foo GET";
+        })->via('GET');
+        //POST and PUT route
+        $app->map('/foo', function () {
+            echo "Foo POST";
+        })->via('POST');
+        $app->run();
+        $this->assertEquals(405, $app->response()->status());
+        $this->assertEquals('POST', $app->response()->header('Allow'));
+    }
+
+    /**
+     * Test that app returns 404 response when matched, invoked route calls
+     * $app->pass(); there are no subsequent matching routes.
+     */
+    public function testInvokedRoutePassesWithoutSubsequentRoutes() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $app = new Slim();
+        $app->map('/foo', function () use ($app) {
+            $app->pass();
+            echo "Foo GET";
+        })->via('GET');
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
+    }
+
+    /**
+     * Test that app returns 404 response when there are no matching routes
+     */
+    public function testNotFoundIfNoMatchingRoutes() {
+        $_SERVER['REQUEST_URI'] = "/foo";
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $app = new Slim();
+        $app->map('/foo/bar', function () {
+            echo "Foo bar!";
+        })->via('GET');
+        $app->run();
+        $this->assertEquals(404, $app->response()->status());
+    }
+
+    /**
+     * Test that app sends response with default HTTP version
+     */
+    public function testAppSendsResponseWithDefaultHttpVersion() {
+        $app = new Slim();
+        $app->get('/', function () {});
+        $app->run();
+        $this->assertEquals('1.1', $app->response()->httpVersion());
+    }
+
+    /**
+     * Test that app sends response with custom HTTP version
+     */
+    public function testAppSendsResponseWithCustomHttpVersion() {
+        $app = new Slim(array('http.version' => '1.0'));
+        $app->get('/', function () {});
+        $app->run();
+        $this->assertEquals('1.0', $app->response()->httpVersion());
+    }
 }

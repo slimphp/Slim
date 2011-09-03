@@ -42,7 +42,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Slim_Router {
+class Slim_Router implements IteratorAggregate {
 
     /**
      * @var Slim_Http_Request
@@ -80,12 +80,15 @@ class Slim_Router {
      */
     public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
-        $this->routes = array(
-            'GET' => array(),
-            'POST' => array(),
-            'PUT' => array(),
-            'DELETE' => array()
-        );
+        $this->routes = array();
+    }
+
+    /**
+     * Get Iterator
+     * @return ArrayIterator
+     */
+    public function getIterator() {
+        return new ArrayIterator($this->getMatchedRoutes());
     }
 
     /**
@@ -112,8 +115,7 @@ class Slim_Router {
     public function getMatchedRoutes( $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
-            $method = $this->request->isHead() ? Slim_Http_Request::METHOD_GET : $this->request->getMethod();
-            foreach ( $this->routes[$method] as $route ) {
+            foreach ( $this->routes as $route ) {
                 if ( $route->matches($this->request->getResourceUri()) ) {
                     $this->matchedRoutes[] = $route;
                 }
@@ -126,14 +128,12 @@ class Slim_Router {
      * Map a route to a callback function
      * @param   string      $pattern    The URL pattern (ie. "/books/:id")
      * @param   mixed       $callable   Anything that returns TRUE for is_callable()
-     * @param   string      $method     The HTTP request method (GET, POST, PUT, DELETE)
      * @return  Slim_Route
      */
-    public function map( $pattern, $callable, $method ) {
+    public function map( $pattern, $callable ) {
         $route = new Slim_Route($pattern, $callable);
         $route->setRouter($this);
-        $methodKey = ( $method === Slim_Http_Request::METHOD_HEAD ) ? Slim_Http_Request::METHOD_GET : $method;
-        $this->routes[$methodKey][] = $route;
+        $this->routes[] = $route;
         return $route;
     }
 
