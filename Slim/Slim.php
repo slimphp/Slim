@@ -232,7 +232,12 @@ class Slim {
             if ( isset($_ENV['SLIM_MODE']) ) {
                 $this->mode = (string)$_ENV['SLIM_MODE'];
             } else {
-                $this->mode = (string)$this->config('mode');
+                $envMode = getenv('SLIM_MODE');
+                if ( $envMode !== false ) {
+                    $this->mode = $envMode;
+                } else {
+                    $this->mode = (string)$this->config('mode');
+                }
             }
         }
         return $this->mode;

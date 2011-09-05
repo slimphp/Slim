@@ -150,7 +150,11 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testStripSlashesIfMagicQuotes() {
         $_GET['foo1'] = "bar\'d";
         $getData = Slim_Http_Request::stripSlashesIfMagicQuotes($_GET);
-        $this->assertEquals("bar'd", $getData['foo1']);
+        if ( get_magic_quotes_gpc() ) {
+            $this->assertEquals("bar'd", $getData['foo1']);
+        } else {
+            $this->assertEquals("bar\'d", $getData['foo1']);
+        }
     }
 
     /* TEST REQUEST METHODS */
