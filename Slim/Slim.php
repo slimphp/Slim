@@ -378,7 +378,7 @@ class Slim {
      * @return  Slim_Route
      */
     protected function mapRoute($args) {
-        $pattern = $this->settings['routing.base_path'].array_shift($args);
+        $pattern = $this->settings['routing.basepath'].array_shift($args);
         $callable = array_pop($args);
         $route = $this->router->map($pattern, $callable);
         if ( count($args) > 0 ) {
