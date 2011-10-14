@@ -122,6 +122,7 @@ class Slim_Http_Response {
         416 => '416 Requested Range Not Satisfiable',
         417 => '417 Expectation Failed',
         422 => '422 Unprocessable Entity',
+        423 => '423 Locked',
         //Server Error 5xx
         500 => '500 Internal Server Error',
         501 => '501 Not Implemented',
