@@ -389,7 +389,14 @@ class Slim_Route {
         }
         //Invoke callable
         if ( is_callable($this->getCallable()) ) {
-            call_user_func_array($this->callable, array_values($this->params));
+            
+            if( is_string($this->callable) && strpos($this->callable, '::' )!==false ) {
+                list($className, $methodName) = explode('::', $this->callable);
+                call_user_func_array( array(new $className(), $methodName), array_values($this->params));
+            } else {
+                call_user_func_array($this->callable, array_values($this->params));
+            }
+            
             return true;
         }
         return false;
