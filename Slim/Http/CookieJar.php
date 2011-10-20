@@ -49,6 +49,7 @@
  *
  * - libmcrypt > 2.4.x
  *
+ * @package Slim
  * @author Matthies Huguet <http://bigornot.blogspot.com/2008/06/security-cookies-and-rest.html>
  */
 class Slim_Http_CookieJar {
