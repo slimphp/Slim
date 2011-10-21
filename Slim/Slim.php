@@ -128,6 +128,11 @@ class Slim {
     );
 
     /**
+     * @var array Application middleware stack
+     */
+    protected $middleware = array();
+
+    /**
      * Slim auto-loader
      *
      * This method lazy-loads class files when a given class if first used.
@@ -219,6 +224,9 @@ class Slim {
         if ( !isset(self::$apps['default']) ) {
             $this->setName('default');
         }
+
+        //Add to middleware stack
+        $this->middleware[] = $this;
 
         //Set global Error handler after Slim app instantiated
         set_error_handler(array('Slim', 'handleErrors'));
