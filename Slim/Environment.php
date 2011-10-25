@@ -122,6 +122,9 @@ class Slim_Environment {
         //The HTTP request method
         $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
+        //The IP
+        $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+
         /**
          * Application paths
          *
