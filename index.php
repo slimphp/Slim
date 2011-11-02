@@ -1,5 +1,6 @@
 <?php
-
+print_r($_SERVER);
+die;
 /**
  * Step 1: Require the Slim PHP 5 Framework
  *
@@ -18,6 +19,11 @@ require 'Slim/Slim.php';
  * Refer to the online documentation for available settings.
  */
 $app = new Slim();
+
+/**
+ * Step 3: Add middleware
+ */
+$app->addMiddleware('Slim_Middleware_ShowExceptions');
 
 /**
  * Step 3: Define the Slim application routes

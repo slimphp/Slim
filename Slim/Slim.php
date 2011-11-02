@@ -81,6 +81,11 @@ class Slim {
     protected $name;
 
     /**
+     * @var array Application environment variables
+     */
+    protected $environment;
+
+    /**
      * @var Slim_Http_Request
      */
     protected $request;
@@ -159,6 +164,10 @@ class Slim {
      * @return  void
      */
     public function __construct( $userSettings = array() ) {
+        $this->environment = Slim_Environment::getInstance();
+        $this->request = new Slim_Http_Request($this->environment);
+        $this->response = new Slim_Http_Response($this->request);
+
         //Merge application settings
         $this->settings = array_merge(array(
             //Mode
@@ -196,8 +205,6 @@ class Slim {
         $this->getMode();
 
         //Setup HTTP request and response handling
-        $this->request = new Slim_Http_Request();
-        $this->response = new Slim_Http_Response($this->request);
         $this->response->setCookieJar(new Slim_Http_CookieJar($this->settings['cookies.secret_key'], array(
             'high_confidentiality' => $this->settings['cookies.encrypt'],
             'mcrypt_algorithm' => $this->settings['cookies.cipher'],
@@ -1026,7 +1033,44 @@ class Slim {
         }
     }
 
+    /***** APPLICATION MIDDLEWARE *****/
+
+    /**
+     * Add Application Middleware
+     *
+     * This method inserts new middleware onto the application middleware stack.
+     * The argument shoud be the name of the middleware class. The class should already
+     * be included or required, else be discoverable by a registered SPL autoloader.
+     *
+     * @var string $className
+     */
+    public function addMiddleware( $className ) {
+        if ( !is_string($className) ) {
+            throw new InvalidArgumentException('Cannot add Sliver; argument must be a string!');
+        }
+        if ( !in_array($className, get_declared_classes()) ) {
+            throw new RuntimeException('Cannot add Sliver; class not found!');
+        }
+        array_unshift($this->middleware, new $className($this->middleware[0]));
+    }
+
     /***** RUN SLIM *****/
+
+    /**
+     * Call
+     *
+     * Common Slim application middlware interface. Should return array of:
+     * - status code (int)
+     * - headers (key/value array)
+     * - body content (string)
+     */
+    public function run() {
+        list($status, $headers, $body) = $this->middleware[0]->call($this->environment);
+        $this->response()->status($status);
+        $this->response()->headers($headers);
+        $this->response()->body($body);
+        $this->response()->send();
+    }
 
     /**
      * Run the Slim application
@@ -1044,7 +1088,7 @@ class Slim {
      *
      * @return void
      */
-    public function run() {
+    public function call() {
         try {
             try {
                 $this->applyHook('slim.before');

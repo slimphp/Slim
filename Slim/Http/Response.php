@@ -43,175 +43,38 @@
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
- * @author  Kris Jordan <http://github.com/KrisJordan>
  * @since   Version 1.0
  */
-class Slim_Http_Response {
-
-    /**
-     * @var Slim_Http_Request
-     */
-    protected $request;
-
-    /**
-     * @var string
-     */
-    protected $httpVersion = '1.1';
-
-    /**
-     * @var int HTTP status code
-     */
-    protected $status = 200;
-
-    /**
-     * @var array Key-value array of HTTP response headers
-     */
-    protected $headers = array();
-
+class Slim_Http_Response implements ArrayAccess, Iterator, Countable {
     /**
      * @var string HTTP response body
      */
-    protected $body = '';
+    protected $body;
+
+    /**
+     * @var array HTTP response headers
+     */
+    protected $header;
 
     /**
      * @var int Length of HTTP response body
      */
-    protected $length = 0;
+    protected $length;
 
     /**
-     * @var array HTTP response codes and messages
+     * @var int HTTP status code
      */
-    protected static $messages = array(
-        //Informational 1xx
-        100 => '100 Continue',
-        101 => '101 Switching Protocols',
-        //Successful 2xx
-        200 => '200 OK',
-        201 => '201 Created',
-        202 => '202 Accepted',
-        203 => '203 Non-Authoritative Information',
-        204 => '204 No Content',
-        205 => '205 Reset Content',
-        206 => '206 Partial Content',
-        //Redirection 3xx
-        300 => '300 Multiple Choices',
-        301 => '301 Moved Permanently',
-        302 => '302 Found',
-        303 => '303 See Other',
-        304 => '304 Not Modified',
-        305 => '305 Use Proxy',
-        306 => '306 (Unused)',
-        307 => '307 Temporary Redirect',
-        //Client Error 4xx
-        400 => '400 Bad Request',
-        401 => '401 Unauthorized',
-        402 => '402 Payment Required',
-        403 => '403 Forbidden',
-        404 => '404 Not Found',
-        405 => '405 Method Not Allowed',
-        406 => '406 Not Acceptable',
-        407 => '407 Proxy Authentication Required',
-        408 => '408 Request Timeout',
-        409 => '409 Conflict',
-        410 => '410 Gone',
-        411 => '411 Length Required',
-        412 => '412 Precondition Failed',
-        413 => '413 Request Entity Too Large',
-        414 => '414 Request-URI Too Long',
-        415 => '415 Unsupported Media Type',
-        416 => '416 Requested Range Not Satisfiable',
-        417 => '417 Expectation Failed',
-        422 => '422 Unprocessable Entity',
-        423 => '423 Locked',
-        //Server Error 5xx
-        500 => '500 Internal Server Error',
-        501 => '501 Not Implemented',
-        502 => '502 Bad Gateway',
-        503 => '503 Service Unavailable',
-        504 => '504 Gateway Timeout',
-        505 => '505 HTTP Version Not Supported'
-    );
-
-    /**
-     * @var CookieJar Manages Cookies to be sent with this Response
-     */
-    protected $cookieJar;
+    protected $status;
 
     /**
      * Constructor
      */
-    public function __construct( Slim_Http_Request $req ) {
-        $this->request = $req;
-        $this->header('Content-Type', 'text/html');
-    }
-
-    /**
-     * Set and/or get the HTTP response version
-     * @param   string $version
-     * @return  void
-     * @throws  InvalidArgumentException If argument is not a valid HTTP version
-     */
-    public function httpVersion( $version = null ) {
-        if ( $version ) {
-            $version = (string)$version;
-            if ( $version === '1.0' || $version === '1.1' ) {
-                $this->httpVersion = $version;
-            } else {
-                throw new InvalidArgumentException('Invalid HTTP version in Response object');
-            }
-        }
-        return $this->httpVersion;
-    }
-
-    /**
-     * Set and/or get the HTTP response status code
-     * @param   int $status
-     * @return  int
-     * @throws  InvalidArgumentException If argument is not a valid HTTP status code
-     */
-    public function status( $status = null ) {
-        if ( !is_null($status) ) {
-            if ( !in_array(intval($status), array_keys(self::$messages)) ) {
-                throw new InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
-            }
-            $this->status = intval($status);
-        }
-        return $this->status;
-    }
-
-    /**
-     * Get HTTP response headers
-     * @return array
-     */
-    public function headers() {
-        return $this->headers;
-    }
-
-    /**
-     * Get and/or set an HTTP response header
-     * @param   string      $key    The header name
-     * @param   string      $value  The header value
-     * @return  string|null         The header value, or NULL if header not set
-     */
-    public function header( $key, $value = null ) {
-        if ( !is_null($value) ) {
-            $this->headers[$key] = $value;
-        }
-        return isset($this->headers[$key]) ? $this->headers[$key] : null;
-    }
-
-    /**
-     * Set the HTTP response body
-     * @param   string $body    The new HTTP response body
-     * @return  string          The new HTTP response body
-     */
-    public function body( $body = null ) {
-        if ( !is_null($body) ) {
-            $this->body = '';
-            $this->length = 0;
-            $this->write($body);
-        }
-        return $this->body;
+    public function __construct( $body = '', $status = 200, $header = array() ) {
+        $this->body = '';
+        $this->header = array_merge(array('Content-Type' => 'text/html'), $header);
+        $this->length = 0;
+        $this->status = (int)$status;
+        $this->write($body);
     }
 
     /**
@@ -220,102 +83,173 @@ class Slim_Http_Response {
      * @return  string          The updated HTTP response body
      */
     public function write( $body ) {
-        $body = (string)$body;
-        $this->length += strlen($body);
-        $this->body .= $body;
+        $this->body .= (string)$body;
+        $this->length = strlen($this->body);
         $this->header('Content-Length', $this->length);
-        return $body;
+        return $this->body;
     }
 
     /**
-     * Set cookie jar
-     * @param   Slim_Http_CookieJar $cookieJar
-     * @return  void
-     */
-    public function setCookieJar( Slim_Http_CookieJar $cookieJar ) {
-        $this->cookieJar = $cookieJar;
-    }
-
-    /**
-     * Get cookie jar
-     * @return Slim_Http_CookieJar
-     */
-    public function getCookieJar() {
-        return $this->cookieJar;
-    }
-
-    /**
-     * Finalize response headers before response is sent
-     * @return void
+     * Finalize
      */
     public function finalize() {
         if ( in_array($this->status, array(204, 304)) ) {
-            $this->body('');
-            unset($this->headers['Content-Type']);
-        }
-    }
-
-    /**
-     * Get message for HTTP status code
-     * @return string|null
-     */
-    public static function getMessageForCode( $status ) {
-        return isset(self::$messages[$status]) ? self::$messages[$status] : null;
-    }
-
-    /**
-     * Can this HTTP response have a body?
-     * @return bool
-     */
-    public function canHaveBody() {
-        return ( $this->status < 100 || $this->status >= 200 ) && $this->status != 204 && $this->status != 304;
-    }
-
-    /**
-     * Send headers for HTTP response
-     * @return void
-     */
-    protected function sendHeaders() {
-        //Finalize response
-        $this->finalize();
-
-        if ( substr(PHP_SAPI, 0, 3) === 'cgi') {
-            //Send Status header if running with fastcgi
-            header('Status: ' . self::getMessageForCode($this->status()));
+            unset($this->header['Content-Type'], $this->header['Content-Length']); //TODO: Abstract header array into own util class
+            return array($this->status, $this->header, '');
         } else {
-            //Else send HTTP message
-            header(sprintf('HTTP/%s %s', $this->httpVersion, self::getMessageForCode($this->status())));
+            return array($this->status, $this->header, $this->body);
         }
-
-        //Send headers
-        foreach ( $this->headers() as $name => $value ) {
-            header("$name: $value");
-        }
-
-        //Send cookies
-        foreach ( $this->getCookieJar()->getResponseCookies() as $name => $cookie ) {
-            setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
-        }
-
-        //Flush all output to client
-        flush();
     }
 
     /**
-     * Send HTTP response
-     *
-     * This method will set Response headers, set Response cookies,
-     * and `echo` the Response body to the current output buffer.
-     *
-     * @return void
+     * Set cookie
      */
-    public function send() {
-        if ( !headers_sent() ) {
-            $this->sendHeaders();
-        }
-        if ( $this->canHaveBody() && $this->request->isHead() === false ) {
-            echo $this->body;
+    public function setCookie( $name, $valueOrArray ) {
+        //Slim_Http_Util::setCookieHeader($this->header, $name, $valueOrArray);
+    }
+
+    /**
+     * Delete cookie
+     */
+    public function deleteCookie( $name ) {
+        //Slim_Http_Util::deleteCookieHeader($this->header, $name);
+    }
+
+    /**
+     * Helpers: Empty?
+     */
+    public function isEmpty() {
+        return in_array($this->status, array(201, 204, 304));
+    }
+
+    /**
+     * Helpers: Client error?
+     */
+    public function isClientError() {
+        return $this->status >= 400 && $this->status < 500;
+    }
+
+    /**
+     * Helpers: Forbidden?
+     */
+    public function isForbidden() {
+        return $this->status === 403;
+    }
+
+    /**
+     * Helpers: Informational?
+     */
+    public function isInformational() {
+        return $this->status >= 100 && $this->status < 200;
+    }
+
+    /**
+     * Helpers: Not Found?
+     */
+    public function isNotFound() {
+        return $this->status === 404;
+    }
+
+    /**
+     * Helpers: OK?
+     */
+    public function isOk() {
+        return $this->status === 200;
+    }
+
+    /**
+     * Helpers: Redirect?
+     */
+    public function isRedirect() {
+        return in_array($this->status, array(301, 302, 303, 307));
+    }
+
+    /**
+     * Helpers: Server Error?
+     */
+    public function isServerError() {
+        return $this->status >= 500 && $this->status < 600;
+    }
+
+    /**
+     * Helpers: Successful?
+     */
+    public function isSuccessful() {
+        return $this->status >= 200 && $this->status < 300;
+    }
+
+    /**
+     * Array Access: Offset Exists
+     */
+    public function offsetExists( $offset ) {
+        return isset($this->header[(string)$offset]);
+    }
+
+    /**
+     * Array Access: Offset Get
+     */
+    public function offsetGet( $offset ) {
+        if ( isset($this->header[(string)$offset]) ) {
+            return $this->header[(string)$offset];
+        } else {
+            return null;
         }
     }
 
+    /**
+     * Array Access: Offset Set
+     */
+    public function offsetSet( $offset, $value ) {
+        $this->header[(string)$offset] = (string)$value;
+    }
+
+    /**
+     * Array Access: Offset Unset
+     */
+    public function offsetUnset( $offset ) {
+        unset($this->header[(string)$offset]);
+    }
+
+    /**
+     * Iterable: Rewind
+     */
+    public function rewind() {
+        reset($this->header);
+    }
+
+    /**
+     * Iterable: Current
+     */
+    public function current() {
+        return current($this->header);
+    }
+
+    /**
+     * Iterable: Key
+     */
+    public function key() {
+        return key($this->header);
+    }
+
+    /**
+     * Iterable: Next
+     */
+    public function next() {
+        return next($this->header);
+    }
+
+    /**
+     * Iterable: Valid
+     */
+    public function valid() {
+        return $this->current() !== false;
+    }
+
+    /**
+     * Countable: Count
+     */
+    public function count() {
+        return count($this->header);
+    }
 }
+?>
