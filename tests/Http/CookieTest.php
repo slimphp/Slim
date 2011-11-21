@@ -34,7 +34,7 @@ set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_pa
 
 require_once 'Slim/Http/Cookie.php';
 
-class CookieTest extends PHPUnit_Extensions_OutputTestCase   {
+class CookieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test cookie sets and gets properties
