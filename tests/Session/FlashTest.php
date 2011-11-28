@@ -34,7 +34,7 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/Session/Flash.php';
 
-class FlashTest extends PHPUnit_Extensions_OutputTestCase {
+class FlashTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $_SESSION['flash'] = array('info' => 'Info message');

@@ -34,7 +34,7 @@ set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_pa
 
 require_once 'Slim/Http/Uri.php';
 
-class UriTest extends PHPUnit_Extensions_OutputTestCase {
+class UriTest extends PHPUnit_Framework_TestCase {
 
     public function setUp(){
         $_SERVER['REDIRECT_STATUS'] = "200";
