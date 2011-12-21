@@ -574,9 +574,22 @@ class Slim {
             } else {
                 $this->view = new $viewClass();
             }
+            $this->assignPathsToView();
             $this->view->appendData($existingData);
         }
         return $this->view;
+    }
+
+    /**
+     * Feed to current view with the templates path from the configuration.
+     */
+    public function assignPathsToView(){
+        $templatesPath = $this->config('templates.path');
+        //Legacy support
+        if ( is_null($templatesPath) ) {
+            $templatesPath = $this->config('templates_dir');
+        }
+        $this->view->setTemplatesDirectory($templatesPath);
     }
 
     /***** RENDERING *****/
@@ -595,12 +608,7 @@ class Slim {
      * @return  void
      */
     public function render( $template, $data = array(), $status = null ) {
-        $templatesPath = $this->config('templates.path');
-        //Legacy support
-        if ( is_null($templatesPath) ) {
-            $templatesPath = $this->config('templates_dir');
-        }
-        $this->view->setTemplatesDirectory($templatesPath);
+        $this->assignPathsToView();
         if ( !is_null($status) ) {
             $this->response->status($status);
         }
