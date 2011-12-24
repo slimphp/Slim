@@ -109,7 +109,7 @@ class CustomLogger{
     }
 }
 
-class SlimTest extends PHPUnit_Extensions_OutputTestCase {
+class SlimTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $_SERVER['REQUEST_METHOD'] = "GET";
