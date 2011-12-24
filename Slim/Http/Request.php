@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -37,7 +37,7 @@
  * environment variables are passed by reference and will be modified directly.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author  Josh Lockhart
  * @since   Version 1.0
  */
 class Slim_Http_Request {
@@ -65,8 +65,8 @@ class Slim_Http_Request {
      * @param   array $env
      * @see     Slim_Environment
      */
-    public function __construct(&$env) {
-        $this->env = $env;
+    public function __construct( &$env ) {
+        $this->env = &$env;
     }
 
     /**
@@ -175,12 +175,12 @@ class Slim_Http_Request {
     public function get( $key = null ) {
         if ( !isset($this->env['slim.request.query_hash']) ) {
             $output = array();
-            if ( function_exists('mb_parse_str') ) {
+            if ( function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte']) ) {
                 mb_parse_str($this->env['QUERY_STRING'], $output);
             } else {
                 parse_str($this->env['QUERY_STRING'], $output);
             }
-            $this->env['slim.request.query_hash'] = self::stripSlashesIfMagicQuotes($output);
+            $this->env['slim.request.query_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
         }
         if ( $key ) {
             if ( isset($this->env['slim.request.query_hash'][$key]) ) {
@@ -211,12 +211,12 @@ class Slim_Http_Request {
             $this->env['slim.request.form_hash'] = array();
             if ( $this->isFormData() ) {
                 $output = array();
-                if ( function_exists('mb_parse_str') ) {
+                if ( function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte']) ) {
                     mb_parse_str($this->env['slim.input'], $output);
                 } else {
                     parse_str($this->env['slim.input'], $output);
                 }
-                $this->env['slim.request.form_hash'] = self::stripSlashesIfMagicQuotes($output);
+                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
             }
         }
         if ( $key ) {
@@ -250,7 +250,8 @@ class Slim_Http_Request {
      */
     public function cookies( $key = null ) {
         if ( !isset($this->env['slim.request.cookie_hash']) ) {
-            $this->env['slim.request.cookie_hash'] = self::stripSlashesIfMagicQuotes($_COOKIE);
+            $cookieHeader = isset($this->env['HTTP_COOKIE']) ? $this->env['HTTP_COOKIE'] : '';
+            $this->env['slim.request.cookie_hash'] = Slim_Http_Util::parseCookieHeader($cookieHeader);
         }
         if ( $key ) {
             if ( isset($this->env['slim.request.cookie_hash'][$key]) ) {
@@ -506,18 +507,4 @@ class Slim_Http_Request {
             return null;
         }
     }
-
-    /**
-     * Strip slashes from string or array of strings
-     * @param   array|string $rawData
-     * @return  array|string
-     */
-    public static function stripSlashesIfMagicQuotes( $rawData ) {
-        if ( get_magic_quotes_gpc() ) {
-            return is_array($rawData) ? array_map(array('self', 'stripSlashesIfMagicQuotes'), $rawData) : stripslashes($rawData);
-        } else {
-            return $rawData;
-        }
-    }
 }
-?>

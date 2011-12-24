@@ -34,10 +34,10 @@
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Environment.php';
+require_once 'Slim/Http/Util.php';
 require_once 'Slim/Http/Request.php';
 
 class RequestTest extends PHPUnit_Framework_TestCase {
-
     /**
      * Default server settings assume the Slim app is installed
      * in a subdirectory `foo/` directly beneath the public document
@@ -48,24 +48,25 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * tests; tests are free to override these values.
      */
     public function setUp() {
-        $_COOKIE = array();
-        $_SERVER['SERVER_NAME'] = 'slim';
-        $_SERVER['SERVER_PORT'] = '80';
-        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
-        $_SERVER['REQUEST_URI'] = '/foo/index.php/bar/xyz?one=1&two=2&three=3';
-        $_SERVER['PATH_INFO'] = '/bar/xyz';
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-        $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
-        $_SERVER['HTTPS'] = '';
-        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
-        unset($_SERVER['CONTENT_TYPE'], $_SERVER['CONTENT_LENGTH'], $_SERVER['X_REQUESTED_WITH']);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
     }
 
     /**
      * Test sets HTTP method
      */
     public function testGetMethod() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('GET', $req->getMethod());
     }
@@ -74,7 +75,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP GET method detection
      */
     public function testIsGet() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertTrue($req->isGet());
         $this->assertFalse($req->isPost());
@@ -88,8 +89,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP POST method detection
      */
     public function testIsPost() {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isGet());
         $this->assertTrue($req->isPost());
@@ -103,8 +115,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP PUT method detection
      */
     public function testIsPut() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
@@ -118,8 +141,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP DELETE method detection
      */
     public function testIsDelete() {
-        $_SERVER['REQUEST_METHOD'] = 'DELETE';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'DELETE',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
@@ -133,8 +167,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP OPTIONS method detection
      */
     public function testIsOptions() {
-        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'OPTIONS',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
@@ -148,8 +193,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test HTTP HEAD method detection
      */
     public function testIsHead() {
-        $_SERVER['REQUEST_METHOD'] = 'HEAD';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'HEAD',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
@@ -163,8 +219,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test AJAX method detection w/ header
      */
     public function testIsAjaxWithHeader() {
-        $_SERVER['X_REQUESTED_WITH'] = 'XMLHttpRequest';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'X_REQUESTED_WITH' => 'XMLHttpRequest'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
@@ -174,9 +242,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test AJAX method detection w/ query parameter
      */
     public function testIsAjaxWithQueryParameter() {
-        $_SERVER['QUERY_STRING'] .= '&isajax=1';
-        $_SERVER['REQUEST_URI'] .= '&isajax=1';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'HEAD',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3&isajax=1',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'X_REQUESTED_WITH' => 'XMLHttpRequest'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
@@ -186,7 +265,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test params from query string
      */
     public function testParamsFromQueryString() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(3, count($req->params()));
         $this->assertEquals('1', $req->params('one'));
@@ -197,11 +276,21 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test params from request body
      */
     public function testParamsFromRequestBody() {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['CONTENT_LENGTH'] = 15;
-        $env = Slim_Environment::getInstance(true);
-        $env['slim.input'] = 'foo=bar&abc=123';
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(5, count($req->params())); //Union of GET and POST
         $this->assertEquals('bar', $req->params('foo'));
@@ -211,7 +300,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test fetch GET params
      */
     public function testGet() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(3, count($req->get()));
+        $this->assertEquals('1', $req->get('one'));
+        $this->assertNull($req->get('foo'));
+    }
+
+    /**
+     * Test fetch GET params without multibyte
+     */
+    public function testGetWithoutMultibyte() {
+        $env = Slim_Environment::getInstance();
+        $env['slim.tests.ignore_multibyte'] = true;
         $req = new Slim_Http_Request($env);
         $this->assertEquals(3, count($req->get()));
         $this->assertEquals('1', $req->get('one'));
@@ -222,11 +323,21 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test fetch POST params
      */
     public function testPost() {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['CONTENT_LENGTH'] = 15;
-        $env = Slim_Environment::getInstance(true);
-        $env['slim.input'] = 'foo=bar&abc=123';
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->post()));
         $this->assertEquals('bar', $req->post('foo'));
@@ -234,14 +345,73 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test fetch POST params without multibyte
+     */
+    public function testPostWithoutMultibyte() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15,
+            'slim.tests.ignore_multibyte' => true
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(2, count($req->post()));
+        $this->assertEquals('bar', $req->post('foo'));
+        $this->assertNull($req->post('xyz'));
+    }
+
+    /**
+     * Test fetch POST without slim.input
+     */
+    public function testPostWithoutInput() {
+        $this->setExpectedException('RuntimeException');
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $req->post('foo');
+    }
+
+    /**
      * Test fetch PUT params
      */
     public function testPut() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['CONTENT_LENGTH'] = 15;
-        $env = Slim_Environment::getInstance(true);
-        $env['slim.input'] = 'foo=bar&abc=123';
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->put()));
         $this->assertEquals('bar', $req->put('foo'));
@@ -252,8 +422,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test fetch COOKIE params
      */
     public function testCookies() {
-        $_COOKIE = array('foo' => 'bar', 'abc' => '123');
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_COOKIE' => 'foo=bar; abc=123'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->cookies()));
         $this->assertEquals('bar', $req->cookies('foo'));
@@ -264,9 +446,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test is form data
      */
     public function testIsFormData() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertTrue($req->isFormData());
     }
@@ -275,9 +468,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test is not form data
      */
     public function testIsNotFormData() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isFormData());
     }
@@ -286,10 +490,21 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test headers
      */
     public function testHeaders() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['HTTP_ACCEPT_ENCODING'] = 'gzip';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'HTTP_ACCEPT_ENCODING' => 'gzip'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $headers = $req->headers();
         $this->assertTrue(is_array($headers));
@@ -303,17 +518,28 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('gzip', $req->headers('ACCEPT-ENCODING'));
         $this->assertEquals('gzip', $req->headers('accept_encoding'));
         $this->assertEquals('gzip', $req->headers('accept-encoding'));
+        $this->assertNull($req->headers('foo'));
     }
 
     /**
      * Test get body
      */
     public function testGetBodyWhenExists() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['CONTENT_LENGTH'] = 15;
-        $env = Slim_Environment::getInstance(true);
-        $env['slim.input'] = 'foo=bar&abc=123';
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('foo=bar&abc=123', $req->getBody());
     }
@@ -322,7 +548,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get body
      */
     public function testGetBodyWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('', $req->getBody());
     }
@@ -331,9 +557,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content type
      */
     public function testGetContentTypeWhenExists() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json; charset=ISO-8859-4';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('application/json; charset=ISO-8859-4', $req->getContentType());
     }
@@ -342,7 +579,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content type
      */
     public function testGetContentTypeWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getContentType());
     }
@@ -351,9 +588,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get media type
      */
     public function testGetMediaTypeWhenExists() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json; charset=ISO-8859-4';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('application/json', $req->getMediaType());
     }
@@ -362,7 +610,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get media type
      */
     public function testGetMediaTypeWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getMediaType());
     }
@@ -371,9 +619,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get media type params
      */
     public function testGetMediaTypeParams() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json; charset=ISO-8859-4';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $params = $req->getMediaTypeParams();
         $this->assertEquals(1, count($params));
@@ -385,7 +644,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get media type params
      */
     public function testGetMediaTypeParamsWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $params = $req->getMediaTypeParams();
         $this->assertTrue(is_array($params));
@@ -396,9 +655,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content charset
      */
     public function testGetContentCharset() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json; charset=ISO-8859-4';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('ISO-8859-4', $req->getContentCharset());
     }
@@ -407,9 +677,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content charset
      */
     public function testGetContentCharsetWhenNotExists() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/json';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/json'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getContentCharset());
     }
@@ -418,11 +699,21 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content length
      */
     public function testGetContentLength() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-        $_SERVER['CONTENT_LENGTH'] = 15;
-        $env = Slim_Environment::getInstance(true);
-        $env['slim.input'] = 'foo=bar&abc=123';
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo=bar&abc=123',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(15, $req->getContentLength());
     }
@@ -431,8 +722,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get content length
      */
     public function testGetContentLengthWhenNotExists() {
-        $_SERVER['REQUEST_METHOD'] = 'PUT';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals(0, $req->getContentLength());
     }
@@ -441,8 +743,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get host
      */
     public function testGetHost() {
-        $_SERVER['HTTP_HOST'] = 'slimframework.com';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slimframework.com'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('slimframework.com', $req->getHost()); //Uses HTTP_HOST if available
     }
@@ -451,7 +765,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get host
      */
     public function testGetHostWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('slim', $req->getHost()); //Uses SERVER_NAME as backup
     }
@@ -460,9 +774,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get host with port
      */
     public function testGetHostWithPort() {
-        $_SERVER['HTTP_HOST'] = 'slimframework.com';
-        $_SERVER['SERVER_PORT'] = 80;
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slimframework.com'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('slimframework.com:80', $req->getHostWithPort());
     }
@@ -471,8 +796,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get port
      */
     public function testGetPort() {
-        $_SERVER['SERVER_PORT'] = 80;
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertTrue(is_integer($req->getPort()));
         $this->assertEquals(80, $req->getPort());
@@ -482,17 +806,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get scheme
      */
     public function testGetSchemeIfHttp() {
-        $env = Slim_Environment::getInstance(true);
-        $req = new Slim_Http_Request($env);
-        $this->assertEquals('http', $req->getScheme());
-    }
-
-    /**
-     * Test get scheme
-     */
-    public function testGetSchemeIfHttpOnIIS() {
-        $_SERVER['HTTPS'] = 'off';
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('http', $req->getScheme());
     }
@@ -501,8 +815,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get scheme
      */
     public function testGetSchemeIfHttps() {
-        $_SERVER['HTTPS'] = 1;
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'https',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('https', $req->getScheme());
     }
@@ -511,11 +836,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get [script name, root uri, path, path info, resource uri] in subdirectory without htaccess
      */
     public function testAppPathsInSubdirectoryWithoutHtaccess() {
-        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
-        $_SERVER['REQUEST_URI'] = '/foo/index.php/bar/xyz?one=1&two=2&three=3';
-        $_SERVER['PATH_INFO'] = '/bar/xyz';
-        $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('/foo/index.php', $req->getScriptName());
         $this->assertEquals('/foo/index.php', $req->getRootUri());
@@ -528,10 +861,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get [script name, root uri, path, path info, resource uri] in subdirectory with htaccess
      */
     public function testAppPathsInSubdirectoryWithHtaccess() {
-        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
-        $_SERVER['REQUEST_URI'] = '/foo/bar/xyz?one=1&two=2&three=3';
-        $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('/foo', $req->getScriptName());
         $this->assertEquals('/foo', $req->getRootUri());
@@ -544,11 +886,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get [script name, root uri, path, path info, resource uri] in root directory without htaccess
      */
     public function testAppPathsInRootDirectoryWithoutHtaccess() {
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['REQUEST_URI'] = '/index.php/bar/xyz?one=1&two=2&three=3';
-        $_SERVER['PATH_INFO'] = '/bar/xyz';
-        $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('/index.php', $req->getScriptName());
         $this->assertEquals('/index.php', $req->getRootUri());
@@ -561,10 +911,19 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get [script name, root uri, path, path info, resource uri] in root directory with htaccess
      */
     public function testAppPathsInRootDirectoryWithHtaccess() {
-        $_SERVER['SCRIPT_NAME'] = '/';
-        $_SERVER['REQUEST_URI'] = '/bar/xyz?one=1&two=2&three=3';
-        $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('', $req->getScriptName());
         $this->assertEquals('', $req->getRootUri());
@@ -577,8 +936,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get URL
      */
     public function testGetUrl() {
-        $_SERVER['HTTP_HOST'] = 'slimframework.com';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slimframework.com'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('http://slimframework.com', $req->getUrl());
     }
@@ -587,9 +958,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get URL
      */
     public function testGetUrlWithCustomPort() {
-        $_SERVER['HTTP_HOST'] = 'slimframework.com';
-        $_SERVER['SERVER_PORT'] = '8080';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 8080,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slimframework.com'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('http://slimframework.com:8080', $req->getUrl());
     }
@@ -598,10 +980,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get URL
      */
     public function testGetUrlWithHttps() {
-        $_SERVER['HTTPS'] = 1;
-        $_SERVER['HTTP_HOST'] = 'slimframework.com';
-        $_SERVER['SERVER_PORT'] = 443;
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 443,
+            'slim.url_scheme' => 'https',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slimframework.com'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('https://slimframework.com', $req->getUrl());
     }
@@ -610,7 +1002,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get IP
      */
     public function testGetIp() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('127.0.0.1', $req->getIp());
     }
@@ -619,8 +1011,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get refererer
      */
     public function testGetReferrer() {
-        $_SERVER['HTTP_REFERER'] = 'http://slimframework.com/point/of/origin';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_REFERER' => 'http://slimframework.com/point/of/origin'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('http://slimframework.com/point/of/origin', $req->getReferrer());
         $this->assertEquals('http://slimframework.com/point/of/origin', $req->getReferer());
@@ -630,7 +1034,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get refererer
      */
     public function testGetReferrerWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getReferrer());
         $this->assertNull($req->getReferer());
@@ -640,8 +1044,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get refererer
      */
     public function testGetUserAgent() {
-        $_SERVER['HTTP_USER_AGENT'] = 'user-agent-string';
-        $env = Slim_Environment::getInstance(true);
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_USER_AGENT' => 'user-agent-string'
+        ));
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertEquals('user-agent-string', $req->getUserAgent());
     }
@@ -650,7 +1066,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      * Test get refererer
      */
     public function testGetUserAgentWhenNotExists() {
-        $env = Slim_Environment::getInstance(true);
+        $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getUserAgent());
     }
