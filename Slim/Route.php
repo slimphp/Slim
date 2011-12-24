@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -32,13 +32,11 @@
 
 /**
  * Route
- *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
 class Slim_Route {
-
     /**
      * @var string The route pattern (ie. "/books/:id")
      */
@@ -398,5 +396,4 @@ class Slim_Route {
         }
         return false;
     }
-
 }
