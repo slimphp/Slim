@@ -269,7 +269,7 @@ class Slim_Http_Request {
      * @return bool
      */
     public function isFormData() {
-        return in_array($this->getContentType(), self::$formDataMediaTypes);
+        return in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
