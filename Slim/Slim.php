@@ -1073,7 +1073,7 @@ class Slim {
         foreach ( $header as $name => $value ) {
             $hValues = explode("\n", $value);
             foreach ( $hValues as $hVal ) {
-                header("$name: $hVal");
+                header("$name: $hVal", false);
             }
         }
 
