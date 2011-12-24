@@ -220,6 +220,14 @@ class Slim {
             $this->setName('default');
         }
 
+        // Setting template path
+        $templatesPath = $this->config('templates.path');
+        //Legacy support
+        if ( is_null($templatesPath) ) {
+            $templatesPath = $this->config('templates_dir');
+        }
+        $this->view->setTemplatesDirectory($templatesPath);
+
         //Set global Error handler after Slim app instantiated
         set_error_handler(array('Slim', 'handleErrors'));
     }
@@ -595,12 +603,6 @@ class Slim {
      * @return  void
      */
     public function render( $template, $data = array(), $status = null ) {
-        $templatesPath = $this->config('templates.path');
-        //Legacy support
-        if ( is_null($templatesPath) ) {
-            $templatesPath = $this->config('templates_dir');
-        }
-        $this->view->setTemplatesDirectory($templatesPath);
         if ( !is_null($status) ) {
             $this->response->status($status);
         }

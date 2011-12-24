@@ -132,20 +132,6 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test View throws Exception if templates directory does not exist
-     *
-     * Pre-conditions:
-     * View templates directory is set to a non-existent directory
-     *
-     * Post-conditions:
-     * A RuntimeException is thrown
-     */
-    public function testExceptionForInvalidTemplatesDirectory() {
-        $this->setExpectedException('RuntimeException');
-        $this->view->setTemplatesDirectory('./foo');
-    }
-
-    /**
      * Test View renders template
      *
      * Pre-conditions:
