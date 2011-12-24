@@ -1150,7 +1150,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
     public function testSetFlashForNextRequest() {
         $s = new Slim();
-        $s->add('Slim_Middleware_Flash');
         $s->get('/bar', function () use ($s) {
             $s->flash('info', 'bar');
         });
@@ -1161,7 +1160,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
 
     public function testSetFlashForCurrentRequest() {
         $s = new Slim();
-        $s->add('Slim_Middleware_Flash');
         $s->get('/bar', function () use ($s) {
             $s->flashNow('info', 'bar');
         });
@@ -1173,7 +1171,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
     public function testKeepFlashForNextRequest() {
         $_SESSION['slim.flash'] = array('info' => 'Foo');
         $s = new Slim();
-        $s->add('Slim_Middleware_Flash');
         $s->get('/bar', function () use ($s) {
             $s->flashKeep();
         });

@@ -41,7 +41,6 @@
  * @since   Version 1.0
  */
 class Slim_Http_Request {
-
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';

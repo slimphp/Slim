@@ -829,7 +829,7 @@ class Slim {
      * Halt
      *
      * Stop the application and immediately send the response with a
-     * specific status and body to the HTTP client. This may send any 
+     * specific status and body to the HTTP client. This may send any
      * type of response: info, success, redirect, client error, or server error.
      * If you need to render a template AND customize the response status,
      * use Slim::render() instead.
@@ -849,7 +849,7 @@ class Slim {
      *
      * The thrown exception is caught in Slim::call() causing
      * the current Router iteration to be ignored while continuing
-     * to the subsequent Route if available. If no subsequent matching 
+     * to the subsequent Route if available. If no subsequent matching
      * routes are found, a 404 response will be sent to the client.
      *
      * @throws  Slim_Exception_Pass
@@ -1052,7 +1052,7 @@ class Slim {
     /**
      * Run
      *
-     * This method invokes the middleware stack, including the core Slim application; 
+     * This method invokes the middleware stack, including the core Slim application;
      * the result is an array of HTTP status, header, and body. These three items
      * are returned to the HTTP client.
      *
@@ -1092,7 +1092,9 @@ class Slim {
      */
     public function call( &$env ) {
         try {
-            $this->view()->setData('flash', $env['slim.flash']);
+            if ( isset($env['slim.flash']) ) {
+                $this->view()->setData('flash', $env['slim.flash']);
+            }
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');

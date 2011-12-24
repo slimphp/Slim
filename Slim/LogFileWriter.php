@@ -48,7 +48,7 @@ class Slim_LogFileWriter {
 
     /**
      * Constructor
-     * @param   resource
+     * @param   resource    $resource
      * @return  void
      * @throws  InvalidArgumentException
      */
@@ -61,7 +61,7 @@ class Slim_LogFileWriter {
 
     /**
      * Write message
-     * @param   mixed
+     * @param   mixed       $message
      * @return  int|false
      */
     public function write( $message ) {

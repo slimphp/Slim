@@ -289,8 +289,8 @@ class Slim_Http_Util {
      *
      * This method will construct and set the HTTP `Set-Cookie` header to invalidate
      * a client-side HTTP cookie. If a cookie with the same name (and, optionally, domain)
-     * is already set in the HTTP response, it will also be removed. Slim uses this method 
-     * instead of PHP's native `setcookie` method. This allows more control of the HTTP header 
+     * is already set in the HTTP response, it will also be removed. Slim uses this method
+     * instead of PHP's native `setcookie` method. This allows more control of the HTTP header
      * irrespective of PHP's native implementation's dependency on PHP versions.
      *
      * This method accepts the Slim_Http_Headers object by reference as its

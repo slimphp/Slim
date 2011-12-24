@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -39,7 +39,7 @@
  * HTTP 404 Not Found response will be sent to the client.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author  Josh Lockhart
  * @since   Version 1.0
  */
 class Slim_Exception_Pass extends Exception {}

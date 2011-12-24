@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -327,4 +327,3 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $iterator->count());
     }
 }
-?>

@@ -209,7 +209,7 @@ class Slim_Router implements IteratorAggregate {
     public function getNamedRoutes() {
         return new ArrayIterator($this->namedRoutes);
     }
-    
+
     /**
      * Register a 404 Not Found callback
      * @param   mixed $callable Anything that returns TRUE for is_callable()

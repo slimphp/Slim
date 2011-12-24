@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -28,7 +28,6 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
  */
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
@@ -159,7 +158,7 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase {
      * Test encode/decode secure cookie with tampered data
      *
      * In this test, the encoded data is purposefully changed to simulate someone
-     * tampering with the client-side cookie data. When decoding the encoded cookie value, 
+     * tampering with the client-side cookie data. When decoding the encoded cookie value,
      * FALSE is returned since the verification key will not match.
      */
     public function testEncodeAndDecodeSecureCookieWithTamperedData() {
@@ -351,4 +350,3 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('green', $result['colors'][2]);
     }
 }
-?>

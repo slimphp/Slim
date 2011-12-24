@@ -29,7 +29,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
  /**
   * Flash
   *
@@ -104,6 +104,7 @@ class Slim_Middleware_Flash implements ArrayAccess {
      * Set
      *
      * Specify a flash message for a given key to be shown for the next request
+     *
      * @param   string $key
      * @param   string $value
      * @return  void
@@ -116,6 +117,7 @@ class Slim_Middleware_Flash implements ArrayAccess {
      * Keep
      *
      * Retain flash messages from the previous request for the next request
+     *
      * @return  void
      */
     public function keep() {

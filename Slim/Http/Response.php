@@ -119,9 +119,9 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Constructor
-     * @param   string  $body   The HTTP response body
-     * @param   int     $status The HTTP response status
-     * @param   array   $header The HTTP response headers
+     * @param   string                      $body       The HTTP response body
+     * @param   int                         $status     The HTTP response status
+     * @param   Slim_Http_Headers|array     $header     The HTTP response headers
      */
     public function __construct( $body = '', $status = 200, $header = array() ) {
         $this->status = (int)$status;
@@ -212,7 +212,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Finalize
      *
      * This prepares this response and returns an array
-     * of [status, headers, body]. This array is passed to outer middleware 
+     * of [status, headers, body]. This array is passed to outer middleware
      * if available or directly to the Slim run method.
      *
      * @return array[int status, array headers, string body]
@@ -281,6 +281,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Empty?
+     * @return bool
      */
     public function isEmpty() {
         return in_array($this->status, array(201, 204, 304));
@@ -288,6 +289,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Informational?
+     * @return bool
      */
     public function isInformational() {
         return $this->status >= 100 && $this->status < 200;
@@ -295,6 +297,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: OK?
+     * @return bool
      */
     public function isOk() {
         return $this->status === 200;
@@ -302,6 +305,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Successful?
+     * @return bool
      */
     public function isSuccessful() {
         return $this->status >= 200 && $this->status < 300;
@@ -309,6 +313,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Redirect?
+     * @return bool
      */
     public function isRedirect() {
         return in_array($this->status, array(301, 302, 303, 307));
@@ -316,6 +321,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Redirection?
+     * @return bool
      */
     public function isRedirection() {
         return $this->status >= 300 && $this->status < 400;
@@ -323,6 +329,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Forbidden?
+     * @return bool
      */
     public function isForbidden() {
         return $this->status === 403;
@@ -330,6 +337,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Not Found?
+     * @return bool
      */
     public function isNotFound() {
         return $this->status === 404;
@@ -337,6 +345,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Client error?
+     * @return bool
      */
     public function isClientError() {
         return $this->status >= 400 && $this->status < 500;
@@ -344,6 +353,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
      * Helpers: Server Error?
+     * @return bool
      */
     public function isServerError() {
         return $this->status >= 500 && $this->status < 600;

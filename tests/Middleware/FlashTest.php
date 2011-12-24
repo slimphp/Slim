@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -34,7 +34,7 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/Middleware/Flash.php';
 
-class CustomApp {
+class CustomAppFlash {
     function call( &$env ) {
         $env['slim.flash']->set('info', 'Foo');
         return array(200, array(), 'Test');
@@ -58,7 +58,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      * Test set flash message for next request
      */
     public function testSetFlashForNextRequest() {
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $f->set('foo', 'bar');
         $f->save();
         $this->assertEquals('bar', $_SESSION['slim.flash']['foo']);
@@ -68,7 +68,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      * Test set flash message for current request
      */
     public function testSetFlashForCurrentRequest() {
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $f->now('foo', 'bar');
         $this->assertEquals('bar', $f['foo']);
     }
@@ -78,7 +78,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testLoadsFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $this->assertEquals('foo', $f['info']);
     }
 
@@ -87,7 +87,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testKeepFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $f->keep();
         $f->save();
         $this->assertEquals('foo', $_SESSION['slim.flash']['info']);
@@ -98,7 +98,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testFlashMessagesFromPreviousRequestDoNotPersist() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $f->save();
         $this->assertEmpty($_SESSION['slim.flash']);
     }
@@ -108,7 +108,7 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testFlashArrayAccess() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomApp());
+        $f = new Slim_Middleware_Flash(new CustomAppFlash());
         $f['info'] = 'bar';
         $f->save();
         $this->assertTrue(isset($f['info']));
@@ -122,11 +122,10 @@ class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testFlashAsMiddleware() {
         $env = array();
-        $app = new CustomApp(); //<-- See class definition at top of file
+        $app = new CustomAppFlash(); //<-- See class definition at top of file
         $f = new Slim_Middleware_Flash($app);
         $this->assertFalse(isset($_SESSION['slim.flash']));
         list($status, $header, $body) = $f->call($env);
         $this->assertEquals('Foo', $_SESSION['slim.flash']['info']);
     }
 }
-?>

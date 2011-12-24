@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -36,7 +36,7 @@ require_once 'Slim/Http/Util.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Middleware/MethodOverride.php';
 
-class CustomApp {
+class CustomAppMethod {
     function call( &$env ) {
         return $env['REQUEST_METHOD'];
     }
@@ -61,7 +61,7 @@ class MethodOverrideTest extends PHPUnit_Extensions_OutputTestCase {
             'slim.input' => '_METHOD=PUT',
             'slim.errors' => fopen('php://stderr', 'w')
         );
-        $app = new CustomApp();
+        $app = new CustomAppMethod();
         $mw = new Slim_Middleware_MethodOverride($app);
         $result = $mw->call($env);
         $this->assertEquals('PUT', $result);
@@ -85,7 +85,7 @@ class MethodOverrideTest extends PHPUnit_Extensions_OutputTestCase {
             'slim.input' => '',
             'slim.errors' => fopen('php://stderr', 'w')
         );
-        $app = new CustomApp();
+        $app = new CustomAppMethod();
         $mw = new Slim_Middleware_MethodOverride($app);
         $result = $mw->call($env);
         $this->assertEquals('GET', $result);
@@ -108,7 +108,7 @@ class MethodOverrideTest extends PHPUnit_Extensions_OutputTestCase {
             'slim.input' => '',
             'slim.errors' => fopen('php://stderr', 'w')
         );
-        $app = new CustomApp();
+        $app = new CustomAppMethod();
         $mw = new Slim_Middleware_MethodOverride($app);
         $result = $mw->call($env);
         $this->assertEquals('POST', $result);

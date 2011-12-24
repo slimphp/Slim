@@ -29,7 +29,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
  /**
   * Content Types
   *
@@ -71,8 +71,8 @@ class Slim_Middleware_ContentTypes {
 
     /**
      * Call
-     * @param array $env
-     * @return array[status, header, body]
+     * @param   array $env
+     * @return  array[status, header, body]
      */
     public function call( &$env ) {
         if ( isset($env['CONTENT_TYPE']) ) {
@@ -109,7 +109,7 @@ class Slim_Middleware_ContentTypes {
      * into an associative array.
      *
      * @param   string $input
-     * @return  array
+     * @return  array|string
      */
     protected function parseJson( $input ) {
         if ( function_exists('json_decode') ) {

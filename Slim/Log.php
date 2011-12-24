@@ -81,7 +81,6 @@ class Slim_Log {
 
     /**
      * Constructor
-     * @param   Slim    $app
      * @param   mixed   $writer
      * @return  void
      */
@@ -106,9 +105,9 @@ class Slim_Log {
 
     /**
      * Set level
-     * @param int $level
-     * @return void
-     * @throws InvalidArgumentException
+     * @param   int $level
+     * @return  void
+     * @throws  InvalidArgumentException
      */
     public function setLevel( $level ) {
         if ( !isset(self::$levels[$level]) ) {
@@ -119,9 +118,7 @@ class Slim_Log {
 
     /**
      * Get level
-     * @param int $level
-     * @return void
-     * @throws InvalidArgumentException
+     * @return int
      */
     public function getLevel() {
         return $this->level;
@@ -129,8 +126,8 @@ class Slim_Log {
 
     /**
      * Set writer
-     * @param mixed $writer
-     * @return void;
+     * @param   mixed $writer
+     * @return  void
      */
     public function setWriter( $writer ) {
         $this->writer = $writer;

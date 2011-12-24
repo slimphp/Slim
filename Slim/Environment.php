@@ -65,6 +65,8 @@ class Slim_Environment {
      *
      * Use this method to ensure the application environment uses a predefined array
      * rather than rely on the $_SERVER superglobal array. This is useful for testing.
+     * It is your responsibility to ensure your mock array includes all required
+     * environment variables.
      *
      * @param   array   $mock
      * @return  void
@@ -95,7 +97,7 @@ class Slim_Environment {
      * Prepare environment
      *
      * Extract the necessary environment variables for a Slim application.
-     * This method adheres to the Rack (Ruby) specification. Descriptions below are 
+     * This method adheres to the Rack (Ruby) specification. Descriptions below are
      * paraphrased from <http://rack.rubyforge.org/doc/files/SPEC.html> for consistency.
      *
      * REQUEST_METHOD
@@ -143,7 +145,7 @@ class Slim_Environment {
          *
          * This derives two paths: SCRIPT_NAME and PATH_INFO. The SCRIPT_NAME
          * is the real, physical path to the application, be it in the root
-         * directory or a subdirectory of the public document root. The PATH_INFO is the 
+         * directory or a subdirectory of the public document root. The PATH_INFO is the
          * virtual path to the requested resource within the application context.
          *
          * With htaccess, the SCRIPT_NAME will be an absolute path (without file name);

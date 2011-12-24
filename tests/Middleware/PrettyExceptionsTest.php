@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -38,7 +38,7 @@ require_once 'Slim/Http/Response.php';
 require_once 'Slim/Log.php';
 require_once 'Slim/LogFileWriter.php';
 
-class CustomApp {
+class CustomAppExc {
     function call( &$env ) {
         return array(200, array('Content-Type' => 'text/html'), 'Hello world');
     }
@@ -57,7 +57,7 @@ class PrettyExceptionsTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testReturnsUnchangedSuccessResponse() {
         $env = array(); //stub
-        $app = new CustomApp();
+        $app = new CustomAppExc();
         $mw = new Slim_Middleware_PrettyExceptions($app);
         list($status, $header, $body) = $mw->call($env);
         $this->assertEquals(200, $status);
