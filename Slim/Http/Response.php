@@ -125,7 +125,11 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      */
     public function __construct( $body = '', $status = 200, $header = array() ) {
         $this->status = (int)$status;
-        $this->header = new Slim_Http_Headers(array_merge(array('Content-Type' => 'text/html'), $header));
+        $headers = array();
+        foreach ( $header as $key => $value ) {
+            $headers[$key] = $value;
+        }
+        $this->header = new Slim_Http_Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
         $this->body = '';
         $this->write($body);
     }
