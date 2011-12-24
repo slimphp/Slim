@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -43,8 +43,8 @@
  * as possible. More information available below.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   Version 1.0
+ * @author  Josh Lockhart
+ * @since   2.0.0
  */
 class Slim_Environment {
     /**
@@ -53,9 +53,25 @@ class Slim_Environment {
     private static $env;
 
     /**
-     * Constructor (PRIVATE to prevent external instantiation)
+     * Constructor
+     * @throws RuntimeException
      */
-    private function __construct() {}
+    public function __construct() {
+        throw new RuntimeException('Use Slim_Environment::getInstance() instead');
+    }
+
+    /**
+     * Prepare mock environment
+     *
+     * Use this method to ensure the application environment uses a predefined array
+     * rather than rely on the $_SERVER superglobal array. This is useful for testing.
+     *
+     * @param   array   $mock
+     * @return  void
+     */
+    public static function mock( $mock ) {
+        self::$env = $mock;
+    }
 
     /**
      * Get Instance
@@ -68,7 +84,7 @@ class Slim_Environment {
      * @param   bool    $refresh
      * @return  array
      */
-    public function getInstance($refresh = false) {
+    public static function getInstance( $refresh = false ) {
         if ( !isset(self::$env) || $refresh ) {
             self::$env = self::prepare();
         }
@@ -78,15 +94,12 @@ class Slim_Environment {
     /**
      * Prepare environment
      *
-     * Extract the necessary environment variables for a Slim
-     * application.
-     *
-     * This method adheres to the Rack (Ruby) specification. Descriptions
-     * below are paraphrased from <http://rack.rubyforge.org/doc/files/SPEC.html>
-     * for consistency.
+     * Extract the necessary environment variables for a Slim application.
+     * This method adheres to the Rack (Ruby) specification. Descriptions below are 
+     * paraphrased from <http://rack.rubyforge.org/doc/files/SPEC.html> for consistency.
      *
      * REQUEST_METHOD
-     *     The current HTTP request method: GET, POST, PUT, DELETE, OPTIONS. Cannot be empty.
+     *     The current HTTP request method: GET, POST, PUT, DELETE, OPTIONS, HEAD. Cannot be empty.
      * SCRIPT_NAME
      *     The initial portion of the request URL's "path" that corresponds to the physical directory
      *     in which the Slim application is installed --- so that the application knows its virtual "location".
@@ -103,7 +116,7 @@ class Slim_Environment {
      *     to an application resource. However, if HTTP_HOST is present, that should be used instead of this.
      *     This is required and may never be an empty string.
      * SERVER_PORT
-     *     When combined with the SCRIPT_NAME and PATH_INFO, this can be used to creaet a fully qualified URL
+     *     When combined with the SCRIPT_NAME and PATH_INFO, this can be used to create a fully qualified URL
      *     to any application resource. This is required and may never be an empty string.
      * HTTP_*
      *     Variables matching the HTTP request headers sent by the client with the HTTP request. The existence
@@ -114,9 +127,9 @@ class Slim_Environment {
      *     Will be a string representing raw request data sent with the HTTP request. If raw request data is
      *     unavailable (i.e. with a GET request), this will be an empty string.
      * slim.errors
-     *     A write-only resource handle to php://stderr
+     *     Must always be a writable resource; by default this is a write-only resource handle to php://stderr
      */
-    private function prepare() {
+    private static function prepare() {
         $env = array();
 
         //The HTTP request method
@@ -151,11 +164,7 @@ class Slim_Environment {
         } else {
             //With URL rewrite
             $env['SCRIPT_NAME'] = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
-            if ( strpos($_SERVER['REQUEST_URI'], $env['SCRIPT_NAME']) === 0 ) {
-                $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            } else {
-                $env['PATH_INFO'] = $_SERVER['REQUEST_URI'];
-            }
+            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
             if ( strpos($env['PATH_INFO'], '?') !== false ) {
                 $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
             }
@@ -191,11 +200,10 @@ class Slim_Environment {
 
         //Input stream (readable one time only; not available for mutipart/form-data requests)
         $rawInput = @file_get_contents('php://input');
-        if ( $rawInput ) {
-            $env['slim.input'] = $rawInput;
-        } else {
-            $env['slim.input'] = '';
+        if ( !$rawInput ) {
+            $rawInput = '';
         }
+        $env['slim.input'] = $rawInput;
 
         //Error stream
         $env['slim.errors'] = fopen('php://stderr', 'w');
@@ -203,4 +211,3 @@ class Slim_Environment {
         return $env;
     }
 }
-?>

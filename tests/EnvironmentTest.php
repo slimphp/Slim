@@ -55,7 +55,37 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['QUERY_STRING'] = 'one=1&two=2&three=3';
         $_SERVER['HTTPS'] = '';
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         unset($_SERVER['CONTENT_TYPE'], $_SERVER['CONTENT_LENGTH']);
+    }
+
+    /**
+     * Test private constructor
+     */
+    public function testPrivateConstructor() {
+        $this->setExpectedException('RuntimeException');
+        $env = new Slim_Environment();
+    }
+
+    /**
+     * Test mock object
+     */
+    public function testMockEnvironment() {
+        $mock = array(
+            'REQUEST_METHOD' => 'PUT',
+            'SCRIPT_NAME' => '/foo',
+            'PATH_INFO' => '/bar',
+            'QUERY_STRING' => '',
+            'SERVER_NAME' => 'test.com',
+            'SERVER_PORT' => 8080,
+            'HTTP_HOST' => 'test.com',
+            'slim.url_scheme' => 'http',
+            'slim.input' => 'foo',
+            'slim.errors' => fopen('php://stderr', 'w')
+        );
+        Slim_Environment::mock($mock);
+        $env = Slim_Environment::getInstance();
+        $this->assertEquals($mock, $env);
     }
 
     /**
