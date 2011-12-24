@@ -219,7 +219,7 @@ class Slim {
         if ( !isset(self::$apps['default']) ) {
             $this->setName('default');
         }
-        
+
         // Setting template path
         $templatesPath = $this->config('templates.path');
         //Legacy support
