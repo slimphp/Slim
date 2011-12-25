@@ -32,6 +32,7 @@ Enable or disable application debugging. If true, Slim will display debugging in
 
 Data Type
 :   boolean
+
 Default
 :   true
 
@@ -41,6 +42,7 @@ The relative or absolute filesystem path to template files directory. This is re
 
 Data Type
 :   string
+
 Default
 :   ./templates
 
@@ -51,6 +53,7 @@ Determines the View class used by the Slim application.
 Data Type
 :   If string, the name of the custom View class;
     If object, a subclass of `View`;
+
 Default
 :   View
 
@@ -61,6 +64,7 @@ Determines the lifetime of HTTP cookies created by the Slim application.
 Data Type
 :   If integer, a valid UNIX timestamp;
     If string, anything that can be parsed by `strtotime` to extrapolate a valid UNIX timestamp.
+
 Default
 :   20 minutes
 
@@ -70,6 +74,7 @@ Determines the default HTTP cookie path if none specified when invoking the Slim
 
 Data Type
 :   string
+
 Default
 :   /
 
@@ -79,6 +84,7 @@ Determines the default HTTP cookie domain if none specified when invoking the Sl
 
 Data Type
 :   string
+
 Default
 :   null
 
@@ -88,6 +94,7 @@ Should the Slim application transfer HTTP cookies over SSL/HTTPS only?
 
 Data Type
 :   boolean
+
 Default
 :   false
 
@@ -97,6 +104,7 @@ Should the Slim application transfer HTTP cookies using the HTTP protocol only?
 
 Data Type
 :   boolean
+
 Default
 :   false
 
@@ -106,6 +114,7 @@ The secret key used for HTTP cookie encryption. This field is required if you us
 
 Data Type
 :   string
+
 Default
 :   CHANGE_ME
 
@@ -115,6 +124,7 @@ The mcrypt cipher used for HTTP cookie encryption. You can see a list of availab
 
 Data Type
 :   PHP constant (see URL above)
+
 Default
 :   MCRYPT_RIJNDAEL_256
 
@@ -124,6 +134,7 @@ The mcrypt cipher mode used for HTTP cookie encryption. You can see a list of av
 
 Data Type
 :   PHP constant (see URL above)
+
 Default
 :   MCRYPT_MODE_CBC
 
@@ -133,7 +144,39 @@ By default, Slim returns an HTTP/1.1 response to the client. Use this setting if
 
 Data Type
 :   string
+
 Default
 :   1.1
+
 Possible Values
 :   "1.1" or "1.0"
+
+## log.enabled [settings-log-enabled] ##
+
+This enables or disabled the application log upon instantiation.
+
+Data Type
+:   boolean
+
+Default
+:   true
+
+## log.level [settings-log-level] ##
+
+This sets the application log level upon instantiation to determine which messages are logged.
+
+Data Type
+:   int
+
+Default
+:   4
+
+## log.writer [settings-log-writer] ##
+
+This sets the application log writer upon instantiation. This is optional. By default the application log will write logged messages to STDERR. If you do specify a custom log writer here, it must be an object that implements a `write()` public instance method that accepts a mixed argument; this method is responsible for sending the logged object to the appropriate output.
+
+Data Type
+:   mixed
+
+Default
+:   null
