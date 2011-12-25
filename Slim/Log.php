@@ -91,6 +91,14 @@ class Slim_Log {
     }
 
     /**
+     * Is logging enabled?
+     * @return bool
+     */
+    public function getEnabled() {
+        return $this->enabled;
+    }
+
+    /**
      * Enable or disable logging
      * @param   bool    $enabled
      * @return  void
