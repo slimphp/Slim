@@ -16,25 +16,27 @@ The Log object provides the following public interface:
     $log->error();
     $log->fatal();
 
-Each Log instance method accepts one required argument. The argument is usually a string, but the argument may also be anything that responds to `__toString()`. The argument will be passed to the LogWriter.
+Each Log instance method accepts one required argument. The argument is usually a string, but the argument may also be anything that implements `__toString()`. The argument will be passed to the log writer.
 
-The Slim application's Log object will always be available in the application's Environment settings with key **slim.log**. This is helpful if you need to fetch a reference to the Log object in middleware.
+The Slim application's Log object will always be available in the application's environment settings with key **slim.log**. This is helpful if you need to fetch a reference to the Log object in middleware.
 
 ## Log Writers ##
 
-Every Log instance has a LogWriter instance. The LogWriter is responsible for sending the logged message to the appropriate output location (e.g. STDERR, a log file, a remote web service, Twitter, or a database). Out of the box, Slim's Log object has an instance of `LogFileWriter` which directs output to the resource referenced by the application Environment's **slim.errors** key. You may also define and use a custom LogWriter.
+Every Log instance has a log writer. The log writer is responsible for sending a logged message to the appropriate output (e.g. STDERR, a log file, a remote web service, Twitter, or a database). Out of the box, Slim's Log object has an instance of `Slim_LogFileWriter` that directs output to the resource referenced by the application environment's **slim.errors** key. You may also define and use a custom log writer.
 
 ### Custom Log Writer ###
 
-A custom LogWriter must implement the following public interface:
+A custom log writer must implement the following public interface:
 
-    class MyLogWriter {
-        public function write( mixed $message ) {
-            //Do something...
-        }
-    }
+        public function write( mixed $message );
 
-Next, you must tell the Slim application's Log instance to use your writer. I recommend you do this with middleware like this:
+You must tell the Slim application's Log instance to use your writer. You can do so in your application's settings during instantiation like this:
+
+    $app = new Slim(array(
+        'log.writer' => new MyCustomLogWriter()
+    ));
+
+You may also set a custom log writer with middleware like this:
 
     class CustomLogWriterMiddleware {
         protected $app;
@@ -50,7 +52,7 @@ Next, you must tell the Slim application's Log instance to use your writer. I re
         }
     }
 
-However, you may also do so within an application [hook](#hooks) or [route](#routing-get) callback like this: 
+You may also do so within an application [hook](#hooks) or [route](#routing-get) callback like this: 
 
     $app->getLog()->setWriter( new MyLogWriter() );
 
@@ -65,6 +67,12 @@ The Slim application's Log object also provides the following public methods to 
     
     //Disable logging
     $app->getLog()->setEnabled(false);
+
+You may also enable or disable the Log object during application instantiation like this:
+
+    $app = new Slim(array(
+        'log.enabled' => true
+    ));
 
 If logging is disabled, the Log will ignore all logged messages until the Log is enabled.
 
@@ -92,3 +100,9 @@ Only messages that have a level less than the current Log level will be logged. 
 You can set the Log instance's level like this:
 
     $app->getLog()->setLevel(2);
+
+You can set the Log instance's level during application instantiation like this:
+
+    $app = new Slim(array(
+        'log.level' => 2
+    ));
