@@ -168,6 +168,7 @@ class Slim {
 
         //Setup view
         $this->view($this->config('view'));
+        $this->view->setTemplatesDirectory($this->config('templates.path'));
 
         //Make default if first instance
         if ( is_null(self::getInstance()) ) {
@@ -606,7 +607,6 @@ class Slim {
      * @return  void
      */
     public function render( $template, $data = array(), $status = null ) {
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
         if ( !is_null($status) ) {
             $this->response->status($status);
         }
