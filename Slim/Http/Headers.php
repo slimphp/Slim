@@ -43,7 +43,7 @@
   *
   * @package Slim
   * @author  Josh Lockhart
-  * @since   Version 2.0.0
+  * @since   Version 1.5.2
   */
 class Slim_Http_Headers implements ArrayAccess, IteratorAggregate, Countable {
     /**

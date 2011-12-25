@@ -37,7 +37,7 @@
  *
  * @package Slim
  * @author  Josh Lockhart
- * @since   Version 2.0.0
+ * @since   1.0.0
  */
 class Slim_Http_Util {
     /**

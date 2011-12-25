@@ -38,7 +38,7 @@
  *
  * @package Slim
  * @author  Josh Lockhart
- * @since   2.0.0
+ * @since   1.5.2
  */
 class Slim_LogFileWriter {
     /**

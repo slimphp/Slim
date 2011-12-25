@@ -41,7 +41,7 @@
  *
  * @package Slim
  * @author  Josh Lockhart
- * @since   Version 1.0
+ * @since   1.0.0
  */
 class Slim_View {
     /**
