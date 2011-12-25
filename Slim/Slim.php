@@ -175,7 +175,14 @@ class Slim {
         }
 
         //Set default logger that writes to stderr (may be overridden with middleware)
-        $this->environment['slim.log'] = new Slim_Log(new Slim_LogFileWriter($this->environment['slim.errors']));
+        $logWriter = $this->config('log.writer');
+        if ( !$logWriter ) {
+            $logWriter = new Slim_LogFileWriter($this->environment['slim.errors']);
+        }
+        $log = new Slim_Log($logWriter);
+        $log->setEnabled($this->config('log.enabled'));
+        $log->setLevel($this->config('log.level'));
+        $this->environment['slim.log'] = $log;
 
         //Set global error handler
         set_error_handler(array('Slim', 'handleErrors'));
@@ -220,6 +227,10 @@ class Slim {
             'mode' => 'development',
             //Debugging
             'debug' => true,
+            //Logging
+            'log.writer' => null,
+            'log.level' => 4,
+            'log.enabled' => true,
             //View
             'templates.path' => './templates',
             'view' => 'Slim_View',
