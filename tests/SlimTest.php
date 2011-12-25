@@ -108,6 +108,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $this->assertInstanceOf('Slim_Http_Response', $s->response());
         $this->assertInstanceOf('Slim_Router', $s->router());
         $this->assertInstanceOf('Slim_View', $s->view());
+        $this->assertInstanceOf('Slim_Log', $s->getLog());
+        $this->assertEquals(4, $s->getLog()->getLevel());
+        $this->assertTrue($s->getLog()->getEnabled());
         $this->assertTrue(is_array($s->environment()));
     }
 
