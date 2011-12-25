@@ -1,0 +1,3 @@
+# HTTP Caching [caching] #
+
+A Slim application provides built-in support for HTTP caching. You can easily enable HTTP caching with either the `etag()` or `lastModified()` application instance methods. It is best to use one of these methods per route — not both. Both of these methods will instruct the HTTP client to cache the resource client-side. More details for each method are below. It is important that you invoke the `etag()` and `lastModified()` application instance methods in your route callback *before* any other code so that Slim can avoid unnecessary processing.
