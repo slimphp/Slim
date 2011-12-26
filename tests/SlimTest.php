@@ -109,7 +109,7 @@ class CustomLogger{
     }
 }
 
-class SlimTest extends PHPUnit_Extensions_OutputTestCase {
+class SlimTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $_SERVER['REQUEST_METHOD'] = "GET";
@@ -618,6 +618,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testRouteWithSlashAndUrlWithout() {
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob';
+        $this->expectOutputString('/foo/bar/bob/');
         $app = new Slim();
         $app->get('/foo/bar/:name/', function ($name) {});
         $app->run();
@@ -639,6 +640,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testRouteWithoutSlashAndUrlWith() {
         $_SERVER['REQUEST_URI'] = '/foo/bar/bob/';
+        $this->expectOutputRegex('@404 Page Not Found@');
         $app = new Slim();
         $app->get('/foo/bar/:name', function ($name) {});
         $app->run();
@@ -804,6 +806,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim app response status is 500;
      */
     public function testSlimETagThrowsExceptionForInvalidType(){
+        $this->expectOutputRegex('@Invalid Slim::etag type. Expected "strong" or "weak"@');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->etag('123','foo');
@@ -865,6 +868,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim app response status is 500;
      */
     public function testSlimLastModifiedOnlyAcceptsIntegers(){
+        $this->expectOutputRegex('@Slim::lastModified only accepts an integer UNIX timestamp value@');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->lastModified('Test');
@@ -1059,6 +1063,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim ignores output after `stop()` is invoked;
      */
     public function testSlimStop() {
+        $this->expectOutputString('foo');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             try {
@@ -1068,7 +1073,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
             } catch ( Slim_Exception_Stop $e ) {}
         });
         $app->run();
-        $this->assertEquals('foo', $app->response()->body());
     }
 
     /**
@@ -1084,6 +1088,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim app response body is 'Halt not found';
      */
     public function testSlimHaltInsideCallback() {
+        $this->expectOutputString('Halt not found');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             echo 'foo';
@@ -1092,7 +1097,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         });
         $app->run();
         $this->assertEquals(404, $app->response()->status());
-        $this->assertEquals('Halt not found', $app->response()->body());
     }
 
     /**
@@ -1109,6 +1113,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimHaltOutsideCallback() {
         $this->setExpectedException('Slim_Exception_Stop');
+        $this->expectOutputString('External error');
         $app = new Slim();
         $app->halt(500, 'External error');
         $app->get('/', function () {
@@ -1116,7 +1121,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         });
         $app->run();
         $this->assertEquals(500, $app->response()->status());
-        $this->assertEquals('External error', $app->response()->body());
     }
 
     /**
@@ -1132,6 +1136,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimPassWithFallbackRoute() {
         $_SERVER['REQUEST_URI'] = "/name/Frank";
+        $this->expectOutputString('I think your name is Frank');
         $app = new Slim();
         $app->get('/name/Frank', function () use ($app) {
             echo "Your name is Frank";
@@ -1141,7 +1146,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
             echo "I think your name is $name";
         });
         $app->run();
-        $this->assertEquals('I think your name is Frank', $app->response()->body());
     }
 
     /**
@@ -1158,6 +1162,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      */
     public function testSlimPassWithoutFallbackRoute() {
         $_SERVER['REQUEST_URI'] = '/name/Frank';
+        $this->expectOutputRegex('#Not Found#');
         $app = new Slim();
         $app->get('/name/Frank', function () use ($app) {
             echo 'Your name is Frank';
@@ -1264,7 +1269,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app3->get('/', function () use ($app3) {
             $app3->redirect('/foo', 300);
         });
+        ob_start();
         $app3->run();
+        ob_clean();
         $this->assertEquals(300, $app3->response()->status());
 
         //Case D
@@ -1272,7 +1279,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app4->get('/', function () use ($app4) {
             $app4->redirect('/foo', 302);
         });
+        ob_start();
         $app4->run();
+        ob_clean();
         $this->assertEquals(302, $app4->response()->status());
 
         //Case E
@@ -1280,7 +1289,9 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app5->get('/', function () use ($app5) {
             $app5->redirect('/foo', 307);
         });
+        ob_start();
         $app5->run();
+        ob_clean();
         $this->assertEquals(307, $app5->response()->status());
     }
 
@@ -1318,6 +1329,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Message is persisted to $_SESSION after app is run;
      */
     public function testSlimFlashWithRedirect() {
+        $this->expectOutputString('/foo');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->flash('info', 'Foo redirect');
@@ -1381,6 +1393,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Response status code is 500;
      */
     public function testSlimError() {
+        $this->expectOutputRegex('#Error#');
         $app = new Slim();
         $app->get('/', function () use ($app) {
             $app->error();
@@ -1402,6 +1415,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Error handler's argument is ErrorException instance;
      */
     public function testTriggeredErrorsAreConvertedToErrorExceptions() {
+        $this->expectOutputString('Foo I say!');
         $app = new Slim(array(
             'debug' => false
         ));
@@ -1414,7 +1428,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
             trigger_error('Foo I say!');
         });
         $app->run();
-        $this->assertEquals('Foo I say!', $app->response()->body());
         $this->assertEquals(500, $app->response()->status());
     }
 
@@ -1469,8 +1482,12 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         $app2->get('/', function () {
             echo 'success';
         });
+        ob_start();
         $app1->run();
+        $app1Output = ob_get_clean();
+        ob_start();
         $app2->run();
+        $app2Output = ob_get_clean();
         $this->assertEquals(500, $app1->response()->status());
         $this->assertEquals(200, $app2->response()->status());
     }
@@ -1516,13 +1533,13 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Slim app response status is 200;
      */
     public function testSlimOkResponse() {
+        $this->expectOutputString('Ok');
         $app = new Slim();
         $app->get('/', function () {
             echo 'Ok';
         });
         $app->run();
         $this->assertEquals(200, $app->response()->status());
-        $this->assertEquals('Ok', $app->response()->body());
     }
 
     /************************************************
@@ -1629,6 +1646,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * manually assigned multiple HTTP methods
      */
     public function testMatchingRouteWithMultipleMethods() {
+        $this->expectOutputString('Foo!');
         $_SERVER['REQUEST_URI'] = "/foo";
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $app = new Slim();
@@ -1637,7 +1655,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         })->via('GET', 'POST');
         $app->run();
         $this->assertEquals(200, $app->response()->status());
-        $this->assertEquals('Foo!', $app->response()->body());
     }
 
     /**
@@ -1645,6 +1662,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * route was not invoked because it did not support HTTP request method.
      */
     public function testMatchingRoutesThatSupportDifferentMethods() {
+        $this->expectOutputString('Foo POST');
         $_SERVER['REQUEST_URI'] = "/foo";
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $app = new Slim();
@@ -1658,7 +1676,6 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
         })->via('POST');
         $app->run();
         $this->assertEquals(200, $app->response()->status());
-        $this->assertEquals('Foo POST', $app->response()->body());
     }
     
     /**
@@ -1712,6 +1729,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * $app->pass(); there are no subsequent matching routes.
      */
     public function testInvokedRoutePassesWithoutSubsequentRoutes() {
+        $this->expectOutputRegex('#404 Page Not Found#');
         $_SERVER['REQUEST_URI'] = "/foo";
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $app = new Slim();
@@ -1727,6 +1745,7 @@ class SlimTest extends PHPUnit_Extensions_OutputTestCase {
      * Test that app returns 404 response when there are no matching routes
      */
     public function testNotFoundIfNoMatchingRoutes() {
+        $this->expectOutputRegex('#404 Page Not Found#');
         $_SERVER['REQUEST_URI'] = "/foo";
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $app = new Slim();

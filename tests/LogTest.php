@@ -58,7 +58,7 @@ class MyLogger {
 
 }
 
-class LogTest extends PHPUnit_Extensions_OutputTestCase {
+class LogTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test Log enabling and disabling
