@@ -725,8 +725,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testSlimRenderSetsResponseStatusOk(){
         $this->expectOutputString('test output bar');
         $app = new Slim(array(
-            'templates.path' => null,
-            'templates_dir' => dirname(__FILE__) . '/templates'
+            'templates.path' => dirname(__FILE__) . '/templates'
         ));
         $app->render('test.php', array('foo' => 'bar'), 404);
         $this->assertEquals(404, $app->response()->status());
