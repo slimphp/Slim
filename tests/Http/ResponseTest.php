@@ -37,7 +37,7 @@ require_once 'Slim/Http/Uri.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Http/Response.php';
 
-class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
+class ResponseTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $_SERVER['REDIRECT_STATUS'] = "200";
