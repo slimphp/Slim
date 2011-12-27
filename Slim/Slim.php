@@ -505,7 +505,10 @@ class Slim {
             $this->router->error($argument);
         } else {
             //Invoke error handler
-            $this->halt(500, $this->callErrorHandler($argument));
+            $this->response->status(500);
+            $this->response->body('');
+            $this->response->write($this->callErrorHandler($argument));
+            $this->stop();
         }
     }
 
@@ -1140,11 +1143,14 @@ class Slim {
             $this->response->redirect($this->request->getPath() . '/', 301);
             return $this->response->finalize();
         } catch ( Exception $e ) {
-            if ( $this->config('debug') ) {
+            if ( $this->config('debug') ){
                 throw $e;
             } else {
-                $r = new Slim_Http_Response($this->callErrorHandler($e), 500);
-                return $r->finalize(); } } }
+                try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
+                return $this->response->finalize();
+            }
+        }
+    }
 
     /***** EXCEPTION AND ERROR HANDLING *****/
 

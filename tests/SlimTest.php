@@ -1287,6 +1287,30 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(200, $status2);
     }
 
+    /**
+     * Test custom error handler uses existing Response object
+     */
+    public function testErrorHandlerUsesCurrentResponseObject() {
+        $s = new Slim(array(
+            'debug' => false
+        ));
+        $s->error(function ( Exception $e ) use ($s) {
+            $r = $s->response();
+            $r->status(503);
+            $r->write('Foo');
+            $r['X-Powered-By'] = 'Slim';
+            echo 'Bar';
+        });
+        $s->get('/bar', function () {
+            throw new Exception('Foo');
+        });
+        $env = $s->environment();
+        list($status, $header, $body) = $s->call($env);
+        $this->assertEquals(503, $status);
+        $this->assertEquals('FooBar', $body);
+        $this->assertEquals('Slim', $header['X-Powered-By']);
+    }
+
     /************************************************
      * HOOKS
      ************************************************/
