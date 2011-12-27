@@ -96,9 +96,9 @@ For more information about building an application with the Slim Framework, refe
 
 ## Community
 
-### Forum
+### Forum and Knowledgebase
 
-Join the Slim Framework official forum at <http://forum.slimframework.com> where you can find announcements, chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps. Membership is free; create an account or login with OpenID or your Google account.
+Visit Slim's official forum and knowledge base at <http://help.slimframework.com> where you can find announcements, chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps.
 
 ### Twitter
 
