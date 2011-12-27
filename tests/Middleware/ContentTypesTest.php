@@ -40,7 +40,7 @@ class CustomApp {
     }
 }
 
-class ContentTypesTest extends PHPUnit_Extensions_OutputTestCase {
+class ContentTypesTest extends PHPUnit_Framework_TestCase {
     /**
      * Test parses JSON
      */

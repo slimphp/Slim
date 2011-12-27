@@ -59,7 +59,7 @@ class RouterMock extends Slim_Router {
 
 }
 
-class RouteTest extends PHPUnit_Extensions_OutputTestCase {
+class RouteTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Route should set name and be cached by Router

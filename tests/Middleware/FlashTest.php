@@ -41,7 +41,7 @@ class CustomAppFlash {
     }
 }
 
-class SlimFlashTest extends PHPUnit_Extensions_OutputTestCase {
+class SlimFlashTest extends PHPUnit_Framework_TestCase {
     /**
      * Setup
      */

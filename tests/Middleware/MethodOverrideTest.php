@@ -42,7 +42,7 @@ class CustomAppMethod {
     }
 }
 
-class MethodOverrideTest extends PHPUnit_Extensions_OutputTestCase {
+class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test overrides method as POST
      */

@@ -34,7 +34,7 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/View.php';
 
-class ViewTest extends PHPUnit_Extensions_OutputTestCase {
+class ViewTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->view = new Slim_View();

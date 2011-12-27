@@ -55,7 +55,7 @@ class CustomAppGet {
     }
 }
 
-class SessionCookieTest extends PHPUnit_Extensions_OutputTestCase {
+class SessionCookieTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $_SESSION = array();
     }

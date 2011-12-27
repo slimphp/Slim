@@ -51,7 +51,7 @@ class CustomAppWithException {
     }
 }
 
-class PrettyExceptionsTest extends PHPUnit_Extensions_OutputTestCase {
+class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test middleware returns successful response unchanged
      */

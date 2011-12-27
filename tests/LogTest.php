@@ -41,7 +41,7 @@ class MyWriter {
     }
 }
 
-class LogTest extends PHPUnit_Extensions_OutputTestCase {
+class LogTest extends PHPUnit_Framework_TestCase {
     public function testEnabled() {
         $log = new Slim_Log(new MyWriter());
         $this->assertTrue($log->isEnabled()); //<-- Default case

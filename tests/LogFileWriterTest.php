@@ -34,9 +34,10 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/LogFileWriter.php';
 
-class LogFileWriterTest extends PHPUnit_Extensions_OutputTestCase {
+class LogFileWriterTest extends PHPUnit_Framework_TestCase {
     public function testInstantiation() {
-        $handle = fopen('php://stderr', 'w');
+        $this->expectOutputString('Hello!' . PHP_EOL);
+        $handle = fopen('php://output', 'w');
         $fw = new Slim_LogFileWriter($handle);
         $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
     }
