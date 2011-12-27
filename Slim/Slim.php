@@ -158,6 +158,8 @@ class Slim {
         $this->settings = array_merge(array(
             //Mode
             'mode' => 'development',
+            //Routing
+            'routing.basepath' => '',
             //Logging
             'log.enable' => false,
             'log.logger' => null,
@@ -377,7 +379,7 @@ class Slim {
      * @return  Slim_Route
      */
     protected function mapRoute($args) {
-        $pattern = array_shift($args);
+        $pattern = $this->settings['routing.basepath'].array_shift($args);
         $callable = array_pop($args);
         $route = $this->router->map($pattern, $callable);
         if ( count($args) > 0 ) {
