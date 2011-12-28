@@ -147,27 +147,40 @@ class Slim_View {
      * This method echoes the rendered template to the current output buffer
      *
      * @param   string $template Path to template file relative to templates directoy
+     * @param   arrray $options Options to render template with, i.e. layout to be used
      * @return  void
      */
-    public function display( $template ) {
-        echo $this->render($template);
+    public function display( $template, $options = array() ) {
+        echo $this->render($template, $options);
     }
 
     /**
      * Render template
      *
      * @param   string $template    Path to template file relative to templates directory
+     * @param   arrray $options     Options to render template with, i.e. layout to be used
      * @return  string              Rendered template
      * @throws  RuntimeException    If template does not exist
      */
-    public function render( $template ) {
+    public function render( $template, $options ) {
         extract($this->data);
         $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
         if ( !file_exists($templatePath) ) {
             throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
         }
+        
+        if ( !is_null($options['layout']) ) {
+          if ( !file_exists($options['layout']) ) {
+            throw new RuntimeExceptions('Cannot load layout `' . $options['layout'] . '`. Layout does not exist');
+          }
+          
+          //$layout_container[0] is the header, $layout_containder[1] is the footer
+          $layout_container = explode('<!-- yield -->', file_get_contents($options['layout']));
+        }
         ob_start();
+        if( !is_null($layout_container[0]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[0]); }
         require $templatePath;
+        if( !is_null($layout_container[1]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[1]); }
         return ob_get_clean();
     }
 

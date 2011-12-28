@@ -677,11 +677,19 @@ class Slim {
             $templatesPath = Slim::config('templates_dir');
         }
         self::view()->setTemplatesDirectory($templatesPath);
-        if ( !is_null($status) ) {
+        
+        //Support for legacy status setup
+        if ( !is_null($options) && (filter_var($options, FILTER_VALIDATE_INT) || (!is_null($options['status'])) && filter_var($options['status'], FILTER_VALIDATE_INT)) ) {
+            $status = ( is_null($options['status']) ? $options : $options['status'] );
             self::response()->status($status);
         }
+        
         self::view()->appendData($data);
-        self::view()->display($template);
+        if( !is_null($options['layout']) ) {
+          self::view()->display($template, $options['layout']);
+        } else {
+          self::view()->display($template);
+        }
     }
 
     /***** HTTP CACHING *****/
