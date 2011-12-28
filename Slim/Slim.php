@@ -667,10 +667,10 @@ class Slim {
      *
      * @param   string  $template   The name of the template passed into the View::render method
      * @param   array   $data       Associative array of data made available to the View
-     * @param   int     $status     The HTTP response status code to use (Optional)
+     * @param   mixed   $options    Array with possible options. Support for legacy integer as response code is still working
      * @return  void
      */
-    public static function render( $template, $data = array(), $status = null ) {
+    public static function render( $template, $data = array(), $options = null ) {
         $templatesPath = Slim::config('templates.path');
         //Legacy support
         if ( is_null($templatesPath) ) {
