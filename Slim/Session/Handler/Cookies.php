@@ -53,15 +53,15 @@ class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
     }
 
     public function read( $id ) {
-        return Slim::getEncryptedCookie($id);
+        return $this->app->getEncryptedCookie($id);
     }
 
     public function write( $id, $sessionData ) {
-        Slim::setEncryptedCookie($id, $sessionData, 0);
+        $this->app->setEncryptedCookie($id, $sessionData, 0);
     }
 
     public function destroy( $id ) {
-        Slim::deleteCookie($id);
+        $this->app->deleteCookie($id);
     }
 
     public function gc( $maxLifetime ) {
@@ -69,5 +69,3 @@ class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
     }
 
 }
-
-?>

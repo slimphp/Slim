@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -32,40 +34,33 @@ set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path(
 
 require_once 'Slim/View.php';
 
-class ViewTest extends PHPUnit_Extensions_OutputTestCase {
-
-    /***** SETUP *****/
+class ViewTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $this->view = new Slim_View();
     }
 
-    /***** DATA FACTORY *****/
-
     public function generateTestData() {
         return array('a' => 1, 'b' => 2, 'c' => 3);
     }
-
-    /***** TESTS *****/
 
     /**
      * Test initial View data is an empty array
      *
      * Pre-conditions:
-     * You instantiate a new View object
+     * None
      *
      * Post-conditions:
      * The View object's data attribute is an empty array
      */
     public function testViewIsConstructedWithDataArray() {
-        $this->assertEquals($this->view->getData(), array());
+        $this->assertEquals(array(), $this->view->getData());
     }
 
     /**
      * Test View sets and gets data
      *
      * Pre-conditions:
-     * View is instantiated
      * Case A: Set view data key/value
      * Case B: Set view data as array
      * Case C: Set view data with one argument that is not an array
@@ -78,12 +73,12 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     public function testViewSetAndGetData() {
         //Case A
         $this->view->setData('one', 1);
-        $this->assertEquals($this->view->getData('one'), 1);
+        $this->assertEquals(1, $this->view->getData('one'));
 
         //Case B
         $data = array('foo' => 'bar', 'a' => 'A');
         $this->view->setData($data);
-        $this->assertSame($this->view->getData(), $data);
+        $this->assertSame($data, $this->view->getData());
 
         //Case C
         try {
@@ -96,7 +91,6 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * Test View appends data
      *
      * Pre-conditions:
-     * View is instantiated
      * Append data to View several times
      *
      * Post-conditions:
@@ -105,14 +99,13 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     public function testViewAppendsData(){
         $this->view->appendData(array('a' => 'A'));
         $this->view->appendData(array('b' => 'B'));
-        $this->assertEquals($this->view->getData(), array('a' => 'A', 'b' => 'B'));
+        $this->assertEquals(array('a' => 'A', 'b' => 'B'), $this->view->getData());
     }
 
     /**
      * Test View templates directory
      *
      * Pre-conditions:
-     * View is instantiated
      * View templates directory is set to an existing directory
      *
      * Post-conditions:
@@ -128,7 +121,6 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * Test View templates directory may have a trailing slash when set
      *
      * Pre-conditions:
-     * View is instantiated
      * View templates directory is set to an existing directory with a trailing slash
      *
      * Post-conditions:
@@ -140,25 +132,9 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
     /**
-     * Test View throws Exception if templates directory does not exist
-     *
-     * Pre-conditions:
-     * View is instantiated
-     * View templates directory is set to a non-existent directory
-     *
-     * Post-conditions:
-     * A RuntimeException is thrown
-     */
-    public function testExceptionForInvalidTemplatesDirectory() {
-        $this->setExpectedException('RuntimeException');
-        $this->view->setTemplatesDirectory('./foo');
-    }
-
-    /**
      * Test View renders template
      *
      * Pre-conditions:
-     * View is instantiated
      * View templates directory is set to an existing directory.
      * View data is set without errors
      * Case A: View renders an existing template
@@ -174,7 +150,7 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
 
         //Case A
         $output = $this->view->render('test.php');
-        $this->assertEquals($output, 'test output bar');
+        $this->assertEquals('test output bar', $output);
 
         //Case B
         try {
@@ -187,7 +163,6 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
      * Test View displays template
      *
      * Pre-conditions:
-     * View is instantiated
      * View templates directory is set to an existing directory.
      * View data is set without errors
      * View is displayed
@@ -203,4 +178,3 @@ class ViewTest extends PHPUnit_Extensions_OutputTestCase {
     }
 
 }
-?>

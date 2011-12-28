@@ -1,12 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -74,27 +74,39 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test sets and gets Request
+     */
+    public function testGetsAndSetsRequest() {
+        $request1 = new Slim_Http_Request();
+        $request2 = new Slim_Http_Request();
+        $router = new Slim_Router($request1);
+        $this->assertSame($request1, $router->getRequest());
+        $router->setRequest($request2);
+        $this->assertSame($request2, $router->getRequest());
+    }
+
+    /**
      * Router::urlFor should return a full route pattern
      * even if no params data is provided.
      */
     public function testUrlForNamedRouteWithoutParams() {
         $request = new Slim_Http_Request();
         $router = new Slim_Router($request);
-        $route = $router->map('/foo/bar', function () {}, 'GET');
+        $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->cacheNamedRoute('foo', $route);
-        $this->assertEquals($router->urlFor('foo'), '/foo/bar');
+        $this->assertEquals('/foo/bar', $router->urlFor('foo'));
     }
 
     /**
-     * Router::urlFor should eturn a full route pattern if
+     * Router::urlFor should return a full route pattern if
      * param data is provided.
      */
     public function testUrlForNamedRouteWithParams() {
         $request = new Slim_Http_Request();
         $router = new Slim_Router($request);
-        $route = $router->map('/foo/:one/and/:two', function ($one, $two) {}, 'GET');
+        $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
         $router->cacheNamedRoute('foo', $route);
-        $this->assertEquals($router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')), '/foo/Josh/and/John');
+        $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
     }
 
     /**
@@ -105,21 +117,21 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('RuntimeException');
         $request = new Slim_Http_Request();
         $router = new Slim_Router($request);
-        $route = $router->map('/foo/bar', function () {}, 'GET');
+        $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->cacheNamedRoute('bar', $route);
         $router->urlFor('foo');
     }
 
     /**
-     * Router::cacheNamedRoute should throw na exception if named Route
+     * Router::cacheNamedRoute should throw an exception if named Route
      * with same name already exists.
      */
     public function testNamedRouteWithExistingName() {
         $this->setExpectedException('RuntimeException');
         $request = new Slim_Http_Request();
         $router = new Slim_Router($request);
-        $route1 = $router->map('/foo/bar', function () {}, 'GET');
-        $route2 = $router->map('/foo/bar/2', function () {}, 'GET');
+        $route1 = $router->map('/foo/bar', function () {})->via('GET');
+        $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
         $router->cacheNamedRoute('bar', $route1);
         $router->cacheNamedRoute('bar', $route2);
     }
@@ -147,16 +159,35 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Router should keep reference to a callable NotFound callback
+     */
+    public function testErrorHandler() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $errCallback = function () { echo "404"; };
+        $callback = $router->error($errCallback);
+        $this->assertSame($errCallback, $callback);
+    }
+
+    /**
+     * Router should NOT keep reference to a callback that is not callable
+     */
+    public function testErrorHandlerIfNotCallable() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $errCallback = 'foo';
+        $callback = $router->error($errCallback);
+        $this->assertEquals($callback, null);
+    }
+
+    /**
      * Router considers HEAD requests as GET requests
      */
     public function testRouterConsidersHeadAsGet() {
         $_SERVER['REQUEST_METHOD'] = 'HEAD';
         $router = new Slim_Router(new Slim_Http_Request());
-        $route = $router->map('/', function () {}, Slim_Http_Request::METHOD_GET);
-        $numberOfMatchingRoutes = 0;
-        foreach( $router->getMatchedRoutes() as $matchingRoute ) {
-            $numberOfMatchingRoutes++;
-        }
+        $route = $router->map('/', function () {})->via('GET', 'HEAD');
+        $numberOfMatchingRoutes = count($router->getMatchedRoutes());
         $this->assertEquals(1, $numberOfMatchingRoutes);
     }
 
@@ -167,11 +198,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $request = new Slim_Http_Request();
         $router = new Slim_Router($request);
-        $route1 = $router->map('/foo/bar', function () {}, 'GET');
-        $route2 = $router->map('/foo/:one/:two', function () {}, 'GET');
-        $route3 = $router->map('/foo/:one(/:two)', function () {}, 'GET');
-        $route4 = $router->map('/foo/:one/(:two/)', function () {}, 'GET');
-        $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {}, 'GET');
+        $route1 = $router->map('/foo/bar', function () {})->via('GET');
+        $route2 = $router->map('/foo/:one/:two', function () {})->via('GET');
+        $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
+        $route4 = $router->map('/foo/:one/(:two/)', function () {})->via('GET');
+        $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {})->via('GET');
         $route1->setName('route1');
         $route2->setName('route2');
         $route3->setName('route3');
@@ -201,6 +232,34 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/foo/:one/', $router->urlFor('route5'));
     }
 
-}
+    /**
+     * Test that router returns matched routes based on URI only, not
+     * based on the HTTP method.
+     */
+    public function testRouterMatchesRoutesByUriOnly() {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $_SERVER['REQUEST_URI'] = '/foo';
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $router->map('/foo', function () {})->via('GET');
+        $router->map('/foo', function () {})->via('POST');
+        $router->map('/foo', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $this->assertEquals(3, count($router->getMatchedRoutes()));
+    }
 
-?>
+    /**
+     * Test that Router implements IteratorAggregate interface
+     */
+    public function testRouterImplementsIteratorAggregate() {
+        $request = new Slim_Http_Request();
+        $router = new Slim_Router($request);
+        $router->map('/', function () {})->via('GET');
+        $router->map('/foo1', function () {})->via('POST');
+        $router->map('/', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $iterator = $router->getIterator();
+        $this->assertInstanceOf('ArrayIterator', $iterator);
+        $this->assertEquals(2, $iterator->count());
+    }
+}

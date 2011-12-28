@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -45,16 +47,13 @@
  */
 class Slim_Http_Request {
 
-    /***** CLASS CONSTANTS *****/
-
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_DELETE = 'DELETE';
+    const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_OVERRIDE = '_METHOD';
-
-    /***** INSTANCE VARIABLES *****/
 
     /**
      * @var string  Request method (ie. "GET", "POST", "PUT", "DELETE", "HEAD")
@@ -116,8 +115,9 @@ class Slim_Http_Request {
      */
     protected $root;
 
-    /***** CONSTRUCTOR *****/
-
+    /**
+     * Constructor
+     */
     public function __construct() {
         $this->method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : false;
         $this->headers = $this->loadHttpHeaders();
@@ -131,33 +131,61 @@ class Slim_Http_Request {
         $this->checkForHttpMethodOverride();
     }
 
-    /***** HELPER METHODS *****/
-
+    /**
+     * Is this a GET request?
+     * @return bool
+     */
     public function isGet() {
         return $this->method === self::METHOD_GET;
     }
 
+    /**
+     * Is this a POST request?
+     * @return bool
+     */
     public function isPost() {
         return $this->method === self::METHOD_POST;
     }
 
+    /**
+     * Is this a PUT request?
+     * @return bool
+     */
     public function isPut() {
         return $this->method === self::METHOD_PUT;
     }
 
+    /**
+     * Is this a DELETE request?
+     * @return bool
+     */
     public function isDelete() {
         return $this->method === self::METHOD_DELETE;
     }
 
+    /**
+     * Is this a HEAD request?
+     * @return bool
+     */
     public function isHead() {
         return $this->method === self::METHOD_HEAD;
     }
 
+    /**
+     * Is this a OPTIONS request?
+     * @return bool
+     */
+    public function isOptions() {
+        return $this->method === self::METHOD_OPTIONS;
+    }
+
+    /**
+     * Is this a XHR request?
+     * @return bool
+     */
     public function isAjax() {
         return ( $this->params('isajax') || $this->headers('X_REQUESTED_WITH') === 'XMLHttpRequest' );
     }
-
-    /***** PARAMETER ACCESSORS *****/
 
     /**
      * Fetch a PUT|POST|GET parameter value
@@ -180,7 +208,6 @@ class Slim_Http_Request {
 
     /**
      * Fetch GET parameter(s)
-     *
      * @param   string              $key    Name of parameter
      * @return  array|string|null           All parameters, parameter value if $key
      *                                      and parameter exists, or NULL if $key
@@ -192,7 +219,6 @@ class Slim_Http_Request {
 
     /**
      * Fetch POST parameter(s)
-     *
      * @param   string              $key    Name of parameter
      * @return  array|string|null           All parameters, parameter value if $key
      *                                      and parameter exists, or NULL if $key
@@ -204,7 +230,6 @@ class Slim_Http_Request {
 
     /**
      * Fetch PUT parameter(s)
-     *
      * @param   string              $key    Name of parameter
      * @return  array|string|null           All parameters, parameter value if $key
      *                                      and parameter exists, or NULL if $key
@@ -216,7 +241,6 @@ class Slim_Http_Request {
 
     /**
      * Fetch COOKIE value(s)
-     *
      * @param   string      $key    The cookie name
      * @return  array|string|null   All parameters, parameter value if $key
      *                              and parameter exists, or NULL if $key
@@ -226,11 +250,8 @@ class Slim_Http_Request {
         return $this->arrayOrArrayValue($this->cookies, $key);
     }
 
-    /***** HEADER & BODY ACCESSORS *****/
-
     /**
      * Get HTTP request header
-     *
      * @param   string      $key    The header name
      * @return  array|string|null   All parameters, parameter value if $key
      *                              and parameter exists, or NULL if $key
@@ -242,7 +263,6 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP request body
-     *
      * @return string|false String, or FALSE if body could not be read
      */
     public function getBody() {
@@ -251,7 +271,6 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP method
-     *
      * @return string
      */
     public function getMethod() {
@@ -260,7 +279,6 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP request content type
-     *
      * @return string
      */
     public function getContentType() {
@@ -278,7 +296,6 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP request resource URI
-     *
      * @return string
      */
     public function getResourceUri() {
@@ -287,18 +304,14 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP request root URI
-     *
      * @return string
      */
     public function getRootUri() {
         return $this->root;
     }
 
-    /***** UTILITY METHODS *****/
-
     /**
      * Fetch array or array value
-     *
      * @param   array           $array
      * @param   string          $key
      * @return  array|mixed     Array if key is null, else array value
@@ -309,7 +322,6 @@ class Slim_Http_Request {
 
     /**
      * Fetch value from array
-     *
      * @return mixed|null
      */
     protected function arrayValueForKey( array &$array, $key ) {
@@ -318,7 +330,6 @@ class Slim_Http_Request {
 
     /**
      * Strip slashes from string or array of strings
-     *
      * @param   array|string $rawData
      * @return  array|string
      */
@@ -332,7 +343,6 @@ class Slim_Http_Request {
 
     /**
      * Get PUT parameters
-     *
      * @return array Key-value array of HTTP request PUT parameters
      */
     protected function loadPutParameters() {
@@ -351,7 +361,6 @@ class Slim_Http_Request {
 
     /**
      * Get HTTP request headers
-     *
      * @return array Key-value array of HTTP request headers
      */
     protected function loadHttpHeaders() {
@@ -368,7 +377,6 @@ class Slim_Http_Request {
 
     /**
      * Convert HTTP header name
-     *
      * @return string
      */
     protected function convertHttpHeaderName( $name ) {
@@ -395,5 +403,3 @@ class Slim_Http_Request {
     }
 
 }
-
-?>

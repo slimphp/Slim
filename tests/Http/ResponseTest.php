@@ -1,12 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -32,11 +32,12 @@ ini_set('display_errors', '1');
 
 set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
 
+require_once 'Slim/Http/CookieJar.php';
 require_once 'Slim/Http/Uri.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Http/Response.php';
 
-class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
+class ResponseTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $_SERVER['REDIRECT_STATUS'] = "200";
@@ -72,12 +73,11 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $_SERVER['argc'] = 0;
     }
 
-
     /**
      * Test default response
      *
      * Pre-conditions:
-     * A response is instantiated
+     * None
      *
      * Post-conditions:
      * Response status is 200;
@@ -86,8 +86,8 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testNewResponse() {
         $r = new Slim_Http_Response(new Slim_Http_Request());
-        $this->assertEquals($r->status(), 200);
-        $this->assertEquals($r->headers(), array('Content-Type' => 'text/html'));
+        $this->assertEquals(200, $r->status());
+        $this->assertEquals(array('Content-Type' => 'text/html'), $r->headers());
     }
 
     /**
@@ -105,7 +105,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         //Case A
         $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $newStatus = $r1->status(201);
-        $this->assertEquals($newStatus, 201);
+        $this->assertEquals(201, $newStatus);
 
         //Case B
         $r2 = new Slim_Http_Response(new Slim_Http_Request());
@@ -130,8 +130,8 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         //Case A
         $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->header('Content-Type', 'application/json');
-        $this->assertEquals($r1->header('Content-Type'), 'application/json');
-        $this->assertEquals($r1->headers(), array('Content-Type' => 'application/json'));
+        $this->assertEquals('application/json', $r1->header('Content-Type'));
+        $this->assertEquals(array('Content-Type' => 'application/json'), $r1->headers());
 
         //Case B
         $this->assertNull($r1->header('foo'));
@@ -154,18 +154,18 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         //Case A
         $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->body('Foo bar');
-        $this->assertEquals($r1->body(), 'Foo bar');
-        $this->assertEquals($r1->header('Content-Length'), 7);
+        $this->assertEquals('Foo bar', $r1->body());
+        $this->assertEquals(7, $r1->header('Content-Length'));
 
         //Case B
         $r1->body('abc123');
-        $this->assertEquals($r1->body(), 'abc123');
-        $this->assertEquals($r1->header('Content-Length'), 6);
+        $this->assertEquals('abc123', $r1->body());
+        $this->assertEquals(6, $r1->header('Content-Length'));
 
         //Case C
         $r1->write('xyz');
-        $this->assertEquals($r1->body(), 'abc123xyz');
-        $this->assertEquals($r1->header('Content-Length'), 9);
+        $this->assertEquals('abc123xyz', $r1->body());
+        $this->assertEquals(9, $r1->header('Content-Length'));
     }
 
     /**
@@ -186,15 +186,15 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $r1 = new Slim_Http_Response(new Slim_Http_Request());
         $r1->body('body1');
         $r1->finalize();
-        $this->assertEquals($r1->body(), 'body1');
-        $this->assertEquals($r1->header('Content-Length'), 5);
+        $this->assertEquals('body1', $r1->body());
+        $this->assertEquals(5, $r1->header('Content-Length'));
 
         //Case B
         $r2 = new Slim_Http_Response(new Slim_Http_Request());
         $r2->body('body2');
         $r2->status(204);
         $r2->finalize();
-        $this->assertEquals($r2->body(), '');
+        $this->assertEquals('', $r2->body());
         $this->assertNull($r2->header('Content-Type'));
 
         //Case C
@@ -202,7 +202,7 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $r3->body('body3');
         $r3->status(304);
         $r3->finalize();
-        $this->assertEquals($r3->body(), '');
+        $this->assertEquals('', $r3->body());
         $this->assertNull($r3->header('Content-Type'));
     }
 
@@ -221,10 +221,10 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
      */
     public function testGetMessageForCode() {
         //Case A
-        $this->assertEquals(Slim_Http_Response::getMessageForCode(200), '200 OK');
+        $this->assertEquals('200 OK', Slim_Http_Response::getMessageForCode(200));
 
         //Case B
-        $this->assertEquals(Slim_Http_Response::getMessageForCode(304), '304 Not Modified');
+        $this->assertEquals('304 Not Modified', Slim_Http_Response::getMessageForCode(304));
 
         //Case C
         $this->assertNull(Slim_Http_Response::getMessageForCode(420));
@@ -265,6 +265,41 @@ class ResponseTest extends PHPUnit_Extensions_OutputTestCase     {
         $this->assertFalse($r1->canHaveBody());
     }
 
-}
+    /**
+     * Test sets and gets CookieJar
+     */
+    public function testSetsAndGetsCookieJar() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $cj = new Slim_Http_CookieJar('secret');
+        $r->setCookieJar($cj);
+        $this->assertSame($cj, $r->getCookieJar());
+    }
 
-?>
+    /**
+     * Test default HTTP version
+     */
+    public function testDefaultHttpVersion() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $this->assertEquals('1.1', $r->httpVersion());
+    }
+
+    /**
+     * Test can set HTTP version
+     */
+    public function testCanSetValidHttpVersion() {
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $r->httpVersion('1.0');
+        $this->assertEquals('1.0', $r->httpVersion());
+        $r->httpVersion('1.1');
+        $this->assertEquals('1.1', $r->httpVersion());
+    }
+
+    /**
+     * Test can set HTTP version
+     */
+    public function testCannotSetInvalidHttpVersion() {
+        $this->setExpectedException('InvalidArgumentException');
+        $r = new Slim_Http_Response(new Slim_Http_Request());
+        $r->httpVersion('1.2');
+    }
+}

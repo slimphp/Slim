@@ -44,11 +44,17 @@
 abstract class Slim_Session_Handler {
 
     /**
+     * @var Slim
+     */
+    protected $app;
+
+    /**
      * Register session handler
      *
      * @return bool
      */
-    final public function register() {
+    final public function register( Slim $app ) {
+        $this->app = $app;
         return session_set_save_handler(
             array($this, 'open'),
             array($this, 'close'),
@@ -117,5 +123,3 @@ abstract class Slim_Session_Handler {
     abstract public function gc( $maxLifetime );
 
 }
-
-?>

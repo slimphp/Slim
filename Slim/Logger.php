@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.5.0
  *
  * MIT LICENSE
  *
@@ -42,8 +44,6 @@
  */
 class Slim_Logger {
 
-    /***** INSTANCES PROPERTIES *****/
-
     /**
      * @var array Log levels
      */
@@ -60,11 +60,8 @@ class Slim_Logger {
      */
     protected $directory;
 
-    /***** INSTANCE METHODS *****/
-
     /**
      * Constructor
-     *
      * @param   string  $directory  Absolute or relative path to log directory
      * @param   int     $level      The maximum log level reported by this Logger
      */
@@ -75,26 +72,21 @@ class Slim_Logger {
 
     /**
      * Set log directory
-     *
-     * @param   string          $directory  Absolute or relative path to log directory
+     * @param   string  $directory  Absolute or relative path to log directory
      * @return  void
-     * @throws  RuntimeException            If log directory not found or not writable
      */
     public function setDirectory( $directory ) {
-        $fullPath = realpath((string)$directory);
-        if ( $fullPath === false || !is_dir($fullPath) ) {
-            throw new RuntimeException("Log directory '$directory' invalid.");
+        $realPath = realpath($directory);
+        if ( $realPath ) {
+            $this->directory = rtrim($realPath, '/') . '/';
+        } else {
+            $this->directory = false;
         }
-        if ( !is_writable($fullPath) ) {
-            throw new RuntimeException("Log directory '$directory' not writable.");
-        }
-        $this->directory = rtrim($fullPath, '/') . '/';
     }
 
     /**
      * Get log directory
-     *
-     * @return string Absolute path to log directory with trailing slash
+     * @return string|false Absolute path to log directory with trailing slash
      */
     public function getDirectory() {
         return $this->directory;
@@ -102,7 +94,6 @@ class Slim_Logger {
 
     /**
      * Set log level
-     *
      * @param   int                         The maximum log level reported by this Logger
      * @return  void
      * @throws  InvalidArgumentException    If level specified is not 0, 1, 2, 3, 4
@@ -112,13 +103,12 @@ class Slim_Logger {
         if ( $theLevel >= 0 && $theLevel <= 4 ) {
             $this->level = $theLevel;
         } else {
-            throw new InvalidArgumentException("Invalid Log Level. Must be one of: 0, 1, 2, 3, 4.");
+            throw new InvalidArgumentException('Invalid Log Level. Must be one of: 0, 1, 2, 3, 4.');
         }
     }
 
     /**
      * Get log level
-     *
      * @return int
      */
     public function getLevel() {
@@ -127,7 +117,6 @@ class Slim_Logger {
 
     /**
      * Log debug data
-     *
      * @param   mixed $data
      * @return  void
      */
@@ -137,7 +126,6 @@ class Slim_Logger {
 
     /**
      * Log info data
-     *
      * @param   mixed $data
      * @return  void
      */
@@ -147,7 +135,6 @@ class Slim_Logger {
 
     /**
      * Log warn data
-     *
      * @param   mixed $data
      * @return  void
      */
@@ -157,7 +144,6 @@ class Slim_Logger {
 
     /**
      * Log error data
-     *
      * @param   mixed $data
      * @return  void
      */
@@ -167,7 +153,6 @@ class Slim_Logger {
 
     /**
      * Log fatal data
-     *
      * @param   mixed $data
      * @return  void
      */
@@ -177,21 +162,27 @@ class Slim_Logger {
 
     /**
      * Get absolute path to current daily log file
-     *
      * @return string
      */
-    protected function getFile() {
+    public function getFile() {
         return $this->getDirectory() . strftime('%Y-%m-%d') . '.log';
     }
 
     /**
      * Log data to file
-     *
-     * @param   mixed   $data
-     * @param   int     $level
+     * @param   mixed               $data
+     * @param   int                 $level
      * @return  void
+     * @throws  RuntimeException    If log directory not found or not writable
      */
     protected function log( $data, $level ) {
+        $dir = $this->getDirectory();
+        if ( $dir == false || !is_dir($dir) ) {
+            throw new RuntimeException("Log directory '$dir' invalid.");
+        }
+        if ( !is_writable($dir) ) {
+            throw new RuntimeException("Log directory '$dir' not writable.");
+        }
         if ( $level <= $this->getLevel() ) {
             $this->write(sprintf("[%s] %s - %s\r\n", $this->levels[$level], date('c'), (string)$data));
         }
@@ -199,7 +190,6 @@ class Slim_Logger {
 
     /**
      * Persist data to log
-     *
      * @param   string Log message
      * @return  void
      */
@@ -208,4 +198,3 @@ class Slim_Logger {
     }
 
 }
-?>
