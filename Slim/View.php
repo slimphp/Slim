@@ -152,14 +152,14 @@ class Slim_View {
      * @return  string              Rendered template
      * @throws  RuntimeException    If template does not exist
      */
-    public function render( $template, $options ) {
+    public function render( $template, $options = array()) {
         extract($this->data);
         $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
         if ( !file_exists($templatePath) ) {
             throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
         }
         
-        if ( !is_null($options['layout']) ) {
+        if ( isset($options['layout']) && !is_null($options['layout']) ) {
           if ( !file_exists($options['layout']) ) {
             throw new RuntimeExceptions('Cannot load layout `' . $options['layout'] . '`. Layout does not exist');
           }
@@ -168,9 +168,9 @@ class Slim_View {
           $layout_container = explode('<!-- yield -->', file_get_contents($options['layout']));
         }
         ob_start();
-        if( !is_null($layout_container[0]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[0]); }
+        if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[0]); }
         require $templatePath;
-        if( !is_null($layout_container[1]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[1]); }
+        if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[1]); }
         return ob_get_clean();
     }
 
