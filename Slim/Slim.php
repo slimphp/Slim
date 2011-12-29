@@ -1038,6 +1038,41 @@ class Slim {
         }
     }
 
+    /***** STREAMING *****/
+
+    /**
+     * Stream file
+     * @param   string  $path       The relative or absolute path to the file
+     * @param   array   $settings
+     * @return  void
+     */
+    public function streamFile( $path, $settings = array() ) {
+        $this->response = new Slim_Http_Stream(new Slim_Stream_File($path, $settings), $settings);
+        $this->stop();
+    }
+
+    /**
+     * Stream data
+     * @param   string  $data
+     * @param   array   $settings
+     * @return  void
+     */
+    public function streamData( $data, $settings = array() ) {
+        //$this->response = new Slim_Http_Stream(new Slim_Stream_Data($data, $settings), $settings);
+        //$this->stop();
+    }
+
+    /**
+     * Stream process output
+     * @param   string  $process       The process command. Escape shell arguments!
+     * @param   array   $settings
+     * @return  void
+     */
+    public function streamProcess( $process, $settings = array() ) {
+        //$this->response = new Slim_Http_Stream(new Slim_Stream_Process($process, $settings), $settings);
+        //$this->stop();
+    }
+
     /***** APPLICATION MIDDLEWARE *****/
 
     /**
