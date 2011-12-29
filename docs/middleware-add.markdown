@@ -6,7 +6,7 @@ Use the Slim application's `add()` instance method to add new middleware around 
 
 This middleware will convert the HTTP response body to uppercase.
 
-    class UpperCaseMiddleware {
+    class UpperCaseMiddleware implements Slim_Middleware_Interface {
         protected $app;
         protected $settings;
     
