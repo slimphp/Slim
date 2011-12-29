@@ -25,7 +25,7 @@ Slim is a micro framework for PHP 5 that helps you quickly write simple yet powe
     * Debugging
 * Built upon the Rack protocol
 * Extensible middleware and hook architecture
-* Supports PHP >= 5.1
+* Supports PHP >= 5.2.0
 
 ## "Hello World" application (PHP >= 5.3)
 
