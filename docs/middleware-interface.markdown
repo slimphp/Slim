@@ -1,9 +1,9 @@
 # Middleware Interface [middleware-interface] #
 
-Middleware **must** implement at least this interface:
+Middleware **must** implement the `Slim_Middleware_Interface` interface. You can find this interface definition in **Slim/Middleware/Interface.php**.
 
-    public __construct( $app, $settings = array() ) {}
-    public call( &$env ) {}
+    public __construct( $app, $settings = array() );
+    public call( &$env );
 
 ## The Constructor ##
 

@@ -56,7 +56,7 @@
  * @author     Josh Lockhart
  * @since      1.5.2
  */
-class Slim_Middleware_SessionCookie {
+class Slim_Middleware_SessionCookie implements Slim_Middleware_Interface {
     /**
      * @var Slim
      */

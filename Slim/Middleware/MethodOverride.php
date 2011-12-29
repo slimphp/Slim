@@ -44,7 +44,7 @@
   * @author     Josh Lockhart
   * @since      1.5.2
   */
-class Slim_Middleware_MethodOverride {
+class Slim_Middleware_MethodOverride implements Slim_Middleware_Interface {
     /**
      * @var Slim
      */

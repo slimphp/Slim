@@ -43,7 +43,7 @@
   * @author     Josh Lockhart
   * @since      1.5.2
   */
-class Slim_Middleware_Flash implements ArrayAccess {
+class Slim_Middleware_Flash implements Slim_Middleware_Interface, ArrayAccess {
     /**
      * @var Slim
      */

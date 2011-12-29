@@ -40,7 +40,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Middleware_PrettyExceptions {
+class Slim_Middleware_PrettyExceptions implements Slim_Middleware_Interface {
     /**
      * @var Slim|Middleware
      */

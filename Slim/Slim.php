@@ -1050,6 +1050,9 @@ class Slim {
      * @param   string $className The name of the middleware class
      * @param   array  $settings  Key-Value array of settings for the middleware
      * @return  void
+     * @throws  InvalidArgumentException If first argument is not a string
+     * @throws  InvalidArgumentException If class does not implement Slim_Middleware_Interface
+     * @throws  RuntimeException If class is not found
      */
     public function add( $className, $settings = array() ) {
         if ( !is_string($className) ) {
@@ -1057,6 +1060,9 @@ class Slim {
         }
         if ( !class_exists($className) ) {
             throw new RuntimeException('Cannot add middleware; class not found.');
+        }
+        if ( !in_array('Slim_Middleware_Interface', class_implements($className)) ) {
+            throw new InvalidArgumentException('Cannot add middleware; class does not implement Slim_Middleware_Interface.');
         }
         array_unshift($this->middleware, new $className($this->middleware[0], $settings));
     }

@@ -32,6 +32,7 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
+require_once 'Slim/Middleware/Interface.php';
 require_once 'Slim/Http/Util.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Middleware/MethodOverride.php';

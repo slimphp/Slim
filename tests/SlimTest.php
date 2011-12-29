@@ -33,6 +33,7 @@
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Slim.php';
+require_once 'Slim/Middleware/Interface.php';
 require_once 'Slim/Middleware/Flash.php';
 
 //Register non-Slim autoloader
@@ -52,7 +53,7 @@ class CustomView extends Slim_View {
 }
 
 //Mock middleware
-class CustomMiddleware {
+class CustomMiddleware implements Slim_Middleware_Interface {
     protected $app;
     public function __construct( $app, $settings = array() ) {
         $this->app = $app;
@@ -65,6 +66,9 @@ class CustomMiddleware {
         return array($status, $header, $body);
     }
 }
+
+//Mock middleware
+class CustomMiddlewareWithoutInterface {}
 
 class SlimTest extends PHPUnit_Framework_TestCase {
 
@@ -1146,6 +1150,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException');
         $s = new Slim();
         $s->add(123);
+    }
+
+    /**
+     * Test add middleware that does not implement Slim_Middleware_Interface
+     */
+    public function testAddMiddlewareWithoutInterface() {
+        $this->setExpectedException('InvalidArgumentException');
+        $s = new Slim();
+        $s->add('CustomMiddlewareWithoutInterface');
     }
 
     /************************************************
