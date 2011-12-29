@@ -168,7 +168,6 @@ class Slim {
 
         //Setup view
         $this->view($this->config('view'));
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
 
         //Make default if first instance
         if ( is_null(self::getInstance()) ) {
@@ -590,6 +589,7 @@ class Slim {
                 $this->view = new $viewClass();
             }
             $this->view->appendData($existingData);
+            $this->view->setTemplatesDirectory($this->config('templates.path'));
         }
         return $this->view;
     }
