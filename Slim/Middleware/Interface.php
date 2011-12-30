@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     1.6.0
  *
  * MIT LICENSE
  *
@@ -34,7 +34,7 @@
   * Slim Middleware Interface
   * @package    Slim
   * @author     Josh Lockhart
-  * @since      1.5.2
+  * @since      1.6.0
   */
 interface Slim_Middleware_Interface {
     /**

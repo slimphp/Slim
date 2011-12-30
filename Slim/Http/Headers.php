@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     1.6.0
  *
  * MIT LICENSE
  *
@@ -43,7 +43,7 @@
   *
   * @package Slim
   * @author  Josh Lockhart
-  * @since   Version 1.5.2
+  * @since   Version 1.6.0
   */
 class Slim_Http_Headers implements ArrayAccess, IteratorAggregate, Countable {
     /**
