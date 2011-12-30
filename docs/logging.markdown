@@ -38,7 +38,7 @@ You must tell the Slim application's Log instance to use your writer. You can do
 
 You may also set a custom log writer with middleware like this:
 
-    class CustomLogWriterMiddleware {
+    class CustomLogWriterMiddleware implements Slim_Middleware_Interface {
         protected $app;
         protected $settings;
         public function __construct( $app, $settings = array() ) {

@@ -4,7 +4,7 @@ The Slim environment will always contain a key **slim.errors** with a value that
 
 If you want to redirect error output to a different location, you can define your own writable resource by modifying the Environment settings. I recommend you use [middleware](#middleware) to update the Environment like this:
 
-    class CustomErrorMiddleware {
+    class CustomErrorMiddleware implements Slim_Middleware_Interface {
         protected $app;
         protected $settings;
         public function __construct( $app, $settings = array() ) {
