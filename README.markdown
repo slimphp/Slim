@@ -60,13 +60,24 @@ If you are running PHP < 5.3, the second argument to the application's `get()` i
 
 Download the Slim Framework for PHP 5 and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
 
-### Setup .htaccess
+### Setup your webserver
+
+#### Apache
 
 Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
 
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php [QSA,L]
+
+#### Nginx
+Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
+
+    if (!-f $request_filename) {
+        rewrite ^(.*)$ /index.php last;
+    }
+
+This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
 ### Build Your Application
 
