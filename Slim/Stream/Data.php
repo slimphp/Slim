@@ -41,11 +41,11 @@
  * 2) time_limit - The amount of time allowed to stream the data
  *
  * By default, PHP will run indefinitely until the data streaming is complete
- * or the client closes the HTTP connection, and the chunk size is 8192 bytes
+ * or the client closes the HTTP connection. The chunk size is 8192 bytes
  *
  * @package Slim
  * @author  Josh Lockhart
- * @version 1.0.0
+ * @since   1.6.0
  */
 class Slim_Stream_Data {
     /**
@@ -60,10 +60,9 @@ class Slim_Stream_Data {
 
     /**
      * Constructor
-     * @param   string  $path       Relative or absolute path to readable file
+     * @param   string  $data       The raw data to be streamed to the HTTP client
      * @param   array   $options    Optional associative array of streaming settings
      * @return  void
-     * @throws  InvalidArgumentException If file does not exist or is not readable
      */
     public function __construct( $data, $options = array() ) {
         $this->data = (string)$data;
@@ -80,6 +79,9 @@ class Slim_Stream_Data {
      * content is continually and immediately flushed. Use the `time_limit`
      * setting if you want to set a finite timeout for large data; otherwise
      * the script is configured to run indefinitely until all data is sent.
+     *
+     * Data will be base64 encoded into memory and streamed in chunks to
+     * the HTTP client.
      *
      * @return void
      */

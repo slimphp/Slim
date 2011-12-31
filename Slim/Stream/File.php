@@ -41,11 +41,11 @@
  * 2) time_limit - The amount of time allowed to stream the file
  *
  * By default, PHP will run indefinitely until the file streaming is complete
- * or the client closes the HTTP connection, and the chunk size is 8192 bytes
+ * or the client closes the HTTP connection. The chunk size is 8192 bytes
  *
  * @package Slim
  * @author  Josh Lockhart
- * @version 1.0.0
+ * @since   1.6.0
  */
 class Slim_Stream_File {
     /**

@@ -48,11 +48,11 @@
  *
  * @package Slim
  * @author  Josh Lockhart
- * @version 1.0.0
+ * @since   1.6.0
  */
 class Slim_Http_Stream {
     /**
-     * @var mixed
+     * @var mixed This is a Slim_Stream_* instance that performs the actual streaming
      */
     protected $streamer;
 

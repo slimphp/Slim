@@ -33,19 +33,20 @@
 /**
  * Stream Process Output
  *
- * This class will stream process output  to the HTTP client.
+ * This class will stream process output to the HTTP client.
  * You may control how the output is streamed by passing an associative array
  * of settings as the second argument to the constructor. They are:
  *
- * 1) buffer_size - The size of each streamed data chunk
- * 2) time_limit - The amount of time allowed to stream the data
+ * 1) time_limit - The amount of time allowed to stream the data
  *
  * By default, PHP will run indefinitely until the output streaming is complete
- * or the client closes the HTTP connection, and the chunk size is 8192 bytes
+ * or the client closes the HTTP connection. Unlike Slim_Stream_File,
+ * this class will stream output line by line as it is returned from
+ * the system process.
  *
  * @package Slim
  * @author  Josh Lockhart
- * @version 1.0.0
+ * @since   1.6.0
  */
 class Slim_Stream_Process {
     /**
@@ -60,10 +61,9 @@ class Slim_Stream_Process {
 
     /**
      * Constructor
-     * @param   string  $path       Relative or absolute path to readable file
+     * @param   string  $process    The system process to execute; BE SURE YOU ESCAPE SHELL ARGS!
      * @param   array   $options    Optional associative array of streaming settings
      * @return  void
-     * @throws  InvalidArgumentException If file does not exist or is not readable
      */
     public function __construct( $process, $options = array() ) {
         $this->process = (string)$process;
@@ -79,6 +79,8 @@ class Slim_Stream_Process {
      * content is continually and immediately flushed. Use the `time_limit`
      * setting if you want to set a finite timeout for large output; otherwise
      * the script is configured to run indefinitely until all output is sent.
+     *
+     * Unlike Slim_Http_File, data is flushed by line rather than in chunks.
      *
      * @return void
      */
