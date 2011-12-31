@@ -62,6 +62,11 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
  */
 class Slim {
     /**
+     * @const string
+     */
+    const VERSION = '1.6.0';
+
+    /**
      * @var array[Slim]
      */
     protected static $apps = array();

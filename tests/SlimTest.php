@@ -104,6 +104,13 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      ************************************************/
 
     /**
+     * Test version constant is string
+     */
+    public function testHasVersionConstant() {
+        $this->assertTrue(is_string(Slim::VERSION));
+    }
+
+    /**
      * Test default instance properties
      */
     public function testDefaultInstanceProperties() {
