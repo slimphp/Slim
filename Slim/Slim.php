@@ -618,6 +618,7 @@ class Slim {
         if ( !is_null($status) ) {
             $this->response->status($status);
         }
+        $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
         $this->view->display($template);
     }
@@ -742,6 +743,9 @@ class Slim {
      */
     public function setEncryptedCookie( $name, $value, $expires = null, $path = null, $domain = null, $secure = null, $httponly = null ) {
         $expires = is_null($expires) ? $this->config('cookies.lifetime') : $expires;
+        if ( is_string($expires) ) {
+            $expires = strtotime($expires);
+        }
         $secureValue = Slim_Http_Util::encodeSecureCookie(
             $value,
             $expires,
@@ -765,7 +769,7 @@ class Slim {
     public function getEncryptedCookie( $name, $deleteIfInvalid = true ) {
         $value = Slim_Http_Util::decodeSecureCookie(
             $this->request->cookies($name),
-            $this->config('cookies.secret'),
+            $this->config('cookies.secret_key'),
             $this->config('cookies.cipher'),
             $this->config('cookies.cipher_mode')
         );

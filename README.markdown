@@ -71,6 +71,7 @@ Ensure the `.htaccess` and `index.php` files are in the same public-accessible d
     RewriteRule ^ index.php [QSA,L]
 
 #### Nginx
+
 Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
 
     if (!-f $request_filename) {
