@@ -738,6 +738,9 @@ class Slim {
      */
     public function setEncryptedCookie( $name, $value, $expires = null, $path = null, $domain = null, $secure = null, $httponly = null ) {
         $expires = is_null($expires) ? $this->config('cookies.lifetime') : $expires;
+        if ( is_string($expires) ) {
+            $expires = strtotime($expires);
+        }
         $secureValue = Slim_Http_Util::encodeSecureCookie(
             $value,
             $expires,
