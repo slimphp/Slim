@@ -761,7 +761,7 @@ class Slim {
     public function getEncryptedCookie( $name, $deleteIfInvalid = true ) {
         $value = Slim_Http_Util::decodeSecureCookie(
             $this->request->cookies($name),
-            $this->config('cookies.secret'),
+            $this->config('cookies.secret_key'),
             $this->config('cookies.cipher'),
             $this->config('cookies.cipher_mode')
         );
