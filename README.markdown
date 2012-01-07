@@ -80,6 +80,14 @@ Your nginx configuration file should contain this code (along with other setting
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
+#### lighttpd ####
+
+Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires lighttpd >= 1.4.24.
+
+    url.rewrite-if-not-file = ("^" => "/index.php")
+
+This assumes that Slim's `index.php` is in the root folder of your project (www root).
+
 ### Build Your Application
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
