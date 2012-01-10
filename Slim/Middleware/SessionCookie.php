@@ -142,15 +142,14 @@ class Slim_Middleware_SessionCookie implements Slim_Middleware_Interface {
         if ( strlen($value) > 4096 ) {
             fwrite($env['slim.errors'], 'WARNING! Slim_Middleware_SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
-            $r->setCookie(
-                $this->settings['name'],
-                $value,
-                $this->settings['expires'],
-                $this->settings['path'],
-                $this->settings['domain'],
-                $this->settings['secure'],
-                $this->settings['httponly']
-            );
+            $r->setCookie($this->settings['name'], array(
+                'value' => $value,
+                'domain' => $this->settings['domain'],
+                'path' => $this->settings['path'],
+                'expires' => $this->settings['expires'],
+                'secure' => $this->settings['secure'],
+                'httponly' => $this->settings['httponly']
+            ));
         }
         return $r->finalize();
     }

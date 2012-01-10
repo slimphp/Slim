@@ -86,7 +86,9 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
             'expires' => '10 years'
         ));
         list($status, $header, $body) = $mw->call($env);
-        $this->assertEquals(1, preg_match('@^slim_session=.+|.+|.+; expires=@', $header['Set-Cookie']));
+        $matches = array();
+        preg_match_all('@^slim_session=.+|.+|.+; expires=@', $header['Set-Cookie'], $matches, PREG_SET_ORDER);
+        $this->assertEquals(1, count($matches));
     }
 
     /**
