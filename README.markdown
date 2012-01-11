@@ -6,7 +6,7 @@ Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired 
 
 The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
 
-* Clean and simple DSL for writing powerful web applications
+* Clean and simple domain specific language ([DSL](http://martinfowler.com/dslCatalog/)) for writing powerful web applications
 * HTTP routing
   * Supports all standard and custom HTTP request methods
   * Named routes w/ `urlFor()` helper
