@@ -4,7 +4,7 @@ Slim is a micro framework for PHP 5 that helps you quickly write simple yet powe
 
 ## Features
 
-* Clean and simple DSL for writing powerful web applications
+* Clean and simple [DSL](http://en.wikipedia.org/wiki/Domain-specific_language) for writing powerful web applications
 * HTTP routing
     * Supports all standard and custom HTTP request methods
     * Route parameters and conditions
