@@ -749,6 +749,63 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         list($status, $header, $body) = $s->call($env);
     }
 
+    /**
+     * Test Expires
+     */
+    public function testExpiresAsString() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+            'QUERY_STRING' => 'one=foo&two=bar',
+            'SERVER_NAME' => 'slimframework.com',
+            'SERVER_PORT' => 80,
+            'HTTP_IF_NONE_MATCH' => '"abc1234"',
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => @fopen('php://stderr', 'w')
+        ));
+        $expectedDate = gmdate('D, d M Y', strtotime('5 days')); //Just the day, month, and year
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->expires('5 days');
+        });
+        $env = $s->environment();
+        list($status, $header, $body) = $s->call($env);
+        $this->assertTrue(isset($header['Expires']));
+        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
+    }
+
+    /**
+     * Test Expires
+     */
+    public function testExpiresAsInteger() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+            'QUERY_STRING' => 'one=foo&two=bar',
+            'SERVER_NAME' => 'slimframework.com',
+            'SERVER_PORT' => 80,
+            'HTTP_IF_NONE_MATCH' => '"abc1234"',
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => @fopen('php://stderr', 'w')
+        ));
+        $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
+        $expectedDate = gmdate('D, d M Y', $fiveDaysFromNow); //Just the day, month, and year
+        $s = new Slim();
+        $s->get('/bar', function () use ($s, $fiveDaysFromNow) {
+            $s->expires($fiveDaysFromNow);
+        });
+        $env = $s->environment();
+        list($status, $header, $body) = $s->call($env);
+        $this->assertTrue(isset($header['Expires']));
+        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
+    }
+
     /************************************************
      * COOKIES
      ************************************************/

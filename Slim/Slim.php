@@ -684,6 +684,27 @@ class Slim {
         }
     }
 
+    /**
+     * Set Expires HTTP response header
+     *
+     * The `Expires` header tells the HTTP client the time at which
+     * the current resource should be considered stale. At that time the HTTP
+     * client will send a conditional GET request to the server; the server
+     * may return a 200 OK if the resource has changed, else a 304 Not Modified
+     * if the resource has not changed. The `Expires` header should be used in 
+     * conjunction with the `etag()` or `lastModified()` methods above.
+     *
+     * @param   string|int  $time   If string, a time to be parsed by `strtotime()`;
+     *                              If int, a UNIX timestamp;
+     * @return void
+     */
+    public function expires( $time ) {
+        if ( is_string($time) ) {
+            $time = strtotime($time);
+        }
+        $this->response['Expires'] = gmdate(DATE_RFC1123, $time);
+    }
+
     /***** COOKIES *****/
 
     /**
