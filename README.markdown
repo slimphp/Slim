@@ -28,6 +28,8 @@ The Slim Framework for PHP 5 provides the following notable features out-of-the-
 
 ## "Hello World" application (PHP 5 >= 5.3)
 
+As a prerequisite, set up `.htaccess` (details below).
+
 The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
 
     <?php
@@ -91,8 +93,8 @@ For more information about building an application with the Slim Framework, refe
 
 ## Documentation 
 
-[Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
-[Development Branch Documentation](http://www.slimframework.com/documentation/develop)
+* [Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
+* [Development Branch Documentation](http://www.slimframework.com/documentation/develop)
 
 ## Community
 
