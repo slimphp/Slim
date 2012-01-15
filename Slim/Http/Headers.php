@@ -38,18 +38,23 @@
   * stores and retrieves headers with lowercase canonical keys regardless
   * of the input format.
   *
-  * This class also implements the `IteratorAggregate` and `Countable`
+  * This class also implements the `Iterator` and `Countable`
   * interfaces for even more convenient usage.
   *
   * @package Slim
   * @author  Josh Lockhart
-  * @since   Version 1.6.0
+  * @since   1.6.0
   */
-class Slim_Http_Headers implements ArrayAccess, IteratorAggregate, Countable {
+class Slim_Http_Headers implements ArrayAccess, Iterator, Countable {
     /**
      * @var array HTTP headers
      */
     protected $headers;
+
+    /**
+     * @var array Map canonical header name to original header name
+     */
+    protected $map;
 
     /**
      * Constructor
@@ -103,22 +108,17 @@ class Slim_Http_Headers implements ArrayAccess, IteratorAggregate, Countable {
      * Array Access: Offset Set
      */
     public function offsetSet( $offset, $value ) {
-        $this->headers[$this->canonical($offset)] = $value;
+        $canonical = $this->canonical($offset);
+        $this->headers[$canonical] = $value;
+        $this->map[$canonical] = $offset;
     }
 
     /**
      * Array Access: Offset Unset
      */
     public function offsetUnset( $offset ) {
-        unset($this->headers[$this->canonical($offset)]);
-    }
-
-    /**
-     * IteratorAggregate
-     * @return ArrayIterator
-     */
-    public function getIterator() {
-        return new ArrayIterator($this->headers);
+        $canonical = $this->canonical($offset);
+        unset($this->headers[$canonical], $this->map[$canonical]);
     }
 
     /**
@@ -126,5 +126,41 @@ class Slim_Http_Headers implements ArrayAccess, IteratorAggregate, Countable {
      */
     public function count() {
         return count($this->headers);
+    }
+
+    /**
+     * Iterator: Rewind
+     */
+    public function rewind() {
+        reset($this->headers);
+    }
+
+    /**
+     * Iterator: Current
+     */
+    public function current() {
+        return current($this->headers);
+    }
+
+    /**
+     * Iterator: Key
+     */
+    public function key() {
+        $key = key($this->headers);
+        return $this->map[$key];
+    }
+
+    /**
+     * Iterator: Next
+     */
+    public function next() {
+        return next($this->headers);
+    }
+
+    /**
+     * Iterator: Valid
+     */
+    public function valid() {
+        return current($this->headers) !== false;
     }
 }
