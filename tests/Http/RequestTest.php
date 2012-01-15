@@ -261,6 +261,51 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test AJAX method detection wihtout header or query paramter
+     */
+    public function testIsAjaxWithoutHeaderOrQueryParameter() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'HEAD',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $this->assertFalse($req->isAjax());
+        $this->assertFalse($req->isXhr());
+    }
+
+    /**
+     * Test AJAX method detection with misspelled header
+     */
+    public function testIsAjaxWithMisspelledHeader() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'HEAD',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'X_REQUESTED_WITH' => 'foo'
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $this->assertFalse($req->isAjax());
+        $this->assertFalse($req->isXhr());
+    }
+
+    /**
      * Test params from query string
      */
     public function testParamsFromQueryString() {

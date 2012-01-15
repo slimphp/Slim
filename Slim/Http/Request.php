@@ -129,7 +129,13 @@ class Slim_Http_Request {
      * @return bool
      */
     public function isAjax() {
-        return ( $this->params('isajax') || $this->env['X_REQUESTED_WITH'] === 'XMLHttpRequest' );
+        if ( $this->params('isajax') ) {
+            return true;
+        } else if ( isset($this->env['X_REQUESTED_WITH']) && $this->env['X_REQUESTED_WITH'] === 'XMLHttpRequest' ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
