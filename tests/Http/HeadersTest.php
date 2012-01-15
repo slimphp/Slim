@@ -111,13 +111,27 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      */
     public function testIteration() {
         $h = new Slim_Http_Headers();
-        $h['one'] = 'Foo';
-        $h['two'] = 'Bar';
+        $h['One'] = 'Foo';
+        $h['Two'] = 'Bar';
         $output = '';
         foreach ( $h as $key => $value ) {
             $output .= $key . $value;
         }
-        $this->assertInstanceOf('ArrayIterator', $h->getIterator());
-        $this->assertEquals('oneFootwoBar', $output);
+        $this->assertEquals('OneFooTwoBar', $output);
+    }
+
+    /**
+     * Test outputs header name in original form, not canonical form
+     */
+    public function testOutputsOriginalNotCanonicalName() {
+        $h = new Slim_Http_Headers();
+        $h['X-Powered-By'] = 'Slim';
+        $h['Content-Type'] = 'text/csv';
+        $keys = array();
+        foreach ( $h as $name => $value ) {
+            $keys[] = $name;
+        }
+        $this->assertContains('X-Powered-By', $keys);
+        $this->assertContains('Content-Type', $keys);
     }
 }
