@@ -6,7 +6,7 @@ Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired 
 
 The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
 
-* Clean and simple DSL for writing powerful web applications
+* Clean and simple domain specific language ([DSL](http://martinfowler.com/dslCatalog/)) for writing powerful web applications
 * HTTP routing
   * Supports all standard and custom HTTP request methods
   * Named routes w/ `urlFor()` helper
@@ -53,6 +53,8 @@ If you are running PHP 5 < 5.3, the second `Slim::get` app instance method param
     $app->run();
     ?>
 
+This example assumes you have setup URL rewriting with your web server (see below).
+
 ## Get Started
 
 ### Install Slim
@@ -91,8 +93,8 @@ For more information about building an application with the Slim Framework, refe
 
 ## Documentation 
 
-[Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
-[Development Branch Documentation](http://www.slimframework.com/documentation/develop)
+* [Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
+* [Development Branch Documentation](http://www.slimframework.com/documentation/develop)
 
 ## Community
 
