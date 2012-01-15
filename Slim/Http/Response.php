@@ -399,11 +399,15 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * IteratorAggregate
-     * @return ArrayIterator
+     * Get Iterator
+     *
+     * This returns the contained `Slim_Http_Headers` instance which
+     * is itself iterable.
+     *
+     * @return Slim_Http_Headers
      */
     public function getIterator() {
-        return $this->header->getIterator();
+        return $this->header;
     }
 
     /**

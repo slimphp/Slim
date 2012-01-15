@@ -508,7 +508,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
         foreach ( $h as $key => $value ) {
             $output .= $key . $value;
         }
-        $this->assertEquals('content-typetext/htmlcontent-length0', $output);
+        $this->assertEquals('Content-Typetext/htmlContent-Length0', $output);
     }
 
     /**
