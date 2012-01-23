@@ -294,7 +294,12 @@ class Slim_Http_Response {
 
         //Send cookies
         foreach ( $this->getCookieJar()->getResponseCookies() as $name => $cookie ) {
-            setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
+            /* httponly option is only available for PHP version >= 5.2 */
+            if ( version_compare(PHP_VERSION, '5.2.0', '>=') ) {
+                setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
+            } else {
+                setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure());
+            }
         }
 
         //Flush all output to client
