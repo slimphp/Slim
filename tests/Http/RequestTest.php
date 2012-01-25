@@ -489,9 +489,28 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     /**
      * Test is form data
      */
-    public function testIsFormData() {
+    public function testIsFormDataContentFormUrlencoded() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim', 'SERVER_PORT' => 80, 'slim.url_scheme' => 'http', 'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $this->assertTrue($req->isFormData());
+    }
+
+    /**
+     * Test is form data
+     */
+    public function testIsFormDataPostContentUnknown() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar/xyz', //<-- Virtual
@@ -500,8 +519,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
             'SERVER_PORT' => 80,
             'slim.url_scheme' => 'http',
             'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'CONTENT_TYPE' => 'application/x-www-form-urlencoded'
+            'slim.errors' => fopen('php://stderr', 'w')
         ));
         $env = Slim_Environment::getInstance();
         $req = new Slim_Http_Request($env);
