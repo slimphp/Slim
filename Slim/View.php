@@ -168,9 +168,13 @@ class Slim_View {
           $layout_container = explode('<!-- yield -->', file_get_contents($options['layout']));
         }
         ob_start();
-        if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[0]); }
+        if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { 
+          eval(" ?>" . $layout_container[0] . "<?php "); 
+        }
         require $templatePath;
-        if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { require 'data://text/plain;base64,' . base64_encode($layout_container[1]); }
+        if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { 
+          eval(" ?>" . $layout_container[1] . "<?php "); 
+        }
         return ob_get_clean();
     }
 
