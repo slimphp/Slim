@@ -604,7 +604,7 @@ class Slim {
         self::view()->setTemplatesDirectory($templatesPath);
         
         //Support for legacy status setup
-        if ( !is_null($options) && (filter_var($options, FILTER_VALIDATE_INT) || (!is_null($options['status'])) && filter_var($options['status'], FILTER_VALIDATE_INT)) ) {
+        if ( !is_null($options) && (filter_var($options, FILTER_VALIDATE_INT) || (isset($options['status']) && !is_null($options['status'])) && filter_var($options['status'], FILTER_VALIDATE_INT)) ) {
             $status = ( is_null($options['status']) ? $options : $options['status'] );
             self::response()->status($status);
         }

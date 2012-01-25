@@ -153,29 +153,28 @@ class Slim_View {
      * @throws  RuntimeException    If template does not exist
      */
     public function render( $template, $options = array()) {
-        extract($this->data);
-        $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
-        if ( !file_exists($templatePath) ) {
-            throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
-        }
-        
-        if ( isset($options['layout']) && !is_null($options['layout']) ) {
-          if ( !file_exists($options['layout']) ) {
-            throw new RuntimeExceptions('Cannot load layout `' . $options['layout'] . '`. Layout does not exist');
-          }
-          
-          //$layout_container[0] is the header, $layout_containder[1] is the footer
-          $layout_container = explode('<!-- yield -->', file_get_contents($options['layout']));
-        }
-        ob_start();
-        if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { 
-          eval(" ?>" . $layout_container[0] . "<?php "); 
-        }
-        require $templatePath;
-        if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { 
-          eval(" ?>" . $layout_container[1] . "<?php "); 
-        }
-        return ob_get_clean();
+       extract($this->data);
+       $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
+       if ( !file_exists($templatePath) ) {
+           throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
+       }
+   
+       if ( isset($options['layout']) && !is_null($options['layout']) ) {
+         if ( !file_exists($this->getTemplatesDirectory() . '/' . ltrim($options['layout'], '/')) ) {
+           throw new RuntimeException('Cannot load layout `' . $options['layout'] . '`. Layout does not exist');
+         }
+     
+         $layout_container = explode('<!-- yield -->', file_get_contents($this->getTemplatesDirectory() . '/' . ltrim($options['layout'], '/')));
+       }
+       ob_start();
+       if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { 
+         eval(" ?>" . $layout_container[0] . "<?php "); 
+       }
+       require $templatePath;
+       if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { 
+         eval(" ?>" . $layout_container[1] . "<?php "); 
+       }
+       return ob_get_clean();
     }
 
 }
