@@ -274,7 +274,8 @@ class Slim_Http_Request {
      * @return bool
      */
     public function isFormData() {
-        return ( $this->isPost() && is_null($this->getContentType()) ) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        $method = isset($this->env['slim.method_override.original_method']) ? $this->env['slim.method_override.original_method'] : $this->getMethod();
+        return ( $method === self::METHOD_POST && is_null($this->getContentType()) ) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
