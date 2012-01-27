@@ -527,6 +527,28 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test is form data
+     */
+    public function testIsFormDataPostContentUnknownWithMethodOverride() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar/xyz', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $env = Slim_Environment::getInstance();
+        $env['slim.method_override.original_method'] = 'POST';
+        $req = new Slim_Http_Request($env);
+        $this->assertTrue($req->isPut());
+        $this->assertTrue($req->isFormData());
+    }
+
+    /**
      * Test is not form data
      */
     public function testIsNotFormData() {
