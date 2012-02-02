@@ -30,13 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-if ( !defined('MCRYPT_RIJNDAEL_256') ) {
-    define('MCRYPT_RIJNDAEL_256', 0);
-}
-if ( !defined('MCRYPT_MODE_CBC') ) {
-    define('MCRYPT_MODE_CBC', 0);
-}
-
 //This tells PHP to auto-load classes using Slim's autoloader; this will
 //only auto-load a class file located in the same directory as Slim.php
 //whose file name (excluding the final dot and extension) is the same
