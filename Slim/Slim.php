@@ -132,11 +132,14 @@ class Slim {
      */
     public function __construct( $userSettings = array() ) {
         //Setup Slim application
+        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        if ( $this->config('install_autoloader') ) {
+            spl_autoload_register(array('Slim', 'autoload'));
+        }
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
         $this->router = new Slim_Router($this->request, $this->response);
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
 
         //Assign default middleware
         $this->middleware = array($this);
@@ -146,9 +149,6 @@ class Slim {
 
         //Determine application mode
         $this->getMode();
-        if ( $this->config('install_autoloader') ) {
-            spl_autoload_register(array('Slim', 'autoload'));
-        }
 
         //Setup view
         $this->view($this->config('view'));
