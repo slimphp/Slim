@@ -188,9 +188,6 @@ class Slim {
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
         $this->environment['slim.log'] = $log;
-
-        //Set global error handler
-        set_error_handler(array('Slim', 'handleErrors'));
     }
 
     /**
@@ -691,7 +688,7 @@ class Slim {
      * the current resource should be considered stale. At that time the HTTP
      * client will send a conditional GET request to the server; the server
      * may return a 200 OK if the resource has changed, else a 304 Not Modified
-     * if the resource has not changed. The `Expires` header should be used in 
+     * if the resource has not changed. The `Expires` header should be used in
      * conjunction with the `etag()` or `lastModified()` methods above.
      *
      * @param   string|int  $time   If string, a time to be parsed by `strtotime()`;
@@ -1165,6 +1162,8 @@ class Slim {
      * @return void
      */
     public function run() {
+        set_error_handler(array('Slim', 'handleErrors'));
+
         //Fetch status, header, and body
         list($status, $header, $body) = $this->middleware[0]->call($this->environment);
 
@@ -1189,6 +1188,8 @@ class Slim {
         } else {
             $body->process();
         }
+
+        restore_error_handler();
     }
 
     /**
