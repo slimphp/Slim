@@ -30,13 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//This tells PHP to auto-load classes using Slim's autoloader; this will
-//only auto-load a class file located in the same directory as Slim.php
-//whose file name (excluding the final dot and extension) is the same
-//as its class name (case-sensitive). For example, "View.php" will be
-//loaded when Slim uses the "View" class for the first time.
-spl_autoload_register(array('Slim', 'autoload'));
-
 /**
  * Slim
  * @package Slim
@@ -153,6 +146,9 @@ class Slim {
 
         //Determine application mode
         $this->getMode();
+        if ( $this->config('install_autoloader') ) {
+            spl_autoload_register(array('Slim', 'autoload'));
+        }
 
         //Setup view
         $this->view($this->config('view'));
@@ -209,6 +205,7 @@ class Slim {
     public static function getDefaultSettings() {
         return array(
             //Mode
+            'install_autoloader' => true,
             'mode' => 'development',
             //Debugging
             'debug' => true,
