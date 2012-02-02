@@ -37,12 +37,6 @@
 //loaded when Slim uses the "View" class for the first time.
 spl_autoload_register(array('Slim', 'autoload'));
 
-//PHP 5.3 will complain if you don't set a timezone. If you do not
-//specify your own timezone before requiring Slim, this tells PHP to use UTC.
-if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
-    date_default_timezone_set('UTC');
-}
-
 /**
  * Slim
  * @package Slim
