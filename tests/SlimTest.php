@@ -76,6 +76,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         //Remove environment mode if set
         unset($_ENV['SLIM_MODE']);
 
+        //Reset session
+        $_SESSION = array();
+
         //Prepare default environment variables
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
@@ -89,14 +92,6 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             'slim.input' => '',
             'slim.errors' => fopen('php://stderr', 'w')
         ));
-
-        //Reset session
-        if ( session_id() ) {
-            session_unset();
-            session_destroy();
-            $_SESSION = array();
-        }
-        session_start();
     }
 
     /************************************************
@@ -577,7 +572,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      * Test get log
      *
      * This asserts that a Slim app has a default Log
-     * upon instantiation. The Log itself is tested 
+     * upon instantiation. The Log itself is tested
      * separately in another file.
      */
     public function testGetLog() {

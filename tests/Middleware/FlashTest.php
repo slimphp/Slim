@@ -47,12 +47,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      * Setup
      */
     public function setUp() {
-        if ( session_id() ) {
-            session_unset();
-            session_destroy();
-            $_SESSION = array();
-        }
-        session_start();
+        $_SESSION = array();
     }
 
     /**
