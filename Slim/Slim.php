@@ -30,30 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//This determines which errors are reported by PHP. By default, all
-//errors (including E_STRICT) are reported.
-error_reporting(E_ALL | E_STRICT);
-
-if ( !defined('MCRYPT_RIJNDAEL_256') ) {
-    define('MCRYPT_RIJNDAEL_256', 0);
-}
-if ( !defined('MCRYPT_MODE_CBC') ) {
-    define('MCRYPT_MODE_CBC', 0);
-}
-
-//This tells PHP to auto-load classes using Slim's autoloader; this will
-//only auto-load a class file located in the same directory as Slim.php
-//whose file name (excluding the final dot and extension) is the same
-//as its class name (case-sensitive). For example, "View.php" will be
-//loaded when Slim uses the "View" class for the first time.
-spl_autoload_register(array('Slim', 'autoload'));
-
-//PHP 5.3 will complain if you don't set a timezone. If you do not
-//specify your own timezone before requiring Slim, this tells PHP to use UTC.
-if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
-    date_default_timezone_set('UTC');
-}
-
 /**
  * Slim
  * @package Slim
@@ -156,11 +132,14 @@ class Slim {
      */
     public function __construct( $userSettings = array() ) {
         //Setup Slim application
+        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        if ( $this->config('install_autoloader') ) {
+            spl_autoload_register(array('Slim', 'autoload'));
+        }
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
         $this->router = new Slim_Router($this->request, $this->response);
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
 
         //Assign default middleware
         $this->middleware = array($this);
@@ -188,9 +167,6 @@ class Slim {
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
         $this->environment['slim.log'] = $log;
-
-        //Set global error handler
-        set_error_handler(array('Slim', 'handleErrors'));
     }
 
     /**
@@ -229,6 +205,7 @@ class Slim {
     public static function getDefaultSettings() {
         return array(
             //Mode
+            'install_autoloader' => true,
             'mode' => 'development',
             //Debugging
             'debug' => true,
@@ -1165,6 +1142,8 @@ class Slim {
      * @return void
      */
     public function run() {
+        set_error_handler(array('Slim', 'handleErrors'));
+
         //Fetch status, header, and body
         list($status, $header, $body) = $this->middleware[0]->call($this->environment);
 
@@ -1192,6 +1171,8 @@ class Slim {
         } else {
             $body->process();
         }
+
+        restore_error_handler();
     }
 
     /**
