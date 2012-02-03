@@ -29,7 +29,7 @@ Slim is a micro framework for PHP 5 that helps you quickly write simple yet powe
 
 ## "Hello World" application (PHP >= 5.3)
 
-The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method to define Slim application routes.
+The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method to define Slim application routes. This example assumes you have setup URL rewriting with your web server (see below).
 
     <?php
     require 'Slim/Slim.php';
@@ -42,7 +42,7 @@ The Slim Framework for PHP 5 supports anonymous functions. This is the preferred
 
 ## "Hello World" application (PHP < 5.3)
 
-If you are running PHP < 5.3, the second argument to the application's `get()` instance method is the name of a callable function instead of an anonymous function.
+If you are running PHP < 5.3, the second argument to the application's `get()` instance method is the name of a callable function instead of an anonymous function. This example assumes you have setup URL rewriting with your web server (see below).
 
     <?php
     require 'Slim/Slim.php';
