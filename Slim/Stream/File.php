@@ -47,7 +47,7 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_Stream_File {
+class Slim_Stream_File implements Slim_StreamInterface {
     /**
      * @var string
      */
@@ -73,7 +73,7 @@ class Slim_Stream_File {
             throw new InvalidArgumentException('Cannot stream file. File is not readable.');
         }
         $this->path = $path;
-        $this->options = array_merge(array( 
+        $this->options = array_merge(array(
             'buffer_size' => 8192,
             'time_limit' => 0
         ), $options);
