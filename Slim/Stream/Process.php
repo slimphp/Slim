@@ -29,7 +29,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
- 
+
 /**
  * Stream Process Output
  *
@@ -48,7 +48,7 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_Stream_Process {
+class Slim_Stream_Process implements Slim_StreamInterface {
     /**
      * @var string
      */
@@ -67,7 +67,7 @@ class Slim_Stream_Process {
      */
     public function __construct( $process, $options = array() ) {
         $this->process = (string)$process;
-        $this->options = array_merge(array( 
+        $this->options = array_merge(array(
             'time_limit' => 0
         ), $options);
     }
