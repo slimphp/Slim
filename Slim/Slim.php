@@ -686,7 +686,7 @@ class Slim {
      * the current resource should be considered stale. At that time the HTTP
      * client will send a conditional GET request to the server; the server
      * may return a 200 OK if the resource has changed, else a 304 Not Modified
-     * if the resource has not changed. The `Expires` header should be used in 
+     * if the resource has not changed. The `Expires` header should be used in
      * conjunction with the `etag()` or `lastModified()` methods above.
      *
      * @param   string|int  $time   If string, a time to be parsed by `strtotime()`;
@@ -1107,18 +1107,21 @@ class Slim {
         //Fetch status, header, and body
         list($status, $header, $body) = $this->middleware[0]->call($this->environment);
 
-        //Send status
-        if ( strpos(PHP_SAPI, 'cgi') === 0 ) {
-            header(sprintf('Status: %s', Slim_Http_Response::getMessageForCode($status)));
-        } else {
-            header(sprintf('HTTP/%s %s', $this->config('http.version'), Slim_Http_Response::getMessageForCode($status)));
-        }
+        //Send headers
+        if ( headers_sent() === false ) {
+            //Send status
+            if ( strpos(PHP_SAPI, 'cgi') === 0 ) {
+                header(sprintf('Status: %s', Slim_Http_Response::getMessageForCode($status)));
+            } else {
+                header(sprintf('HTTP/%s %s', $this->config('http.version'), Slim_Http_Response::getMessageForCode($status)));
+            }
 
-        //Send header
-        foreach ( $header as $name => $value ) {
-            $hValues = explode("\n", $value);
-            foreach ( $hValues as $hVal ) {
-                header("$name: $hVal", false);
+            //Send headers
+            foreach ( $header as $name => $value ) {
+                $hValues = explode("\n", $value);
+                foreach ( $hValues as $hVal ) {
+                    header("$name: $hVal", false);
+                }
             }
         }
 
