@@ -285,23 +285,23 @@ class Slim_Http_Request {
      * the value of a hash key if requested; if the array key does not exist, NULL is returned.
      *
      * @param string $key
-     * @return array|string|null
+     * @param mixed $default The default value returned if the requested header is not available
+     * @return mixed
      */
-    public function headers( $key = null ) {
+    public function headers( $key = null, $default = null ) {
         if ( $key ) {
-            $key = strtoupper(str_replace('-', '_', $key));
-            if ( strpos($key, 'HTTP_') !== 0 ) {
-                $key = 'HTTP_' . $key;
-            }
+            $key = strtoupper($key);
+            $key = str_replace('-', '_', $key);
+            $key = str_replace('HTTP_', '', $key);
             if ( isset($this->env[$key]) ) {
                 return $this->env[$key];
             } else {
-                return null;
+                return $default;
             }
         } else {
             $headers = array();
             foreach ( $this->env as $key => $value ) {
-                if ( strpos($key, 'HTTP_') === 0 ) {
+                if ( strpos($key, 'slim.') !== 0 ) {
                     $headers[$key] = $value;
                 }
             }
