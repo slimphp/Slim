@@ -69,10 +69,26 @@ class Slim_Environment {
      * environment variables.
      *
      * @param   array   $mock
-     * @return  void
+     * @return  array
      */
-    public static function mock( $mock ) {
-        self::$env = $mock;
+    public static function mock( $mock = array() ) {
+        self::$env = array_merge(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '',
+            'PATH_INFO' => '',
+            'QUERY_STRING' => '',
+            'SERVER_NAME' => 'localhost',
+            'SERVER_PORT' => 80,
+            'ACCEPT' => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
+            'ACCEPT_CHARSET' => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+            'USER_AGENT' => 'Slim Framework',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => @fopen('php://stderr', 'w')
+        ), $mock);
+        return self::$env;
     }
 
     /**
@@ -183,18 +199,14 @@ class Slim_Environment {
         //Number of server port that is running the script
         $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-        //Client-provided HTTP request headers
+        //HTTP request headers
+        $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE', 'X_FORWARDED_FOR', 'X_REQUESTED_WITH');
         foreach ( $_SERVER as $key => $value ) {
-            if ( strpos($key, 'HTTP_') === 0 || in_array($key, array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'AUTH_TYPE', 'X_REQUESTED_WITH')) ) {
+            if ( strpos($key, 'HTTP_') === 0 ) {
+                $env[substr($key, 5)] = $value;
+            } else if ( in_array($key, $specialHeaders) ) {
                 $env[$key] = $value;
             }
-        }
-        unset($env['HTTP_CONTENT_LENGTH'], $env['HTTP_CONTENT_TYPE']);
-        if ( isset($env['CONTENT_TYPE']) && $env['CONTENT_TYPE'] === '' ) {
-            unset($env['CONTENT_TYPE']);
-        }
-        if ( isset($env['CONTENT_LENGTH']) && $env['CONTENT_LENGTH'] === '' ) {
-            unset($env['CONTENT_LENGTH']);
         }
 
         //Is the application running under HTTPS or HTTP protocol?
