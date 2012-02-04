@@ -138,7 +138,8 @@ class Slim_Environment {
      *     to any application resource. This is required and may never be an empty string.
      * HTTP_*
      *     Variables matching the HTTP request headers sent by the client with the HTTP request. The existence
-     *     of these variables correspond with those sent in the current HTTP request.
+     *     of these variables correspond with those sent in the current HTTP request. These variables' names
+     *     will NOT be prefixed with HTTP_.
      * slim.url_scheme
      *     Will be "http" or "https" depending on the HTTP request URL.
      * slim.input

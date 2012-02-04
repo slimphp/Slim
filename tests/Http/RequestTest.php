@@ -183,7 +183,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testIsAjaxWithMisspelledHeader() {
         $env = Slim_Environment::mock(array(
-            'HTTP_X_REQUESTED_WITH' => 'foo'
+            'X_REQUESTED_WITH' => 'foo'
         ));
         $req = new Slim_Http_Request($env);
         $this->assertFalse($req->isAjax());
@@ -311,7 +311,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testCookies() {
         $env = Slim_Environment::mock(array(
-            'HTTP_COOKIE' => 'foo=bar; abc=123'
+            'COOKIE' => 'foo=bar; abc=123'
         ));
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->cookies()));
@@ -545,7 +545,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testGetHost() {
         $env = Slim_Environment::mock(array(
             'SERVER_NAME' => 'slim',
-            'HTTP_HOST' => 'slimframework.com'
+            'HOST' => 'slimframework.com'
         ));
         $req = new Slim_Http_Request($env);
         $this->assertEquals('slimframework.com', $req->getHost()); //Uses HTTP_HOST if available
@@ -557,9 +557,9 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testGetHostWhenNotExists() {
         $env = Slim_Environment::mock(array(
             'SERVER_NAME' => 'slim',
-            'HTTP_HOST' => 'slimframework.com'
+            'HOST' => 'slimframework.com'
         ));
-        unset($env['HTTP_HOST']);
+        unset($env['HOST']);
         $req = new Slim_Http_Request($env);
         $this->assertEquals('slim', $req->getHost()); //Uses SERVER_NAME as backup
     }
@@ -569,7 +569,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetHostWithPort() {
         $env = Slim_Environment::mock(array(
-            'HTTP_HOST' => 'slimframework.com',
+            'HOST' => 'slimframework.com',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 80,
             'slim.url_scheme' => 'http'
@@ -681,7 +681,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetUrl() {
         $env = Slim_Environment::mock(array(
-            'HTTP_HOST' => 'slimframework.com',
+            'HOST' => 'slimframework.com',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 80,
             'slim.url_scheme' => 'http'
@@ -695,7 +695,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetUrlWithCustomPort() {
         $env = Slim_Environment::mock(array(
-            'HTTP_HOST' => 'slimframework.com',
+            'HOST' => 'slimframework.com',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 8080,
             'slim.url_scheme' => 'http'
@@ -709,7 +709,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetUrlWithHttps() {
         $env = Slim_Environment::mock(array(
-            'HTTP_HOST' => 'slimframework.com',
+            'HOST' => 'slimframework.com',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 443,
             'slim.url_scheme' => 'https'
@@ -734,7 +734,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetReferrer() {
         $env = Slim_Environment::mock(array(
-            'HTTP_REFERER' => 'http://foo.com'
+            'REFERER' => 'http://foo.com'
         ));
         $req = new Slim_Http_Request($env);
         $this->assertEquals('http://foo.com', $req->getReferrer());
@@ -756,7 +756,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetUserAgent() {
         $env = Slim_Environment::mock(array(
-            'HTTP_USER_AGENT' => 'user-agent-string'
+            'USER_AGENT' => 'user-agent-string'
         ));
         $req = new Slim_Http_Request($env);
         $this->assertEquals('user-agent-string', $req->getUserAgent());
@@ -767,7 +767,7 @@ class RequestTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetUserAgentWhenNotExists() {
         $env = Slim_Environment::mock();
-        unset($env['HTTP_USER_AGENT']);
+        unset($env['USER_AGENT']);
         $req = new Slim_Http_Request($env);
         $this->assertNull($req->getUserAgent());
     }

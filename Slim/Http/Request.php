@@ -255,7 +255,7 @@ class Slim_Http_Request {
      */
     public function cookies( $key = null ) {
         if ( !isset($this->env['slim.request.cookie_hash']) ) {
-            $cookieHeader = isset($this->env['HTTP_COOKIE']) ? $this->env['HTTP_COOKIE'] : '';
+            $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
             $this->env['slim.request.cookie_hash'] = Slim_Http_Util::parseCookieHeader($cookieHeader);
         }
         if ( $key ) {
@@ -391,8 +391,8 @@ class Slim_Http_Request {
      * @return string
      */
     public function getHost() {
-        if ( isset($this->env['HTTP_HOST']) ) {
-            return $this->env['HTTP_HOST'];
+        if ( isset($this->env['HOST']) ) {
+            return $this->env['HOST'];
         } else {
             return $this->env['SERVER_NAME'];
         }
@@ -487,8 +487,8 @@ class Slim_Http_Request {
      * @return string|null
      */
     public function getReferrer() {
-        if ( isset($this->env['HTTP_REFERER']) ) {
-            return $this->env['HTTP_REFERER'];
+        if ( isset($this->env['REFERER']) ) {
+            return $this->env['REFERER'];
         } else {
             return null;
         }
@@ -507,8 +507,8 @@ class Slim_Http_Request {
      * @return string|null
      */
     public function getUserAgent() {
-        if ( isset($this->env['HTTP_USER_AGENT']) ) {
-            return $this->env['HTTP_USER_AGENT'];
+        if ( isset($this->env['USER_AGENT']) ) {
+            return $this->env['USER_AGENT'];
         } else {
             return null;
         }
