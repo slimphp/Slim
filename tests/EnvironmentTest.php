@@ -70,21 +70,11 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * Test mock object
      */
     public function testMockEnvironment() {
-        $mock = array(
-            'REQUEST_METHOD' => 'PUT',
-            'SCRIPT_NAME' => '/foo',
-            'PATH_INFO' => '/bar',
-            'QUERY_STRING' => '',
-            'SERVER_NAME' => 'test.com',
-            'SERVER_PORT' => 8080,
-            'HTTP_HOST' => 'test.com',
-            'slim.url_scheme' => 'http',
-            'slim.input' => 'foo',
-            'slim.errors' => fopen('php://stderr', 'w')
-        );
-        Slim_Environment::mock($mock);
-        $env = Slim_Environment::getInstance();
-        $this->assertEquals($mock, $env);
+        $env = Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'PUT'
+        ));
+        $this->assertEquals('PUT', $env['REQUEST_METHOD']);
+        $this->assertEquals(80, $env['SERVER_PORT']);
     }
 
     /**
@@ -283,7 +273,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     public function testSetsSpecialHeaders() {
         $_SERVER['CONTENT_TYPE'] = 'text/csv';
         $_SERVER['CONTENT_LENGTH'] = '100';
-        $_SERVER['X_REQUESTED_WITH'] = 'XmlHttpRequest';
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XmlHttpRequest';
         $env = Slim_Environment::getInstance(true);
         $this->assertEquals('text/csv', $env['CONTENT_TYPE']);
         $this->assertEquals('100', $env['CONTENT_LENGTH']);
