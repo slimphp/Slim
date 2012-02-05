@@ -70,16 +70,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      */
     public function testSessionCookieIsCreatedAndEncrypted() {
         $env = array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
         );
         $app = new CustomAppSet();
         $mw = new Slim_Middleware_SessionCookie($app, array(
@@ -100,17 +92,9 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      */
     public function testSessionIsPopulatedFromCookie() {
         $env = array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'HTTP_COOKIE' => 'slim_session=1639490378%7CqWbI5R%2Bf%2B%2F1KfHQQ9cANqEEdK5aNhf%2FQy2WX%2FCFOG5Y%3D%7Ce207c55544e1f7889a357ab39700f9cbb3836ea3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
+            'COOKIE' => 'slim_session=1639490378%7CqWbI5R%2Bf%2B%2F1KfHQQ9cANqEEdK5aNhf%2FQy2WX%2FCFOG5Y%3D%7Ce207c55544e1f7889a357ab39700f9cbb3836ea3',
         );
         $app = new CustomAppGet();
         $mw = new Slim_Middleware_SessionCookie($app);
@@ -123,16 +107,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      */
     public function testSessionIsPopulatedAsEmptyIfNoCookie() {
         $env = array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
         );
         $app = new CustomAppGet();
         $mw = new Slim_Middleware_SessionCookie($app);

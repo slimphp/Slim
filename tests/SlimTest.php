@@ -82,16 +82,10 @@ class SlimTest extends PHPUnit_Framework_TestCase {
 
         //Prepare default environment variables
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'QUERY_STRING' => 'one=foo&two=bar',
             'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
         ));
     }
 
@@ -307,15 +301,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testPostRoute() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $mw1 = function () { echo "foo"; };
@@ -335,15 +322,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testPutRoute() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $mw1 = function () { echo "foo"; };
@@ -363,15 +343,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testDeleteRoute() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'DELETE',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $mw1 = function () { echo "foo"; };
@@ -391,15 +364,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testOptionsRoute() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'OPTIONS',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $mw1 = function () { echo "foo"; };
@@ -418,16 +384,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteWithSlashAndUrlWithout() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar/', function () { echo "xyz"; });
@@ -442,15 +400,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testMethodNotAllowed() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar', function () { echo "xyz"; });
@@ -464,16 +415,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteWithoutSlashAndUrlWithOne() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar/', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar', function () { echo "xyz"; });
@@ -487,16 +430,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteWithUrlEncodedCharacters() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar/jo%20hn/smi%20th', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
@@ -598,16 +533,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testLastModifiedMatch() {
         Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -623,17 +551,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testLastModifiedDoesNotMatch() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -647,17 +567,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testLastModifiedOnlyAcceptsIntegers(){
         $this->setExpectedException('InvalidArgumentException');
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -672,17 +583,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testEtagMatches() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_NONE_MATCH' => '"abc123"',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'IF_NONE_MATCH' => '"abc123"',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -698,17 +601,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testEtagDoesNotMatch() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_NONE_MATCH' => '"abc1234"',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'IF_NONE_MATCH' => '"abc1234"',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -725,17 +620,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testETagWithInvalidType(){
         $this->setExpectedException('InvalidArgumentException');
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_NONE_MATCH' => '"abc1234"',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'IF_NONE_MATCH' => '"abc1234"',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -750,17 +637,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testExpiresAsString() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_NONE_MATCH' => '"abc1234"',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $expectedDate = gmdate('D, d M Y', strtotime('5 days')); //Just the day, month, and year
         $s = new Slim();
@@ -778,17 +656,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testExpiresAsInteger() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_IF_NONE_MATCH' => '"abc1234"',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
         $expectedDate = gmdate('D, d M Y', $fiveDaysFromNow); //Just the day, month, and year
@@ -816,16 +685,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testSetCookie() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -856,7 +717,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             'QUERY_STRING' => 'one=foo&two=bar',
             'SERVER_NAME' => 'slimframework.com',
             'SERVER_PORT' => 80,
-            'HTTP_COOKIE' => 'foo=bar; foo2=bar2',
+            'COOKIE' => 'foo=bar; foo2=bar2',
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
@@ -871,16 +732,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetCookieThatDoesNotExist() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $this->assertNull($s->getCookie('foo'));
@@ -895,17 +748,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testDeleteCookie() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'HTTP_COOKIE' => 'foo=bar; foo2=bar2',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'COOKIE' => 'foo=bar; foo2=bar2',
         ));
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -940,16 +785,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetEncryptedCookieAndDeletingIt() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w'),
         ));
         $s = new Slim();
         $r = $s->response();
@@ -965,16 +802,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetEncryptedCookieWithoutDeletingIt() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w'),
         ));
         $s = new Slim();
         $r = $s->response();
@@ -1055,16 +884,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testPassWithSubsequentRoute() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/name/Frank', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/name/Frank', function () use ($s) {
@@ -1084,16 +905,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testPassWithoutSubsequentRoute() {
         Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/name/Frank', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new Slim();
         $s->get('/name/Frank', function () use ($s) {
