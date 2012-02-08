@@ -106,9 +106,9 @@ $app->get('/', function () {
             <section>
                 <h2>Slim Framework Community</h2>
 
-                <h3>Support Forum</h3>
+                <h3>Support Forum and Knowledge Base</h3>
                 <p>
-                    Join the <a href="http://forum.slimframework.com" target="_blank">Slim Framework forum</a>
+                    Visit the <a href="http://help.slimframework.com" target="_blank">Slim support forum and knowledge base</a>
                     to read announcements, chat with fellow Slim users, ask questions, help others, or show off your cool 
                     Slim Framework apps.
                 </p>
