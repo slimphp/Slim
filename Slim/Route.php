@@ -392,6 +392,12 @@ class Slim_Route {
             call_user_func_array($this->callable, array_values($this->params));
             return true;
         }
+        // Do we have "className#instanceMethodName" pattern ?
+        if (is_string($this->callable) && strpos($this->callable, '#')!==false) {
+            list($className, $instanceMethodName) = explode('#', $this->callable);
+            call_user_func_array(array(new $className(), $instanceMethodName), array_values($this->params));
+            return true;
+        }
         return false;
     }
 
