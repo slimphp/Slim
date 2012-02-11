@@ -42,7 +42,7 @@ $app->get('/', function () {
     <html>
         <head>
             <meta charset="utf-8"/>
-            <title>Slim Micro PHP 5 Framework</title>
+            <title>Slim Framework for PHP 5</title>
             <style>
                 html,body,div,span,object,iframe,
                 h1,h2,h3,h4,h5,h6,p,blockquote,pre,
@@ -109,7 +109,7 @@ $app->get('/', function () {
                 <h3>Support Forum and Knowledge Base</h3>
                 <p>
                     Visit the <a href="http://help.slimframework.com" target="_blank">Slim support forum and knowledge base</a>
-                    to read announcements, chat with fellow Slim users, ask questions, help others, or show off your cool 
+                    to read announcements, chat with fellow Slim users, ask questions, help others, or show off your cool
                     Slim Framework apps.
                 </p>
 
@@ -121,7 +121,7 @@ $app->get('/', function () {
 
                 <h3>IRC</h3>
                 <p>
-                    Find Josh Lockhart in the "##slim" chat room during the day. Say hi, ask questions,
+                    Find Josh Lockhart in the irc.freenode.net "##slim" IRC channel during the day. Say hi, ask questions,
                     or just hang out with fellow Slim users.
                 </p>
             </section>
