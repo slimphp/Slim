@@ -303,7 +303,7 @@ class Slim_Http_Response {
         }
 
         //Flush all output to client
-        flush();
+        //flush();
     }
 
     /**
