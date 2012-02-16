@@ -35,9 +35,11 @@
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Route {
+namespace Slim;
+class Route {
 
     /**
      * @var string The route pattern (ie. "/books/:id")
@@ -246,7 +248,7 @@ class Slim_Route {
      * @param   Slim_Router $router
      * @return  void
      */
-    public function setRouter( Slim_Router $router ) {
+    public function setRouter( Slim\Router $router ) {
         $this->router = $router;
     }
 
@@ -379,7 +381,7 @@ class Slim_Route {
      */
     public function dispatch() {
         if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
-            throw new Slim_Exception_RequestSlash();
+            throw new Slim\Exception\RequestSlash();
         }
         //Invoke middleware
         foreach ( $this->middleware as $mw ) {

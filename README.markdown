@@ -125,6 +125,8 @@ Slim is created and maintained by Josh Lockhart, a web developer by day at [New 
 
 Slim is in active development, and test coverage is continually improving.
 
+Slim "namespaced" is maintained by [Kinn Coelho Julião](http://kinncj.com.br)
+
 ## Open Source License
 
 Slim is released under the MIT public license.

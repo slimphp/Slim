@@ -44,9 +44,11 @@
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @author  Kris Jordan <http://github.com/KrisJordan>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Http_Response {
+namespace Slim\Http;
+class Response {
 
     /**
      * @var Slim_Http_Request

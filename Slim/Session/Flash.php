@@ -51,10 +51,12 @@
  *      Slim::flashKeep();
  *
  * @package Slim
- * @author  Josh Lockhart
- * @since   Version 1.3
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
+ * @since   Version 1.0
  */
-class Slim_Session_Flash implements ArrayAccess {
+namespace Slim\Session;
+class Flash implements ArrayAccess {
 
     /**
      * @var string Key used to identify flash information in $_SESSION array

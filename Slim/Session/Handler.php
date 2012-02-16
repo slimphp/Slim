@@ -38,10 +38,12 @@
  * actually register the concrete session handler with PHP.
  *
  * @package Slim
- * @author Josh Lockhart
- * @since Version 1.3
+ * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
+ * @since   Version 1.0
  */
-abstract class Slim_Session_Handler {
+namespace Slim\Session;
+abstract class Handler {
 
     /**
      * @var Slim

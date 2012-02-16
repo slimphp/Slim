@@ -50,8 +50,10 @@
  * - libmcrypt > 2.4.x
  *
  * @author Matthies Huguet <http://bigornot.blogspot.com/2008/06/security-cookies-and-rest.html>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  */
-class Slim_Http_CookieJar {
+namespace Slim\Http;
+class CookieJar {
 
     /**
      * @var string Server secret key
@@ -220,7 +222,7 @@ class Slim_Http_CookieJar {
      */
     public function deleteCookie( $name, $path = '/', $domain = '', $secure = false, $httponly = null ) {
         $expire = 315554400; /* 1980-01-01 */
-        $this->_cookies[$name] = new Slim_Http_Cookie($name, '', $expire, $path, $domain, $secure, $httponly);
+        $this->_cookies[$name] = new Slim\Http\Cookie($name, '', $expire, $path, $domain, $secure, $httponly);
         //setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
     }
 
@@ -279,10 +281,10 @@ class Slim_Http_CookieJar {
     public function setClassicCookie( $cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null ) {
         /* httponly option is only available for PHP version >= 5.2 */
         if ( $httponly === null ) {
-            $this->_cookies[$cookiename] = new Slim_Http_Cookie($cookiename, $value, $expire, $path, $domain, $secure);
+            $this->_cookies[$cookiename] = new Slim\Http\Cookie($cookiename, $value, $expire, $path, $domain, $secure);
             //setcookie($cookiename, $value, $expire, $path, $domain, $secure);
         } else {
-            $this->_cookies[$cookiename] = new Slim_Http_Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
+            $this->_cookies[$cookiename] = new Slim\Http\Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
             //setcookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
         }
     }
