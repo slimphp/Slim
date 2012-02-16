@@ -6,9 +6,9 @@ Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired 
 The Slim Framework for PHP 5 was maintained now with namespace support, but a few things is needed, like:
 
 * Tests
-  * Implement the tests with namespace support fomart
+  * Implement the tests with namespace support format
 * Improvements
-  * Improve some conditions with IFs and ELSEs
+  * Improve some conditions from IFs and ELSEs to SWITCH and [Others](http://www.slideshare.net/guilhermeblanco/object-calisthenics-applied-to-php) .
 
 ## Features
 
