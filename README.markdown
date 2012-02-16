@@ -2,6 +2,13 @@
 
 Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com) released under the MIT public license.
 
+## TODO
+The Slim Framework for PHP 5 was maintained now with namespace support, but a few things is needed, like:
+* Tests
+  * Implement the tests with namespace suport fomart
+*Improvements
+  * Improve some conditions with IFs and ELSEs
+
 ## Features
 
 The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
@@ -24,32 +31,20 @@ The Slim Framework for PHP 5 provides the following notable features out-of-the-
 * HTTP caching (ETag and Last-Modified)
 * Logging
 * Error and Exception handling
-* Supports PHP 5+
+* Supports PHP 5.3+
 
-## "Hello World" application (PHP 5 >= 5.3)
+## "Hello World" application (PHP 5.3 + )
 
-The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
+The Slim Framework for PHP 5 supports anonymous functions and namespaces. This is the preferred method of defining Slim application routes.
 
     <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
+    spl_autoload_register(function ($className){
+      require_once str_replace(array("\\","_"),"",$className);
+    });
+    $app = new Slim\Slim();
     $app->get('/hello/:name', function ($name) {
         echo "Hello, $name!";
     });
-    $app->run();
-    ?>
-
-## "Hello World" application (PHP 5 < 5.3)
-
-If you are running PHP 5 < 5.3, the second `Slim::get` app instance method parameter will be the name of a callable function instead of an anonymous function.
-
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', 'hello');
-    function hello($name) {
-        echo "Hello, $name!";
-    }
     $app->run();
     ?>
 
