@@ -75,6 +75,10 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
     date_default_timezone_set('UTC');
 }
 
+spl_autoload_register(function ($className){
+    require_once  dirname(__FILE__).'/../'.str_replace(array("\\","_"),"/",$className).'.php';
+});
+
 /**
  * Slim
  *
