@@ -7,8 +7,7 @@ The Slim Framework for PHP 5 was maintained now with namespace support, but a fe
 
 * Tests
   * Implement the tests with namespace suport fomart
-
-*Improvements
+* Improvements
   * Improve some conditions with IFs and ELSEs
 
 ## Features
