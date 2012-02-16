@@ -41,9 +41,11 @@
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_View {
+namespace Slim;
+class View {
 
     /**
      * @var array Key-value array of data available to the template

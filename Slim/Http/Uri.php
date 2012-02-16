@@ -36,10 +36,11 @@
  * Parses base uri and application uri from Request.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author  Josh Lockhart <info@joshlockhart.com> * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Http_Uri {
+namespace Slim\Http;
+class Uri {
     
     /**
      * @var string "https" or "http"

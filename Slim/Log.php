@@ -48,9 +48,11 @@
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Log {
+namespace Slim;
+class Log {
 
     /**
      * @var mixed An object that implements expected Logger interface

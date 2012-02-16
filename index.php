@@ -8,7 +8,9 @@
  * directory elsewhere, ensure that it is added to your include path
  * or update this file path as needed.
  */
-require 'Slim/Slim.php';
+spl_autoload_register(function ($className){
+    require_once str_replace(array("\\","_"),"",$className);
+});
 
 /**
  * Step 2: Instantiate the Slim application
@@ -17,7 +19,7 @@ require 'Slim/Slim.php';
  * However, we could also pass a key-value array of settings.
  * Refer to the online documentation for available settings.
  */
-$app = new Slim();
+$app = new Slim\Slim();
 
 /**
  * Step 3: Define the Slim application routes
