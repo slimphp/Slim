@@ -4,6 +4,7 @@ Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired 
 
 ## TODO
 The Slim Framework for PHP 5 was maintained now with namespace support, but a few things is needed, like:
+
 * Tests
   * Implement the tests with namespace suport fomart
 *Improvements
