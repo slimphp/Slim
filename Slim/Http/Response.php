@@ -44,9 +44,13 @@
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @author  Kris Jordan <http://github.com/KrisJordan>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Http_Response {
+namespace Slim\Http;
+use Slim\Http\Request;
+use Slim\Http\CookieJar;
+class Response {
 
     /**
      * @var Slim_Http_Request
@@ -140,7 +144,7 @@ class Slim_Http_Response {
     /**
      * Constructor
      */
-    public function __construct( Slim_Http_Request $req ) {
+    public function __construct( Request $req ) {
         $this->request = $req;
         $this->header('Content-Type', 'text/html');
     }
@@ -157,7 +161,7 @@ class Slim_Http_Response {
             if ( $version === '1.0' || $version === '1.1' ) {
                 $this->httpVersion = $version;
             } else {
-                throw new InvalidArgumentException('Invalid HTTP version in Response object');
+                throw new \InvalidArgumentException('Invalid HTTP version in Response object');
             }
         }
         return $this->httpVersion;
@@ -172,7 +176,7 @@ class Slim_Http_Response {
     public function status( $status = null ) {
         if ( !is_null($status) ) {
             if ( !in_array(intval($status), array_keys(self::$messages)) ) {
-                throw new InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
+                throw new \InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
             }
             $this->status = intval($status);
         }
@@ -232,7 +236,7 @@ class Slim_Http_Response {
      * @param   Slim_Http_CookieJar $cookieJar
      * @return  void
      */
-    public function setCookieJar( Slim_Http_CookieJar $cookieJar ) {
+    public function setCookieJar( CookieJar $cookieJar ) {
         $this->cookieJar = $cookieJar;
     }
 

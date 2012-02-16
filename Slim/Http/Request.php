@@ -43,9 +43,12 @@
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @author  Kris Jordan <http://www.github.com/KrisJordan>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Http_Request {
+namespace Slim\Http;
+use Slim\Http\Uri;
+class Request {
 
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
@@ -126,8 +129,8 @@ class Slim_Http_Request {
         $this->post = self::stripSlashesIfMagicQuotes($_POST);
         $this->put = self::stripSlashesIfMagicQuotes($this->loadPutParameters());
         $this->cookies = self::stripSlashesIfMagicQuotes($_COOKIE);
-        $this->root = Slim_Http_Uri::getBaseUri(true);
-        $this->resource = Slim_Http_Uri::getUri(true);
+        $this->root = Uri::getBaseUri(true);
+        $this->resource = Uri::getUri(true);
         $this->checkForHttpMethodOverride();
     }
 

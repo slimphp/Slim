@@ -36,10 +36,11 @@
  * Parses base uri and application uri from Request.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author  Josh Lockhart <info@joshlockhart.com> * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Http_Uri {
+namespace Slim\Http;
+class Uri {
     
     /**
      * @var string "https" or "http"
@@ -93,7 +94,7 @@ class Slim_Http_Uri {
                 } else if ( isset($_SERVER['PHP_SELF']) ) {
                     $uri = $_SERVER['PHP_SELF'];
                 } else {
-                    throw new RuntimeException('Unable to detect request URI');
+                    throw new \RuntimeException('Unable to detect request URI');
                 }
             }
             if ( self::getBaseUri() !== '' && strpos($uri, self::getBaseUri()) === 0 ) {

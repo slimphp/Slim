@@ -1,4 +1,5 @@
 <?php
+namespace Slim;
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -31,6 +32,26 @@
  */
 
 //Ensure PHP session IDs only use the characters [a-z0-9]
+use Slim\Session\Flash;
+
+use Slim\Session\Handler;
+
+use Slim\Http\CookieJar;
+
+use Slim\Http\Response;
+
+use Slim\Http\Request;
+
+use Slim\Session\Handler\Cookies;
+
+use Slim\Exception\Stop;
+
+use Slim\Exception\RequestSlash;
+
+use Slim\Exception\Pass;
+
+use Slim\View;
+
 ini_set('session.hash_bits_per_character', 4);
 ini_set('session.hash_function', 0);
 
@@ -48,24 +69,22 @@ if ( !defined('MCRYPT_MODE_CBC') ) {
 //errors (including E_STRICT) are reported.
 error_reporting(E_ALL | E_STRICT);
 
-//This tells PHP to auto-load classes using Slim's autoloader; this will
-//only auto-load a class file located in the same directory as Slim.php
-//whose file name (excluding the final dot and extension) is the same
-//as its class name (case-sensitive). For example, "View.php" will be
-//loaded when Slim uses the "View" class for the first time.
-spl_autoload_register(array('Slim', 'autoload'));
-
 //PHP 5.3 will complain if you don't set a timezone. If you do not
 //specify your own timezone before requiring Slim, this tells PHP to use UTC.
 if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
     date_default_timezone_set('UTC');
 }
 
+spl_autoload_register(function ($className){
+    require_once  dirname(__FILE__).'/../'.str_replace(array("\\","_"),"/",$className).'.php';
+});
+
 /**
  * Slim
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
 class Slim {
@@ -127,24 +146,8 @@ class Slim {
         'slim.after' => array(array())
     );
 
-    /**
-     * Slim auto-loader
-     *
-     * This method lazy-loads class files when a given class if first used.
-     * Class files must exist in the same directory as this file and be named
-     * the same as its class definition (excluding the dot and extension).
-     *
-     * @return void
-     */
-    public static function autoload( $class ) {
-        if ( strpos($class, 'Slim') !== 0 ) {
-            return;
-        }
-        $file = dirname(__FILE__) . '/' . str_replace('_', DIRECTORY_SEPARATOR, substr($class,5)) . '.php';
-        if ( file_exists($file) ) {
-            require $file;
-        }
-    }
+
+
 
     /***** INITIALIZATION *****/
 
@@ -167,7 +170,7 @@ class Slim {
             'debug' => true,
             //View
             'templates.path' => './templates',
-            'view' => 'Slim_View',
+            'view' => 'Slim\View',
             //Settings for all cookies
             'cookies.lifetime' => '20 minutes',
             'cookies.path' => '/',
@@ -181,7 +184,7 @@ class Slim {
             'cookies.encrypt' => true,
             'cookies.user_id' => 'DEFAULT',
             //Session handler
-            'session.handler' => new Slim_Session_Handler_Cookies(),
+            'session.handler' => new Cookies(),
             'session.flash_key' => 'flash',
             //HTTP
             'http.version' => null
@@ -191,21 +194,21 @@ class Slim {
         $this->getMode();
 
         //Setup HTTP request and response handling
-        $this->request = new Slim_Http_Request();
-        $this->response = new Slim_Http_Response($this->request);
-        $this->response->setCookieJar(new Slim_Http_CookieJar($this->settings['cookies.secret_key'], array(
+        $this->request = new Request();
+        $this->response = new Response($this->request);
+        $this->response->setCookieJar(new CookieJar($this->settings['cookies.secret_key'], array(
             'high_confidentiality' => $this->settings['cookies.encrypt'],
             'mcrypt_algorithm' => $this->settings['cookies.cipher'],
             'mcrypt_mode' => $this->settings['cookies.cipher_mode'],
             'enable_ssl' => $this->settings['cookies.secure']
         )));
         $this->response->httpVersion($this->settings['http.version']);
-        $this->router = new Slim_Router($this->request);
+        $this->router = new Router($this->request);
 
         //Start session if not already started
         if ( session_id() === '' ) {
             $sessionHandler = $this->config('session.handler');
-            if ( $sessionHandler instanceof Slim_Session_Handler ) {
+            if ( $sessionHandler instanceof Handler ) {
                 $sessionHandler->register($this);
             }
             session_cache_limiter(false); 
@@ -213,7 +216,7 @@ class Slim {
         }
 
         //Setup view with flash messaging
-        $this->view($this->config('view'))->setData('flash', new Slim_Session_Flash($this->config('session.flash_key')));
+        $this->view($this->config('view'))->setData('flash', new Flash($this->config('session.flash_key')));
 
         //Set app name
         if ( !isset(self::$apps['default']) ) {
@@ -221,7 +224,7 @@ class Slim {
         }
 
         //Set global Error handler after Slim app instantiated
-        set_error_handler(array('Slim', 'handleErrors'));
+        set_error_handler(array('Slim\Slim', 'handleErrors'));
     }
 
     /**
@@ -281,13 +284,13 @@ class Slim {
      */
     public function getLog() {
         if ( !isset($this->log) ) {
-            $this->log = new Slim_Log();
+            $this->log = new Log();
             $this->log->setEnabled($this->config('log.enable'));
             $logger = $this->config('log.logger');
             if ( $logger ) {
                 $this->log->setLogger($logger);
             } else {
-                $this->log->setLogger(new Slim_Logger($this->config('log.path'), $this->config('log.level')));
+                $this->log->setLogger(new Logger($this->config('log.path'), $this->config('log.level')));
             }
         }
         return $this->log;
@@ -403,7 +406,7 @@ class Slim {
      */
     public function get() {
         $args = func_get_args();
-        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_GET, Slim_Http_Request::METHOD_HEAD);
+        return $this->mapRoute($args)->via(Request::METHOD_GET, Request::METHOD_HEAD);
     }
 
     /**
@@ -413,7 +416,7 @@ class Slim {
      */
     public function post() {
         $args = func_get_args();
-        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_POST);
+        return $this->mapRoute($args)->via(Request::METHOD_POST);
     }
 
     /**
@@ -423,7 +426,7 @@ class Slim {
      */
     public function put() {
         $args = func_get_args();
-        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_PUT);
+        return $this->mapRoute($args)->via(Request::METHOD_PUT);
     }
 
     /**
@@ -433,7 +436,7 @@ class Slim {
      */
     public function delete() {
         $args = func_get_args();
-        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_DELETE);
+        return $this->mapRoute($args)->via(Request::METHOD_DELETE);
     }
 
     /**
@@ -443,7 +446,7 @@ class Slim {
      */
     public function options() {
         $args = func_get_args();
-        return $this->mapRoute($args)->via(Slim_Http_Request::METHOD_OPTIONS);
+        return $this->mapRoute($args)->via(Request::METHOD_OPTIONS);
     }
 
     /**
@@ -569,7 +572,7 @@ class Slim {
     public function view( $viewClass = null ) {
         if ( !is_null($viewClass) ) {
             $existingData = is_null($this->view) ? array() : $this->view->getData();
-            if ( $viewClass instanceOf Slim_View ) {
+            if ( $viewClass instanceOf View ) {
                 $this->view = $viewClass;
             } else {
                 $this->view = new $viewClass();
@@ -625,7 +628,7 @@ class Slim {
             $this->response->header('Last-Modified', date(DATE_RFC1123, $time));
             if ( $time === strtotime($this->request->headers('IF_MODIFIED_SINCE')) ) $this->halt(304);
         } else {
-            throw new InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
+            throw new \InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
         }
     }
 
@@ -650,7 +653,7 @@ class Slim {
 
         //Ensure type is correct
         if ( !in_array($type, array('strong', 'weak')) ) {
-            throw new InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
+            throw new \InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
         }
 
         //Set etag value
@@ -804,7 +807,7 @@ class Slim {
         }
         session_write_close();
         $this->response->send();
-        throw new Slim_Exception_Stop();
+        throw new Stop();
     }
 
     /**
@@ -844,7 +847,7 @@ class Slim {
         if ( ob_get_level() !== 0 ) {
             ob_clean();
         }
-        throw new Slim_Exception_Pass();
+        throw new Pass();
     }
 
     /**
@@ -896,7 +899,7 @@ class Slim {
             $this->response->header('Location', (string)$url);
             $this->halt($status, (string)$url);
         } else {
-            throw new InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
+            throw new \InvalidArgumentException('Slim::redirect only accepts HTTP 300-307 status codes.');
         }
     }
 
@@ -1049,7 +1052,7 @@ class Slim {
                             if ( $dispatched ) {
                                 break;
                             }
-                        } catch ( Slim_Exception_Pass $e ) {
+                        } catch ( Pass $e ) {
                             continue;
                         }
                     } else {
@@ -1070,10 +1073,10 @@ class Slim {
                 session_write_close();
                 $this->response->send();
                 $this->applyHook('slim.after');
-            } catch ( Slim_Exception_RequestSlash $e ) {
+            } catch ( RequestSlash $e ) {
                 $this->redirect($this->request->getRootUri() . $this->request->getResourceUri() . '/', 301);
-            } catch ( Exception $e ) {
-                if ( $e instanceof Slim_Exception_Stop ) throw $e;
+            } catch ( \Exception $e ) {
+                if ( $e instanceof Stop ) throw $e;
                 $this->getLog()->error($e);
                 if ( $this->config('debug') === true ) {
                     $this->halt(500, self::generateErrorMarkup($e->getMessage(), $e->getFile(), $e->getLine(), $e->getTraceAsString()));
@@ -1081,7 +1084,7 @@ class Slim {
                     $this->error($e);
                 }
             }
-        } catch ( Slim_Exception_Stop $e ) {
+        } catch ( Stop $e ) {
             //Exit application context
         }
     }
@@ -1104,7 +1107,7 @@ class Slim {
      */
     public static function handleErrors( $errno, $errstr = '', $errfile = '', $errline = '' ) {
         if ( error_reporting() & $errno ) {
-            throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+            throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
         }
         return true;
     }

@@ -1,3 +1,6 @@
+/*
+TODO: Need to rewrite this to Namespace version
+*/
 Slim Framework Unit Tests
 
 I use PHPUnit 3.5.13. To run these unit tests on your system, follow the directions below. To save development time, these unit tests currently require PHP >= 5.3. However, the Slim Framework itself only requires PHP >= 5.1.

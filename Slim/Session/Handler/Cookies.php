@@ -39,10 +39,14 @@
  * become invalid if manually edited after set by PHP.
  *
  * @package Slim
- * @author Josh Lockhart
- * @since Version 1.3
+ * @author  Josh Lockhart <info@joshlockhart.com> 
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
+ * @since   Version 1.0
  */
-class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
+namespace Slim\Session\Handler;
+use Slim\Session\Handler;
+
+class Cookies extends Handler {
 
     public function open( $savePath, $sessionName ) {
         return true;

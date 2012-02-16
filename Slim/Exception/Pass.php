@@ -40,6 +40,8 @@
  *
  * @package Slim
  * @author  Josh Lockhart <info@joshlockhart.com>
+ * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-class Slim_Exception_Pass extends Exception {}
+namespace Slim\Exception;
+class Pass extends \Exception {}

@@ -2,6 +2,14 @@
 
 Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com) released under the MIT public license.
 
+## TODO
+The Slim Framework for PHP 5 was maintained now with namespace support, but a few things is needed, like:
+
+* Tests
+  * Implement the tests with namespace support format
+* Improvements
+  * Improve some conditions from IFs and ELSEs to SWITCH and [Others](http://www.slideshare.net/guilhermeblanco/object-calisthenics-applied-to-php) .
+
 ## Features
 
 The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
@@ -24,33 +32,22 @@ The Slim Framework for PHP 5 provides the following notable features out-of-the-
 * HTTP caching (ETag and Last-Modified)
 * Logging
 * Error and Exception handling
-* Supports PHP 5+
+* Supports PHP 5.3+
 
-## "Hello World" application (PHP 5 >= 5.3)
+## "Hello World" application (PHP 5.3 + )
 
-The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
+The Slim Framework for PHP 5 supports anonymous functions and namespaces. This is the preferred method of defining Slim application routes.
 
     <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
+    spl_autoload_register(function ($className){
+      require_once str_replace(array("\\","_"),"/",$className).'.php';
+    });
+    $app = new Slim\Slim();
     $app->get('/hello/:name', function ($name) {
         echo "Hello, $name!";
     });
     $app->run();
-    ?>
-
-## "Hello World" application (PHP 5 < 5.3)
-
-If you are running PHP 5 < 5.3, the second `Slim::get` app instance method parameter will be the name of a callable function instead of an anonymous function.
-
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', 'hello');
-    function hello($name) {
-        echo "Hello, $name!";
-    }
-    $app->run();
+    // http://server_address/hello/name
     ?>
 
 ## Get Started
@@ -75,7 +72,7 @@ Your Slim application will be defined in `index.php`. First, `require` the Slim 
 
 Next, initialize the Slim application:
 
-    $app = new Slim();
+    $app = new Slim\Slim();
 
 Next, define your application's routes:
 
@@ -116,14 +113,15 @@ Additional resources (ie. custom Views and plugins) are available online in a se
 
 Here are more links that may also be useful.
 
-* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
-* Source Code:    <http://github.com/codeguy/Slim/>
+* Source Code:    <http://github.com/kinncj/Slim/>
 
 ## About the Author
 
 Slim is created and maintained by Josh Lockhart, a web developer by day at [New Media Campaigns](http://www.newmediacampaigns.com), and a [hacker by night](http://github.com/codeguy).
 
 Slim is in active development, and test coverage is continually improving.
+
+Slim "namespaced" is maintained by [Kinn Coelho Julião](http://kinncj.com.br)
 
 ## Open Source License
 
