@@ -42,7 +42,7 @@ The Slim Framework for PHP 5 supports anonymous functions and namespaces. This i
     spl_autoload_register(function ($className){
       require_once str_replace(array("\\","_"),"/",$className);
     });
-    $app = new Slim\Slim();
+    $app = new Slim();
     $app->get('/hello/:name', function ($name) {
         echo "Hello, $name!";
     });
@@ -71,7 +71,7 @@ Your Slim application will be defined in `index.php`. First, `require` the Slim 
 
 Next, initialize the Slim application:
 
-    $app = new Slim\Slim();
+    $app = new Slim();
 
 Next, define your application's routes:
 

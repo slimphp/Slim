@@ -46,7 +46,8 @@
  * @author Kinn Coelho Julião <kinncj@gmail.com>
  * @since   Version 1.0
  */
-namespace Slim;
+namespace Slim\Http;
+use Slim\Http\Uri;
 class Request {
 
     const METHOD_HEAD = 'HEAD';
@@ -128,8 +129,8 @@ class Request {
         $this->post = self::stripSlashesIfMagicQuotes($_POST);
         $this->put = self::stripSlashesIfMagicQuotes($this->loadPutParameters());
         $this->cookies = self::stripSlashesIfMagicQuotes($_COOKIE);
-        $this->root = Slim\Http\Uri::getBaseUri(true);
-        $this->resource = Slim\Http\Uri::getUri(true);
+        $this->root = Uri::getBaseUri(true);
+        $this->resource = Uri::getUri(true);
         $this->checkForHttpMethodOverride();
     }
 

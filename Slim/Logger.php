@@ -105,7 +105,7 @@ class Logger {
         if ( $theLevel >= 0 && $theLevel <= 4 ) {
             $this->level = $theLevel;
         } else {
-            throw new InvalidArgumentException('Invalid Log Level. Must be one of: 0, 1, 2, 3, 4.');
+            throw new \InvalidArgumentException('Invalid Log Level. Must be one of: 0, 1, 2, 3, 4.');
         }
     }
 
@@ -180,10 +180,10 @@ class Logger {
     protected function log( $data, $level ) {
         $dir = $this->getDirectory();
         if ( $dir == false || !is_dir($dir) ) {
-            throw new RuntimeException("Log directory '$dir' invalid.");
+            throw new \RuntimeException("Log directory '$dir' invalid.");
         }
         if ( !is_writable($dir) ) {
-            throw new RuntimeException("Log directory '$dir' not writable.");
+            throw new \RuntimeException("Log directory '$dir' not writable.");
         }
         if ( $level <= $this->getLevel() ) {
             $this->write(sprintf("[%s] %s - %s\r\n", $this->levels[$level], date('c'), (string)$data));

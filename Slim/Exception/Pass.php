@@ -44,4 +44,4 @@
  * @since   Version 1.0
  */
 namespace Slim\Exception;
-class Pass extends Exception {}
+class Pass extends \Exception {}

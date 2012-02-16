@@ -102,11 +102,11 @@ class CookieJar {
      */
     public function __construct( $secret, $config = null ) {
         if ( empty($secret) ) {
-            throw new Exception('You must provide a secret key');
+            throw new \Exception('You must provide a secret key');
         }
         $this->_secret = $secret;
         if ( $config !== null && !is_array($config) ) {
-            throw new Exception('Config must be an array');
+            throw new \Exception('Config must be an array');
         }
         if ( is_array($config) ) {
             if ( isset($config['high_confidentiality']) ) {
@@ -125,7 +125,7 @@ class CookieJar {
         if ( extension_loaded('mcrypt') ) {
             $this->_cryptModule = mcrypt_module_open($this->_algorithm, '', $this->_mode, '');
             if ( $this->_cryptModule === false ) {
-                throw new Exception('Error while loading mcrypt module');
+                throw new \Exception('Error while loading mcrypt module');
             }
         }
     }
@@ -222,7 +222,7 @@ class CookieJar {
      */
     public function deleteCookie( $name, $path = '/', $domain = '', $secure = false, $httponly = null ) {
         $expire = 315554400; /* 1980-01-01 */
-        $this->_cookies[$name] = new Slim\Http\Cookie($name, '', $expire, $path, $domain, $secure, $httponly);
+        $this->_cookies[$name] = new Cookie($name, '', $expire, $path, $domain, $secure, $httponly);
         //setcookie($name, '', $expire, $path, $domain, $secure, $httponly);
     }
 
@@ -281,10 +281,10 @@ class CookieJar {
     public function setClassicCookie( $cookiename, $value, $expire = 0, $path = '/', $domain = '', $secure = false, $httponly = null ) {
         /* httponly option is only available for PHP version >= 5.2 */
         if ( $httponly === null ) {
-            $this->_cookies[$cookiename] = new Slim\Http\Cookie($cookiename, $value, $expire, $path, $domain, $secure);
+            $this->_cookies[$cookiename] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure);
             //setcookie($cookiename, $value, $expire, $path, $domain, $secure);
         } else {
-            $this->_cookies[$cookiename] = new Slim\Http\Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
+            $this->_cookies[$cookiename] = new Cookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
             //setcookie($cookiename, $value, $expire, $path, $domain, $secure, $httponly);
         }
     }

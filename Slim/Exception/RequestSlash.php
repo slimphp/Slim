@@ -45,4 +45,4 @@
  * @since   Version 1.0
  */
 namespace Slim\Exception;
-class RequestSlash extends Exception {}
+class RequestSlash extends \Exception {}

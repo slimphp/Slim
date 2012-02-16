@@ -44,7 +44,7 @@
  * @since   Version 1.0
  */
 namespace Slim;
-class Router implements IteratorAggregate {
+class Router implements \IteratorAggregate {
 
     /**
      * @var Slim_Http_Request
@@ -80,7 +80,7 @@ class Router implements IteratorAggregate {
      * Constructor
      * @param Slim_Http_Request $request The HTTP request object
      */
-    public function __construct( Slim\Http\Request $request ) {
+    public function __construct( Http\Request $request ) {
         $this->request = $request;
         $this->routes = array();
     }
@@ -90,7 +90,7 @@ class Router implements IteratorAggregate {
      * @return ArrayIterator
      */
     public function getIterator() {
-        return new ArrayIterator($this->getMatchedRoutes());
+        return new \ArrayIterator($this->getMatchedRoutes());
     }
 
     /**
@@ -106,7 +106,7 @@ class Router implements IteratorAggregate {
      * @param   Slim_Http_Request   $req
      * @return  void
      */
-    public function setRequest( Slim\Http\Request $req ) {
+    public function setRequest( Http\Request $req ) {
         $this->request = $req;
     }
 
@@ -133,7 +133,7 @@ class Router implements IteratorAggregate {
      * @return  Slim_Route
      */
     public function map( $pattern, $callable ) {
-        $route = new Slim\Route($pattern, $callable);
+        $route = new Route($pattern, $callable);
         $route->setRouter($this);
         $this->routes[] = $route;
         return $route;
@@ -146,9 +146,9 @@ class Router implements IteratorAggregate {
      * @throws  RuntimeException            If a named route already exists with the same name
      * @return  void
      */
-    public function cacheNamedRoute( $name, Slim\Route $route ) {
+    public function cacheNamedRoute( $name, Route $route ) {
         if ( isset($this->namedRoutes[(string)$name]) ) {
-            throw new RuntimeException('Named route already exists with name: ' . $name);
+            throw new \RuntimeException('Named route already exists with name: ' . $name);
         }
         $this->namedRoutes[$name] = $route;
     }
@@ -162,7 +162,7 @@ class Router implements IteratorAggregate {
      */
     public function urlFor( $name, $params = array() ) {
         if ( !isset($this->namedRoutes[(string)$name]) ) {
-            throw new RuntimeException('Named route not found for name: ' . $name);
+            throw new \RuntimeException('Named route not found for name: ' . $name);
         }
         $pattern = $this->namedRoutes[(string)$name]->getPattern();
         $search = $replace = array();

@@ -103,7 +103,7 @@ class View {
         } else if ( count($args) === 2 ) {
             $this->data[(string)$args[0]] = $args[1];
         } else {
-            throw new InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
+            throw new \InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
         }
     }
 
@@ -156,7 +156,7 @@ class View {
         extract($this->data);
         $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
         if ( !file_exists($templatePath) ) {
-            throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
+            throw new \RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
         }
         ob_start();
         require $templatePath;

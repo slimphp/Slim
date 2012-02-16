@@ -44,7 +44,9 @@
  * @since   Version 1.0
  */
 namespace Slim\Session\Handler;
-class Cookies extends Session\Handler {
+use Slim\Session\Handler;
+
+class Cookies extends Handler {
 
     public function open( $savePath, $sessionName ) {
         return true;

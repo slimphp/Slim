@@ -42,4 +42,4 @@
  * @since   Version 1.0
  */
 namespace Slim\Exception;
-class Stop extends Exception {}
+class Stop extends \Exception {}

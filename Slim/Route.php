@@ -39,6 +39,8 @@
  * @since   Version 1.0
  */
 namespace Slim;
+use Exception\RequestSlash;
+
 class Route {
 
     /**
@@ -248,7 +250,7 @@ class Route {
      * @param   Slim_Router $router
      * @return  void
      */
-    public function setRouter( Slim\Router $router ) {
+    public function setRouter( Router $router ) {
         $this->router = $router;
     }
 
@@ -281,7 +283,7 @@ class Route {
         } else if ( is_array($middleware) ) {
             $this->middleware = array_merge($this->middleware, $middleware);
         } else {
-            throw new InvalidArgumentException('Route middleware must be callable or an array of callables');
+            throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
         }
         return $this;
     }
@@ -381,7 +383,7 @@ class Route {
      */
     public function dispatch() {
         if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
-            throw new Slim\Exception\RequestSlash();
+            throw new RequestSlash();
         }
         //Invoke middleware
         foreach ( $this->middleware as $mw ) {

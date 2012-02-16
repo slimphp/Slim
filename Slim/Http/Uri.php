@@ -94,7 +94,7 @@ class Uri {
                 } else if ( isset($_SERVER['PHP_SELF']) ) {
                     $uri = $_SERVER['PHP_SELF'];
                 } else {
-                    throw new RuntimeException('Unable to detect request URI');
+                    throw new \RuntimeException('Unable to detect request URI');
                 }
             }
             if ( self::getBaseUri() !== '' && strpos($uri, self::getBaseUri()) === 0 ) {

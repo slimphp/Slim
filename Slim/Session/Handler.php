@@ -43,6 +43,7 @@
  * @since   Version 1.0
  */
 namespace Slim\Session;
+use Slim\Slim;
 abstract class Handler {
 
     /**

@@ -9,7 +9,7 @@
  * or update this file path as needed.
  */
 spl_autoload_register(function ($className){
-    require_once str_replace(array("\\","_"),"",$className);
+    require_once str_replace(array("\\","_"),"/",$className).'.php';
 });
 
 /**

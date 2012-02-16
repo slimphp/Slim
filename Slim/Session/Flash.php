@@ -56,7 +56,7 @@
  * @since   Version 1.0
  */
 namespace Slim\Session;
-class Flash implements ArrayAccess {
+class Flash implements \ArrayAccess {
 
     /**
      * @var string Key used to identify flash information in $_SESSION array
@@ -96,7 +96,7 @@ class Flash implements ArrayAccess {
      */
     public function setSessionKey( $key ) {
         if ( is_null($key) ) {
-            throw new RuntimeException('Session key cannot be null');
+            throw new \RuntimeException('Session key cannot be null');
         }
         $this->sessionKey = (string)$key;
         return $this;
