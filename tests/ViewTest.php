@@ -181,7 +181,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
       $this->expectOutputString('<html>test output bar</html>');
       $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
       $this->view->setData(array('foo' => 'bar'));
-      $this->view->display('test.php', array('display' => 'layout.php'));      
+      $this->view->display('test.php', array('layout' => 'layout.php'));      
     }
 
 }
