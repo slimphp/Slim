@@ -595,11 +595,11 @@ class Slim {
      * @param   mixed   $options    Array with possible options. Support for legacy integer as response code is still working
      * @return  void
      */
-    public static function render( $template, $data = array(), $options = null ) {
-        $templatesPath = Slim::config('templates.path');
+    public function render( $template, $data = array(), $options = null ) {
+        $templatesPath = $this->config('templates.path');
         //Legacy support
         if ( is_null($templatesPath) ) {
-            $templatesPath = Slim::config('templates_dir');
+            $templatesPath = $this->config('templates_dir');
         }
         self::view()->setTemplatesDirectory($templatesPath);
         
@@ -609,11 +609,11 @@ class Slim {
             self::response()->status($status);
         }
         
-        self::view()->appendData($data);
+        $this->view->appendData($data);
         if( !is_null($options['layout']) ) {
-          self::view()->display($template, $options['layout']);
+          $this->view->display($template, $options);
         } else {
-          self::view()->display($template);
+          $this->view->display($template);
         }
     }
 
