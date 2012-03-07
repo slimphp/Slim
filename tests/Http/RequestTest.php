@@ -552,6 +552,18 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test get host when it has a port number
+     */
+    public function testGetHostAndStripPort() {
+        $env = Slim_Environment::mock(array(
+            'SERVER_NAME' => 'slim',
+            'HOST' => 'slimframework.com:80'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('slimframework.com', $req->getHost()); //Uses HTTP_HOST if available
+    }
+
+    /**
      * Test get host
      */
     public function testGetHostWhenNotExists() {
@@ -570,6 +582,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testGetHostWithPort() {
         $env = Slim_Environment::mock(array(
             'HOST' => 'slimframework.com',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('slimframework.com:80', $req->getHostWithPort());
+    }
+
+    /**
+     * Test get host with port doesn't dulplicate port numbers
+     */
+    public function testGetHostDoesntDulplicatePort() {
+        $env = Slim_Environment::mock(array(
+            'HOST' => 'slimframework.com:80',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 80,
             'slim.url_scheme' => 'http'
