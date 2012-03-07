@@ -748,6 +748,25 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         ));
         $app->render('test.php', array('foo' => 'bar'));
     }
+    
+    /**
+     * Test Slim rendering with layout
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Layout file exists with proper content
+     * Render an existing template with custom data;
+     *
+     * Post-conditions:
+     * The response body is correct;
+     */
+    public function testLayoutDisplay() {
+      $this->expectOutputString('<html>test output bar</html>');
+      $app = new Slim(array(
+        'templates.path' => dirname(__FILE__) . '/templates'
+      ));
+      $app->render('test.php', array('foo' => 'bar'), array('layout' => 'layout.php'));      
+    }
 
     /************************************************
      * SLIM HTTP CACHING
@@ -1774,4 +1793,5 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app->run();
         $this->assertEquals('1.0', $app->response()->httpVersion());
     }
+    
 }

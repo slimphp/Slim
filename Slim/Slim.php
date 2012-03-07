@@ -595,7 +595,7 @@ class Slim {
      * @param   mixed   $options    Array with possible options. Support for legacy integer as response code is still working
      * @return  void
      */
-    public function render( $template, $data = array(), $options = null ) {
+    public function render( $template, $data = array(), $options = array() ) {
         $templatesPath = $this->config('templates.path');
         //Legacy support
         if ( is_null($templatesPath) ) {
@@ -610,8 +610,10 @@ class Slim {
         }
         
         $this->view->appendData($data);
-        if( !is_null($options['layout']) ) {
-          $this->view->display($template, $options);
+        if( isset($options['layout']) && !is_null($options['layout']) ) {
+          $content = array('content' => $this->view->render($template));
+          $this->view->appendData($content);
+          $this->view->display($options['layout']);
         } else {
           $this->view->display($template);
         }

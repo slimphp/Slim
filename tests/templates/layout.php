@@ -1,1 +1,1 @@
-<html><!-- yield --></html>
+<html><?php echo $content; ?></html>

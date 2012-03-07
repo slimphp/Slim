@@ -138,42 +138,27 @@ class Slim_View {
      * This method echoes the rendered template to the current output buffer
      *
      * @param   string $template Path to template file relative to templates directoy
-     * @param   arrray $options Options to render template with, i.e. layout to be used
      * @return  void
      */
-    public function display( $template, $options = array() ) {
-        echo $this->render($template, $options);
+    public function display( $template ) {
+        echo $this->render($template);
     }
 
     /**
      * Render template
      * @param   string $template    Path to template file relative to templates directory
-     * @param   arrray $options     Options to render template with, i.e. layout to be used
      * @return  string              Rendered template
      * @throws  RuntimeException    If template does not exist
      */
-    public function render( $template, $options = array()) {
+    public function render( $template) {
        extract($this->data);
        $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
        if ( !file_exists($templatePath) ) {
            throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
        }
-   
-       if ( isset($options['layout']) && !is_null($options['layout']) ) {
-         if ( !file_exists($this->getTemplatesDirectory() . '/' . ltrim($options['layout'], '/')) ) {
-           throw new RuntimeException('Cannot load layout `' . $options['layout'] . '`. Layout does not exist');
-         }
-     
-         $layout_container = explode('<!-- yield -->', file_get_contents($this->getTemplatesDirectory() . '/' . ltrim($options['layout'], '/')));
-       }
+
        ob_start();
-       if( isset($layout_container[1]) && !is_null($layout_container[0]) ) { 
-         eval(" ?>" . $layout_container[0] . "<?php "); 
-       }
        require $templatePath;
-       if( isset($layout_container[1]) && !is_null($layout_container[1]) ) { 
-         eval(" ?>" . $layout_container[1] . "<?php "); 
-       }
        return ob_get_clean();
     }
 
