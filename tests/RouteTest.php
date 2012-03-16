@@ -383,6 +383,61 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Route matches URI with wildcard
+     */
+    public function testRouteMatchesResourceWithWildcard() {
+        $resource = '/hello/foo/bar/world';
+        $route = new Slim_Route('/hello/*/world', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with more than one wildcard
+     */
+    public function testRouteMatchesResourceWithMultipleWildcards() {
+        $resource = '/hello/foo/bar/world/2012/03/10';
+        $route = new Slim_Route('/hello/*/world/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'slim_route_wildcard1'=>array('2012', '03', '10')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with wildcards and parameters
+     */
+    public function testRouteMatchesResourceWithWildcardsAndParams() {
+        $resource = '/hello/foo/bar/world/2012/03/10/first/second';
+        $route = new Slim_Route('/hello/*/world/:year/:month/:day/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'slim_route_wildcard4'=>array('first', 'second')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with optional wildcard and parameter
+     */
+    public function testRouteMatchesResourceWithOptionalWildcardsAndParams() {
+        $resource = '/hello/world/foo/bar';
+        $route = new Slim_Route('/hello(/:world(/*))', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('world'=>'world', 'slim_route_wildcard1'=>array('foo', 'bar')), $route->getParams());
+    }
+
+    /**
+     * Route does not match URI with wildcard
+     */
+    public function testRouteDoesNotMatchResourceWithWildcard() {
+        $resource = '/hello';
+        $route = new Slim_Route('/hello/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertFalse($result);
+        $this->assertEquals(array(), $route->getParams());
+    }
+
+    /**
      * Test route sets and gets middleware
      *
      * Pre-conditions:
