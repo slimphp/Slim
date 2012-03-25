@@ -76,8 +76,14 @@ class Slim_Middleware_ContentTypes implements Slim_Middleware_Interface {
      */
     public function call( &$env ) {
         if ( isset($env['CONTENT_TYPE']) ) {
+            if ( strpos($env['CONTENT_TYPE'],';') !== false ) {
+                list($contentType, $charset) = explode(';', $env['CONTENT_TYPE']);
+            }
+            else {
+                $contentType = $env['CONTENT_TYPE'];
+            }
             $env['slim.input_original'] = $env['slim.input'];
-            $env['slim.input'] = $this->parse($env['slim.input'], $env['CONTENT_TYPE']);
+            $env['slim.input'] = $this->parse($env['slim.input'], $contentType);
         }
         return $this->app->call($env);
     }
