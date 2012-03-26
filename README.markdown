@@ -31,28 +31,30 @@ Slim is a micro framework for PHP 5 that helps you quickly write simple yet powe
 
 The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method to define Slim application routes. This example assumes you have setup URL rewriting with your web server (see below).
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name!";
-    });
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name!";
+});
+$app->run();
+```
 
 ## "Hello World" application (PHP < 5.3)
 
 If you are running PHP < 5.3, the second argument to the application's `get()` instance method is the name of a callable function instead of an anonymous function. This example assumes you have setup URL rewriting with your web server (see below).
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', 'hello');
-    function hello($name) {
-        echo "Hello, $name!";
-    }
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', 'hello');
+function hello($name) {
+    echo "Hello, $name!";
+}
+$app->run();
+```
 
 ## Get Started
 
@@ -92,21 +94,29 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
-    require 'Slim/Slim.php';
+```php
+require 'Slim/Slim.php';
+```
 
 Next, initialize the Slim application:
 
-    $app = new Slim();
+```php
+$app = new Slim();
+```
 
 Next, define your application's routes:
 
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello $name";
-    });
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello $name";
+});
+```
 
 Finally, run your Slim application:
 
+```php
     $app->run();
+```
 
 For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
