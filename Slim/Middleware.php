@@ -57,7 +57,7 @@ abstract class Slim_Middleware {
      * @param Slim $application
      * @return void
      */
-    final public function setApplication( Slim $application ) {
+    final public function setApplication( $application ) {
         $this->app = $application;
     }
 
