@@ -32,15 +32,8 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Middleware/Interface.php';
+require_once 'Slim/Middleware.php';
 require_once 'Slim/Middleware/Flash.php';
-
-class CustomAppFlash {
-    function call( &$env ) {
-        $env['slim.flash']->set('info', 'Foo');
-        return array(200, array(), 'Test');
-    }
-}
 
 class SlimFlashTest extends PHPUnit_Framework_TestCase {
     /**
@@ -54,7 +47,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      * Test set flash message for next request
      */
     public function testSetFlashForNextRequest() {
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $f->set('foo', 'bar');
         $f->save();
         $this->assertEquals('bar', $_SESSION['slim.flash']['foo']);
@@ -64,7 +57,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      * Test set flash message for current request
      */
     public function testSetFlashForCurrentRequest() {
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $f->now('foo', 'bar');
         $this->assertEquals('bar', $f['foo']);
     }
@@ -74,7 +67,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      */
     public function testLoadsFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $this->assertEquals('foo', $f['info']);
     }
 
@@ -83,7 +76,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      */
     public function testKeepFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $f->keep();
         $f->save();
         $this->assertEquals('foo', $_SESSION['slim.flash']['info']);
@@ -94,7 +87,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      */
     public function testFlashMessagesFromPreviousRequestDoNotPersist() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $f->save();
         $this->assertEmpty($_SESSION['slim.flash']);
     }
@@ -104,24 +97,12 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
      */
     public function testFlashArrayAccess() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
-        $f = new Slim_Middleware_Flash(new CustomAppFlash());
+        $f = new Slim_Middleware_Flash();
         $f['info'] = 'bar';
         $f->save();
         $this->assertTrue(isset($f['info']));
         $this->assertEquals('bar', $f['info']);
         unset($f['info']);
         $this->assertFalse(isset($f['info']));
-    }
-
-    /**
-     * Test middleware call
-     */
-    public function testFlashAsMiddleware() {
-        $env = array();
-        $app = new CustomAppFlash(); //<-- See class definition at top of file
-        $f = new Slim_Middleware_Flash($app);
-        $this->assertFalse(isset($_SESSION['slim.flash']));
-        list($status, $header, $body) = $f->call($env);
-        $this->assertEquals('Foo', $_SESSION['slim.flash']['info']);
     }
 }
