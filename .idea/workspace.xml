@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="d54319ca-20ce-4804-8ac0-37120d2ff778" name="Default" comment="Changed every class into namespaces&#10;New autoloader using the PSR-0 standard&#10;All tests completed (OK (86 tests, 258 assertions))">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/Slim.iml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/.name" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/encodings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/webResources.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Exception/Pass.php" afterPath="$PROJECT_DIR$/Slim/Exception/Pass.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Exception/RequestSlash.php" afterPath="$PROJECT_DIR$/Slim/Exception/RequestSlash.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Exception/Stop.php" afterPath="$PROJECT_DIR$/Slim/Exception/Stop.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Http/Cookie.php" afterPath="$PROJECT_DIR$/Slim/Http/Cookie.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Http/CookieJar.php" afterPath="$PROJECT_DIR$/Slim/Http/CookieJar.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Http/Request.php" afterPath="$PROJECT_DIR$/Slim/Http/Request.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Http/Response.php" afterPath="$PROJECT_DIR$/Slim/Http/Response.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Http/Uri.php" afterPath="$PROJECT_DIR$/Slim/Http/Uri.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Log.php" afterPath="$PROJECT_DIR$/Slim/Log.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Logger.php" afterPath="$PROJECT_DIR$/Slim/Logger.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Route.php" afterPath="$PROJECT_DIR$/Slim/Route.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Router.php" afterPath="$PROJECT_DIR$/Slim/Router.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Session/Flash.php" afterPath="$PROJECT_DIR$/Slim/Session/Flash.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Session/Handler.php" afterPath="$PROJECT_DIR$/Slim/Session/Handler.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Session/Handler/Cookies.php" afterPath="$PROJECT_DIR$/Slim/Session/Handler/Cookies.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/Slim.php" afterPath="$PROJECT_DIR$/Slim/Slim.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Slim/View.php" afterPath="$PROJECT_DIR$/Slim/View.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Http/CookieTest.php" afterPath="$PROJECT_DIR$/tests/Http/CookieTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Http/RequestTest.php" afterPath="$PROJECT_DIR$/tests/Http/RequestTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Http/ResponseTest.php" afterPath="$PROJECT_DIR$/tests/Http/ResponseTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Http/UriTest.php" afterPath="$PROJECT_DIR$/tests/Http/UriTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/LogTest.php" afterPath="$PROJECT_DIR$/tests/LogTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/LoggerTest.php" afterPath="$PROJECT_DIR$/tests/LoggerTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/RouteTest.php" afterPath="$PROJECT_DIR$/tests/RouteTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/RouterTest.php" afterPath="$PROJECT_DIR$/tests/RouterTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/Session/FlashTest.php" afterPath="$PROJECT_DIR$/tests/Session/FlashTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/SlimTest.php" afterPath="$PROJECT_DIR$/tests/SlimTest.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/ViewTest.php" afterPath="$PROJECT_DIR$/tests/ViewTest.php" />
+    </list>
+    <ignored path="Slim.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="DaemonCodeAnalyzer">
+    <disable_hints />
+  </component>
+  <component name="FavoritesManager">
+    <favorites_list name="Slim" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf />
+  </component>
+  <component name="FindManager">
+    <FindUsagesManager>
+      <setting name="OPEN_NEW_TAB" value="false" />
+    </FindUsagesManager>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <array>
+        <option value="Martin Aarhof" />
+      </array>
+    </option>
+    <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
+    <option name="UPDATE_CHANGES_POLICY" value="STASH" />
+    <option name="LINE_SEPARATORS_CONVERSION" value="ASK" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="changedFiles">
+      <list>
+        <option value="$PROJECT_DIR$/Slim/Log.php" />
+        <option value="$PROJECT_DIR$/Slim/Logger.php" />
+        <option value="$PROJECT_DIR$/Slim/Router.php" />
+        <option value="$PROJECT_DIR$/Slim/View.php" />
+        <option value="$PROJECT_DIR$/tests/Http/CookieTest.php" />
+        <option value="$PROJECT_DIR$/tests/Http/RequestTest.php" />
+        <option value="$PROJECT_DIR$/tests/Http/ResponseTest.php" />
+        <option value="$PROJECT_DIR$/tests/Http/UriTest.php" />
+        <option value="$PROJECT_DIR$/tests/Session/FlashTest.php" />
+        <option value="$PROJECT_DIR$/tests/LoggerTest.php" />
+        <option value="$PROJECT_DIR$/tests/LogTest.php" />
+        <option value="$PROJECT_DIR$/tests/RouterTest.php" />
+        <option value="$PROJECT_DIR$/tests/RouteTest.php" />
+        <option value="$PROJECT_DIR$/tests/SlimTest.php" />
+        <option value="$PROJECT_DIR$/tests/ViewTest.php" />
+        <option value="$PROJECT_DIR$/Slim/Slim.php" />
+      </list>
+    </option>
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" interpreter_name="php 5.3.6" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-8" />
+    <option name="y" value="-5" />
+    <option name="width" value="1936" />
+    <option name="height" value="1093" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectReloadState">
+    <option name="STATE" value="0" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="Scope" currentSubView="Project Files" proportions="" version="1" splitterProportion="0.5">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents ProjectPane="true" />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Slim" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <PATH>
+            <PATH_ELEMENT USER_OBJECT="Root">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT USER_OBJECT="Slim">
+              <option name="myItemId" value="" />
+              <option name="myItemType" value="" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="options.splitter.main.proportions" value="0.3" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="recentsLimit" value="5" />
+    <property name="options.lastSelected" value="reference.settings.ide.settings.file-colors" />
+    <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
+  </component>
+  <component name="PublishConfig">
+    <servers>
+      <server id="2bbcdd05-4eac-4aab-93a8-e9248f65b957">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="3acbd099-5a33-466c-988b-aeec877acb51">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="42db9a25-3bcd-40ac-a47b-a79ebcdf3fc7">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="4326d771-9229-4c5f-a538-6121c8b28694">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="48a7a009-82e1-4b73-a13e-e671b4c66e8e">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="596d276f-1843-4251-a49d-c967f50606f3">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="6efb42cf-08b5-4fdd-8957-707279e60d31">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="85ec562f-765a-489c-adf6-b84714b0714b">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="a329bd86-3f7f-48e3-ad99-bfda3394211f">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+      <server id="e6839617-d34b-41cd-9d26-d83364213136">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </server>
+    </servers>
+  </component>
+  <component name="RunManager" selected="PHPUnit.tests">
+    <configuration default="false" name="tests" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" temporary="true" scope="Directory" path="$PROJECT_DIR$/tests">
+      <TestRunner bootstrap="$PROJECT_DIR$/tests/SlimTest.php" directory="$PROJECT_DIR$/tests" />
+      <RunnerSettings RunnerId="PhpRunner" />
+      <RunnerSettings RunnerId="PhpUnitDebugRunner" />
+      <ConfigurationWrapper RunnerId="PhpRunner" />
+      <ConfigurationWrapper RunnerId="PhpUnitDebugRunner" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" scope="Directory">
+      <TestRunner />
+      <method>
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="PhpLocalRunConfigurationType" factoryName="PHP Console">
+      <method>
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="PhpUnitRemoteRunConfigurationType" factoryName="PHPUnit on Server">
+      <method>
+        <option name="FtpUpload" enabled="false">
+          <server_id />
+          <server_name />
+        </option>
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="PHPUnit.tests" />
+    </list>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SqlCodeAssistantSettings">
+    <option name="dbBrowserSelectedConnection" value="Slim" />
+  </component>
+  <component name="SvnConfiguration" maxAnnotateRevisions="500">
+    <option name="USER" value="" />
+    <option name="PASSWORD" value="" />
+    <option name="mySSHConnectionTimeout" value="30000" />
+    <option name="mySSHReadTimeout" value="30000" />
+    <option name="LAST_MERGED_REVISION" />
+    <option name="MERGE_DRY_RUN" value="false" />
+    <option name="MERGE_DIFF_USE_ANCESTRY" value="true" />
+    <option name="UPDATE_LOCK_ON_DEMAND" value="false" />
+    <option name="IGNORE_SPACES_IN_MERGE" value="false" />
+    <option name="DETECT_NESTED_COPIES" value="true" />
+    <option name="CHECK_NESTED_FOR_QUICK_MERGE" value="false" />
+    <option name="IGNORE_SPACES_IN_ANNOTATE" value="true" />
+    <option name="SHOW_MERGE_SOURCES_IN_ANNOTATE" value="true" />
+    <option name="FORCE_UPDATE" value="false" />
+    <configuration useDefault="true">$USER_HOME$/.subversion_IDEA</configuration>
+    <myIsUseDefaultProxy>false</myIsUseDefaultProxy>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <created>1333572649387</created>
+      <updated>1333572649387</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-5" width="1936" height="1093" extended-state="6" />
+    <editor active="false" />
+    <layout>
+      <window_info id="Data Sources" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Remote Host" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39957264" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32905984" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
+      <window_info id="DatabaseBrowser" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2497332" sideWeight="0.67094016" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="DB Browser" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.2497332" sideWeight="0.6004273" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905984" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="OFFER_MOVE_TO_ANOTHER_CHANGELIST_ON_PARTIAL_COMMIT" value="true" />
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_NEW_TODO" value="true" />
+    <option name="myTodoPanelSettings">
+      <value>
+        <are-packages-shown value="false" />
+        <are-modules-shown value="false" />
+        <flatten-packages value="false" />
+        <is-autoscroll-to-source value="false" />
+      </value>
+    </option>
+    <option name="PERFORM_UPDATE_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_COMMIT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_EDIT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_CHECKOUT_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_ADD_REMOVE_IN_BACKGROUND" value="true" />
+    <option name="PERFORM_ROLLBACK_IN_BACKGROUND" value="false" />
+    <option name="CHECK_LOCALLY_CHANGED_CONFLICTS_IN_BACKGROUND" value="false" />
+    <option name="ENABLE_BACKGROUND_PROCESSES" value="false" />
+    <option name="CHANGED_ON_SERVER_INTERVAL" value="60" />
+    <option name="SHOW_ONLY_CHANGED_IN_SELECTION_DIFF" value="true" />
+    <option name="CHECK_COMMIT_MESSAGE_SPELLING" value="true" />
+    <option name="DEFAULT_PATCH_EXTENSION" value="patch" />
+    <option name="SHORT_DIFF_HORISONTALLY" value="true" />
+    <option name="SHORT_DIFF_EXTRA_LINES" value="2" />
+    <option name="SOFT_WRAPS_IN_SHORT_DIFF" value="true" />
+    <option name="INCLUDE_TEXT_INTO_PATCH" value="false" />
+    <option name="INCLUDE_TEXT_INTO_SHELF" value="false" />
+    <option name="CREATE_PATCH_EXPAND_DETAILS_DEFAULT" value="true" />
+    <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changed every class into namespaces&#10;New autoloader using the PSR-0 standard&#10;All tests completed (OK (86 tests, 258 assertions))" />
+    <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
+    <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
+    <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
+    <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
+    <option name="FILE_HISTORY_DIALOG_COMMENTS_SPLITTER_PROPORTION" value="0.8" />
+    <option name="FILE_HISTORY_DIALOG_SPLITTER_PROPORTION" value="0.5" />
+    <option name="ACTIVE_VCS_NAME" />
+    <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
+    <option name="UPDATE_GROUP_BY_CHANGELIST" value="false" />
+    <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
+    <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+    <MESSAGE value="Changed every class into namespaces&#10;New autoloader using the PSR-0 standard&#10;All tests completed (OK (86 tests, 258 assertions))" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/tests/LoggerTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="138" column="28" selection-start="4809" selection-end="4809" vertical-scroll-proportion="0.53235906">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Foo.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/templates/test.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Session/FlashTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="180" column="9" selection-start="5947" selection-end="5947" vertical-scroll-proportion="0.29853863">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/logs/README">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Http/UriTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="200" column="58" selection-start="8739" selection-end="8739" vertical-scroll-proportion="0.6993737">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Http/ResponseTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="304" column="64" selection-start="9900" selection-end="9900" vertical-scroll-proportion="0.67164177">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Http/RequestTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="319" column="6" selection-start="11666" selection-end="11666" vertical-scroll-proportion="0.76119405">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/Http/CookieTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="59" column="18" selection-start="2246" selection-end="2246" vertical-scroll-proportion="0.1641791">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Slim/Http/Response.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.4477612">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/LogTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="66" column="22" selection-start="1794" selection-end="1794" vertical-scroll-proportion="0.33211008">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/RouterTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="32" column="18" selection-start="1376" selection-end="1376" vertical-scroll-proportion="-6.1669726">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/RouteTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="333" column="2" selection-start="9082" selection-end="9082" vertical-scroll-proportion="1.0697248">
+          <folding>
+            <element signature="e#6#1340#0" expanded="false" />
+            <element signature="e#1520#1701#0" expanded="false" />
+            <element signature="n#RouterMock#0;n#!!top" expanded="false" />
+            <element signature="n#__construct#0;n#RouterMock#0;n#!!top" expanded="false" />
+            <element signature="n#cacheNamedRoute#0;n#RouterMock#0;n#!!top" expanded="false" />
+            <element signature="e#1952#2010#0" expanded="false" />
+            <element signature="n#testRouteSetsNameAndIsCached#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#2125#2144#1" expanded="false" />
+            <element signature="e#2486#2523#0" expanded="false" />
+            <element signature="n#testRouteSetsPattern#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#2601#2620#1" expanded="false" />
+            <element signature="e#2686#2769#0" expanded="false" />
+            <element signature="n#testRouteSetsCallableAsFunction#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#2838#2873#1" expanded="false" />
+            <element signature="e#2980#3078#0" expanded="false" />
+            <element signature="n#testRouteSetsCallableAsString#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#3248#3320#0" expanded="false" />
+            <element signature="n#testRouteMatchesAndParamExtracted#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#3443#3462#1" expanded="false" />
+            <element signature="e#3609#3691#0" expanded="false" />
+            <element signature="n#testRouteMatchesAndMultipleParamsExtracted#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#3845#3864#1" expanded="false" />
+            <element signature="e#4032#4113#0" expanded="false" />
+            <element signature="n#testRouteDoesNotMatchAndParamsNotExtracted#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#4242#4261#1" expanded="false" />
+            <element signature="e#4393#4447#0" expanded="false" />
+            <element signature="n#testRouteMatchesWithTrailingSlash#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#4594#4613#1" expanded="false" />
+            <element signature="e#4721#4767#0" expanded="false" />
+            <element signature="n#testRouteMatchesResourceWithConditions#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#4917#4936#1" expanded="false" />
+            <element signature="e#5160#5213#0" expanded="false" />
+            <element signature="n#testRouteDoesNotMatchResourceWithConditions#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#5368#5387#1" expanded="false" />
+            <element signature="e#5572#5809#0" expanded="false" />
+            <element signature="n#testRouteMatchesResourceWithValidRfc2396PathComponent#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#5989#6008#1" expanded="false" />
+            <element signature="e#6160#6335#0" expanded="false" />
+            <element signature="n#testRouteMatchesResourceWithUnreservedMarks#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#6498#6517#1" expanded="false" />
+            <element signature="e#6665#6991#0" expanded="false" />
+            <element signature="n#testRouteOptionalParameters#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#7133#7152#1" expanded="false" />
+            <element signature="e#7375#7394#1" expanded="false" />
+            <element signature="e#7637#7656#1" expanded="false" />
+            <element signature="e#7878#8116#0" expanded="false" />
+            <element signature="n#testRouteDefaultConditions#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#8244#8263#1" expanded="false" />
+            <element signature="e#8523#8918#0" expanded="false" />
+            <element signature="e#8976#8995#1" expanded="false" />
+            <element signature="e#9012#9031#1" expanded="false" />
+            <element signature="e#9070#9089#1" expanded="false" />
+            <element signature="e#9387#9406#1" expanded="false" />
+            <element signature="e#9610#9629#1" expanded="false" />
+            <element signature="e#9816#10000#0" expanded="false" />
+            <element signature="e#9959#10000#0" expanded="false" />
+            <element signature="n#callableTestFunction#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#10053#10415#0" expanded="false" />
+            <element signature="n#testHttpMethods#0;n#RouteTest#0;n#!!top" expanded="false" />
+            <element signature="e#10490#10509#1" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/SlimTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="131" column="23" selection-start="3942" selection-end="3942" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/ViewTest.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="41" column="16" selection-start="1544" selection-end="1544" vertical-scroll-proportion="-3.2752295">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Slim/Slim.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="167" column="31" selection-start="4422" selection-end="4422" vertical-scroll-proportion="0.37691003">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
+

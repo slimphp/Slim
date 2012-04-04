@@ -2,8 +2,8 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author	  Josh Lockhart
+ * @link		http://www.slimframework.com
  * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
@@ -28,6 +28,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+namespace Slim\Session\Handler;
+use Slim\Session\Handler;
+
 /**
  * Session Cookie Handler
  *
@@ -42,30 +45,36 @@
  * @author Josh Lockhart
  * @since Version 1.3
  */
-class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
+class Cookies extends Handler
+{
 
-    public function open( $savePath, $sessionName ) {
-        return true;
-    }
+	public function open($savePath, $sessionName)
+	{
+		return true;
+	}
 
-    public function close() {
-        return true; //Not used
-    }
+	public function close()
+	{
+		return true; //Not used
+	}
 
-    public function read( $id ) {
-        return $this->app->getEncryptedCookie($id);
-    }
+	public function read($id)
+	{
+		return $this->app->getEncryptedCookie($id);
+	}
 
-    public function write( $id, $sessionData ) {
-        $this->app->setEncryptedCookie($id, $sessionData, 0);
-    }
+	public function write($id, $sessionData)
+	{
+		$this->app->setEncryptedCookie($id, $sessionData, 0);
+	}
 
-    public function destroy( $id ) {
-        $this->app->deleteCookie($id);
-    }
+	public function destroy($id)
+	{
+		$this->app->deleteCookie($id);
+	}
 
-    public function gc( $maxLifetime ) {
-        return true; //Not used
-    }
-
+	public function gc($maxLifetime)
+	{
+		return true; //Not used
+	}
 }

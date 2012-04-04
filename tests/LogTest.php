@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author	  Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @link		http://www.slimframework.com
+ * @license	 http://www.slimframework.com/license
+ * @version	 1.5.0
  *
  * MIT LICENSE
  *
@@ -29,121 +29,131 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+use Slim\Log;
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Log.php';
 
-class MyLogger {
+class MyLogger
+{
 
-    public function debug( $object ) {
-        return 'debug';
-    }
+	public function debug($object)
+	{
+		return 'debug';
+	}
 
-    public function info( $object ) {
-        return 'info';
-    }
+	public function info($object)
+	{
+		return 'info';
+	}
 
-    public function warn( $object ) {
-        return 'warn';
-    }
+	public function warn($object)
+	{
+		return 'warn';
+	}
 
-    public function error( $object ) {
-        return 'error';
-    }
+	public function error($object)
+	{
+		return 'error';
+	}
 
-    public function fatal( $object ) {
-        return 'fatal';
-    }
-
+	public function fatal($object)
+	{
+		return 'fatal';
+	}
 }
 
-class LogTest extends PHPUnit_Framework_TestCase {
+class LogTest extends PHPUnit_Framework_TestCase
+{
 
-    /**
-     * Test Log enabling and disabling
-     *
-     * Pre-conditions:
-     * None
-     *
-     * Post-conditions:
-     * A) Logging enabled
-     * B) Logging disabled
-     * C) Logging enabled
-     */
-    public function testEnableAndDisableLogging() {
-        //Case A
-        $log = new Slim_Log();
-        $this->assertTrue($log->isEnabled());
-        //Case B
-        $log->setEnabled(false);
-        $this->assertFalse($log->isEnabled());
-        //Case C
-        $log->setEnabled(true);
-        $this->assertTrue($log->isEnabled());
-    }
+	/**
+	 * Test Log enabling and disabling
+	 *
+	 * Pre-conditions:
+	 * None
+	 *
+	 * Post-conditions:
+	 * A) Logging enabled
+	 * B) Logging disabled
+	 * C) Logging enabled
+	 */
+	public function testEnableAndDisableLogging()
+	{
+		//Case A
+		$log = new Log();
+		$this->assertTrue($log->isEnabled());
+		//Case B
+		$log->setEnabled(false);
+		$this->assertFalse($log->isEnabled());
+		//Case C
+		$log->setEnabled(true);
+		$this->assertTrue($log->isEnabled());
+	}
 
-    /**
-     * Test Log adapter Logger
-     *
-     * Pre-conditions:
-     * None
-     *
-     * Post-conditions:
-     * Logger is set correctly
-     */
-    public function testSetsLogger() {
-        $log = new Slim_Log();
-        $logger = new MyLogger();
-        $log->setLogger($logger);
-        $this->assertSame($logger, $log->getLogger());
-    }
+	/**
+	 * Test Log adapter Logger
+	 *
+	 * Pre-conditions:
+	 * None
+	 *
+	 * Post-conditions:
+	 * Logger is set correctly
+	 */
+	public function testSetsLogger()
+	{
+		$log = new Log();
+		$logger = new MyLogger();
+		$log->setLogger($logger);
+		$this->assertSame($logger, $log->getLogger());
+	}
 
-    /**
-     * Test Log adapter methods
-     *
-     * Pre-conditions
-     * Log instantiated with MyLogger instance
-     *
-     * Post-conditions:
-     * A) All Log adapter methods return expected results
-     * B) All Log adapter methods return false
-     */
-    public function testLoggerMethods() {
-        $log = new Slim_Log();
-        $logger = new MyLogger();
-        $log->setLogger($logger);
-        //Case A: Logging enabled
-        $this->assertEquals('debug', $log->debug('Test'));
-        $this->assertEquals('info', $log->info('Test'));
-        $this->assertEquals('warn', $log->warn('Test'));
-        $this->assertEquals('error', $log->error('Test'));
-        $this->assertEquals('fatal', $log->fatal('Test'));
-        //Case B: Logging disabled
-        $log->setEnabled(false);
-        $this->assertFalse($log->debug('Test'));
-        $this->assertFalse($log->info('Test'));
-        $this->assertFalse($log->warn('Test'));
-        $this->assertFalse($log->error('Test'));
-        $this->assertFalse($log->fatal('Test'));
-    }
+	/**
+	 * Test Log adapter methods
+	 *
+	 * Pre-conditions
+	 * Log instantiated with MyLogger instance
+	 *
+	 * Post-conditions:
+	 * A) All Log adapter methods return expected results
+	 * B) All Log adapter methods return false
+	 */
+	public function testLoggerMethods()
+	{
+		$log = new Log();
+		$logger = new MyLogger();
+		$log->setLogger($logger);
+		//Case A: Logging enabled
+		$this->assertEquals('debug', $log->debug('Test'));
+		$this->assertEquals('info', $log->info('Test'));
+		$this->assertEquals('warn', $log->warn('Test'));
+		$this->assertEquals('error', $log->error('Test'));
+		$this->assertEquals('fatal', $log->fatal('Test'));
+		//Case B: Logging disabled
+		$log->setEnabled(false);
+		$this->assertFalse($log->debug('Test'));
+		$this->assertFalse($log->info('Test'));
+		$this->assertFalse($log->warn('Test'));
+		$this->assertFalse($log->error('Test'));
+		$this->assertFalse($log->fatal('Test'));
+	}
 
-    /**
-     * Test Log adapter methods if no logger set
-     *
-     * Pre-conditions
-     * Log instantiated without associated Logger
-     *
-     * Post-conditions:
-     * All Log adapter methods return false
-     */
-    public function testLoggerMethodsIfNoLogger() {
-        $log = new Slim_Log();
-        $this->assertFalse($log->debug('Test'));
-        $this->assertFalse($log->info('Test'));
-        $this->assertFalse($log->warn('Test'));
-        $this->assertFalse($log->error('Test'));
-        $this->assertFalse($log->fatal('Test'));
-    }
-
+	/**
+	 * Test Log adapter methods if no logger set
+	 *
+	 * Pre-conditions
+	 * Log instantiated without associated Logger
+	 *
+	 * Post-conditions:
+	 * All Log adapter methods return false
+	 */
+	public function testLoggerMethodsIfNoLogger()
+	{
+		$log = new Log();
+		$this->assertFalse($log->debug('Test'));
+		$this->assertFalse($log->info('Test'));
+		$this->assertFalse($log->warn('Test'));
+		$this->assertFalse($log->error('Test'));
+		$this->assertFalse($log->fatal('Test'));
+	}
 }
