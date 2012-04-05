@@ -44,35 +44,44 @@
  *
  * @package Slim
  * @author  Josh Lockhart
- * @since   1.5.2
+ * @since   1.6.0
  */
-class Slim_Environment {
+class Slim_Environment implements ArrayAccess, IteratorAggregate {
     /**
      * @var array
      */
-    private static $env;
+    protected $properties;
 
     /**
-     * Constructor
-     * @throws RuntimeException
+     * @var Slim_Environment
      */
-    public function __construct() {
-        throw new RuntimeException('Use Slim_Environment::getInstance() instead');
+    protected static $environment;
+
+    /**
+     * Get environment instance (singleton)
+     *
+     * This creates and/or returns an Environment instance (singleton)
+     * derived from $_SERVER variables. You may override the global server 
+     * variables by using `Environment::mock()` instead.
+     *
+     * @param   bool            $refresh    Refresh properties using global server variables?
+     * @return  Slim_Environment
+     */
+    public static function getInstance( $refresh = false ) {
+        if ( is_null(self::$environment) || $refresh ) {
+            self::$environment = new self();
+        }
+        return self::$environment;
     }
 
     /**
-     * Prepare mock environment
+     * Get mock environment instance
      *
-     * Use this method to ensure the application environment uses a predefined array
-     * rather than rely on the $_SERVER superglobal array. This is useful for testing.
-     * It is your responsibility to ensure your mock array includes all required
-     * environment variables.
-     *
-     * @param   array   $mock
-     * @return  array
+     * @param   array           $userSettings
+     * @return  Environment
      */
-    public static function mock( $mock = array() ) {
-        self::$env = array_merge(array(
+    public static function mock( $userSettings = array() ) {
+        self::$environment = new self(array_merge(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '',
             'PATH_INFO' => '',
@@ -87,142 +96,136 @@ class Slim_Environment {
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
-        ), $mock);
-        return self::$env;
+        ), $userSettings));
+        return self::$environment;
     }
 
     /**
-     * Get Instance
+     * Constructor (private access)
      *
-     * This method returns the Singleton instance of the app
-     * environment; if not already set or if a refreshed
-     * environment is requested, parse the environment
-     * and return the newly stored results.
-     *
-     * @param   bool    $refresh
-     * @return  array
+     * @param   array|null  $settings   If present, these are used instead of global server variables
+     * @return  void
      */
-    public static function getInstance( $refresh = false ) {
-        if ( !isset(self::$env) || $refresh ) {
-            self::$env = self::prepare();
-        }
-        return self::$env;
-    }
-
-    /**
-     * Prepare environment
-     *
-     * Extract the necessary environment variables for a Slim application.
-     * This method adheres to the Rack (Ruby) specification. Descriptions below are
-     * paraphrased from <http://rack.rubyforge.org/doc/files/SPEC.html> for consistency.
-     *
-     * REQUEST_METHOD
-     *     The current HTTP request method: GET, POST, PUT, DELETE, OPTIONS, HEAD. Cannot be empty.
-     * SCRIPT_NAME
-     *     The initial portion of the request URL's "path" that corresponds to the physical directory
-     *     in which the Slim application is installed --- so that the application knows its virtual "location".
-     *     This may be an empty string if the application is installed in the top-level of the
-     *     public document root directory. This will never have a trailing slash.
-     * PATH_INFO
-     *     The remaining portion of the request URL's "path" that determines the "virtual" location of the
-     *     HTTP request's target resource within the Slim application's context. This will always have
-     *     a leading slash; it may or may not have a trailing slash.
-     * QUERY_STRING
-     *     The part of the HTTP request's URL after, but not including, the "?". May be empty, but is always required!
-     * SERVER_NAME
-     *     When combined with the SCRIPT_NAME and PATH_INFO, this can be used to create a fully qualified URL
-     *     to an application resource. However, if HTTP_HOST is present, that should be used instead of this.
-     *     This is required and may never be an empty string.
-     * SERVER_PORT
-     *     When combined with the SCRIPT_NAME and PATH_INFO, this can be used to create a fully qualified URL
-     *     to any application resource. This is required and may never be an empty string.
-     * HTTP_*
-     *     Variables matching the HTTP request headers sent by the client with the HTTP request. The existence
-     *     of these variables correspond with those sent in the current HTTP request. These variables' names
-     *     will NOT be prefixed with HTTP_.
-     * slim.url_scheme
-     *     Will be "http" or "https" depending on the HTTP request URL.
-     * slim.input
-     *     Will be a string representing raw request data sent with the HTTP request. If raw request data is
-     *     unavailable (i.e. with a GET request), this will be an empty string.
-     * slim.errors
-     *     Must always be a writable resource; by default this is a write-only resource handle to php://stderr
-     */
-    private static function prepare() {
-        $env = array();
-
-        //The HTTP request method
-        $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
-
-        //The IP
-        $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-
-        /**
-         * Application paths
-         *
-         * This derives two paths: SCRIPT_NAME and PATH_INFO. The SCRIPT_NAME
-         * is the real, physical path to the application, be it in the root
-         * directory or a subdirectory of the public document root. The PATH_INFO is the
-         * virtual path to the requested resource within the application context.
-         *
-         * With htaccess, the SCRIPT_NAME will be an absolute path (without file name);
-         * if not using htaccess, it will also include the file name. If it is "/",
-         * it is set to an empty string (since it cannot have a trailing slash).
-         *
-         * The PATH_INFO will be an absolute path with a leading slash; this will be
-         * used for application routing.
-         */
-        if ( strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 ) {
-            //Without URL rewrite
-            $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
-            if ( isset($_SERVER['PATH_INFO']) ) {
-                $env['PATH_INFO'] = $_SERVER['PATH_INFO'];
-            } else {
-                $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            }
+    private function __construct( $settings = null ) {
+        if ( $settings ) {
+            $this->properties = $settings;
         } else {
-            //With URL rewrite
-            $env['SCRIPT_NAME'] = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
-            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            if ( strpos($env['PATH_INFO'], '?') !== false ) {
-                $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
+            $env = array();
+
+            //The HTTP request method
+            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
+
+            //The IP
+            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+
+            /**
+             * Application paths
+             *
+             * This derives two paths: SCRIPT_NAME and PATH_INFO. The SCRIPT_NAME
+             * is the real, physical path to the application, be it in the root
+             * directory or a subdirectory of the public document root. The PATH_INFO is the
+             * virtual path to the requested resource within the application context.
+             *
+             * With htaccess, the SCRIPT_NAME will be an absolute path (without file name);
+             * if not using htaccess, it will also include the file name. If it is "/",
+             * it is set to an empty string (since it cannot have a trailing slash).
+             *
+             * The PATH_INFO will be an absolute path with a leading slash; this will be
+             * used for application routing.
+             */
+            if ( strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 ) {
+                //Without URL rewrite
+                $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
+                if ( isset($_SERVER['PATH_INFO']) ) {
+                    $env['PATH_INFO'] = $_SERVER['PATH_INFO'];
+                } else {
+                    $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
+                }
+            } else {
+                //With URL rewrite
+                $env['SCRIPT_NAME'] = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
+                $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
+                if ( strpos($env['PATH_INFO'], '?') !== false ) {
+                    $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
+                }
             }
-        }
-        $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
-        $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
+            $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
+            $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
 
-        //The portion of the request URI following the '?'
-        $env['QUERY_STRING'] = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
+            //The portion of the request URI following the '?'
+            $env['QUERY_STRING'] = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
 
-        //Name of server host that is running the script
-        $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+            //Name of server host that is running the script
+            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
-        //Number of server port that is running the script
-        $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+            //Number of server port that is running the script
+            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-        //HTTP request headers
-        $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE', 'X_FORWARDED_FOR', 'X_REQUESTED_WITH');
-        foreach ( $_SERVER as $key => $value ) {
-            if ( strpos($key, 'HTTP_') === 0 ) {
-                $env[substr($key, 5)] = $value;
-            } else if ( in_array($key, $specialHeaders) ) {
-                $env[$key] = $value;
+            //HTTP request headers
+            $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE', 'X_FORWARDED_FOR', 'X_REQUESTED_WITH');
+            foreach ( $_SERVER as $key => $value ) {
+                if ( strpos($key, 'HTTP_') === 0 ) {
+                    $env[substr($key, 5)] = $value;
+                } else if ( in_array($key, $specialHeaders) ) {
+                    $env[$key] = $value;
+                }
             }
+
+            //Is the application running under HTTPS or HTTP protocol?
+            $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
+
+            //Input stream (readable one time only; not available for mutipart/form-data requests)
+            $rawInput = @file_get_contents('php://input');
+            if ( !$rawInput ) {
+                $rawInput = '';
+            }
+            $env['slim.input'] = $rawInput;
+
+            //Error stream
+            $env['slim.errors'] = fopen('php://stderr', 'w');
+
+            $this->properties = $env;
         }
+    }
 
-        //Is the application running under HTTPS or HTTP protocol?
-        $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
+    /**
+     * Array Access: Offset Exists
+     */
+    public function offsetExists( $offset ) {
+        return isset($this->properties[$offset]);
+    }
 
-        //Input stream (readable one time only; not available for mutipart/form-data requests)
-        $rawInput = @file_get_contents('php://input');
-        if ( !$rawInput ) {
-            $rawInput = '';
+    /**
+     * Array Access: Offset Get
+     */
+    public function offsetGet( $offset ) {
+        if ( isset($this->properties[$offset]) ) {
+            return $this->properties[$offset];
+        } else {
+            return null;
         }
-        $env['slim.input'] = $rawInput;
+    }
 
-        //Error stream
-        $env['slim.errors'] = fopen('php://stderr', 'w');
+    /**
+     * Array Access: Offset Set
+     */
+    public function offsetSet( $offset, $value ) {
+        $this->properties[$offset] = $value;
+    }
 
-        return $env;
+    /**
+     * Array Access: Offset Unset
+     */
+    public function offsetUnset( $offset ) {
+        unset($this->properties[$offset]);
+    }
+
+    /**
+     * IteratorAggregate
+     *
+     * @return ArrayIterator
+     */
+    public function getIterator() {
+        return new ArrayIterator($this->properties);
     }
 }
