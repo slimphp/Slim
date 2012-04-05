@@ -67,7 +67,7 @@ class Slim_Middleware_ContentTypes extends Slim_Middleware {
      * @return void
      */
     public function call() {
-        $env =& $this->app->environment();
+        $env = $this->app->environment();
         if ( isset($env['CONTENT_TYPE']) ) {
             $env['slim.input_original'] = $env['slim.input'];
             $env['slim.input'] = $this->parse($env['slim.input'], $env['CONTENT_TYPE']);

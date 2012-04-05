@@ -64,8 +64,8 @@ class Slim_Http_Request {
      * @param   array $env
      * @see     Slim_Environment
      */
-    public function __construct( &$env ) {
-        $this->env = &$env;
+    public function __construct( $env ) {
+        $this->env = $env;
     }
 
     /**
