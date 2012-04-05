@@ -44,12 +44,7 @@
   * @author     Josh Lockhart
   * @since      1.5.2
   */
-class Slim_Middleware_MethodOverride implements Slim_Middleware_Interface {
-    /**
-     * @var Slim
-     */
-    protected $app;
-
+class Slim_Middleware_MethodOverride extends Slim_Middleware {
     /**
      * @var array
      */
@@ -61,8 +56,7 @@ class Slim_Middleware_MethodOverride implements Slim_Middleware_Interface {
      * @param   array   $settings
      * @return  void
      */
-    public function __construct( $app, $settings = array() ) {
-        $this->app = $app;
+    public function __construct( $settings = array() ) {
         $this->settings = array_merge(array('key' => '_METHOD'), $settings);
     }
 
@@ -78,7 +72,8 @@ class Slim_Middleware_MethodOverride implements Slim_Middleware_Interface {
      * @param   array $env
      * @return  array[status, header, body]
      */
-    public function call( &$env ) {
+    public function call() {
+        $env =& $this->app->environment();
         if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
             $req = new Slim_Http_Request($env);
             $method = $req->post($this->settings['key']);
@@ -87,6 +82,6 @@ class Slim_Middleware_MethodOverride implements Slim_Middleware_Interface {
                 $env['REQUEST_METHOD'] = strtoupper($method);
             }
         }
-        return $this->app->call($env);
+        $this->next->call();
     }
 }

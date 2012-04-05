@@ -40,12 +40,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Middleware_PrettyExceptions implements Slim_Middleware_Interface {
-    /**
-     * @var Slim|Middleware
-     */
-    protected $app;
-
+class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
     /**
      * @var array
      */
@@ -56,23 +51,22 @@ class Slim_Middleware_PrettyExceptions implements Slim_Middleware_Interface {
      * @param Slim|middleware $app
      * @param array $settings
      */
-    public function __construct( $app, $settings = array() ) {
-        $this->app = $app;
+    public function __construct( $settings = array() ) {
         $this->settings = $settings;
     }
 
     /**
      * Call
-     * @param array $env
-     * @return array[status, header, body]
+     * @return void
      */
-    public function call( &$env ) {
+    public function call() {
         try {
-            return $this->app->call($env);
+            $this->next->call();
         } catch ( Exception $e ) {
+            $env =& $this->app->environment();
             $env['slim.log']->error($e);
-            $response = new Slim_Http_Response($this->renderBody($env, $e), 500);
-            return $response->finalize();
+            $this->app->response()->status(500);
+            $this->app->response()->body($this->renderBody($env, $e));
         }
     }
 

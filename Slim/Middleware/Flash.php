@@ -43,12 +43,7 @@
   * @author     Josh Lockhart
   * @since      1.5.2
   */
-class Slim_Middleware_Flash implements Slim_Middleware_Interface, ArrayAccess {
-    /**
-     * @var Slim
-     */
-    protected $app;
-
+class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess {
     /**
      * @var array
      */
@@ -65,8 +60,7 @@ class Slim_Middleware_Flash implements Slim_Middleware_Interface, ArrayAccess {
      * @param   array $settings
      * @return  void
      */
-    public function __construct( $app, $settings = array() ) {
-        $this->app = $app;
+    public function __construct( $settings = array() ) {
         $this->settings = array_merge(array('key' => 'slim.flash'), $settings);
         $this->messages = array(
             'prev' => isset($_SESSION[$this->settings['key']]) ? $_SESSION[$this->settings['key']] : array(), //flash messages from prev request
@@ -77,14 +71,13 @@ class Slim_Middleware_Flash implements Slim_Middleware_Interface, ArrayAccess {
 
     /**
      * Call
-     * @param   array $env
-     * @return  array[status, header, body]
+     * @return  void
      */
-    public function call( &$env ) {
+    public function call() {
+        $env =& $this->app->environment();
         $env['slim.flash'] = $this;
-        list($status, $header, $body) = $this->app->call($env);
+        $this->next->call();
         $this->save();
-        return array($status, $header, $body);
     }
 
     /**

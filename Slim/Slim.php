@@ -1063,28 +1063,16 @@ class Slim {
     /**
      * Add middleware
      *
-     * This method inserts new middleware onto the application middleware stack.
-     * The argument shoud be the name of the middleware class. The class should already
-     * be included or required, else be discoverable by a registered autoloader.
+     * This method prepends new middleware to the application middleware stack.
+     * The argument must be an instance that subclasses Slim_Middleware.
      *
-     * @param   string $className The name of the middleware class
-     * @param   array  $settings  Key-Value array of settings for the middleware
+     * @param   Slim_Middleware
      * @return  void
-     * @throws  InvalidArgumentException If first argument is not a string
-     * @throws  InvalidArgumentException If class does not implement Slim_Middleware_Interface
-     * @throws  RuntimeException If class is not found
      */
-    public function add( $className, $settings = array() ) {
-        if ( !is_string($className) ) {
-            throw new InvalidArgumentException('Cannot add middleware; argument must be a string.');
-        }
-        if ( !class_exists($className) ) {
-            throw new RuntimeException('Cannot add middleware; class not found.');
-        }
-        if ( !in_array('Slim_Middleware_Interface', class_implements($className)) ) {
-            throw new InvalidArgumentException('Cannot add middleware; class does not implement Slim_Middleware_Interface.');
-        }
-        array_unshift($this->middleware, new $className($this->middleware[0], $settings));
+    public function add( Slim_Middleware $newMiddleware ) {
+        $newMiddleware->setApplication($this);
+        $newMiddleware->setNextMiddleware($this->middleware[0]);
+        array_unshift($this->middleware, $newMiddleware);
     }
 
     /***** RUN SLIM *****/
@@ -1100,12 +1088,15 @@ class Slim {
      */
     public function run() {
         //Apply final outer middleware layers
-        $this->add('Slim_Middleware_Flash');
-        $this->add('Slim_Middleware_MethodOverride');
-        $this->add('Slim_Middleware_PrettyExceptions');
+        $this->add(new Slim_Middleware_Flash());
+        $this->add(new Slim_Middleware_MethodOverride());
+        $this->add(new Slim_Middleware_PrettyExceptions());
+
+        //Invoke middleware and application stack
+        $this->middleware[0]->call();
 
         //Fetch status, header, and body
-        list($status, $header, $body) = $this->middleware[0]->call($this->environment);
+        list($status, $header, $body) = $this->response->finalize();
 
         //Send headers
         if ( headers_sent() === false ) {
@@ -1133,15 +1124,13 @@ class Slim {
      * Call
      *
      * Iterate each matching Route until all Routes are exhausted.
-     * Return an array of HTTP status, header, and body.
      *
-     * @param   array   $env    Key-value array of environment properties
-     * @return  array           [status, header, body]
+     * @return void
      */
-    public function call( &$env ) {
+    public function call() {
         try {
-            if ( isset($env['slim.flash']) ) {
-                $this->view()->setData('flash', $env['slim.flash']);
+            if ( isset($this->environment['slim.flash']) ) {
+                $this->view()->setData('flash', $this->environment['slim.flash']);
             }
             $this->applyHook('slim.before');
             ob_start();
@@ -1149,7 +1138,7 @@ class Slim {
             $dispatched = false;
             $httpMethodsAllowed = array();
             foreach ( $this->router as $route ) {
-                if ( $route->supportsHttpMethod($env['REQUEST_METHOD']) ) {
+                if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
                         $this->applyHook('slim.before.dispatch');
                         $dispatched = $route->dispatch();
@@ -1172,16 +1161,13 @@ class Slim {
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
             $this->response()->write(ob_get_contents());
-            return $this->response->finalize();
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
-            return $this->response->finalize();
         } catch ( Exception $e ) {
             if ( $this->config('debug') ){
                 throw $e;
             } else {
                 try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
-                return $this->response->finalize();
             }
         }
     }
