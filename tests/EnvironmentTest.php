@@ -59,20 +59,18 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test private constructor
-     */
-    public function testPrivateConstructor() {
-        $this->setExpectedException('RuntimeException');
-        $env = new Slim_Environment();
-    }
-
-    /**
-     * Test mock object
+     * Test mock environment
+     *
+     * This should return the custom values where specified
+     * and the default values otherwise.
      */
     public function testMockEnvironment() {
         $env = Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'PUT'
         ));
+        $env2 = Slim_Environment::getInstance();
+        $this->assertSame($env, $env2);
+        $this->assertInstanceOf('Slim_Environment', $env);
         $this->assertEquals('PUT', $env['REQUEST_METHOD']);
         $this->assertEquals(80, $env['SERVER_PORT']);
     }
@@ -244,23 +242,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['HTTP_CONTENT_TYPE'] = 'text/csv';
         $_SERVER['HTTP_CONTENT_LENGTH'] = 150;
         $env = Slim_Environment::getInstance(true);
-        $this->assertNotContains('HTTP_CONTENT_TYPE', $env);
-        $this->assertNotContains('HTTP_CONTENT_LENGTH', $env);
-    }
-
-    /**
-     * Test unsets CONTENT_TYPE and CONTENT_LENGTH if they are empty
-     *
-     * Pre-conditions:
-     * CONTENT_TYPE and CONTENT_LENGTH are sent in client HTTP request;
-     * CONTENT_TYPE and CONTENT_LENGTH are empty;
-     */
-    public function testUnsetsEmptyContentTypeAndContentLength() {
-        $_SERVER['CONTENT_TYPE'] = '';
-        $_SERVER['CONTENT_LENGTH'] = '';
-        $env = Slim_Environment::getInstance(true);
-        $this->assertNotContains('CONTENT_TYPE', $env);
-        $this->assertNotContains('CONTENT_LENGTH', $env);
+        $this->assertFalse(isset($env['HTTP_CONTENT_TYPE']));
+        $this->assertFalse(isset($env['HTTP_CONTENT_LENGTH']));
     }
 
     /**
