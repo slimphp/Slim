@@ -73,7 +73,7 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
      * @return  array[status, header, body]
      */
     public function call() {
-        $env =& $this->app->environment();
+        $env = $this->app->environment();
         if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
             $req = new Slim_Http_Request($env);
             $method = $req->post($this->settings['key']);

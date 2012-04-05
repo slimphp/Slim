@@ -55,7 +55,7 @@ class CustomView extends Slim_View {
 //Mock middleware
 class CustomMiddleware extends Slim_Middleware {
     public function call() {
-        $env =& $this->app->environment();
+        $env = $this->app->environment();
         $res = $this->app->response();
         $env['slim.test'] = 'Hello';
         $this->next->call();

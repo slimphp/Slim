@@ -74,7 +74,7 @@ class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess {
      * @return  void
      */
     public function call() {
-        $env =& $this->app->environment();
+        $env = $this->app->environment();
         $env['slim.flash'] = $this;
         $this->next->call();
         $this->save();

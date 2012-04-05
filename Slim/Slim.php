@@ -512,9 +512,9 @@ class Slim {
 
     /**
      * Get a reference to the Environment object
-     * @return array
+     * @return Slim_Environment
      */
-    public function &environment() {
+    public function environment() {
         return $this->environment;
     }
 

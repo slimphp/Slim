@@ -63,7 +63,7 @@ class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
         try {
             $this->next->call();
         } catch ( Exception $e ) {
-            $env =& $this->app->environment();
+            $env = $this->app->environment();
             $env['slim.log']->error($e);
             $this->app->response()->status(500);
             $this->app->response()->body($this->renderBody($env, $e));
