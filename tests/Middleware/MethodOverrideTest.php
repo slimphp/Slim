@@ -32,14 +32,26 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Middleware/Interface.php';
-require_once 'Slim/Http/Util.php';
-require_once 'Slim/Http/Request.php';
-require_once 'Slim/Middleware/MethodOverride.php';
+require_once 'Slim/Slim.php';
 
+/**
+ * We use a mock application, instead of a Slim application.
+ * so that we may easily test the Method Override middleware
+ * in isolation.
+ */
 class CustomAppMethod {
-    function call( &$env ) {
-        return $env['REQUEST_METHOD'];
+    protected $environment;
+
+    public function __construct() {
+        $this->environment = Slim_Environment::getInstance();
+    }
+
+    public function &environment() {
+        return $this->environment;
+    }
+
+    function call() {
+        //Do nothing
     }
 }
 
@@ -48,24 +60,19 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
      * Test overrides method as POST
      */
     public function testOverrideMethodAsPost() {
-        $env = array(
+        Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
             'CONENT_LENGTH' => 11,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '_METHOD=PUT',
-            'slim.errors' => fopen('php://stderr', 'w')
-        );
+            'slim.input' => '_METHOD=PUT'
+        ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride($app);
-        $result = $mw->call($env);
-        $this->assertEquals('PUT', $result);
+        $mw = new Slim_Middleware_MethodOverride();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $env =& $app->environment();
+        $this->assertEquals('PUT', $env['REQUEST_METHOD']);
         $this->assertArrayHasKey('slim.method_override.original_method', $env);
         $this->assertEquals('POST', $env['slim.method_override.original_method']);
     }
@@ -74,22 +81,17 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
      * Test does not override method if not POST
      */
     public function testDoesNotOverrideMethodIfNotPost() {
-        $env = array(
+        Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => '_METHOD=PUT',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w')
-        );
+            'slim.input' => ''
+        ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride($app);
-        $result = $mw->call($env);
-        $this->assertEquals('GET', $result);
+        $mw = new Slim_Middleware_MethodOverride();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $env =& $app->environment();
+        $this->assertEquals('GET', $env['REQUEST_METHOD']);
         $this->assertFalse(isset($env['slim.method_override.original_method']));
     }
 
@@ -97,7 +99,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
      * Test does not override method if no method ovveride parameter
      */
     public function testDoesNotOverrideMethodAsPostWithoutParameter() {
-        $env = array(
+        Slim_Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
@@ -108,11 +110,14 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => fopen('php://stderr', 'w')
-        );
+        ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride($app);
-        $result = $mw->call($env);
-        $this->assertEquals('POST', $result);
+        $mw = new Slim_Middleware_MethodOverride();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $env =& $app->environment();
+        $this->assertEquals('POST', $env['REQUEST_METHOD']);
         $this->assertFalse(isset($env['slim.method_override.original_method']));
     }
 }

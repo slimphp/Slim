@@ -32,29 +32,7 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Middleware/Interface.php';
-require_once 'Slim/Http/Util.php';
-require_once 'Slim/Http/Request.php';
-require_once 'Slim/Http/Response.php';
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Middleware/SessionCookie.php';
-
-class CustomAppSet {
-    function call( &$env ) {
-        $_SESSION['foo'] = 'bar';
-        return array(200, array(), 'Test');
-    }
-}
-
-class CustomAppGet {
-    function call( &$env ) {
-        if ( isset($_SESSION['foo']) ) {
-            return array(200, array(), $_SESSION['foo']);
-        } else {
-            return array(200, array(), 'Not Set');
-        }
-    }
-}
+require_once 'Slim/Slim.php';
 
 class SessionCookieTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
@@ -69,15 +47,19 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * 2) That the HTTP cookie is constructed in the expected format;
      */
     public function testSessionCookieIsCreatedAndEncrypted() {
-        $env = array(
-            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        );
-        $app = new CustomAppSet();
-        $mw = new Slim_Middleware_SessionCookie($app, array(
-            'expires' => '10 years'
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
         ));
-        list($status, $header, $body) = $mw->call($env);
+        $app = new Slim();
+        $app->get('/foo', function () {
+            echo "Success";
+        });
+        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        list($status, $header, $body) = $app->response()->finalize();
         $matches = array();
         preg_match_all('@^slim_session=.+|.+|.+; expires=@', $header['Set-Cookie'], $matches, PREG_SET_ORDER);
         $this->assertEquals(1, count($matches));
@@ -91,14 +73,19 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * to be the default values.
      */
     public function testSessionIsPopulatedFromCookie() {
-        $env = array(
-            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo',
             'COOKIE' => 'slim_session=1639490378%7CqWbI5R%2Bf%2B%2F1KfHQQ9cANqEEdK5aNhf%2FQy2WX%2FCFOG5Y%3D%7Ce207c55544e1f7889a357ab39700f9cbb3836ea3',
-        );
-        $app = new CustomAppGet();
-        $mw = new Slim_Middleware_SessionCookie($app);
-        list($status, $header, $body) = $mw->call($env);
+        ));
+        $app = new Slim();
+        $app->get('/foo', function () {
+            echo "Success";
+        });
+        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
         $this->assertEquals(array('foo' => 'bar'), $_SESSION);
     }
 
@@ -106,13 +93,18 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * Test $_SESSION is populated as empty array if no HTTP cookie
      */
     public function testSessionIsPopulatedAsEmptyIfNoCookie() {
-        $env = array(
-            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        );
-        $app = new CustomAppGet();
-        $mw = new Slim_Middleware_SessionCookie($app);
-        list($status, $header, $body) = $mw->call($env);
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
+        ));
+        $app = new Slim();
+        $app->get('/foo', function () {
+            echo "Success";
+        });
+        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
         $this->assertEquals(array(), $_SESSION);
     }
 }

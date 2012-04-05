@@ -32,50 +32,50 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Middleware/Interface.php';
-require_once 'Slim/Middleware/PrettyExceptions.php';
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Http/Response.php';
-require_once 'Slim/Log.php';
-require_once 'Slim/LogFileWriter.php';
-
-class CustomAppExc {
-    function call( &$env ) {
-        return array(200, array('Content-Type' => 'text/html'), 'Hello world');
-    }
-}
-
-class CustomAppWithException {
-    function call( &$env ) {
-        throw new Exception('Danger, Will Robinson!', 600);
-        return array(200, array('Content-Type' => 'text/html'), 'Hello world');
-    }
-}
+require_once 'Slim/Slim.php';
 
 class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test middleware returns successful response unchanged
      */
     public function testReturnsUnchangedSuccessResponse() {
-        $env = array(); //stub
-        $app = new CustomAppExc();
-        $mw = new Slim_Middleware_PrettyExceptions($app);
-        list($status, $header, $body) = $mw->call($env);
-        $this->assertEquals(200, $status);
-        $this->assertEquals('Hello world', $body);
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
+        ));
+        $app = new Slim();
+        $app->get('/foo', function () {
+            echo "Success";
+        });
+        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $this->assertEquals(200, $app->response()->status());
+        $this->assertEquals('Success', $app->response()->body());
     }
 
     /**
      * Test middleware returns diagnostic screen for error response
      */
     public function testReturnsDiagnosticsForErrorResponse() {
-        $env = array(
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo',
             'slim.log' => new Slim_Log(new Slim_LogFileWriter(fopen('php://temp', 'w')))
-        );
-        $app = new CustomAppWithException();
-        $mw = new Slim_Middleware_PrettyExceptions($app);
-        list($status, $header, $body) = $mw->call($env);
-        $this->assertEquals(500, $status);
-        $this->assertEquals(1, preg_match('#<h1>Slim Application Error</h1>#', $body));
+        ));
+        $app = new Slim(array('debug' => false));
+        $app->get('/foo', function () {
+            throw new Exception();
+        });
+        $app->error(function () {
+            echo 'Error';
+        });
+        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $this->assertEquals(500, $app->response()->status());
+        $this->assertEquals('Error', $app->response()->body());
     }
 }

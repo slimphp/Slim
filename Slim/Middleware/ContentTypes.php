@@ -43,12 +43,7 @@
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class Slim_Middleware_ContentTypes implements Slim_Middleware_Interface {
-    /**
-     * @var Slim
-     */
-    protected $app;
-
+class Slim_Middleware_ContentTypes extends Slim_Middleware {
     /**
      * @var array
      */
@@ -56,11 +51,9 @@ class Slim_Middleware_ContentTypes implements Slim_Middleware_Interface {
 
     /**
      * Constructor
-     * @param Slim $app
      * @param array $settings
      */
-    public function __construct( $app, $settings = array() ) {
-        $this->app = $app;
+    public function __construct( $settings = array() ) {
         $this->contentTypes = array_merge(array(
             'application/json' => array($this, 'parseJson'),
             'application/xml' => array($this, 'parseXml'),
@@ -71,15 +64,15 @@ class Slim_Middleware_ContentTypes implements Slim_Middleware_Interface {
 
     /**
      * Call
-     * @param   array $env
-     * @return  array[status, header, body]
+     * @return void
      */
-    public function call( &$env ) {
+    public function call() {
+        $env =& $this->app->environment();
         if ( isset($env['CONTENT_TYPE']) ) {
             $env['slim.input_original'] = $env['slim.input'];
             $env['slim.input'] = $this->parse($env['slim.input'], $env['CONTENT_TYPE']);
         }
-        return $this->app->call($env);
+        $this->next->call();
     }
 
     /**
