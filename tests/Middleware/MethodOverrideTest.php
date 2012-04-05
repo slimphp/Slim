@@ -73,7 +73,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
         $mw->call();
         $env =& $app->environment();
         $this->assertEquals('PUT', $env['REQUEST_METHOD']);
-        $this->assertArrayHasKey('slim.method_override.original_method', $env);
+        $this->assertTrue(isset($env['slim.method_override.original_method']));
         $this->assertEquals('POST', $env['slim.method_override.original_method']);
     }
 
