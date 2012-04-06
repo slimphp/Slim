@@ -175,18 +175,13 @@ class Slim_Environment {
         if ( strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 ) {
             //Without URL rewrite
             $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
-            if ( isset($_SERVER['PATH_INFO']) ) {
-                $env['PATH_INFO'] = $_SERVER['PATH_INFO'];
-            } else {
-                $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            }
         } else {
             //With URL rewrite
             $env['SCRIPT_NAME'] = pathinfo($_SERVER['SCRIPT_NAME'], PATHINFO_DIRNAME);
-            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            if ( strpos($env['PATH_INFO'], '?') !== false ) {
-                $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
-            }
+        }
+        $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
+        if ( strpos($env['PATH_INFO'], '?') !== false ) {
+            $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
         }
         $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
         $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
