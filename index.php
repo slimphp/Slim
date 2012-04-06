@@ -1,4 +1,17 @@
 <?php
+echo $_SERVER['REQUEST_URI'], "\n";
+if ( isset($_SERVER['PATH_INFO']) ) {
+    echo $_SERVER['PATH_INFO'], "\n";
+} else {
+    echo "No PATH_INFO\n";
+}
+if ( isset($_SERVER['ORIG_PATH_INFO']) ) {
+    echo $_SERVER['ORIG_PATH_INFO'], "\n";
+} else {
+    echo "No ORIG_PATH_INFO\n";
+}
+exit;
+
 /**
  * Step 1: Require the Slim PHP 5 Framework
  *
