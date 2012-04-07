@@ -39,6 +39,8 @@ routing.markdown
 
     routing-conditions.markdown
 
+    routing-middleware.markdown
+
     routing-helpers.markdown
 
         routing-helpers-halt.markdown
