@@ -73,6 +73,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Slim_Environment', $env);
         $this->assertEquals('PUT', $env['REQUEST_METHOD']);
         $this->assertEquals(80, $env['SERVER_PORT']);
+        $this->assertNull($env['foo']);
     }
 
     /**
