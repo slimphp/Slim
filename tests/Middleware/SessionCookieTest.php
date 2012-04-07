@@ -94,7 +94,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
         $env = array(
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'COOKIE' => 'slim_session=1639490378%7CqWbI5R%2Bf%2B%2F1KfHQQ9cANqEEdK5aNhf%2FQy2WX%2FCFOG5Y%3D%7Ce207c55544e1f7889a357ab39700f9cbb3836ea3',
+            'COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         );
         $app = new CustomAppGet();
         $mw = new Slim_Middleware_SessionCookie($app);
