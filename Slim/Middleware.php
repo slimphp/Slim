@@ -62,6 +62,18 @@ abstract class Slim_Middleware {
     }
 
     /**
+     * Get application
+     *
+     * This method retrieves the application previously injected
+     * into this middleware.
+     *
+     * @return Slim
+     */
+    final public function getApplication() {
+        return $this->app;
+    }
+
+    /**
      * Set next middleware
      *
      * This method injects the next downstream middleware into
@@ -73,6 +85,18 @@ abstract class Slim_Middleware {
      */
     final public function setNextMiddleware( $nextMiddleware ) {
         $this->next = $nextMiddleware;
+    }
+
+    /**
+     * Get next middleware
+     *
+     * This method retrieves the next downstream middleware
+     * previously injected into this middleware.
+     *
+     * @return Slim|Slim_Middleware
+     */
+    final public function getNextMiddleware() {
+        return $this->next;
     }
 
     /**
