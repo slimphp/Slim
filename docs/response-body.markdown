@@ -1,14 +1,14 @@
 # Response Body [response-body] #
 
-The HTTP response ultimately returned to the client will have a body. The HTTP body is the actual content of the HTTP response delivered to the client. You can use the Slim application's Response object to set the HTTP response's body like this:
+The HTTP response returned to the client will have a body. The HTTP body is the actual content of the HTTP response delivered to the client. You can use the Slim application's Response object to set the HTTP response's body like this:
 
     $response = $app->response();
     $response->body('Foo'); //The body is now "Foo" (overwrites)
-    $response->write('Bar'); //The body is now "Foo Bar" (appends)
+    $response->write('Bar'); //The body is now "FooBar" (appends)
 
 When you overwrite or append the Response's body, the Response object will automatically set the `Content-Length` header based on the byte size of the new response body.
 
-You can also fetch the Response object's body using the same Response `body()` instance method without an argument like this:
+You can fetch the Response object's body using the same Response `body()` instance method without an argument like this:
 
     $response = $app->response();
     $body = $response->body();

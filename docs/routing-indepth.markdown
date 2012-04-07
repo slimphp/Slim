@@ -4,7 +4,7 @@ Slim's routing methods, described earlier, help you map a resource URI to a call
 
 When you invoke a routing method (e.g `get()`, `post()`, `put()`, etc.) to define a route, you are actually telling Slim to create a Route object that responds to the respective HTTP request method. The Route object will know its resource URI, its callback, and the HTTP methods to which it responds. You may further assign [names](#routing-names) and [conditions](#routing-conditions) to a Route object.
 
-When you invoke the `run()` application instance method, Slim will determine the current HTTP request's method and URI. Slim next iterates over each route in your application in the order they were defined. If a route's URI matches the HTTP request's URI, Slim asks the matching route if it answers to the current HTTP request's method. If yes, the route's callback is invoked; if no, the Route is ignored but Slim remembers the HTTP methods to which that Route *does* respond (more on this in a bit).
+When you invoke your app's `run()` method, Slim will determine the current HTTP request's method and URI. Slim next iterates over each route in your application in the order they were defined. If a route's URI matches the HTTP request's URI, Slim asks the matching route if it answers to the current HTTP request's method. If yes, the route's callback is invoked; if no, the Route is ignored but Slim remembers the HTTP methods to which that Route *does* respond (more on this in a bit).
 
 If a route matches both the current HTTP request's URI and method, Slim will invoke that Route's callback and send the eventual HTTP response to the client. Subsequent route objects will not be iterated.
 

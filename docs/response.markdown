@@ -1,6 +1,6 @@
 # The Response Object [response] #
 
-Each Slim application instance has one Response object. The Response object is a high-level interface that allows you to more easily interact with the HTTP response that is ultimately returned to the HTTP client. Although each Slim application includes a default Response object, the `Slim_Http_Response` class is idempotent; you may instantiate the class at will (in [Middleware](#middleware) or elsewhere in your Slim application) without affecting the application as a whole.
+Each Slim application instance has one Response object. The Response object is a high-level interface that allows you to easily interact with the HTTP response that is returned to the HTTP client. Although each Slim application includes a default Response object, the `Slim_Http_Response` class is idempotent; you may instantiate the class at will (in [Middleware](#middleware) or elsewhere in your Slim application) without affecting the application as a whole.
 
 You can obtain a reference to the Slim application's Response object like this:
 

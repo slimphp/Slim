@@ -16,4 +16,4 @@ You may also enable debugging during runtime with the Slim application's `config
     //Disable debugging
     $app->config('debug', false);
 
-If debugging is enabled, a detailed error message will appear with the error description, the affected file, the file line number, and a stack trace. If debugging is disabled, your [custom Error handler](#error-handler) will be invoked instead.
+If debugging is enabled and an exception or error occurs, a detailed error message will appear with the error description, the affected file, the file line number, and a stack trace. If debugging is disabled, your [custom Error handler](#error-handler) will be invoked instead.

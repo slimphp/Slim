@@ -104,12 +104,14 @@ caching.markdown
     caching-etag.markdown
 
     caching-last-modified.markdown
-        
+
+    caching-expires.markdown
+
 middleware.markdown
 
     middleware-architecture.markdown
 
-    middleware-interface.markdown
+    middleware-implementation.markdown
 
     middleware-add.markdown
 

@@ -16,7 +16,7 @@ If you invoke the Slim application's `notFound()` instance method and specify a 
     //For PHP < 5.3
     $app->notFound('custom_not_found_callback');
     function custom_not_found_callback() {
-        global $app;
+        $app = Slim::getInstance();
         $app->render('404.html');
     }
 
@@ -27,7 +27,7 @@ If you invoke the Slim application's `notFound()` instance method without any ar
     $app = new Slim();
 
     $app->get('/hello/:name', function ($name) use ($app) {
-        if( $name === 'Waldo' ){
+        if ( $name === 'Waldo' ) {
             $app->notFound();
         } else {
             echo "Hello, $name";
