@@ -157,6 +157,8 @@ class Slim {
         $this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
+        $this->add(new Slim_Middleware_Flash());
+        $this->add(new Slim_Middleware_MethodOverride());
 
         //Determine application mode
         $this->getMode();
@@ -1088,8 +1090,6 @@ class Slim {
      */
     public function run() {
         //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_Flash());
-        $this->add(new Slim_Middleware_MethodOverride());
         $this->add(new Slim_Middleware_PrettyExceptions());
 
         //Invoke middleware and application stack
