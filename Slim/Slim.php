@@ -141,6 +141,8 @@ class Slim {
         $this->response = new Slim_Http_Response();
         $this->router = new Slim_Router($this->request, $this->response);
         $this->middleware = array($this);
+        $this->add(new Slim_Middleware_Flash());
+        $this->add(new Slim_Middleware_MethodOverride());
 
         //Determine application mode
         $this->getMode();
@@ -1128,8 +1130,6 @@ class Slim {
         set_error_handler(array('Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_Flash());
-        $this->add(new Slim_Middleware_MethodOverride());
         $this->add(new Slim_Middleware_PrettyExceptions());
 
         //Invoke middleware and application stack
