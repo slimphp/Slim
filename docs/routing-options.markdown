@@ -17,7 +17,7 @@ Use the `options()` application instance method to map a callback function to a 
 
 In this example, an HTTP OPTIONS request for “/books/1” will invoke the associated callback function.
 
-The first argument of the `options()` application instance method is the resource URI. The second argument is anything that returns `true` for `is_callable()`. I encourage you to use PHP >= 5.3 so you may take advantage of anonymous functions.
+The first argument of the `options()` application instance method is the resource URI. The last argument is anything that returns `true` for `is_callable()`. I encourage you to use PHP >= 5.3 so you may take advantage of anonymous functions.
 
 ## Method Override ##
 

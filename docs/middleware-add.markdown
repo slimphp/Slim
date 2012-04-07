@@ -1,52 +1,28 @@
 # Add Middleware [middleware-add] #
 
-Use the Slim application's `add()` instance method to add new middleware around the Slim application. New middleware will surround previously added middleware, or the Slim application itself if no middleware has yet been added.
+Use the Slim application's `add()` instance method to add new middleware to a Slim application. New middleware will surround previously added middleware, or the Slim application itself if no middleware has yet been added.
 
 ## Example Middleware ##
 
-This middleware will convert the HTTP response body to uppercase.
-
-    class UpperCaseMiddleware implements Slim_Middleware_Interface {
-        protected $app;
-        protected $settings;
-    
-        public function __construct( $app, $settings = array() ) {
-            $this->app = $app;
-            $this->settings = $settings;
-        }
-
-        public function call( &$env ) {
-            list($status, $header, $body) = $this->app->call($env);
-            return array($status, $header, strtoupper($body));
+    class Secret_Middleware extends Slim_Middleware {
+        public function call() {
+            $app = $this->app;
+            $req = $this->request();
+            $res = $this->response();
+            if ( $req->headers('X-Secret-Request') === 'The sun is shining' ) {
+                $res->header('X-Secret-Response') = 'But the ice is slippery';
+            }
+            $this->next->call();
         }
     }
 
-## Example Application ##
-
-This example demonstrates how to add the above middleware to a Slim application.
+## Add Middleware ##
 
     $app = new Slim();
-    $app->add('UpperCaseMiddleware');
-    $app->get('/', function () {
-        echo "hello";
+    $app->add(new Secret_Middleware());
+    $app->get('/foo', function () use ($app) {
+        //Do something
     });
     $app->run();
 
-The first argument to the `add()` method **must** be the class name of the middleware. The middleware must already be required or be discoverable by a registered autoloader.
-
-When this application runs and the resource identified by "/" is invoked, the eventual HTTP response body will be "HELLO".
-
-## Middleware Settings ##
-
-You may also provide an array of settings as the second argument of the Slim application's `add()` instance method to customize the middleware.
-
-    $app = new Slim();
-    $app->add('UpperCaseMiddleware', array(
-        'foo' => 'bar'
-    ));
-    $app->get('/', function () {
-        echo "hello";
-    });
-    $app->run();
-
-The array of settings will be passed into the middleware's constructor as its second argument.
+The Slim application's `add()` method accepts one argument: a middleware instance. If the middleware instance requires special configuration, it may implement its own constructor so that it may be configured before it is added to the Slim application.

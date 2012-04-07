@@ -1,6 +1,6 @@
 # Hooks [hooks] #
 
-A Slim application provides a hook architecture, allowing you to register callables to be invoked at specific moments in the Slim application lifecycle.
+A Slim application provides a set of hooks to which you can register your own callbacks.
 
 A “hook” is a moment in the Slim application lifecycle at which a priority list of callables assigned to the hook will be invoked. A hook is identified by a string name.
 

@@ -13,7 +13,7 @@ Only Cookies **sent** with the current HTTP request are accessible with this met
 
 ## Get Encrypted Cookies [request-cookies-encrypted] ##
 
-If you previously set an encrypted cookie, you can fetch its unencrypted value with the Slim application's `getEncryptedCookie()` instance method like this:
+If you previously set an encrypted cookie, you can fetch its decrypted value with the Slim application's `getEncryptedCookie()` instance method like this:
 
     $cookieValue = $app->getEncryptedCookie('foo');
 

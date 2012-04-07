@@ -1,6 +1,6 @@
 # Route Parameters [routing-parameters] #
 
-As you may have noticed above, you can embed parameters into route resource URIs. In this example, I have two parameters in my route URI, “:one” and “:two”.
+You can embed parameters into route resource URIs. In this example, I have two parameters in my route URI, “:one” and “:two”.
 
     $app = new Slim();
 
@@ -21,7 +21,7 @@ To create a URL parameter, prepend “:” to the parameter name in the route UR
 
 ## Optional Route Parameters
 
-You may also have optional route segments. These are ideal for using one route for a blog archive. To declare optional route parameters, specify your route pattern like this:
+You may also have optional route parameters. These are ideal for using one route for a blog archive. To declare optional route parameters, specify your route pattern like this:
 
     $app = new Slim();
     $app->get('/archive(/:year(/:month(/:day)))', function ($year = 2010, $month = 12, $day = 05) {
@@ -37,4 +37,4 @@ Each subsequent route segment is optional. This route will accept HTTP requests 
 
 If an optional route segment is omitted from the HTTP request, the default values in the callback signature are used instead.
 
-Currently, you can only use optional route segments in situations like the example above where each route segment is subsequently optional. You may find this feature unstable when used in other scenarios unlike the one demonstrated above.
+Currently, you can only use optional route segments in situations like the example above where each route segment is subsequently optional. You may find this feature unstable when used in scenarios different from the example above.

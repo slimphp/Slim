@@ -1,6 +1,6 @@
 # Default Hooks [hooks-default] #
 
-These are the default hooks always available within a Slim application.
+These are the default hooks always invoked in a Slim application.
 
 slim.before
 :   This hook is invoked before the Slim application is run and before output buffering is turned on. This hook is invoked once during the Slim application lifecycle.

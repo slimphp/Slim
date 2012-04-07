@@ -1,20 +1,20 @@
 # Response Cookies [response-cookies] #
 
-The Slim application instance provides several helper methods that let you define cookies to be sent with the HTTP response.
+The Slim application instance provides several helper methods to send cookies with the HTTP response.
 
-## Create Cookie ##
+## Set Cookie ##
 
 This example demonstrates how to use the Slim application's `setCookie()` instance method to create a Cookie that will be sent with the HTTP response:
 
     $app->setCookie('foo', 'bar', '2 days');
 
-This creates a cookie with name **foo** and value **bar** that expires two days from now. You may also define additional cookie properties, including path, domain, secure, and httponly. The Slim application's `setCookie()` method uses the same signature as PHP's native `setCookie()` function.
+This creates a cookie with name **foo** and value **bar** that expires two days from now. You may also provide additional cookie properties, including path, domain, secure, and httponly. The Slim application's `setCookie()` method uses the same signature as PHP's native `setCookie()` function.
 
     $app->setCookie($name, $value, $expiresAt, $path, $domain, $secure, $httponly);
 
 The last argument, `$httpOnly`, was added in PHP 5.2. However, because Slim's underlying cookie implementation does not rely on PHP's native `setCookie()` function, you may use the `$httpOnly` cookie property even with PHP 5.1.
 
-## Create Encrypted Cookie [response-cookies-encrypted] ##
+## Set Encrypted Cookie [response-cookies-encrypted] ##
 
 You may also create encrypted cookies using the Slim application's `setEncryptedCookie()` instance method. This method acts the same as the Slim application's `setCookie()` instance method demonstrated above, but it will encrypt the cookie value using the AES-256 cipher and your own secret key. To use encryption, you **must** define your encryption key when you instantiate your Slim application like this:
 

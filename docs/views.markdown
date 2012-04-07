@@ -1,6 +1,6 @@
 # Views [views] #
 
-A View is a PHP class that **returns** a rendered template.
+A View is a PHP class that **returns** a rendered template as a string.
 
 ## Set the View ##
 
@@ -18,7 +18,7 @@ The Slim application View may be set during instantiation like this:
 
 During instantiation, you may pass either an instance of the View or the class name; if you use the class name, the class must be discoverable (either already included or available to a registered autoloader).
 
-The View may also be set later in the Slim application's lifecycle as needed, like this:
+The View may be set during runtime, too, like this:
 
     $app = new Slim();
     $app->get('/foo', function () use ($app) {

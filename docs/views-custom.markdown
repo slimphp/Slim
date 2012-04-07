@@ -1,6 +1,6 @@
 # Custom Views [views-custom] #
 
-A custom View is a PHP class that subclasses `Slim_View` and implements one method — `render()`. The custom View’s render method is passed the name of the template as its one and only argument.
+A custom view is a subclass of `Slim_View` that implements a public `render()` method. When the custom view’s render method is invoked, it is passed the desired template pathname (relative to the app's "templates.path" setting) as its one and only argument.
 
     class CustomView extends Slim_View {
         public function render( $template ) {
@@ -8,11 +8,11 @@ A custom View is a PHP class that subclasses `Slim_View` and implements one meth
         }
     }
 
-The custom View can do whatever it wants, so long as it ultimately returns the template’s rendered output. A custom View makes it easy to integrate popular PHP template systems, like Twig or Smarty.
+The custom view can do whatever it wants, so long as it returns the template’s rendered output as a string. A custom view makes it easy to integrate popular PHP template systems like Twig or Smarty.
 
-See the [Slim-Extras](https://github.com/codeguy/Slim-Extras) repository on GitHub for many different custom Views for different PHP template languages.
+You can browse ready-to-use custom views that work with popular PHP template engines in the [Slim-Extras](https://github.com/codeguy/Slim-Extras) repository on GitHub.
 
-The custom View class will have access to any data passed to it by the Slim application's `render()` instance method. The custom View can access this data array with `$this->data`. Here is an example.
+The custom view may access data passed to it by the Slim application's `render()` instance method. The custom view can access this array of data with `$this->data`. Here is an example.
 
 ## The Route
 
@@ -30,7 +30,7 @@ The custom View class will have access to any data passed to it by the Slim appl
         }
     }
 
-To use your custom View, you must `require()` the custom View class before you initialize Slim. Then you must tell Slim to use your custom View.
+If the custom view is not discoverable by a registered autoloader, it must be required before the Slim application is instantiated.
 
     require 'Slim/Slim.php';
     require 'CustomView.php';
@@ -38,7 +38,7 @@ To use your custom View, you must `require()` the custom View class before you i
         'view' => 'CustomView'
     ));
 
-It is also possible to pass a custom View instance into the Slim app’s constructor instead of the custom View class name. This may be helpful if your custom View requires special preparation before application instantiation.
+It is also possible to pass a custom view instance into the Slim application’s constructor instead of the custom view class name. This may be helpful if your custom view requires special preparation before application instantiation.
 
     require 'Slim/Slim.php';
     require 'CustomView.php';
