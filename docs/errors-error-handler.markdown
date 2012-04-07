@@ -4,7 +4,7 @@ You may use the Slim application's `error()` instance method to specify a custom
 
 A custom error handler should render a user-friendly message that mitigates user confusion. Similar to the Slim application's `notFound()` instance method, the `error()` instance method acts as both a getter and a setter.
 
-## Set a custom error handler ##
+## Set a Custom Error Handler ##
 
 You may set a custom error handler by passing a callable into the `error()` instance method as the first and only argument.
 
@@ -24,6 +24,6 @@ You may set a custom error handler by passing a callable into the `error()` inst
 
 In this example, notice how the custom error handler accepts the caught Exception as its argument. This allows you to respond appropriately to different exceptions.
 
-## Invoke a custom error handler ##
+## Invoke a Custom Error Handler ##
 
-Usually, the Slim application will automatically invoke the error handler when an exception or error occurs. However, you may also directly invoke this method by calling the `error()` application instance method in your code.
+Usually, the Slim application will automatically invoke the error handler when an exception or error occurs. However, you may also manually invoke the error handler with the Slim application's `error()` method (without an argument).

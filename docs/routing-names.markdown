@@ -7,7 +7,7 @@ Slim lets you assign a name to a route. Naming a route enables you to dynamicall
         echo "Hello, $name!";
     })->name('hello');
 
-You may now generate URLs for this route using the `urlFor()` application instance method, described later in this documentation. If you need to assign a name and conditions to a route, you can chain your method calls like this:
+You may now generate URLs for this route using the `urlFor()` application instance method, described later in this documentation. The route `name()` method is also chainable:
 
     $app = new Slim();
     $app->get('/hello/:name', function ($name) {

@@ -26,9 +26,49 @@ To retrieve the value of a setting, you also use the `config` application instan
 
 You are not limited to the settings shown below; you may also define your own.
 
+## mode [settings-mode] ##
+
+Declare the Slim application mode (e.g. "test", "development", "production"). However, this may be anything you want.
+
+Data Type
+:   string
+
+Default
+:   development
+
 ## debug [settings-debug]
 
 Enable or disable application debugging. If true, Slim will display debugging information for errors and exceptions. If false, Slim will instead invoke the default or custom error handler, passing the exception into the handler as the first and only argument.
+
+Data Type
+:   boolean
+
+Default
+:   true
+
+## log.writer [settings-log-writer] ##
+
+This sets the application log writer upon instantiation. This is optional. By default the application log will write logged messages to STDERR. If you do specify a custom log writer here, it must be an object that implements a `write()` public instance method that accepts a mixed argument; the `write()` method is responsible for sending the logged object to the appropriate output.
+
+Data Type
+:   mixed
+
+Default
+:   Slim_LogFileWriter
+
+## log.level [settings-log-level] ##
+
+This sets the application log level upon instantiation to determine which messages are logged.
+
+Data Type
+:   int
+
+Default
+:   4
+
+## log.enabled [settings-log-enabled] ##
+
+This enables or disables the application log upon instantiation.
 
 Data Type
 :   boolean
@@ -52,18 +92,18 @@ Determines the View class used by the Slim application.
 
 Data Type
 :   If string, the name of the custom View class;
-    If object, a subclass of `View`;
+    If object, a subclass of `Slim_View`;
 
 Default
-:   View
+:   Slim_View
 
 ## cookies.lifetime [settings-cookies-lifetime]
 
 Determines the lifetime of HTTP cookies created by the Slim application.
 
 Data Type
-:   If integer, a valid UNIX timestamp;
-    If string, anything that can be parsed by `strtotime` to extrapolate a valid UNIX timestamp.
+:   If integer, a valid UNIX timestamp at which the cookie expires;
+    If string, a description parsed by `strtotime` to extrapolate a valid UNIX timestamp.
 
 Default
 :   20 minutes
@@ -150,33 +190,3 @@ Default
 
 Possible Values
 :   "1.1" or "1.0"
-
-## log.enabled [settings-log-enabled] ##
-
-This enables or disabled the application log upon instantiation.
-
-Data Type
-:   boolean
-
-Default
-:   true
-
-## log.level [settings-log-level] ##
-
-This sets the application log level upon instantiation to determine which messages are logged.
-
-Data Type
-:   int
-
-Default
-:   4
-
-## log.writer [settings-log-writer] ##
-
-This sets the application log writer upon instantiation. This is optional. By default the application log will write logged messages to STDERR. If you do specify a custom log writer here, it must be an object that implements a `write()` public instance method that accepts a mixed argument; this method is responsible for sending the logged object to the appropriate output.
-
-Data Type
-:   mixed
-
-Default
-:   null

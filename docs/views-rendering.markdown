@@ -1,6 +1,6 @@
 # Rendering [views-rendering] #
 
-You can use the Slim application's `render()` instance method to ask the current View to render a template with a given set of variables. The `render()` method will `echo()` the output returned from the View so that the output is appended automatically to the Response object's body. This assumes nothing about how the template is rendered; that is delegated to the current View.
+You can use the Slim application's `render()` instance method to ask the current View to render a template with a given set of variables. The `render()` method will `echo()` the output returned from the View so that the output is appended automatically to the Response object's body. This assumes nothing about how the template is rendered; that is delegated to the View.
 
     $app = new Slim();
 

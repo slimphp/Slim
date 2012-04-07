@@ -1,19 +1,17 @@
 # Error Output [errors-output] #
 
-The Slim environment will always contain a key **slim.errors** with a value that is a writable resource to which log and error messages may be written. The Slim application's default [Log](#logging) will write log messages to **slim.errors** whenever an Exception is caught or the Log is manually invoked.
+The Slim environment will always contain a key **slim.errors** with a value that is a writable resource to which log and error messages may be written. The Slim application's [Slim_Log](#logging) object will write log messages to **slim.errors** whenever an Exception is caught or the `Slim_Log` object is manually invoked.
 
-If you want to redirect error output to a different location, you can define your own writable resource by modifying the Environment settings. I recommend you use [middleware](#middleware) to update the Environment like this:
+If you want to redirect error output to a different location, you can define your own writable resource by modifying the Slim application's environment settings. I recommend you use [middleware](#middleware) to update the environment like this:
 
-    class CustomErrorMiddleware {
-        protected $app;
-        protected $settings;
-        public function __construct( $app, $settings = array() ) {
-            $this->app = $app;
-            $this->settings = $settings;
-        }
-        public function call( &$env ) {
+    class CustomErrorMiddleware extends Slim_Middleware {
+        public function call() {
+            // Set new error output
+            $env = $this->app->environment();
             $env['slim.errors'] = fopen('/path/to/custom/output', 'w');
-            return $this->app->call($env);
+            
+            // Call next middleware
+            $this->next->call();
         }
     }
 
