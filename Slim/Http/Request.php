@@ -7,6 +7,7 @@
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
  * @version     1.5.2
+ * @package     Slim
  *
  * MIT LICENSE
  *

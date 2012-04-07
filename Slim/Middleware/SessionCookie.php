@@ -7,6 +7,7 @@
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
  * @version     1.5.2
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -52,7 +53,7 @@
  * you are inherently limtied to 4 Kb. If you attempt to store
  * more than this amount, serialization will fail.
  *
- * @package    Slim
+ * @package     Slim
  * @author     Josh Lockhart
  * @since      1.5.2
  */
