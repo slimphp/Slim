@@ -61,21 +61,19 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
     public function testReturnsDiagnosticsForErrorResponse() {
         Slim_Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
-            'PATH_INFO' => '/foo',
-            'slim.log' => new Slim_Log(new Slim_LogFileWriter(fopen('php://temp', 'w')))
+            'PATH_INFO' => '/foo'
         ));
-        $app = new Slim(array('debug' => false));
+        $app = new Slim(array(
+            'log.enabled' => false
+        ));
         $app->get('/foo', function () {
-            throw new Exception();
-        });
-        $app->error(function () {
-            echo 'Error';
+            throw new Exception('Test Message', 100);
         });
         $mw = new Slim_Middleware_PrettyExceptions();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
+        $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response()->body()));
         $this->assertEquals(500, $app->response()->status());
-        $this->assertEquals('Error', $app->response()->body());
     }
 }

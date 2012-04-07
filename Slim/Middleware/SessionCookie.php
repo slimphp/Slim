@@ -127,8 +127,7 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
             $this->settings['cipher_mode']
         );
         if ( strlen($value) > 4096 ) {
-            $env = $this->app->environment();
-            fwrite($env['slim.errors'], 'WARNING! Slim_Middleware_SessionCookie data size is larger than 4KB. Content save failed.');
+            $this->app->getLog()->error('WARNING! Slim_Middleware_SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
             $this->app->response()->setCookie($this->settings['name'], array(
                 'value' => $value,

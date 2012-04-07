@@ -106,9 +106,10 @@ class Slim_Middleware_ContentTypes extends Slim_Middleware {
      */
     protected function parseJson( $input ) {
         if ( function_exists('json_decode') ) {
-            return json_decode($input, true);
-        } else {
-            return $input;
+            $result = json_decode($input, true);
+            if ( $result ) {
+                return $result;
+            }
         }
     }
 

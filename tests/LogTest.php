@@ -126,4 +126,13 @@ class LogTest extends PHPUnit_Framework_TestCase {
         $result = $log->fatal('Fatal');
         $this->assertTrue($result);
     }
+
+    public function testGetAndSetWriter() {
+        $writer1 = new MyWriter();
+        $writer2 = new MyWriter();
+        $log = new Slim_Log($writer1);
+        $this->assertSame($writer1, $log->getWriter());
+        $log->setWriter($writer2);
+        $this->assertSame($writer2, $log->getWriter());
+    }
 }
