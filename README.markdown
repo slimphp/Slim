@@ -30,28 +30,30 @@ The Slim Framework for PHP 5 provides the following notable features out-of-the-
 
 The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name!";
-    });
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name!";
+});
+$app->run();
+```
 
 ## "Hello World" application (PHP 5 < 5.3)
 
 If you are running PHP 5 < 5.3, the second `Slim::get` app instance method parameter will be the name of a callable function instead of an anonymous function.
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', 'hello');
-    function hello($name) {
-        echo "Hello, $name!";
-    }
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', 'hello');
+function hello($name) {
+    echo "Hello, $name!";
+}
+$app->run();
+```
 
 ## Get Started
 
@@ -71,21 +73,29 @@ Ensure the `.htaccess` and `index.php` files are in the same public-accessible d
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
-    require 'Slim/Slim.php';
+```php
+require 'Slim/Slim.php';
+```
 
 Next, initialize the Slim application:
 
-    $app = new Slim();
+```php
+$app = new Slim();
+```
 
 Next, define your application's routes:
 
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello $name";
-    });
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello $name";
+});
+```
 
 Finally, run your Slim application:
 
+```php
     $app->run();
+```
 
 For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
