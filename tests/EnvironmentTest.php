@@ -205,6 +205,24 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test environment's PATH_INFO retains URL encoded characters (e.g. #)
+     *
+     * In earlier version, Slim_Environment would use PATH_INFO instead
+     * of REQUEST_URI to determine the root URI and resource URI.
+     * Unfortunately, the server would URL decode the PATH_INFO string
+     * before it was handed to PHP. This prevented certain URL-encoded
+     * characters like the octothorpe from being delivered correctly to
+     * the Slim application environment. This test ensures the
+     * REQUEST_URI is used instead and parsed as expected.
+     */
+    public function testPathInfoRetainsUrlEncodedCharacters() {
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '/foo/%23bar'; //<-- URL-encoded "#bar"
+        $env = Slim_Environment::getInstance(true);
+        $this->assertEquals('/foo/%23bar', $env['PATH_INFO']);
+    }
+
+    /**
      * Test parses query string
      *
      * Pre-conditions:
