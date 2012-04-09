@@ -393,13 +393,18 @@ class Slim_Http_Request {
      * @return  void
      */
     protected function checkForHttpMethodOverride() {
-        if ( isset($this->post[self::METHOD_OVERRIDE]) ) {
-            $this->method = $this->post[self::METHOD_OVERRIDE];
+        $changed = false;
+    	if ( isset($this->post[self::METHOD_OVERRIDE]) ) {
+			$this->method = $this->post[self::METHOD_OVERRIDE];
             unset($this->post[self::METHOD_OVERRIDE]);
-            if ( $this->isPut() ) {
-                $this->put = $this->post;
-            }
-        }
+            $changed = true;
+		} else if(isset($this->headers['x-method-override'] )) {
+			$this->method = $this->headers['x-method-override'];
+			$changed = true;
+		}
+		if ( $changed && $this->isPut() ) {
+			$this->put = $this->post;
+		}
     }
 
 }
