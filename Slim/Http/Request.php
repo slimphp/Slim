@@ -293,7 +293,7 @@ class Slim_Http_Request {
         if ( $key ) {
             $key = strtoupper($key);
             $key = str_replace('-', '_', $key);
-            $key = str_replace('HTTP_', '', $key);
+            $key = preg_replace('@^HTTP_@', '', $key);
             if ( isset($this->env[$key]) ) {
                 return $this->env[$key];
             } else {

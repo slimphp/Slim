@@ -392,6 +392,21 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test accurately removes HTTP_ prefix from input header name
+     */
+    public function testHeaderRemovesHttpPrefix() {
+        $env = Slim_Environment::mock(array(
+            'X_HTTP_METHOD_OVERRIDE' => 'PUT',
+            'CONTENT_TYPE' => 'application/json'
+        ));
+        //fwrite(fopen('php://stdout', 'w'), print_r($env, true));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('PUT', $req->headers('X_HTTP_METHOD_OVERRIDE'));
+        $this->assertNull($req->headers('X_METHOD_OVERRIDE')); //<-- Ensures `HTTP_` is not removed if not prefix
+        $this->assertEquals('application/json', $req->headers('HTTP_CONTENT_TYPE')); //<-- Ensures `HTTP_` is removed if prefix
+    }
+
+    /**
      * Test get body
      */
     public function testGetBodyWhenExists() {
