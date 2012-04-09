@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author	  Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @link		http://www.slimframework.com
+ * @license	 http://www.slimframework.com/license
+ * @version	 1.5.0
  *
  * MIT LICENSE
  *
@@ -30,6 +30,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+namespace Slim;
+use Slim\Logger;
+
 /**
  * Log Adapter
  *
@@ -50,106 +53,130 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Slim_Log {
+class Log
+{
 
-    /**
-     * @var mixed An object that implements expected Logger interface
-     */
-    protected $logger;
+	/**
+	 * @var Logger An object that implements expected Logger interface
+	 */
+	protected $logger;
 
-    /**
-     * @var bool Enable logging?
-     */
-    protected $enabled;
+	/**
+	 * @var bool Enable logging?
+	 */
+	protected $enabled;
 
-    /**
-     * Constructor
-     */
-    public function __construct() {
-        $this->enabled = true;
-    }
+	/**
+	 * Constructor
+	 */
+	public function __construct()
+	{
+		$this->enabled = true;
+	}
 
-    /**
-     * Enable or disable logging
-     * @param   bool    $enabled
-     * @return  void
-     */
-    public function setEnabled( $enabled ) {
-        if ( $enabled ) {
-            $this->enabled = true;
-        } else {
-            $this->enabled = false;
-        }
-    }
+	/**
+	 * Enable or disable logging
+	 *
+	 * @param   bool	$enabled
+	 *
+	 * @return  void
+	 */
+	public function setEnabled($enabled)
+	{
+		if ($enabled) {
+			$this->enabled = true;
+		} else {
+			$this->enabled = false;
+		}
+	}
 
-    /**
-     * Is logging enabled?
-     * @return bool
-     */
-    public function isEnabled() {
-        return $this->enabled;
-    }
+	/**
+	 * Is logging enabled?
+	 * @return bool
+	 */
+	public function isEnabled()
+	{
+		return $this->enabled;
+	}
 
-    /**
-     * Log debug message
-     * @param   mixed           $object
-     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function debug( $object ) {
-        return isset($this->logger) && $this->isEnabled() ? $this->logger->debug($object) : false;
-    }
+	/**
+	 * Log debug message
+	 *
+	 * @param   mixed		   $object
+	 *
+	 * @return  mixed or false	 What the Logger returns, or false if Logger not set or not enabled
+	 */
+	public function debug($object)
+	{
+		return isset($this->logger) && $this->isEnabled() ? $this->logger->debug($object) : false;
+	}
 
-    /**
-     * Log info message
-     * @param   mixed           $object
-     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function info( $object ) {
-        return isset($this->logger) && $this->isEnabled() ? $this->logger->info($object) : false;
-    }
+	/**
+	 * Log info message
+	 *
+	 * @param   mixed		   $object
+	 *
+	 * @return  mixed or false	 What the Logger returns, or false if Logger not set or not enabled
+	 */
+	public function info($object)
+	{
+		return isset($this->logger) && $this->isEnabled() ? $this->logger->info($object) : false;
+	}
 
-    /**
-     * Log warn message
-     * @param   mixed           $object
-     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function warn( $object ) {
-        return isset($this->logger) && $this->isEnabled() ? $this->logger->warn($object) : false;
-    }
+	/**
+	 * Log warn message
+	 *
+	 * @param   mixed		   $object
+	 *
+	 * @return  mixed or false	 What the Logger returns, or false if Logger not set or not enabled
+	 */
+	public function warn($object)
+	{
+		return isset($this->logger) && $this->isEnabled() ? $this->logger->warn($object) : false;
+	}
 
-    /**
-     * Log error message
-     * @param   mixed           $object
-     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function error( $object ) {
-        return isset($this->logger) && $this->isEnabled() ? $this->logger->error($object) : false;
-    }
+	/**
+	 * Log error message
+	 *
+	 * @param   mixed		   $object
+	 *
+	 * @return  mixed or false	 What the Logger returns, or false if Logger not set or not enabled
+	 */
+	public function error($object)
+	{
+		return isset($this->logger) && $this->isEnabled() ? $this->logger->error($object) : false;
+	}
 
-    /**
-     * Log fatal message
-     * @param   mixed           $object
-     * @return  mixed|false     What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function fatal( $object ) {
-        return isset($this->logger) && $this->isEnabled() ? $this->logger->fatal($object) : false;
-    }
+	/**
+	 * Log fatal message
+	 *
+	 * @param   mixed		   $object
+	 *
+	 * @return  mixed or false	 What the Logger returns, or false if Logger not set or not enabled
+	 */
+	public function fatal($object)
+	{
+		return isset($this->logger) && $this->isEnabled() ? $this->logger->fatal($object) : false;
+	}
 
-    /**
-     * Set Logger
-     * @param   mixed   $logger
-     * @return  void
-     */
-    public function setLogger( $logger ) {
-        $this->logger = $logger;
-    }
+	/**
+	 * Set Logger
+	 *
+	 * @param   mixed   $logger
+	 *
+	 * @return  void
+	 */
+	public function setLogger($logger)
+	{
+		$this->logger = $logger;
+	}
 
-    /**
-     * Get Logger
-     * @return mixed
-     */
-    public function getLogger() {
-        return $this->logger;
-    }
-
+	/**
+	 * Get Logger
+	 * @return mixed
+	 */
+	public function getLogger()
+	{
+		return $this->logger;
+	}
 }

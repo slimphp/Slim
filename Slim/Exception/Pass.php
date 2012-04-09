@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author	  Josh Lockhart <info@joshlockhart.com>
  * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @link		http://www.slimframework.com
+ * @license	 http://www.slimframework.com/license
+ * @version	 1.5.0
  *
  * MIT LICENSE
  *
@@ -30,6 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+namespace Slim\Exception;
 /**
  * Pass Exception
  *
@@ -42,4 +43,7 @@
  * @author  Josh Lockhart <info@joshlockhart.com>
  * @since   Version 1.0
  */
-class Slim_Exception_Pass extends Exception {}
+class Pass extends \Exception
+{
+
+}

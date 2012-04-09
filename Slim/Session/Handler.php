@@ -2,8 +2,8 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author	  Josh Lockhart
+ * @link		http://www.slimframework.com
  * @copyright   2011 Josh Lockhart
  *
  * MIT LICENSE
@@ -28,6 +28,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+namespace Slim\Session;
 /**
  * Abstract Session Handler
  *
@@ -41,85 +42,93 @@
  * @author Josh Lockhart
  * @since Version 1.3
  */
-abstract class Slim_Session_Handler {
+abstract class Handler
+{
 
-    /**
-     * @var Slim
-     */
-    protected $app;
+	/**
+	 * @var \Slim
+	 */
+	protected $app;
 
-    /**
-     * Register session handler
-     *
-     * @return bool
-     */
-    final public function register( Slim $app ) {
-        $this->app = $app;
-        return session_set_save_handler(
-            array($this, 'open'),
-            array($this, 'close'),
-            array($this, 'read'),
-            array($this, 'write'),
-            array($this, 'destroy'),
-            array($this, 'gc')
-        );
-    }
+	/**
+	 * Register session handler
+	 *
+	 * @param \Slim $app
+	 *
+	 * @return bool
+	 */
+	final public function register(\Slim $app)
+	{
+		$this->app = $app;
+		return session_set_save_handler(
+			array($this, 'open'),
+			array($this, 'close'),
+			array($this, 'read'),
+			array($this, 'write'),
+			array($this, 'destroy'),
+			array($this, 'gc')
+		);
+	}
 
-    /**
-     * Open session
-     *
-     * @param string $savePath
-     * @param string $sessionName
-     * @return mixed
-     */
-    abstract public function open( $savePath, $sessionName );
+	/**
+	 * Open session
+	 *
+	 * @param string $savePath
+	 * @param string $sessionName
+	 *
+	 * @return mixed
+	 */
+	abstract public function open($savePath, $sessionName);
 
-    /**
-     * Close session
-     *
-     * @return mixed
-     */
-    abstract public function close();
+	/**
+	 * Close session
+	 *
+	 * @return mixed
+	 */
+	abstract public function close();
 
-    /**
-     * Read session data with ID
-     *
-     * @param string $id The session identifier
-     * @return string
-     */
-    abstract public function read( $id );
+	/**
+	 * Read session data with ID
+	 *
+	 * @param string $id The session identifier
+	 *
+	 * @return string
+	 */
+	abstract public function read($id);
 
-    /**
-     * Write session data with ID
-     *
-     * The "write" handler is not executed until after the output stream is
-     * closed. Thus, output from debugging statements in the "write" handler
-     * will never be seen in the browser. If debugging output is necessary, it
-     * is suggested that the debug output be written to a file instead.
-     *
-     * @param string $id The session identifier
-     * @param mixed $sessionData The session data
-     * @return mixed
-     */
-    abstract public function write( $id, $sessionData );
+	/**
+	 * Write session data with ID
+	 *
+	 * The "write" handler is not executed until after the output stream is
+	 * closed. Thus, output from debugging statements in the "write" handler
+	 * will never be seen in the browser. If debugging output is necessary, it
+	 * is suggested that the debug output be written to a file instead.
+	 *
+	 * @param string $id The session identifier
+	 * @param mixed $sessionData The session data
+	 *
+	 * @return mixed
+	 */
+	abstract public function write($id, $sessionData);
 
-    /**
-     * Destroy session with ID
-     *
-     * @param string $id The session identifier
-     * @return mixed
-     */
-    abstract public function destroy( $id );
+	/**
+	 * Destroy session with ID
+	 *
+	 * @param string $id The session identifier
+	 *
+	 * @return mixed
+	 */
+	abstract public function destroy($id);
 
-    /**
-     * Session garbage collection
-     *
-     * Executed when the PHP session garbage collector is invoked; should
-     * remove all session data older than the `$maxLifetime`.
-     *
-     * @param int $maxLifetime
-     * @return mixed
-     */
-    abstract public function gc( $maxLifetime );
-
+	/**
+	 * Session garbage collection
+	 *
+	 * Executed when the PHP session garbage collector is invoked; should
+	 * remove all session data older than the `$maxLifetime`.
+	 *
+	 * @param int $maxLifetime
+	 *
+	 * @return mixed
+	 */
+	abstract public function gc($maxLifetime);
 }
