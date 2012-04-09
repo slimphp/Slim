@@ -75,7 +75,12 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
      */
     public function call() {
         $env = $this->app->environment();
-        if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
+        if ( isset($env['X_HTTP_METHOD_OVERRIDE']) ) {
+            // Header commonly used by Backbone.js and others
+            $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
+            $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
+        } else if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
+            // HTML Form Override
             $req = new Slim_Http_Request($env);
             $method = $req->post($this->settings['key']);
             if ( $method ) {

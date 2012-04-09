@@ -120,4 +120,26 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('POST', $env['REQUEST_METHOD']);
         $this->assertFalse(isset($env['slim.method_override.original_method']));
     }
+
+    /**
+     * Test overrides method with X-Http-Method-Override header
+     */
+    public function testOverrideMethodAsHeader() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json',
+            'CONENT_LENGTH' => 0,
+            'slim.input' => '',
+            'X_HTTP_METHOD_OVERRIDE' => 'DELETE'
+        ));
+        $app = new CustomAppMethod();
+        $mw = new Slim_Middleware_MethodOverride();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $env =& $app->environment();
+        $this->assertEquals('DELETE', $env['REQUEST_METHOD']);
+        $this->assertTrue(isset($env['slim.method_override.original_method']));
+        $this->assertEquals('POST', $env['slim.method_override.original_method']);
+    }
 }
