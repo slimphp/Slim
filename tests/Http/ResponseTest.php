@@ -83,7 +83,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     public function testGetHeaders() {
         $r = new Slim_Http_Response();
         $headers = $r->headers();
-        $this->assertEquals(2, count($headers));
+        $this->assertEquals(1, count($headers));
         $this->assertEquals('text/html', $headers['Content-Type']);
     }
 
@@ -159,7 +159,6 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
         $result = $r->finalize();
         $this->assertEquals(3, count($result));
         $this->assertEquals(404, $result[0]);
-        $this->assertFalse(is_null($result[1]['Content-Length']));
         $this->assertFalse(is_null($result[1]['Content-Type']));
     }
 
@@ -508,7 +507,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
         foreach ( $h as $key => $value ) {
             $output .= $key . $value;
         }
-        $this->assertEquals('Content-Typetext/htmlContent-Length0', $output);
+        $this->assertEquals('Content-Typetext/html', $output);
     }
 
     /**
@@ -516,7 +515,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
      */
     public function testCountable() {
         $r1 = new Slim_Http_Response();
-        $this->assertEquals(2, count($r1)); //Content-Length and Content-Type
+        $this->assertEquals(1, count($r1)); //Content-Type
     }
 
     /**
