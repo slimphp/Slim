@@ -205,7 +205,6 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
             $this->body .= (string)$body;
         }
         $this->length = strlen($this->body);
-        $this['Content-Length'] = (string)$this->length;
         return $this->body;
     }
 
