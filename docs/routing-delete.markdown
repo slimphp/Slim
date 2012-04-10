@@ -28,3 +28,5 @@ Unfortunately, modern browsers do not provide native support for HTTP DELETE req
         <input type="hidden" name="_METHOD" value="DELETE"/>
         <input type="submit" value="Delete Book"/>
     </form>
+
+If you are using [Backbone.js](http://documentcloud.github.com/backbone/) or a command-line HTTP client, you may also override the HTTP method by using the `X-HTTP-Method-Override` header.
