@@ -7,10 +7,10 @@ Use the Slim application's `add()` instance method to add new middleware to a Sl
     class Secret_Middleware extends Slim_Middleware {
         public function call() {
             $app = $this->app;
-            $req = $this->request();
-            $res = $this->response();
+            $req = $app->request();
+            $res = $app->response();
             if ( $req->headers('X-Secret-Request') === 'The sun is shining' ) {
-                $res->header('X-Secret-Response') = 'But the ice is slippery';
+                $res->header('X-Secret-Response', 'But the ice is slippery');
             }
             $this->next->call();
         }
