@@ -44,6 +44,12 @@
  * @since   Version 1.0
  */
 class Slim_View {
+    
+    /**
+     * @var string Absolute template path
+     */
+    protected $templatePath = '';
+    
 
     /**
      * @var array Key-value array of data available to the template
@@ -139,25 +145,24 @@ class Slim_View {
      *
      * @param   string $template Path to template file relative to templates directoy
      * @return  void
+     * @throws  RuntimeException    If template does not exist
      */
     public function display( $template ) {
-        echo $this->render($template);
+        $this->templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
+        if ( !file_exists($this->templatePath) ) {
+            throw new RuntimeException('View cannot render template `' . $this->templatePath . '`. Template does not exist.');
+        }
+        echo $this->render();
     }
 
     /**
      * Render template
-     * @param   string $template    Path to template file relative to templates directory
-     * @return  string              Rendered template
-     * @throws  RuntimeException    If template does not exist
+     * @return  string  Rendered template
      */
-    public function render( $template ) {
+    public function render() {
         extract($this->data);
-        $templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
-        if ( !file_exists($templatePath) ) {
-            throw new RuntimeException('View cannot render template `' . $templatePath . '`. Template does not exist.');
-        }
         ob_start();
-        require $templatePath;
+        require $this->templatePath;
         return ob_get_clean();
     }
 
