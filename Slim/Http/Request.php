@@ -369,7 +369,7 @@ class Slim_Http_Request {
             $key = $this->convertHttpHeaderName($key);
             if ( strpos($key, 'http-') === 0 || in_array($key, $this->additionalHeaders) ) {
                 $name = str_replace('http-', '', $key);
-                $headers[$name] = $value;
+                $headers[$name] = trim($value);
             }
         }
         return $headers;
