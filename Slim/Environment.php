@@ -158,6 +158,7 @@ class Slim_Environment implements ArrayAccess, IteratorAggregate {
             //HTTP request headers
             $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
             foreach ( $_SERVER as $key => $value ) {
+                $value = trim($value);
                 if ( strpos($key, 'HTTP_') === 0 ) {
                     $env[substr($key, 5)] = $value;
                 } else if ( strpos($key, 'X_') === 0 || in_array($key, $specialHeaders) ) {
