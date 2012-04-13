@@ -135,4 +135,23 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('000-111-2222', $body[0][2]);
         $this->assertEquals('Doe', $body[1][1]);
     }
+
+    /**
+     * Test parses request body based on media-type only, disregarding
+     * any extra content-type header parameters
+     */
+    public function testParsesRequestBodyWithMediaType() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4',
+            'CONENT_LENGTH' => 13,
+            'slim.input' => '{"foo":"bar"}'
+        ));
+        $s = new Slim();
+        $s->add(new Slim_Middleware_ContentTypes());
+        $s->run();
+        $body = $s->request()->getBody();
+        $this->assertTrue(is_array($body));
+        $this->assertEquals('bar', $body['foo']);
+    }
 }
