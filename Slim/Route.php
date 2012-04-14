@@ -2,11 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     1.6.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -32,13 +33,11 @@
 
 /**
  * Route
- *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   Version 1.0
+ * @author  Josh Lockhart
+ * @since   1.0.0
  */
 class Slim_Route {
-
     /**
      * @var string The route pattern (ie. "/books/:id")
      */
@@ -178,7 +177,7 @@ class Slim_Route {
      */
     public function setName( $name ) {
         $this->name = (string)$name;
-        $this->router->cacheNamedRoute($this->name, $this);
+        $this->router->addNamedRoute($this->name, $this);
     }
 
     /**
@@ -363,14 +362,14 @@ class Slim_Route {
      * registered for this route, each callable middleware is invoked in
      * the order specified.
      *
-     * This method is smart about trailing slashes on the route pattern. 
-     * If this route's pattern is defined with a trailing slash, and if the 
-     * current request URI does not have a trailing slash but otherwise 
+     * This method is smart about trailing slashes on the route pattern.
+     * If this route's pattern is defined with a trailing slash, and if the
+     * current request URI does not have a trailing slash but otherwise
      * matches this route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same 
-     * URI _with_ a trailing slash. This Exception is caught in the 
-     * `Slim::run` loop. If this route's pattern is defined without a 
-     * trailing slash, and if the current request URI does have a trailing 
+     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
+     * URI _with_ a trailing slash. This Exception is caught in the
+     * `Slim::run` loop. If this route's pattern is defined without a
+     * trailing slash, and if the current request URI does have a trailing
      * slash, this route will not be matched and a 404 Not Found
      * response will be sent if no subsequent matching routes are found.
      *
@@ -381,12 +380,16 @@ class Slim_Route {
         if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
+
         //Invoke middleware
+        $req = $this->router->getRequest();
+        $res = $this->router->getResponse();
         foreach ( $this->middleware as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func_array($mw, array($req, $res, $this));
             }
         }
+
         //Invoke callable
         if ( is_callable($this->getCallable()) ) {
             call_user_func_array($this->callable, array_values($this->params));
@@ -394,5 +397,4 @@ class Slim_Route {
         }
         return false;
     }
-
 }

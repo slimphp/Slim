@@ -1,57 +1,60 @@
 # Slim Framework for PHP 5
 
-Thank you for choosing the Slim Framework, a micro framework for PHP 5 inspired by [Sinatra](http://sinatrarb.com) released under the MIT public license.
+Slim is a micro framework for PHP 5 that helps you quickly write simple yet powerful RESTful web applications and APIs. Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases over edge cases. Its interface is simple, intuitive, and extensively documented — both online and in the code itself. Thank you for choosing Slim for your next project. I think you're going to love it.
 
 ## Features
 
-The Slim Framework for PHP 5 provides the following notable features out-of-the-box:
-
-* Clean and simple DSL for writing powerful web applications
+* Clean and simple [DSL](http://en.wikipedia.org/wiki/Domain-specific_language) for writing powerful web applications
 * HTTP routing
-  * Supports all standard and custom HTTP request methods
-  * Named routes w/ `urlFor()` helper
-  * Route passing
-  * Route redirects
-  * Route halting
-  * Custom **Not Found** handler
-  * Custom **Error** handler
-  * Optional route segments... /archive(/:year(/:month(/:day)))
-* Easy app configuration
-* Easy templating with custom Views (ie. Twig, Smarty, Mustache, ...)
-* Secure sessions
-* Signed cookies with AES-256 encryption
+    * Supports all standard and custom HTTP request methods
+    * Route parameters and conditions
+    * Route redirects
+    * Route passing
+    * Route halting
+    * Route middleware
+    * Named routes and `urlFor()` helper
+* Easy configuration
+* Easy templating with custom Views (e.g. Twig, Mustache, Smarty)
 * Flash messaging
+* Signed cookies with AES-256 encryption
 * HTTP caching (ETag and Last-Modified)
 * Logging
-* Error and Exception handling
-* Supports PHP 5+
+* Error handling
+    * Custom Not Found handler
+    * Custom Error handler
+    * Debugging
+* Built upon the Rack protocol
+* Extensible middleware and hook architecture
+* Supports PHP >= 5.2.0
 
-## "Hello World" application (PHP 5 >= 5.3)
+## "Hello World" application (PHP >= 5.3)
 
-The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method of defining Slim application routes.
+The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method to define Slim application routes. This example assumes you have setup URL rewriting with your web server (see below).
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name!";
-    });
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name!";
+});
+$app->run();
+```
 
-## "Hello World" application (PHP 5 < 5.3)
+## "Hello World" application (PHP < 5.3)
 
-If you are running PHP 5 < 5.3, the second `Slim::get` app instance method parameter will be the name of a callable function instead of an anonymous function.
+If you are running PHP < 5.3, the second argument to the application's `get()` instance method is the name of a callable function instead of an anonymous function. This example assumes you have setup URL rewriting with your web server (see below).
 
-    <?php
-    require 'Slim/Slim.php';
-    $app = new Slim();
-    $app->get('/hello/:name', 'hello');
-    function hello($name) {
-        echo "Hello, $name!";
-    }
-    $app->run();
-    ?>
+```php
+<?php
+require 'Slim/Slim.php';
+$app = new Slim();
+$app->get('/hello/:name', 'hello');
+function hello($name) {
+    echo "Hello, $name!";
+}
+$app->run();
+```
 
 ## Get Started
 
@@ -59,40 +62,68 @@ If you are running PHP 5 < 5.3, the second `Slim::get` app instance method param
 
 Download the Slim Framework for PHP 5 and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
 
-### Setup .htaccess
+### Setup your webserver
+
+#### Apache
 
 Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
 
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ index.php [QSA,L]
+    RewriteRule ^ index.php [QSA,L]
+
+#### Nginx
+
+Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
+
+    if (!-f $request_filename) {
+        rewrite ^ /index.php last;
+    }
+
+This assumes that Slim's `index.php` is in the root folder of your project (www root).
+
+#### lighttpd ####
+
+Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires lighttpd >= 1.4.24.
+
+    url.rewrite-if-not-file = ("^" => "/index.php")
+
+This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
 ### Build Your Application
 
 Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
 
-    require 'Slim/Slim.php';
+```php
+require 'Slim/Slim.php';
+```
 
 Next, initialize the Slim application:
 
-    $app = new Slim();
+```php
+$app = new Slim();
+```
 
 Next, define your application's routes:
 
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello $name";
-    });
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello $name";
+});
+```
 
 Finally, run your Slim application:
 
+```php
     $app->run();
+```
 
 For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
 
 ## Documentation 
 
-[Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
-[Development Branch Documentation](http://www.slimframework.com/documentation/develop)
+* [Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
+* [Development Branch Documentation](http://www.slimframework.com/documentation/develop)
 
 ## Community
 

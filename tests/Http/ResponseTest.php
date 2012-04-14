@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     1.5.2
  *
  * MIT LICENSE
  *
@@ -30,276 +30,505 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../../' . PATH_SEPARATOR . get_include_path());
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Http/CookieJar.php';
-require_once 'Slim/Http/Uri.php';
-require_once 'Slim/Http/Request.php';
+require_once 'Slim/Http/Headers.php';
+require_once 'Slim/Http/Util.php';
 require_once 'Slim/Http/Response.php';
 
 class ResponseTest extends PHPUnit_Framework_TestCase {
-
-    public function setUp() {
-        $_SERVER['REDIRECT_STATUS'] = "200";
-        $_SERVER['HTTP_HOST'] = "slim";
-        $_SERVER['HTTP_CONNECTION'] = "keep-alive";
-        $_SERVER['HTTP_CACHE_CONTROL'] = "max-age=0";
-        $_SERVER['HTTP_ACCEPT'] = "application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5";
-        $_SERVER['HTTP_USER_AGENT'] = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.63 Safari/534.3";
-        $_SERVER['HTTP_ACCEPT_ENCODING'] = "gzip,deflate,sdch";
-        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = "en-US,en;q=0.8";
-        $_SERVER['HTTP_ACCEPT_CHARSET'] = "ISO-8859-1,utf-8;q=0.7,*;q=0.3";
-        $_SERVER['PATH'] = "/usr/bin:/bin:/usr/sbin:/sbin";
-        $_SERVER['SERVER_SIGNATURE'] = "";
-        $_SERVER['SERVER_SOFTWARE'] = "Apache";
-        $_SERVER['SERVER_NAME'] = "slim";
-        $_SERVER['SERVER_ADDR'] = "127.0.0.1";
-        $_SERVER['SERVER_PORT'] = "80";
-        $_SERVER['REMOTE_ADDR'] = "127.0.0.1";
-        $_SERVER['DOCUMENT_ROOT'] = rtrim(dirname(__FILE__), '/');
-        $_SERVER['SERVER_ADMIN'] = "you@example.com";
-        $_SERVER['SCRIPT_FILENAME'] = __FILE__;
-        $_SERVER['REMOTE_PORT'] = "55426";
-        $_SERVER['REDIRECT_URL'] = "/";
-        $_SERVER['GATEWAY_INTERFACE'] = "CGI/1.1";
-        $_SERVER['SERVER_PROTOCOL'] = "HTTP/1.1";
-        $_SERVER['REQUEST_METHOD'] = "GET";
-        $_SERVER['QUERY_STRING'] = "";
-        $_SERVER['REQUEST_URI'] = "/";
-        $_SERVER['SCRIPT_NAME'] = basename(__FILE__);
-        $_SERVER['PHP_SELF'] = '/'.basename(__FILE__);
-        $_SERVER['REQUEST_TIME'] = "1285647051";
-        $_SERVER['argv'] = array();
-        $_SERVER['argc'] = 0;
-    }
-
     /**
-     * Test default response
-     *
-     * Pre-conditions:
-     * None
-     *
-     * Post-conditions:
-     * Response status is 200;
-     * Headers array has "text/html" Content-Type
-     * Cookies array is empty
+     * Test constructor without args
      */
-    public function testNewResponse() {
-        $r = new Slim_Http_Response(new Slim_Http_Request());
+    public function testConstructorWithoutArgs() {
+        $r = new Slim_Http_Response();
+        $this->assertEquals('', $r->body());
         $this->assertEquals(200, $r->status());
-        $this->assertEquals(array('Content-Type' => 'text/html'), $r->headers());
+        $this->assertEquals(0, $r->length());
+        $this->assertEquals('text/html', $r['Content-Type']);
     }
 
     /**
-     * Test status
-     *
-     * Pre-conditions:
-     * Case A: Status code is a valid HTTP status code
-     * Case B: Status code is not a valid HTTP status code
-     *
-     * Post-conditions:
-     * Case A: The response status code is set and returned
-     * Case B: An InvalidArgumentException is thrown
+     * Test constructor with args
      */
-    public function testResponseStatus() {
-        //Case A
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
-        $newStatus = $r1->status(201);
-        $this->assertEquals(201, $newStatus);
-
-        //Case B
-        $r2 = new Slim_Http_Response(new Slim_Http_Request());
-        try {
-            $r2->status(700);
-            $this->fail('Did not throw exception when status code invalid');
-        } catch ( InvalidArgumentException $e ) {}
+    public function testConstructorWithArgs() {
+        $r = new Slim_Http_Response('Page Not Found', 404, array('Content-Type' => 'application/json', 'X-Created-By' => 'Slim'));
+        $this->assertEquals('Page Not Found', $r->body());
+        $this->assertEquals(404, $r->status());
+        $this->assertEquals(14, $r->length());
+        $this->assertEquals('application/json', $r['Content-Type']);
+        $this->assertEquals('Slim', $r['X-Created-By']);
     }
 
     /**
-     * Test headers
-     *
-     * Pre-conditions:
-     * Case A: Set Content-Type to 'application/json'
-     * Case B: Get non-existent header
-     *
-     * Post-conditions:
-     * Case A: Header is set correctly
-     * Case B: Returned value is NULL
+     * Test get status
      */
-    public function testResponseHeaders() {
-        //Case A
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
-        $r1->header('Content-Type', 'application/json');
-        $this->assertEquals('application/json', $r1->header('Content-Type'));
-        $this->assertEquals(array('Content-Type' => 'application/json'), $r1->headers());
-
-        //Case B
-        $this->assertNull($r1->header('foo'));
+    public function testGetStatus() {
+        $r = new Slim_Http_Response();
+        $this->assertEquals(200, $r->status());
     }
 
     /**
-     * Test body and write
-     *
-     * Pre-conditions:
-     * Case A: Response body set to "Foo bar"
-     * Case B: Same response body is changed to "abc123"
-     * Case C: Same response body is appended with "xyz"
-     *
-     * Post-conditions:
-     * Case A: Response body is "Foo bar", and Content-Length = 7
-     * Case B: Response body is "abc123" and Content-Length = 6
-     * Case C: Response body is "abc123xyz" and Content-Length = 9
+     * Test set status
      */
-    public function testBody() {
-        //Case A
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
-        $r1->body('Foo bar');
-        $this->assertEquals('Foo bar', $r1->body());
-        $this->assertEquals(7, $r1->header('Content-Length'));
+    public function testSetStatus() {
+        $r = new Slim_Http_Response();
+        $r->status(500);
+        $this->assertEquals(500, $r->status());
+    }
 
-        //Case B
-        $r1->body('abc123');
-        $this->assertEquals('abc123', $r1->body());
-        $this->assertEquals(6, $r1->header('Content-Length'));
+    /**
+     * Test get headers
+     */
+    public function testGetHeaders() {
+        $r = new Slim_Http_Response();
+        $headers = $r->headers();
+        $this->assertEquals(1, count($headers));
+        $this->assertEquals('text/html', $headers['Content-Type']);
+    }
 
-        //Case C
-        $r1->write('xyz');
-        $this->assertEquals('abc123xyz', $r1->body());
-        $this->assertEquals(9, $r1->header('Content-Length'));
+    /**
+     * Test get and set header (without Array Access)
+     */
+    public function testGetAndSetHeader() {
+        $r = new Slim_Http_Response();
+        $r->header('X-Foo', 'Bar');
+        $this->assertEquals('Bar', $r->header('X-Foo'));
+    }
+
+    /**
+     * Test get body
+     */
+    public function testGetBody() {
+        $r = new Slim_Http_Response('Foo');
+        $this->assertEquals('Foo', $r->body());
+    }
+
+    /**
+     * Test set body
+     */
+    public function testSetBody() {
+        $r = new Slim_Http_Response();
+        $r->body('Foo');
+        $this->assertEquals('Foo', $r->body());
+    }
+
+    /**
+     * Test get length
+     */
+    public function testGetLength() {
+        $r = new Slim_Http_Response('Foo');
+        $this->assertEquals(3, $r->length());
+    }
+
+    /**
+     * Test set length
+     */
+    public function testSetLength() {
+        $r = new Slim_Http_Response();
+        $r->length(3);
+        $this->assertEquals(3, $r->length());
+    }
+
+    /**
+     * Test write for appending
+     */
+    public function testWriteAppend() {
+        $r = new Slim_Http_Response('Foo');
+        $r->write('Bar');
+        $this->assertEquals('FooBar', $r->body());
+    }
+
+    /**
+     * Test write for replacing
+     */
+    public function testWriteReplace() {
+        $r = new Slim_Http_Response('Foo');
+        $r->write('Bar', true);
+        $this->assertEquals('Bar', $r->body());
     }
 
     /**
      * Test finalize
-     *
-     * Pre-conditions:
-     * Case A: Response status is 200
-     * Case B: Response status is 204
-     * Case C: Response status is 304
-     *
-     * Post-conditions:
-     * Case A: Response has body and content-length
-     * Case B: Response does not have body and content-length
-     * Case C: Response does not have body and content-length
      */
     public function testFinalize() {
-        //Case A
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
-        $r1->body('body1');
-        $r1->finalize();
-        $this->assertEquals('body1', $r1->body());
-        $this->assertEquals(5, $r1->header('Content-Length'));
-
-        //Case B
-        $r2 = new Slim_Http_Response(new Slim_Http_Request());
-        $r2->body('body2');
-        $r2->status(204);
-        $r2->finalize();
-        $this->assertEquals('', $r2->body());
-        $this->assertNull($r2->header('Content-Type'));
-
-        //Case C
-        $r3 = new Slim_Http_Response(new Slim_Http_Request());
-        $r3->body('body3');
-        $r3->status(304);
-        $r3->finalize();
-        $this->assertEquals('', $r3->body());
-        $this->assertNull($r3->header('Content-Type'));
+        $r = new Slim_Http_Response();
+        $r->status(404);
+        $r['Content-Type'] = 'application/json';
+        $r->write('Foo');
+        $result = $r->finalize();
+        $this->assertEquals(3, count($result));
+        $this->assertEquals(404, $result[0]);
+        $this->assertFalse(is_null($result[1]['Content-Type']));
     }
 
     /**
-     * Test get messages for code
-     *
-     * Pre-conditions:
-     * Case A: Status = 200
-     * Case B: Status = 304
-     * Case C: Status = 420 //Fake
-     *
-     * Post-conditions:
-     * Case A: Message = '200 OK'
-     * Case B: Message = '304 Not Modified'
-     * Case C: Message = NULL
+     * Test finalize
      */
-    public function testGetMessageForCode() {
-        //Case A
-        $this->assertEquals('200 OK', Slim_Http_Response::getMessageForCode(200));
-
-        //Case B
-        $this->assertEquals('304 Not Modified', Slim_Http_Response::getMessageForCode(304));
-
-        //Case C
-        $this->assertNull(Slim_Http_Response::getMessageForCode(420));
+    public function testFinalizeWithoutBody() {
+        $r = new Slim_Http_Response();
+        $r->status(204);
+        $r['Content-Type'] = 'application/json';
+        $r->write('Foo');
+        $result = $r->finalize();
+        $this->assertEquals(3, count($result));
+        $this->assertEquals('', $result[2]);
     }
 
     /**
-     * Test can have body
-     *
-     * Pre-conditions:
-     * Case A: Status code = 100
-     * Case B: Status code = 200
-     * Case C: Status code = 204
-     * Case D: Status code = 304
-     *
-     * Post-conditions:
-     * Case A: false
-     * Case B: true
-     * Case C: false
-     * Case D: false
+     * Test set cookie with only name and value
      */
-    public function testCanHaveBody() {
-        $r1 = new Slim_Http_Response(new Slim_Http_Request());
+    public function testSetCookieWithNameAndValue() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', 'bar');
+        $this->assertEquals('foo=bar', $r['Set-Cookie']);
+    }
 
-        //Case A
+    /**
+     * Test set multiple cookies with only name and value
+     */
+    public function testSetMultipleCookiesWithNameAndValue() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', 'bar');
+        $r->setCookie('abc', '123');
+        $this->assertEquals("foo=bar\nabc=123", $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie only name and value and expires (as int)
+     */
+    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsInt() {
+        $now = time();
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'expires' => $now
+        ));
+        $this->assertEquals("foo=bar; expires=" . gmdate('D, d-M-Y H:i:s e', $now), $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with only name and value and expires (as string)
+     */
+    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsString() {
+        $expires = 'next Tuesday';
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'expires' => $expires
+        ));
+        $this->assertEquals("foo=bar; expires=" . gmdate('D, d-M-Y H:i:s e', strtotime($expires)), $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with name, value, domain
+     */
+    public function testSetCookieWithNameAndValueAndDomain() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'domain' => '.slimframework.com'
+        ));
+        $this->assertEquals('foo=bar; domain=.slimframework.com', $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with name, value, domain, path
+     */
+    public function testSetCookieWithNameAndValueAndDomainAndPath() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'domain' => '.slimframework.com',
+            'path' => '/foo'
+        ));
+        $this->assertEquals($r['Set-Cookie'], 'foo=bar; domain=.slimframework.com; path=/foo');
+    }
+
+    /**
+     * Test set cookie with only name and value and secure flag
+     */
+    public function testSetCookieWithNameAndValueAndSecureFlag() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'secure' => true
+        ));
+        $this->assertEquals('foo=bar; secure', $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with only name and value and secure flag (as non-truthy)
+     */
+    public function testSetCookieWithNameAndValueAndSecureFlagAsNonTruthy() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'secure' => 0
+        ));
+        $this->assertEquals('foo=bar', $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with only name and value and httponly flag
+     */
+    public function testSetCookieWithNameAndValueAndHttpOnlyFlag() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'httponly' => true
+        ));
+        $this->assertEquals('foo=bar; HttpOnly', $r['Set-Cookie']);
+    }
+
+    /**
+     * Test set cookie with only name and value and httponly flag (as non-truthy)
+     */
+    public function testSetCookieWithNameAndValueAndHttpOnlyFlagAsNonTruthy() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'httponly' => 0
+        ));
+        $this->assertEquals('foo=bar', $r['Set-Cookie']);
+    }
+
+    /*
+     * Test delete cookie by name
+     */
+    public function testDeleteCookieByName() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', 'bar');
+        $r->setCookie('abc', '123');
+        $r->deleteCookie('foo');
+        $this->assertEquals(1, preg_match("@abc=123\nfoo=; expires=@", $r['Set-Cookie']));
+    }
+
+    /*
+     * Test delete cookie by name and domain
+     */
+    public function testDeleteCookieByNameAndDomain1() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', 'bar'); //Note: This does not have domain associated with it
+        $r->setCookie('abc', '123');
+        $r->deleteCookie('foo', array('domain' => '.slimframework.com')); //This SHOULD NOT remove the `foo` cookie
+        $this->assertEquals(1, preg_match("@foo=bar\nabc=123\nfoo=; domain=.slimframework.com; expires=@", $r['Set-Cookie']));
+    }
+
+    /*
+     * Test delete cookie by name and domain
+     */
+    public function testDeleteCookieByNameAndDomain2() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', array(
+            'value' => 'bar',
+            'domain' => '.slimframework.com' //Note: This does have domain associated with it
+        ));
+        $r->setCookie('abc', '123');
+        $r->deleteCookie('foo', array('domain' => '.slimframework.com')); //This SHOULD remove the `foo` cookie
+        $this->assertEquals(1, preg_match("@abc=123\nfoo=; domain=.slimframework.com; expires=@", $r['Set-Cookie']));
+    }
+
+    /**
+     * Test delete cookie by name and custom props
+     */
+    public function testDeleteCookieByNameAndCustomProps() {
+        $r = new Slim_Http_Response();
+        $r->setCookie('foo', 'bar');
+        $r->setCookie('abc', '123');
+        $r->deleteCookie('foo', array(
+            'secure' => true,
+            'httponly' => true
+        ));
+        $this->assertEquals(1, preg_match("@abc=123\nfoo=; expires=.*; secure; HttpOnly@", $r['Set-Cookie']));
+    }
+
+    /**
+     * Test redirect
+     */
+    public function testRedirect() {
+        $r = new Slim_Http_Response();
+        $r->redirect('/foo');
+        $this->assertEquals(302, $r->status());
+        $this->assertEquals('/foo', $r['Location']);
+    }
+
+    /**
+     * Test redirect with custom status
+     */
+    public function testRedirectWithCustomStatus() {
+        $r = new Slim_Http_Response();
+        $r->redirect('/foo', 307);
+        $this->assertEquals(307, $r->status());
+        $this->assertEquals('/foo', $r['Location']);
+    }
+
+    /**
+     * Test isEmpty
+     */
+    public function testIsEmpty() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(404);
+        $r2->status(201);
+        $this->assertFalse($r1->isEmpty());
+        $this->assertTrue($r2->isEmpty());
+    }
+
+    /**
+     * Test isClientError
+     */
+    public function testIsClientError() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(404);
+        $r2->status(500);
+        $this->assertTrue($r1->isClientError());
+        $this->assertFalse($r2->isClientError());
+    }
+
+    /**
+     * Test isForbidden
+     */
+    public function testIsForbidden() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(403);
+        $r2->status(500);
+        $this->assertTrue($r1->isForbidden());
+        $this->assertFalse($r2->isForbidden());
+    }
+
+    /**
+     * Test isInformational
+     */
+    public function testIsInformational() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
         $r1->status(100);
-        $this->assertFalse($r1->canHaveBody());
+        $r2->status(200);
+        $this->assertTrue($r1->isInformational());
+        $this->assertFalse($r2->isInformational());
+    }
 
-        //Case B
+    /**
+     * Test isInformational
+     */
+    public function testIsNotFound() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(404);
+        $r2->status(200);
+        $this->assertTrue($r1->isNotFound());
+        $this->assertFalse($r2->isNotFound());
+    }
+
+    /**
+     * Test isOk
+     */
+    public function testIsOk() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
         $r1->status(200);
-        $this->assertTrue($r1->canHaveBody());
-
-        //Case C
-        $r1->status(204);
-        $this->assertFalse($r1->canHaveBody());
-
-        //Case D
-        $r1->status(304);
-        $this->assertFalse($r1->canHaveBody());
+        $r2->status(201);
+        $this->assertTrue($r1->isOk());
+        $this->assertFalse($r2->isOk());
     }
 
     /**
-     * Test sets and gets CookieJar
+     * Test isSuccessful
      */
-    public function testSetsAndGetsCookieJar() {
-        $r = new Slim_Http_Response(new Slim_Http_Request());
-        $cj = new Slim_Http_CookieJar('secret');
-        $r->setCookieJar($cj);
-        $this->assertSame($cj, $r->getCookieJar());
+    public function testIsSuccessful() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r3 = new Slim_Http_Response();
+        $r1->status(200);
+        $r2->status(201);
+        $r3->status(302);
+        $this->assertTrue($r1->isSuccessful());
+        $this->assertTrue($r2->isSuccessful());
+        $this->assertFalse($r3->isSuccessful());
     }
 
     /**
-     * Test default HTTP version
+     * Test isRedirect
      */
-    public function testDefaultHttpVersion() {
-        $r = new Slim_Http_Response(new Slim_Http_Request());
-        $this->assertEquals('1.1', $r->httpVersion());
+    public function testIsRedirect() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(307);
+        $r2->status(304);
+        $this->assertTrue($r1->isRedirect());
+        $this->assertFalse($r2->isRedirect());
     }
 
     /**
-     * Test can set HTTP version
+     * Test isRedirection
      */
-    public function testCanSetValidHttpVersion() {
-        $r = new Slim_Http_Response(new Slim_Http_Request());
-        $r->httpVersion('1.0');
-        $this->assertEquals('1.0', $r->httpVersion());
-        $r->httpVersion('1.1');
-        $this->assertEquals('1.1', $r->httpVersion());
+    public function testIsRedirection() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r3 = new Slim_Http_Response();
+        $r1->status(307);
+        $r2->status(304);
+        $r3->status(200);
+        $this->assertTrue($r1->isRedirection());
+        $this->assertTrue($r2->isRedirection());
+        $this->assertFalse($r3->isRedirection());
     }
 
     /**
-     * Test can set HTTP version
+     * Test isServerError
      */
-    public function testCannotSetInvalidHttpVersion() {
-        $this->setExpectedException('InvalidArgumentException');
-        $r = new Slim_Http_Response(new Slim_Http_Request());
-        $r->httpVersion('1.2');
+    public function testIsServerError() {
+        $r1 = new Slim_Http_Response();
+        $r2 = new Slim_Http_Response();
+        $r1->status(500);
+        $r2->status(400);
+        $this->assertTrue($r1->isServerError());
+        $this->assertFalse($r2->isServerError());
+    }
+
+    /**
+     * Test offset exists and offset get
+     */
+    public function testOffsetExistsAndGet() {
+        $r = new Slim_Http_Response();
+        $this->assertFalse(empty($r['Content-Type']));
+        $this->assertNull($r['foo']);
+    }
+
+    /**
+     * Test iteration
+     */
+    public function testIteration() {
+        $h = new Slim_Http_Response();
+        $output = '';
+        foreach ( $h as $key => $value ) {
+            $output .= $key . $value;
+        }
+        $this->assertEquals('Content-Typetext/html', $output);
+    }
+
+    /**
+     * Test countable
+     */
+    public function testCountable() {
+        $r1 = new Slim_Http_Response();
+        $this->assertEquals(1, count($r1)); //Content-Type
+    }
+
+    /**
+     * Test message for code when message exists
+     */
+    public function testMessageForCode() {
+        $this->assertEquals('200 OK', Slim_Http_Response::getMessageForCode(200));
+    }
+
+    /**
+     * Test message for code when message exists
+     */
+    public function testMessageForCodeWithInvalidCode() {
+        $this->assertNull(Slim_Http_Response::getMessageForCode(600));
     }
 }

@@ -2,11 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     1.6.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -33,24 +34,26 @@
 /**
  * Router
  *
- * Responsible for registering route paths with associated callables.
- * When a Slim application is run, the Router finds a matching Route for
- * the current HTTP request, and if a matching route is found, executes
- * the Route's associated callable passing it parameters from the Request URI.
+ * This class organizes Route objects and, upon request, will
+ * return an iterator for routes that match the HTTP request URI.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @since   Version 1.0
+ * @author  Josh Lockhart
+ * @since   1.0.0
  */
 class Slim_Router implements IteratorAggregate {
-
     /**
      * @var Slim_Http_Request
      */
     protected $request;
 
     /**
-     * @var array Lookup hash of routes, keyed by Request method
+     * @var Slim_Http_Response
+     */
+    protected $response;
+
+    /**
+     * @var array Lookup hash of all routes
      */
     protected $routes;
 
@@ -60,7 +63,7 @@ class Slim_Router implements IteratorAggregate {
     protected $namedRoutes;
 
     /**
-     * @var array Array of routes that match the Request method and URL
+     * @var array Array of routes that match the Request URI (lazy-loaded)
      */
     protected $matchedRoutes;
 
@@ -76,11 +79,14 @@ class Slim_Router implements IteratorAggregate {
 
     /**
      * Constructor
-     * @param Slim_Http_Request $request The HTTP request object
+     * @param   Slim_Http_Request   $request    The HTTP request object
+     * @param   Slim_Http_Response  $response   The HTTP response object
      */
-    public function __construct( Slim_Http_Request $request ) {
+    public function __construct( Slim_Http_Request $request, Slim_Http_Response $response ) {
         $this->request = $request;
+        $this->response = $response;
         $this->routes = array();
+        $this->namedRoutes = array();
     }
 
     /**
@@ -100,12 +106,11 @@ class Slim_Router implements IteratorAggregate {
     }
 
     /**
-     * Set Request
-     * @param   Slim_Http_Request   $req
-     * @return  void
+     * Get Response
+     * @return Slim_Http_Response
      */
-    public function setRequest( Slim_Http_Request $req ) {
-        $this->request = $req;
+    public function getResponse() {
+        return $this->response;
     }
 
     /**
@@ -138,20 +143,6 @@ class Slim_Router implements IteratorAggregate {
     }
 
     /**
-     * Cache named route
-     * @param   string              $name   The route name
-     * @param   Slim_Route          $route  The route object
-     * @throws  RuntimeException            If a named route already exists with the same name
-     * @return  void
-     */
-    public function cacheNamedRoute( $name, Slim_Route $route ) {
-        if ( isset($this->namedRoutes[(string)$name]) ) {
-            throw new RuntimeException('Named route already exists with name: ' . $name);
-        }
-        $this->namedRoutes[$name] = $route;
-    }
-
-    /**
      * Get URL for named route
      * @param   string              $name   The name of the route
      * @param   array                       Associative array of URL parameter names and values
@@ -159,10 +150,10 @@ class Slim_Router implements IteratorAggregate {
      * @return  string                      The URL for the given route populated with the given parameters
      */
     public function urlFor( $name, $params = array() ) {
-        if ( !isset($this->namedRoutes[(string)$name]) ) {
+        if ( !$this->hasNamedRoute($name) ) {
             throw new RuntimeException('Named route not found for name: ' . $name);
         }
-        $pattern = $this->namedRoutes[(string)$name]->getPattern();
+        $pattern = $this->getNamedRoute($name)->getPattern();
         $search = $replace = array();
         foreach ( $params as $key => $value ) {
             $search[] = ':' . $key;
@@ -174,6 +165,50 @@ class Slim_Router implements IteratorAggregate {
             '@\(\/?:.+\/??\)\??@',
             '@\?|\(|\)@'
         ), '', $this->request->getRootUri() . $pattern);
+    }
+
+    /**
+     * Add named route
+     * @param   string              $name   The route name
+     * @param   Slim_Route          $route  The route object
+     * @throws  RuntimeException            If a named route already exists with the same name
+     * @return  void
+     */
+    public function addNamedRoute( $name, Slim_Route $route ) {
+        if ( $this->hasNamedRoute($name) ) {
+            throw new RuntimeException('Named route already exists with name: ' . $name);
+        }
+        $this->namedRoutes[(string)$name] = $route;
+    }
+
+    /**
+     * Has named route
+     * @param   string  $name   The route name
+     * @return  bool
+     */
+    public function hasNamedRoute( $name ) {
+        return isset($this->namedRoutes[(string)$name]);
+    }
+
+    /**
+     * Get named route
+     * @param   string  $name
+     * @return  Slim_Route|null
+     */
+    public function getNamedRoute( $name ) {
+        if ( $this->hasNamedRoute($name) ) {
+            return $this->namedRoutes[(string)$name];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Get named routes
+     * @return ArrayIterator
+     */
+    public function getNamedRoutes() {
+        return new ArrayIterator($this->namedRoutes);
     }
 
     /**
@@ -199,5 +234,4 @@ class Slim_Router implements IteratorAggregate {
         }
         return $this->error;
     }
-
 }
