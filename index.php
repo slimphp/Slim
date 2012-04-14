@@ -7,7 +7,7 @@
  * directory elsewhere, ensure that it is added to your include path
  * or update this file path as needed.
  */
-require 'Slim/Slim.php';
+require 'Slim/AllClasses.php';
 
 /**
  * Step 2: Instantiate the Slim application
