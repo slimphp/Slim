@@ -211,7 +211,7 @@ class Slim_Log {
      */
     protected function log( $object, $level ) {
         if ( $this->enabled && $this->writer && $level <= $this->level ) {
-            return $this->writer->write($object);
+            return $this->writer->write($object, $level);
         } else {
             return false;
         }
