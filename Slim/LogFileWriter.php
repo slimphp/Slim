@@ -63,9 +63,10 @@ class Slim_LogFileWriter {
     /**
      * Write message
      * @param   mixed       $message
+     * @param   int         $level
      * @return  int|false
      */
-    public function write( $message ) {
+    public function write( $message, $level = null ) {
         return fwrite($this->resource, (string)$message . PHP_EOL);
     }
 }
