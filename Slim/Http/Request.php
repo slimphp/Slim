@@ -394,7 +394,8 @@ class Slim_Http_Request {
     public function getHost() {
         if ( isset($this->env['HOST']) ) {
             if ( strpos($this->env['HOST'], ':') !== false ) {
-                return array_shift(explode(':', $this->env['HOST']));
+                $hostParts = explode(':', $this->env['HOST']);
+                return $hostParts[0];
             }
             return $this->env['HOST'];
         } else {
