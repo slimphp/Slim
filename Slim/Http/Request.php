@@ -223,6 +223,8 @@ class Slim_Http_Request {
                     parse_str($this->env['slim.input'], $output);
                 }
                 $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+            } else {
+                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($_POST);
             }
         }
         if ( $key ) {

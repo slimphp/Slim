@@ -291,6 +291,23 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test fetch POST params even if multipart/form-data request
+     */
+    public function testPostWithMultipartRequest() {
+        $_POST = array('foo' => 'bar'); //<-- Set by PHP
+        $env = Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'slim.input' => '', //<-- "php://input" is empty for multipart/form-data requests
+            'CONTENT_TYPE' => 'multipart/form-data',
+            'CONTENT_LENGTH' => 0
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(1, count($req->post()));
+        $this->assertEquals('bar', $req->post('foo'));
+        $this->assertNull($req->post('xyz'));
+    }
+
+    /**
      * Test fetch PUT params
      */
     public function testPut() {
