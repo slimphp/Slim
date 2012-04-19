@@ -484,6 +484,11 @@ class Slim_Http_Request {
      * @return string
      */
     public function getIp() {
+        if ( isset($this->env['X_FORWARDED_FOR']) ) {
+            return $this->env['X_FORWARDED_FOR'];
+        } else if ( isset($this->env['CLIENT_IP']) ) {
+            return $this->env['CLIENT_IP'];
+        }
         return $this->env['REMOTE_ADDR'];
     }
 

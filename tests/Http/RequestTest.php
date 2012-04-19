@@ -771,6 +771,31 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test get IP with proxy server and Client-Ip header
+     */
+    public function testGetIpWithClientIp() {
+        $env = Slim_Environment::mock(array(
+            'REMOTE_ADDR' => '127.0.0.1',
+            'CLIENT_IP' => '127.0.0.2'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('127.0.0.2', $req->getIp());
+    }
+
+    /**
+     * Test get IP with proxy server and X-Forwarded-For header
+     */
+    public function testGetIpWithForwardedFor() {
+        $env = Slim_Environment::mock(array(
+            'REMOTE_ADDR' => '127.0.0.1',
+            'CLIENT_IP' => '127.0.0.2',
+            'X_FORWARDED_FOR' => '127.0.0.3'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('127.0.0.3', $req->getIp());
+    }
+
+    /**
      * Test get refererer
      */
     public function testGetReferrer() {
