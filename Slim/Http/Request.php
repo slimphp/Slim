@@ -246,6 +246,15 @@ class Slim_Http_Request {
     }
 
     /**
+     * Fetch DELETE data (alias for Slim_Http_Request::post)
+     * @param   string $key
+     * @return  array|mixed|null
+     */
+    public function delete( $key = null ) {
+        return $this->post($key);
+    }
+
+    /**
      * Fetch COOKIE data
      *
      * This method returns a key-value array of Cookie data sent in the HTTP request, or

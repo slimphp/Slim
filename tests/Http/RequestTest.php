@@ -303,7 +303,25 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->put()));
         $this->assertEquals('bar', $req->put('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+    }
+
+    /**
+     * Test fetch DELETE params
+     */
+    public function testDelete() {
+        $env = Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'DELETE',
+            'slim.input' => 'foo=bar&abc=123',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(2, count($req->delete()));
+        $this->assertEquals('bar', $req->delete('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
+        $this->assertNull($req->delete('xyz'));
     }
 
     /**
