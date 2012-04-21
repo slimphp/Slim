@@ -291,6 +291,23 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test fetch POST params even if multipart/form-data request
+     */
+    public function testPostWithMultipartRequest() {
+        $_POST = array('foo' => 'bar'); //<-- Set by PHP
+        $env = Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'slim.input' => '', //<-- "php://input" is empty for multipart/form-data requests
+            'CONTENT_TYPE' => 'multipart/form-data',
+            'CONTENT_LENGTH' => 0
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(1, count($req->post()));
+        $this->assertEquals('bar', $req->post('foo'));
+        $this->assertNull($req->post('xyz'));
+    }
+
+    /**
      * Test fetch PUT params
      */
     public function testPut() {
@@ -303,7 +320,25 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         $req = new Slim_Http_Request($env);
         $this->assertEquals(2, count($req->put()));
         $this->assertEquals('bar', $req->put('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+    }
+
+    /**
+     * Test fetch DELETE params
+     */
+    public function testDelete() {
+        $env = Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'DELETE',
+            'slim.input' => 'foo=bar&abc=123',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals(2, count($req->delete()));
+        $this->assertEquals('bar', $req->delete('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
+        $this->assertNull($req->delete('xyz'));
     }
 
     /**
@@ -567,6 +602,18 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test get host when it has a port number
+     */
+    public function testGetHostAndStripPort() {
+        $env = Slim_Environment::mock(array(
+            'SERVER_NAME' => 'slim',
+            'HOST' => 'slimframework.com:80'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('slimframework.com', $req->getHost()); //Uses HTTP_HOST if available
+    }
+
+    /**
      * Test get host
      */
     public function testGetHostWhenNotExists() {
@@ -585,6 +632,20 @@ class RequestTest extends PHPUnit_Framework_TestCase {
     public function testGetHostWithPort() {
         $env = Slim_Environment::mock(array(
             'HOST' => 'slimframework.com',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('slimframework.com:80', $req->getHostWithPort());
+    }
+
+    /**
+     * Test get host with port doesn't dulplicate port numbers
+     */
+    public function testGetHostDoesntDulplicatePort() {
+        $env = Slim_Environment::mock(array(
+            'HOST' => 'slimframework.com:80',
             'SERVER_NAME' => 'slim',
             'SERVER_PORT' => 80,
             'slim.url_scheme' => 'http'
@@ -742,6 +803,31 @@ class RequestTest extends PHPUnit_Framework_TestCase {
         ));
         $req = new Slim_Http_Request($env);
         $this->assertEquals('127.0.0.1', $req->getIp());
+    }
+
+    /**
+     * Test get IP with proxy server and Client-Ip header
+     */
+    public function testGetIpWithClientIp() {
+        $env = Slim_Environment::mock(array(
+            'REMOTE_ADDR' => '127.0.0.1',
+            'CLIENT_IP' => '127.0.0.2'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('127.0.0.2', $req->getIp());
+    }
+
+    /**
+     * Test get IP with proxy server and X-Forwarded-For header
+     */
+    public function testGetIpWithForwardedFor() {
+        $env = Slim_Environment::mock(array(
+            'REMOTE_ADDR' => '127.0.0.1',
+            'CLIENT_IP' => '127.0.0.2',
+            'X_FORWARDED_FOR' => '127.0.0.3'
+        ));
+        $req = new Slim_Http_Request($env);
+        $this->assertEquals('127.0.0.3', $req->getIp());
     }
 
     /**

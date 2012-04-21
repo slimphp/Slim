@@ -127,7 +127,7 @@ For more information about building an application with the Slim Framework, refe
 
 ## Community
 
-### Forum
+### Forum and Knowledgebase
 
 Visit Slim's official forum and knowledge base at <http://help.slimframework.com> where you can find announcements, chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps.
 

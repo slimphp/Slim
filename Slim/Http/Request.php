@@ -223,6 +223,8 @@ class Slim_Http_Request {
                     parse_str($this->env['slim.input'], $output);
                 }
                 $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+            } else {
+                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($_POST);
             }
         }
         if ( $key ) {
@@ -242,6 +244,15 @@ class Slim_Http_Request {
      * @return  array|mixed|null
      */
     public function put( $key = null ) {
+        return $this->post($key);
+    }
+
+    /**
+     * Fetch DELETE data (alias for Slim_Http_Request::post)
+     * @param   string $key
+     * @return  array|mixed|null
+     */
+    public function delete( $key = null ) {
         return $this->post($key);
     }
 
@@ -393,6 +404,10 @@ class Slim_Http_Request {
      */
     public function getHost() {
         if ( isset($this->env['HOST']) ) {
+            if ( strpos($this->env['HOST'], ':') !== false ) {
+                $hostParts = explode(':', $this->env['HOST']);
+                return $hostParts[0];
+            }
             return $this->env['HOST'];
         } else {
             return $this->env['SERVER_NAME'];
@@ -480,6 +495,11 @@ class Slim_Http_Request {
      * @return string
      */
     public function getIp() {
+        if ( isset($this->env['X_FORWARDED_FOR']) ) {
+            return $this->env['X_FORWARDED_FOR'];
+        } else if ( isset($this->env['CLIENT_IP']) ) {
+            return $this->env['CLIENT_IP'];
+        }
         return $this->env['REMOTE_ADDR'];
     }
 
