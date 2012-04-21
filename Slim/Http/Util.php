@@ -183,7 +183,7 @@ class Slim_Http_Util {
      */
     public static function encodeSecureCookie( $value, $expires, $secret, $algorithm, $mode ) {
         $key = hash_hmac('sha1', $expires, $secret);
-        $iv = md5($expires);
+        $iv = self::get_iv($expires, $secret);
         $secureString = base64_encode(self::encrypt($value, $key, $iv, array(
             'algorithm' => $algorithm,
             'mode' => $mode
@@ -211,7 +211,7 @@ class Slim_Http_Util {
             $value = explode('|', $value);
             if ( count($value) === 3 && ( (int)$value[0] === 0 || (int)$value[0] > time() ) ) {
                 $key = hash_hmac('sha1', $value[0], $secret);
-                $iv = md5($value[0]);
+                $iv = self::get_iv($value[0], $secret);
                 $data = self::decrypt(base64_decode($value[1]), $key, $iv, array(
                     'algorithm' => $algorithm,
                     'mode' => $mode
@@ -361,4 +361,21 @@ class Slim_Http_Util {
         }
         return $cookies;
     }
+
+    /**
+     * Generate a random IV
+     *
+     * This method will generate a non-predictable IV for use with
+     * the cookie encryption
+     *
+     * @param   int     $expires    The UNIX timestamp at which this cookie will expire
+     * @param   string  $secret     The secret key used to hash the cookie value
+     * @return  binary string with length 40
+     */
+    private static function get_iv($expires, $secret) {
+        $data1 = hash_hmac('sha1', 'a'.$expires.'b', $secret);
+        $data2 = hash_hmac('sha1', 'z'.$expires.'y', $secret);
+        return pack("h*", $data1.$data2);
+    }
+
 }
