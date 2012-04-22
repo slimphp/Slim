@@ -102,6 +102,7 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
      * @return  void
      */
     protected function loadSession() {
+        session_start();
         $value = Slim_Http_Util::decodeSecureCookie(
             $this->app->request()->cookies($this->settings['name']),
             $this->settings['secret'],
@@ -139,5 +140,6 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
                 'httponly' => $this->settings['httponly']
             ));
         }
+        session_destroy();
     }
 }

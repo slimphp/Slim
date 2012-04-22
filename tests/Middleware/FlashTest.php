@@ -68,6 +68,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
     public function testLoadsFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
         $f = new Slim_Middleware_Flash();
+        $f->loadMessages();
         $this->assertEquals('foo', $f['info']);
     }
 
@@ -77,6 +78,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
     public function testKeepFlashFromPreviousRequest() {
         $_SESSION['slim.flash'] = array('info' => 'foo');
         $f = new Slim_Middleware_Flash();
+        $f->loadMessages();
         $f->keep();
         $f->save();
         $this->assertEquals('foo', $_SESSION['slim.flash']['info']);
