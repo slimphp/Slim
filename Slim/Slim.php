@@ -167,6 +167,7 @@ class Slim {
             'debug' => true,
             //View
             'templates.path' => './templates',
+            'layout.default' => null,
             'view' => 'Slim_View',
             //Settings for all cookies
             'cookies.lifetime' => '20 minutes',
@@ -597,6 +598,14 @@ class Slim {
      */
     public function render( $template, $data = array(), $options = array() ) {
         $templatesPath = $this->config('templates.path');
+        
+        if( $this->config('layout.default') ) {
+          $layout = $this->config('layout.default');
+        }
+        if( isset($options['layout']) && !is_null($options['layout']) ) {
+          $layout = $options['layout'];
+        }
+        
         //Legacy support
         if ( is_null($templatesPath) ) {
             $templatesPath = $this->config('templates_dir');
@@ -610,10 +619,10 @@ class Slim {
         }
         
         $this->view->appendData($data);
-        if( isset($options['layout']) && !is_null($options['layout']) ) {
+        if( isset($layout) && !is_null($layout) ) {
           $content = array('content' => $this->view->render($template));
           $this->view->appendData($content);
-          $this->view->display($options['layout']);
+          $this->view->display($layout);
         } else {
           $this->view->display($template);
         }
