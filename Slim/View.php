@@ -145,6 +145,18 @@ class Slim_View {
     }
 
     /**
+     * Fetch rendered template
+     *
+     * This method returns the rendered template as a string
+     *
+     * @param   string $template Path to template file relative to templates directoy
+     * @return  void
+     */
+    public function fetch( $template ) {
+        return $this->render($template);
+    }
+
+    /**
      * Render template
      * @param   string $template    Path to template file relative to templates directory
      * @return  string              Rendered template
