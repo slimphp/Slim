@@ -54,6 +54,12 @@
  * @since   1.0.0
  */
 class Slim_Log {
+    const FATAL = 0;
+    const ERROR = 1;
+    const WARN = 2;
+    const INFO = 3;
+    const DEBUG = 4;
+
     /**
      * @var array
      */
