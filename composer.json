@@ -2,7 +2,7 @@
     "name": "slim/slim",
     "type": "library",
     "description": "Slim Framework, a micro framework for PHP 5",
-    "keywords": ["templating","extensions"],
+    "keywords": ["microframework","rest","router"],
     "homepage": "http://github.com/codeguy/Slim",
     "license": "MIT",
     "authors": [
