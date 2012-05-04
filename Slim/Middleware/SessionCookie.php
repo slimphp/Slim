@@ -84,6 +84,16 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
         if ( is_string($this->settings['expires']) ) {
             $this->settings['expires'] = strtotime($this->settings['expires']);
         }
+
+        //Register session save handler
+        session_set_save_handler(
+            array($this, 'open'),
+            array($this, 'close'),
+            array($this, 'read'),
+            array($this, 'write'),
+            array($this, 'destroy'),
+            array($this, 'gc')
+        );
     }
 
     /**
@@ -141,5 +151,32 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
             ));
         }
         session_destroy();
+    }
+
+    /**
+     * Session Handler Stubs
+     */
+    public function open( $savePath, $sessionName ) {
+        return true;
+    }
+
+    public function close() {
+        return true;
+    }
+
+    public function read( $id ) {
+        return '';
+    }
+
+    public function write( $id, $data ) {
+        return true;
+    }
+
+    public function destroy( $id ) {
+        return true;
+    }
+
+    public function gc( $maxlifetime ) {
+        return true;
     }
 }
