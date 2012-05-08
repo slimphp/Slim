@@ -15,7 +15,7 @@ You may also use the `Slim_Middleware_SessionCookie` middleware to persist sessi
 
     $app = new Slim();
     
-    $app->add('Slim_Middleware_SessionCookie', array(
+    $app->add(new Slim_Middleware_SessionCookie, array(
         'expires' => '20 minutes',
         'path' => '/',
         'domain' => null,
