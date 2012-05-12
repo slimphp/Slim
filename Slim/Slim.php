@@ -1002,7 +1002,7 @@ class Slim {
      * Invoke hook
      * @param   string  $name       The hook name
      * @param   mixed   $hookArgs   (Optional) Argument for hooked functions
-     * @return  mixed
+     * @return  void
      */
     public function applyHook( $name, $hookArg = null ) {
         if ( !isset($this->hooks[$name]) ) {
@@ -1016,11 +1016,12 @@ class Slim {
             foreach( $this->hooks[$name] as $priority ) {
                 if( !empty($priority) ) {
                     foreach($priority as $callable) {
-                        $hookArg = call_user_func($callable, $hookArg);
+                        call_user_func($callable, $hookArg);
                     }
                 }
             }
-            return $hookArg; } }
+        }
+    }
 
     /**
      * Get hook listeners
