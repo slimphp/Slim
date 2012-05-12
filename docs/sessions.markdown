@@ -14,8 +14,8 @@ You should also disable PHP's session cache limiter so that PHP does not send co
 You may also use the `Slim_Middleware_SessionCookie` middleware to persist session data in encrypted, hashed HTTP cookies. To enable the session cookie middleware, add the `Slim_Middleware_SessionCookie` middleware to your Slim application like this:
 
     $app = new Slim();
-    
-    $app->add(new Slim_Middleware_SessionCookie, array(
+
+    $app->add(new Slim_Middleware_SessionCookie(array(
         'expires' => '20 minutes',
         'path' => '/',
         'domain' => null,
@@ -26,9 +26,9 @@ You may also use the `Slim_Middleware_SessionCookie` middleware to persist sessi
         'cipher' => MCRYPT_RIJNDAEL_256,
         'cipher_mode' => MCRYPT_MODE_CBC
     ));
-    
+
     // Define routes here
-    
+
     $app->run();
 
 The second argument is optional; it is shown here so you can see the default middleware settings. The session cookie middleware will work seamlessly with the `$_SESSION` superglobal so you can easily migrate to this session storage middleware with zero changes to your application code.
