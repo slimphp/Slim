@@ -36,6 +36,10 @@ require_once 'Slim/Slim.php';
 
 class SessionCookieTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
+        if ( session_id() !== '' ) {
+            session_unset();
+            session_destroy();
+        }
         $_SESSION = array();
     }
 

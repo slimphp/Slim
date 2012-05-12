@@ -85,7 +85,16 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
             $this->settings['expires'] = strtotime($this->settings['expires']);
         }
 
-        //Register session save handler
+        /**
+         * Session
+         *
+         * We must start a native PHP session to initialize the $_SESSION superglobal.
+         * However, we won't be using the native session store for persistence, so we
+         * disable the session cookie and cache limiter. We also set the session
+         * handler to this class instance to avoid PHP's native session file locking.
+         */
+        ini_set('session.use_cookies', 0);
+        session_cache_limiter(false);
         session_set_save_handler(
             array($this, 'open'),
             array($this, 'close'),
