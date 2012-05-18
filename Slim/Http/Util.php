@@ -342,7 +342,7 @@ class Slim_Http_Util {
     public static function parseCookieHeader( $header ) {
         $cookies = array();
         $header = rtrim($header, "\r\n");
-        $headerPieces = preg_split('@\s*;\s*@', $header);
+        $headerPieces = preg_split('@\s*[;,]\s*@', $header);
         foreach ( $headerPieces as $c ) {
             $cParts = explode('=', $c);
             if ( count($cParts) === 2 ) {
