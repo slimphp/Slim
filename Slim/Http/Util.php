@@ -348,13 +348,7 @@ class Slim_Http_Util {
             if ( count($cParts) === 2 ) {
                 $key = urldecode($cParts[0]);
                 $value = urldecode($cParts[1]);
-                if ( isset($cookies[$key]) ) {
-                    if ( is_array($cookies[$key]) ) {
-                        $cookies[$key][] = $value;
-                    } else {
-                        $cookies[$key] = array($cookies[$key], $value);
-                    }
-                } else {
+                if ( !isset($cookies[$key]) ) {
                     $cookies[$key] = $value;
                 }
             }
