@@ -536,6 +536,45 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $s->call();
         $this->assertEquals(200, $s->response()->status());
     }
+    /**
+     * Test Slim rendering with default setup layout
+     *
+     * Pre-conditions:
+     * Slim app instantiated with layout.path;
+     * Layout file exists with proper content
+     * Render an existing template with custom data;
+     *
+     * Post-conditions:
+     * The response body is correct;
+     */
+    public function testDefaultLayoutDisplay() {
+      $this->expectOutputString('<html>test output bar</html>');
+      $app = new Slim(array(
+        'templates.path' => dirname(__FILE__) . '/templates',
+        'layout.default' => 'layout.php'
+      ));
+      $app->render('test.php', array('foo' => 'bar'));
+    }
+
+    /**
+     * Test Slim rendering with custom layout
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Layout file exists with proper content
+     * Render an existing template with custom data;
+     *
+     * Post-conditions:
+     * The response body is correct;
+     */
+    public function testLayoutDisplay() {
+      $this->expectOutputString('<html>test output bar</html>');
+      $app = new Slim(array(
+        'templates.path' => dirname(__FILE__) . '/templates'
+      ));
+      $app->render('test.php', array('foo' => 'bar'), array('layout' => 'layout.php'));      
+    }
+
 
     public function testLastModifiedOnlyAcceptsIntegers(){
         $this->setExpectedException('InvalidArgumentException');
@@ -1226,4 +1265,5 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app->hook('test.hook', function ($arg) { return $arg . 'foo'; });
         $this->assertEquals('barfoo', $app->applyHook('test.hook', 'bar'));
     }
+
 }

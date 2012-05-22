@@ -231,6 +231,7 @@ class Slim {
             'log.enabled' => true,
             //View
             'templates.path' => './templates',
+            'layout.default' => null,
             'view' => 'Slim_View',
             //Cookies
             'cookies.lifetime' => '20 minutes',
@@ -604,16 +605,35 @@ class Slim {
      *
      * @param   string  $template   The name of the template passed into the View::render method
      * @param   array   $data       Associative array of data made available to the View
-     * @param   int     $status     The HTTP response status code to use (Optional)
+     * @param   mixed   $options    Array with possible options. Support for legacy integer as response code is still working
      * @return  void
      */
-    public function render( $template, $data = array(), $status = null ) {
-        if ( !is_null($status) ) {
-            $this->response->status($status);
+    public function render( $template, $data = array(), $options = array() ) {
+        if( $this->config('layout.default') ) {
+          $layout = $this->config('layout.default');
         }
+
+        if( isset($options['layout']) && !is_null($options['layout']) ) {
+          $layout = $options['layout'];
+        }
+        
+        $this->view()->setTemplatesDirectory($this->config('templates.path'));
+        
+        //Support for legacy status setup
+        if ( !is_null($options) && (filter_var($options, FILTER_VALIDATE_INT) || (isset($options['status']) && !is_null($options['status'])) && filter_var($options['status'], FILTER_VALIDATE_INT)) ) {
+            $status = ( is_null($options['status']) ? $options : $options['status'] );
+            $this->response()->status($status);
+        }
+        
         $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
-        $this->view->display($template);
+        if( isset($layout) && !is_null($layout) ) {
+          $content = array('content' => $this->view->render($template));
+          $this->view->appendData($content);
+          $this->view->display($layout);
+        } else {
+          $this->view->display($template);
+        }
     }
 
     /***** HTTP CACHING *****/
