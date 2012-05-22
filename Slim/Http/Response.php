@@ -2,11 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.0
+ * @version     1.6.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -33,50 +34,35 @@
 /**
  * Response
  *
- * Object-oriented representation of an HTTP response that is
- * returned to the client. This class is responsible for:
- *
- * - HTTP response status
- * - HTTP response body
- * - HTTP response headers
- * - HTTP response cookies
+ * This is a simple abstraction over top an HTTP response. This
+ * provides methods to set the HTTP status, the HTTP headers,
+ * and the HTTP body.
  *
  * @package Slim
- * @author  Josh Lockhart <info@joshlockhart.com>
- * @author  Kris Jordan <http://github.com/KrisJordan>
- * @since   Version 1.0
+ * @author  Josh Lockhart
+ * @since   1.0.0
  */
-class Slim_Http_Response {
-
-    /**
-     * @var Slim_Http_Request
-     */
-    protected $request;
-
-    /**
-     * @var string
-     */
-    protected $httpVersion = '1.1';
-
+class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
     /**
      * @var int HTTP status code
      */
-    protected $status = 200;
+    protected $status;
 
     /**
-     * @var array Key-value array of HTTP response headers
+     * @var Slim_Http_Headers List of HTTP response headers
+     * @see Slim_Http_Headers
      */
-    protected $headers = array();
+    protected $header;
 
     /**
      * @var string HTTP response body
      */
-    protected $body = '';
+    protected $body;
 
     /**
      * @var int Length of HTTP response body
      */
-    protected $length = 0;
+    protected $length;
 
     /**
      * @var array HTTP response codes and messages
@@ -133,126 +119,295 @@ class Slim_Http_Response {
     );
 
     /**
-     * @var CookieJar Manages Cookies to be sent with this Response
-     */
-    protected $cookieJar;
-
-    /**
      * Constructor
+     * @param   string                      $body       The HTTP response body
+     * @param   int                         $status     The HTTP response status
+     * @param   Slim_Http_Headers|array     $header     The HTTP response headers
      */
-    public function __construct( Slim_Http_Request $req ) {
-        $this->request = $req;
-        $this->header('Content-Type', 'text/html');
-    }
-
-    /**
-     * Set and/or get the HTTP response version
-     * @param   string $version
-     * @return  void
-     * @throws  InvalidArgumentException If argument is not a valid HTTP version
-     */
-    public function httpVersion( $version = null ) {
-        if ( $version ) {
-            $version = (string)$version;
-            if ( $version === '1.0' || $version === '1.1' ) {
-                $this->httpVersion = $version;
-            } else {
-                throw new InvalidArgumentException('Invalid HTTP version in Response object');
-            }
+    public function __construct( $body = '', $status = 200, $header = array() ) {
+        $this->status = (int)$status;
+        $headers = array();
+        foreach ( $header as $key => $value ) {
+            $headers[$key] = $value;
         }
-        return $this->httpVersion;
+        $this->header = new Slim_Http_Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
+        $this->body = '';
+        $this->write($body);
     }
 
     /**
-     * Set and/or get the HTTP response status code
-     * @param   int $status
+     * Get and set status
+     * @param   int|null $status
      * @return  int
-     * @throws  InvalidArgumentException If argument is not a valid HTTP status code
      */
     public function status( $status = null ) {
         if ( !is_null($status) ) {
-            if ( !in_array(intval($status), array_keys(self::$messages)) ) {
-                throw new InvalidArgumentException('Cannot set Response status. Provided status code "' . $status . '" is not a valid HTTP response code.');
-            }
-            $this->status = intval($status);
+            $this->status = (int)$status;
         }
         return $this->status;
     }
 
     /**
-     * Get HTTP response headers
-     * @return array
+     * Get and set header
+     * @param   string          $name   Header name
+     * @param   string|null     $value  Header value
+     * @return  string                  Header value
+     */
+    public function header( $name, $value = null ) {
+        if ( !is_null($value) ) {
+            $this[$name] = $value;
+        }
+        return $this[$name];
+    }
+
+    /**
+     * Get headers
+     * @return  Slim_Http_Headers
      */
     public function headers() {
-        return $this->headers;
+        return $this->header;
     }
 
     /**
-     * Get and/or set an HTTP response header
-     * @param   string      $key    The header name
-     * @param   string      $value  The header value
-     * @return  string|null         The header value, or NULL if header not set
-     */
-    public function header( $key, $value = null ) {
-        if ( !is_null($value) ) {
-            $this->headers[$key] = $value;
-        }
-        return isset($this->headers[$key]) ? $this->headers[$key] : null;
-    }
-
-    /**
-     * Set the HTTP response body
-     * @param   string $body    The new HTTP response body
-     * @return  string          The new HTTP response body
+     * Get and set body
+     * @param   string|null  $body   Content of HTTP response body
+     * @return  string
      */
     public function body( $body = null ) {
         if ( !is_null($body) ) {
-            $this->body = '';
-            $this->length = 0;
-            $this->write($body);
+            $this->write($body, true);
         }
         return $this->body;
     }
 
     /**
-     * Append the HTTP response body
-     * @param   string $body    Content to append to the current HTTP response body
-     * @return  string          The updated HTTP response body
+     * Get and set length
+     * @param   int|null     $length
+     * @return  int
      */
-    public function write( $body ) {
-        $body = (string)$body;
-        $this->length += strlen($body);
-        $this->body .= $body;
-        $this->header('Content-Length', $this->length);
-        return $body;
+    public function length( $length = null ) {
+        if ( !is_null($length) ) {
+            $this->length = (int)$length;
+        }
+        return $this->length;
     }
 
     /**
-     * Set cookie jar
-     * @param   Slim_Http_CookieJar $cookieJar
-     * @return  void
+     * Append HTTP response body
+     * @param   string  $body       Content to append to the current HTTP response body
+     * @param   bool    $replace    Overwrite existing response body?
+     * @return  string              The updated HTTP response body
      */
-    public function setCookieJar( Slim_Http_CookieJar $cookieJar ) {
-        $this->cookieJar = $cookieJar;
+    public function write( $body, $replace = false ) {
+        if ( $replace ) {
+            $this->body = $body;
+        } else {
+            $this->body .= (string)$body;
+        }
+        $this->length = strlen($this->body);
+        return $this->body;
     }
 
     /**
-     * Get cookie jar
-     * @return Slim_Http_CookieJar
-     */
-    public function getCookieJar() {
-        return $this->cookieJar;
-    }
-
-    /**
-     * Finalize response headers before response is sent
-     * @return void
+     * Finalize
+     *
+     * This prepares this response and returns an array
+     * of [status, headers, body]. This array is passed to outer middleware
+     * if available or directly to the Slim run method.
+     *
+     * @return array[int status, array headers, string body]
      */
     public function finalize() {
         if ( in_array($this->status, array(204, 304)) ) {
-            $this->body('');
-            unset($this->headers['Content-Type']);
+            unset($this['Content-Type'], $this['Content-Length']);
+            return array($this->status, $this->header, '');
+        } else {
+            return array($this->status, $this->header, $this->body);
         }
+    }
+
+    /**
+     * Set cookie
+     *
+     * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
+     * header on its own and delegates this responsibility to the `Slim_Http_Util` class. This
+     * response's header is passed by reference to the utility class and is directly modified. By not
+     * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
+     * analyze the raw header before the response is ultimately delivered to the HTTP client.
+     *
+     * @param   string          $name   The name of the cookie
+     * @param   string|array    $value  If string, the value of cookie; if array, properties for
+     *                                  cookie including: value, expire, path, domain, secure, httponly
+     */
+    public function setCookie( $name, $value ) {
+        Slim_Http_Util::setCookieHeader($this->header, $name, $value);
+    }
+
+    /**
+     * Delete cookie
+     *
+     * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
+     * header on its own and delegates this responsibility to the `Slim_Http_Util` class. This
+     * response's header is passed by reference to the utility class and is directly modified. By not
+     * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
+     * analyze the raw header before the response is ultimately delivered to the HTTP client.
+     *
+     * This method will set a cookie with the given name that has an expiration time in the past; this will
+     * prompt the HTTP client to invalidate and remove the client-side cookie. Optionally, you may
+     * also pass a key/value array as the second argument. If the "domain" key is present in this
+     * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
+     * sent with this response will adopt all properties of the second argument.
+     *
+     * @param   string  $name   The name of the cookie
+     * @param   array   $value  Properties for cookie including: value, expire, path, domain, secure, httponly
+     */
+    public function deleteCookie( $name, $value = array() ) {
+        Slim_Http_Util::deleteCookieHeader($this->header, $name, $value);
+    }
+
+    /**
+     * Redirect
+     *
+     * This method prepares this response to return an HTTP Redirect response
+     * to the HTTP client.
+     *
+     * @param   string  $url        The redirect destination
+     * @param   int     $status     The redirect HTTP status code
+     */
+    public function redirect ( $url, $status = 302 ) {
+        $this->status = $status;
+        $this['Location'] = $url;
+    }
+
+    /**
+     * Helpers: Empty?
+     * @return bool
+     */
+    public function isEmpty() {
+        return in_array($this->status, array(201, 204, 304));
+    }
+
+    /**
+     * Helpers: Informational?
+     * @return bool
+     */
+    public function isInformational() {
+        return $this->status >= 100 && $this->status < 200;
+    }
+
+    /**
+     * Helpers: OK?
+     * @return bool
+     */
+    public function isOk() {
+        return $this->status === 200;
+    }
+
+    /**
+     * Helpers: Successful?
+     * @return bool
+     */
+    public function isSuccessful() {
+        return $this->status >= 200 && $this->status < 300;
+    }
+
+    /**
+     * Helpers: Redirect?
+     * @return bool
+     */
+    public function isRedirect() {
+        return in_array($this->status, array(301, 302, 303, 307));
+    }
+
+    /**
+     * Helpers: Redirection?
+     * @return bool
+     */
+    public function isRedirection() {
+        return $this->status >= 300 && $this->status < 400;
+    }
+
+    /**
+     * Helpers: Forbidden?
+     * @return bool
+     */
+    public function isForbidden() {
+        return $this->status === 403;
+    }
+
+    /**
+     * Helpers: Not Found?
+     * @return bool
+     */
+    public function isNotFound() {
+        return $this->status === 404;
+    }
+
+    /**
+     * Helpers: Client error?
+     * @return bool
+     */
+    public function isClientError() {
+        return $this->status >= 400 && $this->status < 500;
+    }
+
+    /**
+     * Helpers: Server Error?
+     * @return bool
+     */
+    public function isServerError() {
+        return $this->status >= 500 && $this->status < 600;
+    }
+
+    /**
+     * Array Access: Offset Exists
+     */
+    public function offsetExists( $offset ) {
+        return isset($this->header[$offset]);
+    }
+
+    /**
+     * Array Access: Offset Get
+     */
+    public function offsetGet( $offset ) {
+        if ( isset($this->header[$offset]) ) {
+            return $this->header[$offset];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Array Access: Offset Set
+     */
+    public function offsetSet( $offset, $value ) {
+        $this->header[$offset] = $value;
+    }
+
+    /**
+     * Array Access: Offset Unset
+     */
+    public function offsetUnset( $offset ) {
+        unset($this->header[$offset]);
+    }
+
+    /**
+     * Countable: Count
+     */
+    public function count() {
+        return count($this->header);
+    }
+
+    /**
+     * Get Iterator
+     *
+     * This returns the contained `Slim_Http_Headers` instance which
+     * is itself iterable.
+     *
+     * @return Slim_Http_Headers
+     */
+    public function getIterator() {
+        return $this->header;
     }
 
     /**
@@ -260,67 +415,10 @@ class Slim_Http_Response {
      * @return string|null
      */
     public static function getMessageForCode( $status ) {
-        return isset(self::$messages[$status]) ? self::$messages[$status] : null;
-    }
-
-    /**
-     * Can this HTTP response have a body?
-     * @return bool
-     */
-    public function canHaveBody() {
-        return ( $this->status < 100 || $this->status >= 200 ) && $this->status != 204 && $this->status != 304;
-    }
-
-    /**
-     * Send headers for HTTP response
-     * @return void
-     */
-    protected function sendHeaders() {
-        //Finalize response
-        $this->finalize();
-
-        if ( substr(PHP_SAPI, 0, 3) === 'cgi') {
-            //Send Status header if running with fastcgi
-            header('Status: ' . self::getMessageForCode($this->status()));
+        if ( isset(self::$messages[$status]) ) {
+            return self::$messages[$status];
         } else {
-            //Else send HTTP message
-            header(sprintf('HTTP/%s %s', $this->httpVersion, self::getMessageForCode($this->status())));
-        }
-
-        //Send headers
-        foreach ( $this->headers() as $name => $value ) {
-            header("$name: $value");
-        }
-
-        //Send cookies
-        foreach ( $this->getCookieJar()->getResponseCookies() as $name => $cookie ) {
-            /* httponly option is only available for PHP version >= 5.2 */
-            if ( version_compare(PHP_VERSION, '5.2.0', '>=') ) {
-                setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure(), $cookie->getHttpOnly());
-            } else {
-                setcookie($cookie->getName(), $cookie->getValue(), $cookie->getExpires(), $cookie->getPath(), $cookie->getDomain(), $cookie->getSecure());
-            }
-        }
-
-        //Flush all output to client
-        flush();
-    }
-
-    /**
-     * Send HTTP response
-     *
-     * This method will set Response headers, set Response cookies,
-     * and `echo` the Response body to the current output buffer.
-     *
-     * @return void
-     */
-    public function send() {
-        if ( !headers_sent() ) {
-            $this->sendHeaders();
-        }
-        if ( $this->canHaveBody() && $this->request->isHead() === false ) {
-            echo $this->body;
+            return null;
         }
     }
-
 }

@@ -7,4 +7,4 @@ RewriteEngine On
 # RewriteBase /
 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ index.php [QSA,L]
+RewriteRule ^ index.php [QSA,L]
