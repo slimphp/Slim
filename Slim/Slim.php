@@ -609,8 +609,6 @@ class Slim {
      * @return  void
      */
     public function render( $template, $data = array(), $options = array() ) {
-        $templatesPath = $this->config('templates.path');
-        
         if( $this->config('layout.default') ) {
           $layout = $this->config('layout.default');
         }
@@ -619,11 +617,7 @@ class Slim {
           $layout = $options['layout'];
         }
         
-        //Legacy support
-        if ( is_null($templatesPath) ) {
-            $templatesPath = $this->config('templates_dir');
-        }
-        self::view()->setTemplatesDirectory($templatesPath);
+        $this->view()->setTemplatesDirectory($this->config('templates.path'));
         
         //Support for legacy status setup
         if ( !is_null($options) && (filter_var($options, FILTER_VALIDATE_INT) || (isset($options['status']) && !is_null($options['status'])) && filter_var($options['status'], FILTER_VALIDATE_INT)) ) {
@@ -631,7 +625,6 @@ class Slim {
             $this->response()->status($status);
         }
         
-
         $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
         if( isset($layout) && !is_null($layout) ) {
