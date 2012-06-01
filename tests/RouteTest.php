@@ -32,6 +32,7 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
+require_once 'Slim/Slim.php';
 require_once 'Slim/Route.php';
 require_once 'Slim/Router.php';
 require_once 'Slim/Environment.php';
@@ -39,6 +40,16 @@ require_once 'Slim/Http/Headers.php';
 require_once 'Slim/Http/Request.php';
 require_once 'Slim/Http/Response.php';
 require_once 'Slim/Exception/RequestSlash.php';
+
+class testcls {
+    public static function staticfunc() {
+        echo 'foo';
+    }
+
+    public function objectfunc() {
+        echo 'bar';
+    }
+}
 
 /**
  * Router Mock
@@ -440,5 +451,38 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route->setRouter($router);
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $this->assertFalse($route->dispatch());
+    }
+
+    public function testRailsCallable() {
+        Slim_Environment::mock(array(
+            'PATH_INFO' => '/test'
+        ));
+        $app = new Slim();
+        $app->get('/test', 'testcls#staticfunc', 'testcls#objectfunc');
+        $app->call();
+        $body = $app->response()->body();
+        $this->assertEquals('foobar', $body);
+    }
+
+    public function testRailsCallableWithError() {
+        Slim_Environment::mock(array(
+            'PATH_INFO' => '/test'
+        ));
+        $app = new Slim();
+        $app->get('/test', 'non#exist', 'testcls#objectfunc');
+        $app->call();
+        $body = $app->response()->body();
+        $this->assertEquals('bar', $body);
+    }
+
+    public function testRailsCallable404() {
+        Slim_Environment::mock(array(
+            'PATH_INFO' => '/test'
+        ));
+        $app = new Slim();
+        $app->get('/test', 'non#exist', 'non#exist');
+        $app->call();
+        $status = $app->response()->status();
+        $this->assertEquals(404, $status);
     }
 }

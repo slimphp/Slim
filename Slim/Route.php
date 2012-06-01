@@ -385,16 +385,40 @@ class Slim_Route {
         $req = $this->router->getRequest();
         $res = $this->router->getResponse();
         foreach ( $this->middleware as $mw ) {
+            $this->expandCallable($mw);
             if ( is_callable($mw) ) {
                 call_user_func_array($mw, array($req, $res, $this));
             }
         }
 
         //Invoke callable
+        $this->expandCallable($this->callable);
         if ( is_callable($this->getCallable()) ) {
             call_user_func_array($this->callable, array_values($this->params));
             return true;
         }
         return false;
+    }
+
+    /**
+     * Transform callable from class#method to array(class, method)
+     *
+     * @param string $callable Class#method pattern
+     */
+    protected function expandCallable(&$callable) {
+        if ( is_string($callable) && strpos($callable, '#') !== false ) {
+            list($class, $method) = explode('#', $callable);
+
+            try {
+                $rm = new ReflectionMethod($class, $method);
+
+                if ( $rm->isStatic() ) {
+                    $callable = array($class, $method);
+                } else {
+                    $callable = array(new $class, $method);
+                }
+            } catch (ReflectionException $e) {
+            }
+        }
     }
 }
