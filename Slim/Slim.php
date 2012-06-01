@@ -165,6 +165,11 @@ class Slim {
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
         $this->environment['slim.log'] = $log;
+
+        //CSRF protection
+        if ( $this->config('csrf.check') === true ) {
+            $this->hook('slim.before', array($this, 'validateToken'));
+        }
     }
 
     /**
@@ -225,7 +230,10 @@ class Slim {
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             //HTTP
-            'http.version' => '1.1'
+            'http.version' => '1.1',
+            //CSRF
+            'csrf.check' => false,
+            'csrf.field' => 'csrf_token',
         );
     }
 
@@ -1039,6 +1047,46 @@ class Slim {
         } else {
             foreach( $this->hooks as $key => $value ) {
                 $this->hooks[$key] = array(array());
+            }
+        }
+    }
+
+    /***** CSRF PROTECTION *****/
+
+    /**
+     * Get CSRF token value
+     *
+     * @return string
+     */
+    public function getCsrfToken() {
+        return sha1($this->environment['REMOTE_ADDR'] . '|' . $this->environment['USER_AGENT']);
+    }
+
+    /**
+     * Get CSRF token field name
+     * (Shortcut for controller/view)
+     *
+     * @return string
+     */
+    public function getCsrfField() {
+        return $this->config('csrf.field');
+    }
+
+    /**
+     * Validate CSRF token
+     */
+    protected function validateToken() {
+        // Method data
+        $method = $this->request->getMethod();
+        $methods = array('POST', 'PUT', 'DELETE');
+
+        // Validate
+        if ( in_array($method, $methods) ) {
+            $input = $this->request->post($this->config('csrf.field'));
+            $token = $this->getCsrfToken();
+
+            if ( $input != $token ) {
+                $this->halt(400, 'Request forged');
             }
         }
     }

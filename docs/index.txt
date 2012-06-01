@@ -129,6 +129,8 @@ flash.markdown
 
 sessions.markdown
 
+csrf.markdown
+
 logging.markdown
 
 errors.markdown

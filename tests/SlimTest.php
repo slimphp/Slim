@@ -33,6 +33,8 @@
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Slim.php';
+require_once 'Slim/Middleware.php';
+require_once 'Slim/Environment.php';
 require_once 'Slim/View.php';
 require_once 'Slim/Middleware/Flash.php';
 
@@ -1234,5 +1236,60 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app = new Slim();
         $app->hook('test.hook', function ($arg) { return $arg . 'foo'; });
         $this->assertEquals('barfoo', $app->applyHook('test.hook', 'bar'));
+    }
+
+    /************************************************
+     * CSRF
+     ************************************************/
+
+    /**
+     * Test CSRF token
+     */
+    public function testCsrfToken() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'USER_AGENT' => 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.52 Safari/536.5',
+            'slim.input' => 'csrf_token=4f4f64abd27345d832f23718c1ea98de2a88293e'
+        ));
+        $app = new Slim(array(
+            'csrf.check' => true
+        ));
+        $app->call();
+        $resp = $app->response();
+        $this->assertEquals(404, $resp->status());
+        $this->assertNotContains('Request forged', $resp->body());
+    }
+
+    /**
+     * Test CSRF token when dismatch
+     */
+    public function testCsrfTokenWhenDismatch() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'USER_AGENT' => 'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/536.5 (KHTML, like Gecko) Chrome/19.0.1084.52 Safari/536.5',
+            'slim.input' => 'csrf_token=5f4f64abd27345d832f23718c1ea98de2a88293e'
+        ));
+        $app = new Slim(array(
+            'csrf.check' => true
+        ));
+        $app->call();
+        $resp = $app->response();
+        $this->assertEquals(400, $resp->status());
+        $this->assertEquals('Request forged', $resp->body());
+    }
+
+    /**
+     * Test CSRF token when GET request
+     */
+    public function testCsrfTokenWhenGetRequest() {
+        $app = new Slim(array(
+            'csrf.check' => true
+        ));
+        $app->call();
+        $resp = $app->response();
+        $this->assertEquals(404, $resp->status());
+        $this->assertNotContains('Request forged', $resp->body());
     }
 }
