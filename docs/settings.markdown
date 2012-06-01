@@ -190,3 +190,23 @@ Default
 
 Possible Values
 :   "1.1" or "1.0"
+
+## csrf.check [settings-csrf-check]
+
+By default, CSRF protection is disabled. Use this setting if you need to enable this.
+
+Data Type
+:   boolean
+
+Default
+:   false
+
+## csrf.field [settings-csrf-field]
+
+CSRF protection field name. Used to send token value on request.
+
+Data Type
+:   string
+
+Default
+:   "csrf_token"
