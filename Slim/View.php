@@ -162,7 +162,7 @@ class Slim_View {
     public function display( $template ) {
         echo $this->fetch($template);
     }
-    
+
     /**
      * Fetch rendered template
      *
@@ -172,19 +172,23 @@ class Slim_View {
      * @return  void
      */
     public function fetch( $template ) {
-        $this->setTemplate( $template );
-        return $this->render();
+        return $this->render($template);
     }
 
     /**
      * Render template
      * @return  string  Rendered template
+     *
+     * DEPRECATION WARNING!
+     *
+     * This method will be made PROTECTED in a future version. Please use `Slim_View::fetch` to
+     * return a rendered template instead of `Slim_View::render`.
      */
-    public function render() {
+    public function render( $template ) {
+        $this->setTemplate($template);
         extract($this->data);
         ob_start();
         require $this->templatePath;
         return ob_get_clean();
     }
-
 }
