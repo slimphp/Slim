@@ -112,11 +112,14 @@ class Slim_View {
 
     /**
      * Append data to existing View data
-     * @param   array $data
+     * @param   mixed $data
      * @return  void
+     * @throws  InvalidArgumentException
      */
     public function appendData( $data ) {
-        if ( !is_array($data) ) throw new InvalidArgumentException('Cannot append View data, array required');
+        if ( !is_array($data) ) {
+            throw new InvalidArgumentException('Cannot append View data, array required');
+        }
         $this->data = array_merge($this->data, $data);
     }
 
