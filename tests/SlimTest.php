@@ -206,7 +206,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             'mode' => 'test'
         ));
         $this->assertEquals('test', $s->getMode());
-    }
+		}
 
     /**
      * Test mode configuration
@@ -246,6 +246,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $s = new Slim(array('mode' => 'production'));
         $s->configureMode('production', 'foo');
         $this->assertEquals(0, $flag);
+    }
+
+    /**
+     * Test custom mode from getenv()
+     */
+    public function testGetModeFromGetEnv() {
+        putenv('SLIM_MODE=production');
+        $s = new Slim();
+        $this->assertEquals('production', $s->getMode());
     }
 
     /************************************************
@@ -1213,6 +1222,29 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(503, $status);
         $this->assertEquals('FooBar', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);
+    }
+
+    /**
+     * Test custom global error handler
+     */
+    public function testHandleErrors() {
+        $defaultErrorReporting = error_reporting();
+        error_reporting(E_ALL ^ E_NOTICE);
+        
+        try {
+            $this->assertTrue(Slim::handleErrors(E_NOTICE, 'test error'));
+        } catch (ErrorException $e) {
+            $this->fail('Slim::handleErrors reported a disabled error level.');
+        }
+
+        try {
+            Slim::handleErrors(E_STRICT, 'test error', 'Slim.php', 119);
+            $this->fail('Slim::handleErrors didn\'t report a enabled error level');
+        } catch(ErrorException $e) {
+            $this->assertEquals('test error', $e->getMessage());
+        }
+
+        error_reporting($defaultErrorReporting);
     }
 
     /************************************************
