@@ -1128,6 +1128,11 @@ class Slim {
      * @return void
      */
     public function run() {
+        //Clear any existing output buffer
+        if (ob_get_length() > 0) {
+            $this->response->write(ob_get_clean());
+        }
+
         set_error_handler(array('Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
