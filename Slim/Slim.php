@@ -106,6 +106,16 @@ class Slim {
     );
 
     /**
+     * @var int
+     */
+    protected $obLevel;
+
+    /**
+     * @var string
+     */
+    protected $preContent;
+
+    /**
      * Slim autoloader
      *
      * Lazy-loads class files when a given class is first referenced.
@@ -155,6 +165,9 @@ class Slim {
         if ( is_null(self::getInstance()) ) {
             $this->setName('default');
         }
+
+        //Capture current ob level to be used when a Stop is caught
+        $this->obLevel = ob_get_level();
 
         //Set default logger that writes to stderr (may be overridden with middleware)
         $logWriter = $this->config('log.writer');
@@ -1128,9 +1141,14 @@ class Slim {
      * @return void
      */
     public function run() {
-        //Clear any existing output buffer
+        //Initially set in the constructor to avoid an unknown state,
+        //but grab it again incase the user changed it since
+        $this->obLevel = ob_get_level();
+
+        //Save any content in the output buffer without destroying the output buffering context
         if (ob_get_length() > 0) {
-            $this->response->write(ob_get_clean());
+            $this->preContent = ob_get_contents();
+            ob_clean();
         }
 
         set_error_handler(array('Slim', 'handleErrors'));
@@ -1161,6 +1179,9 @@ class Slim {
                 }
             }
         }
+
+        //Send the saved content
+        echo $this->preContent;
 
         //Send body
         if ( is_string($body) ) {
@@ -1212,7 +1233,10 @@ class Slim {
             $this->applyHook('slim.after');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
-            $this->response()->write(ob_get_contents());
+            //Only write the response if it wasn't closed above already - prevents duplicate output
+            if ( ob_get_level() > $this->obLevel ) {
+                $this->response()->write(ob_get_clean());
+            }
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
         } catch ( Exception $e ) {

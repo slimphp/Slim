@@ -288,6 +288,34 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test GET route with output buffering on before object creation and pre / post content
+     */
+    public function testGetRouteWithOutputBufferingBeforeObjectCreationAndPreAndPostContent() {
+        ob_start();
+        $s = new Slim();
+        echo "1:";
+        $route = $s->get('/bar', function () { echo "foo"; });
+        $s->run();
+        echo ":2";
+        $this->assertEquals('foo', $s->response()->body());
+        $this->assertEquals('1:foo:2', ob_get_clean());
+    }
+
+    /**
+     * Test GET route with output buffering on after object creation and pre / post content
+     */
+    public function testGetRouteWithOutputBufferingAfterObjectCreationAndPreAndPostContent() {
+        $s = new Slim();
+        ob_start();
+        echo "1:";
+        $route = $s->get('/bar', function () { echo "foo"; });
+        $s->run();
+        echo ":2";
+        $this->assertEquals('foo', $s->response()->body());
+        $this->assertEquals('1:foo:2', ob_get_clean());
+    }
+
+    /**
      * Test POST route
      */
     public function testPostRoute() {
@@ -822,7 +850,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             $s->stop();
             echo "Bar"; //<-- Should not be in response body!
         });
-        $s->call();
+        $s->run();
         $this->assertEquals('Foo', $s->response()->body());
     }
 
