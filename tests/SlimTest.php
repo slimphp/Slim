@@ -288,6 +288,34 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test GET route with output buffering on before object creation and pre / post content
+     */
+    public function testGetRouteWithOutputBufferingBeforeObjectCreationAndPreAndPostContent() {
+        ob_start();
+        $s = new Slim();
+        echo "1:";
+        $route = $s->get('/bar', function () { echo "foo"; });
+        $s->run();
+        echo ":2";
+        $this->assertEquals('foo', $s->response()->body());
+        $this->assertEquals('1:foo:2', ob_get_clean());
+    }
+
+    /**
+     * Test GET route with output buffering on after object creation and pre / post content
+     */
+    public function testGetRouteWithOutputBufferingAfterObjectCreationAndPreAndPostContent() {
+        $s = new Slim();
+        ob_start();
+        echo "1:";
+        $route = $s->get('/bar', function () { echo "foo"; });
+        $s->run();
+        echo ":2";
+        $this->assertEquals('foo', $s->response()->body());
+        $this->assertEquals('1:foo:2', ob_get_clean());
+    }
+
+    /**
      * Test POST route
      */
     public function testPostRoute() {
@@ -822,7 +850,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             $s->stop();
             echo "Bar"; //<-- Should not be in response body!
         });
-        $s->call();
+        $s->run();
         $this->assertEquals('Foo', $s->response()->body());
     }
 
@@ -953,6 +981,27 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     public function testRun() {
         $this->expectOutputString('Foo');
         $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            echo "Foo";
+        });
+        $s->run();
+    }
+
+    /**
+     * Test that runner clears an existing output buffer when starting to run the application.
+     *
+     * This is most likely to happen when the evironment has output_buffering "On" which seems
+     * to be the default as of at least PHP 5.4+ (maybe earlier)
+     */
+    public function testRunWithOutputBufferingOnAndPrePopulated() {
+
+        //As of PHP 4.3.5 output_buffering is off by default in CLI mode so we need to explicitly start it by
+        //calling ob_start() since the unit tests are run in CLI mode.
+        ob_start();
+
+        $this->expectOutputString('debug_statement--Foo');
+        $s = new Slim();
+        echo "debug_statement--";
         $s->get('/bar', function () use ($s) {
             echo "Foo";
         });
