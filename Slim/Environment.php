@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.0
+ * @version     1.6.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -62,7 +62,7 @@ class Slim_Environment implements ArrayAccess, IteratorAggregate {
      * Get environment instance (singleton)
      *
      * This creates and/or returns an Environment instance (singleton)
-     * derived from $_SERVER variables. You may override the global server 
+     * derived from $_SERVER variables. You may override the global server
      * variables by using `Environment::mock()` instead.
      *
      * @param   bool            $refresh    Refresh properties using global server variables?
