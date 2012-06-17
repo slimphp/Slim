@@ -175,7 +175,7 @@ class Slim {
         //Set default logger that writes to stderr (may be overridden with middleware)
         $logWriter = $this->config('log.writer');
         if ( !$logWriter ) {
-            $logWriter = new Slim_LogFileWriter($this->environment['slim.errors']);
+            $logWriter = new Slim_LogWriter($this->environment['slim.errors']);
         }
         $log = new Slim_Log($logWriter);
         $log->setEnabled($this->config('log.enabled'));
