@@ -248,7 +248,7 @@ class Slim_Router implements Iterator {
      * @return Slim_Route|false
      */
     public function current() {
-        return current($this->matchedRoutes);
+        return current($this->getMatchedRoutes());
     }
 
     /**
