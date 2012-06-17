@@ -32,18 +32,18 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/LogFileWriter.php';
+require_once 'Slim/LogWriter.php';
 
-class LogFileWriterTest extends PHPUnit_Framework_TestCase {
+class LogWriterTest extends PHPUnit_Framework_TestCase {
     public function testInstantiation() {
         $this->expectOutputString('Hello!' . PHP_EOL);
         $handle = fopen('php://output', 'w');
-        $fw = new Slim_LogFileWriter($handle);
+        $fw = new Slim_LogWriter($handle);
         $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
     }
 
     public function testInstantiationWithNonResource() {
         $this->setExpectedException('InvalidArgumentException');
-        $fw = new Slim_LogFileWriter(@fopen('/foo/bar.txt', 'w'));
+        $fw = new Slim_LogWriter(@fopen('/foo/bar.txt', 'w'));
     }
 }
