@@ -1226,13 +1226,4 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
-
-    /**
-     * Test hook filter behavior
-     */
-    public function testHookFilterBehavior() {
-        $app = new Slim();
-        $app->hook('test.hook', function ($arg) { return $arg . 'foo'; });
-        $this->assertEquals('barfoo', $app->applyHook('test.hook', 'bar'));
-    }
 }

@@ -11,6 +11,8 @@ Only Cookies **sent** with the current HTTP request are accessible with this met
     //Get all cookies as associative array
     $cookies = $app->request()->cookies();
 
+When multiple cookies with the same name are available (e.g. because they have different paths) only the most specific one (longest matching path) is returned. See RFC 2109.
+
 ## Get Encrypted Cookies [request-cookies-encrypted] ##
 
 If you previously set an encrypted cookie, you can fetch its decrypted value with the Slim application's `getEncryptedCookie()` instance method like this:

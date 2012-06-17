@@ -41,7 +41,6 @@ In this example, assume the current application mode is “production”. Only t
     $app->configureMode('production', function () use ($app) {
         $app->config(array(
             'log.enable' => true,
-            'log.path' => '../logs',
             'debug' => false
         ));
     });

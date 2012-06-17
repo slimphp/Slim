@@ -41,7 +41,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Router implements IteratorAggregate {
+class Slim_Router implements Iterator {
     /**
      * @var Slim_Http_Request
      */
@@ -90,14 +90,6 @@ class Slim_Router implements IteratorAggregate {
     }
 
     /**
-     * Get Iterator
-     * @return ArrayIterator
-     */
-    public function getIterator() {
-        return new ArrayIterator($this->getMatchedRoutes());
-    }
-
-    /**
      * Get Request
      * @return Slim_Http_Request
      */
@@ -111,6 +103,14 @@ class Slim_Router implements IteratorAggregate {
      */
     public function getResponse() {
         return $this->response;
+    }
+
+    /**
+     * Get Current Route
+     * @return Slim_Route|false
+     */
+    public function getCurrentRoute() {
+        return $this->current();
     }
 
     /**
@@ -233,5 +233,45 @@ class Slim_Router implements IteratorAggregate {
             $this->error = $callable;
         }
         return $this->error;
+    }
+
+    /**
+     * Iterator Interface: Rewind
+     * @return void
+     */
+    public function rewind() {
+        reset($this->matchedRoutes);
+    }
+
+    /**
+     * Iterator Interface: Current
+     * @return Slim_Route|false
+     */
+    public function current() {
+        return current($this->matchedRoutes);
+    }
+
+    /**
+     * Iterator Interface: Key
+     * @return int|null
+     */
+    public function key() {
+        return key($this->matchedRoutes);
+    }
+
+    /**
+     * Iterator Interface: Next
+     * @return void
+     */
+    public function next() {
+        next($this->matchedRoutes);
+    }
+
+    /**
+     * Iterator Interface: Valid
+     * @return boolean
+     */
+    public function valid() {
+        return $this->current();
     }
 }

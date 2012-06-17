@@ -32,12 +32,7 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Environment.php';
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Http/Request.php';
-require_once 'Slim/Http/Response.php';
-require_once 'Slim/Router.php';
-require_once 'Slim/Route.php';
+require_once 'Slim/Slim.php';
 
 class RouterTest extends PHPUnit_Framework_TestCase {
 
@@ -314,16 +309,22 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test that Router implements IteratorAggregate interface
+     * Test get current route
      */
-    public function testRouterImplementsIteratorAggregate() {
-        $router = new Slim_Router($this->req, $this->res);
-        $router->map('/bar', function () {})->via('GET');
-        $router->map('/foo1', function () {})->via('POST');
-        $router->map('/bar', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $iterator = $router->getIterator();
-        $this->assertInstanceOf('ArrayIterator', $iterator);
-        $this->assertEquals(2, $iterator->count());
+    public function testGetCurrentRoute() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () {
+            echo "Foo";
+        });
+        $app->call();
+        $this->assertSame($route2, $app->router()->getCurrentRoute());
     }
 }

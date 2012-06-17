@@ -215,7 +215,7 @@ class Slim_Http_Request {
         }
         if ( !isset($this->env['slim.request.form_hash']) ) {
             $this->env['slim.request.form_hash'] = array();
-            if ( $this->isFormData() ) {
+            if ( $this->isFormData() && is_string($this->env['slim.input']) ) {
                 $output = array();
                 if ( function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte']) ) {
                     mb_parse_str($this->env['slim.input'], $output);

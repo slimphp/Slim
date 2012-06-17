@@ -91,15 +91,25 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Test View appends data
      *
      * Pre-conditions:
-     * Append data to View several times
+     * Case A: Append data to View several times
+     * Case B: Append view data which is not an array
      *
      * Post-conditions:
-     * The View data contains all appended data
+     * Case A: The View data contains all appended data
+     * Case B: An InvalidArgumentException is thrown
      */
     public function testViewAppendsData(){
+        //Case A
         $this->view->appendData(array('a' => 'A'));
         $this->view->appendData(array('b' => 'B'));
         $this->assertEquals(array('a' => 'A', 'b' => 'B'), $this->view->getData());
+        
+        //Case B
+        try {
+            $this->view->appendData('not an array');
+            $this->fail('Appending View data with non-array argument did not throw exception');
+        } catch ( InvalidArgumentException $e ) {}
+        
     }
 
     /**

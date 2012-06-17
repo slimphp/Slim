@@ -7,6 +7,7 @@
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
  * @version     1.6.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -30,20 +31,42 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+/**
+ * Log Writer
+ *
+ * This class is used by Slim_Log to write log messages to a valid, writable
+ * resource handle (e.g. a file or STDERR).
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   1.6.0
+ */
+class Slim_LogWriter {
+    /**
+     * @var resource
+     */
+    protected $resource;
 
-require_once 'Slim/LogFileWriter.php';
-
-class LogFileWriterTest extends PHPUnit_Framework_TestCase {
-    public function testInstantiation() {
-        $this->expectOutputString('Hello!' . PHP_EOL);
-        $handle = fopen('php://output', 'w');
-        $fw = new Slim_LogFileWriter($handle);
-        $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
+    /**
+     * Constructor
+     * @param   resource    $resource
+     * @return  void
+     * @throws  InvalidArgumentException
+     */
+    public function __construct( $resource ) {
+        if ( !is_resource($resource) ) {
+            throw new InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
+        }
+        $this->resource = $resource;
     }
 
-    public function testInstantiationWithNonResource() {
-        $this->setExpectedException('InvalidArgumentException');
-        $fw = new Slim_LogFileWriter(@fopen('/foo/bar.txt', 'w'));
+    /**
+     * Write message
+     * @param   mixed       $message
+     * @param   int         $level
+     * @return  int|false
+     */
+    public function write( $message, $level = null ) {
+        return fwrite($this->resource, (string)$message . PHP_EOL);
     }
 }
