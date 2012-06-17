@@ -385,16 +385,43 @@ class Slim_Route {
         $req = $this->router->getRequest();
         $res = $this->router->getResponse();
         foreach ( $this->middleware as $mw ) {
+            $this->railizeCallable($mw);
             if ( is_callable($mw) ) {
                 call_user_func_array($mw, array($req, $res, $this));
             }
         }
 
         //Invoke callable
-        if ( is_callable($this->getCallable()) ) {
+        $this->railizeCallable($this->callable);
+        if ( is_callable($this->callable) ) {
             call_user_func_array($this->callable, array_values($this->params));
             return true;
         }
         return false;
+    }
+
+    /**
+     * Railize callable
+     *
+     * This methods looking for a Rails-like class#method pattern in
+     * callable or middleware and transforms it into array(class, method)
+     * for being a valid callable.
+     *
+     * @param string $callable Callable (reference)
+     */
+    protected function railizeCallable( &$callable ) {
+        // Needed callable?
+        if ( is_string($callable) && strpos($callable, '#') !== false ) {
+            list($class, $method) = explode('#', $callable);
+            // Safest way to validate
+            try {
+                $reflection = new ReflectionMethod($class, $method);
+                if ($reflection->isStatic()) {
+                    $callable = array($class, $method);
+                } else {
+                    $callable = array(new $class, $method);
+                }
+            } catch (ReflectionException $e) {}
+        }
     }
 }
