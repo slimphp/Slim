@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     1.6.3
  *
  * MIT LICENSE
  *
@@ -103,13 +103,13 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         $this->view->appendData(array('a' => 'A'));
         $this->view->appendData(array('b' => 'B'));
         $this->assertEquals(array('a' => 'A', 'b' => 'B'), $this->view->getData());
-        
+
         //Case B
         try {
             $this->view->appendData('not an array');
             $this->fail('Appending View data with non-array argument did not throw exception');
         } catch ( InvalidArgumentException $e ) {}
-        
+
     }
 
     /**
