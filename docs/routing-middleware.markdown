@@ -41,9 +41,22 @@ If you are running PHP >= 5.3, you can get a bit more creative. Suppose you want
                 Slim::flash('error', 'Login required');
                 Slim::redirect('/login');
             }
-        }
-    }
+        };
+    };
     $app = new Slim();
     $app->get('/foo', $authenticateForRole('admin'), function () {
         //Display admin control panel
+    });
+
+## Are there any parameters passed to the Route Middleware callable?
+
+Yes.  The middleware callable is called with three parameters, `Slim_Http_Request`, `Slim_Http_Response` and the currently matched `Slim_Route`.
+
+    $aBitOfInfo = function ($request, $response, $route) {
+        $response->write(sprintf("We got %d GET/POST parameter(s)", count($request->params())));
+        echo "Current route is " . $route->getName();
+    };
+
+    $app->get('/foo', $aBitOfInfo, function () {
+        echo "foo";
     });
