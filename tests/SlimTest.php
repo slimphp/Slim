@@ -806,7 +806,6 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      * Test stop with subsequent output
      */
     public function testStopWithSubsequentOutput() {
-        $this->expectOutputString('Foo');
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
             echo "Foo"; //<-- Should be in response body!
