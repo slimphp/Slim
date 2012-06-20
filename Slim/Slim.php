@@ -1159,7 +1159,6 @@ class Slim {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
                     $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
             $this->applyHook('slim.after.router');
-            //$this->response->write(ob_get_clean());
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
             $this->response()->write(ob_get_clean());
