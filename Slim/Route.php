@@ -189,6 +189,16 @@ class Slim_Route {
     }
 
     /**
+     * Set route parameter
+     * @param   string  $name
+     * @param   mixed   $value
+     * @return  void
+     */
+    public function setParam($name, $value) {
+        $this->params[$name] = $value;
+    }
+
+    /**
      * Add supported HTTP method(s)
      * @return void
      */

@@ -105,6 +105,22 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Route can inject parameter
+     */
+    public function testRouteCanInjectParameter() {
+        $route = new Slim_Route('/foo/bar', 'testCallable');
+
+        // Check
+        $params = $route->getParams();
+        $this->assertFalse(isset($params['newParam']));
+        $route->setParam('newParam', 'foo');
+
+        // Check again
+        $params = $route->getParams();
+        $this->assertTrue(isset($params['newParam']));
+    }
+
+    /**
      * If route matches a resource URI, param should be extracted.
      */
     public function testRouteMatchesAndParamExtracted() {
