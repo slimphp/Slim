@@ -817,6 +817,23 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test stop with subsequent output with output buffer on and pre content
+     */
+    public function testStopWithSubsequentOutputWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Foo.3');
+        echo "1.";
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            echo "Foo"; //<-- Should be in response body!
+            $s->stop();
+            echo "Bar"; //<-- Should not be in response body!
+        });
+        echo "2.";
+        $s->run();      //<-- Needs to be run to actually echo body
+        echo ".3";
+    }
+
+    /**
      * Test halt
      */
     public function testHalt() {
@@ -829,6 +846,22 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('Something broke', $body);
+    }
+
+    /**
+     * Test halt with output buffering and pre content
+     */
+    public function testHaltWithWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Something broke.3');
+        echo "1.";
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            echo "Foo!"; //<-- Should not be in response body!
+            $s->halt(500, 'Something broke');
+        });
+        echo "2.";
+        $s->run();
+        echo ".3";
     }
 
     /**
@@ -947,6 +980,21 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             echo "Foo";
         });
         $s->run();
+    }
+
+    /**
+     * Test that runner works with output buffering and pre content
+     */
+    public function testRunWithOutputBufferingOnAndPreContent() {
+      $this->expectOutputString('1.2.Foo.3');  //<-- PHP unit uses OB here
+      $s = new Slim();
+      echo "1.";
+      $s->get('/bar', function () use ($s) {
+          echo "Foo";
+      });
+      echo "2.";
+      $s->run();
+      echo ".3";
     }
 
     /************************************************
