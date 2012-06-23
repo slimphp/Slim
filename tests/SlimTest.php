@@ -817,20 +817,32 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test stop with subsequent output with output buffer on and pre content
+     * Test stop with output buffer on and pre content
      */
-    public function testStopWithSubsequentOutputWithOutputBufferingOnAndPreContent() {
-        $this->expectOutputString('1.2.Foo.3');
+    public function testStopOutputWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Foo.3'); //<-- PHP unit uses OB here
         echo "1.";
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
-            echo "Foo"; //<-- Should be in response body!
+            echo "Foo";
             $s->stop();
-            echo "Bar"; //<-- Should not be in response body!
         });
         echo "2.";
         $s->run();      //<-- Needs to be run to actually echo body
         echo ".3";
+    }
+
+    /**
+     * Test stop does not leave output buffers open
+     */
+    public function testStopDoesNotLeaveOutputBuffersOpen() {
+        $level_start = ob_get_level();
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->stop();
+        });
+        $s->run();
+        $this->assertEquals($level_start, ob_get_level());
     }
 
     /**
@@ -851,8 +863,8 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     /**
      * Test halt with output buffering and pre content
      */
-    public function testHaltWithWithOutputBufferingOnAndPreContent() {
-        $this->expectOutputString('1.2.Something broke.3');
+    public function testHaltOutputWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Something broke.3'); //<-- PHP unit uses OB here
         echo "1.";
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
@@ -862,6 +874,19 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         echo "2.";
         $s->run();
         echo ".3";
+    }
+
+    /**
+     * Test halt does not leave output buffers open
+     */
+    public function testHaltDoesNotLeaveOutputBuffersOpen() {
+        $level_start = ob_get_level();
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->halt(500, '');
+        });
+        $s->run();
+        $this->assertEquals($level_start, ob_get_level());
     }
 
     /**
@@ -983,9 +1008,9 @@ class SlimTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test that runner works with output buffering and pre content
+     * Test runner output with output buffering on and pre content
      */
-    public function testRunWithOutputBufferingOnAndPreContent() {
+    public function testRunOutputWithOutputBufferingOnAndPreContent() {
       $this->expectOutputString('1.2.Foo.3');  //<-- PHP unit uses OB here
       $s = new Slim();
       echo "1.";
@@ -995,6 +1020,17 @@ class SlimTest extends PHPUnit_Framework_TestCase {
       echo "2.";
       $s->run();
       echo ".3";
+    }
+
+    /**
+     * Test that runner does not leave output buffers open
+     */
+    public function testRunDoesNotLeaveAnyOutputBuffersOpen() {
+      $level_start = ob_get_level();
+      $s = new Slim();
+      $s->get('/bar', function () use ($s) {});
+      $s->run();
+      $this->assertEquals($level_start, ob_get_level());
     }
 
     /************************************************
