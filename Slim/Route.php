@@ -199,7 +199,7 @@ class Slim_Route {
 
     /**
      * Get route parameter value
-     * @param   mixed $index Integer or string index of route parameter
+     * @param   mixed $index Name of URL parameter
      * @return  string
      * @throws  InvalidArgumentException If route parameter does not exist at index
      */
@@ -212,7 +212,7 @@ class Slim_Route {
 
     /**
      * Set route parameter value
-     * @param   mixed $index Integer or string index of route parameter
+     * @param   mixed $index Name of URL parameter
      * @param   mixed $value The new parameter value
      * @throws  InvalidArgumentException If route parameter does not exist at index
      */
