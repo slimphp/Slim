@@ -189,13 +189,38 @@ class Slim_Route {
     }
 
     /**
-     * Set route parameter
-     * @param   string  $name
-     * @param   mixed   $value
+     * Set route parameters
+     * @param   array $params
      * @return  void
      */
-    public function setParam($name, $value) {
-        $this->params[$name] = $value;
+    public function setParams( $params ) {
+        $this->params = $params;
+    }
+
+    /**
+     * Get route parameter value
+     * @param   mixed $index Integer or string index of route parameter
+     * @return  string
+     * @throws  InvalidArgumentException If route parameter does not exist at index
+     */
+    public function getParam( $index ) {
+        if ( !isset($this->params[$index]) ) {
+            throw new InvalidArgumentException('Route parameter does not exist at specified index');
+        }
+        return $this->params[$index];
+    }
+
+    /**
+     * Set route parameter value
+     * @param   mixed $index Integer or string index of route parameter
+     * @param   mixed $value The new parameter value
+     * @throws  InvalidArgumentException If route parameter does not exist at index
+     */
+    public function setParam( $index, $value ) {
+        if ( !isset($this->params[$index]) ) {
+            throw new InvalidArgumentException('Route parameter does not exist at specified index');
+        }
+        $this->params[$index] = $value;
     }
 
     /**
