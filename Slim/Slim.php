@@ -1121,6 +1121,18 @@ class Slim {
         //Send body
         echo $body;
     }
+    
+    /**
+     * Destructor
+     *
+     * This calls the Run method when the Object is destroyed.
+     *
+     * @return void
+     */
+    public function __Destruct() {
+        // Call the Final Run Method.
+        $this->Run();
+    }
 
     /**
      * Call

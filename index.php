@@ -154,10 +154,4 @@ $app->delete('/delete', function () {
     echo 'This is a DELETE route';
 });
 
-/**
- * Step 4: Run the Slim application
- *
- * This method should be called last. This is responsible for executing
- * the Slim application using the settings and routes defined above.
- */
-$app->run();
+//Application is automatically Executed upon Object Destruction.
