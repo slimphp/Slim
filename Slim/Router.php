@@ -110,6 +110,7 @@ class Slim_Router implements Iterator {
      * @return Slim_Route|false
      */
     public function getCurrentRoute() {
+        $this->getMatchedRoutes(); // <-- Parse if not already parsed
         return $this->current();
     }
 
@@ -248,7 +249,7 @@ class Slim_Router implements Iterator {
      * @return Slim_Route|false
      */
     public function current() {
-        return current($this->getMatchedRoutes());
+        return current($this->matchedRoutes);
     }
 
     /**
