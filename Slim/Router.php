@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.3
+ * @version     1.6.4
  * @package     Slim
  *
  * MIT LICENSE
@@ -110,6 +110,7 @@ class Slim_Router implements Iterator {
      * @return Slim_Route|false
      */
     public function getCurrentRoute() {
+        $this->getMatchedRoutes(); // <-- Parse if not already parsed
         return $this->current();
     }
 
