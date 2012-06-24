@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.3
+ * @version     1.6.4
  * @package     Slim
  *
  * MIT LICENSE
@@ -1205,11 +1205,10 @@ class Slim {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
                     $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
             $this->applyHook('slim.after.router');
-            $this->response->write(ob_get_clean());
-            $this->applyHook('slim.after');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
-            $this->response()->write(ob_get_contents());
+            $this->response()->write(ob_get_clean());
+            $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
         } catch ( Exception $e ) {

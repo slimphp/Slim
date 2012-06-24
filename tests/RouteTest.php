@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.3
+ * @version     1.6.4
  *
  * MIT LICENSE
  *
@@ -102,6 +102,126 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testRouteSetsCallableAsString() {
         $route = new Slim_Route('/foo/bar', 'testCallable');
         $this->assertEquals('testCallable', $route->getCallable());
+    }
+
+    /**
+     * Test gets all params
+     */
+    public function testGetRouteParams() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get params
+        $params = $route->getParams();
+        $this->assertEquals(2, count($params));
+        $this->assertEquals('mr', $params['first']);
+        $this->assertEquals('anderson', $params['last']);
+    }
+
+    /**
+     * Test sets all params
+     */
+    public function testSetRouteParams() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get params
+        $params = $route->getParams();
+        $this->assertEquals(2, count($params));
+        $this->assertEquals('mr', $params['first']);
+        $this->assertEquals('anderson', $params['last']);
+
+        // Replace params
+        $route->setParams(array(
+            'first' => 'john',
+            'last' => 'smith'
+        ));
+
+        // Get new params
+        $params = $route->getParams();
+        $this->assertEquals(2, count($params));
+        $this->assertEquals('john', $params['first']);
+        $this->assertEquals('smith', $params['last']);
+    }
+
+    /**
+     * Test gets param when exists
+     */
+    public function testGetRouteParamWhenExists() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get param
+        $this->assertEquals('anderson', $route->getParam('last'));
+    }
+
+    /**
+     * Test gets param when not exists
+     */
+    public function testGetRouteParamWhenNotExists() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get param
+        try {
+            $param = $route->getParam('foo');
+            $this->fail('Did not catch expected InvalidArgumentException');
+        } catch ( InvalidArgumentException $e ) {}
+    }
+
+    /**
+     * Test sets param when exists
+     */
+    public function testSetRouteParamWhenExists() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get param
+        $this->assertEquals('anderson', $route->getParam('last'));
+
+        // Set param
+        $route->setParam('last', 'smith');
+
+        // Get new param
+        $this->assertEquals('smith', $route->getParam('last'));
+    }
+
+    /**
+     * Test sets param when not exists
+     */
+    public function testSetRouteParamWhenNotExists() {
+        // Prepare route
+        $requestUri = '/hello/mr/anderson';
+        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+
+        // Parse route params
+        $this->assertTrue($route->matches($requestUri));
+
+        // Get param
+        try {
+            $param = $route->setParam('foo', 'bar');
+            $this->fail('Did not catch expected InvalidArgumentException');
+        } catch ( InvalidArgumentException $e ) {}
     }
 
     /**

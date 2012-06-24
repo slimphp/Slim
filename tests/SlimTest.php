@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.3
+ * @version     1.6.4
  *
  * MIT LICENSE
  *
@@ -215,7 +215,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             'mode' => 'test'
         ));
         $this->assertEquals('test', $s->getMode());
-    }
+		}
 
     /**
      * Test mode configuration
@@ -255,6 +255,15 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $s = new Slim(array('mode' => 'production'));
         $s->configureMode('production', 'foo');
         $this->assertEquals(0, $flag);
+    }
+
+    /**
+     * Test custom mode from getenv()
+     */
+    public function testGetModeFromGetEnv() {
+        putenv('SLIM_MODE=production');
+        $s = new Slim();
+        $this->assertEquals('production', $s->getMode());
     }
 
     /************************************************
@@ -815,7 +824,6 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      * Test stop with subsequent output
      */
     public function testStopWithSubsequentOutput() {
-        $this->expectOutputString('Foo');
         $s = new Slim();
         $s->get('/bar', function () use ($s) {
             echo "Foo"; //<-- Should be in response body!
@@ -824,6 +832,35 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         });
         $s->call();
         $this->assertEquals('Foo', $s->response()->body());
+    }
+
+    /**
+     * Test stop with output buffer on and pre content
+     */
+    public function testStopOutputWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Foo.3'); //<-- PHP unit uses OB here
+        echo "1.";
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            echo "Foo";
+            $s->stop();
+        });
+        echo "2.";
+        $s->run();      //<-- Needs to be run to actually echo body
+        echo ".3";
+    }
+
+    /**
+     * Test stop does not leave output buffers open
+     */
+    public function testStopDoesNotLeaveOutputBuffersOpen() {
+        $level_start = ob_get_level();
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->stop();
+        });
+        $s->run();
+        $this->assertEquals($level_start, ob_get_level());
     }
 
     /**
@@ -839,6 +876,35 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('Something broke', $body);
+    }
+
+    /**
+     * Test halt with output buffering and pre content
+     */
+    public function testHaltOutputWithOutputBufferingOnAndPreContent() {
+        $this->expectOutputString('1.2.Something broke.3'); //<-- PHP unit uses OB here
+        echo "1.";
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            echo "Foo!"; //<-- Should not be in response body!
+            $s->halt(500, 'Something broke');
+        });
+        echo "2.";
+        $s->run();
+        echo ".3";
+    }
+
+    /**
+     * Test halt does not leave output buffers open
+     */
+    public function testHaltDoesNotLeaveOutputBuffersOpen() {
+        $level_start = ob_get_level();
+        $s = new Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->halt(500, '');
+        });
+        $s->run();
+        $this->assertEquals($level_start, ob_get_level());
     }
 
     /**
@@ -957,6 +1023,32 @@ class SlimTest extends PHPUnit_Framework_TestCase {
             echo "Foo";
         });
         $s->run();
+    }
+
+    /**
+     * Test runner output with output buffering on and pre content
+     */
+    public function testRunOutputWithOutputBufferingOnAndPreContent() {
+      $this->expectOutputString('1.2.Foo.3');  //<-- PHP unit uses OB here
+      $s = new Slim();
+      echo "1.";
+      $s->get('/bar', function () use ($s) {
+          echo "Foo";
+      });
+      echo "2.";
+      $s->run();
+      echo ".3";
+    }
+
+    /**
+     * Test that runner does not leave output buffers open
+     */
+    public function testRunDoesNotLeaveAnyOutputBuffersOpen() {
+      $level_start = ob_get_level();
+      $s = new Slim();
+      $s->get('/bar', function () use ($s) {});
+      $s->run();
+      $this->assertEquals($level_start, ob_get_level());
     }
 
     /************************************************
@@ -1139,6 +1231,32 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(503, $status);
         $this->assertEquals('FooBar', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);
+    }
+
+    /**
+     * Test custom global error handler
+     */
+    public function testHandleErrors() {
+        $defaultErrorReporting = error_reporting();
+
+        // Assert Slim ignores E_NOTICE errors
+        error_reporting(E_ALL ^ E_NOTICE); // <-- Report all errors EXCEPT notices
+        try {
+            $this->assertTrue(Slim::handleErrors(E_NOTICE, 'test error', 'Slim.php', 119));
+        } catch (ErrorException $e) {
+            $this->fail('Slim::handleErrors reported a disabled error level.');
+        }
+
+        // Assert Slim reports E_STRICT errors
+        error_reporting(E_ALL | E_STRICT); // <-- Report all errors, including E_STRICT
+        try {
+            Slim::handleErrors(E_STRICT, 'test error', 'Slim.php', 119);
+            $this->fail('Slim::handleErrors didn\'t report a enabled error level');
+        } catch(ErrorException $e) {
+            $this->assertEquals('test error', $e->getMessage());
+        }
+
+        error_reporting($defaultErrorReporting);
     }
 
     /************************************************
