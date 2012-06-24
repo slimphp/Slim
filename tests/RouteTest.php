@@ -86,6 +86,31 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Route sets default template equal to pattern
+     */
+    public function testRouteSetsDefaultTemplate() {
+        $route = new Slim_Route('/hello/:first/:last', 'hello');
+        $this->assertEquals('/hello/:first/:last', $route->getTemplate());
+    }
+
+    /**
+     * Route sets custom template that overrides pattern
+     */
+    public function testRouteSetsCustomTemplate() {
+        $route = new Slim_Route('/hello/*', 'hello');
+        $route->setTemplate('/hello/:name');
+        $this->assertEquals('/hello/:name', $route->getTemplate());
+    }
+
+    /**
+     * Route sets custom template with chainable alias method
+     */
+    public function testRouteSetsCustomTemplateWithChainableAlias() {
+        $route = new Slim_Route('/hello/*', 'hello');
+        $this->assertSame($route, $route->template('/hello/:name'));
+    }
+
+    /**
      * Route should store a reference to the callable
      * anonymous function.
      */
