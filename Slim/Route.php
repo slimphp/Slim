@@ -356,10 +356,9 @@ class Slim_Route {
             foreach ( $paramNames as $index => $value ) {
                 $val = substr($value, 1);
                 if ( isset($paramValues[$val]) ) {
-                    if( preg_match('@slim_route_wildcard[0-9]*@', $paramNames[$index]) ) {
-                        $this->params[$val] = explode('/',urldecode($paramValues[$val]));
-                    }
-                    else {
+                    if ( strpos($val, 'slim_route_wildcard') === 0 ) {
+                        $this->params[$val] = explode('/', urldecode($paramValues[$val]));
+                    } else {
                         $this->params[$val] = urldecode($paramValues[$val]);
                     }
                 }
