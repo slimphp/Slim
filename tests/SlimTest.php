@@ -1229,14 +1229,17 @@ class SlimTest extends PHPUnit_Framework_TestCase {
      */
     public function testHandleErrors() {
         $defaultErrorReporting = error_reporting();
-        error_reporting(E_ALL ^ E_NOTICE);
-        
+
+        // Assert Slim ignores E_NOTICE errors
+        error_reporting(E_ALL ^ E_NOTICE); // <-- Report all errors EXCEPT notices
         try {
-            $this->assertTrue(Slim::handleErrors(E_NOTICE, 'test error'));
+            $this->assertTrue(Slim::handleErrors(E_NOTICE, 'test error', 'Slim.php', 119));
         } catch (ErrorException $e) {
             $this->fail('Slim::handleErrors reported a disabled error level.');
         }
 
+        // Assert Slim reports E_STRICT errors
+        error_reporting(E_ALL | E_STRICT); // <-- Report all errors, including E_STRICT
         try {
             Slim::handleErrors(E_STRICT, 'test error', 'Slim.php', 119);
             $this->fail('Slim::handleErrors didn\'t report a enabled error level');
