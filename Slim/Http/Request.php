@@ -244,7 +244,11 @@ class Slim_Http_Request {
      * @return  array|mixed|null
      */
     public function put( $key = null ) {
-        return $this->post($key);
+        parse_str( $this->env['slim.input'], $input );
+        if( $key )
+            return $input[ $key ];
+        else
+            return $input;
     }
 
     /**
@@ -253,7 +257,11 @@ class Slim_Http_Request {
      * @return  array|mixed|null
      */
     public function delete( $key = null ) {
-        return $this->post($key);
+        parse_str( $this->env['slim.input'], $input );
+        if( $key )
+            return $input[ $key ];
+        else
+            return $input;
     }
 
     /**
