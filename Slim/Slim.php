@@ -158,9 +158,9 @@ class Slim {
         $this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
+	    $this->locals = new Slim_Locals();
         $this->add(new Slim_Middleware_Flash());
         $this->add(new Slim_Middleware_MethodOverride());
-
         //Determine application mode
         $this->getMode();
 
@@ -453,7 +453,7 @@ class Slim {
      * to invoke an already-registered handler. If the handler has been
      * registered and is callable, it is invoked and sends a 404 HTTP Response
      * whose body is the output of the Not Found handler.
-     *
+     * 
      * @param   mixed $callable Anything that returns true for is_callable()
      * @return  void
      */
@@ -562,8 +562,16 @@ class Slim {
     public function router() {
         return $this->router;
     }
+			
+	/**
+	 * Get the Locals object
+	 * @return string|null 
+	 */
+	public function locals() {
+		return $this->locals->parse(func_get_args());	
+	}
 
-    /**
+    /** 
      * Get and/or set the View
      *
      * This method declares the View to be used by the Slim application.
@@ -979,7 +987,7 @@ class Slim {
             $this->environment['slim.flash']->keep();
         }
     }
-
+	
     /***** HOOKS *****/
 
     /**
