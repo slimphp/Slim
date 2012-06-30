@@ -83,6 +83,11 @@ class Slim_Route {
      */
     protected $middleware = array();
 
+	/**
+	 * @var array List of permissions required to access a given route
+	 */
+	protected $permissions = array();
+
     /**
      * Constructor
      * @param   string  $pattern    The URL pattern (e.g. "/books/:id")
@@ -292,6 +297,14 @@ class Slim_Route {
         return $this->middleware;
     }
 
+	/**
+	 * Get route permissions
+	 * @return array List of required permissions
+	 */
+	public function getPermissions() {
+		return $this->permissions;
+	}
+
     /**
      * Set middleware
      *
@@ -388,6 +401,17 @@ class Slim_Route {
         $this->conditions = array_merge($this->conditions, $conditions);
         return $this;
     }
+	
+	/**
+	 * Permissions required to access given route
+	 * 
+	 * @param array $flags A list of flags required to access given route
+	 * @return Slim_Route
+	 */
+	public function permissions ( array $flags ) {
+		$this->permissions = $flags;
+		return $this;
+	}
 
     /**
      * Dispatch route
