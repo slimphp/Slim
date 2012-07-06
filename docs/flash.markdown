@@ -4,7 +4,7 @@ Slim supports flash messaging much like Rails and other larger web frameworks. F
 
 As shown below, the Slim application's `flash()` and `flashNow()` instance methods accept two arguments: a key and a message. The key may be whatever you want and defines how the message will be accessed in the View templates. For example, if I invoke the Slim application's `flash('foo', 'The foo message')` instance method with those arguments, I can access that message in the next request’s templates with `flash['foo']`.
 
-Flash messages are persisted with sessions; sessions are required for flash messages to work. Flash messages are stored in `$\_SESSION['flash']`.
+Flash messages are persisted with sessions; sessions are required for flash messages to work. Flash messages are stored in `$_SESSION['flash']`.
 
 ## Flash
 
