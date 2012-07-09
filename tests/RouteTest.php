@@ -86,6 +86,31 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Route sets default template equal to pattern
+     */
+    public function testRouteSetsDefaultTemplate() {
+        $route = new Slim_Route('/hello/:first/:last', 'hello');
+        $this->assertEquals('/hello/:first/:last', $route->getTemplate());
+    }
+
+    /**
+     * Route sets custom template that overrides pattern
+     */
+    public function testRouteSetsCustomTemplate() {
+        $route = new Slim_Route('/hello/*', 'hello');
+        $route->setTemplate('/hello/:name');
+        $this->assertEquals('/hello/:name', $route->getTemplate());
+    }
+
+    /**
+     * Route sets custom template with chainable alias method
+     */
+    public function testRouteSetsCustomTemplateWithChainableAlias() {
+        $route = new Slim_Route('/hello/*', 'hello');
+        $this->assertSame($route, $route->template('/hello/:name'));
+    }
+
+    /**
      * Route should store a reference to the callable
      * anonymous function.
      */
@@ -383,6 +408,61 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Route matches URI with wildcard
+     */
+    public function testRouteMatchesResourceWithWildcard() {
+        $resource = '/hello/foo/bar/world';
+        $route = new Slim_Route('/hello/*/world', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with more than one wildcard
+     */
+    public function testRouteMatchesResourceWithMultipleWildcards() {
+        $resource = '/hello/foo/bar/world/2012/03/10';
+        $route = new Slim_Route('/hello/*/world/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'slim_route_wildcard1'=>array('2012', '03', '10')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with wildcards and parameters
+     */
+    public function testRouteMatchesResourceWithWildcardsAndParams() {
+        $resource = '/hello/foo/bar/world/2012/03/10/first/second';
+        $route = new Slim_Route('/hello/*/world/:year/:month/:day/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'slim_route_wildcard4'=>array('first', 'second')), $route->getParams());
+    }
+
+    /**
+     * Route matches URI with optional wildcard and parameter
+     */
+    public function testRouteMatchesResourceWithOptionalWildcardsAndParams() {
+        $resource = '/hello/world/foo/bar';
+        $route = new Slim_Route('/hello(/:world(/*))', function () {});
+        $result = $route->matches($resource);
+        $this->assertTrue($result);
+        $this->assertEquals(array('world'=>'world', 'slim_route_wildcard1'=>array('foo', 'bar')), $route->getParams());
+    }
+
+    /**
+     * Route does not match URI with wildcard
+     */
+    public function testRouteDoesNotMatchResourceWithWildcard() {
+        $resource = '/hello';
+        $route = new Slim_Route('/hello/*', function () {});
+        $result = $route->matches($resource);
+        $this->assertFalse($result);
+        $this->assertEquals(array(), $route->getParams());
+    }
+
+    /**
      * Test route sets and gets middleware
      *
      * Pre-conditions:
@@ -455,110 +535,5 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $viaResult = $r->via('DELETE');
         $this->assertTrue($viaResult instanceof Slim_Route);
         $this->assertTrue($r->supportsHttpMethod('DELETE'));
-    }
-
-    public function testDispatch() {
-        $this->expectOutputString('Hello josh');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $route->dispatch();
-    }
-
-    public function testDispatchWithMiddlware() {
-        $this->expectOutputString('First! Second! Hello josh');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setMiddleware(function () {
-            echo "First! ";
-        });
-        $route->setMiddleware(function () {
-            echo "Second! ";
-        });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $route->dispatch();
-    }
-
-    public function testDispatchWithRequestSlash() {
-        $this->setExpectedException('Slim_Exception_RequestSlash');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name/', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $route->dispatch();
-    }
-
-    public function testDispatchWithoutCallable() {
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', 'foo');
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $this->assertFalse($route->dispatch());
     }
 }

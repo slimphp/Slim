@@ -154,7 +154,7 @@ class Slim_Router implements Iterator {
         if ( !$this->hasNamedRoute($name) ) {
             throw new RuntimeException('Named route not found for name: ' . $name);
         }
-        $pattern = $this->getNamedRoute($name)->getPattern();
+        $pattern = $this->getNamedRoute($name)->getTemplate();
         $search = $replace = array();
         foreach ( $params as $key => $value ) {
             $search[] = ':' . $key;
@@ -166,6 +166,50 @@ class Slim_Router implements Iterator {
             '@\(\/?:.+\/??\)\??@',
             '@\?|\(|\)@'
         ), '', $this->request->getRootUri() . $pattern);
+    }
+
+    /**
+     * Dispatch route
+     *
+     * This method invokes the route's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * This method is smart about trailing slashes on the route pattern.
+     * If the route's pattern is defined with a trailing slash, and if the
+     * current request URI does not have a trailing slash but otherwise
+     * matches the route's pattern, a Slim_Exception_RequestSlash
+     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
+     * URI _with_ a trailing slash. This Exception is caught in the
+     * `Slim::call` loop. If the route's pattern is defined without a
+     * trailing slash, and if the current request URI does have a trailing
+     * slash, the route will not be matched and a 404 Not Found
+     * response will be sent if no subsequent matching routes are found.
+     *
+     * @param   Slim_Route          $route  The route object
+     * @return  bool Was route callable invoked successfully?
+     * @throws  Slim_Exception_RequestSlash
+     */
+    public function dispatch( Slim_Route $route ) {
+        if ( substr($route->getPattern(), -1) === '/' && substr($this->getRequest()->getResourceUri(), -1) !== '/' ) {
+            throw new Slim_Exception_RequestSlash();
+        }
+
+        //Invoke middleware
+        $req = $this->getRequest();
+        $res = $this->getResponse();
+        foreach ( $route->getMiddleware() as $mw ) {
+            if ( is_callable($mw) ) {
+                call_user_func_array($mw, array($req, $res, $this));
+            }
+        }
+
+        //Invoke callable
+        if ( is_callable($route->getCallable()) ) {
+            call_user_func_array($route->getCallable(), array_values($route->getParams()));
+            return true;
+        }
+        return false;
     }
 
     /**

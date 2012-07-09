@@ -44,6 +44,11 @@ class Slim_Route {
     protected $pattern;
 
     /**
+     * @var string The route template (e.g. "/books/:id") used with the `urlFor()` helper method
+     */
+    protected $template;
+
+    /**
      * @var mixed The route callable
      */
     protected $callable;
@@ -90,6 +95,7 @@ class Slim_Route {
      */
     public function __construct( $pattern, $callable ) {
         $this->setPattern($pattern);
+        $this->setTemplate($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
     }
@@ -126,6 +132,23 @@ class Slim_Route {
      */
     public function setPattern( $pattern ) {
         $this->pattern = str_replace(')', ')?', (string)$pattern);
+    }
+
+    /**
+     * Get route template
+     * @return  string
+     */
+    public function getTemplate() {
+        return $this->template;
+    }
+
+    /**
+     * Set route template
+     * @param   string $template
+     * @return  void
+     */
+    public function setTemplate( $template ) {
+        $this->template = $template;
     }
 
     /**
@@ -301,7 +324,7 @@ class Slim_Route {
      * assume the argument is an array of callables and merge the array
      * with `$this->middleware`. Even if non-callables are included in the
      * argument array, we still merge them; we lazily check each item
-     * against `is_callable` during Route::dispatch().
+     * against `is_callable` during Router::dispatch().
      *
      * @param   Callable|array[Callable]
      * @return  Slim_Route
@@ -331,8 +354,17 @@ class Slim_Route {
      */
     public function matches( $resourceUri ) {
         //Extract URL params
-        preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
+        preg_match_all('@:([\w]+)|\*@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
         $paramNames = $paramNames[0];
+
+        // Convert * wildcards into regex patterns
+        $wildcards = array_keys($paramNames, '*');
+        if( !empty($wildcards) ) {
+            foreach ( $wildcards as $key) {
+                $this->pattern = preg_replace('@(?<!\\\\)\*@', '(?P<slim_route_wildcard' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%/]+)', $this->pattern, 1);
+                $paramNames[$key] = ':slim_route_wildcard' . $key;
+            }
+        }
 
         //Convert URL params into regex patterns, construct a regex for this route
         $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
@@ -347,7 +379,11 @@ class Slim_Route {
             foreach ( $paramNames as $index => $value ) {
                 $val = substr($value, 1);
                 if ( isset($paramValues[$val]) ) {
-                    $this->params[$val] = urldecode($paramValues[$val]);
+                    if ( strpos($val, 'slim_route_wildcard') === 0 ) {
+                        $this->params[$val] = explode('/', urldecode($paramValues[$val]));
+                    } else {
+                        $this->params[$val] = urldecode($paramValues[$val]);
+                    }
                 }
             }
             return true;
@@ -380,6 +416,16 @@ class Slim_Route {
     }
 
     /**
+     * Set route template
+     * @param string $template The route template, overrides the default route pattern
+     * @return  Slim_Route
+     */
+    public function template( $template ) {
+        $this->setTemplate($template);
+        return $this;
+    }
+
+    /**
      * Merge route conditions
      * @param   array $conditions Key-value array of URL parameter conditions
      * @return  Slim_Route
@@ -387,48 +433,5 @@ class Slim_Route {
     public function conditions( array $conditions ) {
         $this->conditions = array_merge($this->conditions, $conditions);
         return $this;
-    }
-
-    /**
-     * Dispatch route
-     *
-     * This method invokes this route's callable. If middleware is
-     * registered for this route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * This method is smart about trailing slashes on the route pattern.
-     * If this route's pattern is defined with a trailing slash, and if the
-     * current request URI does not have a trailing slash but otherwise
-     * matches this route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
-     * URI _with_ a trailing slash. This Exception is caught in the
-     * `Slim::call` loop. If this route's pattern is defined without a
-     * trailing slash, and if the current request URI does have a trailing
-     * slash, this route will not be matched and a 404 Not Found
-     * response will be sent if no subsequent matching routes are found.
-     *
-     * @return  bool Was route callable invoked successfully?
-     * @throws  Slim_Exception_RequestSlash
-     */
-    public function dispatch() {
-        if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
-            throw new Slim_Exception_RequestSlash();
-        }
-
-        //Invoke middleware
-        $req = $this->router->getRequest();
-        $res = $this->router->getResponse();
-        foreach ( $this->middleware as $mw ) {
-            if ( is_callable($mw) ) {
-                call_user_func_array($mw, array($req, $res, $this));
-            }
-        }
-
-        //Invoke callable
-        if ( is_callable($this->callable) ) {
-            call_user_func_array($this->callable, array_values($this->params));
-            return true;
-        }
-        return false;
     }
 }

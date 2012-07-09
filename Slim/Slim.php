@@ -1144,7 +1144,7 @@ class Slim {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
                         $this->applyHook('slim.before.dispatch');
-                        $dispatched = $route->dispatch();
+                        $dispatched = $this->router->dispatch($route);
                         $this->applyHook('slim.after.dispatch');
                         if ( $dispatched ) {
                             break;
