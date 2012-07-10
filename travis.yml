@@ -1,0 +1,24 @@
+# see http://about.travis-ci.org/docs/user/languages/php/ for more hints
+language: php
+
+php:
+
+  # aliased to 5.2.17
+  - 5.2
+
+  # aliased to a recent 5.3.x version
+  - 5.3
+
+# optionally specify a list of environments, for example to test different RDBMS
+env:
+
+# execute any number of scripts before the test run, custom env's are available as variables
+before_script:
+
+# omitting "script:" will default to phpunit
+# use the $DB env variable to determine the phpunit.xml to use
+script: phpunit tests/
+
+# configure notifications (email, IRC, campfire etc)
+notifications:
+  email: peter.sunde@gmail.com
