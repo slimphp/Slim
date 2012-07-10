@@ -381,6 +381,24 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('id', $c);
         $this->assertArrayHasKey('name', $c);
     }
+	
+	/**
+	 * Test route permissions
+	 * 
+	 * Pre-conditions:
+	 * Route instantiated
+	 * 
+	 * Post-conditions:
+	 * Case A: Route instance has default permissions
+	 * 
+	 */
+	public function testRoutePermissions() {
+        $route = new Slim_Route('/hello/:first/and/:second', function () {});
+		$permissions = array( 1, 2, 3 );
+		$route->permissions( array( 1, 2, 3 ) );
+		//Case A
+		$this->assertEquals($permissions, $route->getPermissions());
+	}
 
     /**
      * Test route sets and gets middleware

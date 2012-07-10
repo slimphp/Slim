@@ -112,6 +112,16 @@ class Slim {
      */
     protected $middleware;
 
+	/**
+	 * @var mixed A callable object
+	 */
+	protected $authorizationFn;
+
+	/**
+	 * @var mixed A callable object
+	 */
+	protected $permissionFn;
+	
     /**
      * @var array
      */
@@ -158,9 +168,10 @@ class Slim {
         $this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
+	    $this->locals = new Slim_Locals();
+		
         $this->add(new Slim_Middleware_Flash());
         $this->add(new Slim_Middleware_MethodOverride());
-
         //Determine application mode
         $this->getMode();
 
@@ -453,7 +464,7 @@ class Slim {
      * to invoke an already-registered handler. If the handler has been
      * registered and is callable, it is invoked and sends a 404 HTTP Response
      * whose body is the output of the Not Found handler.
-     *
+     * 
      * @param   mixed $callable Anything that returns true for is_callable()
      * @return  void
      */
@@ -562,8 +573,50 @@ class Slim {
     public function router() {
         return $this->router;
     }
+			
+	/**
+	 * Get the Locals object
+	 * @return string|null 
+	 */
+	public function locals() {
+		return $this->locals->parse(func_get_args());	
+	}
+	
+	/**
+	 * Handles user level authorization
+	 * 
+	 * This method installs a hook before a request is dispatched so
+	 * that you can handle authorization from a single point of entry.
+	 * 
+	 * @param mixed $fn A callable object
+	 * @return void
+	 */
+	public function authorization( $fn ) {
+		if( is_callable( $fn )) {
+			$this->authorizationFn = $fn;
+			return;
+		}
+		throw new InvalidArgumentException("Slim::authorization first parameter must be a callable object");
+	}
+	
+	/**
+	 * Handles permissions for accessing a given route
+	 * 
+	 * This method installs a hook before a request is dispatched but
+	 * after authorization is handled.
+	 * 
+	 * @return mixed $fn A callable object
+	 * @return void
+	 */
+	public function permission ( $fn ) {
+		if( is_callable( $fn )) {
+			$this->permissionFn = $fn;
+			return;
+		}
+		throw new InvalidArgumentException("Slim::permission first parameter must be a callable object");		
+	}
 
-    /**
+    /** 
      * Get and/or set the View
      *
      * This method declares the View to be used by the Slim application.
@@ -979,7 +1032,7 @@ class Slim {
             $this->environment['slim.flash']->keep();
         }
     }
-
+	
     /***** HOOKS *****/
 
     /**
@@ -1143,6 +1196,12 @@ class Slim {
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
+                    	if ( is_callable ( $this->authorizationFn )) {
+                    		call_user_func($this->authorizationFn, null);
+                    	}
+						if ( is_callable ( $this->permissionFn ) ) {
+                    		call_user_func($this->permissionFn, $route->getPermissions());
+						}
                         $this->applyHook('slim.before.dispatch');
                         $dispatched = $route->dispatch();
                         $this->applyHook('slim.after.dispatch');

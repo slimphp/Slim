@@ -788,7 +788,137 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($s->getEncryptedCookie('foo', false));
         $this->assertEquals(0, preg_match("@foo=;.*@", $r['Set-Cookie']));
     }
+	
+	
+    /************************************************
+     * AUTHORIZATION
+     ************************************************/
+     
+     /**
+	  * Test user authentication
+	  * 
+	  * Post-conditions:
+	  * 
+	  * Case A: 
+	  * Missing authorization header halts request
+	  * 
+	  * Case B:
+	  * Valid authorization header does nothing
+	  * 
+	  */
+  	public function testAuthorization() {
+     
+	   Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+        ));
+		
+		// Case A
+		$s = new Slim();
+		$s->authorization( function() use($s) {
+			$headers = $s->request()->headers();
+			$authKey = isset( $headers['X_AUTH_KEY'] ) ? $headers['X_AUTH_KEY'] : false;
+			if( $authKey !== 'abc123') {
+				$s->halt(403, 'Authorization required');
+			}
+		});
+        $s->get('/bar', function () use ($s) {
+            $s->halt(500, 'Something broke'); // <-- Should never be called
+        });
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertEquals(403, $status);
+        $this->assertEquals('Authorization required', $body);
 
+	   Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+            'X_AUTH_KEY' => 'abc123'
+        ));
+				
+		// Case B
+		$s = new Slim();
+		$s->authorization( function() use($s) {
+			$headers = $s->request()->headers();
+			$authKey = isset( $headers['X_AUTH_KEY'] ) ? $headers['X_AUTH_KEY'] : false;
+			if( $authKey !== 'abc123') {
+				$s->halt(403, 'Authorization required');
+			}
+		});
+        $s->get('/bar', function () use ($s) {
+            echo "Hello World!";
+        });
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertEquals(200, $status);
+        $this->assertEquals('Hello World!', $body);
+		
+  	}
+     
+    /************************************************
+     * PERMISSION
+     ************************************************/
+     
+    /**
+	 * Test route permission
+	 * 
+	 * Post-conditions:
+	 * 
+	 * Case A:
+	 * Permission is called before request is dispatched and
+	 * a valid array is passed on.
+	 * 
+	 * Case B:
+	 * If invalid list of permissions for given route the
+	 * request is halted.
+	 * 
+	 */
+ 	public function testPermission() {
+	
+		// flags available to routes
+		$availableFlags = array(1,2,3);
+ 			
+		// Case A
+ 		$s = new Slim();
+		$s->permission( function($flags) use($availableFlags) {
+			$diff = array_diff($availableFlags, $flags);
+			if( count($diff) !== 0) {
+				$s->halt(500, 'Something broke');
+			}
+		});
+        $s->get('/bar', function () use ($s) {
+            echo "Hello World!";
+        })->permissions( $availableFlags );
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertEquals(200, $status);
+        $this->assertEquals('Hello World!', $body);
+		
+		// Case B
+ 		$s = new Slim();
+		$s->locals('User', array('flags' => array(4, 5)));
+		$s->permission( function($flags) use($availableFlags, $s) {
+			$user = $s->locals('User');
+			foreach( $user['flags'] as $flag ) {
+				if( !in_array($flag, $availableFlags)) {
+					$s->halt(403, "Authorization required");
+				}
+			}
+		});
+        $s->get('/bar', function () use ($s) {
+            echo "Hello World!";
+        })->permissions( array(1) );
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertEquals(403, $status);
+        $this->assertEquals('Authorization required', $body);
+		
+ 	}     
+     
     /************************************************
      * HELPERS
      ************************************************/
