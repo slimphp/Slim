@@ -79,11 +79,6 @@ class Slim_Route {
     protected $methods = array();
 
     /**
-     * @var Slim_Router The Router to which this Route belongs
-     */
-    protected $router;
-
-    /**
      * @var array[Callable] Middleware to be run before only this route instance
      */
     protected $middleware = array();
@@ -200,7 +195,6 @@ class Slim_Route {
      */
     public function setName( $name ) {
         $this->name = (string)$name;
-        $this->router->addNamedRoute($this->name, $this);
     }
 
     /**
@@ -288,23 +282,6 @@ class Slim_Route {
      */
     public function supportsHttpMethod( $method ) {
         return in_array($method, $this->methods);
-    }
-
-    /**
-     * Get router
-     * @return Slim_Router
-     */
-    public function getRouter() {
-        return $this->router;
-    }
-
-    /**
-     * Set router
-     * @param   Slim_Router $router
-     * @return  void
-     */
-    public function setRouter( Slim_Router $router ) {
-        $this->router = $router;
     }
 
     /**

@@ -33,48 +33,16 @@
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Route.php';
-require_once 'Slim/Router.php';
-require_once 'Slim/Environment.php';
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Http/Request.php';
-require_once 'Slim/Http/Response.php';
-require_once 'Slim/Exception/RequestSlash.php';
-
-/**
- * Router Mock
- *
- * This is a mock for the Router class so that it,
- * A) provides the necessary features for this test and
- * B) removes dependencies on the Request class.
- */
-class RouterMock extends Slim_Router {
-
-    public $cache = array();
-
-    public function __construct() {}
-
-    public function addNamedRoute($name, Slim_Route $route) {
-        $this->cache[$name] = $route;
-    }
-
-}
 
 class RouteTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * Route should set name and be cached by Router
+     * Route should set name
      */
-    public function testRouteSetsNameAndIsCached() {
-        $router = new RouterMock();
+    public function testRouteSetsName() {
         $route = new Slim_Route('/foo/bar', function () {});
-        $route->setRouter($router);
         $route->name('foo');
-        $cacheKeys = array_keys($router->cache);
-        $cacheValues = array_values($router->cache);
         $this->assertEquals('foo', $route->getName());
-        $this->assertSame($router, $route->getRouter());
-        $this->assertEquals($cacheKeys[0], 'foo');
-        $this->assertSame($cacheValues[0], $route);
     }
 
     /**

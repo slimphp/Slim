@@ -348,7 +348,6 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response();
         $router = new Slim_Router($req, $res);
         $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
@@ -379,7 +378,6 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $route->setMiddleware(function () {
             echo "Second! ";
         });
-        $route->setRouter($router);
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
@@ -404,7 +402,6 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response();
         $router = new Slim_Router($req, $res);
         $route = new Slim_Route('/hello/:name/', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
@@ -428,7 +425,6 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $res = new Slim_Http_Response();
         $router = new Slim_Router($req, $res);
         $route = new Slim_Route('/hello/:name', 'foo');
-        $route->setRouter($router);
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $this->assertFalse($router->dispatch($route));
     }
