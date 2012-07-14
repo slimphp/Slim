@@ -155,7 +155,7 @@ class Slim {
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
-        $this->router = new Slim_Router($this->request, $this->response);
+        $this->router = new Slim_Router($this->request);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new Slim_Middleware_Flash());

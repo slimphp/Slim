@@ -48,11 +48,6 @@ class Slim_Router implements Iterator {
     protected $request;
 
     /**
-     * @var Slim_Http_Response
-     */
-    protected $response;
-
-    /**
      * @var array Lookup hash of all routes
      */
     protected $routes;
@@ -80,11 +75,9 @@ class Slim_Router implements Iterator {
     /**
      * Constructor
      * @param   Slim_Http_Request   $request    The HTTP request object
-     * @param   Slim_Http_Response  $response   The HTTP response object
      */
-    public function __construct( Slim_Http_Request $request, Slim_Http_Response $response ) {
+    public function __construct( Slim_Http_Request $request ) {
         $this->request = $request;
-        $this->response = $response;
         $this->routes = array();
     }
 
@@ -113,14 +106,6 @@ class Slim_Router implements Iterator {
      */
     public function getRequest() {
         return $this->request;
-    }
-
-    /**
-     * Get Response
-     * @return Slim_Http_Response
-     */
-    public function getResponse() {
-        return $this->response;
     }
 
     /**
@@ -208,11 +193,9 @@ class Slim_Router implements Iterator {
         }
 
         //Invoke middleware
-        $req = $this->getRequest();
-        $res = $this->getResponse();
         foreach ( $route->getMiddleware() as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func_array($mw, array($req, $res, $this));
+                call_user_func($mw);
             }
         }
 
