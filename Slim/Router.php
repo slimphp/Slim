@@ -43,9 +43,9 @@
  */
 class Slim_Router implements Iterator {
     /**
-     * @var Slim_Http_Request
+     * @var string Request URI
      */
-    protected $request;
+    protected $resourceUri;
 
     /**
      * @var array Lookup hash of all routes
@@ -53,7 +53,7 @@ class Slim_Router implements Iterator {
     protected $routes;
 
     /**
-     * @var array Lookup hash of named routes, keyed by route name
+     * @var array Lookup hash of named routes, keyed by route name (lazy-loaded)
      */
     protected $namedRoutes;
 
@@ -74,38 +74,11 @@ class Slim_Router implements Iterator {
 
     /**
      * Constructor
-     * @param   Slim_Http_Request   $request    The HTTP request object
+     * @param   string   $resourceUri    The request URI
      */
-    public function __construct( Slim_Http_Request $request ) {
-        $this->request = $request;
+    public function __construct( $resourceUri ) {
+        $this->resourceUri = $resourceUri;
         $this->routes = array();
-    }
-
-    /**
-     * initialize router
-     * @return void
-     */
-    public function load( $reload = false ) {
-        if ( $reload || (is_null($this->matchedRoutes) && is_null($this->namedRoutes)) ) {
-            $this->matchedRoutes = array();
-            $this->namedRoutes = array();
-            foreach ( $this->routes as $route ) {
-                if ( $route->matches($this->request->getResourceUri()) ) {
-                    $this->matchedRoutes[] = $route;
-                }
-                if ( $route->getName() !== null ) {
-                    $this->addNamedRoute($route->getName(), $route);
-                }
-            }
-        }
-    }
-
-    /**
-     * Get Request
-     * @return Slim_Http_Request
-     */
-    public function getRequest() {
-        return $this->request;
     }
 
     /**
@@ -123,7 +96,12 @@ class Slim_Router implements Iterator {
      */
     public function getMatchedRoutes( $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
-            $this->load();
+            $this->matchedRoutes = array();
+            foreach ( $this->routes as $route ) {
+                if ( $route->matches($this->resourceUri) ) {
+                    $this->matchedRoutes[] = $route;
+                }
+            }
         }
         return $this->matchedRoutes;
     }
@@ -162,7 +140,7 @@ class Slim_Router implements Iterator {
         return preg_replace(array(
             '@\(\/?:.+\/??\)\??@',
             '@\?|\(|\)@'
-        ), '', $this->request->getRootUri() . $pattern);
+        ), '', $pattern);
     }
 
     /**
@@ -188,7 +166,7 @@ class Slim_Router implements Iterator {
      * @throws  Slim_Exception_RequestSlash
      */
     public function dispatch( Slim_Route $route ) {
-        if ( substr($route->getPattern(), -1) === '/' && substr($this->getRequest()->getResourceUri(), -1) !== '/' ) {
+        if ( substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
 
@@ -227,9 +205,7 @@ class Slim_Router implements Iterator {
      * @return  bool
      */
     public function hasNamedRoute( $name ) {
-        if ( is_null($this->namedRoutes) ) {
-            $this->load();
-        }
+        $this->getNamedRoutes();
         return isset($this->namedRoutes[(string)$name]);
     }
 
@@ -239,9 +215,7 @@ class Slim_Router implements Iterator {
      * @return  Slim_Route|null
      */
     public function getNamedRoute( $name ) {
-        if ( is_null($this->namedRoutes) ) {
-            $this->load();
-        }
+        $this->getNamedRoutes();
         if ( $this->hasNamedRoute($name) ) {
             return $this->namedRoutes[(string)$name];
         } else {
@@ -255,7 +229,12 @@ class Slim_Router implements Iterator {
      */
     public function getNamedRoutes() {
         if ( is_null($this->namedRoutes) ) {
-            $this->load();
+            $this->namedRoutes = array();
+            foreach ( $this->routes as $route ) {
+                if ( $route->getName() !== null ) {
+                    $this->addNamedRoute($route->getName(), $route);
+                }
+            }
         }
         return new ArrayIterator($this->namedRoutes);
     }
