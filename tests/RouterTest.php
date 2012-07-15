@@ -241,11 +241,14 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
         $route4 = $router->map('/foo/:one/(:two/)', function () {})->via('GET');
         $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {})->via('GET');
+        $route6 = $router->map('/foo/*/bar', function (){})->via('GET');
         $route1->setName('route1');
         $route2->setName('route2');
         $route3->setName('route3');
         $route4->setName('route4');
         $route5->setName('route5');
+        $route6->setName('route6');
+        $route6->setTemplate('/foo/:foo/bar');
         //Route
         $this->assertEquals('/foo/bar', $router->urlFor('route1'));
         //Route with params
@@ -268,6 +271,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/foo/:one/bar/', $router->urlFor('route5', array('two' => 'bar')));
         $this->assertEquals('/foo/:one/bar/what/', $router->urlFor('route5', array('two' => 'bar', 'three' => 'what')));
         $this->assertEquals('/foo/:one/', $router->urlFor('route5'));
+        //Route with wildcard params
+        $this->assertEquals('/foo/bar/bar', $router->urlFor('route6', array('foo'=>'bar')));
     }
 
     /**
