@@ -79,11 +79,6 @@ class Slim_Route {
     protected $methods = array();
 
     /**
-     * @var Slim_Router The Router to which this Route belongs
-     */
-    protected $router;
-
-    /**
      * @var array[Callable] Middleware to be run before only this route instance
      */
     protected $middleware = array();
@@ -200,7 +195,6 @@ class Slim_Route {
      */
     public function setName( $name ) {
         $this->name = (string)$name;
-        $this->router->addNamedRoute($this->name, $this);
     }
 
     /**
@@ -291,23 +285,6 @@ class Slim_Route {
     }
 
     /**
-     * Get router
-     * @return Slim_Router
-     */
-    public function getRouter() {
-        return $this->router;
-    }
-
-    /**
-     * Set router
-     * @param   Slim_Router $router
-     * @return  void
-     */
-    public function setRouter( Slim_Router $router ) {
-        $this->router = $router;
-    }
-
-    /**
      * Get middleware
      * @return array[Callable]
      */
@@ -324,7 +301,7 @@ class Slim_Route {
      * assume the argument is an array of callables and merge the array
      * with `$this->middleware`. Even if non-callables are included in the
      * argument array, we still merge them; we lazily check each item
-     * against `is_callable` during Route::dispatch().
+     * against `is_callable` during Router::dispatch().
      *
      * @param   Callable|array[Callable]
      * @return  Slim_Route
@@ -433,48 +410,5 @@ class Slim_Route {
     public function conditions( array $conditions ) {
         $this->conditions = array_merge($this->conditions, $conditions);
         return $this;
-    }
-
-    /**
-     * Dispatch route
-     *
-     * This method invokes this route's callable. If middleware is
-     * registered for this route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * This method is smart about trailing slashes on the route pattern.
-     * If this route's pattern is defined with a trailing slash, and if the
-     * current request URI does not have a trailing slash but otherwise
-     * matches this route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
-     * URI _with_ a trailing slash. This Exception is caught in the
-     * `Slim::call` loop. If this route's pattern is defined without a
-     * trailing slash, and if the current request URI does have a trailing
-     * slash, this route will not be matched and a 404 Not Found
-     * response will be sent if no subsequent matching routes are found.
-     *
-     * @return  bool Was route callable invoked successfully?
-     * @throws  Slim_Exception_RequestSlash
-     */
-    public function dispatch() {
-        if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
-            throw new Slim_Exception_RequestSlash();
-        }
-
-        //Invoke middleware
-        $req = $this->router->getRequest();
-        $res = $this->router->getResponse();
-        foreach ( $this->middleware as $mw ) {
-            if ( is_callable($mw) ) {
-                call_user_func_array($mw, array($req, $res, $this));
-            }
-        }
-
-        //Invoke callable
-        if ( is_callable($this->callable) ) {
-            call_user_func_array($this->callable, array_values($this->params));
-            return true;
-        }
-        return false;
     }
 }
