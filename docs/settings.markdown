@@ -1,15 +1,22 @@
 # Settings [settings]
 
-Slim's constructor accepts an associative array of settings to customize the Slim application during instantiation. These settings may be retrieved or changed during runtime as demonstrated below. Before I list the available settings, I want to quickly explain how you may define and inspect settings with your Slim application.
+There are two ways to apply settings to the Slim application.  First during Slim application instantiation and second after instantiation.  All settings can be applied at instatiation time by passing Slim's constructor an associative array.  All settings can be retrieved and modified after instantiation, however some of them can not be done simply by using the `config` application instance method but will be demonstrated as necessary below. Before I list the available settings, I want to quickly explain how you may define and inspect settings with your Slim application.
+
+## Settings during Instantiation [settings-instantiation]
 
 To define settings upon instantiation, pass an associative array into the Slim constructor:
 
     $app = new Slim(array(
         'debug' => true,
-        'templates.path' => '../templates'
+        'templates.path' => '../templates',
+        'log.level' => Slim_Log::DEBUG
     ));
 
-To define settings after instantiation, use the `config` application instance method; the first argument is the setting name and the second argument is the setting value.
+All settings maybe be defined using this method.
+
+## Settings after Instantiation [settings-afterinstantiation]
+
+To define settings after instantiation, the majority can use the `config` application instance method; the first argument is the setting name and the second argument is the setting value.
 
     $app->config('debug', false);
 
@@ -23,6 +30,8 @@ You may also define multiple settings at once using an associative array:
 To retrieve the value of a setting, you also use the `config` application instance method; however, you only pass one argument — the name of the setting you wish to inspect. If the setting you request does not exist, `NULL` is returned.
 
     $settingValue = $app->config('templates.path'); //returns "../templates"
+
+*Please see each specific setting below to determine if the `config` method is applicable for reading/writing the setting.*
 
 You are not limited to the settings shown below; you may also define your own.
 
@@ -48,7 +57,14 @@ Default
 
 ## log.writer [settings-log-writer] ##
 
-This sets the application log writer upon instantiation. This is optional. By default the application log will write logged messages to STDERR. If you do specify a custom log writer here, it must be an object that implements a `write()` public instance method that accepts a mixed argument; the `write()` method is responsible for sending the logged object to the appropriate output.
+This sets the application log writer *upon instantiation*. This is optional. By default the application log will write logged messages to STDERR. If you do specify a custom log writer here, it must be an object that implements a `write()` public instance method that accepts a mixed argument; the `write()` method is responsible for sending the logged object to the appropriate output.
+
+To read and write this setting after instantiation you need to access the log directly and use the `getWriter` and `setWriter` functions.
+
+    $log = $app->getLog();
+    $logWriter = $log->getWriter();
+    $log->setWriter(new MyLogWriter());
+    
 
 Data Type
 :   mixed
@@ -58,7 +74,13 @@ Default
 
 ## log.level [settings-log-level] ##
 
-This sets the application log level upon instantiation to determine which messages are logged.
+This sets the application log level *upon instantiation* to determine which messages are logged.
+
+To read and write this setting after instantiation you need to access the log directly and use the `getLevel` and `setLevel` functions.
+
+    $log = $app->getLog();
+    $level = $log->getLevel();
+    $log->setLevel(Slim_Log::WARN);
 
 Data Type
 :   int
@@ -68,7 +90,13 @@ Default
 
 ## log.enabled [settings-log-enabled] ##
 
-This enables or disables the application log upon instantiation.
+This enables or disables the application log *upon instantiation*.
+
+To read and write this setting after instantiation you need to access the log directly and use the `getEnabled` and `setEnabled` functions.
+
+    $log = $app->getLog();
+    $enabled = $log->getEnabled();
+    $log->setEnabled(true);
 
 Data Type
 :   boolean
