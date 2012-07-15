@@ -124,23 +124,6 @@ class Slim_Route {
     }
 
     /**
-     * Get route template
-     * @return  string
-     */
-    public function getTemplate() {
-        return $this->pattern;
-    }
-
-    /**
-     * Set route template
-     * @param   string $template
-     * @return  void
-     */
-    public function setTemplate( $template ) {
-        $this->pattern = $template;
-    }
-
-    /**
      * Get route callable
      * @return mixed
      */
@@ -388,12 +371,12 @@ class Slim_Route {
     }
 
     /**
-     * Set route template
-     * @param string $template The route template, overrides the default route pattern
+     * Set route pattern
+     * @param string $template The route pattern, overrides the default route pattern
      * @return  Slim_Route
      */
-    public function template( $template ) {
-        $this->setTemplate($template);
+    public function pattern( $pattern ) {
+        $this->setPattern($pattern);
         return $this;
     }
 
