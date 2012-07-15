@@ -44,11 +44,6 @@ class Slim_Route {
     protected $pattern;
 
     /**
-     * @var string The route template (e.g. "/books/:id") used with the `urlFor()` helper method
-     */
-    protected $template;
-
-    /**
      * @var mixed The route callable
      */
     protected $callable;
@@ -90,7 +85,6 @@ class Slim_Route {
      */
     public function __construct( $pattern, $callable ) {
         $this->setPattern($pattern);
-        $this->setTemplate($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
     }
@@ -127,23 +121,6 @@ class Slim_Route {
      */
     public function setPattern( $pattern ) {
         $this->pattern = $pattern;
-    }
-
-    /**
-     * Get route template
-     * @return  string
-     */
-    public function getTemplate() {
-        return $this->template;
-    }
-
-    /**
-     * Set route template
-     * @param   string $template
-     * @return  void
-     */
-    public function setTemplate( $template ) {
-        $this->template = $template;
     }
 
     /**
@@ -390,16 +367,6 @@ class Slim_Route {
      */
     public function name( $name ) {
         $this->setName($name);
-        return $this;
-    }
-
-    /**
-     * Set route template
-     * @param string $template The route template, overrides the default route pattern
-     * @return  Slim_Route
-     */
-    public function template( $template ) {
-        $this->setTemplate($template);
         return $this;
     }
 
