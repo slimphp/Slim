@@ -126,7 +126,7 @@ class Slim_Route {
      * @return  void
      */
     public function setPattern( $pattern ) {
-        $this->pattern = str_replace(')', ')?', (string)$pattern);
+        $this->pattern = $pattern;
     }
 
     /**
@@ -330,22 +330,23 @@ class Slim_Route {
      * @return  bool
      */
     public function matches( $resourceUri ) {
+        $pattern = str_replace(')', ')?', (string)$this->pattern);
         //Extract URL params
-        preg_match_all('@:([\w]+)|\*@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
+        preg_match_all('@:([\w]+)|\*@', $pattern, $paramNames, PREG_PATTERN_ORDER);
         $paramNames = $paramNames[0];
 
         // Convert * wildcards into regex patterns
         $wildcards = array_keys($paramNames, '*');
         if( !empty($wildcards) ) {
             foreach ( $wildcards as $key) {
-                $this->pattern = preg_replace('@(?<!\\\\)\*@', '(?P<slim_route_wildcard' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%/]+)', $this->pattern, 1);
+                $pattern = preg_replace('@(?<!\\\\)\*@', '(?P<slim_route_wildcard' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%/]+)', $pattern, 1);
                 $paramNames[$key] = ':slim_route_wildcard' . $key;
             }
         }
 
         //Convert URL params into regex patterns, construct a regex for this route
-        $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
-        if ( substr($this->pattern, -1) === '/' ) {
+        $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $pattern);
+        if ( substr($pattern, -1) === '/' ) {
             $patternAsRegex = $patternAsRegex . '?';
         }
         $patternAsRegex = '@^' . $patternAsRegex . '$@';
