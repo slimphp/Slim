@@ -47,7 +47,7 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_Stream_Data {
+class Slim_Stream_Data implements Slim_StreamInterface {
     /**
      * @var string
      */
@@ -66,7 +66,7 @@ class Slim_Stream_Data {
      */
     public function __construct( $data, $options = array() ) {
         $this->data = (string)$data;
-        $this->options = array_merge(array( 
+        $this->options = array_merge(array(
             'buffer_size' => 8192,
             'time_limit' => 0
         ), $options);
