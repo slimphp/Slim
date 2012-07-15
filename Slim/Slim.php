@@ -31,6 +31,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Comment out this line if you are using an alternative autoloader (e.g. Composer)
+Slim::registerAutoloader();
+
 /**
  * Slim
  * @package Slim
@@ -124,6 +127,13 @@ class Slim {
         }
     }
 
+    /**
+     * Register Slim's built-in autoloader
+     */
+    public static function registerAutoloader() {
+        spl_autoload_register(array('Slim', 'autoload'));
+    }
+
     /***** INSTANTIATION *****/
 
     /**
@@ -134,9 +144,6 @@ class Slim {
     public function __construct( $userSettings = array() ) {
         //Setup Slim application
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
-        if ( $this->config('install_autoloader') ) {
-            spl_autoload_register(array('Slim', 'autoload'));
-        }
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
