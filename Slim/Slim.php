@@ -1044,62 +1044,6 @@ class Slim {
         }
     }
 
-    /***** STREAMING *****/
-
-    /**
-     * Stream file
-     *
-     * This method will immediately begin streaming the specified file
-     * to the HTTP client and exit the Slim application. By default,
-     * the file delivered to the HTTP client will use the basename
-     * of the specified file; you may override the file name
-     * using the second argument.
-     *
-     * @param   string  $path       The relative or absolute path to the file
-     * @param   array   $userOptions
-     * @return  void
-     */
-    public function streamFile( $path, $userOptions = array() ) {
-        $defaults = array('name' => basename($path));
-        $options = array_merge($defaults, $userOptions);
-        $this->response = new Slim_Http_Stream(new Slim_Stream_File($path, $options), $options);
-        $this->stop();
-    }
-
-    /**
-     * Stream data
-     *
-     * This method will immediately begin streaming the specified data
-     * to the HTTP client and exit the Slim application. You are encouraged
-     * to specify the name of the file delivered to the HTTP client using
-     * the second argument.
-     *
-     * @param   string  $data
-     * @param   array   $userOptions
-     * @return  void
-     */
-    public function streamData( $data, $userOptions = array() ) {
-        $this->response = new Slim_Http_Stream(new Slim_Stream_Data($data, $userOptions), $userOptions);
-        $this->stop();
-    }
-
-    /**
-     * Stream process output
-     *
-     * This method will immediately begin streaming the process output
-     * to the HTTP client and exit the Slim application. You are encouraged
-     * to specify the name of the file delivered to the HTTP client using
-     * the second argument. This method WILL NOT escape shell arguments for you.
-     *
-     * @param   string  $process       The process command. Escape shell arguments!
-     * @param   array   $userOptions
-     * @return  void
-     */
-    public function streamProcess( $process, $userOptions = array() ) {
-        $this->response = new Slim_Http_Stream(new Slim_Stream_Process($process, $userOptions), $userOptions);
-        $this->stop();
-    }
-
     /***** APPLICATION MIDDLEWARE *****/
 
     /**
@@ -1159,11 +1103,7 @@ class Slim {
         }
 
         //Send body
-        if ( is_string($body) ) {
-            echo $body;
-        } else {
-            $body->process();
-        }
+        echo $body;
 
         restore_error_handler();
     }
