@@ -108,7 +108,7 @@ class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess {
      * @return  void
      */
     public function set( $key, $value ) {
-        $this->messages['next'][(string)$key] = $value;
+        $this->messages['next'][(string)$key][] = $value;
     }
 
     /**
