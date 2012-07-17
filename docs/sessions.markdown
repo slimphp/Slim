@@ -25,7 +25,7 @@ You may also use the `Slim_Middleware_SessionCookie` middleware to persist sessi
         'secret' => 'CHANGE_ME',
         'cipher' => MCRYPT_RIJNDAEL_256,
         'cipher_mode' => MCRYPT_MODE_CBC
-    ));
+    )));
 
     // Define routes here
 
