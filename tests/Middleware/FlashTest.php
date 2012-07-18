@@ -107,4 +107,18 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase {
         unset($f['info']);
         $this->assertFalse(isset($f['info']));
     }
+
+    /**
+     * Test iteration
+     */
+    public function testIteration() {
+        $_SESSION['slim.flash'] = array('info' => 'foo', 'error' => 'bar');
+        $f = new Slim_Middleware_Flash();
+        $f->loadMessages();
+        $output = '';
+        foreach ( $f as $key => $value ) {
+            $output .= $key . $value;
+        }
+        $this->assertEquals('infofooerrorbar', $output);
+    }
 }
