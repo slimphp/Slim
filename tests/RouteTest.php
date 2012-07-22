@@ -383,7 +383,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/*/world', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar')), $route->getParams());
+        $this->assertEquals(array(array('foo', 'bar')), $route->getWildcardParams());
     }
 
     /**
@@ -394,7 +394,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/*/world/*', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'slim_route_wildcard1'=>array('2012', '03', '10')), $route->getParams());
+        $this->assertEquals(array(), $route->getParams());
+        $this->assertEquals(array(array('foo', 'bar'), array('2012', '03', '10')), $route->getWildcardParams());
     }
 
     /**
@@ -405,7 +406,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello/*/world/:year/:month/:day/*', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'slim_route_wildcard4'=>array('first', 'second')), $route->getParams());
+        $this->assertEquals(array('year'=>'2012', 'month'=>'03', 'day'=>'10'), $route->getParams());
+        $this->assertEquals(array(array('foo', 'bar'), array('first', 'second')), $route->getWildcardParams());
     }
 
     /**
@@ -416,7 +418,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $route = new Slim_Route('/hello(/:world(/*))', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('world'=>'world', 'slim_route_wildcard1'=>array('foo', 'bar')), $route->getParams());
+        $this->assertEquals(array('world'=>'world'), $route->getParams());
+        $this->assertEquals(array(array('foo', 'bar')), $route->getWildcardParams());
     }
 
     /**
