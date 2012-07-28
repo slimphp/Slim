@@ -121,7 +121,10 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
      * @return  void
      */
     protected function loadSession() {
-        session_start();
+        if (session_id() === '') {
+            session_start();
+        }
+
         $value = Slim_Http_Util::decodeSecureCookie(
             $this->app->request()->cookies($this->settings['name']),
             $this->settings['secret'],
