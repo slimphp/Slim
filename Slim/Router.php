@@ -129,13 +129,11 @@ class Slim_Router implements Iterator {
         if ( !$this->hasNamedRoute($name) ) {
             throw new RuntimeException('Named route not found for name: ' . $name);
         }
-        $pattern = $this->getNamedRoute($name)->getPattern();
-
         $search = array();
         foreach ( array_keys($params) as $key ) {
             $search[] = '#:' . $key . '\+?(?!\w)#';
         }
-        $pattern = preg_replace($search, $params, $pattern);
+        $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
