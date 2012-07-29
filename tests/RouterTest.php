@@ -241,9 +241,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
         $route4 = $router->map('/foo/:one/(:two/)', function () {})->via('GET');
         $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {})->via('GET');
-        $route6 = $router->map('/foo/*/bar', function (){})->via('GET');
-        $route7 = $router->map('/foo/*/*/bar', function (){})->via('GET');
-        $route8 = $router->map('/foo/*', function (){})->via('GET');
+        $route6 = $router->map('/foo/:path+/bar', function (){})->via('GET');
+        $route7 = $router->map('/foo/:path+/:path2+/bar', function (){})->via('GET');
+        $route8 = $router->map('/foo/:path+', function (){})->via('GET');
+        $route9 = $router->map('/foo/:var/:var2', function (){})->via('GET');
         $route1->setName('route1');
         $route2->setName('route2');
         $route3->setName('route3');
@@ -252,6 +253,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $route6->setName('route6');
         $route7->setName('route7');
         $route8->setName('route8');
+        $route9->setName('route9');
         //Route
         $this->assertEquals('/foo/bar', $router->urlFor('route1'));
         //Route with params
@@ -275,9 +277,12 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('/foo/:one/bar/what/', $router->urlFor('route5', array('two' => 'bar', 'three' => 'what')));
         $this->assertEquals('/foo/:one/', $router->urlFor('route5'));
         //Route with wildcard params
-        $this->assertEquals('/foo/bar/bar', $router->urlFor('route6', array('splat0'=>'bar')));
-        $this->assertEquals('/foo/foo/bar/bar', $router->urlFor('route7', array('splat0'=>'foo', 'splat1'=>'bar')));
-        $this->assertEquals('/foo/bar', $router->urlFor('route8', array('splat0'=>'bar')));
+        $this->assertEquals('/foo/bar/bar', $router->urlFor('route6', array('path'=>'bar')));
+        $this->assertEquals('/foo/foo/bar/bar', $router->urlFor('route7', array('path'=>'foo', 'path2'=>'bar')));
+        $this->assertEquals('/foo/bar', $router->urlFor('route8', array('path'=>'bar')));
+        //Route with similar param names, test greedy matching
+        $this->assertEquals('/foo/1/2', $router->urlFor('route9', array('var2'=>'2', 'var'=>'1')));
+        $this->assertEquals('/foo/1/2', $router->urlFor('route9', array('var'=>'1', 'var2'=>'2')));
     }
 
     /**
