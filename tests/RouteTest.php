@@ -372,10 +372,10 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithWildcard() {
         $resource = '/hello/foo/bar/world';
-        $route = new Slim_Route('/hello/*/world', function () {});
+        $route = new Slim_Route('/hello/:path+/world', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar')), $route->getParams());
+        $this->assertEquals(array('path'=>array('foo', 'bar')), $route->getParams());
     }
 
     /**
@@ -383,10 +383,10 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithMultipleWildcards() {
         $resource = '/hello/foo/bar/world/2012/03/10';
-        $route = new Slim_Route('/hello/*/world/*', function () {});
+        $route = new Slim_Route('/hello/:path+/world/:date+', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'slim_route_wildcard1'=>array('2012', '03', '10')), $route->getParams());
+        $this->assertEquals(array('path'=>array('foo', 'bar'), 'date'=>array('2012', '03', '10')), $route->getParams());
     }
 
     /**
@@ -394,21 +394,25 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithWildcardsAndParams() {
         $resource = '/hello/foo/bar/world/2012/03/10/first/second';
-        $route = new Slim_Route('/hello/*/world/:year/:month/:day/*', function () {});
+        $route = new Slim_Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
-        $this->assertEquals(array('slim_route_wildcard0'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'slim_route_wildcard4'=>array('first', 'second')), $route->getParams());
+        $this->assertEquals(array('path'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'path2'=>array('first', 'second')), $route->getParams());
     }
 
     /**
      * Route matches URI with optional wildcard and parameter
      */
     public function testRouteMatchesResourceWithOptionalWildcardsAndParams() {
-        $resource = '/hello/world/foo/bar';
-        $route = new Slim_Route('/hello(/:world(/*))', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('world'=>'world', 'slim_route_wildcard1'=>array('foo', 'bar')), $route->getParams());
+        $resourceA = '/hello/world/foo/bar';
+        $routeA = new Slim_Route('/hello(/:world(/:path+))', function () {});
+        $this->assertTrue($routeA->matches($resourceA));
+        $this->assertEquals(array('world'=>'world', 'path'=>array('foo', 'bar')), $routeA->getParams());
+		
+        $resourceB = '/hello/world';
+        $routeB = new Slim_Route('/hello(/:world(/:path))', function () {});
+        $this->assertTrue($routeB->matches($resourceB));
+        $this->assertEquals(array('world'=>'world'), $routeB->getParams());
     }
 
     /**
@@ -416,7 +420,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteDoesNotMatchResourceWithWildcard() {
         $resource = '/hello';
-        $route = new Slim_Route('/hello/*', function () {});
+        $route = new Slim_Route('/hello/:path+', function () {});
         $result = $route->matches($resource);
         $this->assertFalse($result);
         $this->assertEquals(array(), $route->getParams());
