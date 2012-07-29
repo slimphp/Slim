@@ -34,7 +34,7 @@
 /**
  * Slim_Route
  * @package Slim
- * @author  Josh Lockhart
+ * @author  Josh Lockhart, Thomas Bley
  * @since   1.0.0
  */
 class Slim_Route {
@@ -67,6 +67,16 @@ class Slim_Route {
      * @var array Key-value array of URL parameters
      */
     protected $params = array();
+
+    /**
+     * @var array value array of URL parameter names
+     */
+    protected $paramNames = array();
+
+    /**
+     * @var array key array of URL parameter names with + at the end
+     */
+    protected $paramNamesPath = array();
 
     /**
      * @var array HTTP methods supported by this Route
@@ -307,57 +317,44 @@ class Slim_Route {
      * @return  bool
      */
     public function matches( $resourceUri ) {
-        $pattern = str_replace(')', ')?', (string)$this->pattern);
-        //Extract URL params
-        preg_match_all('@:([\w]+)|\*@', $pattern, $paramNames, PREG_PATTERN_ORDER);
-        $paramNames = $paramNames[0];
-
-        // Convert * wildcards into regex patterns
-        $wildcards = array_keys($paramNames, '*');
-        if( !empty($wildcards) ) {
-            foreach ( $wildcards as $key) {
-                $pattern = preg_replace('@(?<!\\\\)\*@', '(?P<slim_route_wildcard' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%/]+)', $pattern, 1);
-                $paramNames[$key] = ':slim_route_wildcard' . $key;
-            }
+        //Convert URL params into regex patterns, construct a regex for this route, init params
+        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),
+            str_replace(')', ')?', (string)$this->pattern));
+        if ( substr($this->pattern, -1) === '/' ) {
+            $patternAsRegex .= '?';
         }
-
-        //Convert URL params into regex patterns, construct a regex for this route
-        $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $pattern);
-        if ( substr($pattern, -1) === '/' ) {
-            $patternAsRegex = $patternAsRegex . '?';
-        }
-        $patternAsRegex = '@^' . $patternAsRegex . '$@';
 
         //Cache URL params' names and values if this route matches the current HTTP request
-        if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
-            array_shift($paramValues);
-            foreach ( $paramNames as $index => $value ) {
-                $val = substr($value, 1);
-                if ( isset($paramValues[$val]) ) {
-                    if ( strpos($val, 'slim_route_wildcard') === 0 ) {
-                        $this->params[$val] = explode('/', urldecode($paramValues[$val]));
-                    } else {
-                        $this->params[$val] = urldecode($paramValues[$val]);
-                    }
+        if ( !preg_match('#^' . $patternAsRegex . '$#', $resourceUri, $paramValues) ) {
+            return false;
+        }
+        foreach ( $this->paramNames as $name ) {
+            if ( isset($paramValues[$name]) ) {
+                if ( isset($this->paramNamesPath[ $name ]) ) {
+                    $this->params[$name] = explode('/', urldecode($paramValues[$name]));
+                } else {
+                    $this->params[$name] = urldecode($paramValues[$name]);
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     /**
-     * Convert a URL parameter (e.g. ":id") into a regular expression
+     * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
      * @param   array   URL parameters
      * @return  string  Regular expression for URL parameter
      */
-    protected function convertPatternToRegex( $matches ) {
-        $key = str_replace(':', '', $matches[0]);
-        if ( array_key_exists($key, $this->conditions) ) {
-            return '(?P<' . $key . '>' . $this->conditions[$key] . ')';
-        } else {
-            return '(?P<' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
+    protected function matchesCallback( $m ) {
+        $this->paramNames[] = $m[1];
+        if ( isset($this->conditions[ $m[1] ] ) ) {
+            return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
         }
+        if ( substr($m[0], -1) === '+' ) {
+            $this->paramNamesPath[ $m[1] ] = 1;
+            return '(?P<' . $m[1] . '>.+)';
+        }
+        return '(?P<' . $m[1] . '>[^/]+)';
     }
 
     /**
