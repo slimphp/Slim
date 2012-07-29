@@ -16,8 +16,21 @@ Here is an example directory structure:
 The **.htaccess** file in the directory structure above contains:
 
     RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(.*)$ index.php [QSA,L]
+
+    # make sure that relative rewrites are rewritten to DocumentRoot 
+    RewriteBase /
+
+    # if request is to index.php, save disk hit for file and directory tests
+    RewriteRule ^index\.php$ - [L]
+
+    # if request is for a physical file or directory, let apache serve it
+    # (subject to any other pre-configured restrictions)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # finally, rewrite all other requests to index.php
+    RewriteRule . index.php [L]
 
 As a result, Apache will send all requests for non-existent files to my **index.php** script in which I instantiate and run my Slim application. With URL rewriting enabled and assuming the following Slim application is defined in **index.php**, you can access the application route below at "/foo" rather than "/index.php/foo".
 
