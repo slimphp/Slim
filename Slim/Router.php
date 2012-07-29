@@ -131,29 +131,14 @@ class Slim_Router implements Iterator {
         }
         $pattern = $this->getNamedRoute($name)->getPattern();
 
-        //Extract URL wildcards
-        preg_match_all('@(?<!\\\\)\*@', $pattern, $paramNames, PREG_PATTERN_ORDER);
-        $paramNames = $paramNames[0];
-
-        // Convert * wildcards into param patterns
-        $wildcards = array_keys($paramNames, '*');
-        if( !empty($wildcards) ) {
-            foreach ( $wildcards as $key) {
-                $pattern = preg_replace('@(?<!\\\\)\*@', ':splat' . $key, $pattern, 1);
-            }
+        $search = array();
+        foreach ( array_keys($params) as $key ) {
+            $search[] = '#:' . $key . '\+?(?!\w)#';
         }
+        $pattern = preg_replace($search, $params, $pattern);
 
-        $search = $replace = array();
-        foreach ( $params as $key => $value ) {
-            $search[] = ':' . $key;
-            $replace[] = $value;
-        }
-        $pattern = str_replace($search, $replace, $pattern);
         //Remove remnants of unpopulated, trailing optional pattern segments
-        return preg_replace(array(
-            '@\(\/?:.+\/??\)\??@',
-            '@\?|\(|\)@'
-        ), '', $pattern);
+        return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
     }
 
     /**
