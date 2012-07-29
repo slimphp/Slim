@@ -19,6 +19,20 @@ You can embed parameters into route resource URIs. In this example, I have two p
 
 To create a URL parameter, prepend “:” to the parameter name in the route URI pattern. When the route matches the current HTTP request, the values for each route parameter are extracted from the HTTP request URI and are passed into the associated callback function in order of appearance.
 
+## Wildcard Route Parameters
+
+You may also use wildcard route parameters. These will capture one or many URI segments that correspond
+to the route pattern's wildcard parameter into an array. A wildcard parameter is identified by a "+" suffix; it
+otherwise acts the same as normal route parameters shown above. Here's an example:
+
+    $app = new Slim();
+    $app->get('/hello/:name+', function ($name) {
+        // Do something
+    });
+
+When you invoke this example application with a resource URI "/hello/Josh/T/Lockhart", the route callback's `$name` argument
+will be equal to `array('Josh', 'T', Lockhart')`.
+
 ## Optional Route Parameters
 
 You may also have optional route parameters. These are ideal for using one route for a blog archive. To declare optional route parameters, specify your route pattern like this:
