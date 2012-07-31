@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     1.6.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -43,14 +43,9 @@
  */
 class Slim_Router implements Iterator {
     /**
-     * @var Slim_Http_Request
+     * @var string Request URI
      */
-    protected $request;
-
-    /**
-     * @var Slim_Http_Response
-     */
-    protected $response;
+    protected $resourceUri;
 
     /**
      * @var array Lookup hash of all routes
@@ -58,7 +53,7 @@ class Slim_Router implements Iterator {
     protected $routes;
 
     /**
-     * @var array Lookup hash of named routes, keyed by route name
+     * @var array Lookup hash of named routes, keyed by route name (lazy-loaded)
      */
     protected $namedRoutes;
 
@@ -79,30 +74,11 @@ class Slim_Router implements Iterator {
 
     /**
      * Constructor
-     * @param   Slim_Http_Request   $request    The HTTP request object
-     * @param   Slim_Http_Response  $response   The HTTP response object
+     * @param   string   $resourceUri    The request URI
      */
-    public function __construct( Slim_Http_Request $request, Slim_Http_Response $response ) {
-        $this->request = $request;
-        $this->response = $response;
+    public function __construct( $resourceUri ) {
+        $this->resourceUri = $resourceUri;
         $this->routes = array();
-        $this->namedRoutes = array();
-    }
-
-    /**
-     * Get Request
-     * @return Slim_Http_Request
-     */
-    public function getRequest() {
-        return $this->request;
-    }
-
-    /**
-     * Get Response
-     * @return Slim_Http_Response
-     */
-    public function getResponse() {
-        return $this->response;
     }
 
     /**
@@ -122,7 +98,7 @@ class Slim_Router implements Iterator {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
             foreach ( $this->routes as $route ) {
-                if ( $route->matches($this->request->getResourceUri()) ) {
+                if ( $route->matches($this->resourceUri) ) {
                     $this->matchedRoutes[] = $route;
                 }
             }
@@ -138,7 +114,6 @@ class Slim_Router implements Iterator {
      */
     public function map( $pattern, $callable ) {
         $route = new Slim_Route($pattern, $callable);
-        $route->setRouter($this);
         $this->routes[] = $route;
         return $route;
     }
@@ -154,18 +129,56 @@ class Slim_Router implements Iterator {
         if ( !$this->hasNamedRoute($name) ) {
             throw new RuntimeException('Named route not found for name: ' . $name);
         }
-        $pattern = $this->getNamedRoute($name)->getPattern();
-        $search = $replace = array();
-        foreach ( $params as $key => $value ) {
-            $search[] = ':' . $key;
-            $replace[] = $value;
+        $search = array();
+        foreach ( array_keys($params) as $key ) {
+            $search[] = '#:' . $key . '\+?(?!\w)#';
         }
-        $pattern = str_replace($search, $replace, $pattern);
+        $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
+
         //Remove remnants of unpopulated, trailing optional pattern segments
-        return preg_replace(array(
-            '@\(\/?:.+\/??\)\??@',
-            '@\?|\(|\)@'
-        ), '', $this->request->getRootUri() . $pattern);
+        return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
+    }
+
+    /**
+     * Dispatch route
+     *
+     * This method invokes the route's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * This method is smart about trailing slashes on the route pattern.
+     * If the route's pattern is defined with a trailing slash, and if the
+     * current request URI does not have a trailing slash but otherwise
+     * matches the route's pattern, a Slim_Exception_RequestSlash
+     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
+     * URI _with_ a trailing slash. This Exception is caught in the
+     * `Slim::call` loop. If the route's pattern is defined without a
+     * trailing slash, and if the current request URI does have a trailing
+     * slash, the route will not be matched and a 404 Not Found
+     * response will be sent if no subsequent matching routes are found.
+     *
+     * @param   Slim_Route          $route  The route object
+     * @return  bool Was route callable invoked successfully?
+     * @throws  Slim_Exception_RequestSlash
+     */
+    public function dispatch( Slim_Route $route ) {
+        if ( substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/' ) {
+            throw new Slim_Exception_RequestSlash();
+        }
+
+        //Invoke middleware
+        foreach ( $route->getMiddleware() as $mw ) {
+            if ( is_callable($mw) ) {
+                call_user_func($mw);
+            }
+        }
+
+        //Invoke callable
+        if ( is_callable($route->getCallable()) ) {
+            call_user_func_array($route->getCallable(), array_values($route->getParams()));
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -188,6 +201,7 @@ class Slim_Router implements Iterator {
      * @return  bool
      */
     public function hasNamedRoute( $name ) {
+        $this->getNamedRoutes();
         return isset($this->namedRoutes[(string)$name]);
     }
 
@@ -197,6 +211,7 @@ class Slim_Router implements Iterator {
      * @return  Slim_Route|null
      */
     public function getNamedRoute( $name ) {
+        $this->getNamedRoutes();
         if ( $this->hasNamedRoute($name) ) {
             return $this->namedRoutes[(string)$name];
         } else {
@@ -209,6 +224,14 @@ class Slim_Router implements Iterator {
      * @return ArrayIterator
      */
     public function getNamedRoutes() {
+        if ( is_null($this->namedRoutes) ) {
+            $this->namedRoutes = array();
+            foreach ( $this->routes as $route ) {
+                if ( $route->getName() !== null ) {
+                    $this->addNamedRoute($route->getName(), $route);
+                }
+            }
+        }
         return new ArrayIterator($this->namedRoutes);
     }
 

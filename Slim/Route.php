@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     1.6.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -34,7 +34,7 @@
 /**
  * Slim_Route
  * @package Slim
- * @author  Josh Lockhart
+ * @author  Josh Lockhart, Thomas Bley
  * @since   1.0.0
  */
 class Slim_Route {
@@ -69,14 +69,19 @@ class Slim_Route {
     protected $params = array();
 
     /**
+     * @var array value array of URL parameter names
+     */
+    protected $paramNames = array();
+
+    /**
+     * @var array key array of URL parameter names with + at the end
+     */
+    protected $paramNamesPath = array();
+
+    /**
      * @var array HTTP methods supported by this Route
      */
     protected $methods = array();
-
-    /**
-     * @var Slim_Router The Router to which this Route belongs
-     */
-    protected $router;
 
     /**
      * @var array[Callable] Middleware to be run before only this route instance
@@ -125,7 +130,7 @@ class Slim_Route {
      * @return  void
      */
     public function setPattern( $pattern ) {
-        $this->pattern = str_replace(')', ')?', (string)$pattern);
+        $this->pattern = $pattern;
     }
 
     /**
@@ -177,7 +182,6 @@ class Slim_Route {
      */
     public function setName( $name ) {
         $this->name = (string)$name;
-        $this->router->addNamedRoute($this->name, $this);
     }
 
     /**
@@ -268,23 +272,6 @@ class Slim_Route {
     }
 
     /**
-     * Get router
-     * @return Slim_Router
-     */
-    public function getRouter() {
-        return $this->router;
-    }
-
-    /**
-     * Set router
-     * @param   Slim_Router $router
-     * @return  void
-     */
-    public function setRouter( Slim_Router $router ) {
-        $this->router = $router;
-    }
-
-    /**
      * Get middleware
      * @return array[Callable]
      */
@@ -301,7 +288,7 @@ class Slim_Route {
      * assume the argument is an array of callables and merge the array
      * with `$this->middleware`. Even if non-callables are included in the
      * argument array, we still merge them; we lazily check each item
-     * against `is_callable` during Route::dispatch().
+     * against `is_callable` during Router::dispatch().
      *
      * @param   Callable|array[Callable]
      * @return  Slim_Route
@@ -330,43 +317,44 @@ class Slim_Route {
      * @return  bool
      */
     public function matches( $resourceUri ) {
-        //Extract URL params
-        preg_match_all('@:([\w]+)@', $this->pattern, $paramNames, PREG_PATTERN_ORDER);
-        $paramNames = $paramNames[0];
-
-        //Convert URL params into regex patterns, construct a regex for this route
-        $patternAsRegex = preg_replace_callback('@:[\w]+@', array($this, 'convertPatternToRegex'), $this->pattern);
+        //Convert URL params into regex patterns, construct a regex for this route, init params
+        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),
+            str_replace(')', ')?', (string)$this->pattern));
         if ( substr($this->pattern, -1) === '/' ) {
-            $patternAsRegex = $patternAsRegex . '?';
+            $patternAsRegex .= '?';
         }
-        $patternAsRegex = '@^' . $patternAsRegex . '$@';
 
         //Cache URL params' names and values if this route matches the current HTTP request
-        if ( preg_match($patternAsRegex, $resourceUri, $paramValues) ) {
-            array_shift($paramValues);
-            foreach ( $paramNames as $index => $value ) {
-                $val = substr($value, 1);
-                if ( isset($paramValues[$val]) ) {
-                    $this->params[$val] = urldecode($paramValues[$val]);
+        if ( !preg_match('#^' . $patternAsRegex . '$#', $resourceUri, $paramValues) ) {
+            return false;
+        }
+        foreach ( $this->paramNames as $name ) {
+            if ( isset($paramValues[$name]) ) {
+                if ( isset($this->paramNamesPath[ $name ]) ) {
+                    $this->params[$name] = explode('/', urldecode($paramValues[$name]));
+                } else {
+                    $this->params[$name] = urldecode($paramValues[$name]);
                 }
             }
-            return true;
         }
-        return false;
+        return true;
     }
 
     /**
-     * Convert a URL parameter (e.g. ":id") into a regular expression
+     * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
      * @param   array   URL parameters
      * @return  string  Regular expression for URL parameter
      */
-    protected function convertPatternToRegex( $matches ) {
-        $key = str_replace(':', '', $matches[0]);
-        if ( array_key_exists($key, $this->conditions) ) {
-            return '(?P<' . $key . '>' . $this->conditions[$key] . ')';
-        } else {
-            return '(?P<' . $key . '>[a-zA-Z0-9_\-\.\!\~\*\\\'\(\)\:\@\&\=\$\+,%]+)';
+    protected function matchesCallback( $m ) {
+        $this->paramNames[] = $m[1];
+        if ( isset($this->conditions[ $m[1] ] ) ) {
+            return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
         }
+        if ( substr($m[0], -1) === '+' ) {
+            $this->paramNamesPath[ $m[1] ] = 1;
+            return '(?P<' . $m[1] . '>.+)';
+        }
+        return '(?P<' . $m[1] . '>[^/]+)';
     }
 
     /**
@@ -387,48 +375,5 @@ class Slim_Route {
     public function conditions( array $conditions ) {
         $this->conditions = array_merge($this->conditions, $conditions);
         return $this;
-    }
-
-    /**
-     * Dispatch route
-     *
-     * This method invokes this route's callable. If middleware is
-     * registered for this route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * This method is smart about trailing slashes on the route pattern.
-     * If this route's pattern is defined with a trailing slash, and if the
-     * current request URI does not have a trailing slash but otherwise
-     * matches this route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
-     * URI _with_ a trailing slash. This Exception is caught in the
-     * `Slim::call` loop. If this route's pattern is defined without a
-     * trailing slash, and if the current request URI does have a trailing
-     * slash, this route will not be matched and a 404 Not Found
-     * response will be sent if no subsequent matching routes are found.
-     *
-     * @return  bool Was route callable invoked successfully?
-     * @throws  Slim_Exception_RequestSlash
-     */
-    public function dispatch() {
-        if ( substr($this->pattern, -1) === '/' && substr($this->router->getRequest()->getResourceUri(), -1) !== '/' ) {
-            throw new Slim_Exception_RequestSlash();
-        }
-
-        //Invoke middleware
-        $req = $this->router->getRequest();
-        $res = $this->router->getResponse();
-        foreach ( $this->middleware as $mw ) {
-            if ( is_callable($mw) ) {
-                call_user_func_array($mw, array($req, $res, $this));
-            }
-        }
-
-        //Invoke callable
-        if ( is_callable($this->callable) ) {
-            call_user_func_array($this->callable, array_values($this->params));
-            return true;
-        }
-        return false;
     }
 }
