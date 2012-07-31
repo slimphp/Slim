@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     1.6.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -65,7 +65,7 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
      * Call
      *
      * Implements Slim middleware interface. This method is invoked and passed
-     * an array of environemnt variables. This middleware inspects the environment
+     * an array of environment variables. This middleware inspects the environment
      * variables for the HTTP method override parameter; if found, this middleware
      * modifies the environment settings so downstream middleware and/or the Slim
      * application will treat the request with the desired HTTP method.
