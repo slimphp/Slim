@@ -6,5 +6,13 @@ RewriteEngine On
 #
 # RewriteBase /
 
+# This one was tested in Apache with VirtualDocumentRoot + ModAlias environment
+# The first rewritecond will catch the relative path while the %1 added to the rewrite rule will apply it.
+# It assumes you're using only letters and numbers as your route
+#RewriteBase /
+#RewriteCond %{REQUEST_URI} (.+)/(\w+)$
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^   %1/index.php [QSA,L]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
