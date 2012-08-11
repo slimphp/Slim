@@ -189,10 +189,11 @@ class Slim {
     /**
      * Get Slim application instance by name
      * @param   string      $name The name of the Slim application to fetch
+     * @param   boolean $create determines wether it should create a new slim instance when there is no current one
      * @return  Slim|null
      */
-    public static function getInstance( $name = 'default' ) {
-        return isset(self::$apps[$name]) ? self::$apps[$name] : null;
+    public static function getInstance( $name = 'default', $create=false ) {
+                return isset(self::$apps[$name]) ? self::$apps[$name] : ($create ? new Slim($name) :null);
     }
 
     /**
