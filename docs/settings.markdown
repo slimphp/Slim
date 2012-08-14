@@ -37,7 +37,7 @@ You are not limited to the settings shown below; you may also define your own.
 
 ## mode [settings-mode] ##
 
-Declare the Slim application mode (e.g. "test", "development", "production"). However, this may be anything you want.
+Declare the Slim application mode (e.g. "test", "development", "production") upon instantiation. However, this may be anything you want.  The mode is determined during application creation (constructor) and cached there after so attempting to update it via `config()` once Slim is created has no effect when using the `getMode()` and `configureMode()` Slim instance methods.  You can read more about all of the ways the [mode is determined](#what-is-a-mode).
 
 Data Type
 :   string
