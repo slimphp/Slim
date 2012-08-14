@@ -38,8 +38,9 @@ If you are running PHP >= 5.3, you can get a bit more creative. Suppose you want
         return function () use ( $role ) {
             $user = User::fetchFromDatabaseSomehow();
             if ( $user->belongsToRole($role) === false ) {
-                Slim::flash('error', 'Login required');
-                Slim::redirect('/login');
+                $app = Slim::getInstance();
+                $app->flash('error', 'Login required');
+                $app->redirect('/login');
             }
         };
     };
