@@ -86,7 +86,7 @@ Data Type
 :   int
 
 Default
-:   4
+:   Slim_Log::DEBUG (4)
 
 ## log.enabled [settings-log-enabled] ##
 
