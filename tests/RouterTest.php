@@ -366,6 +366,34 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route, $req->getResourceUri());
     }
 
+    public function testMiddlewareIsPassedTheRoute() {
+        Slim_Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/hello/josh', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $router = new Slim_Router();
+        $route = new Slim_Route('/hello/:name', function ($name) { });
+
+        $routesAreTheSame = false;
+        $route->setMiddleware(function ($routeParam) use (&$routesAreTheSame, $route) {
+            $routesAreTheSame = ($route === $routeParam);
+        });
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $router->dispatch($route, $req->getResourceUri());
+        $this->assertTrue($routesAreTheSame);
+    }
+
     public function testDispatchWithRequestSlash() {
         $this->setExpectedException('Slim_Exception_RequestSlash');
         Slim_Environment::mock(array(

@@ -155,7 +155,7 @@ class Slim_Router {
         //Invoke middleware
         foreach ( $route->getMiddleware() as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func($mw, $route);
             }
         }
 
