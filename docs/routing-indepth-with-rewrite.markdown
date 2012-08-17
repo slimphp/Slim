@@ -1,6 +1,6 @@
 # URL Rewriting [routing-indepth-with-rewrite] #
 
-I strongly encourage you to use a web server that supports URL rewriting; this will let you enjoy clean, human-friendly URLs with your Slim application. To enable URL rewriting, you should use the appropriate tools provided by your web server to forward all HTTP requests to the PHP file in which you instantiate and run your Slim application.  The following are sample, bare minimum, configurations for Apache with mod_php and nginx.  These are not meant to be production ready configurations but should be enough to get you up and running.  To read more on server deployment in general you can continue reading (phptherightway.com)[http://www.phptherightway.com/#servers_and_deployment].
+I strongly encourage you to use a web server that supports URL rewriting; this will let you enjoy clean, human-friendly URLs with your Slim application. To enable URL rewriting, you should use the appropriate tools provided by your web server to forward all HTTP requests to the PHP file in which you instantiate and run your Slim application.  The following are sample, bare minimum, configurations for Apache with mod_php and nginx.  These are not meant to be production ready configurations but should be enough to get you up and running.  To read more on server deployment in general you can continue reading [phptherightway.com](http://www.phptherightway.com/#servers_and_deployment).
 
 ## Apache and mod_rewrite [apache-mod-rewrite]##
 
