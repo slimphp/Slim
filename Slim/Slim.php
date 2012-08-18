@@ -72,6 +72,11 @@ class Slim {
     protected $response;
 
     /**
+     * @var Slim_Negotiator
+     */
+    protected $negotiator;
+
+    /**
      * @var Slim_Router
      */
     protected $router;
@@ -162,6 +167,11 @@ class Slim {
         //Make default if first instance
         if ( is_null(self::getInstance()) ) {
             $this->setName('default');
+        }
+
+        //Setup negotiation, if it is enabled
+        if ($this->config('negotiation.enabled')) {
+            $this->negotiator = new Slim_Negotiator();
         }
 
         //Set default logger that writes to stderr (may be overridden with middleware)
@@ -519,6 +529,23 @@ class Slim {
         return ob_get_clean();
     }
 
+    /**
+     * Negotiate on the chosen format of the response
+     *
+     * @return  string      The name of the format that has been agreed upon
+     */
+    public function respondTo() {
+        if ($this->negotiator) {
+            $args = func_get_args();
+            $params = $this->router->getCurrentRoute()->getParams();
+            return $this->negotiator->respondTo(
+                $params, $this->request, $this->response, $args
+            );
+        } else {
+            throw new RuntimeException('Content negotiation is not enabled.');
+        }
+    }
+
     /***** ACCESSORS *****/
 
     /**
@@ -527,6 +554,15 @@ class Slim {
      */
     public function environment() {
         return $this->environment;
+    }
+
+    /**
+     * Get a reference to the Negotiator object
+     * Will be NULL if negotiation has not been enabled.
+     * @return Slim_Negotiator
+     */
+    public function negotiator() {
+        return $this->negotiator;
     }
 
     /**
