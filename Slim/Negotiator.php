@@ -94,13 +94,17 @@ class Slim_Negotiator {
             $format = NULL;
         }
         if (!$format) {
-            $format = $this->negotiateFormat($request, $response, $formats);
-            if (!$format) {
-                // Unable to agree on an output format
-                $response->status(406);
-                $response->header('Content-Type', 'text/plain');
-                $response->body("Not Acceptable");
-                throw new Slim_Exception_Stop();
+            if ($request->headers('Accept')) {
+                $format = $this->negotiateFormat($request, $response, $formats);
+                if (!$format) {
+                    // Unable to agree on an output format
+                    $response->status(406);
+                    $response->header('Content-Type', 'text/plain');
+                    $response->body("Not Acceptable");
+                    throw new Slim_Exception_Stop();
+                }
+            } else {
+                $format = $formats[0];
             }
         } else if (!in_array($format, $formats)) {
             // Explicit request for an unsupported format

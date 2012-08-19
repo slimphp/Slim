@@ -40,7 +40,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
 
     public function setUp()
     {
-        $this->params = array('format' => '');
+        $this->params = array();
         $this->negotiator = new Slim_Negotiator();
         $this->request = new NegotiatorTestableRequest();
         $this->response = new NegotiatorTestableResponse();
@@ -54,6 +54,12 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
             $this->response,
             func_get_args()
         );
+    }
+
+    public function testDefaultFormat()
+    {
+        $format = $this->respondTo('txt');
+        $this->assertEquals('txt', $format);
     }
 
     public function testSingleArgumentValue()
