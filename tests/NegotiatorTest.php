@@ -76,6 +76,13 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('txt', $format);
     }
 
+    public function testSingleArgumentWithPeriod()
+    {
+        $this->params = array('format' => '.txt');
+        $format = $this->respondTo('html', 'txt');
+        $this->assertEquals('txt', $format);
+    }
+
     public function testContentTypeHeader()
     {
         $this->params = array('format' => 'txt');
@@ -110,6 +117,14 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('foobarbaz', $format);
         $this->assertFalse(
             array_key_exists('content-type', $this->response->headers));
+    }
+
+    public function testAltenativeFormatKey()
+    {
+        $this->negotiator->setFormatKey('type');
+        $this->params = array('type' => 'xml');
+        $format = $this->respondTo('html', 'xml');
+        $this->assertEquals('xml', $format);
     }
 
     public function testEqualQValuesDecidedByRespondToOrder()
@@ -152,11 +167,30 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('html', $this->respondTo('txt', 'html'));
     }
 
+    public function testMultipleQValues()
+    {
+        $this->request->headers['accept'] = 'text/plain;q=0.2, text/html;q=0.4, text/turtle;q=0.8,image/png;q=0.6';
+        $this->assertEquals('ttl', $this->respondTo('html', 'ttl', 'txt'));
+    }
+
     public function testInvalidAcceptHeader()
     {
         try {
             $this->request->headers['accept'] = 'foobar';
             $this->respondTo('txt', 'html');
+        } catch (Slim_Exception_Stop $e) {
+            $exception = $e;
+        }
+        $this->assertInstanceOf('Slim_Exception_Stop', $exception);
+        $this->assertEquals('406', $this->response->status);
+        $this->assertEquals('Not Acceptable', $this->response->body);
+    }
+
+    public function testNoMarchAcceptHeader()
+    {
+        try {
+            $this->request->headers['accept'] = 'image/png,image/gif';
+            $this->respondTo('txt');
         } catch (Slim_Exception_Stop $e) {
             $exception = $e;
         }
@@ -172,7 +206,10 @@ class NegotiatorTestableRequest
 
     public function headers($key)
     {
-        return $this->headers[strtolower($key)];
+        $key = strtolower($key);
+        if ( isset($this->headers[$key]) ) {
+            return $this->headers[$key];
+        }
     }
 }
 
