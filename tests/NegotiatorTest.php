@@ -32,6 +32,8 @@
 
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
+require_once 'Slim/Exception/Stop.php';
+require_once 'Slim/Route.php';
 require_once 'Slim/Negotiator.php';
 
 class NegotiatorTest extends PHPUnit_Framework_TestCase {
@@ -40,8 +42,8 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     {
         $this->params = array('format' => '');
         $this->negotiator = new Slim_Negotiator();
-        $this->request = new TestableRequest();
-        $this->response = new TestableResponse();
+        $this->request = new NegotiatorTestableRequest();
+        $this->response = new NegotiatorTestableResponse();
     }
 
     public function respondTo()
@@ -101,7 +103,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     public function testEqualQValuesDecidedByRespondToOrder()
     {
         $this->request->headers['accept'] = 'text/plain, text/html';
-        #$this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('html', $this->respondTo('html', 'txt'));
         $this->assertEquals('txt', $this->respondTo('txt', 'html'));
     }
 
@@ -139,22 +141,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     }
 }
 
-class Slim_Exception_Stop extends Exception {}
-
-class Slim_Route
-{
-    public static $defaultConditions = array();
-
-    public static function setDefaultConditions( array $defaultConditions ) {
-        self::$defaultConditions = $defaultConditions;
-    }
-
-    public static function getDefaultConditions() {
-        return self::$defaultConditions;
-    }
-}
-
-class TestableRequest
+class NegotiatorTestableRequest
 {
     public $headers = array();
 
@@ -164,8 +151,10 @@ class TestableRequest
     }
 }
 
-class TestableResponse
+class NegotiatorTestableResponse
 {
+    public $status;
+    public $body;
     public $headers = array();
 
     public function status($status) { $this->status = $status; }
