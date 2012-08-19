@@ -84,7 +84,7 @@ class Slim_Negotiator {
     {
         $accept = $request->headers('Accept');
         if (!preg_match_all(self::ACCEPT_RE, $accept, $m, PREG_SET_ORDER)) {
-            return null;
+            return NULL;
         }
 
         # Build a mapping from mime types (eg, "text/html") to the format keys
@@ -164,7 +164,7 @@ class Slim_Negotiator {
             } else {
                 $q = (int) ($q . '2' . $order);
             }
-            if ($q >= $bestq) {
+            if ($q > $bestq) {
                 $bestq = $q;
                 $choice = $type;
             }
@@ -177,6 +177,8 @@ class Slim_Negotiator {
         if ($choice) {
             $response->header('Content-Type', $choice);
             return $types[$choice];
+        } else {
+            return NULL;
         }
     }
 }
