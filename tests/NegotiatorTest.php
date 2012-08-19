@@ -1,0 +1,179 @@
+<?php
+/**
+ * Slim - a micro PHP 5 framework
+ *
+ * @author      Josh Lockhart <info@slimframework.com>
+ * @copyright   2012 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     1.6.4
+ *
+ * MIT LICENSE
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+
+require_once 'Slim/Negotiator.php';
+
+class NegotiatorTest extends PHPUnit_Framework_TestCase {
+
+    public function setUp()
+    {
+        $this->params = array('format' => '');
+        $this->negotiator = new Slim_Negotiator();
+        $this->request = new TestableRequest();
+        $this->response = new TestableResponse();
+    }
+
+    public function respondTo()
+    {
+        return $this->negotiator->respondTo(
+            $this->params,
+            $this->request,
+            $this->response,
+            func_get_args()
+        );
+    }
+
+    public function testSingleArgumentValue()
+    {
+        $this->params = array('format' => 'txt');
+        $format = $this->respondTo('txt');
+        $this->assertEquals('txt', $format);
+    }
+
+    public function testSingleArgumentArray()
+    {
+        $this->params = array('format' => 'txt');
+        $format = $this->respondTo('html', 'txt');
+        $this->assertEquals('txt', $format);
+    }
+
+    public function testContentTypeHeader()
+    {
+        $this->params = array('format' => 'txt');
+        $format = $this->respondTo('html', 'txt');
+        $this->assertEquals('text/plain', $this->response->headers['content-type']);
+    }
+
+    public function testForcedFormatDoesNotSetVary()
+    {
+        $this->params = array('format' => 'txt');
+        $format = $this->respondTo('html', 'txt');
+        $this->assertFalse(array_key_exists('vary', $this->response->headers));
+    }
+
+    public function testUnknownForcedFormat()
+    {
+        $this->setExpectedException('Slim_Exception_Stop');
+        $this->params = array('format' => 'foobar');
+        $format = $this->respondTo('html');
+    }
+
+    public function testForcedFormatWithNoMimeType()
+    {
+        $this->params = array('format' => 'foobarbaz');
+        $format = $this->respondTo('html', 'foobarbaz');
+        $this->assertEquals('foobarbaz', $format);
+        $this->assertFalse(
+            array_key_exists('content-type', $this->response->headers));
+    }
+
+    public function testEqualQValuesDecidedByRespondToOrder()
+    {
+        $this->request->headers['accept'] = 'text/plain, text/html';
+        #$this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('txt', $this->respondTo('txt', 'html'));
+    }
+
+    public function testSubtypeWildcardHasLowerPriority()
+    {
+        $this->request->headers['accept'] = 'text/plain, text/*';
+        $this->assertEquals('txt', $this->respondTo('html', 'txt'));
+        $this->assertEquals('txt', $this->respondTo('txt', 'html'));
+    }
+
+    public function testFullWildcardHasLowestPriority()
+    {
+        $this->request->headers['accept'] = 'text/plain, text/*, */*';
+        $this->assertEquals('txt', $this->respondTo('xml', 'txt'));
+        $this->assertEquals('txt', $this->respondTo('txt', 'html'));
+    }
+
+    public function testHighestPriorityFormatFirst()
+    {
+        $this->request->headers['accept'] = '*/*';
+        $this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('txt', $this->respondTo('txt', 'html'));
+    }
+
+    public function testQValueLast()
+    {
+        $this->request->headers['accept'] = 'text/plain, text/html; q=0.5';
+        $this->assertEquals('txt', $this->respondTo('html', 'txt'));
+    }
+
+    public function testQValueFirst()
+    {
+        $this->request->headers['accept'] = 'text/plain; q=0.5, text/html';
+        $this->assertEquals('html', $this->respondTo('txt', 'html'));
+    }
+}
+
+class Slim_Exception_Stop extends Exception {}
+
+class Slim_Route
+{
+    public static $defaultConditions = array();
+
+    public static function setDefaultConditions( array $defaultConditions ) {
+        self::$defaultConditions = $defaultConditions;
+    }
+
+    public static function getDefaultConditions() {
+        return self::$defaultConditions;
+    }
+}
+
+class TestableRequest
+{
+    public $headers = array();
+
+    public function headers($key)
+    {
+        return $this->headers[strtolower($key)];
+    }
+}
+
+class TestableResponse
+{
+    public $headers = array();
+
+    public function status($status) { $this->status = $status; }
+
+    public function body($body) { $this->body = $body; }
+
+    public function header($key, $value)
+    {
+        $this->headers[strtolower($key)] = $value;
+    }
+}
