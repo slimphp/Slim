@@ -90,14 +90,17 @@ class Slim_Negotiator {
         # Build a mapping from mime types (eg, "text/html") to the format keys
         # (eg, "html" or "json") provided in $formats.
         $types = array();
+        $order = count($formats);
+        $primary = array($order, $formats[0]);
         foreach ($formats as $f) {
-            # FIXME: check that mime type exists for format name
-            $mimetypes = $this->formatMap[$f];
-            foreach ($mimetypes as $type) {
-                if (!isset($types[$type])) {
-                    $types[$type] = $f;
+            if (isset($this->formatMap[$f])) {
+                foreach ($this->formatMap[$f] as $type) {
+                    if (!isset($types[$type])) {
+                        $types[$type] = array($order, $f);
+                    }
                 }
             }
+            $order -= 1;
         }
 
         # Expand the mapping table to include wildcard matches such as "text/*"
@@ -119,14 +122,15 @@ class Slim_Negotiator {
         # The "*/*" wildcard always points to the primary format, as determined
         # previously.
 
-        foreach (array_keys($types) as $type) {
+        $keys = array_keys($types);
+        foreach (array_reverse($keys) as $type) {
             $k = substr($type, 0, strpos($type, '/')) . '/*';
             if (!isset($types[$k])) {
                 $types[$k] = $types[$type];
             }
         }
-        $types['*/*'] = $formats[0];
-        
+        $types['*/*'] = $primary;
+
         # Loop through each type mentioned in the chopped-up Accept header,
         # looking for an entry in the mapping table built earlier.  If found,
         # and the q value is greater than the previous match, the corresponding
@@ -156,7 +160,7 @@ class Slim_Negotiator {
             }
 
             $q = substr($q[0] . substr($q, 2) . '000', 0, 4);
-            $order = substr('000' . $types[$type][1], -3);
+            $order = substr('000' . $types[$type][0], -3);
             if ($t === '*') {
                 $q = (int) ($q . '0' . $order);
             } else if ($st === '*') {
@@ -164,6 +168,7 @@ class Slim_Negotiator {
             } else {
                 $q = (int) ($q . '2' . $order);
             }
+
             if ($q > $bestq) {
                 $bestq = $q;
                 $choice = $type;
@@ -176,7 +181,7 @@ class Slim_Negotiator {
 
         if ($choice) {
             $response->header('Content-Type', $choice);
-            return $types[$choice];
+            return $types[$choice][1];
         } else {
             return NULL;
         }
