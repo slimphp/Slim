@@ -86,9 +86,15 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
 
     public function testUnknownForcedFormat()
     {
-        $this->setExpectedException('Slim_Exception_Stop');
-        $this->params = array('format' => 'foobar');
-        $format = $this->respondTo('html');
+        try {
+            $this->params = array('format' => 'foobar');
+            $this->respondTo('html');
+        } catch (Slim_Exception_Stop $e) {
+            $exception = $e;
+        }
+        $this->assertInstanceOf('Slim_Exception_Stop', $exception);
+        $this->assertEquals('404', $this->response->status);
+        $this->assertEquals('Unsupported format', $this->response->body);
     }
 
     public function testForcedFormatWithNoMimeType()
@@ -138,6 +144,19 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     {
         $this->request->headers['accept'] = 'text/plain; q=0.5, text/html';
         $this->assertEquals('html', $this->respondTo('txt', 'html'));
+    }
+
+    public function testInvalidAcceptHeader()
+    {
+        try {
+            $this->request->headers['accept'] = 'foobar';
+            $this->respondTo('txt', 'html');
+        } catch (Slim_Exception_Stop $e) {
+            $exception = $e;
+        }
+        $this->assertInstanceOf('Slim_Exception_Stop', $exception);
+        $this->assertEquals('406', $this->response->status);
+        $this->assertEquals('Not Acceptable', $this->response->body);
     }
 }
 
