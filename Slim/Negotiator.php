@@ -2,11 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
+ * @author      Nicholas Humfrey, Paul Clifford
  * @copyright   2012 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.5
+ * @version     ?
  * @package     Slim
  *
  * MIT LICENSE
@@ -34,7 +34,7 @@
 /**
  * Slim_Negotiator
  * @package Slim
- * @author  Josh Lockhart, Nicholas Humfrey
+ * @author  Nicholas Humfrey, Paul Clifford
  * @since   ?
  */
 class Slim_Negotiator {
