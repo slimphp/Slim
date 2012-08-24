@@ -9,4 +9,4 @@ Setting an ETag with Slim is very simple. Invoke the `etag()` application method
         echo "This will be cached after the initial request!";
     });
 
-That’s it. Make sure the unique ETag ID *is unique for the given resource*. Also make sure the ETag unique ID changes as your resource changes; otherwise, the HTTP client will continue serving its outdated cache.
+That's it. Make sure the unique ETag ID *is unique for the given resource*. Also make sure the ETag unique ID changes as your resource changes; otherwise, the HTTP client will continue serving its outdated cache.
