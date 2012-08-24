@@ -1,6 +1,6 @@
 # Custom Views [views-custom] #
 
-A custom view is a subclass of `Slim_View` that implements a public `render()` method. When the custom view’s render method is invoked, it is passed the desired template pathname (relative to the app's "templates.path" setting) as its one and only argument.
+A custom view is a subclass of `Slim_View` that implements a public `render()` method. When the custom view's render method is invoked, it is passed the desired template pathname (relative to the app's "templates.path" setting) as its one and only argument.
 
     class CustomView extends Slim_View {
         public function render( $template ) {
@@ -8,7 +8,7 @@ A custom view is a subclass of `Slim_View` that implements a public `render()` m
         }
     }
 
-The custom view can do whatever it wants, so long as it returns the template’s rendered output as a string. A custom view makes it easy to integrate popular PHP template systems like Twig or Smarty.
+The custom view can do whatever it wants, so long as it returns the template's rendered output as a string. A custom view makes it easy to integrate popular PHP template systems like Twig or Smarty.
 
 You can browse ready-to-use custom views that work with popular PHP template engines in the [Slim-Extras](https://github.com/codeguy/Slim-Extras) repository on GitHub.
 
@@ -38,7 +38,7 @@ If the custom view is not discoverable by a registered autoloader, it must be re
         'view' => 'CustomView'
     ));
 
-It is also possible to pass a custom view instance into the Slim application’s constructor instead of the custom view class name. This may be helpful if your custom view requires special preparation before application instantiation.
+It is also possible to pass a custom view instance into the Slim application's constructor instead of the custom view class name. This may be helpful if your custom view requires special preparation before application instantiation.
 
     require 'Slim/Slim.php';
     require 'CustomView.php';
