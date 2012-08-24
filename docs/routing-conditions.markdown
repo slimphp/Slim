@@ -7,7 +7,7 @@ Slim lets you assign conditions to route parameters. If the specified conditions
         echo "You are viewing archives from $year";
     })->conditions(array('year' => '(19|20)\d\d'));
 
-Invoke the `conditions()` Route method. The first and only argument is an associative array with keys that match any of the route’s parameters and values that are regular expressions.
+Invoke the `conditions()` Route method. The first and only argument is an associative array with keys that match any of the route's parameters and values that are regular expressions.
 
 ## Application-wide Route Conditions
 
@@ -19,7 +19,7 @@ If many of your Slim application Routes accept the same parameters and use the s
 
 Define application-wide route conditions before you define application routes. When you define a route, the route will automatically be assigned any application-wide Route conditions defined with `Slim\_Route::setDefaultConditions()`. If for whatever reason you need to get the application-wide default route conditions, you can fetch them with `Slim_Route::getDefaultConditions()`; this static method returns an array exactly as the default route conditions were defined.
 
-You may override a default route condition by redefining the route’s condition when you define the route, like this:
+You may override a default route condition by redefining the route's condition when you define the route, like this:
 
     $app = new Slim();
     $app->get('/hello/:firstName', $callable)->conditions(array('firstName' => '[a-z]{10,}'));
