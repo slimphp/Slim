@@ -8,7 +8,7 @@ A Slim application's "environment" is an associative array of settings that are 
 
 When you instantiate a Slim application, the environment variables are derived from the `$_SERVER` superglobal; you do not need to set these yourself. However, you are free to modify or supplement these variables in [Slim middleware](#middleware).
 
-These variables are fundamental to determining how your Slim application runs: the resource URI, the HTTP method, the HTTP request body, the URL query parameters, error output, and more. Middleware, described later, gives you the power to — among other things — manipulate environment variables before and/or after the Slim application is run.
+These variables are fundamental to determining how your Slim application runs: the resource URI, the HTTP method, the HTTP request body, the URL query parameters, error output, and more. Middleware, described later, gives you the power to - among other things - manipulate environment variables before and/or after the Slim application is run.
 
 ## Environment Variables ##
 
