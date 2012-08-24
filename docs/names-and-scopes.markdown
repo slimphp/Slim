@@ -12,7 +12,7 @@ Every Slim application may be given a name. **This is optional**. Names help you
 
 ## Scope Resolution [scope-resolution]
 
-So how do you get a reference to your Slim application? The example below demonstrates how to obtain a reference to a Slim application within a route callback function. The Slim `$app` variable is accessed in the global scope to define the GET route. We also need to access the Slim `$app` variable within the route’s callback scope to render a template.
+So how do you get a reference to your Slim application? The example below demonstrates how to obtain a reference to a Slim application within a route callback function. The Slim `$app` variable is accessed in the global scope to define the GET route. We also need to access the Slim `$app` variable within the route's callback scope to render a template.
 
     $app = new Slim();
     $app->get('/foo', function () {
