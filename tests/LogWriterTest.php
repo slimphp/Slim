@@ -30,10 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/LogWriter.php';
-
 class LogWriterTest extends PHPUnit_Framework_TestCase {
     public function testInstantiation() {
         $this->expectOutputString('Hello!' . PHP_EOL);

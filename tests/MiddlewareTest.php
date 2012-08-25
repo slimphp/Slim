@@ -30,10 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Middleware.php';
-
 class My_Middleware extends Slim_Middleware {
     public function call() {
         echo "Before";
