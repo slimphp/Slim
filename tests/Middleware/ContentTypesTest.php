@@ -33,7 +33,7 @@
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
 require_once 'Slim/Slim.php';
-require_once 'Slim/Middleware/ContentTypes.php';
+require_once 'Slim/Environment.php';
 
 class ContentTypesTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
