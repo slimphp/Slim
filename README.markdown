@@ -148,6 +148,14 @@ Here are more links that may also be useful.
 * Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
 * Source Code:    <http://github.com/codeguy/Slim/>
 
+## Testing
+
+Unit-tests can be run using PHPUnit.
+
+```
+$ phpunit
+```
+
 ## About the Author
 
 Slim is created and maintained by Josh Lockhart, a web developer by day at [New Media Campaigns](http://www.newmediacampaigns.com), and a [hacker by night](http://github.com/codeguy).
