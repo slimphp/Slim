@@ -1006,7 +1006,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertEquals(303, $status);
         $this->assertEquals('/somewhere/else', $header['Location']);
-        $this->assertEquals('/somewhere/else', $body);
+        $this->assertEquals('', $body);
     }
 
     /************************************************
