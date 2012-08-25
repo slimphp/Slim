@@ -155,7 +155,7 @@ class Slim {
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
-        $this->router = new Slim_Router($this->request->getResourceUri());
+        $this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new Slim_Middleware_Flash());
@@ -461,15 +461,30 @@ class Slim {
         if ( !is_null($callable) ) {
             $this->router->notFound($callable);
         } else {
-            ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if ( is_callable($customNotFoundHandler) ) {
-                call_user_func($customNotFoundHandler);
-            } else {
-                call_user_func(array($this, 'defaultNotFound'));
-            }
-            $this->halt(404, ob_get_clean());
+            $this->response->status(404);
+            $this->response->write($this->callNotFoundHandler(), true);
+            $this->stop();
         }
+    }
+
+    /**
+     * Call NotFound handler
+     *
+     * This will invoke the custom or default Not Found handler
+     * and RETURN its output.
+     *
+     * @return  string
+     */
+    protected function callNotFoundHandler() {
+        ob_start();
+        $customNotFoundHandler = $this->router->notFound();
+        if ( is_callable($customNotFoundHandler) ) {
+            $result = (string)call_user_func($customNotFoundHandler);
+        } else {
+            $result = (string)call_user_func(array($this, 'defaultNotFound'));
+        }
+        // return stuff that get echoed and then the result.
+        return ob_get_clean() . $result;
     }
 
     /**
@@ -503,8 +518,7 @@ class Slim {
         } else {
             //Invoke error handler
             $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this->response->write($this->callErrorHandler($argument), true);
             $this->stop();
         }
     }
@@ -522,11 +536,12 @@ class Slim {
         ob_start();
         $customErrorHandler = $this->router->error();
         if ( is_callable($customErrorHandler) ) {
-            call_user_func_array($customErrorHandler, array($argument));
+            $result = (string)call_user_func_array($customErrorHandler, array($argument));
         } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+            $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                   array($argument));
         }
-        return ob_get_clean();
+        return ob_get_clean() . $result;
     }
 
     /***** ACCESSORS *****/
@@ -1157,7 +1172,11 @@ class Slim {
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
+                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
+                } else {
+                    $this->notFound();
+                }
+            }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
