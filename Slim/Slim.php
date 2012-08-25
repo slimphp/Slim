@@ -31,6 +31,15 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+if ( !defined('MCRYPT_RIJNDAEL_256') ) {
+    define('MCRYPT_RIJNDAEL_256', 0);
+}
+if ( !defined('MCRYPT_MODE_CBC') ) {
+    define('MCRYPT_MODE_CBC', 0);
+}
+
+require('exceptions.php');
+
 // Comment out this line if you are using an alternative autoloader (e.g. Composer)
 Slim::registerAutoloader();
 
@@ -147,7 +156,8 @@ class Slim {
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
-        $this->router = new Slim_Router($this->request, $this->response);
+        $this->router = new Slim_Router($this->request->getResourceUri());
+        //$this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new Slim_Middleware_Flash());
@@ -524,12 +534,26 @@ class Slim {
      */
     protected function callErrorHandler( $argument = null ) {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if ( is_callable($customErrorHandler) ) {
-            $result = (string)call_user_func_array($customErrorHandler, array($argument));
-        } else {
-            $result = (string)call_user_func_array(array($this, 'defaultError'),
-                                                   array($argument));
+        try {
+            $customErrorHandler = $this->router->error();
+            if ( is_callable($customErrorHandler) ) {
+                $result = (string)call_user_func_array($customErrorHandler, array($argument));
+            } else {
+                if ($this->config('debug') && $argument instanceof Exception) {
+                    $result = prettyException($argument);
+                } else {
+                    $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                           array($argument));
+                }
+            }
+        } catch (Exception $e) {
+            //catch exceptions from user defined code
+            if ($this->config('debug')) {
+                $result = prettyException($e);
+            } else {
+                $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                       array($argument));
+            }
         }
         return ob_get_clean() . $result;
     }
@@ -1098,11 +1122,12 @@ class Slim {
     public function run() {
         set_error_handler(array('Slim', 'handleErrors'));
 
-        //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_PrettyExceptions());
-
-        //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        try {
+            //Invoke middleware and application stack
+            $this->middleware[0]->call();
+        } catch ( Exception $e ) {
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
+        }
 
         //Fetch status, header, and body
         list($status, $header, $body) = $this->response->finalize();
@@ -1179,11 +1204,7 @@ class Slim {
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
         } catch ( Exception $e ) {
-            if ( $this->config('debug') ){
-                throw $e;
-            } else {
-                try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
-            }
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
         }
     }
 
