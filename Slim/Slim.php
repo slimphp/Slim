@@ -527,11 +527,11 @@ class Slim {
         ob_start();
         $customErrorHandler = $this->router->error();
         if ( is_callable($customErrorHandler) ) {
-            call_user_func_array($customErrorHandler, array($argument));
+            $result = (string)call_user_func_array($customErrorHandler, array($argument));
         } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+            $result = (string)call_user_func_array(array($this, 'defaultError'), array($argument));
         }
-        return ob_get_clean();
+        return ob_get_clean() . $result;
     }
 
     /***** ACCESSORS *****/
