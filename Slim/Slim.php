@@ -1154,6 +1154,7 @@ class Slim {
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
+                        $this->applyHook('slim.before.dispatch');
                         if ( substr($route->getPattern(), -1) === '/' &&
                              substr($this->request->getResourceUri(), -1) !== '/' ) {
                             throw new Slim_Exception_RequestSlash();
@@ -1164,7 +1165,6 @@ class Slim {
                                 call_user_func($mw);
                             }
                         }
-                        $this->applyHook('slim.before.dispatch');
                         // Invoke route handler
                         if ( is_callable($route->getCallable()) ) {
                             $args = array_values($route->getParams());
