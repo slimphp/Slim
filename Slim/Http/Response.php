@@ -200,7 +200,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      */
     public function write( $body, $replace = false ) {
         if ( $replace ) {
-            $this->body = $body;
+            $this->body = (string)$body;
         } else {
             $this->body .= (string)$body;
         }
