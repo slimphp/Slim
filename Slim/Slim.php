@@ -923,8 +923,7 @@ class Slim {
      * this issues a 302 Found response; this is considered the default
      * generic redirect response. You may also specify another valid
      * 3xx status code if you want. This method will automatically set the
-     * HTTP Location header for you using the URL parameter and place the
-     * destination URL into the response body.
+     * HTTP Location header for you using the URL parameter.
      *
      * @param   string    $url        The destination URL
      * @param   int       $status     The HTTP redirect status code (Optional)
@@ -932,7 +931,7 @@ class Slim {
      */
     public function redirect( $url, $status = 302 ) {
         $this->response->redirect($url, $status);
-        $this->halt($status, $url); }
+        $this->halt($status); }
 
     /***** FLASH *****/
 
