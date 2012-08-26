@@ -76,4 +76,27 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response()->body()));
         $this->assertEquals(500, $app->response()->status());
     }
+
+    /**
+     * Test middleware overrides response content type to html
+     */
+    public function testResponseContentTypeIsOverriddenToHtml() {
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
+        ));
+        $app = new Slim(array(
+            'log.enabled' => false
+        ));
+        $app->get('/foo', function () use ($app) {
+            $app->contentType('application/json;charset=utf-8'); //<-- set content type to something else
+            throw new Exception('Test Message', 100);
+        });
+        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        $response = $app->response();
+        $this->assertEquals('text/html', $response['Content-Type']);
+    }
 }
