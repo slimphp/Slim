@@ -382,6 +382,24 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route);
     }
 
+    public function testRouteMiddlwareArguments() {
+        $this->expectOutputString('foobar');
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $env = Slim_Environment::getInstance();
+        $req = new Slim_Http_Request($env);
+        $router = new Slim_Router($req->getResourceUri());
+        $route = new Slim_Route('/foo', function () { echo "bar"; });
+        $route->setName('foo');
+        $route->setMiddleware(function ($route) {
+            echo $route->getName();
+        });
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $router->dispatch($route);
+    }
+
     public function testDispatchWithRequestSlash() {
         $this->setExpectedException('Slim_Exception_RequestSlash');
         Slim_Environment::mock(array(

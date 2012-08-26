@@ -169,7 +169,7 @@ class Slim_Router implements Iterator {
         //Invoke middleware
         foreach ( $route->getMiddleware() as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func_array($mw, array($route));
             }
         }
 
@@ -178,6 +178,7 @@ class Slim_Router implements Iterator {
             call_user_func_array($route->getCallable(), array_values($route->getParams()));
             return true;
         }
+
         return false;
     }
 
