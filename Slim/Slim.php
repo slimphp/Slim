@@ -1146,12 +1146,18 @@ class Slim {
                     } catch ( Slim_Exception_Pass $e ) {
                         continue;
                     }
-                } else { $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods()); }
+                } else {
+                    $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods());
+                }
             }
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
+                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); 
+                } else {
+                   $this->notFound();
+                }
+            }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
