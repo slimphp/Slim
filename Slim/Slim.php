@@ -1132,6 +1132,7 @@ class Slim {
             $this->applyHook('slim.before.router');
             $dispatched = false;
             $httpMethodsAllowed = array();
+            $this->router->setResourceUri($this->request->getResourceUri());
             $this->router->getMatchedRoutes();
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
@@ -1152,7 +1153,7 @@ class Slim {
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); 
+                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
                 } else {
                    $this->notFound();
                 }
