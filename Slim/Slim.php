@@ -458,15 +458,30 @@ class Slim {
         if ( !is_null($callable) ) {
             $this->router->notFound($callable);
         } else {
-            ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if ( is_callable($customNotFoundHandler) ) {
-                call_user_func($customNotFoundHandler);
-            } else {
-                call_user_func(array($this, 'defaultNotFound'));
-            }
-            $this->halt(404, ob_get_clean());
+            $this->response->status(404);
+            $this->response->write($this->callNotFoundHandler(), true);
+            $this->stop();
         }
+    }
+
+    /**
+     * Call NotFound handler
+     *
+     * This will invoke the custom or default Not Found handler
+     * and RETURN its output.
+     *
+     * @return  string
+     */
+    protected function callNotFoundHandler() {
+        ob_start();
+        $customNotFoundHandler = $this->router->notFound();
+        if ( is_callable($customNotFoundHandler) ) {
+            $result = (string)call_user_func($customNotFoundHandler);
+        } else {
+            $result = (string)call_user_func(array($this, 'defaultNotFound'));
+        }
+        // return stuff that get echoed and then the result.
+        return ob_get_clean() . $result;
     }
 
     /**
