@@ -15,6 +15,6 @@ Use the `post()` application instance method to map a callback function to a res
         //Create book
     }
 
-In this example, an HTTP POST request for “/books” will invoke the associated callback function.
+In this example, an HTTP POST request for "/books" will invoke the associated callback function.
 
 The first argument of the `post()` application instance method is the resource URI. The last argument is anything that returns `true` for `is_callable()`. I encourage you to use PHP >= 5.3 so you may take advantage of anonymous functions.
