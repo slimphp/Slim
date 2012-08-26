@@ -1171,11 +1171,12 @@ class Slim {
             $dispatched = false;
             $httpMethodsAllowed = array();
             $this->router->getMatchedRoutes();
+            $result = '';
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
                         if ( substr($route->getPattern(), -1) === '/' &&
-                             substr($this->resourceUri, -1) !== '/' ) {
+                             substr($this->request->getResourceUri(), -1) !== '/' ) {
                             throw new Slim_Exception_RequestSlash();
                         }
                         //Invoke middleware
