@@ -30,10 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require 'Slim/Log.php';
-
 class MyWriter {
     public function write( $object, $level ) {
         echo (string)$object;

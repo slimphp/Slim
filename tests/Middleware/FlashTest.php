@@ -30,11 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Middleware.php';
-require_once 'Slim/Middleware/Flash.php';
-
 class SlimFlashTest extends PHPUnit_Framework_TestCase {
     /**
      * Setup

@@ -30,10 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Slim.php';
-
 /**
  * We use a mock application, instead of a Slim application.
  * so that we may easily test the Method Override middleware
