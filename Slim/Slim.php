@@ -1174,19 +1174,36 @@ class Slim {
             $dispatched = false;
             $httpMethodsAllowed = array();
             $this->router->getMatchedRoutes();
+            $result = '';
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
-                        $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
-                        $this->applyHook('slim.after.dispatch');
-                        if ( $dispatched ) {
+                        if ( substr($route->getPattern(), -1) === '/' &&
+                             substr($this->resourceUri, -1) !== '/' ) {
+                            throw new Slim_Exception_RequestSlash();
+                        }
+                        //Invoke middleware
+                        foreach ( $route->getMiddleware() as $mw ) {
+                            if ( is_callable($mw) ) {
+                                call_user_func($mw);
+                            }
+                        }
+                        if ( is_callable($route->getCallable()) ) {
+                            $this->applyHook('slim.before.dispatch');
+                            $args = array_values($route->getParams());
+                            $result = (string)call_user_func_array($route->getCallable(),
+                                                                   $args);
+                            $this->applyHook('slim.after.dispatch');
+                            $dispatched = true;
                             break;
                         }
                     } catch ( Slim_Exception_Pass $e ) {
                         continue;
                     }
-                } else { $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods()); }
+                } else {
+                    $httpMethodsAllowed = array_merge($httpMethodsAllowed,
+                                                      $route->getHttpMethods());
+                }
             }
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
@@ -1199,7 +1216,7 @@ class Slim {
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
-            $this->response()->write(ob_get_clean());
+            $this->response()->write(ob_get_clean() . $result);
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
