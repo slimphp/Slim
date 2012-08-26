@@ -12,7 +12,7 @@ To define settings upon instantiation, pass an associative array into the Slim c
         'log.level' => Slim_Log::DEBUG
     ));
 
-All settings maybe be defined using this method.
+All settings may be defined using this method.
 
 ## Settings after Instantiation [settings-afterinstantiation]
 
