@@ -53,19 +53,19 @@ class LogTest extends PHPUnit_Framework_TestCase {
 
     public function testGetLevel() {
         $log = new Slim_Log(new MyWriter());
-        $this->assertEquals(4, $log->getLevel());
+        $this->assertEquals(Slim_Log::DEBUG, $log->getLevel());
     }
 
     public function testSetLevel() {
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(2);
-        $this->assertEquals(2, $log->getLevel());
+        $log->setLevel(Slim_Log::WARN);
+        $this->assertEquals(Slim_Log::WARN, $log->getLevel());
     }
 
     public function testSetInvalidLevel() {
         $this->setExpectedException('InvalidArgumentException');
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(5);
+        $log->setLevel(Slim_Log::DEBUG + 1);
     }
 
     public function testLogDebug() {
@@ -77,7 +77,7 @@ class LogTest extends PHPUnit_Framework_TestCase {
 
     public function testLogDebugExcludedByLevel() {
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(3);
+        $log->setLevel(Slim_Log::INFO);
         $this->assertFalse($log->debug('Debug'));
     }
 
@@ -90,7 +90,7 @@ class LogTest extends PHPUnit_Framework_TestCase {
 
     public function testLogInfoExcludedByLevel() {
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(2);
+        $log->setLevel(Slim_Log::WARN);
         $this->assertFalse($log->info('Info'));
     }
 
@@ -103,7 +103,7 @@ class LogTest extends PHPUnit_Framework_TestCase {
 
     public function testLogWarnExcludedByLevel() {
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(1);
+        $log->setLevel(Slim_Log::ERROR);
         $this->assertFalse($log->warn('Warn'));
     }
 
@@ -116,7 +116,7 @@ class LogTest extends PHPUnit_Framework_TestCase {
 
     public function testLogErrorExcludedByLevel() {
         $log = new Slim_Log(new MyWriter());
-        $log->setLevel(0);
+        $log->setLevel(Slim_Log::FATAL);
         $this->assertFalse($log->error('Error'));
     }
 
