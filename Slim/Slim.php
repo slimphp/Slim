@@ -515,8 +515,7 @@ class Slim {
         } else {
             //Invoke error handler
             $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this->response->write($this->callErrorHandler($argument), true);
             $this->stop();
         }
     }
@@ -532,13 +531,28 @@ class Slim {
      */
     protected function callErrorHandler( $argument = null ) {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if ( is_callable($customErrorHandler) ) {
-            call_user_func_array($customErrorHandler, array($argument));
-        } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+        try {
+            $customErrorHandler = $this->router->error();
+            if ( is_callable($customErrorHandler) ) {
+                $result = (string)call_user_func_array($customErrorHandler, array($argument));
+            } else {
+                if ($this->config('debug') && $argument instanceof Exception) {
+                    $result = prettyException($argument);
+                } else {
+                    $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                           array($argument));
+                }
+            }
+        } catch (Exception $e) {
+            //catch exceptions from user defined code
+            if ($this->config('debug')) {
+                $result = prettyException($e);
+            } else {
+                $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                       array($argument));
+            }
         }
-        return ob_get_clean();
+        return ob_get_clean() . $result;
     }
 
     /***** ACCESSORS *****/
@@ -1105,11 +1119,12 @@ class Slim {
     public function run() {
         set_error_handler(array('Slim', 'handleErrors'));
 
-        //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_PrettyExceptions());
-
-        //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        try {
+            //Invoke middleware and application stack
+            $this->middleware[0]->call();
+        } catch ( Exception $e ) {
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
+        }
 
         //Fetch status, header, and body
         list($status, $header, $body) = $this->response->finalize();
@@ -1173,7 +1188,11 @@ class Slim {
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
+                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
+                } else {
+                    $this->notFound();
+                }
+            }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
@@ -1182,11 +1201,7 @@ class Slim {
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
         } catch ( Exception $e ) {
-            if ( $this->config('debug') ){
-                throw $e;
-            } else {
-                try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
-            }
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
         }
     }
 
