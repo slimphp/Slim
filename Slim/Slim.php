@@ -38,6 +38,8 @@ if ( !defined('MCRYPT_MODE_CBC') ) {
     define('MCRYPT_MODE_CBC', 0);
 }
 
+require('exceptions.php');
+
 // Comment out this line if you are using an alternative autoloader (e.g. Composer)
 Slim::registerAutoloader();
 
