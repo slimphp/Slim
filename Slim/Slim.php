@@ -1164,14 +1164,16 @@ class Slim {
                                 call_user_func($mw);
                             }
                         }
+                        $this->applyHook('slim.before.dispatch');
                         // Invoke route handler
                         if ( is_callable($route->getCallable()) ) {
-                            $this->applyHook('slim.before.dispatch');
                             $args = array_values($route->getParams());
                             $result = (string)call_user_func_array($route->getCallable(),
                                                                    $args);
-                            $this->applyHook('slim.after.dispatch');
                             $dispatched = true;
+                        }
+                        $this->applyHook('slim.after.dispatch');
+                        if ($dispatched) {
                             break;
                         }
                     } catch ( Slim_Exception_Pass $e ) {
