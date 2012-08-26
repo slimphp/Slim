@@ -30,7 +30,7 @@ You can assign middleware to this route by passing each middleware as a separate
         //Do something
     });
 
-When the **/foo** route matches the current HTTP request, the `myMiddleware1` and `myMiddleware2` functions will be invoked in sequence before the route’s callable.
+When the **/foo** route matches the current HTTP request, the `myMiddleware1` and `myMiddleware2` functions will be invoked in sequence before the route's callable.
 
 If you are running PHP >= 5.3, you can get a bit more creative. Suppose you wanted to authenticate the current user against a given role for a specific route. You could use some closure magic like this:
 
@@ -38,8 +38,9 @@ If you are running PHP >= 5.3, you can get a bit more creative. Suppose you want
         return function () use ( $role ) {
             $user = User::fetchFromDatabaseSomehow();
             if ( $user->belongsToRole($role) === false ) {
-                Slim::flash('error', 'Login required');
-                Slim::redirect('/login');
+                $app = Slim::getInstance();
+                $app->flash('error', 'Login required');
+                $app->redirect('/login');
             }
         };
     };
@@ -48,12 +49,11 @@ If you are running PHP >= 5.3, you can get a bit more creative. Suppose you want
         //Display admin control panel
     });
 
-## Are there any parameters passed to the Route Middleware callable?
+## Are there any arguments passed to the Route Middleware callable?
 
-Yes.  The middleware callable is called with three parameters, `Slim_Http_Request`, `Slim_Http_Response` and the currently matched `Slim_Route`.
+Yes.  The middleware callable is called with one argument, the currently matched `Slim_Route` object.
 
-    $aBitOfInfo = function ($request, $response, $route) {
-        $response->write(sprintf("We got %d GET/POST parameter(s)", count($request->params())));
+    $aBitOfInfo = function (Slim_Route $route) {
         echo "Current route is " . $route->getName();
     };
 

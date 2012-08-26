@@ -12,7 +12,7 @@ To define settings upon instantiation, pass an associative array into the Slim c
         'log.level' => Slim_Log::DEBUG
     ));
 
-All settings maybe be defined using this method.
+All settings may be defined using this method.
 
 ## Settings after Instantiation [settings-afterinstantiation]
 
@@ -27,7 +27,7 @@ You may also define multiple settings at once using an associative array:
         'templates.path' => '../templates'
     ));
 
-To retrieve the value of a setting, you also use the `config` application instance method; however, you only pass one argument — the name of the setting you wish to inspect. If the setting you request does not exist, `NULL` is returned.
+To retrieve the value of a setting, you also use the `config` application instance method; however, you only pass one argument - the name of the setting you wish to inspect. If the setting you request does not exist, `NULL` is returned.
 
     $settingValue = $app->config('templates.path'); //returns "../templates"
 
@@ -37,7 +37,7 @@ You are not limited to the settings shown below; you may also define your own.
 
 ## mode [settings-mode] ##
 
-Declare the Slim application mode (e.g. "test", "development", "production"). However, this may be anything you want.
+Declare the Slim application mode (e.g. "test", "development", "production") upon instantiation. However, this may be anything you want.  The mode is determined during application creation (constructor) and cached there after so attempting to update it via `config()` once Slim is created has no effect when using the `getMode()` and `configureMode()` Slim instance methods.  You can read more about all of the ways the [mode is determined](#what-is-a-mode).
 
 Data Type
 :   string
@@ -86,7 +86,7 @@ Data Type
 :   int
 
 Default
-:   4
+:   Slim_Log::DEBUG (4)
 
 ## log.enabled [settings-log-enabled] ##
 

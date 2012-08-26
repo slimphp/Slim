@@ -76,9 +76,18 @@ class Slim_Router implements Iterator {
      * Constructor
      * @param   string   $resourceUri    The request URI
      */
-    public function __construct( $resourceUri ) {
-        $this->resourceUri = $resourceUri;
+    public function __construct() {
         $this->routes = array();
+    }
+
+    /**
+     * Set Resource URI
+     *
+     * This method injects the current request's resource URI, and should be invoked
+     * immediately before route dispatch iteration.
+     */
+    public function setResourceUri($uri) {
+        $this->resourceUri = $uri;
     }
 
     /**
@@ -169,7 +178,7 @@ class Slim_Router implements Iterator {
         //Invoke middleware
         foreach ( $route->getMiddleware() as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func_array($mw, array($route));
             }
         }
 
@@ -178,6 +187,7 @@ class Slim_Router implements Iterator {
             call_user_func_array($route->getCallable(), array_values($route->getParams()));
             return true;
         }
+
         return false;
     }
 
