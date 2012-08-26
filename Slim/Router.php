@@ -41,12 +41,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Router implements Iterator {
-    /**
-     * @var string Request URI
-     */
-    protected $resourceUri;
-
+class Slim_Router {
     /**
      * @var array Lookup hash of all routes
      */
@@ -74,31 +69,21 @@ class Slim_Router implements Iterator {
 
     /**
      * Constructor
-     * @param   string   $resourceUri    The request URI
      */
-    public function __construct( $resourceUri ) {
-        $this->resourceUri = $resourceUri;
+    public function __construct() {
         $this->routes = array();
     }
 
     /**
-     * Get Current Route
-     * @return Slim_Route|false
-     */
-    public function getCurrentRoute() {
-        $this->getMatchedRoutes(); // <-- Parse if not already parsed
-        return $this->current();
-    }
-
-    /**
      * Return routes that match the current request
+     * @param   string   $resourceUri    The request URI to match against
      * @return array[Slim_Route]
      */
-    public function getMatchedRoutes( $reload = false ) {
+    public function getMatchedRoutes( $resourceUri, $reload = false ) {
         if ( $reload || is_null($this->matchedRoutes) ) {
             $this->matchedRoutes = array();
             foreach ( $this->routes as $route ) {
-                if ( $route->matches($this->resourceUri) ) {
+                if ( $route->matches($resourceUri) ) {
                     $this->matchedRoutes[] = $route;
                 }
             }
@@ -157,19 +142,20 @@ class Slim_Router implements Iterator {
      * slash, the route will not be matched and a 404 Not Found
      * response will be sent if no subsequent matching routes are found.
      *
-     * @param   Slim_Route          $route  The route object
+     * @param   Slim_Route          $route        The route object
+     * @param   string              $resourceUri  The request URI that was matched
      * @return  bool Was route callable invoked successfully?
      * @throws  Slim_Exception_RequestSlash
      */
-    public function dispatch( Slim_Route $route ) {
-        if ( substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/' ) {
+    public function dispatch( Slim_Route $route, $resourceUri ) {
+        if ( substr($route->getPattern(), -1) === '/' && substr($resourceUri, -1) !== '/' ) {
             throw new Slim_Exception_RequestSlash();
         }
 
         //Invoke middleware
         foreach ( $route->getMiddleware() as $mw ) {
             if ( is_callable($mw) ) {
-                call_user_func($mw);
+                call_user_func($mw, $route);
             }
         }
 
@@ -257,45 +243,5 @@ class Slim_Router implements Iterator {
             $this->error = $callable;
         }
         return $this->error;
-    }
-
-    /**
-     * Iterator Interface: Rewind
-     * @return void
-     */
-    public function rewind() {
-        reset($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Current
-     * @return Slim_Route|false
-     */
-    public function current() {
-        return current($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Key
-     * @return int|null
-     */
-    public function key() {
-        return key($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Next
-     * @return void
-     */
-    public function next() {
-        next($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Valid
-     * @return boolean
-     */
-    public function valid() {
-        return $this->current();
     }
 }

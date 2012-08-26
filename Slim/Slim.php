@@ -147,7 +147,7 @@ class Slim {
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
-        $this->router = new Slim_Router($this->request->getResourceUri());
+        $this->router = new Slim_Router();
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new Slim_Middleware_Flash());
@@ -1132,12 +1132,11 @@ class Slim {
             $this->applyHook('slim.before.router');
             $dispatched = false;
             $httpMethodsAllowed = array();
-            $this->router->getMatchedRoutes();
-            foreach ( $this->router as $route ) {
+            foreach ( $this->router->getMatchedRoutes($this->request->getResourceUri()) as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
                         $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
+                        $dispatched = $this->router->dispatch($route, $this->request->getResourceUri());
                         $this->applyHook('slim.after.dispatch');
                         if ( $dispatched ) {
                             break;
