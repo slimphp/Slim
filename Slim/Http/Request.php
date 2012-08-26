@@ -467,7 +467,13 @@ class Slim_Http_Request {
      * @return string
      */
     public function getPathInfo() {
-        return $this->env['PATH_INFO'];
+	if ( substr( @$_SERVER['SERVER_SOFTWARE'], 0, 3 ) === "PHP" ){
+            return ( $this->env['SCRIPT_NAME'] === "" )
+                ? $this->env['PATH_INFO']
+                : $this->env['SCRIPT_NAME'];
+        } else {
+            return $this->env['PATH_INFO'];
+        }
     }
 
     /**
