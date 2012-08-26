@@ -74,31 +74,31 @@ If logging is disabled, the `Slim_Log` object will ignore all logged messages un
 
 ## Log Levels ##
 
-The Slim application's `Slim_Log` object provides the following public methods to define the _level_ of messages it will log. When you invoke the `Slim_Log` objects's `debug()`, `info()`, `warn()`, `error()`, or `fatal()` methods, you are inherently assigning a level to the logged message:
+The Slim application's `Slim_Log` object provides the following public methods to define the _level_ of messages it will log. It also provides a set of _const_ values that you can use instead of the actual number values. When you invoke the `Slim_Log` objects's `debug()`, `info()`, `warn()`, `error()`, or `fatal()` methods, you are inherently assigning a level to the logged message:
 
-Debug
+DEBUG
 :   Level 4
 
-Info
+INFO
 :   Level 3
 
-Warn
+WARN
 :   Level 2
 
-Error
+ERROR
 :   Level 1
 
-Fatal
+FATAL
 :   Level 0
 
-Only messages that have a level _less than_ the current `Slim_Log` object's level will be logged. For example, if the `Slim_Log` object's level is "2", the `Slim_Log` object will ignore debug and info messages but will accept warn, error, and fatal messages.
+Only messages that have a level _less than_ the current `Slim_Log` object's level will be logged. For example, if the `Slim_Log` object's level is WARN (2), the `Slim_Log` object will ignore DEBUG and INFO messages but will accept WARN, ERROR, and FATAL messages.
 
 You can set the `Slim_Log` object's level like this:
 
-    $app->getLog()->setLevel(2);
+    $app->getLog()->setLevel(Slim_Log::WARN);
 
 You can set the `Slim_Log` object's level during application instantiation like this:
 
     $app = new Slim(array(
-        'log.level' => 2
+        'log.level' => Slim_Log::WARN
     ));

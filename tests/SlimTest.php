@@ -103,7 +103,7 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Slim_Router', $s->router());
         $this->assertInstanceOf('Slim_View', $s->view());
         $this->assertInstanceOf('Slim_Log', $s->getLog());
-        $this->assertEquals(4, $s->getLog()->getLevel());
+        $this->assertEquals(Slim_Log::DEBUG, $s->getLog()->getLevel());
         $this->assertTrue($s->getLog()->getEnabled());
         $this->assertInstanceOf('Slim_Environment', $s->environment());
     }

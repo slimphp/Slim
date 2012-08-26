@@ -217,7 +217,7 @@ class Slim {
             'debug' => true,
             //Logging
             'log.writer' => null,
-            'log.level' => 4,
+            'log.level' => Slim_Log::DEBUG,
             'log.enabled' => true,
             //View
             'templates.path' => './templates',
