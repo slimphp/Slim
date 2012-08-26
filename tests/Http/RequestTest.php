@@ -30,12 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Environment.php';
-require_once 'Slim/Http/Util.php';
-require_once 'Slim/Http/Request.php';
-
 class RequestTest extends PHPUnit_Framework_TestCase {
     /**
      * Test sets HTTP method

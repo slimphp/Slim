@@ -30,12 +30,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Http/Util.php';
-require_once 'Slim/Http/Response.php';
-
 class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test constructor without args
