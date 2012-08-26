@@ -27,7 +27,7 @@ You may also define multiple settings at once using an associative array:
         'templates.path' => '../templates'
     ));
 
-To retrieve the value of a setting, you also use the `config` application instance method; however, you only pass one argument — the name of the setting you wish to inspect. If the setting you request does not exist, `NULL` is returned.
+To retrieve the value of a setting, you also use the `config` application instance method; however, you only pass one argument - the name of the setting you wish to inspect. If the setting you request does not exist, `NULL` is returned.
 
     $settingValue = $app->config('templates.path'); //returns "../templates"
 

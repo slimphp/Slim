@@ -30,7 +30,7 @@ You can assign middleware to this route by passing each middleware as a separate
         //Do something
     });
 
-When the **/foo** route matches the current HTTP request, the `myMiddleware1` and `myMiddleware2` functions will be invoked in sequence before the route’s callable.
+When the **/foo** route matches the current HTTP request, the `myMiddleware1` and `myMiddleware2` functions will be invoked in sequence before the route's callable.
 
 If you are running PHP >= 5.3, you can get a bit more creative. Suppose you wanted to authenticate the current user against a given role for a specific route. You could use some closure magic like this:
 

@@ -1,6 +1,6 @@
 # Route Parameters [routing-parameters] #
 
-You can embed parameters into route resource URIs. In this example, I have two parameters in my route URI, “:one” and “:two”.
+You can embed parameters into route resource URIs. In this example, I have two parameters in my route URI, ":one" and ":two".
 
     $app = new Slim();
 
@@ -17,7 +17,7 @@ You can embed parameters into route resource URIs. In this example, I have two p
         echo "The second parameter is " . $two;
     }
 
-To create a URL parameter, prepend “:” to the parameter name in the route URI pattern. When the route matches the current HTTP request, the values for each route parameter are extracted from the HTTP request URI and are passed into the associated callback function in order of appearance.
+To create a URL parameter, prepend ":" to the parameter name in the route URI pattern. When the route matches the current HTTP request, the values for each route parameter are extracted from the HTTP request URI and are passed into the associated callback function in order of appearance.
 
 ## Wildcard Route Parameters
 

@@ -1,6 +1,6 @@
 # Trailing Slashes [routing-indepth-slashes] #
 
-Slim routes automatically provide pretty URLs and intelligent redirection — behavior very similar to the Apache web server. Here are two example routes:
+Slim routes automatically provide pretty URLs and intelligent redirection - behavior very similar to the Apache web server. Here are two example routes:
 
     $app = new Slim();
 
@@ -14,4 +14,4 @@ At first glance, both routes appear similar. However, in the first route example
 
 In the second example, the URL is defined without a trailing slash. Therefore, it behaves similar to a file. Accessing it with a trailing slash will result with a **404 Not Found** response.
 
-This behavior allows URLs to continue working if users access the page and forget the trailing slash. This is consistent with the Apache web server’s behavior. Because Slim automatically redirects URLs, search engines will always index the canonical URLs rather than index both the correct and incorrect URLs.
+This behavior allows URLs to continue working if users access the page and forget the trailing slash. This is consistent with the Apache web server's behavior. Because Slim automatically redirects URLs, search engines will always index the canonical URLs rather than index both the correct and incorrect URLs.
