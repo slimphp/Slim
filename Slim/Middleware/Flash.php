@@ -42,7 +42,7 @@
   *
   * @package    Slim
   * @author     Josh Lockhart
-  * @since      1.5.2
+  * @since      1.6.0
   */
 class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess, IteratorAggregate {
     /**

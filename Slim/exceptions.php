@@ -32,41 +32,42 @@
  */
 
 /**
- * Log Writer
+ * prettyException
  *
- * This class is used by Slim_Log to write log messages to a valid, writable
- * resource handle (e.g. a file or STDERR).
+ * This function displays Exception in a developer-friendly way
  *
  * @package Slim
  * @author  Josh Lockhart
- * @since   1.6.0
+ * @param Exception
+ * @since TODO
  */
-class Slim_LogWriter {
-    /**
-     * @var resource
-     */
-    protected $resource;
 
-    /**
-     * Constructor
-     * @param   resource    $resource
-     * @return  void
-     * @throws  InvalidArgumentException
-     */
-    public function __construct( $resource ) {
-        if ( !is_resource($resource) ) {
-            throw new InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
-        }
-        $this->resource = $resource;
+function prettyException( $exception ) {
+    $title = 'Slim Application Error';
+    $code = $exception->getCode();
+    $message = $exception->getMessage();
+    $file = $exception->getFile();
+    $line = $exception->getLine();
+    $trace = $exception->getTraceAsString();
+    $html = sprintf('<h1>%s</h1>', $title);
+    $html .= '<p>The application could not run because of the following error:</p>';
+    $html .= '<h2>Details</h2>';
+    $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
+    if ( $code ) {
+        $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
     }
-
-    /**
-     * Write message
-     * @param   mixed       $message
-     * @param   int         $level
-     * @return  int|false
-     */
-    public function write( $message, $level = null ) {
-        return fwrite($this->resource, (string)$message . PHP_EOL);
+    if ( $message ) {
+        $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
     }
+    if ( $file ) {
+        $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+    }
+    if ( $line ) {
+        $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+    }
+    if ( $trace ) {
+        $html .= '<h2>Trace</h2>';
+        $html .= sprintf('<pre>%s</pre>', $trace);
+    }
+    return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
 }

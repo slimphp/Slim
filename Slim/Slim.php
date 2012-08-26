@@ -31,10 +31,6 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//This determines which errors are reported by PHP. By default, all
-//errors (including E_STRICT) are reported.
-error_reporting(E_ALL | E_STRICT);
-
 if ( !defined('MCRYPT_RIJNDAEL_256') ) {
     define('MCRYPT_RIJNDAEL_256', 0);
 }
@@ -42,18 +38,10 @@ if ( !defined('MCRYPT_MODE_CBC') ) {
     define('MCRYPT_MODE_CBC', 0);
 }
 
-//This tells PHP to auto-load classes using Slim's autoloader; this will
-//only auto-load a class file located in the same directory as Slim.php
-//whose file name (excluding the final dot and extension) is the same
-//as its class name (case-sensitive). For example, "View.php" will be
-//loaded when Slim uses the "View" class for the first time.
-spl_autoload_register(array('Slim', 'autoload'));
+require('exceptions.php');
 
-//PHP 5.3 will complain if you don't set a timezone. If you do not
-//specify your own timezone before requiring Slim, this tells PHP to use UTC.
-if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
-    date_default_timezone_set('UTC');
-}
+// Comment out this line if you are using an alternative autoloader (e.g. Composer)
+Slim::registerAutoloader();
 
 /**
  * Slim
@@ -62,6 +50,11 @@ if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
  * @since   1.0.0
  */
 class Slim {
+    /**
+     * @const string
+     */
+    const VERSION = '1.6.0';
+
     /**
      * @var array[Slim]
      */
@@ -143,6 +136,13 @@ class Slim {
         }
     }
 
+    /**
+     * Register Slim's built-in autoloader
+     */
+    public static function registerAutoloader() {
+        spl_autoload_register(array('Slim', 'autoload'));
+    }
+
     /***** INSTANTIATION *****/
 
     /**
@@ -152,10 +152,12 @@ class Slim {
      */
     public function __construct( $userSettings = array() ) {
         //Setup Slim application
+        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->environment = Slim_Environment::getInstance();
         $this->request = new Slim_Http_Request($this->environment);
         $this->response = new Slim_Http_Response();
         $this->router = new Slim_Router($this->request->getResourceUri());
+        //$this->router = new Slim_Router($this->request, $this->response);
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new Slim_Middleware_Flash());
@@ -181,9 +183,6 @@ class Slim {
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
         $this->environment['slim.log'] = $log;
-
-        //Set global error handler
-        set_error_handler(array('Slim', 'handleErrors'));
     }
 
     /**
@@ -221,7 +220,8 @@ class Slim {
      */
     public static function getDefaultSettings() {
         return array(
-            //Mode
+            //Application
+            'install_autoloader' => true,
             'mode' => 'development',
             //Debugging
             'debug' => true,
@@ -461,15 +461,30 @@ class Slim {
         if ( !is_null($callable) ) {
             $this->router->notFound($callable);
         } else {
-            ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if ( is_callable($customNotFoundHandler) ) {
-                call_user_func($customNotFoundHandler);
-            } else {
-                call_user_func(array($this, 'defaultNotFound'));
-            }
-            $this->halt(404, ob_get_clean());
+            $this->response->status(404);
+            $this->response->write($this->callNotFoundHandler(), true);
+            $this->stop();
         }
+    }
+
+    /**
+     * Call NotFound handler
+     *
+     * This will invoke the custom or default Not Found handler
+     * and RETURN its output.
+     *
+     * @return  string
+     */
+    protected function callNotFoundHandler() {
+        ob_start();
+        $customNotFoundHandler = $this->router->notFound();
+        if ( is_callable($customNotFoundHandler) ) {
+            $result = (string)call_user_func($customNotFoundHandler);
+        } else {
+            $result = (string)call_user_func(array($this, 'defaultNotFound'));
+        }
+        // return stuff that get echoed and then the result.
+        return ob_get_clean() . $result;
     }
 
     /**
@@ -503,8 +518,7 @@ class Slim {
         } else {
             //Invoke error handler
             $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this->response->write($this->callErrorHandler($argument), true);
             $this->stop();
         }
     }
@@ -520,13 +534,28 @@ class Slim {
      */
     protected function callErrorHandler( $argument = null ) {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if ( is_callable($customErrorHandler) ) {
-            call_user_func_array($customErrorHandler, array($argument));
-        } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+        try {
+            $customErrorHandler = $this->router->error();
+            if ( is_callable($customErrorHandler) ) {
+                $result = (string)call_user_func_array($customErrorHandler, array($argument));
+            } else {
+                if ($this->config('debug') && $argument instanceof Exception) {
+                    $result = prettyException($argument);
+                } else {
+                    $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                           array($argument));
+                }
+            }
+        } catch (Exception $e) {
+            //catch exceptions from user defined code
+            if ($this->config('debug')) {
+                $result = prettyException($e);
+            } else {
+                $result = (string)call_user_func_array(array($this, 'defaultError'),
+                                                       array($argument));
+            }
         }
-        return ob_get_clean();
+        return ob_get_clean() . $result;
     }
 
     /***** ACCESSORS *****/
@@ -1091,11 +1120,14 @@ class Slim {
      * @return void
      */
     public function run() {
-        //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_PrettyExceptions());
+        set_error_handler(array('Slim', 'handleErrors'));
 
-        //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        try {
+            //Invoke middleware and application stack
+            $this->middleware[0]->call();
+        } catch ( Exception $e ) {
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
+        }
 
         //Fetch status, header, and body
         list($status, $header, $body) = $this->response->finalize();
@@ -1120,6 +1152,8 @@ class Slim {
 
         //Send body
         echo $body;
+
+        restore_error_handler();
     }
 
     /**
@@ -1140,37 +1174,54 @@ class Slim {
             $dispatched = false;
             $httpMethodsAllowed = array();
             $this->router->getMatchedRoutes();
+            $result = '';
             foreach ( $this->router as $route ) {
                 if ( $route->supportsHttpMethod($this->environment['REQUEST_METHOD']) ) {
                     try {
-                        $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
-                        $this->applyHook('slim.after.dispatch');
-                        if ( $dispatched ) {
+                        if ( substr($route->getPattern(), -1) === '/' &&
+                             substr($this->resourceUri, -1) !== '/' ) {
+                            throw new Slim_Exception_RequestSlash();
+                        }
+                        //Invoke middleware
+                        foreach ( $route->getMiddleware() as $mw ) {
+                            if ( is_callable($mw) ) {
+                                call_user_func($mw);
+                            }
+                        }
+                        if ( is_callable($route->getCallable()) ) {
+                            $this->applyHook('slim.before.dispatch');
+                            $args = array_values($route->getParams());
+                            $result = (string)call_user_func_array($route->getCallable(),
+                                                                   $args);
+                            $this->applyHook('slim.after.dispatch');
+                            $dispatched = true;
                             break;
                         }
                     } catch ( Slim_Exception_Pass $e ) {
                         continue;
                     }
-                } else { $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods()); }
+                } else {
+                    $httpMethodsAllowed = array_merge($httpMethodsAllowed,
+                                                      $route->getHttpMethods());
+                }
             }
             if ( !$dispatched ) {
                 if ( $httpMethodsAllowed ) {
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed)); } else { $this->notFound(); } }
+                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
+                } else {
+                    $this->notFound();
+                }
+            }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch ( Slim_Exception_Stop $e ) {
-            $this->response()->write(ob_get_clean());
+            $this->response()->write(ob_get_clean() . $result);
             $this->applyHook('slim.after');
         } catch ( Slim_Exception_RequestSlash $e ) {
             $this->response->redirect($this->request->getPath() . '/', 301);
         } catch ( Exception $e ) {
-            if ( $this->config('debug') ){
-                throw $e;
-            } else {
-                try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
-            }
+            try { $this->error($e); } catch ( Slim_Exception_Stop $e ) {}
         }
     }
 
