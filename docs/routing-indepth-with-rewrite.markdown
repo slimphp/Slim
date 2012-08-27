@@ -19,12 +19,23 @@ The **.htaccess** file in the directory structure above contains:
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]
 
-You also need a directory directive to enable **.htaccess** files and allow the **RewriteEngine** directive to be used.  This is generally setup in your configuration in the form of:
-    <Directory "/path/www.mysite.com/public_html">
-        AllowOverride All
-        Order allow,deny
-        Allow from all
-    </Directory>
+You also need a directory directive to enable **.htaccess** files and allow the **RewriteEngine** directive to be used.  This is sometimes done globally in the **httpd.conf** file, but its generally a good idea to limit the directive to just your virual host by enclosing it in your **VirualHost** configuration block. This is generally setup in your configuration in the form of:
+
+    <VirtualHost *:80>
+        ServerAdmin me@mysite.com
+        DocumentRoot "/path/www.mysite.com/public_html"
+        ServerName mysite.com
+        ServerAlias www.mysite.com
+        
+        #ErrorLog "logs/mysite.com-error.log"
+        #CustomLog "logs/mysite.com-access.log" combined
+        
+        <Directory "/path/www.mysite.com/public_html">
+            AllowOverride All
+            Order allow,deny
+            Allow from all
+        </Directory>
+    </VirtualHost>
 
 As a result, Apache will send all requests for non-existent files to my **index.php** script in which I instantiate and run my Slim application. With URL rewriting enabled and assuming the following Slim application is defined in **index.php**, you can access the application route below at "/foo" rather than "/index.php/foo".
 
@@ -64,4 +75,5 @@ Here is a snippet of a **nginx.conf** in which we use the **try_files** directiv
     }
 
 Most installations will have a default **fastcgi_params** file setup that you can just include as shown above.  Some configurations don't include the **SCRIPT_FILENAME** parameter.  You must ensure you include this parameter otherwise you might end up with a **No input file specified** error from the fastcgi process.  This can be done directly in the **location** block or simply added to the **fastcgi_params** file.  Either way it looks like this:
+
     fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
