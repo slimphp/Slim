@@ -31,8 +31,25 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+//This determines which errors are reported by PHP. By default, all
+//errors (including E_STRICT) are reported.
+error_reporting(E_ALL | E_STRICT);
+
+if ( !defined('MCRYPT_RIJNDAEL_256') ) {
+    define('MCRYPT_RIJNDAEL_256', 0);
+}
+if ( !defined('MCRYPT_MODE_CBC') ) {
+    define('MCRYPT_MODE_CBC', 0);
+}
+
 // Comment out this line if you are using an alternative autoloader (e.g. Composer)
 Slim::registerAutoloader();
+
+//PHP 5.3 will complain if you don't set a timezone. If you do not
+//specify your own timezone before requiring Slim, this tells PHP to use UTC.
+if ( @date_default_timezone_set(date_default_timezone_get()) === false ) {
+    date_default_timezone_set('UTC');
+}
 
 /**
  * Slim
