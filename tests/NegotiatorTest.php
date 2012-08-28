@@ -125,6 +125,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
         $this->params = array('type' => 'xml');
         $format = $this->respondTo('html', 'xml');
         $this->assertEquals('xml', $format);
+        $this->assertEquals('application/xml', $this->response->headers['content-type']);
     }
 
     public function testEqualQValuesDecidedByRespondToOrder()
@@ -159,6 +160,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     {
         $this->request->headers['accept'] = 'text/plain, text/html; q=0.5';
         $this->assertEquals('txt', $this->respondTo('html', 'txt'));
+        $this->assertEquals('text/plain', $this->response->headers['content-type']);
     }
 
     public function testQValueFirst()
@@ -171,6 +173,27 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
     {
         $this->request->headers['accept'] = 'text/plain;q=0.2, text/html;q=0.4, text/turtle;q=0.8,image/png;q=0.6';
         $this->assertEquals('ttl', $this->respondTo('html', 'ttl', 'txt'));
+    }
+
+    public function testAcceptNonDefaultMimeType()
+    {
+        $this->request->headers['accept'] = 'application/xhtml+xml';
+        $this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('application/xhtml+xml', $this->response->headers['content-type']);
+    }
+
+    public function testAcceptFullWildcard()
+    {
+        $this->request->headers['accept'] = '*/*';
+        $this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('text/html', $this->response->headers['content-type']);
+    }
+
+    public function testAcceptSubtypeWildcard()
+    {
+        $this->request->headers['accept'] = 'text/*';
+        $this->assertEquals('html', $this->respondTo('html', 'txt'));
+        $this->assertEquals('text/html', $this->response->headers['content-type']);
     }
 
     public function testInvalidAcceptHeader()
@@ -186,7 +209,7 @@ class NegotiatorTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Not Acceptable', $this->response->body);
     }
 
-    public function testNoMarchAcceptHeader()
+    public function testNoMatchAcceptHeader()
     {
         try {
             $this->request->headers['accept'] = 'image/png,image/gif';
