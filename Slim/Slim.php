@@ -34,6 +34,12 @@
 // Comment out this line if you are using an alternative autoloader (e.g. Composer)
 Slim::registerAutoloader();
 
+// Ensure mcrypt constants are defined even if mcrypt extension is not loaded
+if ( !in_array('mcrypt', get_loaded_extensions()) ) {
+    define('MCRYPT_MODE_CBC', 0);
+    define('MCRYPT_RIJNDAEL_256', 0);
+}
+
 /**
  * Slim
  * @package Slim
