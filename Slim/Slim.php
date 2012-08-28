@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -1083,7 +1084,11 @@ class Slim {
         set_error_handler(array('Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
-        $this->add(new Slim_Middleware_PrettyExceptions());
+        if( strpos($this->request->getAccept(), 'application/json') !== false ) {
+            $this->add(new Slim_Middleware_PrettyJsonExceptions());
+        } else {
+            $this->add(new Slim_Middleware_PrettyExceptions());
+        }
 
         //Invoke middleware and application stack
         $this->middleware[0]->call();

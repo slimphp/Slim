@@ -322,6 +322,18 @@ class Slim_Http_Request {
     }
 
     /**
+     * Get Accept header
+     * @return string
+     */
+    public function getAccept() {
+        if ( isset($this->env['ACCEPT']) ) {
+            return $this->env['ACCEPT'];
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Get Body
      * @return string
      */
