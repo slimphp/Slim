@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.5
+ * @version     1.6.7
  * @package     Slim
  *
  * MIT LICENSE
@@ -44,7 +44,7 @@ class Slim {
     /**
      * @const string
      */
-    const VERSION = '1.6.0';
+    const VERSION = '1.6.7';
 
     /**
      * @var array[Slim]
