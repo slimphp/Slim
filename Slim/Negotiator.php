@@ -74,7 +74,7 @@ class Slim_Negotiator {
     public function __construct() {
         $defaultConditions = Slim_Route::getDefaultConditions();
         Slim_Route::setDefaultConditions(
-          array_merge($defaultConditions, array($this->formatKey => '\.[a-z]{2,8}|'))
+          array_merge($defaultConditions, array($this->formatKey => '\.[a-z0-9]{2,8}|'))
         );
     }
 
