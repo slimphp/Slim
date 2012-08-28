@@ -211,7 +211,6 @@ class Slim {
     public static function getDefaultSettings() {
         return array(
             //Application
-            'install_autoloader' => true,
             'mode' => 'development',
             //Debugging
             'debug' => true,
