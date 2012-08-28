@@ -64,16 +64,6 @@ class Router implements \Iterator
     protected $matchedRoutes;
 
     /**
-     * @var mixed Callable to be invoked if no matching route objects are found
-     */
-    protected $notFound;
-
-    /**
-     * @var mixed Callable to be invoked if application error
-     */
-    protected $error;
-
-    /**
      * Constructor
      */
     public function __construct()
@@ -262,34 +252,6 @@ class Router implements \Iterator
         }
 
         return new \ArrayIterator($this->namedRoutes);
-    }
-
-    /**
-     * Register a 404 Not Found callback
-     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
-     * @return mixed
-     */
-    public function notFound($callable = null)
-    {
-        if (is_callable($callable)) {
-            $this->notFound = $callable;
-        }
-
-        return $this->notFound;
-    }
-
-    /**
-     * Register a 500 Error callback
-     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
-     * @return mixed
-     */
-    public function error($callable = null)
-    {
-        if (is_callable($callable)) {
-            $this->error = $callable;
-        }
-
-        return $this->error;
     }
 
     /**

@@ -102,6 +102,16 @@ class Slim
     protected $middleware;
 
     /**
+     * @var mixed Callable to be invoked if application error
+     */
+    protected $error;
+
+    /**
+     * @var mixed Callable to be invoked if no matching routes are found
+     */
+    protected $notFound;
+
+    /**
      * @var array
      */
     protected $hooks = array(
@@ -485,15 +495,13 @@ class Slim
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound($callable = null)
-    {
-        if (!is_null($callable)) {
-            $this->router->notFound($callable);
+    public function notFound( $callable = null ) {
+        if ( is_callable($callable) ) {
+            $this->notFound = $callable;
         } else {
             ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if (is_callable($customNotFoundHandler)) {
-                call_user_func($customNotFoundHandler);
+            if ( is_callable($this->notFound) ) {
+                call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -528,7 +536,7 @@ class Slim
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this->router->error($argument);
+            $this->error = $argument;
         } else {
             //Invoke error handler
             $this->response->status(500);
@@ -550,9 +558,8 @@ class Slim
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if (is_callable($customErrorHandler)) {
-            call_user_func_array($customErrorHandler, array($argument));
+        if ( is_callable($this->error) ) {
+            call_user_func_array($this->error, array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }

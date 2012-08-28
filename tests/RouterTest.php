@@ -177,54 +177,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Router should keep reference to a callable NotFound callback
-     */
-    public function testNotFoundHandler()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $notFoundCallback = function () { echo "404"; };
-        $callback = $router->notFound($notFoundCallback);
-        $this->assertSame($notFoundCallback, $callback);
-    }
-
-    /**
-     * Router should NOT keep reference to a callback that is not callable
-     */
-    public function testNotFoundHandlerIfNotCallable()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $notFoundCallback = 'foo';
-        $callback = $router->notFound($notFoundCallback);
-        $this->assertNull($callback);
-    }
-
-    /**
-     * Router should keep reference to a callable NotFound callback
-     */
-    public function testErrorHandler()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $errCallback = function () { echo "404"; };
-        $callback = $router->error($errCallback);
-        $this->assertSame($errCallback, $callback);
-    }
-
-    /**
-     * Router should NOT keep reference to a callback that is not callable
-     */
-    public function testErrorHandlerIfNotCallable()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $errCallback = 'foo';
-        $callback = $router->error($errCallback);
-        $this->assertNull($callback);
-    }
-
-    /**
      * Router considers HEAD requests as GET requests
      */
     public function testRouterConsidersHeadAsGet()
