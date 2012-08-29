@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
  /**
   * Content Types
@@ -44,7 +45,7 @@
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class Slim_Middleware_ContentTypes extends Slim_Middleware {
+class ContentTypes extends \Slim\Middleware {
     /**
      * @var array
      */
@@ -129,7 +130,7 @@ class Slim_Middleware_ContentTypes extends Slim_Middleware {
     protected function parseXml( $input ) {
         if ( class_exists('SimpleXMLElement') ) {
             try {
-                return new SimpleXMLElement($input);
+                return new \SimpleXMLElement($input);
             } catch ( Exception $e ) {}
         }
         return $input;

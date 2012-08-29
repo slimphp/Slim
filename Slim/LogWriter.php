@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Log Writer
@@ -41,7 +42,7 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_LogWriter {
+class LogWriter {
     /**
      * @var resource
      */
@@ -55,7 +56,7 @@ class Slim_LogWriter {
      */
     public function __construct( $resource ) {
         if ( !is_resource($resource) ) {
-            throw new InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
+            throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
         }
         $this->resource = $resource;
     }

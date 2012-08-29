@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Environment
@@ -47,7 +48,7 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_Environment implements ArrayAccess, IteratorAggregate {
+class Environment implements \ArrayAccess, \IteratorAggregate {
     /**
      * @var array
      */
@@ -221,6 +222,6 @@ class Slim_Environment implements ArrayAccess, IteratorAggregate {
      * @return ArrayIterator
      */
     public function getIterator() {
-        return new ArrayIterator($this->properties);
+        return new \ArrayIterator($this->properties);
     }
 }

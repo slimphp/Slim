@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
  /**
   * HTTP Headers
@@ -46,7 +47,7 @@
   * @author  Josh Lockhart
   * @since   1.6.0
   */
-class Slim_Http_Headers implements ArrayAccess, Iterator, Countable {
+class Headers implements \ArrayAccess, \Iterator, \Countable {
     /**
      * @var array HTTP headers
      */

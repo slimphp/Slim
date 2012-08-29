@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
 /**
  * Slim HTTP Utilities
@@ -40,7 +41,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Http_Util {
+class Util {
     /**
      * Strip slashes from string or array
      *

@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Log
@@ -53,7 +54,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Log {
+class Log {
     const FATAL = 0;
     const ERROR = 1;
     const WARN = 2;
@@ -126,7 +127,7 @@ class Slim_Log {
      */
     public function setLevel( $level ) {
         if ( !isset(self::$levels[$level]) ) {
-            throw new InvalidArgumentException('Invalid log level');
+            throw new \InvalidArgumentException('Invalid log level');
         }
         $this->level = $level;
     }

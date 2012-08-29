@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
  /**
   * HTTP Method Override
@@ -45,7 +46,7 @@
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class Slim_Middleware_MethodOverride extends Slim_Middleware {
+class MethodOverride extends \Slim\Middleware {
     /**
      * @var array
      */
@@ -81,7 +82,7 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
             $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
         } else if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
             // HTML Form Override
-            $req = new Slim_Http_Request($env);
+            $req = new \Slim\Http\Request($env);
             $method = $req->post($this->settings['key']);
             if ( $method ) {
                 $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];

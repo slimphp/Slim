@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Slim View
@@ -44,7 +45,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_View {
+class View {
     /**
      * @var string Absolute template path
      */
@@ -106,7 +107,7 @@ class Slim_View {
         } else if ( count($args) === 2 ) {
             $this->data[(string)$args[0]] = $args[1];
         } else {
-            throw new InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
+            throw new \InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
         }
     }
 
@@ -118,7 +119,7 @@ class Slim_View {
      */
     public function appendData( $data ) {
         if ( !is_array($data) ) {
-            throw new InvalidArgumentException('Cannot append View data, array required');
+            throw new \InvalidArgumentException('Cannot append View data, array required');
         }
         $this->data = array_merge($this->data, $data);
     }
@@ -150,7 +151,7 @@ class Slim_View {
     public function setTemplate( $template ) {
         $this->templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
         if ( !file_exists($this->templatePath) ) {
-            throw new RuntimeException('View cannot render template `' . $this->templatePath . '`. Template does not exist.');
+            throw new \RuntimeException('View cannot render template `' . $this->templatePath . '`. Template does not exist.');
         }
     }
 

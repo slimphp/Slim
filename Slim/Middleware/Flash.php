@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
  /**
   * Flash
@@ -44,7 +45,7 @@
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess, IteratorAggregate {
+class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate {
     /**
      * @var array
      */
@@ -188,6 +189,6 @@ class Slim_Middleware_Flash extends Slim_Middleware implements ArrayAccess, Iter
      */
     public function getIterator() {
         $messages = $this->getMessages();
-        return new ArrayIterator($messages);
+        return new \ArrayIterator($messages);
     }
 }

@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
 /**
  * Response
@@ -42,7 +43,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
+class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
     /**
      * @var int HTTP status code
      */
@@ -130,7 +131,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
         foreach ( $header as $key => $value ) {
             $headers[$key] = $value;
         }
-        $this->header = new Slim_Http_Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
+        $this->header = new Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
         $this->body = '';
         $this->write($body);
     }
@@ -240,7 +241,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      *                                  cookie including: value, expire, path, domain, secure, httponly
      */
     public function setCookie( $name, $value ) {
-        Slim_Http_Util::setCookieHeader($this->header, $name, $value);
+        Util::setCookieHeader($this->header, $name, $value);
     }
 
     /**
@@ -262,7 +263,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * @param   array   $value  Properties for cookie including: value, expire, path, domain, secure, httponly
      */
     public function deleteCookie( $name, $value = array() ) {
-        Slim_Http_Util::deleteCookieHeader($this->header, $name, $value);
+        Util::deleteCookieHeader($this->header, $name, $value);
     }
 
     /**

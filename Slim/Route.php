@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Slim_Route
@@ -37,7 +38,7 @@
  * @author  Josh Lockhart, Thomas Bley
  * @since   1.0.0
  */
-class Slim_Route {
+class Route {
     /**
      * @var string The route pattern (e.g. "/books/:id")
      */
@@ -209,7 +210,7 @@ class Slim_Route {
      */
     public function getParam( $index ) {
         if ( !isset($this->params[$index]) ) {
-            throw new InvalidArgumentException('Route parameter does not exist at specified index');
+            throw new \InvalidArgumentException('Route parameter does not exist at specified index');
         }
         return $this->params[$index];
     }
@@ -222,7 +223,7 @@ class Slim_Route {
      */
     public function setParam( $index, $value ) {
         if ( !isset($this->params[$index]) ) {
-            throw new InvalidArgumentException('Route parameter does not exist at specified index');
+            throw new \InvalidArgumentException('Route parameter does not exist at specified index');
         }
         $this->params[$index] = $value;
     }
@@ -300,7 +301,7 @@ class Slim_Route {
         } else if ( is_array($middleware) ) {
             $this->middleware = array_merge($this->middleware, $middleware);
         } else {
-            throw new InvalidArgumentException('Route middleware must be callable or an array of callables');
+            throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
         }
         return $this;
     }

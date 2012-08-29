@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
 /**
  * Slim HTTP Request
@@ -41,7 +42,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Http_Request {
+class Request {
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
@@ -186,7 +187,7 @@ class Slim_Http_Request {
             } else {
                 parse_str($this->env['QUERY_STRING'], $output);
             }
-            $this->env['slim.request.query_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+            $this->env['slim.request.query_hash'] = Util::stripSlashesIfMagicQuotes($output);
         }
         if ( $key ) {
             if ( isset($this->env['slim.request.query_hash'][$key]) ) {
@@ -222,9 +223,9 @@ class Slim_Http_Request {
                 } else {
                     parse_str($this->env['slim.input'], $output);
                 }
-                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($output);
             } else {
-                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($_POST);
+                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($_POST);
             }
         }
         if ( $key ) {
@@ -268,7 +269,7 @@ class Slim_Http_Request {
     public function cookies( $key = null ) {
         if ( !isset($this->env['slim.request.cookie_hash']) ) {
             $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-            $this->env['slim.request.cookie_hash'] = Slim_Http_Util::parseCookieHeader($cookieHeader);
+            $this->env['slim.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
         }
         if ( $key ) {
             if ( isset($this->env['slim.request.cookie_hash'][$key]) ) {

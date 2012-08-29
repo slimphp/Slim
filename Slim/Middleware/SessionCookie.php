@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
 /**
  * Session Cookie
@@ -57,7 +58,7 @@
  * @author     Josh Lockhart
  * @since      1.6.0
  */
-class Slim_Middleware_SessionCookie extends Slim_Middleware {
+class SessionCookie extends \Slim\Middleware {
     /**
      * @var array
      */
@@ -125,7 +126,7 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
             session_start();
         }
 
-        $value = Slim_Http_Util::decodeSecureCookie(
+        $value = \Slim\Http\Util::decodeSecureCookie(
             $this->app->request()->cookies($this->settings['name']),
             $this->settings['secret'],
             $this->settings['cipher'],
@@ -143,7 +144,7 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
      * @return  void
      */
     protected function saveSession() {
-        $value = Slim_Http_Util::encodeSecureCookie(
+        $value = \Slim\Http\Util::encodeSecureCookie(
             serialize($_SESSION),
             $this->settings['expires'],
             $this->settings['secret'],
@@ -151,7 +152,7 @@ class Slim_Middleware_SessionCookie extends Slim_Middleware {
             $this->settings['cipher_mode']
         );
         if ( strlen($value) > 4096 ) {
-            $this->app->getLog()->error('WARNING! Slim_Middleware_SessionCookie data size is larger than 4KB. Content save failed.');
+            $this->app->getLog()->error('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
             $this->app->response()->setCookie($this->settings['name'], array(
                 'value' => $value,

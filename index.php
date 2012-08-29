@@ -16,7 +16,7 @@ require 'Slim/Slim.php';
  * However, we could also pass a key-value array of settings.
  * Refer to the online documentation for available settings.
  */
-$app = new Slim();
+$app = new \Slim\Slim();
 
 /**
  * Step 3: Define the Slim application routes
