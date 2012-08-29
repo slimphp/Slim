@@ -1327,4 +1327,69 @@ class SlimTest extends PHPUnit_Framework_TestCase {
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
+
+    /************************************************
+     * NEGOTIATION
+     ************************************************/
+
+    /**
+     * Test content negotiation using Accept header
+     */
+    public function testNegotation() {
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+            'ACCEPT' => 'application/xml'
+        ));
+        $app = new Slim(array('negotiation.enabled' => true));
+        $this->assertInstanceOf('Slim_Negotiator', $app->negotiator());
+        $app->get('/bar', function () use ($app) {
+            $format = $app->respondTo('html', 'xml');
+            if ($format == 'xml')
+                echo 'Pass';
+            else
+                echo 'Fail';
+        });
+        $app->call();
+        list($status, $header, $body) = $app->response()->finalize();
+        $this->assertEquals('Pass', $body);
+        $this->assertEquals('application/xml', $header['Content-Type']);
+    }
+
+    /**
+     * Test content negotiation 'forced' using file extension
+     */
+    public function testForcedNegotation() {
+        Slim_Environment::mock(array(
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar.xml' //<-- Virtual
+        ));
+        $app = new Slim(array('negotiation.enabled' => true));
+        $this->assertInstanceOf('Slim_Negotiator', $app->negotiator());
+        $app->get('/bar:format', function () use ($app) {
+            $format = $app->respondTo('html', 'xml');
+            if ($format == 'xml')
+                echo 'Pass';
+            else
+                echo 'Fail';
+        });
+        $app->call();
+        list($status, $header, $body) = $app->response()->finalize();
+        $this->assertEquals('Pass', $body);
+        $this->assertEquals('application/xml', $header['Content-Type']);
+    }
+
+    /**
+     * Test attempting to use negotiation when it is turned off
+     */
+    public function testNegotationTurnedOff() {
+        $app = new Slim(array('negotiation.enabled' => false));
+        $this->assertNull($app->negotiator());
+        $app->get('/bar', function () use ($app) {
+            $format = $app->respondTo('html', 'xml');
+        });
+        $this->setExpectedException('RuntimeException', 'Content negotiation is not enabled.');
+        $app->call();
+    }
+
 }
