@@ -34,12 +34,12 @@ class LogWriterTest extends PHPUnit_Framework_TestCase {
     public function testInstantiation() {
         $this->expectOutputString('Hello!' . PHP_EOL);
         $handle = fopen('php://output', 'w');
-        $fw = new Slim_LogWriter($handle);
+        $fw = new \Slim\LogWriter($handle);
         $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
     }
 
     public function testInstantiationWithNonResource() {
         $this->setExpectedException('InvalidArgumentException');
-        $fw = new Slim_LogWriter(@fopen('/foo/bar.txt', 'w'));
+        $fw = new \Slim\LogWriter(@fopen('/foo/bar.txt', 'w'));
     }
 }

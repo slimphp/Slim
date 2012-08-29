@@ -35,15 +35,15 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
      * Test middleware returns successful response unchanged
      */
     public function testReturnsUnchangedSuccessResponse() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw = new \Slim\Middleware\PrettyExceptions();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -55,17 +55,17 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
      * Test middleware returns diagnostic screen for error response
      */
     public function testReturnsDiagnosticsForErrorResponse() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim(array(
+        $app = new \Slim\Slim(array(
             'log.enabled' => false
         ));
         $app->get('/foo', function () {
-            throw new Exception('Test Message', 100);
+            throw new \Exception('Test Message', 100);
         });
-        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw = new \Slim\Middleware\PrettyExceptions();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -77,18 +77,18 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
      * Test middleware overrides response content type to html
      */
     public function testResponseContentTypeIsOverriddenToHtml() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim(array(
+        $app = new \Slim\Slim(array(
             'log.enabled' => false
         ));
         $app->get('/foo', function () use ($app) {
             $app->contentType('application/json;charset=utf-8'); //<-- set content type to something else
-            throw new Exception('Test Message', 100);
+            throw new \Exception('Test Message', 100);
         });
-        $mw = new Slim_Middleware_PrettyExceptions();
+        $mw = new \Slim\Middleware\PrettyExceptions();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();

@@ -131,7 +131,7 @@ class ContentTypes extends \Slim\Middleware {
         if ( class_exists('SimpleXMLElement') ) {
             try {
                 return new \SimpleXMLElement($input);
-            } catch ( Exception $e ) {}
+            } catch ( \Exception $e ) {}
         }
         return $input;
     }

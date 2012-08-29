@@ -47,15 +47,15 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * 2) That the HTTP cookie is constructed in the expected format;
      */
     public function testSessionCookieIsCreatedAndEncrypted() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -73,16 +73,16 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * to be the default values.
      */
     public function testSessionIsPopulatedFromCookie() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
             'COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -93,15 +93,15 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * Test $_SESSION is populated as empty array if no HTTP cookie
      */
     public function testSessionIsPopulatedAsEmptyIfNoCookie() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();

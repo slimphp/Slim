@@ -61,12 +61,12 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * and the default values otherwise.
      */
     public function testMockEnvironment() {
-        $env = Slim_Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT'
         ));
-        $env2 = Slim_Environment::getInstance();
+        $env2 = \Slim\Environment::getInstance();
         $this->assertSame($env, $env2);
-        $this->assertInstanceOf('Slim_Environment', $env);
+        $this->assertInstanceOf('\Slim\Environment', $env);
         $this->assertEquals('PUT', $env['REQUEST_METHOD']);
         $this->assertEquals(80, $env['SERVER_PORT']);
         $this->assertNull($env['foo']);
@@ -76,7 +76,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * Test sets HTTP method
      */
     public function testSetsHttpMethod() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('GET', $env['REQUEST_METHOD']);
     }
 
@@ -88,7 +88,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * App installed in subdirectory;
      */
     public function testParsesPathsWithoutUrlRewriteInSubdirectory() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
         $this->assertEquals('/foo/index.php', $env['SCRIPT_NAME']);
     }
@@ -103,7 +103,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     public function testParsesPathsWithoutUrlRewriteInRootDirectory() {
         $_SERVER['REQUEST_URI'] = '/index.php/bar/xyz';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
         $this->assertEquals('/index.php', $env['SCRIPT_NAME']);
     }
@@ -120,7 +120,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_URI'] = '/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         unset($_SERVER['PATH_INFO']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/', $env['PATH_INFO']);
         $this->assertEquals('/index.php', $env['SCRIPT_NAME']);
     }
@@ -136,7 +136,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/bar/xyz';
         unset($_SERVER['PATH_INFO']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
         $this->assertEquals('/foo', $env['SCRIPT_NAME']);
     }
@@ -152,7 +152,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_URI'] = '/bar/xyz';
         unset($_SERVER['PATH_INFO']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
         $this->assertEquals('', $env['SCRIPT_NAME']);
     }
@@ -169,7 +169,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REQUEST_URI'] = '/';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         unset($_SERVER['PATH_INFO']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/', $env['PATH_INFO']);
         $this->assertEquals('', $env['SCRIPT_NAME']);
     }
@@ -181,7 +181,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * $_SERVER['QUERY_STRING'] exists and is not empty;
      */
     public function testParsesQueryString() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('one=1&two=2&three=3', $env['QUERY_STRING']);
     }
 
@@ -196,14 +196,14 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/bar/xyz?one=1&two=2&three=3';
         unset($_SERVER['PATH_INFO']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
     }
 
     /**
      * Test environment's PATH_INFO retains URL encoded characters (e.g. #)
      *
-     * In earlier version, Slim_Environment would use PATH_INFO instead
+     * In earlier version, \Slim\Environment would use PATH_INFO instead
      * of REQUEST_URI to determine the root URI and resource URI.
      * Unfortunately, the server would URL decode the PATH_INFO string
      * before it was handed to PHP. This prevented certain URL-encoded
@@ -214,7 +214,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     public function testPathInfoRetainsUrlEncodedCharacters() {
         $_SERVER['SCRIPT_NAME'] = '/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/%23bar'; //<-- URL-encoded "#bar"
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('/foo/%23bar', $env['PATH_INFO']);
     }
 
@@ -226,7 +226,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      */
     public function testParsesQueryStringThatDoesNotExist() {
         unset($_SERVER['QUERY_STRING']);
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('', $env['QUERY_STRING']);
     }
 
@@ -234,7 +234,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * Test SERVER_NAME is not empty
      */
     public function testServerNameIsNotEmpty() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertFalse(empty($env['SERVER_NAME']));
     }
 
@@ -242,7 +242,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * Test SERVER_PORT is not empty
      */
     public function testServerPortIsNotEmpty() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertFalse(empty($env['SERVER_PORT']));
     }
 
@@ -256,7 +256,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
     public function testUnsetsContentTypeAndContentLength() {
         $_SERVER['HTTP_CONTENT_TYPE'] = 'text/csv';
         $_SERVER['HTTP_CONTENT_LENGTH'] = 150;
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertFalse(isset($env['HTTP_CONTENT_TYPE']));
         $this->assertFalse(isset($env['HTTP_CONTENT_LENGTH']));
     }
@@ -272,7 +272,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
         $_SERVER['CONTENT_TYPE'] = 'text/csv';
         $_SERVER['CONTENT_LENGTH'] = '100';
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XmlHttpRequest';
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('text/csv', $env['CONTENT_TYPE']);
         $this->assertEquals('100', $env['CONTENT_LENGTH']);
         $this->assertEquals('XmlHttpRequest', $env['X_REQUESTED_WITH']);
@@ -286,7 +286,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      */
     public function testHttps() {
         $_SERVER['HTTPS'] = 1;
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('https', $env['slim.url_scheme']);
     }
 
@@ -298,7 +298,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      */
     public function testNotHttps() {
         $_SERVER['HTTPS'] = '';
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('http', $env['slim.url_scheme']);
     }
 
@@ -310,7 +310,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      */
     public function testNotHttpsIIS() {
         $_SERVER['HTTPS'] = 'off';
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('http', $env['slim.url_scheme']);
     }
 
@@ -322,7 +322,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * will return `false`; in which case, use an empty string.
      */
     public function testInputIsEmptyString() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('', $env['slim.input']);
     }
 
@@ -330,7 +330,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase {
      * Test valid resource handle to php://stdErr
      */
     public function testErrorResource() {
-        $env = Slim_Environment::getInstance(true);
+        $env = \Slim\Environment::getInstance(true);
         $this->assertTrue(is_resource($env['slim.errors']));
     }
 }

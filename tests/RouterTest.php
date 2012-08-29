@@ -37,7 +37,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     protected $res;
 
     public function setUp() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -50,9 +50,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $this->env = Slim_Environment::getInstance();
-        $this->req = new Slim_Http_Request($this->env);
-        $this->res = new Slim_Http_Response();
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
     }
 
     /**
@@ -60,7 +60,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * even if no params data is provided.
      */
     public function testUrlForNamedRouteWithoutParams() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->addNamedRoute('foo', $route);
@@ -72,7 +72,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * param data is provided.
      */
     public function testUrlForNamedRouteWithParams() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
         $router->addNamedRoute('foo', $route);
@@ -82,10 +82,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router::urlFor should throw an exception if Route with name
      * does not exist.
+     * @expectedException \RuntimeException
      */
     public function testUrlForNamedRouteThatDoesNotExist() {
-        $this->setExpectedException('RuntimeException');
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/bar', function () {})->via('GET');
         $router->addNamedRoute('bar', $route);
@@ -97,8 +97,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * with same name already exists.
      */
     public function testNamedRouteWithExistingName() {
-        $this->setExpectedException('RuntimeException');
-        $router = new Slim_Router();
+        $this->setExpectedException('\RuntimeException');
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
         $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
@@ -118,7 +118,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Non-existant route found not to exist;
      */
     public function testHasNamedRoute() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo', function () {})->via('GET');
         $router->addNamedRoute('foo', $route);
@@ -138,7 +138,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * NULL is returned if named route does not exist;
      */
     public function testGetNamedRoute() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo', function () {})->via('GET');
         $router->addNamedRoute('foo', $route1);
@@ -157,7 +157,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Array iterator returned for named routes;
      */
     public function testGetNamedRoutes() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo', function () {})->via('GET');
         $route2 = $router->map('/bar', function () {})->via('POST');
@@ -172,7 +172,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should keep reference to a callable NotFound callback
      */
     public function testNotFoundHandler() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $notFoundCallback = function () { echo "404"; };
         $callback = $router->notFound($notFoundCallback);
@@ -183,7 +183,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should NOT keep reference to a callback that is not callable
      */
     public function testNotFoundHandlerIfNotCallable() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $notFoundCallback = 'foo';
         $callback = $router->notFound($notFoundCallback);
@@ -194,7 +194,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should keep reference to a callable NotFound callback
      */
     public function testErrorHandler() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $errCallback = function () { echo "404"; };
         $callback = $router->error($errCallback);
@@ -205,7 +205,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router should NOT keep reference to a callback that is not callable
      */
     public function testErrorHandlerIfNotCallable() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $errCallback = 'foo';
         $callback = $router->error($errCallback);
@@ -216,7 +216,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router considers HEAD requests as GET requests
      */
     public function testRouterConsidersHeadAsGet() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'HEAD',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -229,10 +229,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $this->env = Slim_Environment::getInstance();
-        $this->req = new Slim_Http_Request($this->env);
-        $this->res = new Slim_Http_Response();
-        $router = new Slim_Router();
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/bar', function () {})->via('GET', 'HEAD');
         $numberOfMatchingRoutes = count($router->getMatchedRoutes());
@@ -243,7 +243,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router::urlFor
      */
     public function testRouterUrlFor() {
-        $router = new Slim_Router();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
         $route2 = $router->map('/foo/:one/:two', function () {})->via('GET');
@@ -299,7 +299,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * based on the HTTP method.
      */
     public function testRouterMatchesRoutesByUriOnly() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -312,10 +312,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $this->env = Slim_Environment::getInstance();
-        $this->req = new Slim_Http_Request($this->env);
-        $this->res = new Slim_Http_Response();
-        $router = new Slim_Router();
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $router->map('/foo', function () {})->via('GET');
         $router->map('/foo', function () {})->via('POST');
@@ -328,12 +328,12 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Test get current route
      */
     public function testGetCurrentRoute() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '', //<-- Physical
             'PATH_INFO' => '/foo' //<-- Virtual
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $route1 = $app->get('/bar', function () {
             echo "Bar";
         });
@@ -346,7 +346,7 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
     public function testDispatch() {
         $this->expectOutputString('Hello josh');
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -359,18 +359,18 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $router = new Slim_Router();
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
         $router->setResourceUri($req->getResourceUri());
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
 
     public function testDispatchWithMiddlware() {
         $this->expectOutputString('First! Second! Hello josh');
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -383,11 +383,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $router = new Slim_Router();
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
         $router->setResourceUri($req->getResourceUri());
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
         $route->setMiddleware(function () {
             echo "First! ";
         });
@@ -400,15 +400,15 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
     public function testRouteMiddlwareArguments() {
         $this->expectOutputString('foobar');
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '', //<-- Physical
             'PATH_INFO' => '/foo' //<-- Virtual
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $router = new Slim_Router();
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
         $router->setResourceUri($req->getResourceUri());
-        $route = new Slim_Route('/foo', function () { echo "bar"; });
+        $route = new \Slim\Route('/foo', function () { echo "bar"; });
         $route->setName('foo');
         $route->setMiddleware(function ($route) {
             echo $route->getName();
@@ -418,8 +418,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testDispatchWithRequestSlash() {
-        $this->setExpectedException('Slim_Exception_RequestSlash');
-        Slim_Environment::mock(array(
+        $this->setExpectedException('\Slim\Exception\RequestSlash');
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -432,17 +432,17 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $router = new Slim_Router();
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
         $router->setResourceUri($req->getResourceUri());
-        $route = new Slim_Route('/hello/:name/', function ($name) { echo "Hello $name"; });
+        $route = new \Slim\Route('/hello/:name/', function ($name) { echo "Hello $name"; });
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
 
     public function testDispatchWithoutCallable() {
-        Slim_Environment::mock(array(
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -455,11 +455,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w'),
             'HTTP_HOST' => 'slim'
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $router = new Slim_Router();
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
         $router->setResourceUri($req->getResourceUri());
-        $route = new Slim_Route('/hello/:name', 'foo');
+        $route = new \Slim\Route('/hello/:name', 'foo');
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $this->assertFalse($router->dispatch($route));
     }

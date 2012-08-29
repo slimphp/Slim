@@ -35,7 +35,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test constructor without args
      */
     public function testConstructorWithoutArgs() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $this->assertEquals(0, count($h));
     }
 
@@ -43,7 +43,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test constructor with args
      */
     public function testConstructorWithArgs() {
-        $h = new Slim_Http_Headers(array('Content-Type' => 'text/html'));
+        $h = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
         $this->assertEquals(1, count($h));
     }
 
@@ -51,7 +51,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test get and set header
      */
     public function testSetAndGetHeader() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['Content-Type'] = 'text/html';
         $this->assertEquals('text/html', $h['Content-Type']);
         $this->assertEquals('text/html', $h['Content-type']);
@@ -62,7 +62,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test get non-existent header
      */
     public function testGetNonExistentHeader() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $this->assertNull($h['foo']);
     }
 
@@ -70,7 +70,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test isset header
      */
     public function testHeaderIsSet() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['Content-Type'] = 'text/html';
         $this->assertTrue(isset($h['Content-Type']));
         $this->assertTrue(isset($h['Content-type']));
@@ -82,7 +82,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test unset header
      */
     public function testUnsetHeader() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['Content-Type'] = 'text/html';
         $this->assertEquals(1, count($h));
         unset($h['Content-Type']);
@@ -93,7 +93,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test merge headers
      */
     public function testMergeHeaders() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['Content-Type'] = 'text/html';
         $this->assertEquals(1, count($h));
         $h->merge(array('Content-type' => 'text/csv', 'content-length' => 10));
@@ -106,7 +106,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test iteration
      */
     public function testIteration() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['One'] = 'Foo';
         $h['Two'] = 'Bar';
         $output = '';
@@ -120,7 +120,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase {
      * Test outputs header name in original form, not canonical form
      */
     public function testOutputsOriginalNotCanonicalName() {
-        $h = new Slim_Http_Headers();
+        $h = new \Slim\Http\Headers();
         $h['X-Powered-By'] = 'Slim';
         $h['Content-Type'] = 'text/csv';
         $keys = array();

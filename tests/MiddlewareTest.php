@@ -30,7 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class My_Middleware extends Slim_Middleware {
+class My_Middleware extends \Slim\Middleware {
     public function call() {
         echo "Before";
         $this->next->call();

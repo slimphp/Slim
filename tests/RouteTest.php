@@ -36,7 +36,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route should set name
      */
     public function testRouteSetsName() {
-        $route = new Slim_Route('/foo/bar', function () {});
+        $route = new \Slim\Route('/foo/bar', function () {});
         $route->name('foo');
         $this->assertEquals('foo', $route->getName());
     }
@@ -45,7 +45,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route should set pattern
      */
     public function testRouteSetsPattern() {
-        $route1 = new Slim_Route('/foo/bar', function () {});
+        $route1 = new \Slim\Route('/foo/bar', function () {});
         $this->assertEquals('/foo/bar', $route1->getPattern());
     }
 
@@ -53,7 +53,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route sets pattern with params
      */
     public function testRouteSetsPatternWithParams() {
-        $route = new Slim_Route('/hello/:first/:last', 'hello');
+        $route = new \Slim\Route('/hello/:first/:last', 'hello');
         $this->assertEquals('/hello/:first/:last', $route->getPattern());
     }
 
@@ -61,7 +61,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route sets custom pattern that overrides pattern
      */
     public function testRouteSetsCustomTemplate() {
-        $route = new Slim_Route('/hello/*', 'hello');
+        $route = new \Slim\Route('/hello/*', 'hello');
         $route->setPattern('/hello/:name');
         $this->assertEquals('/hello/:name', $route->getPattern());
     }
@@ -72,7 +72,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteSetsCallableAsFunction() {
         $callable = function () { echo "Foo!"; };
-        $route = new Slim_Route('/foo/bar', $callable);
+        $route = new \Slim\Route('/foo/bar', $callable);
         $this->assertSame($callable, $route->getCallable());
     }
 
@@ -81,7 +81,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * regular function (for PHP 5 < 5.3)
      */
     public function testRouteSetsCallableAsString() {
-        $route = new Slim_Route('/foo/bar', 'testCallable');
+        $route = new \Slim\Route('/foo/bar', 'testCallable');
         $this->assertEquals('testCallable', $route->getCallable());
     }
 
@@ -91,7 +91,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testGetRouteParams() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -109,7 +109,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testSetRouteParams() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -139,7 +139,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testGetRouteParamWhenExists() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -154,7 +154,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testGetRouteParamWhenNotExists() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -163,7 +163,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         try {
             $param = $route->getParam('foo');
             $this->fail('Did not catch expected InvalidArgumentException');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
     }
 
     /**
@@ -172,7 +172,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testSetRouteParamWhenExists() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -193,7 +193,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testSetRouteParamWhenNotExists() {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new Slim_Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -202,7 +202,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         try {
             $param = $route->setParam('foo', 'bar');
             $this->fail('Did not catch expected InvalidArgumentException');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
     }
 
     /**
@@ -210,7 +210,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesAndParamExtracted() {
         $resource = '/hello/Josh';
-        $route = new Slim_Route('/hello/:name', function () {});
+        $route = new \Slim\Route('/hello/:name', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('name' => 'Josh'), $route->getParams());
@@ -221,7 +221,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesAndMultipleParamsExtracted() {
         $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
+        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
@@ -232,7 +232,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteDoesNotMatchAndParamsNotExtracted() {
         $resource = '/foo/bar';
-        $route = new Slim_Route('/hello/:name', function () {});
+        $route = new \Slim\Route('/hello/:name', function () {});
         $result = $route->matches($resource);
         $this->assertFalse($result);
         $this->assertEquals(array(), $route->getParams());
@@ -245,7 +245,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testRouteMatchesWithTrailingSlash() {
         $resource1 = '/foo/bar/';
         $resource2 = '/foo/bar';
-        $route = new Slim_Route('/foo/:one/', function () {});
+        $route = new \Slim\Route('/foo/:one/', function () {});
         $this->assertTrue($route->matches($resource1));
         $this->assertTrue($route->matches($resource2));
     }
@@ -255,7 +255,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithConditions() {
         $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
+        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $route->conditions(array('first' => '[a-zA-Z]{3,}'));
         $result = $route->matches($resource);
         $this->assertTrue($result);
@@ -267,7 +267,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteDoesNotMatchResourceWithConditions() {
         $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
+        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $route->conditions(array('first' => '[a-z]{3,}'));
         $result = $route->matches($resource);
         $this->assertFalse($result);
@@ -284,7 +284,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
         $symbols = ':@&=$,';
         $resource = '/rfc2386/' . $symbols;
-        $route = new Slim_Route('/rfc2386/:symbols', function () {});
+        $route = new \Slim\Route('/rfc2386/:symbols', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('symbols' => $symbols), $route->getParams());
@@ -298,7 +298,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     public function testRouteMatchesResourceWithUnreservedMarks() {
         $marks = "-_.!~*'()";
         $resource = '/marks/' . $marks;
-        $route = new Slim_Route('/marks/:marks', function () {});
+        $route = new \Slim\Route('/marks/:marks', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('marks' => $marks), $route->getParams());
@@ -320,21 +320,21 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $pattern = '/archive/:year(/:month(/:day))';
 
         //Case A
-        $routeA = new Slim_Route($pattern, function () {});
+        $routeA = new \Slim\Route($pattern, function () {});
         $resourceA = '/archive/2010';
         $resultA = $routeA->matches($resourceA);
         $this->assertTrue($resultA);
         $this->assertEquals(array('year' => '2010'), $routeA->getParams());
 
         //Case B
-        $routeB = new Slim_Route($pattern, function () {});
+        $routeB = new \Slim\Route($pattern, function () {});
         $resourceB = '/archive/2010/05';
         $resultB = $routeB->matches($resourceB);
         $this->assertTrue($resultB);
         $this->assertEquals(array('year' => '2010', 'month' => '05'), $routeB->getParams());
 
         //Case C
-        $routeC = new Slim_Route($pattern, function () {});
+        $routeC = new \Slim\Route($pattern, function () {});
         $resourceC = '/archive/2010/05/13';
         $resultC = $routeC->matches($resourceC);
         $this->assertTrue($resultC);
@@ -352,10 +352,10 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case B: Route instance has newly merged conditions;
      */
     public function testRouteDefaultConditions() {
-        Slim_Route::setDefaultConditions(array('id' => '\d+'));
-        $r = new Slim_Route('/foo', function () {});
+        \Slim\Route::setDefaultConditions(array('id' => '\d+'));
+        $r = new \Slim\Route('/foo', function () {});
         //Case A
-        $this->assertEquals(Slim_Route::getDefaultConditions(), $r->getConditions());
+        $this->assertEquals(\Slim\Route::getDefaultConditions(), $r->getConditions());
         //Case B
         $r->conditions(array('name' => '[a-z]{2,5}'));
         $c = $r->getConditions();
@@ -368,7 +368,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithWildcard() {
         $resource = '/hello/foo/bar/world';
-        $route = new Slim_Route('/hello/:path+/world', function () {});
+        $route = new \Slim\Route('/hello/:path+/world', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('path'=>array('foo', 'bar')), $route->getParams());
@@ -379,7 +379,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithMultipleWildcards() {
         $resource = '/hello/foo/bar/world/2012/03/10';
-        $route = new Slim_Route('/hello/:path+/world/:date+', function () {});
+        $route = new \Slim\Route('/hello/:path+/world/:date+', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('path'=>array('foo', 'bar'), 'date'=>array('2012', '03', '10')), $route->getParams());
@@ -390,7 +390,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithWildcardsAndParams() {
         $resource = '/hello/foo/bar/world/2012/03/10/first/second';
-        $route = new Slim_Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
+        $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
         $result = $route->matches($resource);
         $this->assertTrue($result);
         $this->assertEquals(array('path'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'path2'=>array('first', 'second')), $route->getParams());
@@ -401,12 +401,12 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteMatchesResourceWithOptionalWildcardsAndParams() {
         $resourceA = '/hello/world/foo/bar';
-        $routeA = new Slim_Route('/hello(/:world(/:path+))', function () {});
+        $routeA = new \Slim\Route('/hello(/:world(/:path+))', function () {});
         $this->assertTrue($routeA->matches($resourceA));
         $this->assertEquals(array('world'=>'world', 'path'=>array('foo', 'bar')), $routeA->getParams());
-		
+
         $resourceB = '/hello/world';
-        $routeB = new Slim_Route('/hello(/:world(/:path))', function () {});
+        $routeB = new \Slim\Route('/hello(/:world(/:path))', function () {});
         $this->assertTrue($routeB->matches($resourceB));
         $this->assertEquals(array('world'=>'world'), $routeB->getParams());
     }
@@ -416,7 +416,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testRouteDoesNotMatchResourceWithWildcard() {
         $resource = '/hello';
-        $route = new Slim_Route('/hello/:path+', function () {});
+        $route = new \Slim\Route('/hello/:path+', function () {});
         $result = $route->matches($resource);
         $this->assertFalse($result);
         $this->assertEquals(array(), $route->getParams());
@@ -439,7 +439,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $callable1 = function () {};
         $callable2 = function () {};
         //Case A
-        $r1 = new Slim_Route('/foo', function () {});
+        $r1 = new \Slim\Route('/foo', function () {});
         $r1->setMiddleware($callable1);
         $mw = $r1->getMiddleware();
         $this->assertInternalType('array', $mw);
@@ -449,13 +449,13 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $mw = $r1->getMiddleware();
         $this->assertEquals(2, count($mw));
         //Case C
-        $r2 = new Slim_Route('/foo', function () {});
+        $r2 = new \Slim\Route('/foo', function () {});
         $r2->setMiddleware(array($callable1, $callable2));
         $mw = $r2->getMiddleware();
         $this->assertInternalType('array', $mw);
         $this->assertEquals(2, count($mw));
         //Case D
-        $r3 = new Slim_Route('/foo', function () {});
+        $r3 = new \Slim\Route('/foo', function () {});
         $r3->setMiddleware(array($this, 'callableTestFunction'));
         $mw = $r3->getMiddleware();
         $this->assertInternalType('array', $mw);
@@ -464,7 +464,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         try {
             $r3->setMiddleware('sdjfsoi788');
             $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
     }
 
     public function callableTestFunction() {}
@@ -480,7 +480,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      */
     public function testHttpMethods() {
         //Case A
-        $r = new Slim_Route('/foo', function () {});
+        $r = new \Slim\Route('/foo', function () {});
         $this->assertEmpty($r->getHttpMethods());
         //Case B
         $r->setHttpMethods('GET');
@@ -493,7 +493,7 @@ class RouteTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($r->supportsHttpMethod('DELETE'));
         //Case E
         $viaResult = $r->via('DELETE');
-        $this->assertTrue($viaResult instanceof Slim_Route);
+        $this->assertTrue($viaResult instanceof \Slim\Route);
         $this->assertTrue($r->supportsHttpMethod('DELETE'));
     }
 }

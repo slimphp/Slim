@@ -123,7 +123,7 @@ class Router implements \Iterator {
      * @return  Slim_Route
      */
     public function map( $pattern, $callable ) {
-        $route = new Route($pattern, $callable);
+        $route = new \Slim\Route($pattern, $callable);
         $this->routes[] = $route;
         return $route;
     }
@@ -199,7 +199,7 @@ class Router implements \Iterator {
      * @throws  RuntimeException            If a named route already exists with the same name
      * @return  void
      */
-    public function addNamedRoute( $name, Slim_Route $route ) {
+    public function addNamedRoute( $name, \Slim\Route $route ) {
         if ( $this->hasNamedRoute($name) ) {
             throw new \RuntimeException('Named route already exists with name: ' . $name);
         }

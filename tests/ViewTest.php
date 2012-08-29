@@ -33,7 +33,7 @@
 class ViewTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
-        $this->view = new Slim_View();
+        $this->view = new \Slim\View();
     }
 
     public function generateTestData() {
@@ -80,7 +80,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $this->view->setData('foo');
             $this->fail('Setting View data with non-array single argument did not throw exception');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
     }
 
     /**
@@ -104,7 +104,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $this->view->appendData('not an array');
             $this->fail('Appending View data with non-array argument did not throw exception');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
 
     }
 
@@ -162,7 +162,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $output = $this->view->render('foo.php');
             $this->fail('Rendering non-existent template did not throw exception');
-        } catch ( RuntimeException $e ) {}
+        } catch ( \RuntimeException $e ) {}
     }
 
     /**

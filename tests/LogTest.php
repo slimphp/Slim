@@ -39,7 +39,7 @@ class MyWriter {
 
 class LogTest extends PHPUnit_Framework_TestCase {
     public function testEnabled() {
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $this->assertTrue($log->isEnabled()); //<-- Default case
         $log->setEnabled(true);
         $this->assertTrue($log->isEnabled());
@@ -48,77 +48,77 @@ class LogTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testGetLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $this->assertEquals(Slim_Log::DEBUG, $log->getLevel());
+        $log = new \Slim\Log(new MyWriter());
+        $this->assertEquals(\Slim\Log::DEBUG, $log->getLevel());
     }
 
     public function testSetLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::WARN);
-        $this->assertEquals(Slim_Log::WARN, $log->getLevel());
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::WARN);
+        $this->assertEquals(\Slim\Log::WARN, $log->getLevel());
     }
 
     public function testSetInvalidLevel() {
         $this->setExpectedException('InvalidArgumentException');
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::DEBUG + 1);
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::DEBUG + 1);
     }
 
     public function testLogDebug() {
         $this->expectOutputString('Debug');
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $result = $log->debug('Debug');
         $this->assertTrue($result);
     }
 
     public function testLogDebugExcludedByLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::INFO);
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::INFO);
         $this->assertFalse($log->debug('Debug'));
     }
 
     public function testLogInfo() {
         $this->expectOutputString('Info');
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $result = $log->info('Info');
         $this->assertTrue($result);
     }
 
     public function testLogInfoExcludedByLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::WARN);
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::WARN);
         $this->assertFalse($log->info('Info'));
     }
 
     public function testLogWarn() {
         $this->expectOutputString('Warn');
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $result = $log->warn('Warn');
         $this->assertTrue($result);
     }
 
     public function testLogWarnExcludedByLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::ERROR);
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::ERROR);
         $this->assertFalse($log->warn('Warn'));
     }
 
     public function testLogError() {
         $this->expectOutputString('Error');
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $result = $log->error('Error');
         $this->assertTrue($result);
     }
 
     public function testLogErrorExcludedByLevel() {
-        $log = new Slim_Log(new MyWriter());
-        $log->setLevel(Slim_Log::FATAL);
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::FATAL);
         $this->assertFalse($log->error('Error'));
     }
 
     public function testLogFatal() {
         $this->expectOutputString('Fatal');
-        $log = new Slim_Log(new MyWriter());
+        $log = new \Slim\Log(new MyWriter());
         $result = $log->fatal('Fatal');
         $this->assertTrue($result);
     }
@@ -126,7 +126,7 @@ class LogTest extends PHPUnit_Framework_TestCase {
     public function testGetAndSetWriter() {
         $writer1 = new MyWriter();
         $writer2 = new MyWriter();
-        $log = new Slim_Log($writer1);
+        $log = new \Slim\Log($writer1);
         $this->assertSame($writer1, $log->getWriter());
         $log->setWriter($writer2);
         $this->assertSame($writer2, $log->getWriter());

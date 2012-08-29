@@ -212,7 +212,7 @@ class Request {
      */
     public function post( $key = null ) {
         if ( !isset($this->env['slim.input']) ) {
-            throw new RuntimeException('Missing slim.input in environment variables');
+            throw new \RuntimeException('Missing slim.input in environment variables');
         }
         if ( !isset($this->env['slim.request.form_hash']) ) {
             $this->env['slim.request.form_hash'] = array();
