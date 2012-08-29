@@ -36,7 +36,7 @@ namespace Slim;
 Slim::registerAutoloader();
 
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
-if ( !in_array('mcrypt', get_loaded_extensions()) ) {
+if ( !extension_loaded('mcrypt') ) {
     define('MCRYPT_MODE_CBC', 0);
     define('MCRYPT_RIJNDAEL_256', 0);
 }
