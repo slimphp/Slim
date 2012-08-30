@@ -1410,4 +1410,34 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
+
+    /************************************************
+     * ARRAY ACCESS
+     ************************************************/
+
+    /**
+     * Test array access offset set
+     */
+    public function testArrayAccessOffsetSet()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+    }
+
+    /**
+     * Test array access offset unset
+     */
+    public function testArrayAccessOffsetUnset()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+        unset($app['foo']);
+        $this->assertFalse($app->offsetExists('foo'));
+    }
 }
