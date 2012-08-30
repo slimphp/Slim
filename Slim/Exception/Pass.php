@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Exception;
 
 /**
  * Pass Exception
@@ -43,4 +44,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Exception_Pass extends Exception {}
+class Pass extends \Exception
+{
+
+}

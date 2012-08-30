@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Exception;
 
 /**
  * Request Slash Exception
@@ -44,4 +45,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Exception_RequestSlash extends Exception {}
+class RequestSlash extends \Exception
+{
+
+}

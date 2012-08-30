@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Router
@@ -41,7 +42,8 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Router implements Iterator {
+class Router implements \Iterator
+{
     /**
      * @var string Request URI
      */
@@ -74,9 +76,10 @@ class Slim_Router implements Iterator {
 
     /**
      * Constructor
-     * @param   string   $resourceUri    The request URI
+     * @param string $resourceUri The request URI
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->routes = array();
     }
 
@@ -86,7 +89,8 @@ class Slim_Router implements Iterator {
      * This method injects the current request's resource URI, and should be invoked
      * immediately before route dispatch iteration.
      */
-    public function setResourceUri($uri) {
+    public function setResourceUri($uri)
+    {
         $this->resourceUri = $uri;
     }
 
@@ -94,8 +98,10 @@ class Slim_Router implements Iterator {
      * Get Current Route
      * @return Slim_Route|false
      */
-    public function getCurrentRoute() {
+    public function getCurrentRoute()
+    {
         $this->getMatchedRoutes(); // <-- Parse if not already parsed
+
         return $this->current();
     }
 
@@ -103,43 +109,48 @@ class Slim_Router implements Iterator {
      * Return routes that match the current request
      * @return array[Slim_Route]
      */
-    public function getMatchedRoutes( $reload = false ) {
-        if ( $reload || is_null($this->matchedRoutes) ) {
+    public function getMatchedRoutes($reload = false)
+    {
+        if ($reload || is_null($this->matchedRoutes)) {
             $this->matchedRoutes = array();
-            foreach ( $this->routes as $route ) {
-                if ( $route->matches($this->resourceUri) ) {
+            foreach ($this->routes as $route) {
+                if ($route->matches($this->resourceUri)) {
                     $this->matchedRoutes[] = $route;
                 }
             }
         }
+
         return $this->matchedRoutes;
     }
 
     /**
      * Map a route to a callback function
-     * @param   string      $pattern    The URL pattern (ie. "/books/:id")
-     * @param   mixed       $callable   Anything that returns TRUE for is_callable()
-     * @return  Slim_Route
+     * @param  string     $pattern  The URL pattern (ie. "/books/:id")
+     * @param  mixed      $callable Anything that returns TRUE for is_callable()
+     * @return Slim_Route
      */
-    public function map( $pattern, $callable ) {
-        $route = new Slim_Route($pattern, $callable);
+    public function map($pattern, $callable)
+    {
+        $route = new \Slim\Route($pattern, $callable);
         $this->routes[] = $route;
+
         return $route;
     }
 
     /**
      * Get URL for named route
-     * @param   string              $name   The name of the route
+     * @param string $name The name of the route
      * @param   array                       Associative array of URL parameter names and values
-     * @throws  RuntimeException            If named route not found
-     * @return  string                      The URL for the given route populated with the given parameters
+     * @throws RuntimeException If named route not found
+     * @return string           The URL for the given route populated with the given parameters
      */
-    public function urlFor( $name, $params = array() ) {
-        if ( !$this->hasNamedRoute($name) ) {
-            throw new RuntimeException('Named route not found for name: ' . $name);
+    public function urlFor($name, $params = array())
+    {
+        if (!$this->hasNamedRoute($name)) {
+            throw new \RuntimeException('Named route not found for name: ' . $name);
         }
         $search = array();
-        foreach ( array_keys($params) as $key ) {
+        foreach (array_keys($params) as $key) {
             $search[] = '#:' . $key . '\+?(?!\w)#';
         }
         $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
@@ -166,25 +177,27 @@ class Slim_Router implements Iterator {
      * slash, the route will not be matched and a 404 Not Found
      * response will be sent if no subsequent matching routes are found.
      *
-     * @param   Slim_Route          $route  The route object
-     * @return  bool Was route callable invoked successfully?
-     * @throws  Slim_Exception_RequestSlash
+     * @param  Slim_Route                  $route The route object
+     * @return bool                        Was route callable invoked successfully?
+     * @throws Slim_Exception_RequestSlash
      */
-    public function dispatch( Slim_Route $route ) {
-        if ( substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/' ) {
-            throw new Slim_Exception_RequestSlash();
+    public function dispatch(\Slim\Route $route)
+    {
+        if (substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/') {
+            throw new Exception\RequestSlash();
         }
 
         //Invoke middleware
-        foreach ( $route->getMiddleware() as $mw ) {
-            if ( is_callable($mw) ) {
+        foreach ($route->getMiddleware() as $mw) {
+            if (is_callable($mw)) {
                 call_user_func_array($mw, array($route));
             }
         }
 
         //Invoke callable
-        if ( is_callable($route->getCallable()) ) {
+        if (is_callable($route->getCallable())) {
             call_user_func_array($route->getCallable(), array_values($route->getParams()));
+
             return true;
         }
 
@@ -193,37 +206,41 @@ class Slim_Router implements Iterator {
 
     /**
      * Add named route
-     * @param   string              $name   The route name
-     * @param   Slim_Route          $route  The route object
-     * @throws  RuntimeException            If a named route already exists with the same name
-     * @return  void
+     * @param  string           $name  The route name
+     * @param  Slim_Route       $route The route object
+     * @throws RuntimeException If a named route already exists with the same name
+     * @return void
      */
-    public function addNamedRoute( $name, Slim_Route $route ) {
-        if ( $this->hasNamedRoute($name) ) {
-            throw new RuntimeException('Named route already exists with name: ' . $name);
+    public function addNamedRoute($name, \Slim\Route $route)
+    {
+        if ($this->hasNamedRoute($name)) {
+            throw new \RuntimeException('Named route already exists with name: ' . $name);
         }
-        $this->namedRoutes[(string)$name] = $route;
+        $this->namedRoutes[(string) $name] = $route;
     }
 
     /**
      * Has named route
-     * @param   string  $name   The route name
-     * @return  bool
+     * @param  string $name The route name
+     * @return bool
      */
-    public function hasNamedRoute( $name ) {
+    public function hasNamedRoute($name)
+    {
         $this->getNamedRoutes();
-        return isset($this->namedRoutes[(string)$name]);
+
+        return isset($this->namedRoutes[(string) $name]);
     }
 
     /**
      * Get named route
-     * @param   string  $name
-     * @return  Slim_Route|null
+     * @param  string          $name
+     * @return Slim_Route|null
      */
-    public function getNamedRoute( $name ) {
+    public function getNamedRoute($name)
+    {
         $this->getNamedRoutes();
-        if ( $this->hasNamedRoute($name) ) {
-            return $this->namedRoutes[(string)$name];
+        if ($this->hasNamedRoute($name)) {
+            return $this->namedRoutes[(string) $name];
         } else {
             return null;
         }
@@ -233,39 +250,45 @@ class Slim_Router implements Iterator {
      * Get named routes
      * @return ArrayIterator
      */
-    public function getNamedRoutes() {
-        if ( is_null($this->namedRoutes) ) {
+    public function getNamedRoutes()
+    {
+        if (is_null($this->namedRoutes)) {
             $this->namedRoutes = array();
-            foreach ( $this->routes as $route ) {
-                if ( $route->getName() !== null ) {
+            foreach ($this->routes as $route) {
+                if ($route->getName() !== null) {
                     $this->addNamedRoute($route->getName(), $route);
                 }
             }
         }
-        return new ArrayIterator($this->namedRoutes);
+
+        return new \ArrayIterator($this->namedRoutes);
     }
 
     /**
      * Register a 404 Not Found callback
-     * @param   mixed $callable Anything that returns TRUE for is_callable()
-     * @return  mixed
+     * @param  mixed $callable Anything that returns TRUE for is_callable()
+     * @return mixed
      */
-    public function notFound( $callable = null ) {
-        if ( is_callable($callable) ) {
+    public function notFound($callable = null)
+    {
+        if (is_callable($callable)) {
             $this->notFound = $callable;
         }
+
         return $this->notFound;
     }
 
     /**
      * Register a 500 Error callback
-     * @param   mixed $callable Anything that returns TRUE for is_callable()
-     * @return  mixed
+     * @param  mixed $callable Anything that returns TRUE for is_callable()
+     * @return mixed
      */
-    public function error( $callable = null ) {
-        if ( is_callable($callable) ) {
+    public function error($callable = null)
+    {
+        if (is_callable($callable)) {
             $this->error = $callable;
         }
+
         return $this->error;
     }
 
@@ -273,7 +296,8 @@ class Slim_Router implements Iterator {
      * Iterator Interface: Rewind
      * @return void
      */
-    public function rewind() {
+    public function rewind()
+    {
         reset($this->matchedRoutes);
     }
 
@@ -281,7 +305,8 @@ class Slim_Router implements Iterator {
      * Iterator Interface: Current
      * @return Slim_Route|false
      */
-    public function current() {
+    public function current()
+    {
         return current($this->matchedRoutes);
     }
 
@@ -289,7 +314,8 @@ class Slim_Router implements Iterator {
      * Iterator Interface: Key
      * @return int|null
      */
-    public function key() {
+    public function key()
+    {
         return key($this->matchedRoutes);
     }
 
@@ -297,7 +323,8 @@ class Slim_Router implements Iterator {
      * Iterator Interface: Next
      * @return void
      */
-    public function next() {
+    public function next()
+    {
         next($this->matchedRoutes);
     }
 
@@ -305,7 +332,8 @@ class Slim_Router implements Iterator {
      * Iterator Interface: Valid
      * @return boolean
      */
-    public function valid() {
+    public function valid()
+    {
         return $this->current();
     }
 }

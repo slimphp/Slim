@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Middleware
@@ -38,7 +39,8 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-abstract class Slim_Middleware {
+abstract class Middleware
+{
     /**
      * @var Slim Reference to the primary Slim application instance
      */
@@ -55,10 +57,11 @@ abstract class Slim_Middleware {
      * This method injects the primary Slim application instance into
      * this middleware.
      *
-     * @param Slim $application
+     * @param  Slim $application
      * @return void
      */
-    final public function setApplication( $application ) {
+    final public function setApplication($application)
+    {
         $this->app = $application;
     }
 
@@ -70,7 +73,8 @@ abstract class Slim_Middleware {
      *
      * @return Slim
      */
-    final public function getApplication() {
+    final public function getApplication()
+    {
         return $this->app;
     }
 
@@ -84,7 +88,8 @@ abstract class Slim_Middleware {
      * @param Slim|Slim_Middleware
      * @return void
      */
-    final public function setNextMiddleware( $nextMiddleware ) {
+    final public function setNextMiddleware($nextMiddleware)
+    {
         $this->next = $nextMiddleware;
     }
 
@@ -96,7 +101,8 @@ abstract class Slim_Middleware {
      *
      * @return Slim|Slim_Middleware
      */
-    final public function getNextMiddleware() {
+    final public function getNextMiddleware()
+    {
         return $this->next;
     }
 

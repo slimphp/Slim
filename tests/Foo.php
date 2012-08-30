@@ -1,7 +1,7 @@
 <?php
-class Foo {
-    public function __construct() {
-        
+class Foo
+{
+    public function __construct()
+    {
     }
 }
-?>
