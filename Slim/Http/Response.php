@@ -43,7 +43,8 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
+class Response implements \ArrayAccess, \Countable, \IteratorAggregate
+{
     /**
      * @var int HTTP status code
      */
@@ -121,14 +122,15 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
 
     /**
      * Constructor
-     * @param   string                      $body       The HTTP response body
-     * @param   int                         $status     The HTTP response status
-     * @param   Slim_Http_Headers|array     $header     The HTTP response headers
+     * @param string                  $body   The HTTP response body
+     * @param int                     $status The HTTP response status
+     * @param Slim_Http_Headers|array $header The HTTP response headers
      */
-    public function __construct( $body = '', $status = 200, $header = array() ) {
-        $this->status = (int)$status;
+    public function __construct($body = '', $status = 200, $header = array())
+    {
+        $this->status = (int) $status;
         $headers = array();
-        foreach ( $header as $key => $value ) {
+        foreach ($header as $key => $value) {
             $headers[$key] = $value;
         }
         $this->header = new Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
@@ -138,74 +140,85 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
 
     /**
      * Get and set status
-     * @param   int|null $status
-     * @return  int
+     * @param  int|null $status
+     * @return int
      */
-    public function status( $status = null ) {
-        if ( !is_null($status) ) {
-            $this->status = (int)$status;
+    public function status($status = null)
+    {
+        if (!is_null($status)) {
+            $this->status = (int) $status;
         }
+
         return $this->status;
     }
 
     /**
      * Get and set header
-     * @param   string          $name   Header name
-     * @param   string|null     $value  Header value
-     * @return  string                  Header value
+     * @param  string      $name  Header name
+     * @param  string|null $value Header value
+     * @return string      Header value
      */
-    public function header( $name, $value = null ) {
-        if ( !is_null($value) ) {
+    public function header($name, $value = null)
+    {
+        if (!is_null($value)) {
             $this[$name] = $value;
         }
+
         return $this[$name];
     }
 
     /**
      * Get headers
-     * @return  Slim_Http_Headers
+     * @return Slim_Http_Headers
      */
-    public function headers() {
+    public function headers()
+    {
         return $this->header;
     }
 
     /**
      * Get and set body
-     * @param   string|null  $body   Content of HTTP response body
-     * @return  string
+     * @param  string|null $body Content of HTTP response body
+     * @return string
      */
-    public function body( $body = null ) {
-        if ( !is_null($body) ) {
+    public function body($body = null)
+    {
+        if (!is_null($body)) {
             $this->write($body, true);
         }
+
         return $this->body;
     }
 
     /**
      * Get and set length
-     * @param   int|null     $length
-     * @return  int
+     * @param  int|null $length
+     * @return int
      */
-    public function length( $length = null ) {
-        if ( !is_null($length) ) {
-            $this->length = (int)$length;
+    public function length($length = null)
+    {
+        if (!is_null($length)) {
+            $this->length = (int) $length;
         }
+
         return $this->length;
     }
 
     /**
      * Append HTTP response body
-     * @param   string  $body       Content to append to the current HTTP response body
-     * @param   bool    $replace    Overwrite existing response body?
-     * @return  string              The updated HTTP response body
+     * @param  string $body    Content to append to the current HTTP response body
+     * @param  bool   $replace Overwrite existing response body?
+     * @return string The updated HTTP response body
      */
-    public function write( $body, $replace = false ) {
-        if ( $replace ) {
+    public function write($body, $replace = false)
+    {
+        if ($replace) {
             $this->body = $body;
         } else {
-            $this->body .= (string)$body;
+            $this->body .= (string) $body;
         }
         $this->length = strlen($this->body);
+
         return $this->body;
     }
 
@@ -218,9 +231,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      *
      * @return array[int status, array headers, string body]
      */
-    public function finalize() {
-        if ( in_array($this->status, array(204, 304)) ) {
+    public function finalize()
+    {
+        if (in_array($this->status, array(204, 304))) {
             unset($this['Content-Type'], $this['Content-Length']);
+
             return array($this->status, $this->header, '');
         } else {
             return array($this->status, $this->header, $this->body);
@@ -236,11 +251,12 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
      * analyze the raw header before the response is ultimately delivered to the HTTP client.
      *
-     * @param   string          $name   The name of the cookie
-     * @param   string|array    $value  If string, the value of cookie; if array, properties for
+     * @param string       $name  The name of the cookie
+     * @param string|array $value If string, the value of cookie; if array, properties for
      *                                  cookie including: value, expire, path, domain, secure, httponly
      */
-    public function setCookie( $name, $value ) {
+    public function setCookie($name, $value)
+    {
         Util::setCookieHeader($this->header, $name, $value);
     }
 
@@ -259,10 +275,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
      * sent with this response will adopt all properties of the second argument.
      *
-     * @param   string  $name   The name of the cookie
-     * @param   array   $value  Properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $name  The name of the cookie
+     * @param array  $value Properties for cookie including: value, expire, path, domain, secure, httponly
      */
-    public function deleteCookie( $name, $value = array() ) {
+    public function deleteCookie($name, $value = array())
+    {
         Util::deleteCookieHeader($this->header, $name, $value);
     }
 
@@ -272,10 +289,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * This method prepares this response to return an HTTP Redirect response
      * to the HTTP client.
      *
-     * @param   string  $url        The redirect destination
-     * @param   int     $status     The redirect HTTP status code
+     * @param string $url    The redirect destination
+     * @param int    $status The redirect HTTP status code
      */
-    public function redirect ( $url, $status = 302 ) {
+    public function redirect ($url, $status = 302)
+    {
         $this->status = $status;
         $this['Location'] = $url;
     }
@@ -284,7 +302,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Empty?
      * @return bool
      */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return in_array($this->status, array(201, 204, 304));
     }
 
@@ -292,7 +311,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Informational?
      * @return bool
      */
-    public function isInformational() {
+    public function isInformational()
+    {
         return $this->status >= 100 && $this->status < 200;
     }
 
@@ -300,7 +320,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: OK?
      * @return bool
      */
-    public function isOk() {
+    public function isOk()
+    {
         return $this->status === 200;
     }
 
@@ -308,7 +329,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Successful?
      * @return bool
      */
-    public function isSuccessful() {
+    public function isSuccessful()
+    {
         return $this->status >= 200 && $this->status < 300;
     }
 
@@ -316,7 +338,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Redirect?
      * @return bool
      */
-    public function isRedirect() {
+    public function isRedirect()
+    {
         return in_array($this->status, array(301, 302, 303, 307));
     }
 
@@ -324,7 +347,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Redirection?
      * @return bool
      */
-    public function isRedirection() {
+    public function isRedirection()
+    {
         return $this->status >= 300 && $this->status < 400;
     }
 
@@ -332,7 +356,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Forbidden?
      * @return bool
      */
-    public function isForbidden() {
+    public function isForbidden()
+    {
         return $this->status === 403;
     }
 
@@ -340,7 +365,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Not Found?
      * @return bool
      */
-    public function isNotFound() {
+    public function isNotFound()
+    {
         return $this->status === 404;
     }
 
@@ -348,7 +374,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Client error?
      * @return bool
      */
-    public function isClientError() {
+    public function isClientError()
+    {
         return $this->status >= 400 && $this->status < 500;
     }
 
@@ -356,22 +383,25 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Helpers: Server Error?
      * @return bool
      */
-    public function isServerError() {
+    public function isServerError()
+    {
         return $this->status >= 500 && $this->status < 600;
     }
 
     /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset ) {
+    public function offsetExists( $offset )
+    {
         return isset($this->header[$offset]);
     }
 
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset ) {
-        if ( isset($this->header[$offset]) ) {
+    public function offsetGet( $offset )
+    {
+        if (isset($this->header[$offset])) {
             return $this->header[$offset];
         } else {
             return null;
@@ -381,21 +411,24 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
     /**
      * Array Access: Offset Set
      */
-    public function offsetSet( $offset, $value ) {
+    public function offsetSet($offset, $value)
+    {
         $this->header[$offset] = $value;
     }
 
     /**
      * Array Access: Offset Unset
      */
-    public function offsetUnset( $offset ) {
+    public function offsetUnset($offset)
+    {
         unset($this->header[$offset]);
     }
 
     /**
      * Countable: Count
      */
-    public function count() {
+    public function count()
+    {
         return count($this->header);
     }
 
@@ -407,7 +440,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      *
      * @return Slim_Http_Headers
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return $this->header;
     }
 
@@ -415,8 +449,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate {
      * Get message for HTTP status code
      * @return string|null
      */
-    public static function getMessageForCode( $status ) {
-        if ( isset(self::$messages[$status]) ) {
+    public static function getMessageForCode($status)
+    {
+        if (isset(self::$messages[$status])) {
             return self::$messages[$status];
         } else {
             return null;

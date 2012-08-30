@@ -42,4 +42,7 @@ namespace Slim\Exception;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Stop extends \Exception {}
+class Stop extends \Exception
+{
+
+}

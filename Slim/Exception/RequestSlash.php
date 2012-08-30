@@ -45,4 +45,7 @@ namespace Slim\Exception;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class RequestSlash extends \Exception {}
+class RequestSlash extends \Exception
+{
+
+}

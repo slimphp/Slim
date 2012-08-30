@@ -47,7 +47,8 @@ namespace Slim\Http;
   * @author  Josh Lockhart
   * @since   1.6.0
   */
-class Headers implements \ArrayAccess, \Iterator, \Countable {
+class Headers implements \ArrayAccess, \Iterator, \Countable
+{
     /**
      * @var array HTTP headers
      */
@@ -60,46 +61,51 @@ class Headers implements \ArrayAccess, \Iterator, \Countable {
 
     /**
      * Constructor
-     * @param   array   $headers
-     * @return  void
+     * @param  array $headers
+     * @return void
      */
-    public function __construct( $headers = array() ) {
+    public function __construct($headers = array())
+    {
         $this->merge($headers);
     }
 
     /**
      * Merge Headers
-     * @param   array   $headers
-     * @return  void
+     * @param  array $headers
+     * @return void
      */
-    public function merge( $headers ) {
-        foreach ( $headers as $name => $value ) {
+    public function merge($headers)
+    {
+        foreach ($headers as $name => $value) {
             $this[$name] = $value;
         }
     }
 
     /**
      * Transform header name into canonical form
-     * @param   string  $name
-     * @return  string
+     * @param  string $name
+     * @return string
      */
-    protected function canonical( $name ) {
+    protected function canonical($name)
+    {
         return strtolower(trim($name));
     }
 
     /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset ) {
+    public function offsetExists($offset)
+    {
         return isset($this->headers[$this->canonical($offset)]);
     }
 
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset ) {
+    public function offsetGet($offset)
+    {
         $canonical = $this->canonical($offset);
-        if ( isset($this->headers[$canonical]) ) {
+        if (isset($this->headers[$canonical])) {
             return $this->headers[$canonical];
         } else {
             return null;
@@ -109,7 +115,8 @@ class Headers implements \ArrayAccess, \Iterator, \Countable {
     /**
      * Array Access: Offset Set
      */
-    public function offsetSet( $offset, $value ) {
+    public function offsetSet($offset, $value)
+    {
         $canonical = $this->canonical($offset);
         $this->headers[$canonical] = $value;
         $this->map[$canonical] = $offset;
@@ -118,7 +125,8 @@ class Headers implements \ArrayAccess, \Iterator, \Countable {
     /**
      * Array Access: Offset Unset
      */
-    public function offsetUnset( $offset ) {
+    public function offsetUnset($offset)
+    {
         $canonical = $this->canonical($offset);
         unset($this->headers[$canonical], $this->map[$canonical]);
     }
@@ -126,43 +134,50 @@ class Headers implements \ArrayAccess, \Iterator, \Countable {
     /**
      * Countable: Count
      */
-    public function count() {
+    public function count()
+    {
         return count($this->headers);
     }
 
     /**
      * Iterator: Rewind
      */
-    public function rewind() {
+    public function rewind()
+    {
         reset($this->headers);
     }
 
     /**
      * Iterator: Current
      */
-    public function current() {
+    public function current()
+    {
         return current($this->headers);
     }
 
     /**
      * Iterator: Key
      */
-    public function key() {
+    public function key()
+    {
         $key = key($this->headers);
+
         return $this->map[$key];
     }
 
     /**
      * Iterator: Next
      */
-    public function next() {
+    public function next()
+    {
         return next($this->headers);
     }
 
     /**
      * Iterator: Valid
      */
-    public function valid() {
+    public function valid()
+    {
         return current($this->headers) !== false;
     }
 }

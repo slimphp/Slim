@@ -39,7 +39,8 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-abstract class Middleware {
+abstract class Middleware
+{
     /**
      * @var Slim Reference to the primary Slim application instance
      */
@@ -56,10 +57,11 @@ abstract class Middleware {
      * This method injects the primary Slim application instance into
      * this middleware.
      *
-     * @param Slim $application
+     * @param  Slim $application
      * @return void
      */
-    final public function setApplication( $application ) {
+    final public function setApplication($application)
+    {
         $this->app = $application;
     }
 
@@ -71,7 +73,8 @@ abstract class Middleware {
      *
      * @return Slim
      */
-    final public function getApplication() {
+    final public function getApplication()
+    {
         return $this->app;
     }
 
@@ -85,7 +88,8 @@ abstract class Middleware {
      * @param Slim|Slim_Middleware
      * @return void
      */
-    final public function setNextMiddleware( $nextMiddleware ) {
+    final public function setNextMiddleware($nextMiddleware)
+    {
         $this->next = $nextMiddleware;
     }
 
@@ -97,7 +101,8 @@ abstract class Middleware {
      *
      * @return Slim|Slim_Middleware
      */
-    final public function getNextMiddleware() {
+    final public function getNextMiddleware()
+    {
         return $this->next;
     }
 

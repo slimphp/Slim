@@ -46,7 +46,8 @@ namespace Slim\Middleware;
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class MethodOverride extends \Slim\Middleware {
+class MethodOverride extends \Slim\Middleware
+{
     /**
      * @var array
      */
@@ -54,11 +55,12 @@ class MethodOverride extends \Slim\Middleware {
 
     /**
      * Constructor
-     * @param   Slim    $app
-     * @param   array   $settings
-     * @return  void
+     * @param  Slim  $app
+     * @param  array $settings
+     * @return void
      */
-    public function __construct( $settings = array() ) {
+    public function __construct($settings = array())
+    {
         $this->settings = array_merge(array('key' => '_METHOD'), $settings);
     }
 
@@ -71,20 +73,21 @@ class MethodOverride extends \Slim\Middleware {
      * modifies the environment settings so downstream middleware and/or the Slim
      * application will treat the request with the desired HTTP method.
      *
-     * @param   array $env
-     * @return  array[status, header, body]
+     * @param  array         $env
+     * @return array[status, header, body]
      */
-    public function call() {
+    public function call()
+    {
         $env = $this->app->environment();
-        if ( isset($env['X_HTTP_METHOD_OVERRIDE']) ) {
+        if (isset($env['X_HTTP_METHOD_OVERRIDE'])) {
             // Header commonly used by Backbone.js and others
             $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
             $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
-        } else if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
+        } elseif (isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST') {
             // HTML Form Override
             $req = new \Slim\Http\Request($env);
             $method = $req->post($this->settings['key']);
-            if ( $method ) {
+            if ($method) {
                 $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
                 $env['REQUEST_METHOD'] = strtoupper($method);
             }

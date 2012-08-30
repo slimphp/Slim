@@ -48,7 +48,8 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Environment implements \ArrayAccess, \IteratorAggregate {
+class Environment implements \ArrayAccess, \IteratorAggregate
+{
     /**
      * @var array
      */
@@ -66,23 +67,26 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
      * derived from $_SERVER variables. You may override the global server
      * variables by using `Environment::mock()` instead.
      *
-     * @param   bool            $refresh    Refresh properties using global server variables?
-     * @return  Slim_Environment
+     * @param  bool             $refresh Refresh properties using global server variables?
+     * @return Slim_Environment
      */
-    public static function getInstance( $refresh = false ) {
-        if ( is_null(self::$environment) || $refresh ) {
+    public static function getInstance($refresh = false)
+    {
+        if (is_null(self::$environment) || $refresh) {
             self::$environment = new self();
         }
+
         return self::$environment;
     }
 
     /**
      * Get mock environment instance
      *
-     * @param   array           $userSettings
-     * @return  Environment
+     * @param  array       $userSettings
+     * @return Environment
      */
-    public static function mock( $userSettings = array() ) {
+    public static function mock($userSettings = array())
+    {
         self::$environment = new self(array_merge(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '',
@@ -99,17 +103,19 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
         ), $userSettings));
+
         return self::$environment;
     }
 
     /**
      * Constructor (private access)
      *
-     * @param   array|null  $settings   If present, these are used instead of global server variables
-     * @return  void
+     * @param  array|null $settings If present, these are used instead of global server variables
+     * @return void
      */
-    private function __construct( $settings = null ) {
-        if ( $settings ) {
+    private function __construct($settings = null)
+    {
+        if ($settings) {
             $this->properties = $settings;
         } else {
             $env = array();
@@ -135,13 +141,13 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
              * The PATH_INFO will be an absolute path with a leading slash; this will be
              * used for application routing.
              */
-            if ( strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0 ) {
+            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
                 $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
             } else {
                 $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']) ); //With URL rewrite
             }
             $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            if ( strpos($env['PATH_INFO'], '?') !== false ) {
+            if (strpos($env['PATH_INFO'], '?') !== false) {
                 $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
             }
             $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
@@ -158,11 +164,11 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
 
             //HTTP request headers
             $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
-            foreach ( $_SERVER as $key => $value ) {
+            foreach ($_SERVER as $key => $value) {
                 $value = is_string($value) ? trim($value) : $value;
-                if ( strpos($key, 'HTTP_') === 0 ) {
+                if (strpos($key, 'HTTP_') === 0) {
                     $env[substr($key, 5)] = $value;
-                } else if ( strpos($key, 'X_') === 0 || in_array($key, $specialHeaders) ) {
+                } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
                     $env[$key] = $value;
                 }
             }
@@ -172,7 +178,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
 
             //Input stream (readable one time only; not available for mutipart/form-data requests)
             $rawInput = @file_get_contents('php://input');
-            if ( !$rawInput ) {
+            if (!$rawInput) {
                 $rawInput = '';
             }
             $env['slim.input'] = $rawInput;
@@ -187,15 +193,17 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
     /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset ) {
+    public function offsetExists($offset)
+    {
         return isset($this->properties[$offset]);
     }
 
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset ) {
-        if ( isset($this->properties[$offset]) ) {
+    public function offsetGet($offset)
+    {
+        if (isset($this->properties[$offset])) {
             return $this->properties[$offset];
         } else {
             return null;
@@ -205,14 +213,16 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
     /**
      * Array Access: Offset Set
      */
-    public function offsetSet( $offset, $value ) {
+    public function offsetSet($offset, $value)
+    {
         $this->properties[$offset] = $value;
     }
 
     /**
      * Array Access: Offset Unset
      */
-    public function offsetUnset( $offset ) {
+    public function offsetUnset($offset)
+    {
         unset($this->properties[$offset]);
     }
 
@@ -221,7 +231,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate {
      *
      * @return ArrayIterator
      */
-    public function getIterator() {
+    public function getIterator()
+    {
         return new \ArrayIterator($this->properties);
     }
 }

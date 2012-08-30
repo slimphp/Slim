@@ -42,7 +42,8 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class LogWriter {
+class LogWriter
+{
     /**
      * @var resource
      */
@@ -50,12 +51,13 @@ class LogWriter {
 
     /**
      * Constructor
-     * @param   resource    $resource
-     * @return  void
-     * @throws  InvalidArgumentException
+     * @param  resource                 $resource
+     * @return void
+     * @throws InvalidArgumentException
      */
-    public function __construct( $resource ) {
-        if ( !is_resource($resource) ) {
+    public function __construct($resource)
+    {
+        if (!is_resource($resource)) {
             throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
         }
         $this->resource = $resource;
@@ -63,11 +65,12 @@ class LogWriter {
 
     /**
      * Write message
-     * @param   mixed       $message
-     * @param   int         $level
-     * @return  int|false
+     * @param  mixed     $message
+     * @param  int       $level
+     * @return int|false
      */
-    public function write( $message, $level = null ) {
-        return fwrite($this->resource, (string)$message . PHP_EOL);
+    public function write($message, $level = null)
+    {
+        return fwrite($this->resource, (string) $message . PHP_EOL);
     }
 }
