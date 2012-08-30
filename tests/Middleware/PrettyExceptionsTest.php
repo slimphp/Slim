@@ -30,11 +30,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
+class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Test middleware returns successful response unchanged
      */
-    public function testReturnsUnchangedSuccessResponse() {
+    public function testReturnsUnchangedSuccessResponse()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
@@ -54,7 +56,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test middleware returns diagnostic screen for error response
      */
-    public function testReturnsDiagnosticsForErrorResponse() {
+    public function testReturnsDiagnosticsForErrorResponse()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
@@ -76,7 +79,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test middleware overrides response content type to html
      */
-    public function testResponseContentTypeIsOverriddenToHtml() {
+    public function testResponseContentTypeIsOverriddenToHtml()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'

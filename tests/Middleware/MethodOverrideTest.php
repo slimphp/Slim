@@ -35,10 +35,12 @@
  * so that we may easily test the Method Override middleware
  * in isolation.
  */
-class CustomAppMethod {
+class CustomAppMethod
+{
     protected $environment;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->environment = \Slim\Environment::getInstance();
     }
 
@@ -46,16 +48,19 @@ class CustomAppMethod {
         return $this->environment;
     }
 
-    function call() {
+    public function call()
+    {
         //Do nothing
     }
 }
 
-class MethodOverrideTest extends PHPUnit_Framework_TestCase {
+class MethodOverrideTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Test overrides method as POST
      */
-    public function testOverrideMethodAsPost() {
+    public function testOverrideMethodAsPost()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
@@ -76,7 +81,8 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test does not override method if not POST
      */
-    public function testDoesNotOverrideMethodIfNotPost() {
+    public function testDoesNotOverrideMethodIfNotPost()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'slim.input' => ''
@@ -94,7 +100,8 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test does not override method if no method ovveride parameter
      */
-    public function testDoesNotOverrideMethodAsPostWithoutParameter() {
+    public function testDoesNotOverrideMethodAsPostWithoutParameter()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'REMOTE_ADDR' => '127.0.0.1',
@@ -120,7 +127,8 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test overrides method with X-Http-Method-Override header
      */
-    public function testOverrideMethodAsHeader() {
+    public function testOverrideMethodAsHeader()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json',

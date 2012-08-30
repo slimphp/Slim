@@ -30,13 +30,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class RouterTest extends PHPUnit_Framework_TestCase {
-
+class RouterTest extends PHPUnit_Framework_TestCase
+{
     protected $env;
     protected $req;
     protected $res;
 
-    public function setUp() {
+    public function setUp()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
@@ -59,7 +60,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router::urlFor should return a full route pattern
      * even if no params data is provided.
      */
-    public function testUrlForNamedRouteWithoutParams() {
+    public function testUrlForNamedRouteWithoutParams()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/bar', function () {})->via('GET');
@@ -71,7 +73,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router::urlFor should return a full route pattern if
      * param data is provided.
      */
-    public function testUrlForNamedRouteWithParams() {
+    public function testUrlForNamedRouteWithParams()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
@@ -84,7 +87,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * does not exist.
      * @expectedException \RuntimeException
      */
-    public function testUrlForNamedRouteThatDoesNotExist() {
+    public function testUrlForNamedRouteThatDoesNotExist()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/bar', function () {})->via('GET');
@@ -96,7 +100,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Router::addNamedRoute should throw an exception if named Route
      * with same name already exists.
      */
-    public function testNamedRouteWithExistingName() {
+    public function testNamedRouteWithExistingName()
+    {
         $this->setExpectedException('\RuntimeException');
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
@@ -117,7 +122,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Named route found to exist;
      * Non-existant route found not to exist;
      */
-    public function testHasNamedRoute() {
+    public function testHasNamedRoute()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo', function () {})->via('GET');
@@ -137,7 +143,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Named route fetched by named;
      * NULL is returned if named route does not exist;
      */
-    public function testGetNamedRoute() {
+    public function testGetNamedRoute()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo', function () {})->via('GET');
@@ -156,7 +163,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * Array iterator returned for named routes;
      */
-    public function testGetNamedRoutes() {
+    public function testGetNamedRoutes()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo', function () {})->via('GET');
@@ -171,7 +179,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router should keep reference to a callable NotFound callback
      */
-    public function testNotFoundHandler() {
+    public function testNotFoundHandler()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $notFoundCallback = function () { echo "404"; };
@@ -182,7 +191,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router should NOT keep reference to a callback that is not callable
      */
-    public function testNotFoundHandlerIfNotCallable() {
+    public function testNotFoundHandlerIfNotCallable()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $notFoundCallback = 'foo';
@@ -193,7 +203,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router should keep reference to a callable NotFound callback
      */
-    public function testErrorHandler() {
+    public function testErrorHandler()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $errCallback = function () { echo "404"; };
@@ -204,7 +215,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router should NOT keep reference to a callback that is not callable
      */
-    public function testErrorHandlerIfNotCallable() {
+    public function testErrorHandlerIfNotCallable()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $errCallback = 'foo';
@@ -215,7 +227,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router considers HEAD requests as GET requests
      */
-    public function testRouterConsidersHeadAsGet() {
+    public function testRouterConsidersHeadAsGet()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'HEAD',
             'REMOTE_ADDR' => '127.0.0.1',
@@ -242,7 +255,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Router::urlFor
      */
-    public function testRouterUrlFor() {
+    public function testRouterUrlFor()
+    {
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route1 = $router->map('/foo/bar', function () {})->via('GET');
@@ -298,7 +312,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
      * Test that router returns matched routes based on URI only, not
      * based on the HTTP method.
      */
-    public function testRouterMatchesRoutesByUriOnly() {
+    public function testRouterMatchesRoutesByUriOnly()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
@@ -327,7 +342,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get current route
      */
-    public function testGetCurrentRoute() {
+    public function testGetCurrentRoute()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '', //<-- Physical
@@ -344,7 +360,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $this->assertSame($route2, $app->router()->getCurrentRoute());
     }
 
-    public function testDispatch() {
+    public function testDispatch()
+    {
         $this->expectOutputString('Hello josh');
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
@@ -368,7 +385,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route);
     }
 
-    public function testDispatchWithMiddlware() {
+    public function testDispatchWithMiddlware()
+    {
         $this->expectOutputString('First! Second! Hello josh');
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
@@ -398,7 +416,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route);
     }
 
-    public function testRouteMiddlwareArguments() {
+    public function testRouteMiddlwareArguments()
+    {
         $this->expectOutputString('foobar');
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '', //<-- Physical
@@ -417,7 +436,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route);
     }
 
-    public function testDispatchWithRequestSlash() {
+    public function testDispatchWithRequestSlash()
+    {
         $this->setExpectedException('\Slim\Exception\RequestSlash');
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
@@ -441,7 +461,8 @@ class RouterTest extends PHPUnit_Framework_TestCase {
         $router->dispatch($route);
     }
 
-    public function testDispatchWithoutCallable() {
+    public function testDispatchWithoutCallable()
+    {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',

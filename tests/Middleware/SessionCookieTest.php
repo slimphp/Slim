@@ -30,8 +30,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class SessionCookieTest extends PHPUnit_Framework_TestCase {
-    public function setUp() {
+class SessionCookieTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
         if ( session_id() !== '' ) {
             session_unset();
             session_destroy();
@@ -46,7 +48,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * 1) That the HTTP cookie is added to the `Set-Cookie:` response header;
      * 2) That the HTTP cookie is constructed in the expected format;
      */
-    public function testSessionCookieIsCreatedAndEncrypted() {
+    public function testSessionCookieIsCreatedAndEncrypted()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
@@ -72,7 +75,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * the serialized array ['foo' => 'bar']. The middleware secret, cipher, and cipher mode are assumed
      * to be the default values.
      */
-    public function testSessionIsPopulatedFromCookie() {
+    public function testSessionIsPopulatedFromCookie()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
@@ -92,7 +96,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
     /**
      * Test $_SESSION is populated as empty array if no HTTP cookie
      */
-    public function testSessionIsPopulatedAsEmptyIfNoCookie() {
+    public function testSessionIsPopulatedAsEmptyIfNoCookie()
+    {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'

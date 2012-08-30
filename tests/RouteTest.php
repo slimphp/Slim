@@ -30,12 +30,13 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class RouteTest extends PHPUnit_Framework_TestCase {
-
+class RouteTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Route should set name
      */
-    public function testRouteSetsName() {
+    public function testRouteSetsName()
+    {
         $route = new \Slim\Route('/foo/bar', function () {});
         $route->name('foo');
         $this->assertEquals('foo', $route->getName());
@@ -44,7 +45,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route should set pattern
      */
-    public function testRouteSetsPattern() {
+    public function testRouteSetsPattern()
+    {
         $route1 = new \Slim\Route('/foo/bar', function () {});
         $this->assertEquals('/foo/bar', $route1->getPattern());
     }
@@ -52,7 +54,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route sets pattern with params
      */
-    public function testRouteSetsPatternWithParams() {
+    public function testRouteSetsPatternWithParams()
+    {
         $route = new \Slim\Route('/hello/:first/:last', 'hello');
         $this->assertEquals('/hello/:first/:last', $route->getPattern());
     }
@@ -60,7 +63,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route sets custom pattern that overrides pattern
      */
-    public function testRouteSetsCustomTemplate() {
+    public function testRouteSetsCustomTemplate()
+    {
         $route = new \Slim\Route('/hello/*', 'hello');
         $route->setPattern('/hello/:name');
         $this->assertEquals('/hello/:name', $route->getPattern());
@@ -70,7 +74,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route should store a reference to the callable
      * anonymous function.
      */
-    public function testRouteSetsCallableAsFunction() {
+    public function testRouteSetsCallableAsFunction()
+    {
         $callable = function () { echo "Foo!"; };
         $route = new \Slim\Route('/foo/bar', $callable);
         $this->assertSame($callable, $route->getCallable());
@@ -80,7 +85,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route should store a reference to the callable
      * regular function (for PHP 5 < 5.3)
      */
-    public function testRouteSetsCallableAsString() {
+    public function testRouteSetsCallableAsString()
+    {
         $route = new \Slim\Route('/foo/bar', 'testCallable');
         $this->assertEquals('testCallable', $route->getCallable());
     }
@@ -88,7 +94,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test gets all params
      */
-    public function testGetRouteParams() {
+    public function testGetRouteParams()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -106,7 +113,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test sets all params
      */
-    public function testSetRouteParams() {
+    public function testSetRouteParams()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -136,7 +144,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test gets param when exists
      */
-    public function testGetRouteParamWhenExists() {
+    public function testGetRouteParamWhenExists()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -151,7 +160,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test gets param when not exists
      */
-    public function testGetRouteParamWhenNotExists() {
+    public function testGetRouteParamWhenNotExists()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -169,7 +179,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test sets param when exists
      */
-    public function testSetRouteParamWhenExists() {
+    public function testSetRouteParamWhenExists()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -190,7 +201,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Test sets param when not exists
      */
-    public function testSetRouteParamWhenNotExists() {
+    public function testSetRouteParamWhenNotExists()
+    {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
@@ -208,7 +220,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * If route matches a resource URI, param should be extracted.
      */
-    public function testRouteMatchesAndParamExtracted() {
+    public function testRouteMatchesAndParamExtracted()
+    {
         $resource = '/hello/Josh';
         $route = new \Slim\Route('/hello/:name', function () {});
         $result = $route->matches($resource);
@@ -219,7 +232,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * If route matches a resource URI, multiple params should be extracted.
      */
-    public function testRouteMatchesAndMultipleParamsExtracted() {
+    public function testRouteMatchesAndMultipleParamsExtracted()
+    {
         $resource = '/hello/Josh/and/John';
         $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $result = $route->matches($resource);
@@ -230,7 +244,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * If route does not match a resource URI, params remain an empty array
      */
-    public function testRouteDoesNotMatchAndParamsNotExtracted() {
+    public function testRouteDoesNotMatchAndParamsNotExtracted()
+    {
         $resource = '/foo/bar';
         $route = new \Slim\Route('/hello/:name', function () {});
         $result = $route->matches($resource);
@@ -242,7 +257,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Route matches URI with trailing slash
      *
      */
-    public function testRouteMatchesWithTrailingSlash() {
+    public function testRouteMatchesWithTrailingSlash()
+    {
         $resource1 = '/foo/bar/';
         $resource2 = '/foo/bar';
         $route = new \Slim\Route('/foo/:one/', function () {});
@@ -253,7 +269,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route matches URI with conditions
      */
-    public function testRouteMatchesResourceWithConditions() {
+    public function testRouteMatchesResourceWithConditions()
+    {
         $resource = '/hello/Josh/and/John';
         $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $route->conditions(array('first' => '[a-zA-Z]{3,}'));
@@ -265,7 +282,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route does not match URI with conditions
      */
-    public function testRouteDoesNotMatchResourceWithConditions() {
+    public function testRouteDoesNotMatchResourceWithConditions()
+    {
         $resource = '/hello/Josh/and/John';
         $route = new \Slim\Route('/hello/:first/and/:second', function () {});
         $route->conditions(array('first' => '[a-z]{3,}'));
@@ -281,7 +299,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      *
      * Excludes "+" which is valid but decodes into a space character
      */
-    public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
+    public function testRouteMatchesResourceWithValidRfc2396PathComponent()
+    {
         $symbols = ':@&=$,';
         $resource = '/rfc2386/' . $symbols;
         $route = new \Slim\Route('/rfc2386/:symbols', function () {});
@@ -295,7 +314,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      *
      * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
      */
-    public function testRouteMatchesResourceWithUnreservedMarks() {
+    public function testRouteMatchesResourceWithUnreservedMarks()
+    {
         $marks = "-_.!~*'()";
         $resource = '/marks/' . $marks;
         $route = new \Slim\Route('/marks/:marks', function () {});
@@ -316,7 +336,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case B: Month is "05" and day default value is used
      * Case C: Month is "05" and day is "13"
      */
-    public function testRouteOptionalParameters() {
+    public function testRouteOptionalParameters()
+    {
         $pattern = '/archive/:year(/:month(/:day))';
 
         //Case A
@@ -351,7 +372,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case A: Route instance has default conditions;
      * Case B: Route instance has newly merged conditions;
      */
-    public function testRouteDefaultConditions() {
+    public function testRouteDefaultConditions()
+    {
         \Slim\Route::setDefaultConditions(array('id' => '\d+'));
         $r = new \Slim\Route('/foo', function () {});
         //Case A
@@ -366,7 +388,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route matches URI with wildcard
      */
-    public function testRouteMatchesResourceWithWildcard() {
+    public function testRouteMatchesResourceWithWildcard()
+    {
         $resource = '/hello/foo/bar/world';
         $route = new \Slim\Route('/hello/:path+/world', function () {});
         $result = $route->matches($resource);
@@ -377,7 +400,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route matches URI with more than one wildcard
      */
-    public function testRouteMatchesResourceWithMultipleWildcards() {
+    public function testRouteMatchesResourceWithMultipleWildcards()
+    {
         $resource = '/hello/foo/bar/world/2012/03/10';
         $route = new \Slim\Route('/hello/:path+/world/:date+', function () {});
         $result = $route->matches($resource);
@@ -388,7 +412,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route matches URI with wildcards and parameters
      */
-    public function testRouteMatchesResourceWithWildcardsAndParams() {
+    public function testRouteMatchesResourceWithWildcardsAndParams()
+    {
         $resource = '/hello/foo/bar/world/2012/03/10/first/second';
         $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
         $result = $route->matches($resource);
@@ -399,7 +424,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route matches URI with optional wildcard and parameter
      */
-    public function testRouteMatchesResourceWithOptionalWildcardsAndParams() {
+    public function testRouteMatchesResourceWithOptionalWildcardsAndParams()
+    {
         $resourceA = '/hello/world/foo/bar';
         $routeA = new \Slim\Route('/hello(/:world(/:path+))', function () {});
         $this->assertTrue($routeA->matches($resourceA));
@@ -414,7 +440,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
     /**
      * Route does not match URI with wildcard
      */
-    public function testRouteDoesNotMatchResourceWithWildcard() {
+    public function testRouteDoesNotMatchResourceWithWildcard()
+    {
         $resource = '/hello';
         $route = new \Slim\Route('/hello/:path+', function () {});
         $result = $route->matches($resource);
@@ -435,7 +462,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case D: Middleware set as a callable array
      * Case E: Middleware is invalid; throws InvalidArgumentException
      */
-    public function testRouteMiddleware() {
+    public function testRouteMiddleware()
+    {
         $callable1 = function () {};
         $callable2 = function () {};
         //Case A
@@ -478,7 +506,8 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      * Case D: Route can test if it supports an HTTP method
      * Case E: Route can lazily declare supported HTTP methods with `via`
      */
-    public function testHttpMethods() {
+    public function testHttpMethods()
+    {
         //Case A
         $r = new \Slim\Route('/foo', function () {});
         $this->assertEmpty($r->getHttpMethods());
