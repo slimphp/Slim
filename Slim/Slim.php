@@ -44,7 +44,7 @@ if (!extension_loaded('mcrypt')) {
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim
+class Slim implements \ArrayAccess
 {
     /**
      * @const string
@@ -100,6 +100,11 @@ class Slim
      * @var array
      */
     protected $middleware;
+
+    /**
+     * @var array
+     */
+    protected $container;
 
     /**
      * @var array
@@ -175,7 +180,10 @@ class Slim
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
 
-        // Determine application mode
+        // initialize container array
+        $this->container = array();
+
+        //Determine application mode
         $this->getMode();
 
         // Setup view
@@ -1253,6 +1261,53 @@ class Slim
                 }
             }
         }
+    }
+
+    /********************************************************************************
+    * ArrayAccess implementation
+    *******************************************************************************/
+
+    /**
+     * Check if a parameter is set
+     *
+     * @param string $offset
+     * @return boolean
+     */
+    public function offsetExists( $offset )
+    {
+        return array_key_exists($offset, $this->container);
+    }
+
+    /**
+     * Set a parameter
+     *
+     * @param string $offset
+     * @param mixed $value
+     */
+    public function offsetSet( $offset, $value )
+    {
+        $this->container[$offset] = $value;
+    }
+
+    /**
+     * Unset a parameter
+     *
+     * @param string $offset
+     */
+    public function offsetUnset( $offset )
+    {
+        unset($this->container[$offset]);
+    }
+
+    /**
+     * Get a parameter
+     *
+     * @param string $offset
+     * @return mixed
+     */
+    public function offsetGet( $offset )
+    {
+        return isset($this->container[$offset]) ? $this->container[$offset] : null;
     }
 
     /********************************************************************************
