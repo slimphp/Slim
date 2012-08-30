@@ -185,6 +185,10 @@ class Slim implements \ArrayAccess
 
         //Determine application mode
         $this->getMode();
+        $this['environment'] = $this->environment;
+        $this['request'] = $this->request;
+        $this['response'] = $this->response;
+        $this['router'] = $this->router;
 
         // Setup view
         $this->view($this->config('view'));
