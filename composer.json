@@ -13,9 +13,9 @@
         }
     ],
     "require": {
-        "php": ">=5.2.0"
+        "php": ">=5.3.2"
     },
     "autoload": {
-        "psr-0": { "Slim": "Slim/" }
+        "psr-0": { "Slim": "." }
     }
 }
