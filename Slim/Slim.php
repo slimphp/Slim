@@ -165,7 +165,6 @@ class Slim
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
         $this->router = new \Slim\Router($this->request->getResourceUri());
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
