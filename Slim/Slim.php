@@ -157,12 +157,11 @@ class Slim implements \ArrayAccess
     public function __construct($userSettings = array())
     {
         //Setup Slim application
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        //$this->settings = new \Slim\Settings($userSettings);
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
         $this->router = new \Slim\Router($this->request->getResourceUri());
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
 
         // Initialize DI container array
         $this->container = array();
@@ -170,6 +169,7 @@ class Slim implements \ArrayAccess
         $this['request'] = $this->request;
         $this['response'] = $this->response;
         $this['router'] = $this->router;
+        $this['config'] = new \Slim\Settings($userSettings);
         $this['middleware'] = new \Slim\MiddlewareContainer($this);
 
         // Add middleware to the middleware container
@@ -278,7 +278,7 @@ class Slim implements \ArrayAccess
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
      *
-     * @param  string|array $name  If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+     * @param  string $name  The name of the setting to set or retrieve.
      * @param  mixed        $value If name is a string, the value of the setting identified by $name
      * @return mixed        The value of a setting if only one argument is a string
      */
@@ -286,12 +286,12 @@ class Slim implements \ArrayAccess
     {
         if (func_num_args() === 1) {
             if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
+                $this['config']->set($name);
             } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
+                return $this['config']->get($name);
             }
         } else {
-            $this->settings[$name] = $value;
+            $this['config']->set($name, $value);
         }
     }
 
