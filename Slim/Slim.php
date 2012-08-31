@@ -99,11 +99,6 @@ class Slim implements \ArrayAccess
     /**
      * @var array
      */
-    protected $middleware;
-
-    /**
-     * @var array
-     */
     protected $container;
 
     /**
@@ -168,9 +163,6 @@ class Slim implements \ArrayAccess
         $this->response = new \Slim\Http\Response();
         $this->router = new \Slim\Router($this->request->getResourceUri());
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
-        $this->middleware = array($this);
-        $this->add(new \Slim\Middleware\Flash());
-        $this->add(new \Slim\Middleware\MethodOverride());
 
         // Initialize DI container array
         $this->container = array();
@@ -178,6 +170,11 @@ class Slim implements \ArrayAccess
         $this['request'] = $this->request;
         $this['response'] = $this->response;
         $this['router'] = $this->router;
+        $this['middleware'] = new \Slim\MiddlewareContainer($this);
+
+        // Add middleware to the middleware container
+        $this['middleware']->add(new \Slim\Middleware\Flash());
+        $this['middleware']->add(new \Slim\Middleware\MethodOverride());
 
         //Determine application mode
         $this->getMode();
@@ -1150,9 +1147,7 @@ class Slim implements \ArrayAccess
      */
     public function add(\Slim\Middleware $newMiddleware)
     {
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this->middleware[0]);
-        array_unshift($this->middleware, $newMiddleware);
+        $this['middleware']->add($newMiddleware);
     }
 
     /***** RUN SLIM *****/
@@ -1174,7 +1169,7 @@ class Slim implements \ArrayAccess
         $this->add(new \Slim\Middleware\PrettyExceptions());
 
         //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        $this['middleware'][0]->call();
 
         //Fetch status, header, and body
         list($status, $header, $body) = $this->response->finalize();
