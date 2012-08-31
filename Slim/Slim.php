@@ -32,9 +32,6 @@
  */
 namespace Slim;
 
-// Comment out this line if you are using an alternative autoloader (e.g. Composer)
-Slim::registerAutoloader();
-
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
     define('MCRYPT_MODE_CBC', 0);
@@ -47,7 +44,7 @@ if (!extension_loaded('mcrypt')) {
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim
+class Slim implements \ArrayAccess
 {
     /**
      * @const string
@@ -102,7 +99,7 @@ class Slim
     /**
      * @var array
      */
-    protected $middleware;
+    protected $container;
 
     /**
      * @var array
@@ -160,15 +157,24 @@ class Slim
     public function __construct($userSettings = array())
     {
         //Setup Slim application
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        //$this->settings = new \Slim\Settings($userSettings);
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
         $this->router = new \Slim\Router($this->request->getResourceUri());
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
-        $this->middleware = array($this);
-        $this->add(new \Slim\Middleware\Flash());
-        $this->add(new \Slim\Middleware\MethodOverride());
+
+        // Initialize DI container array
+        $this->container = array();
+        $this['environment'] = $this->environment;
+        $this['request'] = $this->request;
+        $this['response'] = $this->response;
+        $this['router'] = $this->router;
+        $this['config'] = new \Slim\Settings($userSettings);
+        $this['middleware'] = new \Slim\MiddlewareContainer($this);
+
+        // Add middleware to the middleware container
+        $this['middleware']->add(new \Slim\Middleware\Flash());
+        $this['middleware']->add(new \Slim\Middleware\MethodOverride());
 
         //Determine application mode
         $this->getMode();
@@ -272,7 +278,7 @@ class Slim
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
      *
-     * @param  string|array $name  If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+     * @param  string $name  The name of the setting to set or retrieve.
      * @param  mixed        $value If name is a string, the value of the setting identified by $name
      * @return mixed        The value of a setting if only one argument is a string
      */
@@ -280,12 +286,12 @@ class Slim
     {
         if (func_num_args() === 1) {
             if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
+                $this['config']->set($name);
             } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
+                return $this['config']->get($name);
             }
         } else {
-            $this->settings[$name] = $value;
+            $this['config']->set($name, $value);
         }
     }
 
@@ -1141,9 +1147,7 @@ class Slim
      */
     public function add(\Slim\Middleware $newMiddleware)
     {
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this->middleware[0]);
-        array_unshift($this->middleware, $newMiddleware);
+        $this['middleware']->add($newMiddleware);
     }
 
     /***** RUN SLIM *****/
@@ -1165,7 +1169,7 @@ class Slim
         $this->add(new \Slim\Middleware\PrettyExceptions());
 
         //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        $this['middleware'][0]->call();
 
         //Fetch status, header, and body
         list($status, $header, $body) = $this->response->finalize();
@@ -1256,6 +1260,51 @@ class Slim
                 }
             }
         }
+    }
+
+    /***** ARRAY ACCESS *****/
+
+    /**
+     * Check if a parameter is set
+     *
+     * @param string $offset
+     * @return boolean
+     */
+    public function offsetExists( $offset )
+    {
+        return array_key_exists($offset, $this->container);
+    }
+
+    /**
+     * Set a parameter
+     *
+     * @param string $offset
+     * @param mixed $value
+     */
+    public function offsetSet( $offset, $value )
+    {
+        $this->container[$offset] = $value;
+    }
+
+    /**
+     * Unset a parameter
+     *
+     * @param string $offset
+     */
+    public function offsetUnset( $offset )
+    {
+        unset($this->container[$offset]);
+    }
+
+    /**
+     * Get a parameter
+     *
+     * @param string $offset
+     * @return mixed
+     */
+    public function offsetGet( $offset )
+    {
+        return isset($this->container[$offset]) ? $this->container[$offset] : null;
     }
 
     /***** EXCEPTION AND ERROR HANDLING *****/
