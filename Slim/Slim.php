@@ -172,15 +172,15 @@ class Slim implements \ArrayAccess
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
 
-        // initialize container array
+        // Initialize DI container array
         $this->container = array();
-
-        //Determine application mode
-        $this->getMode();
         $this['environment'] = $this->environment;
         $this['request'] = $this->request;
         $this['response'] = $this->response;
         $this['router'] = $this->router;
+
+        //Determine application mode
+        $this->getMode();
 
         //Setup view
         $this->view($this->config('view'));
