@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -91,7 +91,6 @@ class Log
     /**
      * Constructor
      * @param  mixed $writer
-     * @return void
      */
     public function __construct($writer)
     {
@@ -112,7 +111,6 @@ class Log
     /**
      * Enable or disable logging
      * @param  bool $enabled
-     * @return void
      */
     public function setEnabled($enabled)
     {
@@ -125,9 +123,8 @@ class Log
 
     /**
      * Set level
-     * @param  int                      $level
-     * @return void
-     * @throws InvalidArgumentException
+     * @param  int                          $level
+     * @throws \InvalidArgumentException    If invalid log level specified
      */
     public function setLevel($level)
     {
@@ -149,7 +146,6 @@ class Log
     /**
      * Set writer
      * @param  mixed $writer
-     * @return void
      */
     public function setWriter($writer)
     {

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -56,19 +56,19 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     protected $properties;
 
     /**
-     * @var Slim_Environment
+     * @var \Slim\Environment
      */
     protected static $environment;
 
     /**
      * Get environment instance (singleton)
      *
-     * This creates and/or returns an Environment instance (singleton)
+     * This creates and/or returns an environment instance (singleton)
      * derived from $_SERVER variables. You may override the global server
-     * variables by using `Environment::mock()` instead.
+     * variables by using `\Slim\Environment::mock()` instead.
      *
      * @param  bool             $refresh Refresh properties using global server variables?
-     * @return Slim_Environment
+     * @return \Slim\Environment
      */
     public static function getInstance($refresh = false)
     {
@@ -83,7 +83,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      * Get mock environment instance
      *
      * @param  array       $userSettings
-     * @return Environment
+     * @return \Slim\Environment
      */
     public static function mock($userSettings = array())
     {
@@ -111,7 +111,6 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      * Constructor (private access)
      *
      * @param  array|null $settings If present, these are used instead of global server variables
-     * @return void
      */
     private function __construct($settings = null)
     {
@@ -229,7 +228,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     /**
      * IteratorAggregate
      *
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {

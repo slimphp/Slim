@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -69,7 +69,6 @@ class SessionCookie extends \Slim\Middleware
      * Constructor
      *
      * @param  array $settings
-     * @return void
      */
     public function __construct($settings = array())
     {
@@ -110,7 +109,6 @@ class SessionCookie extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -122,7 +120,6 @@ class SessionCookie extends \Slim\Middleware
     /**
      * Load session
      * @param  array $env
-     * @return void
      */
     protected function loadSession()
     {
@@ -145,7 +142,6 @@ class SessionCookie extends \Slim\Middleware
 
     /**
      * Save session
-     * @return void
      */
     protected function saveSession()
     {
@@ -171,9 +167,10 @@ class SessionCookie extends \Slim\Middleware
         session_destroy();
     }
 
-    /**
-     * Session Handler Stubs
-     */
+    /********************************************************************************
+    * Session Handler
+    *******************************************************************************/
+
     public function open($savePath, $sessionName)
     {
         return true;

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -59,9 +59,8 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Constructor
-     * @param  Slim  $app
-     * @param  array $settings
-     * @return void
+     * @param  \Slim  $app
+     * @param  array  $settings
      */
     public function __construct($settings = array())
     {
@@ -75,7 +74,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -96,7 +94,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
      *
      * @param  string $key
      * @param  string $value
-     * @return void
      */
     public function now($key, $value)
     {
@@ -110,7 +107,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
      *
      * @param  string $key
      * @param  string $value
-     * @return void
      */
     public function set($key, $value)
     {
@@ -121,8 +117,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
      * Keep
      *
      * Retain flash messages from the previous request for the next request
-     *
-     * @return void
      */
     public function keep()
     {
@@ -140,8 +134,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Load messages
-     *
      * Load messages from previous request if available
      */
     public function loadMessages()
@@ -152,8 +144,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Get messages
-     *
      * Return array of flash messages to be shown for the current request
      *
      * @return array
@@ -201,6 +191,7 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Iterator Aggregate: Get Iterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {

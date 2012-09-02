@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -68,7 +68,6 @@ class ContentTypes extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -131,7 +130,7 @@ class ContentTypes extends \Slim\Middleware
      * will be returned unchanged.
      *
      * @param  string                  $input
-     * @return SimpleXMLElement|string
+     * @return \SimpleXMLElement|string
      */
     protected function parseXml($input)
     {

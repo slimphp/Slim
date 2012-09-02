@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -51,8 +51,7 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Constructor
-     * @param Slim|middleware $app
-     * @param array           $settings
+     * @param array $settings
      */
     public function __construct($settings = array())
     {
@@ -61,7 +60,6 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -78,8 +76,8 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Render response body
-     * @param  array     $env
-     * @param  Exception $exception
+     * @param  array      $env
+     * @param  \Exception $exception
      * @return string
      */
     protected function renderBody(&$env, $exception)

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -62,7 +62,6 @@ class Headers implements \ArrayAccess, \Iterator, \Countable
     /**
      * Constructor
      * @param  array $headers
-     * @return void
      */
     public function __construct($headers = array())
     {
@@ -72,7 +71,6 @@ class Headers implements \ArrayAccess, \Iterator, \Countable
     /**
      * Merge Headers
      * @param  array $headers
-     * @return void
      */
     public function merge($headers)
     {
