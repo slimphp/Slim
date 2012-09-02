@@ -9,6 +9,8 @@
  */
 require 'Slim/Slim.php';
 
+\Slim\Slim::registerAutoloader();
+
 /**
  * Step 2: Instantiate the Slim application
  *
