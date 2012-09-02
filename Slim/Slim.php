@@ -32,9 +32,6 @@
  */
 namespace Slim;
 
-// Comment out this line if you are using an alternative autoloader (e.g. Composer)
-Slim::registerAutoloader();
-
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
     define('MCRYPT_MODE_CBC', 0);
