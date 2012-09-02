@@ -62,7 +62,6 @@ class Headers implements \ArrayAccess, \Iterator, \Countable
     /**
      * Constructor
      * @param  array $headers
-     * @return void
      */
     public function __construct($headers = array())
     {
@@ -72,7 +71,6 @@ class Headers implements \ArrayAccess, \Iterator, \Countable
     /**
      * Merge Headers
      * @param  array $headers
-     * @return void
      */
     public function merge($headers)
     {

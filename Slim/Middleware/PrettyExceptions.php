@@ -51,8 +51,7 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Constructor
-     * @param Slim|middleware $app
-     * @param array           $settings
+     * @param array $settings
      */
     public function __construct($settings = array())
     {
@@ -61,7 +60,6 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -78,8 +76,8 @@ class PrettyExceptions extends \Slim\Middleware
 
     /**
      * Render response body
-     * @param  array     $env
-     * @param  Exception $exception
+     * @param  array      $env
+     * @param  \Exception $exception
      * @return string
      */
     protected function renderBody(&$env, $exception)

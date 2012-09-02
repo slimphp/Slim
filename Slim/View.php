@@ -33,13 +33,15 @@
 namespace Slim;
 
 /**
- * Slim View
+ * View
  *
- * The View is responsible for rendering and/or displaying a template.
- * It is recommended that you subclass View and re-implement the
- * `View::render` method to use a custom templating engine such as
- * Smarty, Twig, Mustache, etc. It is important that `View::render`
- * `return` the final template output. Do not `echo` the output.
+ * The view is responsible for rendering a template. The view
+ * should subclass \Slim\View and implement this interface:
+ *
+ * public render(string $template);
+ *
+ * This method should render the specified template and return
+ * the resultant string.
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -48,24 +50,27 @@ namespace Slim;
 class View
 {
     /**
-     * @var string Absolute template path
+     * @var string Absolute or relative filesystem path to a specific template
+     *
+     * DEPRECATION WARNING!
+     * This variable will be removed in the near future
      */
     protected $templatePath = '';
 
     /**
-     * @var array Key-value array of data available to the template
+     * @var array Associative array of template variables
      */
     protected $data = array();
 
     /**
-     * @var string Absolute or relative path to the templates directory
+     * @var string Absolute or relative path to the application's templates directory
      */
     protected $templatesDirectory;
 
     /**
      * Constructor
      *
-     * This is empty but may be overridden in a subclass
+     * This is empty but may be implemented in a subclass
      */
     public function __construct()
     {
@@ -74,10 +79,10 @@ class View
 
     /**
      * Get data
-     * @param  string           $key
-     * @return array|mixed|null All View data if no $key, value of datum
-     *                              if $key, or NULL if $key but datum
-     *                              does not exist.
+     * @param  string|null      $key
+     * @return mixed            If key is null, array of template data;
+     *                          If key exists, value of datum with key;
+     *                          If key does not exist, null;
      */
     public function getData($key = null)
     {
@@ -91,19 +96,19 @@ class View
     /**
      * Set data
      *
-     * This method is overloaded to accept two different method signatures.
-     * You may use this to set a specific key with a specfic value,
-     * or you may use this to set all data to a specific array.
+     * If two arguments:
+     * A single datum with key is assigned value;
      *
-     * USAGE:
+     *     $view->setData('color', 'red');
      *
-     * View::setData('color', 'red');
-     * View::setData(array('color' => 'red', 'number' => 1));
+     * If one argument:
+     * Replace all data with provided array keys and values;
      *
-     * @param   string|array
-     * @param   mixed                       Optional. Only use if first argument is a string.
-     * @return void
-     * @throws InvalidArgumentException If incorrect method signature
+     *     $view->setData(array('color' => 'red', 'number' => 1));
+     *
+     * @param   mixed
+     * @param   mixed
+     * @throws  InvalidArgumentException If incorrect method signature
      */
     public function setData()
     {
@@ -118,22 +123,22 @@ class View
     }
 
     /**
-     * Append data to existing View data
-     * @param  mixed                    $data
-     * @return void
-     * @throws InvalidArgumentException
+     * Append new data to existing template data
+     * @param  array
+     * @throws InvalidArgumentException If not given an array argument
      */
     public function appendData($data)
     {
         if (!is_array($data)) {
-            throw new \InvalidArgumentException('Cannot append View data, array required');
+            throw new \InvalidArgumentException('Cannot append view data. Expected array argument.');
         }
         $this->data = array_merge($this->data, $data);
     }
 
     /**
      * Get templates directory
-     * @return string|null Path to templates directory without trailing slash
+     * @return string|null     Path to templates directory without trailing slash;
+     *                         Returns null if templates directory not set;
      */
     public function getTemplatesDirectory()
     {
@@ -142,9 +147,7 @@ class View
 
     /**
      * Set templates directory
-     * @param  string           $dir
-     * @return void
-     * @throws RuntimeException If directory is not a directory or does not exist
+     * @param  string   $dir
      */
     public function setTemplatesDirectory($dir)
     {
@@ -154,8 +157,10 @@ class View
     /**
      * Set template
      * @param  string           $template
-     * @return void
      * @throws RuntimeException If template file does not exist
+     *
+     * DEPRECATION WARNING!
+     * This method will be removed in the near future.
      */
     public function setTemplate($template)
     {
@@ -170,9 +175,7 @@ class View
      *
      * This method echoes the rendered template to the current output buffer
      *
-     * @param  string           $template Path to template file relative to templates directoy
-     * @return void
-     * @throws RuntimeException If template does not exist
+     * @param  string   $template   Pathname of template file relative to templates directoy
      */
     public function display($template)
     {
@@ -182,10 +185,10 @@ class View
     /**
      * Fetch rendered template
      *
-     * This method return the rendered template as a string
+     * This method returns the rendered template
      *
-     * @param  string $template Path to template file relative to templates directoy
-     * @return void
+     * @param  string $template Pathname of template file relative to templates directory
+     * @return string
      */
     public function fetch($template)
     {
@@ -194,12 +197,12 @@ class View
 
     /**
      * Render template
-     * @return string Rendered template
+     *
+     * @param  string   $template   Pathname of template file relative to templates directory
+     * @return string
      *
      * DEPRECATION WARNING!
-     *
-     * This method will be made PROTECTED in a future version. Please use `Slim_View::fetch` to
-     * return a rendered template instead of `Slim_View::render`.
+     * Use `\Slim\View::fetch` to return a rendered template instead of `\Slim\View::render`.
      */
     public function render($template)
     {

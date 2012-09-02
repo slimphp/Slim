@@ -55,9 +55,8 @@ class MethodOverride extends \Slim\Middleware
 
     /**
      * Constructor
-     * @param  Slim  $app
-     * @param  array $settings
-     * @return void
+     * @param  \Slim  $app
+     * @param  array  $settings
      */
     public function __construct($settings = array())
     {

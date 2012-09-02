@@ -68,7 +68,6 @@ class ContentTypes extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -131,7 +130,7 @@ class ContentTypes extends \Slim\Middleware
      * will be returned unchanged.
      *
      * @param  string                  $input
-     * @return SimpleXMLElement|string
+     * @return \SimpleXMLElement|string
      */
     protected function parseXml($input)
     {

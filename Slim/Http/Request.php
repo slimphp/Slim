@@ -65,7 +65,7 @@ class Request
     /**
      * Constructor
      * @param array $env
-     * @see     Slim_Environment
+     * @see   \Slim\Environment
      */
     public function __construct($env)
     {
@@ -221,7 +221,7 @@ class Request
      *
      * @param  string           $key
      * @return array|mixed|null
-     * @throws RuntimeException If environment input is not available
+     * @throws \RuntimeException If environment input is not available
      */
     public function post($key = null)
     {
@@ -254,7 +254,7 @@ class Request
     }
 
     /**
-     * Fetch PUT data (alias for Slim_Http_Request::post)
+     * Fetch PUT data (alias for \Slim\Http\Request::post)
      * @param  string           $key
      * @return array|mixed|null
      */
@@ -264,7 +264,7 @@ class Request
     }
 
     /**
-     * Fetch DELETE data (alias for Slim_Http_Request::post)
+     * Fetch DELETE data (alias for \Slim\Http\Request::post)
      * @param  string           $key
      * @return array|mixed|null
      */

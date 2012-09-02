@@ -51,8 +51,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     protected $status;
 
     /**
-     * @var Slim_Http_Headers List of HTTP response headers
-     * @see Slim_Http_Headers
+     * @var \Slim\Http\Headers List of HTTP response headers
      */
     protected $header;
 
@@ -122,9 +121,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Constructor
-     * @param string                  $body   The HTTP response body
-     * @param int                     $status The HTTP response status
-     * @param Slim_Http_Headers|array $header The HTTP response headers
+     * @param string                   $body   The HTTP response body
+     * @param int                      $status The HTTP response status
+     * @param \Slim\Http\Headers|array $header The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $header = array())
     {
@@ -169,7 +168,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Get headers
-     * @return Slim_Http_Headers
+     * @return \Slim\Http\Headers
      */
     public function headers()
     {
@@ -206,9 +205,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Append HTTP response body
-     * @param  string $body    Content to append to the current HTTP response body
-     * @param  bool   $replace Overwrite existing response body?
-     * @return string The updated HTTP response body
+     * @param  string   $body       Content to append to the current HTTP response body
+     * @param  bool     $replace    Overwrite existing response body?
+     * @return string   The updated HTTP response body
      */
     public function write($body, $replace = false)
     {
@@ -251,9 +250,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
      * analyze the raw header before the response is ultimately delivered to the HTTP client.
      *
-     * @param string       $name  The name of the cookie
-     * @param string|array $value If string, the value of cookie; if array, properties for
-     *                                  cookie including: value, expire, path, domain, secure, httponly
+     * @param string        $name    The name of the cookie
+     * @param string|array  $value   If string, the value of cookie; if array, properties for
+     *                               cookie including: value, expire, path, domain, secure, httponly
      */
     public function setCookie($name, $value)
     {
@@ -435,10 +434,10 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Get Iterator
      *
-     * This returns the contained `Slim_Http_Headers` instance which
+     * This returns the contained `\Slim\Http\Headers` instance which
      * is itself iterable.
      *
-     * @return Slim_Http_Headers
+     * @return \Slim\Http\Headers
      */
     public function getIterator()
     {

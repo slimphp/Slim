@@ -51,9 +51,8 @@ class LogWriter
 
     /**
      * Constructor
-     * @param  resource                 $resource
-     * @return void
-     * @throws InvalidArgumentException
+     * @param  resource                  $resource
+     * @throws \InvalidArgumentException If invalid resource
      */
     public function __construct($resource)
     {

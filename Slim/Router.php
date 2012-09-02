@@ -35,8 +35,7 @@ namespace Slim;
 /**
  * Router
  *
- * This class organizes Route objects and, upon request, will
- * return an iterator for routes that match the HTTP request URI.
+ * This class organizes, iterates, and dispatches \Slim\Route objects.
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -50,22 +49,22 @@ class Router implements \Iterator
     protected $resourceUri;
 
     /**
-     * @var array Lookup hash of all routes
+     * @var array Lookup hash of all route objects
      */
     protected $routes;
 
     /**
-     * @var array Lookup hash of named routes, keyed by route name (lazy-loaded)
+     * @var array Lookup hash of named route objects, keyed by route name (lazy-loaded)
      */
     protected $namedRoutes;
 
     /**
-     * @var array Array of routes that match the Request URI (lazy-loaded)
+     * @var array Array of route objects that match the request URI (lazy-loaded)
      */
     protected $matchedRoutes;
 
     /**
-     * @var mixed Callable to be invoked if no matching routes are found
+     * @var mixed Callable to be invoked if no matching route objects are found
      */
     protected $notFound;
 
@@ -76,7 +75,6 @@ class Router implements \Iterator
 
     /**
      * Constructor
-     * @param string $resourceUri The request URI
      */
     public function __construct()
     {
@@ -86,8 +84,10 @@ class Router implements \Iterator
     /**
      * Set Resource URI
      *
-     * This method injects the current request's resource URI, and should be invoked
-     * immediately before route dispatch iteration.
+     * This method injects the current request's resource URI. This method should be invoked
+     * only immediately before router iteration.
+     *
+     * @param string $uri The request URI
      */
     public function setResourceUri($uri)
     {
@@ -95,8 +95,8 @@ class Router implements \Iterator
     }
 
     /**
-     * Get Current Route
-     * @return Slim_Route|false
+     * Get Current Route object
+     * @return \Slim\Route|false
      */
     public function getCurrentRoute()
     {
@@ -106,8 +106,9 @@ class Router implements \Iterator
     }
 
     /**
-     * Return routes that match the current request
-     * @return array[Slim_Route]
+     * Return route objects that match the current request URI
+     * @param  bool                 $reload     Should matching routes be re-parsed?
+     * @return array[\Slim\Route]
      */
     public function getMatchedRoutes($reload = false)
     {
@@ -124,10 +125,10 @@ class Router implements \Iterator
     }
 
     /**
-     * Map a route to a callback function
-     * @param  string     $pattern  The URL pattern (ie. "/books/:id")
-     * @param  mixed      $callable Anything that returns TRUE for is_callable()
-     * @return Slim_Route
+     * Map a route object to a callback function
+     * @param  string     $pattern      The URL pattern (ie. "/books/:id")
+     * @param  mixed      $callable     Anything that returns TRUE for is_callable()
+     * @return \Slim\Route
      */
     public function map($pattern, $callable)
     {
@@ -139,10 +140,10 @@ class Router implements \Iterator
 
     /**
      * Get URL for named route
-     * @param string $name The name of the route
-     * @param   array                       Associative array of URL parameter names and values
-     * @throws RuntimeException If named route not found
-     * @return string           The URL for the given route populated with the given parameters
+     * @param  string               $name   The name of the route
+     * @param  array                Associative array of URL parameter names and replacement values
+     * @throws RuntimeException     If named route not found
+     * @return string               The URL for the given route populated with provided replacement values
      */
     public function urlFor($name, $params = array())
     {
@@ -162,7 +163,7 @@ class Router implements \Iterator
     /**
      * Dispatch route
      *
-     * This method invokes the route's callable. If middleware is
+     * This method invokes the route object's callable. If middleware is
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
@@ -177,9 +178,9 @@ class Router implements \Iterator
      * slash, the route will not be matched and a 404 Not Found
      * response will be sent if no subsequent matching routes are found.
      *
-     * @param  Slim_Route                  $route The route object
-     * @return bool                        Was route callable invoked successfully?
-     * @throws Slim_Exception_RequestSlash
+     * @param  \Slim\Route                  $route  The route object
+     * @return bool                         Was route callable invoked successfully?
+     * @throws \Slim\Exception\RequestSlash
      */
     public function dispatch(\Slim\Route $route)
     {
@@ -206,10 +207,9 @@ class Router implements \Iterator
 
     /**
      * Add named route
-     * @param  string           $name  The route name
-     * @param  Slim_Route       $route The route object
-     * @throws RuntimeException If a named route already exists with the same name
-     * @return void
+     * @param  string            $name   The route name
+     * @param  \Slim\Route       $route  The route object
+     * @throws \RuntimeException If a named route already exists with the same name
      */
     public function addNamedRoute($name, \Slim\Route $route)
     {
@@ -221,7 +221,7 @@ class Router implements \Iterator
 
     /**
      * Has named route
-     * @param  string $name The route name
+     * @param  string   $name   The route name
      * @return bool
      */
     public function hasNamedRoute($name)
@@ -233,8 +233,8 @@ class Router implements \Iterator
 
     /**
      * Get named route
-     * @param  string          $name
-     * @return Slim_Route|null
+     * @param  string           $name
+     * @return \Slim\Route|null
      */
     public function getNamedRoute($name)
     {
@@ -248,7 +248,7 @@ class Router implements \Iterator
 
     /**
      * Get named routes
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getNamedRoutes()
     {
@@ -266,7 +266,7 @@ class Router implements \Iterator
 
     /**
      * Register a 404 Not Found callback
-     * @param  mixed $callable Anything that returns TRUE for is_callable()
+     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
      * @return mixed
      */
     public function notFound($callable = null)
@@ -280,7 +280,7 @@ class Router implements \Iterator
 
     /**
      * Register a 500 Error callback
-     * @param  mixed $callable Anything that returns TRUE for is_callable()
+     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
      * @return mixed
      */
     public function error($callable = null)
@@ -294,7 +294,6 @@ class Router implements \Iterator
 
     /**
      * Iterator Interface: Rewind
-     * @return void
      */
     public function rewind()
     {
@@ -303,7 +302,7 @@ class Router implements \Iterator
 
     /**
      * Iterator Interface: Current
-     * @return Slim_Route|false
+     * @return \Slim\Route|false
      */
     public function current()
     {
@@ -321,7 +320,6 @@ class Router implements \Iterator
 
     /**
      * Iterator Interface: Next
-     * @return void
      */
     public function next()
     {

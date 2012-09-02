@@ -69,8 +69,6 @@ class SessionCookie extends \Slim\Middleware
      * Constructor
      *
      * @param  array $settings
-     * @return void
-     */
     public function __construct($settings = array())
     {
         $this->settings = array_merge(array(
@@ -110,7 +108,6 @@ class SessionCookie extends \Slim\Middleware
 
     /**
      * Call
-     * @return void
      */
     public function call()
     {
@@ -122,7 +119,6 @@ class SessionCookie extends \Slim\Middleware
     /**
      * Load session
      * @param  array $env
-     * @return void
      */
     protected function loadSession()
     {
@@ -145,7 +141,6 @@ class SessionCookie extends \Slim\Middleware
 
     /**
      * Save session
-     * @return void
      */
     protected function saveSession()
     {
@@ -171,9 +166,10 @@ class SessionCookie extends \Slim\Middleware
         session_destroy();
     }
 
-    /**
-     * Session Handler Stubs
-     */
+    /********************************************************************************
+    * Session Handler
+    *******************************************************************************/
+
     public function open($savePath, $sessionName)
     {
         return true;
