@@ -165,8 +165,13 @@ class Slim {
         //Setup view
         $this->view($this->config('view'));
 
-        //Make default if first instance
-        if ( is_null(self::getInstance()) ) {
+        //Use app name passed through configuration
+        $applicationName = $this->config('application-name');
+        if ( $applicationName ) {
+            $this->setName($applicationName);
+        }
+        //or make default if first instance
+        else if ( is_null(self::getInstance()) ) {
             $this->setName('default');
         }
 
