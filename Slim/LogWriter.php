@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Log Writer
@@ -41,7 +42,8 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Slim_LogWriter {
+class LogWriter
+{
     /**
      * @var resource
      */
@@ -49,24 +51,25 @@ class Slim_LogWriter {
 
     /**
      * Constructor
-     * @param   resource    $resource
-     * @return  void
-     * @throws  InvalidArgumentException
+     * @param  resource                  $resource
+     * @throws \InvalidArgumentException If invalid resource
      */
-    public function __construct( $resource ) {
-        if ( !is_resource($resource) ) {
-            throw new InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
+    public function __construct($resource)
+    {
+        if (!is_resource($resource)) {
+            throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
         }
         $this->resource = $resource;
     }
 
     /**
      * Write message
-     * @param   mixed       $message
-     * @param   int         $level
-     * @return  int|false
+     * @param  mixed     $message
+     * @param  int       $level
+     * @return int|false
      */
-    public function write( $message, $level = null ) {
-        return fwrite($this->resource, (string)$message . PHP_EOL);
+    public function write($message, $level = null)
+    {
+        return fwrite($this->resource, (string) $message . PHP_EOL);
     }
 }

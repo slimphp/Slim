@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Exception;
 
 /**
  * Stop Exception
@@ -41,4 +42,7 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Exception_Stop extends Exception {}
+class Stop extends \Exception
+{
+
+}

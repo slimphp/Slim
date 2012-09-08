@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
 /**
  * Middleware
@@ -38,9 +39,10 @@
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-abstract class Slim_Middleware {
+abstract class Middleware
+{
     /**
-     * @var Slim Reference to the primary Slim application instance
+     * @var \Slim Reference to the primary application instance
      */
     protected $app;
 
@@ -55,10 +57,10 @@ abstract class Slim_Middleware {
      * This method injects the primary Slim application instance into
      * this middleware.
      *
-     * @param Slim $application
-     * @return void
+     * @param  \Slim $application
      */
-    final public function setApplication( $application ) {
+    final public function setApplication($application)
+    {
         $this->app = $application;
     }
 
@@ -68,9 +70,10 @@ abstract class Slim_Middleware {
      * This method retrieves the application previously injected
      * into this middleware.
      *
-     * @return Slim
+     * @return \Slim
      */
-    final public function getApplication() {
+    final public function getApplication()
+    {
         return $this->app;
     }
 
@@ -81,10 +84,10 @@ abstract class Slim_Middleware {
      * this middleware so that it may optionally be called
      * when appropriate.
      *
-     * @param Slim|Slim_Middleware
-     * @return void
+     * @param \Slim|\Slim\Middleware
      */
-    final public function setNextMiddleware( $nextMiddleware ) {
+    final public function setNextMiddleware($nextMiddleware)
+    {
         $this->next = $nextMiddleware;
     }
 
@@ -94,9 +97,10 @@ abstract class Slim_Middleware {
      * This method retrieves the next downstream middleware
      * previously injected into this middleware.
      *
-     * @return Slim|Slim_Middleware
+     * @return \Slim|\Slim\Middleware
      */
-    final public function getNextMiddleware() {
+    final public function getNextMiddleware()
+    {
         return $this->next;
     }
 
@@ -105,8 +109,6 @@ abstract class Slim_Middleware {
      *
      * Perform actions specific to this middleware and optionally
      * call the next downstream middleware.
-     *
-     * @return void
      */
     abstract public function call();
 }

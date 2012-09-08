@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
 /**
  * Slim HTTP Request
@@ -41,7 +42,8 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Http_Request {
+class Request
+{
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
@@ -62,10 +64,11 @@ class Slim_Http_Request {
 
     /**
      * Constructor
-     * @param   array $env
-     * @see     Slim_Environment
+     * @param array $env
+     * @see   \Slim\Environment
      */
-    public function __construct( $env ) {
+    public function __construct($env)
+    {
         $this->env = $env;
     }
 
@@ -73,7 +76,8 @@ class Slim_Http_Request {
      * Get HTTP method
      * @return string
      */
-    public function getMethod() {
+    public function getMethod()
+    {
         return $this->env['REQUEST_METHOD'];
     }
 
@@ -81,7 +85,8 @@ class Slim_Http_Request {
      * Is this a GET request?
      * @return bool
      */
-    public function isGet() {
+    public function isGet()
+    {
         return $this->getMethod() === self::METHOD_GET;
     }
 
@@ -89,7 +94,8 @@ class Slim_Http_Request {
      * Is this a POST request?
      * @return bool
      */
-    public function isPost() {
+    public function isPost()
+    {
         return $this->getMethod() === self::METHOD_POST;
     }
 
@@ -97,7 +103,8 @@ class Slim_Http_Request {
      * Is this a PUT request?
      * @return bool
      */
-    public function isPut() {
+    public function isPut()
+    {
         return $this->getMethod() === self::METHOD_PUT;
     }
 
@@ -105,7 +112,8 @@ class Slim_Http_Request {
      * Is this a DELETE request?
      * @return bool
      */
-    public function isDelete() {
+    public function isDelete()
+    {
         return $this->getMethod() === self::METHOD_DELETE;
     }
 
@@ -113,7 +121,8 @@ class Slim_Http_Request {
      * Is this a HEAD request?
      * @return bool
      */
-    public function isHead() {
+    public function isHead()
+    {
         return $this->getMethod() === self::METHOD_HEAD;
     }
 
@@ -121,7 +130,8 @@ class Slim_Http_Request {
      * Is this a OPTIONS request?
      * @return bool
      */
-    public function isOptions() {
+    public function isOptions()
+    {
         return $this->getMethod() === self::METHOD_OPTIONS;
     }
 
@@ -129,10 +139,11 @@ class Slim_Http_Request {
      * Is this an AJAX request?
      * @return bool
      */
-    public function isAjax() {
-        if ( $this->params('isajax') ) {
+    public function isAjax()
+    {
+        if ($this->params('isajax')) {
             return true;
-        } else if ( isset($this->env['X_REQUESTED_WITH']) && $this->env['X_REQUESTED_WITH'] === 'XMLHttpRequest' ) {
+        } elseif (isset($this->env['X_REQUESTED_WITH']) && $this->env['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
             return true;
         } else {
             return false;
@@ -143,7 +154,8 @@ class Slim_Http_Request {
      * Is this an XHR request? (alias of Slim_Http_Request::isAjax)
      * @return bool
      */
-    public function isXhr() {
+    public function isXhr()
+    {
         return $this->isAjax();
     }
 
@@ -153,13 +165,14 @@ class Slim_Http_Request {
      * This method returns a union of GET and POST data as a key-value array, or the value
      * of the array key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param   string $key
-     * @return  array|mixed|null
+     * @param  string           $key
+     * @return array|mixed|null
      */
-    public function params( $key = null ) {
+    public function params($key = null)
+    {
         $union = array_merge($this->get(), $this->post());
-        if ( $key ) {
-            if ( isset($union[$key]) ) {
+        if ($key) {
+            if (isset($union[$key])) {
                 return $union[$key];
             } else {
                 return null;
@@ -175,21 +188,22 @@ class Slim_Http_Request {
      * This method returns a key-value array of data sent in the HTTP request query string, or
      * the value of the array key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param   string $key
-     * @return  array|mixed|null
+     * @param  string           $key
+     * @return array|mixed|null
      */
-    public function get( $key = null ) {
-        if ( !isset($this->env['slim.request.query_hash']) ) {
+    public function get($key = null)
+    {
+        if (!isset($this->env['slim.request.query_hash'])) {
             $output = array();
-            if ( function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte']) ) {
+            if (function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte'])) {
                 mb_parse_str($this->env['QUERY_STRING'], $output);
             } else {
                 parse_str($this->env['QUERY_STRING'], $output);
             }
-            $this->env['slim.request.query_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+            $this->env['slim.request.query_hash'] = Util::stripSlashesIfMagicQuotes($output);
         }
-        if ( $key ) {
-            if ( isset($this->env['slim.request.query_hash'][$key]) ) {
+        if ($key) {
+            if (isset($this->env['slim.request.query_hash'][$key])) {
                 return $this->env['slim.request.query_hash'][$key];
             } else {
                 return null;
@@ -205,30 +219,31 @@ class Slim_Http_Request {
      * This method returns a key-value array of data sent in the HTTP request body, or
      * the value of a hash key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param   string $key
-     * @return  array|mixed|null
-     * @throws  RuntimeException If environment input is not available
+     * @param  string           $key
+     * @return array|mixed|null
+     * @throws \RuntimeException If environment input is not available
      */
-    public function post( $key = null ) {
-        if ( !isset($this->env['slim.input']) ) {
-            throw new RuntimeException('Missing slim.input in environment variables');
+    public function post($key = null)
+    {
+        if (!isset($this->env['slim.input'])) {
+            throw new \RuntimeException('Missing slim.input in environment variables');
         }
-        if ( !isset($this->env['slim.request.form_hash']) ) {
+        if (!isset($this->env['slim.request.form_hash'])) {
             $this->env['slim.request.form_hash'] = array();
-            if ( $this->isFormData() && is_string($this->env['slim.input']) ) {
+            if ($this->isFormData() && is_string($this->env['slim.input'])) {
                 $output = array();
-                if ( function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte']) ) {
+                if (function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte'])) {
                     mb_parse_str($this->env['slim.input'], $output);
                 } else {
                     parse_str($this->env['slim.input'], $output);
                 }
-                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($output);
+                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($output);
             } else {
-                $this->env['slim.request.form_hash'] = Slim_Http_Util::stripSlashesIfMagicQuotes($_POST);
+                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($_POST);
             }
         }
-        if ( $key ) {
-            if ( isset($this->env['slim.request.form_hash'][$key]) ) {
+        if ($key) {
+            if (isset($this->env['slim.request.form_hash'][$key])) {
                 return $this->env['slim.request.form_hash'][$key];
             } else {
                 return null;
@@ -239,20 +254,22 @@ class Slim_Http_Request {
     }
 
     /**
-     * Fetch PUT data (alias for Slim_Http_Request::post)
-     * @param   string $key
-     * @return  array|mixed|null
+     * Fetch PUT data (alias for \Slim\Http\Request::post)
+     * @param  string           $key
+     * @return array|mixed|null
      */
-    public function put( $key = null ) {
+    public function put($key = null)
+    {
         return $this->post($key);
     }
 
     /**
-     * Fetch DELETE data (alias for Slim_Http_Request::post)
-     * @param   string $key
-     * @return  array|mixed|null
+     * Fetch DELETE data (alias for \Slim\Http\Request::post)
+     * @param  string           $key
+     * @return array|mixed|null
      */
-    public function delete( $key = null ) {
+    public function delete($key = null)
+    {
         return $this->post($key);
     }
 
@@ -262,16 +279,17 @@ class Slim_Http_Request {
      * This method returns a key-value array of Cookie data sent in the HTTP request, or
      * the value of a array key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param string $key
+     * @param  string            $key
      * @return array|string|null
      */
-    public function cookies( $key = null ) {
-        if ( !isset($this->env['slim.request.cookie_hash']) ) {
+    public function cookies($key = null)
+    {
+        if (!isset($this->env['slim.request.cookie_hash'])) {
             $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-            $this->env['slim.request.cookie_hash'] = Slim_Http_Util::parseCookieHeader($cookieHeader);
+            $this->env['slim.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
         }
-        if ( $key ) {
-            if ( isset($this->env['slim.request.cookie_hash'][$key]) ) {
+        if ($key) {
+            if (isset($this->env['slim.request.cookie_hash'][$key])) {
                 return $this->env['slim.request.cookie_hash'][$key];
             } else {
                 return null;
@@ -285,9 +303,11 @@ class Slim_Http_Request {
      * Does the Request body contain parseable form data?
      * @return bool
      */
-    public function isFormData() {
+    public function isFormData()
+    {
         $method = isset($this->env['slim.method_override.original_method']) ? $this->env['slim.method_override.original_method'] : $this->getMethod();
-        return ( $method === self::METHOD_POST && is_null($this->getContentType()) ) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+
+        return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
@@ -296,27 +316,29 @@ class Slim_Http_Request {
      * This method returns a key-value array of headers sent in the HTTP request, or
      * the value of a hash key if requested; if the array key does not exist, NULL is returned.
      *
-     * @param string $key
-     * @param mixed $default The default value returned if the requested header is not available
+     * @param  string $key
+     * @param  mixed  $default The default value returned if the requested header is not available
      * @return mixed
      */
-    public function headers( $key = null, $default = null ) {
-        if ( $key ) {
+    public function headers($key = null, $default = null)
+    {
+        if ($key) {
             $key = strtoupper($key);
             $key = str_replace('-', '_', $key);
             $key = preg_replace('@^HTTP_@', '', $key);
-            if ( isset($this->env[$key]) ) {
+            if (isset($this->env[$key])) {
                 return $this->env[$key];
             } else {
                 return $default;
             }
         } else {
             $headers = array();
-            foreach ( $this->env as $key => $value ) {
-                if ( strpos($key, 'slim.') !== 0 ) {
+            foreach ($this->env as $key => $value) {
+                if (strpos($key, 'slim.') !== 0) {
                     $headers[$key] = $value;
                 }
             }
+
             return $headers;
         }
     }
@@ -325,7 +347,8 @@ class Slim_Http_Request {
      * Get Body
      * @return string
      */
-    public function getBody() {
+    public function getBody()
+    {
         return $this->env['slim.input'];
     }
 
@@ -333,8 +356,9 @@ class Slim_Http_Request {
      * Get Content Type
      * @return string
      */
-    public function getContentType() {
-        if ( isset($this->env['CONTENT_TYPE']) ) {
+    public function getContentType()
+    {
+        if (isset($this->env['CONTENT_TYPE'])) {
             return $this->env['CONTENT_TYPE'];
         } else {
             return null;
@@ -345,10 +369,12 @@ class Slim_Http_Request {
      * Get Media Type (type/subtype within Content Type header)
      * @return string|null
      */
-    public function getMediaType() {
+    public function getMediaType()
+    {
         $contentType = $this->getContentType();
-        if ( $contentType ) {
+        if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
+
             return strtolower($contentTypeParts[0]);
         } else {
             return null;
@@ -359,17 +385,19 @@ class Slim_Http_Request {
      * Get Media Type Params
      * @return array
      */
-    public function getMediaTypeParams() {
+    public function getMediaTypeParams()
+    {
         $contentType = $this->getContentType();
         $contentTypeParams = array();
-        if ( $contentType ) {
+        if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
             $contentTypePartsLength = count($contentTypeParts);
-            for ( $i = 1; $i < $contentTypePartsLength; $i++ ) {
+            for ($i = 1; $i < $contentTypePartsLength; $i++) {
                 $paramParts = explode('=', $contentTypeParts[$i]);
                 $contentTypeParams[strtolower($paramParts[0])] = $paramParts[1];
             }
         }
+
         return $contentTypeParams;
     }
 
@@ -377,9 +405,10 @@ class Slim_Http_Request {
      * Get Content Charset
      * @return string|null
      */
-    public function getContentCharset() {
+    public function getContentCharset()
+    {
         $mediaTypeParams = $this->getMediaTypeParams();
-        if ( isset($mediaTypeParams['charset']) ) {
+        if (isset($mediaTypeParams['charset'])) {
             return $mediaTypeParams['charset'];
         } else {
             return null;
@@ -390,9 +419,10 @@ class Slim_Http_Request {
      * Get Content-Length
      * @return int
      */
-    public function getContentLength() {
-        if ( isset($this->env['CONTENT_LENGTH']) ) {
-            return (int)$this->env['CONTENT_LENGTH'];
+    public function getContentLength()
+    {
+        if (isset($this->env['CONTENT_LENGTH'])) {
+            return (int) $this->env['CONTENT_LENGTH'];
         } else {
             return 0;
         }
@@ -402,12 +432,15 @@ class Slim_Http_Request {
      * Get Host
      * @return string
      */
-    public function getHost() {
-        if ( isset($this->env['HOST']) ) {
-            if ( strpos($this->env['HOST'], ':') !== false ) {
+    public function getHost()
+    {
+        if (isset($this->env['HOST'])) {
+            if (strpos($this->env['HOST'], ':') !== false) {
                 $hostParts = explode(':', $this->env['HOST']);
+
                 return $hostParts[0];
             }
+
             return $this->env['HOST'];
         } else {
             return $this->env['SERVER_NAME'];
@@ -418,7 +451,8 @@ class Slim_Http_Request {
      * Get Host with Port
      * @return string
      */
-    public function getHostWithPort() {
+    public function getHostWithPort()
+    {
         return sprintf('%s:%s', $this->getHost(), $this->getPort());
     }
 
@@ -426,15 +460,17 @@ class Slim_Http_Request {
      * Get Port
      * @return int
      */
-    public function getPort() {
-        return (int)$this->env['SERVER_PORT'];
+    public function getPort()
+    {
+        return (int) $this->env['SERVER_PORT'];
     }
 
     /**
      * Get Scheme (https or http)
      * @return string
      */
-    public function getScheme() {
+    public function getScheme()
+    {
         return $this->env['slim.url_scheme'];
     }
 
@@ -442,7 +478,8 @@ class Slim_Http_Request {
      * Get Script Name (physical path)
      * @return string
      */
-    public function getScriptName() {
+    public function getScriptName()
+    {
         return $this->env['SCRIPT_NAME'];
     }
 
@@ -450,7 +487,8 @@ class Slim_Http_Request {
      * LEGACY: Get Root URI (alias for Slim_Http_Request::getScriptName)
      * @return string
      */
-    public function getRootUri() {
+    public function getRootUri()
+    {
         return $this->getScriptName();
     }
 
@@ -458,7 +496,8 @@ class Slim_Http_Request {
      * Get Path (physical path + virtual path)
      * @return string
      */
-    public function getPath() {
+    public function getPath()
+    {
         return $this->getScriptName() . $this->getPathInfo();
     }
 
@@ -466,7 +505,8 @@ class Slim_Http_Request {
      * Get Path Info (virtual path)
      * @return string
      */
-    public function getPathInfo() {
+    public function getPathInfo()
+    {
         return $this->env['PATH_INFO'];
     }
 
@@ -474,7 +514,8 @@ class Slim_Http_Request {
      * LEGACY: Get Resource URI (alias for Slim_Http_Request::getPathInfo)
      * @return string
      */
-    public function getResourceUri() {
+    public function getResourceUri()
+    {
         return $this->getPathInfo();
     }
 
@@ -482,11 +523,13 @@ class Slim_Http_Request {
      * Get URL (scheme + host [ + port if non-standard ])
      * @return string
      */
-    public function getUrl() {
+    public function getUrl()
+    {
         $url = $this->getScheme() . '://' . $this->getHost();
-        if ( ( $this->getScheme() === 'https' && $this->getPort() !== 443 ) || ( $this->getScheme() === 'http' && $this->getPort() !== 80 ) ) {
+        if (($this->getScheme() === 'https' && $this->getPort() !== 443) || ($this->getScheme() === 'http' && $this->getPort() !== 80)) {
             $url .= sprintf(':%s', $this->getPort());
         }
+
         return $url;
     }
 
@@ -494,12 +537,14 @@ class Slim_Http_Request {
      * Get IP
      * @return string
      */
-    public function getIp() {
-        if ( isset($this->env['X_FORWARDED_FOR']) ) {
+    public function getIp()
+    {
+        if (isset($this->env['X_FORWARDED_FOR'])) {
             return $this->env['X_FORWARDED_FOR'];
-        } else if ( isset($this->env['CLIENT_IP']) ) {
+        } elseif (isset($this->env['CLIENT_IP'])) {
             return $this->env['CLIENT_IP'];
         }
+
         return $this->env['REMOTE_ADDR'];
     }
 
@@ -507,8 +552,9 @@ class Slim_Http_Request {
      * Get Referrer
      * @return string|null
      */
-    public function getReferrer() {
-        if ( isset($this->env['REFERER']) ) {
+    public function getReferrer()
+    {
+        if (isset($this->env['REFERER'])) {
             return $this->env['REFERER'];
         } else {
             return null;
@@ -519,7 +565,8 @@ class Slim_Http_Request {
      * Get Referer (for those who can't spell)
      * @return string|null
      */
-    public function getReferer() {
+    public function getReferer()
+    {
         return $this->getReferrer();
     }
 
@@ -527,8 +574,9 @@ class Slim_Http_Request {
      * Get User Agent
      * @return string|null
      */
-    public function getUserAgent() {
-        if ( isset($this->env['USER_AGENT']) ) {
+    public function getUserAgent()
+    {
+        if (isset($this->env['USER_AGENT'])) {
             return $this->env['USER_AGENT'];
         } else {
             return null;

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -30,25 +30,31 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class My_Middleware extends Slim_Middleware {
-    public function call() {
+class My_Middleware extends \Slim\Middleware
+{
+    public function call()
+    {
         echo "Before";
         $this->next->call();
         echo "After";
     }
 }
 
-class My_Application {
-    public function call() {
+class My_Application
+{
+    public function call()
+    {
         echo "Application";
     }
 }
 
-class MiddlewareTest extends PHPUnit_Framework_TestCase {
+class MiddlewareTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Get and set application
      */
-    public function testGetAndSetApplication() {
+    public function testGetAndSetApplication()
+    {
         $app = new My_Application();
         $mw = new My_Middleware();
         $mw->setApplication($app);
@@ -58,7 +64,8 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase {
     /**
      * Get and set next middleware
      */
-    public function testGetAndSetNextMiddleware() {
+    public function testGetAndSetNextMiddleware()
+    {
         $mw1 = new My_Middleware();
         $mw2 = new My_Middleware();
         $mw1->setNextMiddleware($mw2);
@@ -68,7 +75,8 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase {
     /**
      * Test call
      */
-    public function testCall() {
+    public function testCall()
+    {
         $this->expectOutputString('BeforeApplicationAfter');
         $app = new My_Application();
         $mw = new My_Middleware();

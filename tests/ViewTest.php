@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -30,13 +30,15 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class ViewTest extends PHPUnit_Framework_TestCase {
-
-    public function setUp() {
-        $this->view = new Slim_View();
+class ViewTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        $this->view = new \Slim\View();
     }
 
-    public function generateTestData() {
+    public function generateTestData()
+    {
         return array('a' => 1, 'b' => 2, 'c' => 3);
     }
 
@@ -49,7 +51,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * The View object's data attribute is an empty array
      */
-    public function testViewIsConstructedWithDataArray() {
+    public function testViewIsConstructedWithDataArray()
+    {
         $this->assertEquals(array(), $this->view->getData());
     }
 
@@ -66,7 +69,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Case B: Data is set to array
      * Case C: An InvalidArgumentException is thrown
      */
-    public function testViewSetAndGetData() {
+    public function testViewSetAndGetData()
+    {
         //Case A
         $this->view->setData('one', 1);
         $this->assertEquals(1, $this->view->getData('one'));
@@ -80,7 +84,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $this->view->setData('foo');
             $this->fail('Setting View data with non-array single argument did not throw exception');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
     }
 
     /**
@@ -94,7 +98,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Case A: The View data contains all appended data
      * Case B: An InvalidArgumentException is thrown
      */
-    public function testViewAppendsData(){
+    public function testViewAppendsData()
+    {
         //Case A
         $this->view->appendData(array('a' => 'A'));
         $this->view->appendData(array('b' => 'B'));
@@ -104,7 +109,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $this->view->appendData('not an array');
             $this->fail('Appending View data with non-array argument did not throw exception');
-        } catch ( InvalidArgumentException $e ) {}
+        } catch ( \InvalidArgumentException $e ) {}
 
     }
 
@@ -117,7 +122,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * The templates directory is set correctly.
      */
-    public function testSetsTemplatesDirectory() {
+    public function testSetsTemplatesDirectory()
+    {
         $templatesDirectory = dirname(__FILE__) . '/templates';
         $this->view->setTemplatesDirectory($templatesDirectory);
         $this->assertEquals($templatesDirectory, $this->view->getTemplatesDirectory());
@@ -132,7 +138,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * The View templates directory is set correctly without a trailing slash
      */
-    public function testTemplatesDirectoryWithTrailingSlash() {
+    public function testTemplatesDirectoryWithTrailingSlash()
+    {
         $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates/');
         $this->assertEquals(dirname(__FILE__) . '/templates', $this->view->getTemplatesDirectory());
     }
@@ -150,7 +157,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Case A: The rendered template is returned as a string
      * Case B: A RuntimeException is thrown
      */
-    public function testRendersTemplateWithData() {
+    public function testRendersTemplateWithData()
+    {
         $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
         $this->view->setData(array('foo' => 'bar'));
 
@@ -162,7 +170,7 @@ class ViewTest extends PHPUnit_Framework_TestCase {
         try {
             $output = $this->view->render('foo.php');
             $this->fail('Rendering non-existent template did not throw exception');
-        } catch ( RuntimeException $e ) {}
+        } catch ( \RuntimeException $e ) {}
     }
 
     /**
@@ -176,7 +184,8 @@ class ViewTest extends PHPUnit_Framework_TestCase {
      * Post-conditions:
      * The output buffer contains the rendered template
      */
-    public function testDisplaysTemplateWithData() {
+    public function testDisplaysTemplateWithData()
+    {
         $this->expectOutputString('test output bar');
         $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
         $this->view->setData(array('foo' => 'bar'));

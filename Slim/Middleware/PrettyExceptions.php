@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.7
+ * @version     2.0.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
 /**
  * Pretty Exceptions
@@ -41,7 +42,8 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
+class PrettyExceptions extends \Slim\Middleware
+{
     /**
      * @var array
      */
@@ -49,21 +51,21 @@ class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
 
     /**
      * Constructor
-     * @param Slim|middleware $app
      * @param array $settings
      */
-    public function __construct( $settings = array() ) {
+    public function __construct($settings = array())
+    {
         $this->settings = $settings;
     }
 
     /**
      * Call
-     * @return void
      */
-    public function call() {
+    public function call()
+    {
         try {
             $this->next->call();
-        } catch ( Exception $e ) {
+        } catch (\Exception $e) {
             $env = $this->app->environment();
             $env['slim.log']->error($e);
             $this->app->contentType('text/html');
@@ -74,11 +76,12 @@ class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
 
     /**
      * Render response body
-     * @param array $env
-     * @param Exception $exception
+     * @param  array      $env
+     * @param  \Exception $exception
      * @return string
      */
-    protected function renderBody( &$env, $exception ) {
+    protected function renderBody(&$env, $exception)
+    {
         $title = 'Slim Application Error';
         $code = $exception->getCode();
         $message = $exception->getMessage();
@@ -88,22 +91,23 @@ class Slim_Middleware_PrettyExceptions extends Slim_Middleware {
         $html = sprintf('<h1>%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
-        if ( $code ) {
+        if ($code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
-        if ( $message ) {
+        if ($message) {
             $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
         }
-        if ( $file ) {
+        if ($file) {
             $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
-        if ( $line ) {
+        if ($line) {
             $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
-        if ( $trace ) {
+        if ($trace) {
             $html .= '<h2>Trace</h2>';
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
+
         return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
     }
 }
