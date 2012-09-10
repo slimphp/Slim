@@ -360,6 +360,96 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route2, $app->router()->getCurrentRoute());
     }
 
+    /**
+     * Test calling get current route before routing doesn't cause errors
+     */
+    public function testGetCurrentRouteBeforeRoutingDoesntError()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () {
+            echo "Foo";
+        });
+
+        $app->router()->getCurrentRoute();
+
+        $app->call();
+    }
+
+    /**
+     * Test get current route before routing returns null
+     */
+    public function testGetCurrentRouteBeforeRoutingReturnsNull()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () {
+            echo "Foo";
+        });
+
+        $this->assertSame(null, $app->router()->getCurrentRoute());
+    }
+
+    /**
+     * Test get current route during routing
+     */
+    public function testGetCurrentRouteDuringRouting()
+    {
+        $route = null;
+
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () use (&$route, $app) {
+            echo "Foo";
+            $route = $app->router()->getCurrentRoute();
+        });
+
+        $app->call();
+        $this->assertSame($route2, $route);
+    }
+
+    /**
+     * Test get current route after routing
+     */
+    public function testGetCurrentRouteAfterRouting()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () {
+            echo "Foo";
+        });
+        $app->call();
+        $this->assertSame($route2, $app->router()->getCurrentRoute());
+    }
+
     public function testDispatch()
     {
         $this->expectOutputString('Hello josh');

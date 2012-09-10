@@ -44,6 +44,11 @@ namespace Slim;
 class Router implements \Iterator
 {
     /**
+     * @var Route The current route (most recently dispatched)
+     */
+    protected $currentRoute;
+
+    /**
      * @var string Request URI
      */
     protected $resourceUri;
@@ -100,9 +105,7 @@ class Router implements \Iterator
      */
     public function getCurrentRoute()
     {
-        $this->getMatchedRoutes(); // <-- Parse if not already parsed
-
-        return $this->current();
+        return $this->currentRoute;
     }
 
     /**
@@ -184,6 +187,8 @@ class Router implements \Iterator
      */
     public function dispatch(\Slim\Route $route)
     {
+        $this->currentRoute = $route;
+
         if (substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/') {
             throw new Exception\RequestSlash();
         }
