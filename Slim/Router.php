@@ -109,15 +109,20 @@ class Router
     }
 
     /**
-     * Return route objects that match the current request URI
-     * @param  bool                 $reload     Should matching routes be re-parsed?
+     * Return route objects that match the current request method and URI
+     * @param  string               $requestMethod  The request method of the current request
+     * @param  bool                 $reload         Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
-    public function getMatchedRoutes($reload = false)
+    public function getMatchedRoutes($requestMethod, $reload = false)
     {
         if ($reload || is_null($this->matchedRoutes)) {
             $this->matchedRoutes = array();
             foreach ($this->routes as $route) {
+                if (!$route->supportsHttpMethod($requestMethod)) {
+                    continue;
+                }
+
                 if ($route->matches($this->resourceUri)) {
                     $this->matchedRoutes[] = $route;
                 }

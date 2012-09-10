@@ -1200,31 +1200,22 @@ class Slim
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $httpMethodsAllowed = array();
             $this->router->setResourceUri($this->request->getResourceUri());
-            foreach ($this->router->getMatchedRoutes() as $route) {
-                if ($route->supportsHttpMethod($this->environment['REQUEST_METHOD'])) {
-                    try {
-                        $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
-                        $this->applyHook('slim.after.dispatch');
-                        if ($dispatched) {
-                            break;
-                        }
-                    } catch (\Slim\Exception\Pass $e) {
-                        continue;
+            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod());
+            foreach ($matchedRoutes as $route) {
+                try {
+                    $this->applyHook('slim.before.dispatch');
+                    $dispatched = $this->router->dispatch($route);
+                    $this->applyHook('slim.after.dispatch');
+                    if ($dispatched) {
+                        break;
                     }
-                } else {
-                    $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods());
+                } catch (\Slim\Exception\Pass $e) {
+                    continue;
                 }
             }
             if (!$dispatched) {
-                if ($httpMethodsAllowed) {
-                    $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
-                } else {
-                   $this->notFound();
-                }
+               $this->notFound();
             }
             $this->applyHook('slim.after.router');
             $this->stop();

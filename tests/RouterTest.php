@@ -225,34 +225,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Router considers HEAD requests as GET requests
-     */
-    public function testRouterConsidersHeadAsGet()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'HEAD',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $this->env = \Slim\Environment::getInstance();
-        $this->req = new \Slim\Http\Request($this->env);
-        $this->res = new \Slim\Http\Response();
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/bar', function () {})->via('GET', 'HEAD');
-        $numberOfMatchingRoutes = count($router->getMatchedRoutes());
-        $this->assertEquals(1, $numberOfMatchingRoutes);
-    }
-
-    /**
      * Router::urlFor
      */
     public function testRouterUrlFor()
@@ -309,10 +281,99 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that router returns matched routes based on URI only, not
-     * based on the HTTP method.
+     * Test that router returns no matches when neither HTTP method nor URI match.
      */
-    public function testRouterMatchesRoutesByUriOnly()
+    public function testRouterMatchesRoutesNone()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
+        $router->setResourceUri($this->req->getResourceUri());
+        $router->map('/bar', function () {})->via('POST');
+        $router->map('/foo', function () {})->via('POST');
+        $router->map('/foo', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod())));
+    }
+
+    /**
+     * Test that router returns no matches when HTTP method matches but URI does not.
+     */
+    public function testRouterMatchesRoutesNoneWhenMethodMatchesUriDoesNot()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
+        $router->setResourceUri($this->req->getResourceUri());
+        $router->map('/fooNOMATCH', function () {})->via('GET');
+        $router->map('/foo', function () {})->via('POST');
+        $router->map('/foo', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod())));
+    }
+
+    /**
+     * Test that router returns no matches when HTTP method does not match but URI does.
+     */
+    public function testRouterMatchesRoutesNoneWhenMethodDoesNotMatchUriMatches()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $this->env = \Slim\Environment::getInstance();
+        $this->req = new \Slim\Http\Request($this->env);
+        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
+        $router->setResourceUri($this->req->getResourceUri());
+        $router->map('/foo', function () {})->via('OPTIONS');
+        $router->map('/foo', function () {})->via('POST');
+        $router->map('/foo', function () {})->via('PUT');
+        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod())));
+    }
+
+    /**
+     * Test that router returns matched routes based on HTTP method and URI.
+     */
+    public function testRouterMatchesRoutes()
     {
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
@@ -336,7 +397,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(3, count($router->getMatchedRoutes()));
+        $this->assertEquals(1, count($router->getMatchedRoutes($this->req->getMethod())));
     }
 
     /**
