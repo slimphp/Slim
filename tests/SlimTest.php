@@ -397,21 +397,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if route expects trailing slash and URL does not have one
-     */
-    public function testRouteWithSlashAndUrlWithout()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar/', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(301, $s->response()->status());
-    }
-
-    /**
      * Test if route does NOT expect trailing slash and URL has one
      */
     public function testRouteWithoutSlashAndUrlWithOne()

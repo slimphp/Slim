@@ -1222,8 +1222,6 @@ class Slim
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after');
-        } catch (\Slim\Exception\RequestSlash $e) {
-            $this->response->redirect($this->request->getPath() . '/', 301);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;

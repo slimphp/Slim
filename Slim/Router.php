@@ -175,28 +175,12 @@ class Router
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * This method is smart about trailing slashes on the route pattern.
-     * If the route's pattern is defined with a trailing slash, and if the
-     * current request URI does not have a trailing slash but otherwise
-     * matches the route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
-     * URI _with_ a trailing slash. This Exception is caught in the
-     * `Slim::call` loop. If the route's pattern is defined without a
-     * trailing slash, and if the current request URI does have a trailing
-     * slash, the route will not be matched and a 404 Not Found
-     * response will be sent if no subsequent matching routes are found.
-     *
      * @param  \Slim\Route                  $route  The route object
      * @return bool                         Was route callable invoked successfully?
-     * @throws \Slim\Exception\RequestSlash
      */
     public function dispatch(\Slim\Route $route)
     {
         $this->currentRoute = $route;
-
-        if (substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/') {
-            throw new Exception\RequestSlash();
-        }
 
         //Invoke middleware
         foreach ($route->getMiddleware() as $mw) {
