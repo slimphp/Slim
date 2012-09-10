@@ -41,7 +41,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Router implements \Iterator
+class Router
 {
     /**
      * @var Route The current route (most recently dispatched)
@@ -295,48 +295,5 @@ class Router implements \Iterator
         }
 
         return $this->error;
-    }
-
-    /**
-     * Iterator Interface: Rewind
-     */
-    public function rewind()
-    {
-        reset($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Current
-     * @return \Slim\Route|false
-     */
-    public function current()
-    {
-        return current($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Key
-     * @return int|null
-     */
-    public function key()
-    {
-        return key($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Next
-     */
-    public function next()
-    {
-        next($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Valid
-     * @return boolean
-     */
-    public function valid()
-    {
-        return $this->current();
     }
 }

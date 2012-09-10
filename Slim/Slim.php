@@ -1202,8 +1202,7 @@ class Slim
             $dispatched = false;
             $httpMethodsAllowed = array();
             $this->router->setResourceUri($this->request->getResourceUri());
-            $this->router->getMatchedRoutes();
-            foreach ($this->router as $route) {
+            foreach ($this->router->getMatchedRoutes() as $route) {
                 if ($route->supportsHttpMethod($this->environment['REQUEST_METHOD'])) {
                     try {
                         $this->applyHook('slim.before.dispatch');
