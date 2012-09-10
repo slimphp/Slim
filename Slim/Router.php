@@ -49,11 +49,6 @@ class Router
     protected $currentRoute;
 
     /**
-     * @var string Request URI
-     */
-    protected $resourceUri;
-
-    /**
      * @var array Lookup hash of all route objects
      */
     protected $routes;
@@ -87,21 +82,8 @@ class Router
     }
 
     /**
-     * Set Resource URI
-     *
-     * This method injects the current request's resource URI. This method should be invoked
-     * only immediately before router iteration.
-     *
-     * @param string $uri The request URI
-     */
-    public function setResourceUri($uri)
-    {
-        $this->resourceUri = $uri;
-    }
-
-    /**
      * Get Current Route object
-     * @return \Slim\Route|false
+     * @return \Slim\Route|null
      */
     public function getCurrentRoute()
     {
@@ -109,21 +91,22 @@ class Router
     }
 
     /**
-     * Return route objects that match the current request method and URI
-     * @param  string               $requestMethod  The request method of the current request
-     * @param  bool                 $reload         Should matching routes be re-parsed?
+     * Return route objects that match the given HTTP method and URI
+     * @param  string               $httpMethod   The HTTP method to match against
+     * @param  string               $resourceUri  The resource URI to match against
+     * @param  bool                 $reload       Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
-    public function getMatchedRoutes($requestMethod, $reload = false)
+    public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
         if ($reload || is_null($this->matchedRoutes)) {
             $this->matchedRoutes = array();
             foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($requestMethod)) {
+                if (!$route->supportsHttpMethod($httpMethod)) {
                     continue;
                 }
 
-                if ($route->matches($this->resourceUri)) {
+                if ($route->matches($resourceUri)) {
                     $this->matchedRoutes[] = $route;
                 }
             }
