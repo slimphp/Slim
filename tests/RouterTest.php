@@ -495,6 +495,25 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route2, $app->router()->getCurrentRoute());
     }
 
+    /**
+     * Test get current route is null after routing when route was not callable
+     */
+    public function testGetCurrentRouteAfterRoutingWhenRouteWasNotCallable()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', 'fnDoesNotExist');
+        $app->call();
+        $this->assertSame(null, $app->router()->getCurrentRoute());
+    }
+
     public function testDispatch()
     {
         $this->expectOutputString('Hello josh');

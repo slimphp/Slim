@@ -179,6 +179,8 @@ class Router
             return true;
         }
 
+        $this->currentRoute = null;
+
         return false;
     }
 
