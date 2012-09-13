@@ -142,7 +142,7 @@ class Slim
         }
         $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
 
-        if (file_exists($fileName)) {
+        if (false !== stream_resolve_include_path($fileName)) {
             require $fileName;
         }
     }
