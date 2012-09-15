@@ -49,7 +49,7 @@ class Slim
     /**
      * @const string
      */
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
 
     /**
      * @var array[\Slim]
@@ -127,7 +127,7 @@ class Slim
         $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
 
         $baseDir = __DIR__;
-   
+
         if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
             $baseDir = substr($baseDir, 0, -strlen($thisClass));
         }
