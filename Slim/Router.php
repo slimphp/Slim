@@ -100,6 +100,7 @@ class Router
     public function getMatchedRoute($httpMethod, $resourceUri, $reload = false)
     {
         if ($reload || is_null($this->currentRoute)) {
+            $this->currentRoute = null;
             foreach ($this->routes as $route) {
                 if ($route->supportsHttpMethod($httpMethod) && $route->matches($resourceUri)) {
                     $this->currentRoute = $route;
