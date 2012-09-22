@@ -294,7 +294,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $this->assertEquals(null, count($router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri())));
     }
 
     /**
@@ -323,7 +323,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $this->assertEquals(null, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
     /**
@@ -352,7 +352,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $this->assertEquals(null, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
     /**
@@ -377,11 +377,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->req = new \Slim\Http\Request($this->env);
         $this->res = new \Slim\Http\Response();
         $router = new \Slim\Router();
-        $router->map('/foo', function () {})->via('GET');
+        $route = $router->map('/foo', function () {})->via('GET');
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(1, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $this->assertEquals($route, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
     /**

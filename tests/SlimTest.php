@@ -930,61 +930,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test pass cleans buffer and throws exception
-     */
-    public function testPass()
-    {
-        ob_start();
-        $s = new \Slim\Slim();
-        echo "Foo";
-        try {
-            $s->pass();
-            $this->fail('Did not catch Slim_Exception_Pass');
-        } catch ( \Slim\Exception\Pass $e ) {}
-        $output = ob_get_clean();
-        $this->assertEquals('', $output);
-    }
-
-    /**
-     * Test pass when there is a subsequent fallback route
-     */
-    public function testPassWithSubsequentRoute()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/name/Frank', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/name/Frank', function () use ($s) {
-            echo "Fail"; //<-- Should not be in response body!
-            $s->pass();
-        });
-        $s->get('/name/:name', function ($name) {
-            echo $name; //<-- Should be in response body!
-        });
-        $s->call();
-        $this->assertEquals('Frank', $s->response()->body());
-    }
-
-    /**
-     * Test pass when there is not a subsequent fallback route
-     */
-    public function testPassWithoutSubsequentRoute()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/name/Frank', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/name/Frank', function () use ($s) {
-            echo "Fail"; //<-- Should not be in response body!
-            $s->pass();
-        });
-        $s->call();
-        $this->assertEquals(404, $s->response()->status());
-    }
-
-    /**
      * Test content type
      */
     public function testContentType()

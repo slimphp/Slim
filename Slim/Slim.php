@@ -933,21 +933,6 @@ class Slim
     }
 
     /**
-     * Pass
-     *
-     * The thrown exception is caught in the application's `call()` method causing
-     * the router's current iteration to stop and continue to the subsequent route if available.
-     * If no subsequent matching routes are found, a 404 response will be sent to the client.
-     *
-     * @throws \Slim\Exception\Pass
-     */
-    public function pass()
-    {
-        $this->cleanBuffer();
-        throw new \Slim\Exception\Pass();
-    }
-
-    /**
      * Set the HTTP response Content-Type
      * @param  string   $type   The Content-Type for the Response (ie. text/html)
      */
@@ -1200,20 +1185,12 @@ class Slim
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
-            foreach ($matchedRoutes as $route) {
-                try {
+            $matchedRoute = $this->router->getMatchedRoute($this->request->getMethod(), $this->request->getResourceUri());
+            if($matchedRoute) {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $this->router->dispatch($route);
+                    $dispatched = $this->router->dispatch($matchedRoute);
                     $this->applyHook('slim.after.dispatch');
-                    if ($dispatched) {
-                        break;
-                    }
-                } catch (\Slim\Exception\Pass $e) {
-                    continue;
-                }
-            }
-            if (!$dispatched) {
+            } else {
                $this->notFound();
             }
             $this->applyHook('slim.after.router');

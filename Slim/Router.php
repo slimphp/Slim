@@ -97,22 +97,18 @@ class Router
      * @param  bool                 $reload       Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
-    public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
+    public function getMatchedRoute($httpMethod, $resourceUri, $reload = false)
     {
-        if ($reload || is_null($this->matchedRoutes)) {
-            $this->matchedRoutes = array();
+        if ($reload || is_null($this->currentRoute)) {
             foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($httpMethod)) {
-                    continue;
-                }
-
-                if ($route->matches($resourceUri)) {
-                    $this->matchedRoutes[] = $route;
+                if ($route->supportsHttpMethod($httpMethod) && $route->matches($resourceUri)) {
+                    $this->currentRoute = $route;
+                    break;
                 }
             }
         }
 
-        return $this->matchedRoutes;
+        return $this->currentRoute;
     }
 
     /**
@@ -163,8 +159,6 @@ class Router
      */
     public function dispatch(\Slim\Route $route)
     {
-        $this->currentRoute = $route;
-
         //Invoke middleware
         foreach ($route->getMiddleware() as $mw) {
             if (is_callable($mw)) {
