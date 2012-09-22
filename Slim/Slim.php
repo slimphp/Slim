@@ -1184,11 +1184,10 @@ class Slim
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
-            $dispatched = false;
             $matchedRoute = $this->router->getMatchedRoute($this->request->getMethod(), $this->request->getResourceUri());
             if($matchedRoute) {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $this->router->dispatch($matchedRoute);
+                    $matchedRoute->dispatch();
                     $this->applyHook('slim.after.dispatch');
             } else {
                $this->notFound();

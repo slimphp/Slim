@@ -148,37 +148,6 @@ class Router
     }
 
     /**
-     * Dispatch route
-     *
-     * This method invokes the route object's callable. If middleware is
-     * registered for the route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * @param  \Slim\Route                  $route  The route object
-     * @return bool                         Was route callable invoked successfully?
-     */
-    public function dispatch(\Slim\Route $route)
-    {
-        //Invoke middleware
-        foreach ($route->getMiddleware() as $mw) {
-            if (is_callable($mw)) {
-                call_user_func_array($mw, array($route));
-            }
-        }
-
-        //Invoke callable
-        if (is_callable($route->getCallable())) {
-            call_user_func_array($route->getCallable(), array_values($route->getParams()));
-
-            return true;
-        }
-
-        $this->currentRoute = null;
-
-        return false;
-    }
-
-    /**
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
