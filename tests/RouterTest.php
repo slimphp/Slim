@@ -63,7 +63,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlForNamedRouteWithoutParams()
     {
         $router = new \Slim\Router();
-        $route = $router->map('/foo/bar', function () {})->via('GET');
+        $route = new \Slim\Route('/foo/bar', function () {});
+        $router->addRoute($route->via('GET'));
         $router->addNamedRoute('foo', $route);
         $this->assertEquals('/foo/bar', $router->urlFor('foo'));
     }
@@ -75,7 +76,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlForNamedRouteWithParams()
     {
         $router = new \Slim\Router();
-        $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
+        $route = new \Slim\Route('/foo/:one/and/:two', function ($one, $two) {});
+        $router->addRoute($route->via('GET'));
         $router->addNamedRoute('foo', $route);
         $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
     }
@@ -88,7 +90,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlForNamedRouteThatDoesNotExist()
     {
         $router = new \Slim\Router();
-        $route = $router->map('/foo/bar', function () {})->via('GET');
+        $route = new \Slim\Route('/foo/bar', function () {});
+        $router->addRoute($route->via('GET'));
         $router->addNamedRoute('bar', $route);
         $router->urlFor('foo');
     }
@@ -101,8 +104,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('\RuntimeException');
         $router = new \Slim\Router();
-        $route1 = $router->map('/foo/bar', function () {})->via('GET');
-        $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
+        $route1 = new \Slim\Route('/foo/bar', function () {});
+        $router->addRoute($route1->via('GET'));
+        $route2 = new \Slim\Route('/foo/bar/2', function () {});
+        $router->addRoute($route2->via('GET'));
         $router->addNamedRoute('bar', $route1);
         $router->addNamedRoute('bar', $route2);
     }
@@ -121,7 +126,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testHasNamedRoute()
     {
         $router = new \Slim\Router();
-        $route = $router->map('/foo', function () {})->via('GET');
+        $route = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route->via('GET'));
         $router->addNamedRoute('foo', $route);
         $this->assertTrue($router->hasNamedRoute('foo'));
         $this->assertFalse($router->hasNamedRoute('bar'));
@@ -141,7 +147,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetNamedRoute()
     {
         $router = new \Slim\Router();
-        $route1 = $router->map('/foo', function () {})->via('GET');
+        $route1 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route1->via('GET'));
         $router->addNamedRoute('foo', $route1);
         $this->assertSame($route1, $router->getNamedRoute('foo'));
         $this->assertNull($router->getNamedRoute('bar'));
@@ -160,8 +167,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetNamedRoutes()
     {
         $router = new \Slim\Router();
-        $route1 = $router->map('/foo', function () {})->via('GET');
-        $route2 = $router->map('/bar', function () {})->via('POST');
+        $route1 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route1->via('GET'));
+        $route2 = new \Slim\Route('/bar', function () {});
+        $router->addRoute($route2->via('POST'));
         $router->addNamedRoute('foo', $route1);
         $router->addNamedRoute('bar', $route2);
         $namedRoutesIterator = $router->getNamedRoutes();
@@ -219,15 +228,24 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testRouterUrlFor()
     {
         $router = new \Slim\Router();
-        $route1 = $router->map('/foo/bar', function () {})->via('GET');
-        $route2 = $router->map('/foo/:one/:two', function () {})->via('GET');
-        $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
-        $route4 = $router->map('/foo/:one/(:two/)', function () {})->via('GET');
-        $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {})->via('GET');
-        $route6 = $router->map('/foo/:path+/bar', function (){})->via('GET');
-        $route7 = $router->map('/foo/:path+/:path2+/bar', function (){})->via('GET');
-        $route8 = $router->map('/foo/:path+', function (){})->via('GET');
-        $route9 = $router->map('/foo/:var/:var2', function (){})->via('GET');
+        $route1 = new \Slim\Route('/foo/bar', function () {});
+        $router->addRoute($route1->via('GET'));
+        $route2 = new \Slim\Route('/foo/:one/:two', function () {});
+        $router->addRoute($route2->via('GET'));
+        $route3 = new \Slim\Route('/foo/:one(/:two)', function () {});
+        $router->addRoute($route3->via('GET'));
+        $route4 = new \Slim\Route('/foo/:one/(:two/)', function () {});
+        $router->addRoute($route4->via('GET'));
+        $route5 = new \Slim\Route('/foo/:one/(:two/(:three/))', function () {});
+        $router->addRoute($route5->via('GET'));
+        $route6 = new \Slim\Route('/foo/:path+/bar', function (){});
+        $router->addRoute($route6->via('GET'));
+        $route7 = new \Slim\Route('/foo/:path+/:path2+/bar', function (){});
+        $router->addRoute($route7->via('GET'));
+        $route8 = new \Slim\Route('/foo/:path+', function (){});
+        $router->addRoute($route8->via('GET'));
+        $route9 = new \Slim\Route('/foo/:var/:var2', function (){});
+        $router->addRoute($route9->via('GET'));
         $route1->setName('route1');
         $route2->setName('route2');
         $route3->setName('route3');
@@ -290,10 +308,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->req = new \Slim\Http\Request($this->env);
         $this->res = new \Slim\Http\Response();
         $router = new \Slim\Router();
-        $router->map('/bar', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $route1 = new \Slim\Route('/bar', function () {});
+        $router->addRoute($route1->via('POST'));
+        $route2 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route2->via('POST'));
+        $route3 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route3->via('PUT'));
+        $route4 = new \Slim\Route('/foo/bar/xyz', function () {});
+        $router->addRoute($route4->via('DELETE'));
         $this->assertEquals(null, count($router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri())));
     }
 
@@ -319,10 +341,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->req = new \Slim\Http\Request($this->env);
         $this->res = new \Slim\Http\Response();
         $router = new \Slim\Router();
-        $router->map('/fooNOMATCH', function () {})->via('GET');
-        $router->map('/foo', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $route1 = new \Slim\Route('/fooNOMATCH', function () {});
+        $router->addRoute($route1->via('GET'));
+        $route2 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route2->via('POST'));
+        $route3 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route3->via('PUT'));
+        $route4 = new \Slim\Route('/foo/bar/xyz', function () {});
+        $router->addRoute($route4->via('DELETE'));
         $this->assertEquals(null, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
@@ -348,10 +374,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->req = new \Slim\Http\Request($this->env);
         $this->res = new \Slim\Http\Response();
         $router = new \Slim\Router();
-        $router->map('/foo', function () {})->via('OPTIONS');
-        $router->map('/foo', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $route1 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route1->via('OPTIONS'));
+        $route2 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route2->via('POST'));
+        $route3 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route3->via('PUT'));
+        $route4 = new \Slim\Route('/foo/bar/xyz', function () {});
+        $route4->via('DELETE');
         $this->assertEquals(null, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
@@ -377,10 +407,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->req = new \Slim\Http\Request($this->env);
         $this->res = new \Slim\Http\Response();
         $router = new \Slim\Router();
-        $route = $router->map('/foo', function () {})->via('GET');
-        $router->map('/foo', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
+        $route = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route->via('GET'));
+        $route1 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route1->via('POST'));
+        $route2 = new \Slim\Route('/foo', function () {});
+        $router->addRoute($route2->via('PUT'));
+        $route3 = new \Slim\Route('/foo/bar/xyz', function () {});
+        $route3->via('DELETE');
         $this->assertEquals($route, $router->getMatchedRoute($this->req->getMethod(), $this->req->getResourceUri()));
     }
 
