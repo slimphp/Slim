@@ -175,7 +175,7 @@ class Slim implements \ArrayAccess
         $log = new \Slim\Log($logWriter);
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
-        $this['environment']['slim.log'] = $log;
+        $this['log'] = $log;
     }
 
     /**
@@ -334,7 +334,7 @@ class Slim implements \ArrayAccess
      */
     public function getLog()
     {
-        return $this['environment']['slim.log'];
+        return $this['log'];
     }
 
     /********************************************************************************
