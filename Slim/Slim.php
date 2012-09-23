@@ -62,26 +62,6 @@ class Slim implements \ArrayAccess
     protected $name;
 
     /**
-     * @var array
-     */
-    protected $environment;
-
-    /**
-     * @var \Slim\Http\Request
-     */
-    protected $request;
-
-    /**
-     * @var \Slim\Http\Response
-     */
-    protected $response;
-
-    /**
-     * @var \Slim\Router
-     */
-    protected $router;
-
-    /**
      * @var \Slim\View
      */
     protected $view;
@@ -170,25 +150,21 @@ class Slim implements \ArrayAccess
      */
     public function __construct($userSettings = array())
     {
+        // initialize container array
+        $this->container = array();
+
         // Setup Slim application
         $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
-        $this->environment = \Slim\Environment::getInstance();
-        $this->request = new \Slim\Http\Request($this->environment);
-        $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router($this->request->getResourceUri());
+        $this['environment'] = \Slim\Environment::getInstance();
+        $this['request'] = new \Slim\Http\Request($this['environment']);
+        $this['response'] = new \Slim\Http\Response();
+        $this['router'] = new \Slim\Router($this['request']->getResourceUri());
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
 
-        // initialize container array
-        $this->container = array();
-
         //Determine application mode
         $this->getMode();
-        $this['environment'] = $this->environment;
-        $this['request'] = $this->request;
-        $this['response'] = $this->response;
-        $this['router'] = $this->router;
 
         // Setup view
         $this->view($this->config('view'));
@@ -201,12 +177,12 @@ class Slim implements \ArrayAccess
         // Set default logger that writes to stderr (may be overridden with middleware)
         $logWriter = $this->config('log.writer');
         if (!$logWriter) {
-            $logWriter = new \Slim\LogWriter($this->environment['slim.errors']);
+            $logWriter = new \Slim\LogWriter($this['environment']['slim.errors']);
         }
         $log = new \Slim\Log($logWriter);
         $log->setEnabled($this->config('log.enabled'));
         $log->setLevel($this->config('log.level'));
-        $this->environment['slim.log'] = $log;
+        $this['environment']['slim.log'] = $log;
     }
 
     /**
@@ -363,7 +339,7 @@ class Slim implements \ArrayAccess
      */
     public function getLog()
     {
-        return $this->environment['slim.log'];
+        return $this['environment']['slim.log'];
     }
 
     /********************************************************************************
@@ -404,7 +380,7 @@ class Slim implements \ArrayAccess
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = $this->router->map($pattern, $callable);
+        $route = $this['router']->map($pattern, $callable);
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
@@ -508,10 +484,10 @@ class Slim implements \ArrayAccess
     public function notFound($callable = null)
     {
         if (!is_null($callable)) {
-            $this->router->notFound($callable);
+            $this['router']->notFound($callable);
         } else {
             ob_start();
-            $customNotFoundHandler = $this->router->notFound();
+            $customNotFoundHandler = $this['router']->notFound();
             if (is_callable($customNotFoundHandler)) {
                 call_user_func($customNotFoundHandler);
             } else {
@@ -548,12 +524,12 @@ class Slim implements \ArrayAccess
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this->router->error($argument);
+            $this['router']->error($argument);
         } else {
             //Invoke error handler
-            $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this['response']->status(500);
+            $this['response']->body('');
+            $this['response']->write($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -570,7 +546,7 @@ class Slim implements \ArrayAccess
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        $customErrorHandler = $this->router->error();
+        $customErrorHandler = $this['router']->error();
         if (is_callable($customErrorHandler)) {
             call_user_func_array($customErrorHandler, array($argument));
         } else {
@@ -590,7 +566,7 @@ class Slim implements \ArrayAccess
      */
     public function environment()
     {
-        return $this->environment;
+        return $this['environment'];
     }
 
     /**
@@ -599,7 +575,7 @@ class Slim implements \ArrayAccess
      */
     public function request()
     {
-        return $this->request;
+        return $this['request'];
     }
 
     /**
@@ -608,7 +584,7 @@ class Slim implements \ArrayAccess
      */
     public function response()
     {
-        return $this->response;
+        return $this['response'];
     }
 
     /**
@@ -617,7 +593,7 @@ class Slim implements \ArrayAccess
      */
     public function router()
     {
-        return $this->router;
+        return $this['router'];
     }
 
     /**
@@ -670,7 +646,7 @@ class Slim implements \ArrayAccess
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->status($status);
+            $this['response']->status($status);
         }
         $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
@@ -697,8 +673,8 @@ class Slim implements \ArrayAccess
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this->response['Last-Modified'] = date(DATE_RFC1123, $time);
-            if ($time === strtotime($this->request->headers('IF_MODIFIED_SINCE'))) {
+            $this['response']['Last-Modified'] = date(DATE_RFC1123, $time);
+            if ($time === strtotime($this['request']->headers('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
         } else {
@@ -732,10 +708,10 @@ class Slim implements \ArrayAccess
         //Set etag value
         $value = '"' . $value . '"';
         if ($type === 'weak') $value = 'W/'.$value;
-        $this->response['ETag'] = $value;
+        $this['response']['ETag'] = $value;
 
         //Check conditional GET
-        if ($etagsHeader = $this->request->headers('IF_NONE_MATCH')) {
+        if ($etagsHeader = $this['request']->headers('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if (in_array($value, $etags) || in_array('*', $etags)) {
                 $this->halt(304);
@@ -761,7 +737,7 @@ class Slim implements \ArrayAccess
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response['Expires'] = gmdate(DATE_RFC1123, $time);
+        $this['response']['Expires'] = gmdate(DATE_RFC1123, $time);
     }
 
     /********************************************************************************
@@ -784,7 +760,7 @@ class Slim implements \ArrayAccess
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->setCookie($name, array(
+        $this['response']->setCookie($name, array(
             'value' => $value,
             'expires' => is_null($time) ? $this->config('cookies.lifetime') : $time,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
@@ -806,7 +782,7 @@ class Slim implements \ArrayAccess
      */
     public function getCookie($name)
     {
-        return $this->request->cookies($name);
+        return $this['request']->cookies($name);
     }
 
     /**
@@ -852,7 +828,7 @@ class Slim implements \ArrayAccess
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
     {
         $value = \Slim\Http\Util::decodeSecureCookie(
-            $this->request->cookies($name),
+            $this['request']->cookies($name),
             $this->config('cookies.secret_key'),
             $this->config('cookies.cipher'),
             $this->config('cookies.cipher_mode')
@@ -882,7 +858,7 @@ class Slim implements \ArrayAccess
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->deleteCookie($name, array(
+        $this['response']->deleteCookie($name, array(
             'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
@@ -906,7 +882,7 @@ class Slim implements \ArrayAccess
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this['request']->getRootUri(), '/') . '/';
     }
 
     /**
@@ -947,8 +923,8 @@ class Slim implements \ArrayAccess
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
-        $this->response->body($message);
+        $this['response']->status($status);
+        $this['response']->body($message);
         $this->stop();
     }
 
@@ -973,7 +949,7 @@ class Slim implements \ArrayAccess
      */
     public function contentType($type)
     {
-        $this->response['Content-Type'] = $type;
+        $this['response']['Content-Type'] = $type;
     }
 
     /**
@@ -982,7 +958,7 @@ class Slim implements \ArrayAccess
      */
     public function status($code)
     {
-        $this->response->status($code);
+        $this['response']->status($code);
     }
 
     /**
@@ -994,7 +970,7 @@ class Slim implements \ArrayAccess
      */
     public function urlFor($name, $params = array())
     {
-        return $this->request->getRootUri() . $this->router->urlFor($name, $params);
+        return $this['request']->getRootUri() . $this['router']->urlFor($name, $params);
     }
 
     /**
@@ -1011,7 +987,7 @@ class Slim implements \ArrayAccess
      */
     public function redirect($url, $status = 302)
     {
-        $this->response->redirect($url, $status);
+        $this['response']->redirect($url, $status);
         $this->halt($status);
     }
 
@@ -1026,8 +1002,8 @@ class Slim implements \ArrayAccess
      */
     public function flash($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
+        if (isset($this['environment']['slim.flash'])) {
+            $this['environment']['slim.flash']->set($key, $value);
         }
     }
 
@@ -1038,8 +1014,8 @@ class Slim implements \ArrayAccess
      */
     public function flashNow($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->now($key, $value);
+        if (isset($this['environment']['slim.flash'])) {
+            $this['environment']['slim.flash']->now($key, $value);
         }
     }
 
@@ -1048,8 +1024,8 @@ class Slim implements \ArrayAccess
      */
     public function flashKeep()
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->keep();
+        if (isset($this['environment']['slim.flash'])) {
+            $this['environment']['slim.flash']->keep();
         }
     }
 
@@ -1179,7 +1155,7 @@ class Slim implements \ArrayAccess
         $this->middleware[0]->call();
 
         //Fetch status, header, and body
-        list($status, $header, $body) = $this->response->finalize();
+        list($status, $header, $body) = $this['response']->finalize();
 
         //Send headers
         if (headers_sent() === false) {
@@ -1213,21 +1189,21 @@ class Slim implements \ArrayAccess
     public function call()
     {
         try {
-            if (isset($this->environment['slim.flash'])) {
-                $this->view()->setData('flash', $this->environment['slim.flash']);
+            if (isset($this['environment']['slim.flash'])) {
+                $this->view()->setData('flash', $this['environment']['slim.flash']);
             }
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
             $httpMethodsAllowed = array();
-            $this->router->setResourceUri($this->request->getResourceUri());
-            $this->router->getMatchedRoutes();
-            foreach ($this->router as $route) {
-                if ($route->supportsHttpMethod($this->environment['REQUEST_METHOD'])) {
+            $this['router']->setResourceUri($this['request']->getResourceUri());
+            $this['router']->getMatchedRoutes();
+            foreach ($this['router'] as $route) {
+                if ($route->supportsHttpMethod($this['environment']['REQUEST_METHOD'])) {
                     try {
                         $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
+                        $dispatched = $this['router']->dispatch($route);
                         $this->applyHook('slim.after.dispatch');
                         if ($dispatched) {
                             break;
@@ -1241,7 +1217,7 @@ class Slim implements \ArrayAccess
             }
             if (!$dispatched) {
                 if ($httpMethodsAllowed) {
-                    $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
+                    $this['response']['Allow'] = implode(' ', $httpMethodsAllowed);
                     $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
                 } else {
                    $this->notFound();
@@ -1250,10 +1226,10 @@ class Slim implements \ArrayAccess
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
-            $this->response()->write(ob_get_clean());
+            $this['response']->write(ob_get_clean());
             $this->applyHook('slim.after');
         } catch (\Slim\Exception\RequestSlash $e) {
-            $this->response->redirect($this->request->getPath() . '/', 301);
+            $this['response']->redirect($this['request']->getPath() . '/', 301);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
@@ -1360,7 +1336,7 @@ class Slim implements \ArrayAccess
      */
     protected function defaultNotFound()
     {
-        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
+        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this['request']->getRootUri() . '/">Visit the Home Page</a>');
     }
 
     /**
