@@ -67,11 +67,6 @@ class Slim implements \ArrayAccess
     protected $view;
 
     /**
-     * @var array
-     */
-    protected $settings;
-
-    /**
      * @var string
      */
     protected $mode;
@@ -154,7 +149,7 @@ class Slim implements \ArrayAccess
         $this->container = array();
 
         // Setup Slim application
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        $this->config(array_merge(self::getDefaultSettings(), $userSettings));
         $this['environment'] = \Slim\Environment::getInstance();
         $this['request'] = new \Slim\Http\Request($this['environment']);
         $this['response'] = new \Slim\Http\Response();
@@ -270,12 +265,14 @@ class Slim implements \ArrayAccess
     {
         if (func_num_args() === 1) {
             if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
+                foreach($name as $key => $value) {
+                    $this[$key] = $value;
+                }
             } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
+                return $this[$name];
             }
         } else {
-            $this->settings[$name] = $value;
+            $this[$name] = $value;
         }
     }
 
