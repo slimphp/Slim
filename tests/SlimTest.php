@@ -1410,4 +1410,73 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
+
+    /************************************************
+     * ARRAY ACCESS
+     ************************************************/
+
+    /**
+     * Test array access offset set
+     */
+    public function testArrayAccessOffsetSet()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+    }
+
+    /**
+     * Test array access offset unset
+     */
+    public function testArrayAccessOffsetUnset()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+        unset($app['foo']);
+        $this->assertFalse($app->offsetExists('foo'));
+    }
+
+    /**
+     * Test array access Response
+     */
+    public function testArrayAccessResponse()
+    {
+        $app = new \Slim\Slim();
+        $response = $app->response();
+        $this->assertEquals($app['response'], $response);
+        $response['status'] = '500';
+        $this->assertEquals($app['response']['status'], $response['status']);
+    }
+
+    /**
+     * Test array access Response
+     */
+    public function testArrayAccessRequest()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['request'], $app->request());
+    }
+
+    /**
+     * Test array access Environment
+     */
+    public function testArrayAccessEnvironment()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['environment'], $app->environment());
+    }
+
+    /**
+     * Test array access Router
+     */
+    public function testArrayAccessRouter()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['router'], $app->router());
+    }
 }
