@@ -7,9 +7,10 @@
  *
  * If you are using Composer, you can skip this step.
  */
-require 'Slim/Slim.php';
+require 'Slim/Autoloader.php';
+\Slim\Autoloader::registerAutoloader();
 
-\Slim\Slim::registerAutoloader();
+//require 'Slim/Slim.php';
 
 /**
  * Step 2: Instantiate a Slim application

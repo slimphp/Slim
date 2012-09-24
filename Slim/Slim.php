@@ -44,7 +44,7 @@ if (!extension_loaded('mcrypt')) {
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim implements \ArrayAccess
+class Slim extends Container
 {
     /**
      * @const string
@@ -92,48 +92,6 @@ class Slim implements \ArrayAccess
         'slim.after.router' => array(array()),
         'slim.after' => array(array())
     );
-
-    /********************************************************************************
-    * PSR-0 Autoloader
-    *
-    * Do not use if you are using Composer to autoload dependencies.
-    *******************************************************************************/
-
-    /**
-     * Slim PSR-0 autoloader
-     */
-    public static function autoload($className)
-    {
-        $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
-
-        $baseDir = __DIR__;
-   
-        if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
-            $baseDir = substr($baseDir, 0, -strlen($thisClass));
-        }
-
-        $className = ltrim($className, '\\');
-        $fileName  = $baseDir;
-        $namespace = '';
-        if ($lastNsPos = strripos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-            $className = substr($className, $lastNsPos + 1);
-            $fileName  .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-        if (file_exists($fileName)) {
-            require $fileName;
-        }
-    }
-
-    /**
-     * Register Slim's PSR-0 autoloader
-     */
-    public static function registerAutoloader()
-    {
-        spl_autoload_register(__NAMESPACE__ . "\\Slim::autoload");
-    }
 
     /********************************************************************************
     * Instantiation and Configuration
@@ -1238,53 +1196,6 @@ class Slim implements \ArrayAccess
                 }
             }
         }
-    }
-
-    /********************************************************************************
-    * ArrayAccess implementation
-    *******************************************************************************/
-
-    /**
-     * Check if a parameter is set
-     *
-     * @param string $offset
-     * @return boolean
-     */
-    public function offsetExists( $offset )
-    {
-        return array_key_exists($offset, $this->container);
-    }
-
-    /**
-     * Set a parameter
-     *
-     * @param string $offset
-     * @param mixed $value
-     */
-    public function offsetSet( $offset, $value )
-    {
-        $this->container[$offset] = $value;
-    }
-
-    /**
-     * Unset a parameter
-     *
-     * @param string $offset
-     */
-    public function offsetUnset( $offset )
-    {
-        unset($this->container[$offset]);
-    }
-
-    /**
-     * Get a parameter
-     *
-     * @param string $offset
-     * @return mixed
-     */
-    public function offsetGet( $offset )
-    {
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
     }
 
     /********************************************************************************
