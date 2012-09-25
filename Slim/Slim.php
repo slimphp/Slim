@@ -108,10 +108,34 @@ class Slim extends Container
 
         // Setup Slim application
         $this->config(array_merge(self::getDefaultSettings(), $userSettings));
-        $this['environment'] = \Slim\Environment::getInstance();
-        $this['request'] = new \Slim\Http\Request($this['environment']);
-        $this['response'] = new \Slim\Http\Response();
-        $this['router'] = new \Slim\Router($this['request']->getResourceUri());
+
+        $this['environment'] = $this->share(function($c) {
+            return \Slim\Environment::getInstance();
+        });
+
+        $this['request'] = $this->share(function($c) {
+            return new \Slim\Http\Request($c['environment']);
+        });
+
+        $this['response'] = $this->share(function($c) {
+            return new \Slim\Http\Response();
+        });
+
+        $this['router'] = $this->share(function($c) {
+            return new \Slim\Router($c['request']->getResourceUri());
+        });
+
+        $this['log'] = $this->share(function ($c) {
+            if (!$c['log.writer']) {
+                $c['log.writer'] = new \Slim\LogWriter($c['environment']['slim.errors']);
+            }
+            $log = new \Slim\Log($c['log.writer']);
+            $log->setEnabled($c['log.enabled']);
+            $log->setLevel($c['log.level']);
+            return $log;
+        });
+
+        // Add middleware
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
@@ -126,16 +150,6 @@ class Slim extends Container
         if (is_null(self::getInstance())) {
             $this->setName('default');
         }
-
-        $this['log'] = $this->share(function ($c) {
-            if (!$c['log.writer']) {
-                $c['log.writer'] = new \Slim\LogWriter($c['environment']['slim.errors']);
-            }
-            $log = new \Slim\Log($c['log.writer']);
-            $log->setEnabled($c['log.enabled']);
-            $log->setLevel($c['log.level']);
-            return $log;
-        });
     }
 
     /**
