@@ -127,15 +127,15 @@ class Slim extends Container
             $this->setName('default');
         }
 
-        // Set default logger that writes to stderr (may be overridden with middleware)
-        $logWriter = $this->config('log.writer');
-        if (!$logWriter) {
-            $logWriter = new \Slim\LogWriter($this['environment']['slim.errors']);
-        }
-        $log = new \Slim\Log($logWriter);
-        $log->setEnabled($this->config('log.enabled'));
-        $log->setLevel($this->config('log.level'));
-        $this['environment']['slim.log'] = $log;
+        $this['log'] = $this->share(function ($c) {
+            if (!$c['log.writer']) {
+                $c['log.writer'] = new \Slim\LogWriter($c['environment']['slim.errors']);
+            }
+            $log = new \Slim\Log($c['log.writer']);
+            $log->setEnabled($c['log.enabled']);
+            $log->setLevel($c['log.level']);
+            return $log;
+        });
     }
 
     /**
@@ -294,7 +294,7 @@ class Slim extends Container
      */
     public function getLog()
     {
-        return $this['environment']['slim.log'];
+        return $this['log'];
     }
 
     /********************************************************************************
