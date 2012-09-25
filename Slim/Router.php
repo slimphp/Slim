@@ -82,12 +82,20 @@ class Router
     }
 
     /**
-     * Get Current Route object
+     * Get Current Route object or the first matched one if matching has been performed
      * @return \Slim\Route|null
      */
     public function getCurrentRoute()
     {
-        return $this->currentRoute;
+        if ($this->currentRoute !== null) {
+            return $this->currentRoute;
+        }
+
+        if (is_array($this->matchedRoutes) && count($this->matchedRoutes) > 0) {
+            return $this->matchedRoutes[0];
+        }
+
+        return null;
     }
 
     /**
@@ -178,8 +186,6 @@ class Router
 
             return true;
         }
-
-        $this->currentRoute = null;
 
         return false;
     }

@@ -450,6 +450,33 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test get current route during slim.before.dispatch hook
+     */
+    public function testGetCurrentRouteDuringBeforeDispatchHook()
+    {
+        $route = null;
+
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $app = new \Slim\Slim();
+        $app->hook('slim.before.dispatch', function() use(&$route, $app) {
+            $route = $app->router()->getCurrentRoute();
+        });
+        $route1 = $app->get('/bar', function () {
+            echo "Bar";
+        });
+        $route2 = $app->get('/foo', function () {
+            echo "Foo";
+        });
+
+        $app->call();
+        $this->assertSame($route2, $route);
+    }
+
+    /**
      * Test get current route during routing
      */
     public function testGetCurrentRouteDuringRouting()
@@ -493,25 +520,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         });
         $app->call();
         $this->assertSame($route2, $app->router()->getCurrentRoute());
-    }
-
-    /**
-     * Test get current route is null after routing when route was not callable
-     */
-    public function testGetCurrentRouteAfterRoutingWhenRouteWasNotCallable()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/foo' //<-- Virtual
-        ));
-        $app = new \Slim\Slim();
-        $route1 = $app->get('/bar', function () {
-            echo "Bar";
-        });
-        $route2 = $app->get('/foo', 'fnDoesNotExist');
-        $app->call();
-        $this->assertSame(null, $app->router()->getCurrentRoute());
     }
 
     public function testDispatch()
