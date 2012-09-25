@@ -56,8 +56,9 @@ class Container implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        if (isset($this->properties[$offset])) {
-            return $this->properties[$offset];
+        if(array_key_exists($offset, $this->properties)) {
+            $isFactory = (is_object($this->properties[$offset]) && method_exists($this->properties[$offset], '__invoke'));
+            return ($isFactory) ? $this->properties[$offset]($this) : $this->properties[$offset];
         } else {
             return null;
         }
@@ -77,5 +78,24 @@ class Container implements \ArrayAccess
     public function offsetUnset($offset)
     {
         unset($this->properties[$offset]);
+    }
+
+    /**
+     * return a closure that will return the same instance for all calls
+     *
+     * @param Closure $callable
+     * @return Closure
+     */
+    public function share(\Closure $callable)
+    {
+        return function($c) use ($callable) {
+            static $obj;
+
+            if(null === $obj) {
+                $obj = $callable($c);
+            }
+
+            return $obj;
+        };
     }
 }
