@@ -32,6 +32,12 @@
  */
 namespace Slim;
 
+// Ensure mcrypt constants are defined even if mcrypt extension is not loaded
+if (!extension_loaded('mcrypt')) {
+    define('MCRYPT_MODE_CBC', 0);
+    define('MCRYPT_RIJNDAEL_256', 0);
+}
+
 /**
  * Slim
  * @package Slim
@@ -131,6 +137,21 @@ class Slim extends Container
 
         $this['HttpCache'] = $this->share(function($c) {
             return new \Slim\Http\HttpCache($c['request'], $c['response']);
+        });
+
+        // cookies
+        $this['cookies'] = $this->share(function($c) {
+            $settings = array(
+                'cookies.lifetime' => $c['cookies.lifetime'],
+                'cookies.path' => $c['cookies.path'],
+                'cookies.domain' => $c['cookies.domain'],
+                'cookies.secure' => $c['cookies.secure'],
+                'cookies.httponly' => $c['cookies.httponly'],
+                'cookies.secret_key' => $c['cookies.secret_key'],
+                'cookies.cipher' => $c['cookies.cipher'],
+                'cookies.cipher_mode' => $c['cookies.cipher_mode']
+            );
+            return new \Slim\Http\Cookies($c['request'], $c['response'], $settings);
         });
 
         // Add middleware
@@ -692,6 +713,8 @@ class Slim extends Container
     *******************************************************************************/
 
     /**
+     * @deprecated use $this['cookies']->setCookie($name, $value, $time, $path, $domain, $secure, $httponly)
+     *
      * Set unencrypted HTTP cookie
      *
      * @param string     $name      The cookie name
@@ -707,17 +730,12 @@ class Slim extends Container
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this['response']->setCookie($name, array(
-            'value' => $value,
-            'expires' => is_null($time) ? $this->config('cookies.lifetime') : $time,
-            'path' => is_null($path) ? $this->config('cookies.path') : $path,
-            'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
-            'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
-            'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
-        ));
+        $this['cookies']->setCookie($name, $value, $time, $path, $domain, $secure, $httponly);
     }
 
     /**
+     * @deprecated use $this['cookies']->getCookie($name)
+     *
      * Get value of unencrypted HTTP cookie
      *
      * Return the value of a cookie from the current HTTP request,
@@ -729,10 +747,12 @@ class Slim extends Container
      */
     public function getCookie($name)
     {
-        return $this['request']->cookies($name);
+        return $this['cookies']->getCookie($name);
     }
 
     /**
+     * @deprecated use $this['cookies']->setEncryptedCookie($name, $value, $expires, $path, $domain, $secure, $httponly)
+     *
      * Set encrypted HTTP cookie
      *
      * @param string    $name       The cookie name
@@ -748,21 +768,12 @@ class Slim extends Container
      */
     public function setEncryptedCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $expires = is_null($expires) ? $this->config('cookies.lifetime') : $expires;
-        if (is_string($expires)) {
-            $expires = strtotime($expires);
-        }
-        $secureValue = \Slim\Http\Util::encodeSecureCookie(
-            $value,
-            $expires,
-            $this->config('cookies.secret_key'),
-            $this->config('cookies.cipher'),
-            $this->config('cookies.cipher_mode')
-        );
-        $this->setCookie($name, $secureValue, $expires, $path, $domain, $secure, $httponly);
+        $this['cookies']->setEncryptedCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
     }
 
     /**
+     * @deprecated use $this['cookies']->getEncryptedCookie($name, $deleteIfInvalid)
+     *
      * Get value of encrypted HTTP cookie
      *
      * Return the value of an encrypted cookie from the current HTTP request,
@@ -774,20 +785,12 @@ class Slim extends Container
      */
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
     {
-        $value = \Slim\Http\Util::decodeSecureCookie(
-            $this['request']->cookies($name),
-            $this->config('cookies.secret_key'),
-            $this->config('cookies.cipher'),
-            $this->config('cookies.cipher_mode')
-        );
-        if ($value === false && $deleteIfInvalid) {
-            $this->deleteCookie($name);
-        }
-
-        return $value;
+        return $this['cookies']->getEncryptedCookie($name, $deleteIfInvalid);
     }
 
     /**
+     * @deprecated use $this['cookies']->deleteCookie($name, $path, $domain, $secure, $httponly)
+     *
      * Delete HTTP cookie (encrypted or unencrypted)
      *
      * Remove a Cookie from the client. This method will overwrite an existing Cookie
@@ -805,12 +808,7 @@ class Slim extends Container
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this['response']->deleteCookie($name, array(
-            'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
-            'path' => is_null($path) ? $this->config('cookies.path') : $path,
-            'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
-            'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
-        ));
+        $this['cookies']->deleteCookie($name, $path, $domain, $secure, $httponly);
     }
 
     /********************************************************************************
