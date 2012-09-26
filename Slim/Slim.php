@@ -32,12 +32,6 @@
  */
 namespace Slim;
 
-// Ensure mcrypt constants are defined even if mcrypt extension is not loaded
-if (!extension_loaded('mcrypt')) {
-    define('MCRYPT_MODE_CBC', 0);
-    define('MCRYPT_RIJNDAEL_256', 0);
-}
-
 /**
  * Slim
  * @package Slim
@@ -133,6 +127,10 @@ class Slim extends Container
             $log->setEnabled($c['log.enabled']);
             $log->setLevel($c['log.level']);
             return $log;
+        });
+
+        $this['HttpCache'] = $this->share(function($c) {
+            return new \Slim\Http\HttpCache($c['request'], $c['response']);
         });
 
         // Add middleware
@@ -627,6 +625,8 @@ class Slim extends Container
     *******************************************************************************/
 
     /**
+     * @deprecated use $app['HttpCache']->lastModified($time)
+     *
      * Set Last-Modified HTTP Response Header
      *
      * Set the HTTP 'Last-Modified' header and stop if a conditional
@@ -641,17 +641,12 @@ class Slim extends Container
      */
     public function lastModified($time)
     {
-        if (is_integer($time)) {
-            $this['response']['Last-Modified'] = date(DATE_RFC1123, $time);
-            if ($time === strtotime($this['request']->headers('IF_MODIFIED_SINCE'))) {
-                $this->halt(304);
-            }
-        } else {
-            throw new \InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
-        }
+        $this['HttpCache']->lastModified($time);
     }
 
     /**
+     * @deprecated use $app['HttpCache']->etag($value, $type)
+     *
      * Set ETag HTTP Response Header
      *
      * Set the etag header and stop if the conditional GET request matches.
@@ -669,26 +664,12 @@ class Slim extends Container
      */
     public function etag($value, $type = 'strong')
     {
-        //Ensure type is correct
-        if (!in_array($type, array('strong', 'weak'))) {
-            throw new \InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
-        }
-
-        //Set etag value
-        $value = '"' . $value . '"';
-        if ($type === 'weak') $value = 'W/'.$value;
-        $this['response']['ETag'] = $value;
-
-        //Check conditional GET
-        if ($etagsHeader = $this['request']->headers('IF_NONE_MATCH')) {
-            $etags = preg_split('@\s*,\s*@', $etagsHeader);
-            if (in_array($value, $etags) || in_array('*', $etags)) {
-                $this->halt(304);
-            }
-        }
+        $this['HttpCache']->etag($value, $type);
     }
 
     /**
+     * @deprecated use $app['HttpCache']->expires($time)
+     *
      * Set Expires HTTP response header
      *
      * The `Expires` header tells the HTTP client the time at which
@@ -703,10 +684,7 @@ class Slim extends Container
      */
     public function expires($time)
     {
-        if (is_string($time)) {
-            $time = strtotime($time);
-        }
-        $this['response']['Expires'] = gmdate(DATE_RFC1123, $time);
+        $this['HttpCache']->expires($time);
     }
 
     /********************************************************************************
