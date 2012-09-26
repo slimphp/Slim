@@ -135,27 +135,10 @@ class Slim extends Container
             return $log;
         });
 
-        $this['HttpCache'] = $this->share(function($c) {
-            return new \Slim\Http\HttpCache($c['request'], $c['response']);
-        });
-
-        // cookies
-        $this['cookies'] = $this->share(function($c) {
-            $settings = array(
-                'cookies.lifetime' => $c['cookies.lifetime'],
-                'cookies.path' => $c['cookies.path'],
-                'cookies.domain' => $c['cookies.domain'],
-                'cookies.secure' => $c['cookies.secure'],
-                'cookies.httponly' => $c['cookies.httponly'],
-                'cookies.secret_key' => $c['cookies.secret_key'],
-                'cookies.cipher' => $c['cookies.cipher'],
-                'cookies.cipher_mode' => $c['cookies.cipher_mode']
-            );
-            return new \Slim\Http\Cookies($c['request'], $c['response'], $settings);
-        });
-
         // Add middleware
         $this->middleware = array($this);
+        $this->add(new \Slim\Middleware\HttpCache());
+        $this->add(new \Slim\Middleware\Cookies());
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
 
