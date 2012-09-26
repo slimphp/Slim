@@ -404,4 +404,32 @@ class Route
 
         return $this;
     }
+
+    /**
+     * Dispatch route
+     *
+     * This method invokes the route object's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * @return bool                         Was route callable invoked successfully?
+     */
+    public function dispatch()
+    {
+        //Invoke middleware
+        foreach ($this->getMiddleware() as $mw) {
+            if (is_callable($mw)) {
+                call_user_func_array($mw, array($this));
+            }
+        }
+
+        //Invoke callable
+        if (is_callable($this->getCallable())) {
+            call_user_func_array($this->getCallable(), array_values($this->getParams()));
+
+            return true;
+        }
+
+        return false;
+    }
 }

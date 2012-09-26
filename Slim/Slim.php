@@ -351,7 +351,8 @@ class Slim extends Container
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = $this['router']->map($pattern, $callable);
+        $route = new \Slim\Route($pattern, $callable);
+        $this['router']->addRoute($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
@@ -857,21 +858,6 @@ class Slim extends Container
     }
 
     /**
-     * Pass
-     *
-     * The thrown exception is caught in the application's `call()` method causing
-     * the router's current iteration to stop and continue to the subsequent route if available.
-     * If no subsequent matching routes are found, a 404 response will be sent to the client.
-     *
-     * @throws \Slim\Exception\Pass
-     */
-    public function pass()
-    {
-        $this->cleanBuffer();
-        throw new \Slim\Exception\Pass();
-    }
-
-    /**
      * Set the HTTP response Content-Type
      * @param  string   $type   The Content-Type for the Response (ie. text/html)
      */
@@ -1123,41 +1109,19 @@ class Slim extends Container
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
-            $dispatched = false;
-            $httpMethodsAllowed = array();
-            $this['router']->setResourceUri($this['request']->getResourceUri());
-            $this['router']->getMatchedRoutes();
-            foreach ($this['router'] as $route) {
-                if ($route->supportsHttpMethod($this['environment']['REQUEST_METHOD'])) {
-                    try {
-                        $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this['router']->dispatch($route);
-                        $this->applyHook('slim.after.dispatch');
-                        if ($dispatched) {
-                            break;
-                        }
-                    } catch (\Slim\Exception\Pass $e) {
-                        continue;
-                    }
-                } else {
-                    $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods());
-                }
-            }
-            if (!$dispatched) {
-                if ($httpMethodsAllowed) {
-                    $this['response']['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
-                } else {
-                   $this->notFound();
-                }
+            $matchedRoute = $this['router']->getMatchedRoute($this['request']->getMethod(), $this['request']->getResourceUri());
+            if($matchedRoute) {
+                    $this->applyHook('slim.before.dispatch');
+                    $matchedRoute->dispatch();
+                    $this->applyHook('slim.after.dispatch');
+            } else {
+               $this->notFound();
             }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this['response']->write(ob_get_clean());
             $this->applyHook('slim.after');
-        } catch (\Slim\Exception\RequestSlash $e) {
-            $this['response']->redirect($this['request']->getPath() . '/', 301);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
