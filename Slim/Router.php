@@ -190,19 +190,13 @@ class Router implements \Iterator
 
         //Invoke middleware
         foreach ($route->getMiddleware() as $mw) {
-            if (is_callable($mw)) {
-                call_user_func_array($mw, array($route));
-            }
+            call_user_func_array($mw, array($route));
         }
 
         //Invoke callable
-        if (is_callable($route->getCallable())) {
-            call_user_func_array($route->getCallable(), array_values($route->getParams()));
+        call_user_func_array($route->getCallable(), array_values($route->getParams()));
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
