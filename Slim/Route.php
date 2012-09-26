@@ -95,7 +95,7 @@ class Route
      * @param string $pattern  The URL pattern (e.g. "/books/:id")
      * @param mixed  $callable Anything that returns TRUE for is_callable()
      */
-    public function __construct($pattern, $callable)
+    public function __construct($pattern = '', $callable = null)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
@@ -136,6 +136,7 @@ class Route
     public function setPattern($pattern)
     {
         $this->pattern = $pattern;
+        return $this;
     }
 
     /**
@@ -154,6 +155,7 @@ class Route
     public function setCallable($callable)
     {
         $this->callable = $callable;
+        return $this;
     }
 
     /**

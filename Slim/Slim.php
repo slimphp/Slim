@@ -125,6 +125,11 @@ class Slim extends Container
             return new \Slim\Router($c['request']->getResourceUri());
         });
 
+        // Route factory
+        $this['route'] = function($c) {
+            return new $c['route.class']();
+        };
+
         $this['log'] = $this->share(function ($c) {
             if (!$c['log.writer']) {
                 $c['log.writer'] = new \Slim\LogWriter($c['environment']['slim.errors']);
@@ -198,6 +203,8 @@ class Slim extends Container
             'log.writer' => null,
             'log.level' => \Slim\Log::DEBUG,
             'log.enabled' => true,
+            // Route
+            'route.class' => '\Slim\Route',
             // View
             'templates.path' => './templates',
             'view' => '\Slim\View',
@@ -351,7 +358,7 @@ class Slim extends Container
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new \Slim\Route($pattern, $callable);
+        $route = $this['route']->setPattern($pattern)->setCallable($callable);
         $this['router']->addRoute($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
