@@ -525,4 +525,112 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($viaResult instanceof \Slim\Route);
         $this->assertTrue($r->supportsHttpMethod('DELETE'));
     }
+
+    /**
+     * Test route dispatch
+     */
+    public function testDispatch()
+    {
+        $this->expectOutputString('Hello josh');
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/hello/josh', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $route->dispatch();
+    }
+
+    /**
+     * Test route dispatch with middleware
+     */
+    public function testDispatchWithMiddlware()
+    {
+        $this->expectOutputString('First! Second! Hello josh');
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/hello/josh', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route->setMiddleware(function () {
+            echo "First! ";
+        });
+        $route->setMiddleware(function () {
+            echo "Second! ";
+        });
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $route->dispatch();
+    }
+
+    /**
+     * Test route dispatch with middleware arguments
+     */
+    public function testRouteMiddlwareArguments()
+    {
+        $this->expectOutputString('foobar');
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/foo' //<-- Virtual
+        ));
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/foo', function () { echo "bar"; });
+        $route->setName('foo');
+        $route->setMiddleware(function ($route) {
+            echo $route->getName();
+        });
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $route->dispatch();
+    }
+
+    /**
+     * Test route dispatch without callable
+     */
+    public function testDispatchWithoutCallable()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '', //<-- Physical
+            'PATH_INFO' => '/hello/josh', //<-- Virtual
+            'QUERY_STRING' => 'one=1&two=2&three=3',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w'),
+            'HTTP_HOST' => 'slim'
+        ));
+        $env = \Slim\Environment::getInstance();
+        $req = new \Slim\Http\Request($env);
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/hello/:name', 'foo');
+        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $this->assertFalse($route->dispatch());
+    }
 }

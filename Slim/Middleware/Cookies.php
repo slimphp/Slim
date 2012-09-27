@@ -30,21 +30,31 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Exception;
+namespace Slim\Middleware;
 
-/**
- * Pass Exception
- *
- * This Exception will cause the Router::dispatch method
- * to skip the current matching route and continue to the next
- * matching route. If no subsequent routes are found, a
- * HTTP 404 Not Found response will be sent to the client.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
- */
-class Pass extends \Exception
+class Cookies extends \Slim\Middleware
 {
-
+    /**
+     * Call
+     *
+     * Implements Slim middleware interface.
+     * Add cookies support to the Slim application.
+     */
+    public function call()
+    {
+        $this->app['cookies'] = $this->app->share(function($c) {
+            $settings = array(
+                'cookies.lifetime' => $c['cookies.lifetime'],
+                'cookies.path' => $c['cookies.path'],
+                'cookies.domain' => $c['cookies.domain'],
+                'cookies.secure' => $c['cookies.secure'],
+                'cookies.httponly' => $c['cookies.httponly'],
+                'cookies.secret_key' => $c['cookies.secret_key'],
+                'cookies.cipher' => $c['cookies.cipher'],
+                'cookies.cipher_mode' => $c['cookies.cipher_mode']
+            );
+            return new \Slim\Http\Cookies($c['request'], $c['response'], $settings);
+        });
+        $this->next->call();
+    }
 }

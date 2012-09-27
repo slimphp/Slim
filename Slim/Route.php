@@ -95,7 +95,7 @@ class Route
      * @param string $pattern  The URL pattern (e.g. "/books/:id")
      * @param mixed  $callable Anything that returns TRUE for is_callable()
      */
-    public function __construct($pattern, $callable)
+    public function __construct($pattern = '', $callable = null)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
@@ -136,6 +136,7 @@ class Route
     public function setPattern($pattern)
     {
         $this->pattern = $pattern;
+        return $this;
     }
 
     /**
@@ -154,6 +155,7 @@ class Route
     public function setCallable($callable)
     {
         $this->callable = $callable;
+        return $this;
     }
 
     /**
@@ -403,5 +405,33 @@ class Route
         $this->conditions = array_merge($this->conditions, $conditions);
 
         return $this;
+    }
+
+    /**
+     * Dispatch route
+     *
+     * This method invokes the route object's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * @return bool                         Was route callable invoked successfully?
+     */
+    public function dispatch()
+    {
+        //Invoke middleware
+        foreach ($this->getMiddleware() as $mw) {
+            if (is_callable($mw)) {
+                call_user_func_array($mw, array($this));
+            }
+        }
+
+        //Invoke callable
+        if (is_callable($this->getCallable())) {
+            call_user_func_array($this->getCallable(), array_values($this->getParams()));
+
+            return true;
+        }
+
+        return false;
     }
 }

@@ -286,6 +286,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test GET routes also get mapped as a HEAD route
+     */
+    public function testGetRouteIsAlsoMappedAsHead()
+    {
+        $s = new \Slim\Slim();
+        $route = $s->get('/foo', function () {});
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
+    }
+
+    /**
      * Test GET route
      */
     public function testGetRoute()
@@ -383,37 +394,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foobarxyz', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
-    }
-
-    /**
-     * Test if route expects trailing slash and URL does not have one
-     */
-    public function testRouteWithSlashAndUrlWithout()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar/', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(301, $s->response()->status());
-    }
-
-    /**
-     * Test 405 Method Not Allowed
-     */
-    public function testMethodNotAllowed()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'POST',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(405, $s->response()->status());
     }
 
     /**
@@ -536,303 +516,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
-     * HTTP CACHING
-     ************************************************/
-
-    /**
-     * Test Last-Modified match
-     */
-    public function testLastModifiedMatch()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->lastModified(1286139652);
-        });
-        $s->call();
-        $this->assertEquals(304, $s->response()->status());
-    }
-
-    /**
-     * Test Last-Modified match
-     */
-    public function testLastModifiedDoesNotMatch()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->lastModified(1286139250);
-        });
-        $s->call();
-        $this->assertEquals(200, $s->response()->status());
-    }
-
-    public function testLastModifiedOnlyAcceptsIntegers()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->lastModified('Test');
-        });
-        $s->call();
-    }
-
-    /**
-     * Test ETag matches
-     */
-    public function testEtagMatches()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_NONE_MATCH' => '"abc123"',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->etag('abc123');
-        });
-        $s->call();
-        $this->assertEquals(304, $s->response()->status());
-    }
-
-    /**
-     * Test ETag does not match
-     */
-    public function testEtagDoesNotMatch()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_NONE_MATCH' => '"abc1234"',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->etag('abc123');
-        });
-        $s->call();
-        $this->assertEquals(200, $s->response()->status());
-    }
-
-    /**
-     * Test ETag with invalid type
-     */
-    public function testETagWithInvalidType()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_NONE_MATCH' => '"abc1234"',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->etag('123','foo');
-        });
-        $s->call();
-    }
-
-    /**
-     * Test Expires
-     */
-    public function testExpiresAsString()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $expectedDate = gmdate('D, d M Y', strtotime('5 days')); //Just the day, month, and year
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->expires('5 days');
-        });
-        $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
-    }
-
-    /**
-     * Test Expires
-     */
-    public function testExpiresAsInteger()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
-        $expectedDate = gmdate('D, d M Y', $fiveDaysFromNow); //Just the day, month, and year
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s, $fiveDaysFromNow) {
-            $s->expires($fiveDaysFromNow);
-        });
-        $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
-    }
-
-    /************************************************
-     * COOKIES
-     ************************************************/
-
-    /**
-     * Set cookie
-     *
-     * This tests that the Slim application instance sets
-     * a cookie in the HTTP response header. This does NOT
-     * test the implementation of setting the cookie; that is
-     * tested in a separate file.
-     */
-    public function testSetCookie()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->setCookie('foo', 'bar', '2 days');
-            $s->setCookie('foo1', 'bar1', '2 days');
-        });
-        $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(2, count($cookies));
-        $this->assertEquals(1, preg_match('@foo=bar@', $cookies[0]));
-        $this->assertEquals(1, preg_match('@foo1=bar1@', $cookies[1]));
-    }
-
-    /**
-     * Test get cookie
-     *
-     * This method ensures that the `Cookie:` HTTP request
-     * header is parsed if present, and made accessible via the
-     * Request object.
-     */
-    public function testGetCookie()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com',
-            'SERVER_PORT' => 80,
-            'COOKIE' => 'foo=bar; foo2=bar2',
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
-        ));
-        $s = new \Slim\Slim();
-        $this->assertEquals('bar', $s->getCookie('foo'));
-        $this->assertEquals('bar2', $s->getCookie('foo2'));
-    }
-
-    /**
-     * Test get cookie when cookie does not exist
-     */
-    public function testGetCookieThatDoesNotExist()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $this->assertNull($s->getCookie('foo'));
-    }
-
-    /**
-     * Test delete cookie
-     *
-     * This method ensures that the `Set-Cookie:` HTTP response
-     * header is set. The implementation of setting the response
-     * cookie is tested separately in another file.
-     */
-    public function testDeleteCookie()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'COOKIE' => 'foo=bar; foo2=bar2',
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->setCookie('foo', 'bar');
-            $s->deleteCookie('foo');
-        });
-        $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(1, count($cookies));
-        $this->assertEquals(1, preg_match('@^foo=;@', $cookies[0]));
-    }
-
-    /**
-     * Test set encrypted cookie
-     *
-     * This method ensures that the `Set-Cookie:` HTTP request
-     * header is set. The implementation is tested in a separate file.
-     */
-    public function testSetEncryptedCookie()
-    {
-        $s = new \Slim\Slim();
-        $s->setEncryptedCookie('foo', 'bar');
-        $r = $s->response();
-        $this->assertEquals(1, preg_match("@^foo=.+%7C.+%7C.+@", $r['Set-Cookie'])); //<-- %7C is a url-encoded pipe
-    }
-
-    /**
-     * Test get encrypted cookie
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    public function testGetEncryptedCookieAndDeletingIt()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $r = $s->response();
-        $this->assertFalse($s->getEncryptedCookie('foo'));
-        $this->assertEquals(1, preg_match("@foo=;.*@", $r['Set-Cookie']));
-    }
-
-    /**
-     * Test get encrypted cookie WITHOUT deleting it
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    public function testGetEncryptedCookieWithoutDeletingIt()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $r = $s->response();
-        $this->assertFalse($s->getEncryptedCookie('foo', false));
-        $this->assertEquals(0, preg_match("@foo=;.*@", $r['Set-Cookie']));
-    }
-
-    /************************************************
      * HELPERS
      ************************************************/
 
@@ -947,61 +630,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         });
         $s->run();
         $this->assertEquals($level_start, ob_get_level());
-    }
-
-    /**
-     * Test pass cleans buffer and throws exception
-     */
-    public function testPass()
-    {
-        ob_start();
-        $s = new \Slim\Slim();
-        echo "Foo";
-        try {
-            $s->pass();
-            $this->fail('Did not catch Slim_Exception_Pass');
-        } catch ( \Slim\Exception\Pass $e ) {}
-        $output = ob_get_clean();
-        $this->assertEquals('', $output);
-    }
-
-    /**
-     * Test pass when there is a subsequent fallback route
-     */
-    public function testPassWithSubsequentRoute()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/name/Frank', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/name/Frank', function () use ($s) {
-            echo "Fail"; //<-- Should not be in response body!
-            $s->pass();
-        });
-        $s->get('/name/:name', function ($name) {
-            echo $name; //<-- Should be in response body!
-        });
-        $s->call();
-        $this->assertEquals('Frank', $s->response()->body());
-    }
-
-    /**
-     * Test pass when there is not a subsequent fallback route
-     */
-    public function testPassWithoutSubsequentRoute()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/name/Frank', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/name/Frank', function () use ($s) {
-            echo "Fail"; //<-- Should not be in response body!
-            $s->pass();
-        });
-        $s->call();
-        $this->assertEquals(404, $s->response()->status());
     }
 
     /**
@@ -1409,5 +1037,74 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(count($hookOne[10]) === 1);
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+    }
+
+    /************************************************
+     * ARRAY ACCESS
+     ************************************************/
+
+    /**
+     * Test array access offset set
+     */
+    public function testArrayAccessOffsetSet()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+    }
+
+    /**
+     * Test array access offset unset
+     */
+    public function testArrayAccessOffsetUnset()
+    {
+        $app = new \Slim\Slim();
+        $this->assertFalse($app->offsetExists('foo'));
+        $app['foo'] = 'bar';
+        $this->assertEquals('bar', $app['foo']);
+        $this->assertEquals('bar', $app->offSetGet('foo'));
+        unset($app['foo']);
+        $this->assertFalse($app->offsetExists('foo'));
+    }
+
+    /**
+     * Test array access Response
+     */
+    public function testArrayAccessResponse()
+    {
+        $app = new \Slim\Slim();
+        $response = $app->response();
+        $this->assertEquals($app['response'], $response);
+        $response['status'] = '500';
+        $this->assertEquals($app['response']['status'], $response['status']);
+    }
+
+    /**
+     * Test array access Response
+     */
+    public function testArrayAccessRequest()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['request'], $app->request());
+    }
+
+    /**
+     * Test array access Environment
+     */
+    public function testArrayAccessEnvironment()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['environment'], $app->environment());
+    }
+
+    /**
+     * Test array access Router
+     */
+    public function testArrayAccessRouter()
+    {
+        $app = new \Slim\Slim();
+        $this->assertEquals($app['router'], $app->router());
     }
 }

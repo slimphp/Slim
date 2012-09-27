@@ -30,22 +30,21 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Exception;
+namespace Slim\Middleware;
 
-/**
- * Request Slash Exception
- *
- * This Exception is thrown when Slim detects a matching route
- * (defined with a trailing slash) and the HTTP request
- * matches the route but does not have a trailing slash. This
- * exception will be caught in `Slim::run` and trigger a 301 redirect
- * to the same resource URI with a trailing slash.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
- */
-class RequestSlash extends \Exception
+class HttpCache extends \Slim\Middleware
 {
-
+    /**
+     * Call
+     *
+     * Implements Slim middleware interface.
+     * Add http cache support to the Slim application.
+     */
+    public function call()
+    {
+        $this->app['HttpCache'] = $this->app->share(function($c) {
+            return new \Slim\Http\HttpCache($c['request'], $c['response']);
+        });
+        $this->next->call();
+    }
 }
