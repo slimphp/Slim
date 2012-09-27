@@ -125,11 +125,12 @@ class Slim extends Container
             return new \Slim\Router($c['request']->getResourceUri());
         });
 
-        // Route factory
+        // Route factory - creates instances of route.class
         $this['route'] = function($c) {
             return new $c['route.class']();
         };
 
+        // logger
         $this['log'] = $this->share(function ($c) {
             if (!$c['log.writer']) {
                 $c['log.writer'] = new \Slim\LogWriter($c['environment']['slim.errors']);
@@ -233,7 +234,7 @@ class Slim extends Container
      * that setting does not exist.
      *
      * If only one argument is specified and that argument is an associative array,
-     * the array will be merged into the existing application settings.
+     * the array will be merged into the existing application dependency injection container.
      *
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
@@ -541,6 +542,7 @@ class Slim extends Container
 
     /**
      * Get a reference to the Environment object
+     * @deprecated use $this['environment]
      * @return \Slim\Environment
      */
     public function environment()
@@ -550,6 +552,7 @@ class Slim extends Container
 
     /**
      * Get the Request object
+     * @deprecated use $this['request']
      * @return \Slim\Http\Request
      */
     public function request()
@@ -559,6 +562,7 @@ class Slim extends Container
 
     /**
      * Get the Response object
+     * @deprecated use $this['response']
      * @return \Slim\Http\Response
      */
     public function response()
@@ -568,6 +572,7 @@ class Slim extends Container
 
     /**
      * Get the Router object
+     * @deprecated use $this['router']
      * @return \Slim\Router
      */
     public function router()
@@ -637,8 +642,6 @@ class Slim extends Container
     *******************************************************************************/
 
     /**
-     * @deprecated use $app['HttpCache']->lastModified($time)
-     *
      * Set Last-Modified HTTP Response Header
      *
      * Set the HTTP 'Last-Modified' header and stop if a conditional
@@ -648,6 +651,7 @@ class Slim extends Container
      * matches the specified last modified time, the application will stop
      * and send a '304 Not Modified' response to the client.
      *
+     * @deprecated use $app['HttpCache']->lastModified($time)
      * @param  int                       $time The last modified UNIX timestamp
      * @throws \InvalidArgumentException If provided timestamp is not an integer
      */
@@ -657,8 +661,6 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $app['HttpCache']->etag($value, $type)
-     *
      * Set ETag HTTP Response Header
      *
      * Set the etag header and stop if the conditional GET request matches.
@@ -670,6 +672,7 @@ class Slim extends Container
      * a matching etag, execution is immediately stopped. If the request
      * method is GET or HEAD, a '304 Not Modified' response is sent.
      *
+     * @deprecated use $app['HttpCache']->etag($value, $type)
      * @param  string                    $value The etag value
      * @param  string                    $type  The type of etag to create; either "strong" or "weak"
      * @throws \InvalidArgumentException If provided type is invalid
@@ -680,8 +683,6 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $app['HttpCache']->expires($time)
-     *
      * Set Expires HTTP response header
      *
      * The `Expires` header tells the HTTP client the time at which
@@ -691,6 +692,7 @@ class Slim extends Container
      * if the resource has not changed. The `Expires` header should be used in
      * conjunction with the `etag()` or `lastModified()` methods above.
      *
+     * @deprecated use $app['HttpCache']->expires($time)
      * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
      *                              If int, a UNIX timestamp;
      */
@@ -704,10 +706,9 @@ class Slim extends Container
     *******************************************************************************/
 
     /**
-     * @deprecated use $this['cookies']->setCookie($name, $value, $time, $path, $domain, $secure, $httponly)
-     *
      * Set unencrypted HTTP cookie
      *
+     * @deprecated use $this['cookies']->setCookie($name, $value, $time, $path, $domain, $secure, $httponly)
      * @param string     $name      The cookie name
      * @param string     $value     The cookie value
      * @param int|string $time      The duration of the cookie;
@@ -725,14 +726,13 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $this['cookies']->getCookie($name)
-     *
      * Get value of unencrypted HTTP cookie
      *
      * Return the value of a cookie from the current HTTP request,
      * or return NULL if cookie does not exist. Cookies created during
      * the current request will not be available until the next request.
      *
+     * @deprecated use $this['cookies']->getCookie($name)
      * @param  string      $name
      * @return string|null
      */
@@ -742,10 +742,9 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $this['cookies']->setEncryptedCookie($name, $value, $expires, $path, $domain, $secure, $httponly)
-     *
      * Set encrypted HTTP cookie
      *
+     * @deprecated use $this['cookies']->setEncryptedCookie($name, $value, $expires, $path, $domain, $secure, $httponly)
      * @param string    $name       The cookie name
      * @param mixed     $value      The cookie value
      * @param mixed     $expires    The duration of the cookie;
@@ -763,14 +762,13 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $this['cookies']->getEncryptedCookie($name, $deleteIfInvalid)
-     *
      * Get value of encrypted HTTP cookie
      *
      * Return the value of an encrypted cookie from the current HTTP request,
      * or return NULL if cookie does not exist. Encrypted cookies created during
      * the current request will not be available until the next request.
      *
+     * @deprecated use $this['cookies']->getEncryptedCookie($name, $deleteIfInvalid)
      * @param  string       $name
      * @return string|false
      */
@@ -780,8 +778,6 @@ class Slim extends Container
     }
 
     /**
-     * @deprecated use $this['cookies']->deleteCookie($name, $path, $domain, $secure, $httponly)
-     *
      * Delete HTTP cookie (encrypted or unencrypted)
      *
      * Remove a Cookie from the client. This method will overwrite an existing Cookie
@@ -790,6 +786,7 @@ class Slim extends Container
      * removed. If any of this method's arguments are omitted or set to NULL, the
      * default Cookie setting values (set during Slim::init) will be used instead.
      *
+     * @deprecated use $this['cookies']->deleteCookie($name, $path, $domain, $secure, $httponly)
      * @param string    $name       The cookie name
      * @param string    $path       The path on the server in which the cookie will be available on
      * @param string    $domain     The domain that the cookie is available to
