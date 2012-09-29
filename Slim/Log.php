@@ -177,7 +177,7 @@ class Log
      */
     public function debug($object)
     {
-        return $this->log($object, self::DEBUG);
+        return $this->write($object, self::DEBUG);
     }
 
     /**
@@ -187,7 +187,7 @@ class Log
      */
     public function info($object)
     {
-        return $this->log($object, self::INFO);
+        return $this->write($object, self::INFO);
     }
 
     /**
@@ -197,7 +197,7 @@ class Log
      */
     public function warn($object)
     {
-        return $this->log($object, self::WARN);
+        return $this->write($object, self::WARN);
     }
 
     /**
@@ -207,7 +207,7 @@ class Log
      */
     public function error($object)
     {
-        return $this->log($object, self::ERROR);
+        return $this->write($object, self::ERROR);
     }
 
     /**
@@ -217,7 +217,7 @@ class Log
      */
     public function fatal($object)
     {
-        return $this->log($object, self::FATAL);
+        return $this->write($object, self::FATAL);
     }
 
     /**
@@ -226,7 +226,7 @@ class Log
      * @param   int     The message level
      * @return int|false
      */
-    protected function log($object, $level)
+    protected function write($object, $level)
     {
         if ($this->enabled && $this->writer && $level <= $this->level) {
             return $this->writer->write($object, $level);
