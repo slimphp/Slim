@@ -460,28 +460,4 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
     }
-
-    public function testDispatchWithoutCallable()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
-        $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/hello/:name', 'foo');
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $this->assertFalse($router->dispatch($route));
-    }
 }

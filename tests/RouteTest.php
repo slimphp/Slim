@@ -30,6 +30,9 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Used for passing callable via string
+function testCallable() {}
+
 class RouteTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -56,7 +59,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testRouteSetsPatternWithParams()
     {
-        $route = new \Slim\Route('/hello/:first/:last', 'hello');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
         $this->assertEquals('/hello/:first/:last', $route->getPattern());
     }
 
@@ -65,7 +68,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testRouteSetsCustomTemplate()
     {
-        $route = new \Slim\Route('/hello/*', 'hello');
+        $route = new \Slim\Route('/hello/*', function () {});
         $route->setPattern('/hello/:name');
         $this->assertEquals('/hello/:name', $route->getPattern());
     }
@@ -92,13 +95,35 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Route should throw exception when creating with an invalid callable
+     */
+    public function testRouteThrowsExecptionWithInvalidCallable()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        $route = new \Slim\Route('/foo/bar', 'fnDoesNotExist');
+    }
+
+    /**
+     * Route should throw exception when setting an invalid callable
+     */
+    public function testRouteThrowsExecptionWhenSettingInvalidCallable()
+    {
+        $route = new \Slim\Route('/foo/bar', function () {});
+        try
+        {
+            $route->setCallable('fnDoesNotExist');
+            $this->fail('Did not catch InvalidArgumentException when setting invalid callable');
+        } catch(\InvalidArgumentException $e) {}
+    }
+
+    /**
      * Test gets all params
      */
     public function testGetRouteParams()
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -117,7 +142,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -148,7 +173,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -164,7 +189,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -183,7 +208,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -205,7 +230,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         // Prepare route
         $requestUri = '/hello/mr/anderson';
-        $route = new \Slim\Route('/hello/:first/:last', 'fooCallable');
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
 
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
@@ -461,6 +486,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      * Case C: Middleware set as array of callables
      * Case D: Middleware set as a callable array
      * Case E: Middleware is invalid; throws InvalidArgumentException
+     * Case F: Middleware is an array with one invalid callable; throws InvalidArgumentException
      */
     public function testRouteMiddleware()
     {
@@ -492,6 +518,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
         try {
             $r3->setMiddleware('sdjfsoi788');
             $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
+        } catch ( \InvalidArgumentException $e ) {}
+        //Case F
+        try {
+            $r3->setMiddleware(array($callable1, $callable2, 'sdjfsoi788'));
+            $this->fail('Did not catch InvalidArgumentException when setting an array with one invalid route middleware');
         } catch ( \InvalidArgumentException $e ) {}
     }
 
