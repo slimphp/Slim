@@ -91,6 +91,7 @@ class PrettyExceptions extends \Slim\Middleware
         $html = sprintf('<h1>%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
+        $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
         if ($code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }

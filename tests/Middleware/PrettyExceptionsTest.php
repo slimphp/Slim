@@ -99,4 +99,27 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $response = $app->response();
         $this->assertEquals('text/html', $response['Content-Type']);
     }
+
+    /**
+     * Test exception type is in response body
+     */
+    public function testExceptionTypeIsInResponseBody()
+    {
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
+        ));
+        $app = new \Slim\Slim(array(
+            'log.enabled' => false
+        ));
+        $app->get('/foo', function () use ($app) {
+            throw new \LogicException('Test Message', 100);
+        });
+        $mw = new \Slim\Middleware\PrettyExceptions();
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+
+        $this->assertContains('LogicException', $app->response()->body());
+    }
 }
