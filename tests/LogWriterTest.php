@@ -2,9 +2,11 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart
- * @link        http://www.slimframework.com
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -28,44 +30,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * Session Cookie Handler
- *
- * This class is used as an adapter for PHP's $_SESSION handling.
- * Session data will be written to and read from signed, encrypted
- * cookies. If the current PHP installation does not have the `mcrypt`
- * extension, session data will be written to signed but unencrypted
- * cookies; however, the session cookies will still be secure and will
- * become invalid if manually edited after set by PHP.
- *
- * @package Slim
- * @author Josh Lockhart
- * @since Version 1.3
- */
-class Slim_Session_Handler_Cookies extends Slim_Session_Handler {
-
-    public function open( $savePath, $sessionName ) {
-        return true;
+class LogWriterTest extends PHPUnit_Framework_TestCase
+{
+    public function testInstantiation()
+    {
+        $this->expectOutputString('Hello!' . PHP_EOL);
+        $handle = fopen('php://output', 'w');
+        $fw = new \Slim\LogWriter($handle);
+        $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
     }
 
-    public function close() {
-        return true; //Not used
+    public function testInstantiationWithNonResource()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        $fw = new \Slim\LogWriter(@fopen('/foo/bar.txt', 'w'));
     }
-
-    public function read( $id ) {
-        return $this->app->getEncryptedCookie($id);
-    }
-
-    public function write( $id, $sessionData ) {
-        $this->app->setEncryptedCookie($id, $sessionData, 0);
-    }
-
-    public function destroy( $id ) {
-        $this->app->deleteCookie($id);
-    }
-
-    public function gc( $maxLifetime ) {
-        return true; //Not used
-    }
-
 }

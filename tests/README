@@ -1,10 +1,8 @@
 Slim Framework Unit Tests
 
-I use PHPUnit 3.5.13. To run these unit tests on your system, follow the directions below. To save development time, these unit tests currently require PHP >= 5.3. However, the Slim Framework itself only requires PHP >= 5.1.
+Follow the directions below to run the Slim Framework unit tests. You'll need the latest version of PHPUnit. To save development time, these unit tests require PHP >= 5.3. However, the Slim Framework itself requires only PHP >= 5.2.
 
-To run these unit tests:
-
-1. Install PHPUnit
+1. Install the latest version of PHPUnit
 Visit http://www.phpunit.de/ for installation instructions.
 
 2. Run PHPUnit
