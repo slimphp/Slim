@@ -74,6 +74,11 @@ class Router implements \Iterator
     protected $error;
 
     /**
+     * @var mixed Callable to be invoked if no acceptable HTTP method is defined
+     */
+    protected $methodNotAllowed;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -290,6 +295,20 @@ class Router implements \Iterator
         }
 
         return $this->error;
+    }
+
+    /**
+     * Register a 405 Method Not Allowed callback
+     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
+     * @return mixed
+     */
+    public function methodNotAllowed($callable = null)
+    {
+        if (is_callable($callable)) {
+            $this->methodNotAllowed = $callable;
+        }
+
+        return $this->methodNotAllowed;
     }
 
     /**
