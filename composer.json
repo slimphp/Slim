@@ -1,15 +1,20 @@
 {
-    "name": "slim/slim",
+    "name": "dannykopping/slim",
     "type": "library",
     "description": "Slim Framework, a PHP micro framework",
     "keywords": ["microframework","rest","router"],
-    "homepage": "http://github.com/codeguy/Slim",
+    "homepage": "http://github.com/dannykopping/Slim",
     "license": "MIT",
     "authors": [
         {
             "name": "Josh Lockhart",
             "email": "info@joshlockhart.com",
             "homepage": "http://www.joshlockhart.com/"
+        },
+        {
+            "name": "Danny Kopping",
+            "email": "dannykopping@gmail.com",
+            "homepage": "http://www.dannykopping.com/"
         }
     ],
     "require": {
