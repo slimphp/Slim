@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  *
  * MIT LICENSE
  *
@@ -1319,6 +1319,46 @@ class SlimTest extends PHPUnit_Framework_TestCase
         }
 
         error_reporting($defaultErrorReporting);
+    }
+
+    /**
+     * Slim should keep reference to a callable error callback
+     */
+    public function testErrorHandler() {
+        $s = new \Slim\Slim();
+        $errCallback = function () { echo "404"; };
+        $s->error($errCallback);
+        $this->assertSame($errCallback, PHPUnit_Framework_Assert::readAttribute($s, 'error'));
+    }
+
+    /**
+     * Slim should throw a Slim_Exception_Stop if error callback is not callable
+     */
+    public function testErrorHandlerIfNotCallable() {
+       $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim();
+        $errCallback = 'foo';
+        $s->error($errCallback);
+    }
+
+    /**
+     * Slim should keep reference to a callable NotFound callback
+     */
+    public function testNotFoundHandler() {
+        $s = new \Slim\Slim();
+        $notFoundCallback = function () { echo "404"; };
+        $s->notFound($notFoundCallback);
+        $this->assertSame($notFoundCallback, PHPUnit_Framework_Assert::readAttribute($s, 'notFound'));
+    }
+
+    /**
+     * Slim should throw a Slim_Exception_Stop if NotFound callback is not callable
+     */
+    public function testNotFoundHandlerIfNotCallable() {
+       $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim();
+        $notFoundCallback = 'foo';
+        $s->notFound($notFoundCallback);
     }
 
     /************************************************

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  *
  * MIT LICENSE
  *
@@ -174,54 +174,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $namedRoutesIterator = $router->getNamedRoutes();
         $this->assertInstanceOf('ArrayIterator', $namedRoutesIterator);
         $this->assertEquals(2, $namedRoutesIterator->count());
-    }
-
-    /**
-     * Router should keep reference to a callable NotFound callback
-     */
-    public function testNotFoundHandler()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $notFoundCallback = function () { echo "404"; };
-        $callback = $router->notFound($notFoundCallback);
-        $this->assertSame($notFoundCallback, $callback);
-    }
-
-    /**
-     * Router should NOT keep reference to a callback that is not callable
-     */
-    public function testNotFoundHandlerIfNotCallable()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $notFoundCallback = 'foo';
-        $callback = $router->notFound($notFoundCallback);
-        $this->assertNull($callback);
-    }
-
-    /**
-     * Router should keep reference to a callable NotFound callback
-     */
-    public function testErrorHandler()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $errCallback = function () { echo "404"; };
-        $callback = $router->error($errCallback);
-        $this->assertSame($errCallback, $callback);
-    }
-
-    /**
-     * Router should NOT keep reference to a callback that is not callable
-     */
-    public function testErrorHandlerIfNotCallable()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $errCallback = 'foo';
-        $callback = $router->error($errCallback);
-        $this->assertNull($callback);
     }
 
     /**
@@ -459,29 +411,5 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/hello/:name/', function ($name) { echo "Hello $name"; });
         $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
         $router->dispatch($route);
-    }
-
-    public function testDispatchWithoutCallable()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
-        $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/hello/:name', 'foo');
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $this->assertFalse($router->dispatch($route));
     }
 }

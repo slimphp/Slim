@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -49,7 +49,7 @@ class Slim
     /**
      * @const string
      */
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
 
     /**
      * @var array[\Slim]
@@ -102,6 +102,16 @@ class Slim
     protected $middleware;
 
     /**
+     * @var mixed Callable to be invoked if application error
+     */
+    protected $error;
+
+    /**
+     * @var mixed Callable to be invoked if no matching routes are found
+     */
+    protected $notFound;
+
+    /**
      * @var array
      */
     protected $hooks = array(
@@ -127,7 +137,7 @@ class Slim
         $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
 
         $baseDir = __DIR__;
-   
+
         if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
             $baseDir = substr($baseDir, 0, -strlen($thisClass));
         }
@@ -170,7 +180,7 @@ class Slim
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router($this->request->getResourceUri());
+        $this->router = new \Slim\Router();
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
@@ -493,15 +503,13 @@ class Slim
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound($callable = null)
-    {
-        if (!is_null($callable)) {
-            $this->router->notFound($callable);
+    public function notFound( $callable = null ) {
+        if ( is_callable($callable) ) {
+            $this->notFound = $callable;
         } else {
             ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if (is_callable($customNotFoundHandler)) {
-                call_user_func($customNotFoundHandler);
+            if ( is_callable($this->notFound) ) {
+                call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -536,7 +544,7 @@ class Slim
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this->router->error($argument);
+            $this->error = $argument;
         } else {
             //Invoke error handler
             $this->response->status(500);
@@ -558,9 +566,8 @@ class Slim
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if (is_callable($customErrorHandler)) {
-            call_user_func_array($customErrorHandler, array($argument));
+        if ( is_callable($this->error) ) {
+            call_user_func_array($this->error, array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
@@ -1309,6 +1316,6 @@ class Slim
      */
     protected function defaultError()
     {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

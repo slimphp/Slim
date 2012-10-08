@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -62,16 +62,6 @@ class Router implements \Iterator
      * @var array Array of route objects that match the request URI (lazy-loaded)
      */
     protected $matchedRoutes;
-
-    /**
-     * @var mixed Callable to be invoked if no matching route objects are found
-     */
-    protected $notFound;
-
-    /**
-     * @var mixed Callable to be invoked if application error
-     */
-    protected $error;
 
     /**
      * Constructor
@@ -190,19 +180,13 @@ class Router implements \Iterator
 
         //Invoke middleware
         foreach ($route->getMiddleware() as $mw) {
-            if (is_callable($mw)) {
-                call_user_func_array($mw, array($route));
-            }
+            call_user_func_array($mw, array($route));
         }
 
         //Invoke callable
-        if (is_callable($route->getCallable())) {
-            call_user_func_array($route->getCallable(), array_values($route->getParams()));
+        call_user_func_array($route->getCallable(), array_values($route->getParams()));
 
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -262,34 +246,6 @@ class Router implements \Iterator
         }
 
         return new \ArrayIterator($this->namedRoutes);
-    }
-
-    /**
-     * Register a 404 Not Found callback
-     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
-     * @return mixed
-     */
-    public function notFound($callable = null)
-    {
-        if (is_callable($callable)) {
-            $this->notFound = $callable;
-        }
-
-        return $this->notFound;
-    }
-
-    /**
-     * Register a 500 Error callback
-     * @param  mixed    $callable   Anything that returns TRUE for is_callable()
-     * @return mixed
-     */
-    public function error($callable = null)
-    {
-        if (is_callable($callable)) {
-            $this->error = $callable;
-        }
-
-        return $this->error;
     }
 
     /**
