@@ -42,6 +42,15 @@ class EchoErrorLogger
    public function error($object) { echo get_class($object) .':'.$object->getMessage(); }
 }
 
+//Mock extending class
+class Derived extends \Slim\Slim
+{
+	public static function getDefaultSettings()
+	{
+		return array_merge(array("late-static-binding" => true), parent::getDefaultSettings());
+	}
+}
+
 //Mock middleware
 class CustomMiddleware extends \Slim\Middleware
 {
@@ -1460,5 +1469,22 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(count($hookOne[10]) === 1);
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+    }
+
+	/**
+     * Test late static binding
+     *
+     * Pre-conditions:
+     * Slim app is extended by Derived class and instantiated;
+     * Derived class overrides the 'getDefaultSettings' function and adds an extra default config value
+	 * Test that the new config value exists
+     *
+     * Post-conditions:
+     * Config value exists and is equal to expected value
+     */
+    public function testDerivedClassCanOverrideStaticFunction()
+    {
+        $app = new Derived();
+        $this->assertEquals($app->config("late-static-binding"), true);
     }
 }
