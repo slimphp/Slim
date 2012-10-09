@@ -1361,6 +1361,26 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->notFound($notFoundCallback);
     }
 
+    /**
+     * Slim should keep reference to a callable MethodNotAllowed callback
+     */
+    public function testMethodNotAllowedHandler() {
+        $s = new \Slim\Slim();
+        $methodNotAllowedCallback = function () { echo "405"; };
+        $s->methodNotAllowed($methodNotAllowedCallback);
+        $this->assertSame($methodNotAllowedCallback, PHPUnit_Framework_Assert::readAttribute($s, 'methodNotAllowed'));
+    }
+
+    /**
+     * Slim should throw a Slim_Exception_Stop if MethodNotAllowed callback is not callable
+     */
+    public function testMethodNotAllowedHandlerIfNotCallable() {
+       $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim();
+        $methodNotAllowedCallback = 'foo';
+        $s->methodNotAllowed($methodNotAllowedCallback);
+    }
+
     /************************************************
      * HOOKS
      ************************************************/
