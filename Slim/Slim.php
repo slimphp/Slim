@@ -176,7 +176,7 @@ class Slim
     public function __construct($userSettings = array())
     {
         // Setup Slim application
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
@@ -192,7 +192,7 @@ class Slim
         $this->view($this->config('view'));
 
         // Make default if first instance
-        if (is_null(self::getInstance())) {
+        if (is_null(static::getInstance())) {
             $this->setName('default');
         }
 
@@ -214,7 +214,7 @@ class Slim
      */
     public static function getInstance($name = 'default')
     {
-        return isset(self::$apps[$name]) ? self::$apps[$name] : null;
+        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
     }
 
     /**
@@ -224,7 +224,7 @@ class Slim
     public function setName($name)
     {
         $this->name = $name;
-        self::$apps[$name] = $this;
+        static::$apps[$name] = $this;
     }
 
     /**
@@ -1295,15 +1295,14 @@ class Slim
      */
     protected function defaultNotFound()
     {
-        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
+        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
     }
 
     /**
      * Default Error handler
      */
-    protected function defaultError($e)
+    protected function defaultError()
     {
-        $this->getLog()->error($e);
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo static::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }
