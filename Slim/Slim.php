@@ -638,7 +638,7 @@ class Slim
         if (is_callable($customHandler)) {
             call_user_func_array($customHandler, array());
         } else {
-            call_user_func_array(array($this, 'defaultMethodNotAllowed'), array($argument));
+            call_user_func_array(array($this, 'defaultMethodNotAllowed'), array());
         }
 
         return ob_get_clean();
