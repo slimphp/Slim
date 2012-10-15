@@ -212,7 +212,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         // Get param
         try {
-            $param = $route->setParam('foo', 'bar');
+            $route->setParam('foo', 'bar');
             $this->fail('Did not catch expected InvalidArgumentException');
         } catch ( \InvalidArgumentException $e ) {}
     }
