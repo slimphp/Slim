@@ -173,7 +173,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test AJAX method detection wihtout header or query paramter
+     * Test AJAX method detection without header or query parameter
      */
     public function testIsAjaxWithoutHeaderOrQueryParameter()
     {
@@ -681,7 +681,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get host with port doesn't dulplicate port numbers
+     * Test get host with port doesn't duplicate port numbers
      */
     public function testGetHostDoesntDulplicatePort()
     {

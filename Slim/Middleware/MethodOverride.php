@@ -36,7 +36,7 @@ namespace Slim\Middleware;
   * HTTP Method Override
   *
   * This is middleware for a Slim application that allows traditional
-  * desktop browsers to submit psuedo PUT and DELETE requests by relying
+  * desktop browsers to submit pseudo PUT and DELETE requests by relying
   * on a pre-determined request parameter. Without this middleware,
   * desktop browsers are only able to submit GET and POST requests.
   *
@@ -55,7 +55,6 @@ class MethodOverride extends \Slim\Middleware
 
     /**
      * Constructor
-     * @param  \Slim  $app
      * @param  array  $settings
      */
     public function __construct($settings = array())
@@ -72,7 +71,6 @@ class MethodOverride extends \Slim\Middleware
      * modifies the environment settings so downstream middleware and/or the Slim
      * application will treat the request with the desired HTTP method.
      *
-     * @param  array         $env
      * @return array[status, header, body]
      */
     public function call()

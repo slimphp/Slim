@@ -390,7 +390,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset )
+    public function offsetExists($offset)
     {
         return isset($this->header[$offset]);
     }
@@ -398,7 +398,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset )
+    public function offsetGet($offset)
     {
         if (isset($this->header[$offset])) {
             return $this->header[$offset];
@@ -446,6 +446,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Get message for HTTP status code
+     * @param  int         $status
      * @return string|null
      */
     public static function getMessageForCode($status)

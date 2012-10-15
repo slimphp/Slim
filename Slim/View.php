@@ -175,7 +175,7 @@ class View
      *
      * This method echoes the rendered template to the current output buffer
      *
-     * @param  string   $template   Pathname of template file relative to templates directoy
+     * @param  string   $template   Pathname of template file relative to templates directory
      */
     public function display($template)
     {

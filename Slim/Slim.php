@@ -127,7 +127,7 @@ class Slim
         $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
 
         $baseDir = __DIR__;
-   
+
         if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
             $baseDir = substr($baseDir, 0, -strlen($thisClass));
         }
@@ -719,7 +719,9 @@ class Slim
 
         //Set etag value
         $value = '"' . $value . '"';
-        if ($type === 'weak') $value = 'W/'.$value;
+        if ($type === 'weak') {
+            $value = 'W/'.$value;
+        }
         $this->response['ETag'] = $value;
 
         //Check conditional GET
@@ -835,6 +837,7 @@ class Slim
      * the current request will not be available until the next request.
      *
      * @param  string       $name
+     * @param  bool         $deleteIfInvalid
      * @return string|false
      */
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
@@ -966,7 +969,7 @@ class Slim
 
     /**
      * Set the HTTP response status code
-     * @param  int      $status     The HTTP response status code
+     * @param  int      $code     The HTTP response status code
      */
     public function status($code)
     {
@@ -1064,7 +1067,7 @@ class Slim
     /**
      * Invoke hook
      * @param  string   $name       The hook name
-     * @param  mixed    $hookArgs   (Optional) Argument for hooked functions
+     * @param  mixed    $hookArg    (Optional) Argument for hooked functions
      */
     public function applyHook($name, $hookArg = null)
     {
@@ -1232,7 +1235,7 @@ class Slim
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
                     $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
                 } else {
-                   $this->notFound();
+                    $this->notFound();
                 }
             }
             $this->applyHook('slim.after.router');
@@ -1309,6 +1312,6 @@ class Slim
      */
     protected function defaultError()
     {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }
