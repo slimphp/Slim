@@ -59,7 +59,6 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Constructor
-     * @param  \Slim  $app
      * @param  array  $settings
      */
     public function __construct($settings = array())

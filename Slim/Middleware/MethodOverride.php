@@ -55,7 +55,6 @@ class MethodOverride extends \Slim\Middleware
 
     /**
      * Constructor
-     * @param  \Slim  $app
      * @param  array  $settings
      */
     public function __construct($settings = array())
@@ -72,7 +71,6 @@ class MethodOverride extends \Slim\Middleware
      * modifies the environment settings so downstream middleware and/or the Slim
      * application will treat the request with the desired HTTP method.
      *
-     * @param  array         $env
      * @return array[status, header, body]
      */
     public function call()

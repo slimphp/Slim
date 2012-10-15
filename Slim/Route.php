@@ -280,6 +280,7 @@ class Route
 
     /**
      * Detect support for an HTTP method
+     * @param  string $method
      * @return bool
      */
     public function supportsHttpMethod($method)

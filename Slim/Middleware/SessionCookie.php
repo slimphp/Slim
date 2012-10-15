@@ -119,7 +119,6 @@ class SessionCookie extends \Slim\Middleware
 
     /**
      * Load session
-     * @param  array $env
      */
     protected function loadSession()
     {

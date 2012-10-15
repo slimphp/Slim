@@ -51,7 +51,8 @@ class Util
      * override the magic quotes setting with either TRUE or FALSE as the send argument
      * to force this method to strip or not strip slashes from its input.
      *
-     * @var    array|string    $rawData
+     * @param  array|string    $rawData
+     * @param  bool            $overrideStripSlashes
      * @return array|string
      */
     public static function stripSlashesIfMagicQuotes($rawData, $overrideStripSlashes = null)
@@ -185,7 +186,7 @@ class Util
      * @param string $secret    The secret key used to hash the cookie value
      * @param int    $algorithm The algorithm to use for encryption
      * @param int    $mode      The algorithm mode to use for encryption
-     * @param string
+     * @return string
      */
     public static function encodeSecureCookie($value, $expires, $secret, $algorithm, $mode)
     {
@@ -208,11 +209,10 @@ class Util
      * secure and checked for integrity when read in subsequent requests.
      *
      * @param string $value     The secure HTTP cookie value
-     * @param int    $expires   The UNIX timestamp at which this cookie will expire
      * @param string $secret    The secret key used to hash the cookie value
      * @param int    $algorithm The algorithm to use for encryption
      * @param int    $mode      The algorithm mode to use for encryption
-     * @param string
+     * @return false|string
      */
     public static function decodeSecureCookie($value, $secret, $algorithm, $mode)
     {
@@ -310,7 +310,7 @@ class Util
      *
      * @param  array  $header
      * @param  string $name
-     * @param  string $value
+     * @param  array  $value
      */
     public static function deleteCookieHeader(&$header, $name, $value = array())
     {
