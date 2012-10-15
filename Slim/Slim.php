@@ -127,7 +127,7 @@ class Slim
         $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
 
         $baseDir = __DIR__;
-   
+
         if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
             $baseDir = substr($baseDir, 0, -strlen($thisClass));
         }
@@ -719,7 +719,9 @@ class Slim
 
         //Set etag value
         $value = '"' . $value . '"';
-        if ($type === 'weak') $value = 'W/'.$value;
+        if ($type === 'weak') {
+            $value = 'W/'.$value;
+        }
         $this->response['ETag'] = $value;
 
         //Check conditional GET
@@ -1233,7 +1235,7 @@ class Slim
                     $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
                     $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
                 } else {
-                   $this->notFound();
+                    $this->notFound();
                 }
             }
             $this->applyHook('slim.after.router');
