@@ -86,7 +86,7 @@ class SlimFlashTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test flash messages from preivous request do not persist to next request
+     * Test flash messages from previous request do not persist to next request
      */
     public function testFlashMessagesFromPreviousRequestDoNotPersist()
     {

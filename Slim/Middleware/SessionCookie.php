@@ -51,7 +51,7 @@ namespace Slim\Middleware;
  * session data in a database or alternative server-side cache.
  *
  * Because this class stores serialized session data in an HTTP cookie,
- * you are inherently limtied to 4 Kb. If you attempt to store
+ * you are inherently limited to 4 Kb. If you attempt to store
  * more than this amount, serialization will fail.
  *
  * @package     Slim

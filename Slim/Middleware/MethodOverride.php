@@ -36,7 +36,7 @@ namespace Slim\Middleware;
   * HTTP Method Override
   *
   * This is middleware for a Slim application that allows traditional
-  * desktop browsers to submit psuedo PUT and DELETE requests by relying
+  * desktop browsers to submit pseudo PUT and DELETE requests by relying
   * on a pre-determined request parameter. Without this middleware,
   * desktop browsers are only able to submit GET and POST requests.
   *
