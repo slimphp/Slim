@@ -415,15 +415,21 @@ class Route
     }
 
     /**
-     * Dispatch
-     * @return mixed The return value of the route callable, or FALSE on error
+     * Dispatch route
+     *
+     * This method invokes the route object's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * @return bool
      */
     public function dispatch()
     {
-        foreach ($this->middleware as $routeMiddleware) {
-            call_user_func_array($routeMiddleware, array($this));
+        foreach ($this->getMiddleware() as $mw) {
+            call_user_func_array($mw, array($this));
         }
 
-        return call_user_func_array($this->callable, array_values($this->params));
+        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
+        return ($return === false)? false : true;
     }
 }

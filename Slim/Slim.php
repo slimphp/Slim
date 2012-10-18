@@ -1222,7 +1222,7 @@ class Slim
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $this->router->dispatch($route);
+                    $dispatched = $route->dispatch();
                     $this->applyHook('slim.after.dispatch');
                     if ($dispatched) {
                         break;
