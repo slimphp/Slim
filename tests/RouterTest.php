@@ -89,6 +89,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
      */
     public function testUrlForNamedRouteThatDoesNotExist()
     {
+        $this->setExpectedException('\RuntimeException');
         $router = new \Slim\Router();
         $router->setResourceUri($this->req->getResourceUri());
         $route = $router->map('/foo/bar', function () {})->via('GET');
