@@ -48,9 +48,9 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testMap()
     {
         $router = new \Slim\Router();
-        $route = $router->map('/foo', function() {});
+        $route = new \Slim\Route('/foo', function() {});
+        $router->map($route);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains($route, 'routes', $router);
     }
 
