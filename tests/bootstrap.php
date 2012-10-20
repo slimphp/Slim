@@ -1,10 +1,10 @@
 <?php
 set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
 
-require_once 'Slim/Slim.php';
+require_once 'Slim/Autoload.php';
 
 // Register Slim's autoloader
-\Slim\Slim::registerAutoloader();
+\Slim\Autoload::registerAutoloader();
 
 //Register non-Slim autoloader
 function customAutoLoader( $class )
