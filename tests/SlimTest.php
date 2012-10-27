@@ -47,7 +47,9 @@ class Derived extends \Slim\Slim
 {
 	public static function getDefaultSettings()
 	{
-		return array_merge(array("late-static-binding" => true), parent::getDefaultSettings());
+        return array_merge(
+            array("late-static-binding" => true)
+        , parent::getDefaultSettings());
 	}
 }
 
