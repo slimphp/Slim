@@ -36,6 +36,12 @@ class CustomView extends \Slim\View
     public function render($template) { echo "Custom view"; }
 }
 
+//Echo Logger
+class EchoErrorLogger
+{
+   public function error($object) { echo get_class($object) .':'.$object->getMessage(); }
+}
+
 //Mock middleware
 class CustomMiddleware extends \Slim\Middleware
 {
@@ -1187,6 +1193,31 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test default error handler logs the error when debug is false.
+     *
+     * Pre-conditions:
+     * Invoked app route calls default error handler;
+     *
+     * Post-conditions:
+     * Error log is called
+     */
+    public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
+    {
+        $s = new \Slim\Slim(array('debug' => false));
+        $s->get('/bar', function () use ($s) {
+            throw new \InvalidArgumentException('my specific error message');
+        });
+
+        $env = $s->environment();
+        $env['slim.log'] = new EchoErrorLogger();    // <-- inject the fake logger
+
+        ob_start();
+        $s->run();
+        $output = ob_get_clean();
+        $this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
+    }
+
+    /**
      * Test triggered errors are converted to ErrorExceptions
      *
      * Pre-conditions:
@@ -1237,8 +1268,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'debug' => false
         ));
         $s2 = new \Slim\Slim();
-        $s1->get('/bar', function () {
-            trigger_error('error');
+        $s1->get('/bar', function () use ($s1) {
+            $s1->error();
         });
         $s2->get('/bar', function () {
             echo 'success';
