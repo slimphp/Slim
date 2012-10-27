@@ -1301,8 +1301,9 @@ class Slim
     /**
      * Default Error handler
      */
-    protected function defaultError()
+    protected function defaultError($e)
     {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        $this->getLog()->error($e);
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }
