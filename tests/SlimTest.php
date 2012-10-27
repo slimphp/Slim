@@ -286,6 +286,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test GET routes also get mapped as a HEAD route
+     */
+    public function testGetRouteIsAlsoMappedAsHead()
+    {
+        $s = new \Slim\Slim();
+        $route = $s->get('/foo', function () {});
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
+    }
+
+    /**
      * Test GET route
      */
     public function testGetRoute()
@@ -383,37 +394,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foobarxyz', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
-    }
-
-    /**
-     * Test if route expects trailing slash and URL does not have one
-     */
-    public function testRouteWithSlashAndUrlWithout()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar/', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(301, $s->response()->status());
-    }
-
-    /**
-     * Test 405 Method Not Allowed
-     */
-    public function testMethodNotAllowed()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'POST',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(405, $s->response()->status());
     }
 
     /**

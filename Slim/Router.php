@@ -41,12 +41,12 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Router implements \Iterator
+class Router
 {
     /**
-     * @var string Request URI
+     * @var Route The current route (most recently dispatched)
      */
-    protected $resourceUri;
+    protected $currentRoute;
 
     /**
      * @var array Lookup hash of all route objects
@@ -72,40 +72,39 @@ class Router implements \Iterator
     }
 
     /**
-     * Set Resource URI
-     *
-     * This method injects the current request's resource URI. This method should be invoked
-     * only immediately before router iteration.
-     *
-     * @param string $uri The request URI
-     */
-    public function setResourceUri($uri)
-    {
-        $this->resourceUri = $uri;
-    }
-
-    /**
-     * Get Current Route object
-     * @return \Slim\Route|false
+     * Get Current Route object or the first matched one if matching has been performed
+     * @return \Slim\Route|null
      */
     public function getCurrentRoute()
     {
-        $this->getMatchedRoutes(); // <-- Parse if not already parsed
+        if ($this->currentRoute !== null) {
+            return $this->currentRoute;
+        }
 
-        return $this->current();
+        if (is_array($this->matchedRoutes) && count($this->matchedRoutes) > 0) {
+            return $this->matchedRoutes[0];
+        }
+
+        return null;
     }
 
     /**
-     * Return route objects that match the current request URI
-     * @param  bool                 $reload     Should matching routes be re-parsed?
+     * Return route objects that match the given HTTP method and URI
+     * @param  string               $httpMethod   The HTTP method to match against
+     * @param  string               $resourceUri  The resource URI to match against
+     * @param  bool                 $reload       Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
-    public function getMatchedRoutes($reload = false)
+    public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
         if ($reload || is_null($this->matchedRoutes)) {
             $this->matchedRoutes = array();
             foreach ($this->routes as $route) {
-                if ($route->matches($this->resourceUri)) {
+                if (!$route->supportsHttpMethod($httpMethod)) {
+                    continue;
+                }
+
+                if ($route->matches($resourceUri)) {
                     $this->matchedRoutes[] = $route;
                 }
             }
@@ -157,26 +156,12 @@ class Router implements \Iterator
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * This method is smart about trailing slashes on the route pattern.
-     * If the route's pattern is defined with a trailing slash, and if the
-     * current request URI does not have a trailing slash but otherwise
-     * matches the route's pattern, a Slim_Exception_RequestSlash
-     * will be thrown triggering an HTTP 301 Permanent Redirect to the same
-     * URI _with_ a trailing slash. This Exception is caught in the
-     * `Slim::call` loop. If the route's pattern is defined without a
-     * trailing slash, and if the current request URI does have a trailing
-     * slash, the route will not be matched and a 404 Not Found
-     * response will be sent if no subsequent matching routes are found.
-     *
      * @param  \Slim\Route                  $route  The route object
      * @return bool                         Was route callable invoked successfully?
-     * @throws \Slim\Exception\RequestSlash
      */
     public function dispatch(\Slim\Route $route)
     {
-        if (substr($route->getPattern(), -1) === '/' && substr($this->resourceUri, -1) !== '/') {
-            throw new Exception\RequestSlash();
-        }
+        $this->currentRoute = $route;
 
         //Invoke middleware
         foreach ($route->getMiddleware() as $mw) {
@@ -246,48 +231,5 @@ class Router implements \Iterator
         }
 
         return new \ArrayIterator($this->namedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Rewind
-     */
-    public function rewind()
-    {
-        reset($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Current
-     * @return \Slim\Route|false
-     */
-    public function current()
-    {
-        return current($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Key
-     * @return int|null
-     */
-    public function key()
-    {
-        return key($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Next
-     */
-    public function next()
-    {
-        next($this->matchedRoutes);
-    }
-
-    /**
-     * Iterator Interface: Valid
-     * @return boolean
-     */
-    public function valid()
-    {
-        return $this->current();
     }
 }
