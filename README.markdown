@@ -75,7 +75,7 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires
 lighttpd >= 1.4.24.
 
-    url.rewrite-if-not-file = ("^" => "/index.php")
+    url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
