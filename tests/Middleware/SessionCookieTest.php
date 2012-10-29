@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -30,8 +30,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class SessionCookieTest extends PHPUnit_Framework_TestCase {
-    public function setUp() {
+class SessionCookieTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
         if ( session_id() !== '' ) {
             session_unset();
             session_destroy();
@@ -46,16 +48,17 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * 1) That the HTTP cookie is added to the `Set-Cookie:` response header;
      * 2) That the HTTP cookie is constructed in the expected format;
      */
-    public function testSessionCookieIsCreatedAndEncrypted() {
-        Slim_Environment::mock(array(
+    public function testSessionCookieIsCreatedAndEncrypted()
+    {
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -72,17 +75,18 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
      * the serialized array ['foo' => 'bar']. The middleware secret, cipher, and cipher mode are assumed
      * to be the default values.
      */
-    public function testSessionIsPopulatedFromCookie() {
-        Slim_Environment::mock(array(
+    public function testSessionIsPopulatedFromCookie()
+    {
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
             'COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -92,16 +96,17 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase {
     /**
      * Test $_SESSION is populated as empty array if no HTTP cookie
      */
-    public function testSessionIsPopulatedAsEmptyIfNoCookie() {
-        Slim_Environment::mock(array(
+    public function testSessionIsPopulatedAsEmptyIfNoCookie()
+    {
+        \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new Slim();
+        $app = new \Slim\Slim();
         $app->get('/foo', function () {
             echo "Success";
         });
-        $mw = new Slim_Middleware_SessionCookie(array('expires' => '10 years'));
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();

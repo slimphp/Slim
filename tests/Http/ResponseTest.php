@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.4
+ * @version     2.0.0
  *
  * MIT LICENSE
  *
@@ -30,12 +30,14 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class ResponseTest extends PHPUnit_Framework_TestCase {
+class ResponseTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Test constructor without args
      */
-    public function testConstructorWithoutArgs() {
-        $r = new Slim_Http_Response();
+    public function testConstructorWithoutArgs()
+    {
+        $r = new \Slim\Http\Response();
         $this->assertEquals('', $r->body());
         $this->assertEquals(200, $r->status());
         $this->assertEquals(0, $r->length());
@@ -45,8 +47,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test constructor with args
      */
-    public function testConstructorWithArgs() {
-        $r = new Slim_Http_Response('Page Not Found', 404, array('Content-Type' => 'application/json', 'X-Created-By' => 'Slim'));
+    public function testConstructorWithArgs()
+    {
+        $r = new \Slim\Http\Response('Page Not Found', 404, array('Content-Type' => 'application/json', 'X-Created-By' => 'Slim'));
         $this->assertEquals('Page Not Found', $r->body());
         $this->assertEquals(404, $r->status());
         $this->assertEquals(14, $r->length());
@@ -57,16 +60,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get status
      */
-    public function testGetStatus() {
-        $r = new Slim_Http_Response();
+    public function testGetStatus()
+    {
+        $r = new \Slim\Http\Response();
         $this->assertEquals(200, $r->status());
     }
 
     /**
      * Test set status
      */
-    public function testSetStatus() {
-        $r = new Slim_Http_Response();
+    public function testSetStatus()
+    {
+        $r = new \Slim\Http\Response();
         $r->status(500);
         $this->assertEquals(500, $r->status());
     }
@@ -74,8 +79,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get headers
      */
-    public function testGetHeaders() {
-        $r = new Slim_Http_Response();
+    public function testGetHeaders()
+    {
+        $r = new \Slim\Http\Response();
         $headers = $r->headers();
         $this->assertEquals(1, count($headers));
         $this->assertEquals('text/html', $headers['Content-Type']);
@@ -84,8 +90,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get and set header (without Array Access)
      */
-    public function testGetAndSetHeader() {
-        $r = new Slim_Http_Response();
+    public function testGetAndSetHeader()
+    {
+        $r = new \Slim\Http\Response();
         $r->header('X-Foo', 'Bar');
         $this->assertEquals('Bar', $r->header('X-Foo'));
     }
@@ -93,16 +100,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get body
      */
-    public function testGetBody() {
-        $r = new Slim_Http_Response('Foo');
+    public function testGetBody()
+    {
+        $r = new \Slim\Http\Response('Foo');
         $this->assertEquals('Foo', $r->body());
     }
 
     /**
      * Test set body
      */
-    public function testSetBody() {
-        $r = new Slim_Http_Response();
+    public function testSetBody()
+    {
+        $r = new \Slim\Http\Response();
         $r->body('Foo');
         $this->assertEquals('Foo', $r->body());
     }
@@ -110,16 +119,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test get length
      */
-    public function testGetLength() {
-        $r = new Slim_Http_Response('Foo');
+    public function testGetLength()
+    {
+        $r = new \Slim\Http\Response('Foo');
         $this->assertEquals(3, $r->length());
     }
 
     /**
      * Test set length
      */
-    public function testSetLength() {
-        $r = new Slim_Http_Response();
+    public function testSetLength()
+    {
+        $r = new \Slim\Http\Response();
         $r->length(3);
         $this->assertEquals(3, $r->length());
     }
@@ -127,8 +138,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test write for appending
      */
-    public function testWriteAppend() {
-        $r = new Slim_Http_Response('Foo');
+    public function testWriteAppend()
+    {
+        $r = new \Slim\Http\Response('Foo');
         $r->write('Bar');
         $this->assertEquals('FooBar', $r->body());
     }
@@ -136,8 +148,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test write for replacing
      */
-    public function testWriteReplace() {
-        $r = new Slim_Http_Response('Foo');
+    public function testWriteReplace()
+    {
+        $r = new \Slim\Http\Response('Foo');
         $r->write('Bar', true);
         $this->assertEquals('Bar', $r->body());
     }
@@ -145,8 +158,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test finalize
      */
-    public function testFinalize() {
-        $r = new Slim_Http_Response();
+    public function testFinalize()
+    {
+        $r = new \Slim\Http\Response();
         $r->status(404);
         $r['Content-Type'] = 'application/json';
         $r->write('Foo');
@@ -159,8 +173,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test finalize
      */
-    public function testFinalizeWithoutBody() {
-        $r = new Slim_Http_Response();
+    public function testFinalizeWithoutBody()
+    {
+        $r = new \Slim\Http\Response();
         $r->status(204);
         $r['Content-Type'] = 'application/json';
         $r->write('Foo');
@@ -172,8 +187,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value
      */
-    public function testSetCookieWithNameAndValue() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValue()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', 'bar');
         $this->assertEquals('foo=bar', $r['Set-Cookie']);
     }
@@ -181,8 +197,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set multiple cookies with only name and value
      */
-    public function testSetMultipleCookiesWithNameAndValue() {
-        $r = new Slim_Http_Response();
+    public function testSetMultipleCookiesWithNameAndValue()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', 'bar');
         $r->setCookie('abc', '123');
         $this->assertEquals("foo=bar\nabc=123", $r['Set-Cookie']);
@@ -191,9 +208,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie only name and value and expires (as int)
      */
-    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsInt() {
+    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsInt()
+    {
         $now = time();
-        $r = new Slim_Http_Response();
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'expires' => $now
@@ -204,9 +222,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value and expires (as string)
      */
-    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsString() {
+    public function testSetMultipleCookiesWithNameAndValueAndExpiresAsString()
+    {
         $expires = 'next Tuesday';
-        $r = new Slim_Http_Response();
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'expires' => $expires
@@ -217,8 +236,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with name, value, domain
      */
-    public function testSetCookieWithNameAndValueAndDomain() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndDomain()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'domain' => '.slimframework.com'
@@ -229,8 +249,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with name, value, domain, path
      */
-    public function testSetCookieWithNameAndValueAndDomainAndPath() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndDomainAndPath()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'domain' => '.slimframework.com',
@@ -242,8 +263,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value and secure flag
      */
-    public function testSetCookieWithNameAndValueAndSecureFlag() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndSecureFlag()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'secure' => true
@@ -254,8 +276,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value and secure flag (as non-truthy)
      */
-    public function testSetCookieWithNameAndValueAndSecureFlagAsNonTruthy() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndSecureFlagAsNonTruthy()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'secure' => 0
@@ -266,8 +289,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value and httponly flag
      */
-    public function testSetCookieWithNameAndValueAndHttpOnlyFlag() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndHttpOnlyFlag()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'httponly' => true
@@ -278,8 +302,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test set cookie with only name and value and httponly flag (as non-truthy)
      */
-    public function testSetCookieWithNameAndValueAndHttpOnlyFlagAsNonTruthy() {
-        $r = new Slim_Http_Response();
+    public function testSetCookieWithNameAndValueAndHttpOnlyFlagAsNonTruthy()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'httponly' => 0
@@ -290,8 +315,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /*
      * Test delete cookie by name
      */
-    public function testDeleteCookieByName() {
-        $r = new Slim_Http_Response();
+    public function testDeleteCookieByName()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', 'bar');
         $r->setCookie('abc', '123');
         $r->deleteCookie('foo');
@@ -301,8 +327,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /*
      * Test delete cookie by name and domain
      */
-    public function testDeleteCookieByNameAndDomain1() {
-        $r = new Slim_Http_Response();
+    public function testDeleteCookieByNameAndDomain1()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', 'bar'); //Note: This does not have domain associated with it
         $r->setCookie('abc', '123');
         $r->deleteCookie('foo', array('domain' => '.slimframework.com')); //This SHOULD NOT remove the `foo` cookie
@@ -312,8 +339,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /*
      * Test delete cookie by name and domain
      */
-    public function testDeleteCookieByNameAndDomain2() {
-        $r = new Slim_Http_Response();
+    public function testDeleteCookieByNameAndDomain2()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', array(
             'value' => 'bar',
             'domain' => '.slimframework.com' //Note: This does have domain associated with it
@@ -326,8 +354,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test delete cookie by name and custom props
      */
-    public function testDeleteCookieByNameAndCustomProps() {
-        $r = new Slim_Http_Response();
+    public function testDeleteCookieByNameAndCustomProps()
+    {
+        $r = new \Slim\Http\Response();
         $r->setCookie('foo', 'bar');
         $r->setCookie('abc', '123');
         $r->deleteCookie('foo', array(
@@ -340,8 +369,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test redirect
      */
-    public function testRedirect() {
-        $r = new Slim_Http_Response();
+    public function testRedirect()
+    {
+        $r = new \Slim\Http\Response();
         $r->redirect('/foo');
         $this->assertEquals(302, $r->status());
         $this->assertEquals('/foo', $r['Location']);
@@ -350,8 +380,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test redirect with custom status
      */
-    public function testRedirectWithCustomStatus() {
-        $r = new Slim_Http_Response();
+    public function testRedirectWithCustomStatus()
+    {
+        $r = new \Slim\Http\Response();
         $r->redirect('/foo', 307);
         $this->assertEquals(307, $r->status());
         $this->assertEquals('/foo', $r['Location']);
@@ -360,9 +391,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isEmpty
      */
-    public function testIsEmpty() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsEmpty()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(404);
         $r2->status(201);
         $this->assertFalse($r1->isEmpty());
@@ -372,9 +404,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isClientError
      */
-    public function testIsClientError() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsClientError()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(404);
         $r2->status(500);
         $this->assertTrue($r1->isClientError());
@@ -384,9 +417,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isForbidden
      */
-    public function testIsForbidden() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsForbidden()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(403);
         $r2->status(500);
         $this->assertTrue($r1->isForbidden());
@@ -396,9 +430,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isInformational
      */
-    public function testIsInformational() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsInformational()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(100);
         $r2->status(200);
         $this->assertTrue($r1->isInformational());
@@ -408,9 +443,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isInformational
      */
-    public function testIsNotFound() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsNotFound()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(404);
         $r2->status(200);
         $this->assertTrue($r1->isNotFound());
@@ -420,9 +456,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isOk
      */
-    public function testIsOk() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsOk()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(200);
         $r2->status(201);
         $this->assertTrue($r1->isOk());
@@ -432,10 +469,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isSuccessful
      */
-    public function testIsSuccessful() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
-        $r3 = new Slim_Http_Response();
+    public function testIsSuccessful()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
+        $r3 = new \Slim\Http\Response();
         $r1->status(200);
         $r2->status(201);
         $r3->status(302);
@@ -447,9 +485,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isRedirect
      */
-    public function testIsRedirect() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsRedirect()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(307);
         $r2->status(304);
         $this->assertTrue($r1->isRedirect());
@@ -459,10 +498,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isRedirection
      */
-    public function testIsRedirection() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
-        $r3 = new Slim_Http_Response();
+    public function testIsRedirection()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
+        $r3 = new \Slim\Http\Response();
         $r1->status(307);
         $r2->status(304);
         $r3->status(200);
@@ -474,9 +514,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test isServerError
      */
-    public function testIsServerError() {
-        $r1 = new Slim_Http_Response();
-        $r2 = new Slim_Http_Response();
+    public function testIsServerError()
+    {
+        $r1 = new \Slim\Http\Response();
+        $r2 = new \Slim\Http\Response();
         $r1->status(500);
         $r2->status(400);
         $this->assertTrue($r1->isServerError());
@@ -486,8 +527,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test offset exists and offset get
      */
-    public function testOffsetExistsAndGet() {
-        $r = new Slim_Http_Response();
+    public function testOffsetExistsAndGet()
+    {
+        $r = new \Slim\Http\Response();
         $this->assertFalse(empty($r['Content-Type']));
         $this->assertNull($r['foo']);
     }
@@ -495,10 +537,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test iteration
      */
-    public function testIteration() {
-        $h = new Slim_Http_Response();
+    public function testIteration()
+    {
+        $h = new \Slim\Http\Response();
         $output = '';
-        foreach ( $h as $key => $value ) {
+        foreach ($h as $key => $value) {
             $output .= $key . $value;
         }
         $this->assertEquals('Content-Typetext/html', $output);
@@ -507,22 +550,25 @@ class ResponseTest extends PHPUnit_Framework_TestCase {
     /**
      * Test countable
      */
-    public function testCountable() {
-        $r1 = new Slim_Http_Response();
+    public function testCountable()
+    {
+        $r1 = new \Slim\Http\Response();
         $this->assertEquals(1, count($r1)); //Content-Type
     }
 
     /**
      * Test message for code when message exists
      */
-    public function testMessageForCode() {
-        $this->assertEquals('200 OK', Slim_Http_Response::getMessageForCode(200));
+    public function testMessageForCode()
+    {
+        $this->assertEquals('200 OK', \Slim\Http\Response::getMessageForCode(200));
     }
 
     /**
      * Test message for code when message exists
      */
-    public function testMessageForCodeWithInvalidCode() {
-        $this->assertNull(Slim_Http_Response::getMessageForCode(600));
+    public function testMessageForCodeWithInvalidCode()
+    {
+        $this->assertNull(\Slim\Http\Response::getMessageForCode(600));
     }
 }

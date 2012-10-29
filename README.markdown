@@ -1,72 +1,62 @@
-# Slim Framework for PHP 5
+# Slim Framework
 
-Slim is a micro framework for PHP 5 that helps you quickly write simple yet powerful RESTful web applications and APIs. Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases over edge cases. Its interface is simple, intuitive, and extensively documented — both online and in the code itself. Thank you for choosing Slim for your next project. I think you're going to love it.
+[![Build Status](https://secure.travis-ci.org/codeguy/Slim.png)](http://travis-ci.org/codeguy/Slim)
+
+Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs.
+Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases
+over edge cases. Its interface is simple, intuitive, and extensively documented — both online and in the code itself.
+Thank you for choosing the Slim Framework for your next project. I think you're going to love it.
 
 ## Features
 
-* Clean and simple [DSL](http://en.wikipedia.org/wiki/Domain-specific_language) for writing powerful web applications
-* HTTP routing
-    * Supports all standard and custom HTTP request methods
-    * Route parameters and conditions
-    * Route redirects
-    * Route passing
-    * Route halting
+* Powerful router
+    * Standard and custom HTTP methods
+    * Route parameters with wildcards and conditions
+    * Route redirect, halt, and pass
     * Route middleware
-    * Named routes and `urlFor()` helper
-* Easy configuration
-* Easy templating with custom Views (e.g. Twig, Mustache, Smarty)
-* Flash messaging
-* Signed cookies with AES-256 encryption
-* HTTP caching (ETag and Last-Modified)
-* Logging
-* Error handling
-    * Custom Not Found handler
-    * Custom Error handler
-    * Debugging
-* Built upon the Rack protocol
-* Extensible middleware and hook architecture
-* Supports PHP >= 5.2.0
+* Template rendering with custom views
+* Flash messages
+* Secure cookies with AES-256 encryption
+* HTTP caching
+* Logging with custom log writers
+* Error handling and debugging
+* Middleware and hook architecture
+* Simple configuration
 
-## "Hello World" application (PHP >= 5.3)
+## Getting Started
 
-The Slim Framework for PHP 5 supports anonymous functions. This is the preferred method to define Slim application routes. This example assumes you have setup URL rewriting with your web server (see below).
+### Install
 
-```php
-<?php
-require 'Slim/Slim.php';
-$app = new Slim();
-$app->get('/hello/:name', function ($name) {
-    echo "Hello, $name!";
-});
-$app->run();
-```
+You may install the Slim Framework with Composer (recommended) or manually.
 
-## "Hello World" application (PHP < 5.3)
+[Read how to install Slim](http://docs.slimframework.com/pages/getting-started-install)
 
-If you are running PHP < 5.3, the second argument to the application's `get()` instance method is the name of a callable function instead of an anonymous function. This example assumes you have setup URL rewriting with your web server (see below).
+### System Requirements
 
-```php
-<?php
-require 'Slim/Slim.php';
-$app = new Slim();
-$app->get('/hello/:name', 'hello');
-function hello($name) {
-    echo "Hello, $name!";
-}
-$app->run();
-```
+You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `mcrypt` extension.
 
-## Get Started
+### Hello World Tutorial
 
-### Install Slim
+Instantiate a Slim application:
 
-Download the Slim Framework for PHP 5 and unzip the downloaded file into your virtual host's public directory. Slim will work in a sub-directory, too.
+    $app = new \Slim\Slim();
 
-### Setup your webserver
+Define a HTTP GET route:
+
+    $app->get('/hello/:name', function ($name) {
+        echo "Hello, $name";
+    });
+
+Run the Slim application:
+
+    $app->run();
+
+### Setup your web server
 
 #### Apache
 
-Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file should contain this code:
+Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file
+should contain this code:
 
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -82,88 +72,59 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 
 #### lighttpd ####
 
-Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires lighttpd >= 1.4.24.
+Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires
+lighttpd >= 1.4.24.
 
     url.rewrite-if-not-file = ("^" => "/index.php")
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
-### Build Your Application
+## Documentation
 
-Your Slim application will be defined in `index.php`. First, `require` the Slim Framework:
+<http://docs.slimframework.com/>
 
-```php
-require 'Slim/Slim.php';
-```
+## How to Contribute
 
-Next, initialize the Slim application:
+### Pull Requests
 
-```php
-$app = new Slim();
-```
+1. Fork the Slim Framework repository
+2. Create a new branch for each feature or improvement
+3. Send a pull request from each feature branch to the **develop** branch
 
-Next, define your application's routes:
+It is very important to separate new features or improvements into separate feature branches, and to send a pull
+request for each branch. This allows me to review and pull in new features or improvements individually.
 
-```php
-$app->get('/hello/:name', function ($name) {
-    echo "Hello $name";
-});
-```
+### Style Guide
 
-Finally, run your Slim application:
+All pull requests must adhere to the [PSR-2](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md) standard.
 
-```php
-    $app->run();
-```
+### Unit Testing
 
-For more information about building an application with the Slim Framework, refer to the [official documentation](http://github.com/codeguy/Slim/wiki/Slim-Framework-Documentation).
+All pull requests must be accompanied by passing unit tests and complete code coverage. The Slim Framework uses
+`phpunit` for testing.
 
-## Documentation 
-
-* [Stable Branch Documentation](http://www.slimframework.com/documentation/stable)
-* [Development Branch Documentation](http://www.slimframework.com/documentation/develop)
+[Learn about PHPUnit](https://github.com/sebastianbergmann/phpunit/)
 
 ## Community
 
 ### Forum and Knowledgebase
 
-Visit Slim's official forum and knowledge base at <http://help.slimframework.com> where you can find announcements, chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps.
+Visit Slim's official forum and knowledge base at <http://help.slimframework.com> where you can find announcements,
+chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps.
 
 ### Twitter
 
-Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive the very latest news and updates about the framework.
+Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive news and updates about the framework.
 
-### IRC
+## Author
 
-You can find me, Josh Lockhart, hanging out in the ##slim chat room during the day. Feel free to say hi, ask questions, or just hang out. If you're on a Mac, check out Colloquy; if you're on a PC, check out mIRC; if you're on Linux, I'm sure you already know what you're doing.
+The Slim Framework is created and maintained by [Josh Lockhart](https://www.joshlockhart.com). Josh is a senior
+web developer at [New Media Campaigns](http://www.newmediacampaigns.com/). Josh also created and maintains
+[PHP: The Right Way](http://www.phptherightway.com/), a popular movement in the PHP community to introduce new
+PHP programmers to best practices and good information.
 
-## Resources
+## License
 
-Additional resources (ie. custom Views and plugins) are available online in a separate repository.
-
-<https://github.com/codeguy/Slim-Extras>
-
-Here are more links that may also be useful.
-
-* Road Map:       <http://github.com/codeguy/Slim/wiki/Road-Map>
-* Source Code:    <http://github.com/codeguy/Slim/>
-
-## Testing
-
-Unit-tests can be run using PHPUnit.
-
-```
-$ phpunit
-```
-
-## About the Author
-
-Slim is created and maintained by Josh Lockhart, a web developer by day at [New Media Campaigns](http://www.newmediacampaigns.com), and a [hacker by night](http://github.com/codeguy).
-
-Slim is in active development, and test coverage is continually improving.
-
-## Open Source License
-
-Slim is released under the MIT public license.
+The Slim Framework is released under the MIT public license.
 
 <http://www.slimframework.com/license>
