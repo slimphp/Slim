@@ -150,9 +150,14 @@ class Route
     /**
      * Set route callable
      * @param  mixed $callable
+     * @throws \InvalidArgumentException If argument is not callable
      */
     public function setCallable($callable)
     {
+        if (!is_callable($callable)) {
+            throw new \InvalidArgumentException('Route callable must be callable');
+        }
+
         $this->callable = $callable;
     }
 
@@ -303,19 +308,23 @@ class Route
      * If the method argument `is_callable` (including callable arrays!),
      * we directly append the argument to `$this->middleware`. Else, we
      * assume the argument is an array of callables and merge the array
-     * with `$this->middleware`. Even if non-callables are included in the
-     * argument array, we still merge them; we lazily check each item
-     * against `is_callable` during Router::dispatch().
+     * with `$this->middleware`.  Each middleware is checked for is_callable()
+     * and an InvalidArgumentException is thrown immediately if it isn't.
      *
      * @param  Callable|array[Callable]
      * @return \Slim\Route
-     * @throws \InvalidArgumentException If argument is not callable or not an array
+     * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
      */
     public function setMiddleware($middleware)
     {
         if (is_callable($middleware)) {
             $this->middleware[] = $middleware;
         } elseif (is_array($middleware)) {
+            foreach($middleware as $callable) {
+                if (!is_callable($callable)) {
+                    throw new \InvalidArgumentException('All Route middleware must be callable');
+                }
+            }
             $this->middleware = array_merge($this->middleware, $middleware);
         } else {
             throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
