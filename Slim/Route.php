@@ -81,6 +81,11 @@ class Route
     protected $paramNamesPath = array();
 
     /**
+     * @var array Key-value array of Metadata
+     */
+    protected $metadata = array();
+
+    /**
      * @var array HTTP methods supported by this Route
      */
     protected $methods = array();
@@ -242,6 +247,44 @@ class Route
             throw new \InvalidArgumentException('Route parameter does not exist at specified index');
         }
         $this->params[$index] = $value;
+    }
+
+    /**
+     * Set either a Metadata value, or if only 1 parameter is given, set all Metadata.
+     *
+     * @param  mixed  The Metadata as an array or index
+     * @param  mixed  The Metadata value if given
+     * @throws \InvalidArgumentException
+     */
+    public function setMetadata($metadata, $value = null)
+    {
+        if (func_num_args() == 1 && is_array($metadata)) {
+            $this->metadata = $metadata;
+        } elseif (is_string($metadata) || is_numeric($metadata)) {
+            $this->metadata[$metadata] = $value;
+        } else {
+            throw new \InvalidArgumentException();
+        }
+    }
+
+    /**
+     * Gets a route Metadata value, or returns all Metadata if no index is given
+     *
+     * @param  string|null   $index     Name of Metadata
+     * @return string|array
+     * @throws \InvalidArgumentException If route Metadata does not exist at index
+     */
+    public function getMetadata($index = null)
+    {
+        if (is_null($index)) {
+            return $this->metadata;
+        }
+
+        if (!isset($this->metadata[$index])) {
+            throw new \InvalidArgumentException('Route Metadata does not exist at specified index');
+        }
+
+        return $this->metadata[$index];
     }
 
     /**
