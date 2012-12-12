@@ -301,7 +301,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
         );
 
         $route = new \Slim\Route('/foo', function () {});
-        $route->setMetadata($data);
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, $data);
+
 
         $this->assertEquals($data, $route->getMetadata());
     }
@@ -312,7 +316,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testGetMetadataWhenExists()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $route->setMetadata(array(
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
             'foo' => 'bar',
             'baz' => 'yay'
         ));
@@ -329,7 +336,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $route = new \Slim\Route('/foo', function () {});
 
-        $route->setMetadata(array(
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
             'foo' => 'bar',
             'baz' => 'yay'
         ));
