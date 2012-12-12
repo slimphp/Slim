@@ -247,7 +247,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testSetOneMetadata()
     {
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
 
         $route->setMetadata('foo', 'bar');
 
@@ -268,7 +268,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             'foo' => 'bar',
             'baz' => 'yay'
         );
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
         $route->setMetadata($data);
 
         $property = new ReflectionProperty($route, 'metadata');
@@ -285,7 +285,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testSetMetadataWithInvalidIndexType()
     {
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
 
         $route->setMetadata(new stdClass, 'foo');
     }
@@ -300,7 +300,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             'baz' => 'yay'
         );
 
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
         $route->setMetadata($data);
 
         $this->assertEquals($data, $route->getMetadata());
@@ -311,7 +311,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testGetMetadataWhenExists()
     {
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
         $route->setMetadata(array(
             'foo' => 'bar',
             'baz' => 'yay'
@@ -327,7 +327,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testGetMetadataWhenNotExists()
     {
-        $route = new \Slim\Route('/foo', 'fooCallable');
+        $route = new \Slim\Route('/foo', function () {});
 
         $route->setMetadata(array(
             'foo' => 'bar',
