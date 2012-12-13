@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -91,6 +91,7 @@ class PrettyExceptions extends \Slim\Middleware
         $html = sprintf('<h1>%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
+        $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
         if ($code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }

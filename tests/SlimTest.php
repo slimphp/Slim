@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  *
  * MIT LICENSE
  *
@@ -34,6 +34,23 @@
 class CustomView extends \Slim\View
 {
     public function render($template) { echo "Custom view"; }
+}
+
+//Echo Logger
+class EchoErrorLogger
+{
+   public function error($object) { echo get_class($object) .':'.$object->getMessage(); }
+}
+
+//Mock extending class
+class Derived extends \Slim\Slim
+{
+	public static function getDefaultSettings()
+	{
+        return array_merge(
+            array("late-static-binding" => true)
+        , parent::getDefaultSettings());
+	}
 }
 
 //Mock middleware
@@ -286,6 +303,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test GET routes also get mapped as a HEAD route
+     */
+    public function testGetRouteIsAlsoMappedAsHead()
+    {
+        $s = new \Slim\Slim();
+        $route = $s->get('/foo', function () {});
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
+    }
+
+    /**
      * Test GET route
      */
     public function testGetRoute()
@@ -383,37 +411,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foobarxyz', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
-    }
-
-    /**
-     * Test if route expects trailing slash and URL does not have one
-     */
-    public function testRouteWithSlashAndUrlWithout()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar/', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(301, $s->response()->status());
-    }
-
-    /**
-     * Test 405 Method Not Allowed
-     */
-    public function testMethodNotAllowed()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'POST',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(405, $s->response()->status());
     }
 
     /**
@@ -1207,6 +1204,31 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test default error handler logs the error when debug is false.
+     *
+     * Pre-conditions:
+     * Invoked app route calls default error handler;
+     *
+     * Post-conditions:
+     * Error log is called
+     */
+    public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
+    {
+        $s = new \Slim\Slim(array('debug' => false));
+        $s->get('/bar', function () use ($s) {
+            throw new \InvalidArgumentException('my specific error message');
+        });
+
+        $env = $s->environment();
+        $env['slim.log'] = new EchoErrorLogger();    // <-- inject the fake logger
+
+        ob_start();
+        $s->run();
+        $output = ob_get_clean();
+        $this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
+    }
+
+    /**
      * Test triggered errors are converted to ErrorExceptions
      *
      * Pre-conditions:
@@ -1257,8 +1279,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'debug' => false
         ));
         $s2 = new \Slim\Slim();
-        $s1->get('/bar', function () {
-            trigger_error('error');
+        $s1->get('/bar', function () use ($s1) {
+            $s1->error();
         });
         $s2->get('/bar', function () {
             echo 'success';
@@ -1319,6 +1341,46 @@ class SlimTest extends PHPUnit_Framework_TestCase
         }
 
         error_reporting($defaultErrorReporting);
+    }
+
+    /**
+     * Slim should keep reference to a callable error callback
+     */
+    public function testErrorHandler() {
+        $s = new \Slim\Slim();
+        $errCallback = function () { echo "404"; };
+        $s->error($errCallback);
+        $this->assertSame($errCallback, PHPUnit_Framework_Assert::readAttribute($s, 'error'));
+    }
+
+    /**
+     * Slim should throw a Slim_Exception_Stop if error callback is not callable
+     */
+    public function testErrorHandlerIfNotCallable() {
+       $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim();
+        $errCallback = 'foo';
+        $s->error($errCallback);
+    }
+
+    /**
+     * Slim should keep reference to a callable NotFound callback
+     */
+    public function testNotFoundHandler() {
+        $s = new \Slim\Slim();
+        $notFoundCallback = function () { echo "404"; };
+        $s->notFound($notFoundCallback);
+        $this->assertSame($notFoundCallback, PHPUnit_Framework_Assert::readAttribute($s, 'notFound'));
+    }
+
+    /**
+     * Slim should throw a Slim_Exception_Stop if NotFound callback is not callable
+     */
+    public function testNotFoundHandlerIfNotCallable() {
+       $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim();
+        $notFoundCallback = 'foo';
+        $s->notFound($notFoundCallback);
     }
 
     /************************************************
@@ -1409,5 +1471,22 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(count($hookOne[10]) === 1);
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+    }
+
+	/**
+     * Test late static binding
+     *
+     * Pre-conditions:
+     * Slim app is extended by Derived class and instantiated;
+     * Derived class overrides the 'getDefaultSettings' function and adds an extra default config value
+	 * Test that the new config value exists
+     *
+     * Post-conditions:
+     * Config value exists and is equal to expected value
+     */
+    public function testDerivedClassCanOverrideStaticFunction()
+    {
+        $app = new Derived();
+        $this->assertEquals($app->config("late-static-binding"), true);
     }
 }

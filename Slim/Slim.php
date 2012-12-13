@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.0.0
+ * @version     2.1.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -49,7 +49,7 @@ class Slim
     /**
      * @const string
      */
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
 
     /**
      * @var array[\Slim]
@@ -102,6 +102,16 @@ class Slim
     protected $middleware;
 
     /**
+     * @var mixed Callable to be invoked if application error
+     */
+    protected $error;
+
+    /**
+     * @var mixed Callable to be invoked if no matching routes are found
+     */
+    protected $notFound;
+
+    /**
      * @var array
      */
     protected $hooks = array(
@@ -127,7 +137,7 @@ class Slim
         $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
 
         $baseDir = __DIR__;
-   
+
         if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
             $baseDir = substr($baseDir, 0, -strlen($thisClass));
         }
@@ -166,11 +176,11 @@ class Slim
     public function __construct($userSettings = array())
     {
         // Setup Slim application
-        $this->settings = array_merge(self::getDefaultSettings(), $userSettings);
+        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router($this->request->getResourceUri());
+        $this->router = new \Slim\Router();
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
@@ -182,7 +192,7 @@ class Slim
         $this->view($this->config('view'));
 
         // Make default if first instance
-        if (is_null(self::getInstance())) {
+        if (is_null(static::getInstance())) {
             $this->setName('default');
         }
 
@@ -204,7 +214,7 @@ class Slim
      */
     public static function getInstance($name = 'default')
     {
-        return isset(self::$apps[$name]) ? self::$apps[$name] : null;
+        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
     }
 
     /**
@@ -214,7 +224,7 @@ class Slim
     public function setName($name)
     {
         $this->name = $name;
-        self::$apps[$name] = $this;
+        static::$apps[$name] = $this;
     }
 
     /**
@@ -493,15 +503,13 @@ class Slim
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound($callable = null)
-    {
-        if (!is_null($callable)) {
-            $this->router->notFound($callable);
+    public function notFound( $callable = null ) {
+        if ( is_callable($callable) ) {
+            $this->notFound = $callable;
         } else {
             ob_start();
-            $customNotFoundHandler = $this->router->notFound();
-            if (is_callable($customNotFoundHandler)) {
-                call_user_func($customNotFoundHandler);
+            if ( is_callable($this->notFound) ) {
+                call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -536,7 +544,7 @@ class Slim
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this->router->error($argument);
+            $this->error = $argument;
         } else {
             //Invoke error handler
             $this->response->status(500);
@@ -558,9 +566,8 @@ class Slim
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        $customErrorHandler = $this->router->error();
-        if (is_callable($customErrorHandler)) {
-            call_user_func_array($customErrorHandler, array($argument));
+        if ( is_callable($this->error) ) {
+            call_user_func_array($this->error, array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
@@ -1208,40 +1215,27 @@ class Slim
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $httpMethodsAllowed = array();
-            $this->router->setResourceUri($this->request->getResourceUri());
-            $this->router->getMatchedRoutes();
-            foreach ($this->router as $route) {
-                if ($route->supportsHttpMethod($this->environment['REQUEST_METHOD'])) {
-                    try {
-                        $this->applyHook('slim.before.dispatch');
-                        $dispatched = $this->router->dispatch($route);
-                        $this->applyHook('slim.after.dispatch');
-                        if ($dispatched) {
-                            break;
-                        }
-                    } catch (\Slim\Exception\Pass $e) {
-                        continue;
+            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
+            foreach ($matchedRoutes as $route) {
+                try {
+                    $this->applyHook('slim.before.dispatch');
+                    $dispatched = $this->router->dispatch($route);
+                    $this->applyHook('slim.after.dispatch');
+                    if ($dispatched) {
+                        break;
                     }
-                } else {
-                    $httpMethodsAllowed = array_merge($httpMethodsAllowed, $route->getHttpMethods());
+                } catch (\Slim\Exception\Pass $e) {
+                    continue;
                 }
             }
             if (!$dispatched) {
-                if ($httpMethodsAllowed) {
-                    $this->response['Allow'] = implode(' ', $httpMethodsAllowed);
-                    $this->halt(405, 'HTTP method not allowed for the requested resource. Use one of these instead: ' . implode(', ', $httpMethodsAllowed));
-                } else {
-                   $this->notFound();
-                }
+               $this->notFound();
             }
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after');
-        } catch (\Slim\Exception\RequestSlash $e) {
-            $this->response->redirect($this->request->getPath() . '/', 301);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
@@ -1301,14 +1295,15 @@ class Slim
      */
     protected function defaultNotFound()
     {
-        echo self::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
+        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
     }
 
     /**
      * Default Error handler
      */
-    protected function defaultError()
+    protected function defaultError($e)
     {
+        $this->getLog()->error($e);
         echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }
