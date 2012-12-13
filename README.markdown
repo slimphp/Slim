@@ -79,6 +79,28 @@ lighttpd >= 1.4.24.
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
+#### IIS
+
+Ensure the `Web.config` and `index.php` files are in the same public-accessible directory. The `Web.config` file should contain this code:
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <system.webServer>
+            <rewrite>
+                <rules>
+                    <rule name="slim" patternSyntax="Wildcard">
+                        <match url="*" />
+                        <conditions>
+                            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                        </conditions>
+                        <action type="Rewrite" url="index.php" />
+                    </rule>
+                </rules>
+            </rewrite>
+        </system.webServer>
+    </configuration>
+
 ## Documentation
 
 <http://docs.slimframework.com/>
