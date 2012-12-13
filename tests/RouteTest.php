@@ -243,6 +243,111 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * If a single Metadata can be set on a Route
+     */
+    public function testSetOneMetadata()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $route->setMetadata('foo', 'bar');
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $metadata = $property->getValue($route);
+
+        $this->assertTrue(array_key_exists('foo', $metadata));
+        $this->assertEquals('bar', $metadata['foo']);
+    }
+
+    /**
+     * If a multiple Metadata can be set on a Route
+     */
+    public function testSetMultipleMetadata()
+    {
+        $data = array(
+            'foo' => 'bar',
+            'baz' => 'yay'
+        );
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setMetadata($data);
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $metadata = $property->getValue($route);
+
+        $this->assertEquals($data, $metadata);
+    }
+
+    /**
+     * If setting Multidata with incorrect index throws an InvalidArgumentException
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetMetadataWithInvalidIndexType()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $route->setMetadata(new stdClass, 'foo');
+    }
+
+    /**
+     * If all Metadata is returned
+     */
+    public function testGetMetadataWithNoParameters()
+    {
+        $data = array(
+            'foo' => 'bar',
+            'baz' => 'yay'
+        );
+
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, $data);
+
+
+        $this->assertEquals($data, $route->getMetadata());
+    }
+
+    /**
+     * If Multidata which exists can be retrieved
+     */
+    public function testGetMetadataWhenExists()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'foo' => 'bar',
+            'baz' => 'yay'
+        ));
+
+        $this->assertEquals('yay', $route->getMetadata('baz'));
+    }
+
+    /**
+     * If Multidata which does not exist throws an InvalidArgumentException
+     *
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetMetadataWhenNotExists()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new ReflectionProperty($route, 'metadata');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'foo' => 'bar',
+            'baz' => 'yay'
+        ));
+
+        $route->getMetadata('name');
+    }
+
+
+    /**
      * If route matches a resource URI, param should be extracted.
      */
     public function testRouteMatchesAndParamExtracted()
