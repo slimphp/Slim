@@ -320,7 +320,7 @@ class Route
         if (is_callable($middleware)) {
             $this->middleware[] = $middleware;
         } elseif (is_array($middleware)) {
-            foreach($middleware as $callable) {
+            foreach ($middleware as $callable) {
                 if (!is_callable($callable)) {
                     throw new \InvalidArgumentException('All Route middleware must be callable');
                 }

@@ -97,7 +97,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     /**
      * Route should throw exception when creating with an invalid callable
      */
-    public function testRouteThrowsExecptionWithInvalidCallable()
+    public function testRouteThrowsExceptionWithInvalidCallable()
     {
         $this->setExpectedException('InvalidArgumentException');
         $route = new \Slim\Route('/foo/bar', 'fnDoesNotExist');
@@ -106,7 +106,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     /**
      * Route should throw exception when setting an invalid callable
      */
-    public function testRouteThrowsExecptionWhenSettingInvalidCallable()
+    public function testRouteThrowsExceptionWhenSettingInvalidCallable()
     {
         $route = new \Slim\Route('/foo/bar', function () {});
         try
@@ -235,9 +235,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
         // Parse route params
         $this->assertTrue($route->matches($requestUri));
 
-        // Get param
+        // Set param
         try {
-            $param = $route->setParam('foo', 'bar');
+            $route->setParam('foo', 'bar');
             $this->fail('Did not catch expected InvalidArgumentException');
         } catch ( \InvalidArgumentException $e ) {}
     }
