@@ -529,7 +529,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->dispatch($route);
     }
 
-    public function testDispatchWithMiddlware()
+    public function testDispatchWithMiddleware()
     {
         $this->expectOutputString('First! Second! Hello josh');
         \Slim\Environment::mock(array(
@@ -559,7 +559,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->dispatch($route);
     }
 
-    public function testRouteMiddlwareArguments()
+    public function testRouteMiddlewareArguments()
     {
         $this->expectOutputString('foobar');
         \Slim\Environment::mock(array(

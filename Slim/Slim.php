@@ -1070,8 +1070,8 @@ class Slim
 
     /**
      * Invoke hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $hookArgs   (Optional) Argument for hooked functions
+     * @param  string   $name      The hook name
+     * @param  mixed    $hookArg   (Optional) Argument for hooked functions
      */
     public function applyHook($name, $hookArg = null)
     {
@@ -1229,7 +1229,7 @@ class Slim
                 }
             }
             if (!$dispatched) {
-               $this->notFound();
+                $this->notFound();
             }
             $this->applyHook('slim.after.router');
             $this->stop();
@@ -1304,6 +1304,6 @@ class Slim
     protected function defaultError($e)
     {
         $this->getLog()->error($e);
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

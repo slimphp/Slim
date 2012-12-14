@@ -208,7 +208,6 @@ class Util
      * secure and checked for integrity when read in subsequent requests.
      *
      * @param string $value     The secure HTTP cookie value
-     * @param int    $expires   The UNIX timestamp at which this cookie will expire
      * @param string $secret    The secret key used to hash the cookie value
      * @param int    $algorithm The algorithm to use for encryption
      * @param int    $mode      The algorithm mode to use for encryption
@@ -343,7 +342,7 @@ class Util
     /**
      * Parse cookie header
      *
-     * This method will parse the HTTP requst's `Cookie` header
+     * This method will parse the HTTP request's `Cookie` header
      * and extract cookies into an associative array.
      *
      * @param  string
