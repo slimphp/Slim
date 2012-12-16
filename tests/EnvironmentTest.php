@@ -184,6 +184,24 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test parses script name and path info
+     *
+     * Pre-conditions:
+     * URL Rewrite all requests from root directory into subdirectory (e.g. '/public');
+     * Slim URL Rewrite enabled in subdirectory;
+     * App installed in subdirectory;
+     */
+    public function testParsesPathsWithUrlRewriteInRootAndSubDirectory()
+    {
+        $_SERVER['SCRIPT_NAME'] = '/public/index.php';
+        $_SERVER['REQUEST_URI'] = '/bar/xyz';
+        unset($_SERVER['PATH_INFO']);
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals('/bar/xyz', $env['PATH_INFO']);
+        $this->assertEquals('/public', $env['SCRIPT_NAME']);
+    }
+
+    /**
      * Test parses query string
      *
      * Pre-conditions:
