@@ -287,8 +287,9 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('GET');
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
+        $router->map('/foo', function () {})->via('PATCH');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(3, count($router->getMatchedRoutes()));
+        $this->assertEquals(4, count($router->getMatchedRoutes()));
     }
 
     /**

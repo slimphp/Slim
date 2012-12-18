@@ -56,6 +56,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($req->isGet());
         $this->assertFalse($req->isPost());
         $this->assertFalse($req->isPut());
+        $this->assertFalse($req->isPatch());
         $this->assertFalse($req->isDelete());
         $this->assertFalse($req->isOptions());
         $this->assertFalse($req->isHead());
@@ -73,6 +74,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($req->isGet());
         $this->assertTrue($req->isPost());
         $this->assertFalse($req->isPut());
+        $this->assertFalse($req->isPatch());
         $this->assertFalse($req->isDelete());
         $this->assertFalse($req->isOptions());
         $this->assertFalse($req->isHead());
@@ -90,6 +92,25 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
         $this->assertTrue($req->isPut());
+        $this->assertFalse($req->isPatch());
+        $this->assertFalse($req->isDelete());
+        $this->assertFalse($req->isOptions());
+        $this->assertFalse($req->isHead());
+    }
+
+    /**
+     * Test HTTP PATCH method detection
+     */
+    public function testIsPatch()
+    {
+        $env = \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'PATCH',
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertFalse($req->isGet());
+        $this->assertFalse($req->isPost());
+        $this->assertFalse($req->isPut());
+        $this->assertTrue($req->isPatch());
         $this->assertFalse($req->isDelete());
         $this->assertFalse($req->isOptions());
         $this->assertFalse($req->isHead());
@@ -107,6 +128,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
         $this->assertFalse($req->isPut());
+        $this->assertFalse($req->isPatch());
         $this->assertTrue($req->isDelete());
         $this->assertFalse($req->isOptions());
         $this->assertFalse($req->isHead());
@@ -124,6 +146,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
         $this->assertFalse($req->isPut());
+        $this->assertFalse($req->isPatch());
         $this->assertFalse($req->isDelete());
         $this->assertTrue($req->isOptions());
         $this->assertFalse($req->isHead());
@@ -141,6 +164,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($req->isGet());
         $this->assertFalse($req->isPost());
         $this->assertFalse($req->isPut());
+        $this->assertFalse($req->isPatch());
         $this->assertFalse($req->isDelete());
         $this->assertFalse($req->isOptions());
         $this->assertTrue($req->isHead());
@@ -337,6 +361,24 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->put('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+    }
+
+    /**
+     * Test fetch PATCH params
+     */
+    public function testPatch()
+    {
+        $env = \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'PATCH',
+            'slim.input' => 'foo=bar&abc=123',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals(2, count($req->patch()));
+        $this->assertEquals('bar', $req->patch('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
+        $this->assertNull($req->patch('xyz'));
     }
 
     /**

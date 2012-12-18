@@ -369,7 +369,7 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Add GET|POST|PUT|DELETE route
+     * Add GET|POST|PUT|PATCH|DELETE route
      *
      * Adds a new route to the router with associated callable. This
      * route will only be invoked when the HTTP request's method matches
@@ -456,6 +456,18 @@ class Slim
         $args = func_get_args();
 
         return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PUT);
+    }
+
+    /**
+     * Add PATCH route
+     * @see    mapRoute()
+     * @return \Slim\Route
+     */
+    public function patch()
+    {
+        $args = func_get_args();
+
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PATCH);
     }
 
     /**
@@ -653,7 +665,7 @@ class Slim
     /**
      * Render a template
      *
-     * Call this method within a GET, POST, PUT, DELETE, NOT FOUND, or ERROR
+     * Call this method within a GET, POST, PUT, PATCH, DELETE, NOT FOUND, or ERROR
      * callable to render a template whose output is appended to the
      * current HTTP response body. How the template is rendered is
      * delegated to the current View.
