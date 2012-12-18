@@ -599,4 +599,26 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new \Slim\Router();
         $route = new \Slim\Route('/hello/:name', 'foo'); // <-- Fail fast
     }
+
+    public function testCustomRoute()
+    {
+        $router = new \Slim\Router();
+        $callback = function () { };
+
+        $this->assertInstanceOf('\Slim\Route', $router->map('/foo', $callback));
+
+        $route = $this->getMock('\Slim\Route', array(), array('/foo', 'foo'));
+        $routeClass = get_class($route);
+        $router->route($routeClass);
+        $this->assertInstanceOf($routeClass, $router->map('/foo', $callback));
+
+        foreach (array('stdClass', 'NonExistentClass') as $class) {
+            try {
+                $router->route($class);
+                $this->fail('Expected exception was not thrown');
+            } catch (\InvalidArgumentException $e) {
+                $this->assertSame('$routeClass not a subclass of \Slim\Route: ' . $class, $e->getMessage());
+            }
+        }
+    }
 }
