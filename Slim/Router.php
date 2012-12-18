@@ -64,6 +64,11 @@ class Router
     protected $matchedRoutes;
 
     /**
+     * @var string Name of the class to use for route objects
+     */
+    protected $routeClass = '\Slim\Route';
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -114,6 +119,20 @@ class Router
     }
 
     /**
+     * Sets the route class for the router to use.
+     *
+     * @param  string $routeClass       Route class name
+     * @throws InvalidArgumentException If $routeClass does not specify a subclass of \Slim\Route
+     */
+    public function route($routeClass)
+    {
+        if (!in_array('Slim\Route', class_parents($routeClass))) {
+            throw new \InvalidArgumentException('$routeClass not a subclass of \Slim\Route: ' . $routeClass);
+        }
+        $this->routeClass = $routeClass;
+    }
+
+    /**
      * Map a route object to a callback function
      * @param  string     $pattern      The URL pattern (ie. "/books/:id")
      * @param  mixed      $callable     Anything that returns TRUE for is_callable()
@@ -121,7 +140,7 @@ class Router
      */
     public function map($pattern, $callable)
     {
-        $route = new \Slim\Route($pattern, $callable);
+        $route = new $this->routeClass($pattern, $callable);
         $this->routes[] = $route;
 
         return $route;
