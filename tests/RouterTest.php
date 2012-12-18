@@ -612,11 +612,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->route($routeClass);
         $this->assertInstanceOf($routeClass, $router->map('/foo', $callback));
 
-        try {
-            $router->route('stdClass');
-            $this->fail('Expected exception was not thrown');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertSame('$routeClass not a subclass of \Slim\Route: stdClass', $e->getMessage());
+        foreach (array('stdClass', 'NonExistentClass') as $class) {
+            try {
+                $router->route($class);
+                $this->fail('Expected exception was not thrown');
+            } catch (\InvalidArgumentException $e) {
+                $this->assertSame('$routeClass not a subclass of \Slim\Route: ' . $class, $e->getMessage());
+            }
         }
     }
 }

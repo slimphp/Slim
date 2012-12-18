@@ -126,7 +126,7 @@ class Router
      */
     public function route($routeClass)
     {
-        if (!in_array('Slim\Route', class_parents($routeClass))) {
+        if (!class_exists($routeClass) || !in_array('Slim\Route', class_parents($routeClass))) {
             throw new \InvalidArgumentException('$routeClass not a subclass of \Slim\Route: ' . $routeClass);
         }
         $this->routeClass = $routeClass;
