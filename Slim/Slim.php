@@ -210,7 +210,7 @@ class Slim
     /**
      * Get application instance by name
      * @param  string    $name The name of the Slim application
-     * @return \Slim|null
+     * @return Slim|null
      */
     public static function getInstance($name = 'default')
     {
