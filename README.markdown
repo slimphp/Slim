@@ -79,6 +79,27 @@ lighttpd >= 1.4.24.
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
+#### IIS 7 and IIS 8 ####
+
+Paste the code above into a file called `web.config` and ensure that `web.config` and `index.php` are in the same public-accessible directory.
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <system.webServer>
+            <rewrite>
+                <rules>
+                    <rule name="Imported Rule 1" stopProcessing="true">
+                        <match url="^" ignoreCase="false" />
+                        <conditions logicalGrouping="MatchAll">
+                            <add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" negate="true" />
+                        </conditions>
+                        <action type="Rewrite" url="index.php" appendQueryString="true" />
+                    </rule>
+                </rules>
+            </rewrite>
+        </system.webServer>
+    </configuration>
+
 ## Documentation
 
 <http://docs.slimframework.com/>
