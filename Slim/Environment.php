@@ -143,48 +143,46 @@ class Environment implements \ArrayAccess, \IteratorAggregate
              * No Rewrites - PATH_INFO will be an absolute path with a leading slash
              */
 
-            //Remove trailing slashes
-            foreach (array('REQUEST_URI', 'SCRIPT_NAME') as $value) {
-                $_SERVER[$value] = rtrim($_SERVER[$value], '/');
+            //Remove trailing slashes and
+            $env['PATH_INFO'] = rtrim($_SERVER['REQUEST_URI'], '/');
+            $env['SCRIPT_NAME'] = rtrim($_SERVER['SCRIPT_NAME'], '/');
+
+            //Does the request have a query string?
+            if (strpos($env['PATH_INFO'], '?')) {
+                //Store everything before the ?
+                $env['PATH_INFO'] = substr($env['PATH_INFO'], 0, strpos($env['PATH_INFO'], '?'));
             }
 
-            if (strpos($_SERVER['REQUEST_URI'], '?')) {
-                //Remove query string
-                $appUri = substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '?'));
-            } else {
-                $appUri = $_SERVER['REQUEST_URI'];
+            //Does the request contain the script path?
+            if (strpos($env['PATH_INFO'], $_SERVER['SCRIPT_NAME'])) {
+                //Remove the script path from the request
+               $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', 0, strlen($env['SCRIPT_NAME']));
             }
 
-            if (strpos($appUri, $_SERVER['SCRIPT_NAME'])) {
-               $appUri = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($_SERVER['SCRIPT_NAME']));
-            }
+            //Is the request to the root URL?
+            if (empty($env['PATH_INFO'])) {
 
-            if (empty($appUri)) { //Root url requests
-
-                if (!empty($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] != dirname($_SERVER['SCRIPT_NAME'])) {
-                    $env['PATH_INFO'] = $_SERVER['REQUEST_URI'];
-                } else {
-                    $env['PATH_INFO'] = '/';
+                //Is the request using rewrites?
+                if ($_SERVER['REQUEST_URI'] != $_SERVER['SCRIPT_NAME']) {
+                    //Return only the path to the script
+                    $env['SCRIPT_NAME'] = dirname($_SERVER['SCRIPT_NAME']);
                 }
+            } else { //Non root URL requests
 
-                if ($_SERVER['REQUEST_URI'] == $_SERVER['SCRIPT_NAME']) { //No rewrites
+                //Does the request contain the script path? Then the app is not using rewrites.
+                if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) !== false) {
+                    //Remove the script path from the request
+                    $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($_SERVER['SCRIPT_NAME']));
+
+                    //Return full path to the script
                     $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
                 } else { //Using rewrites
-                    $env['SCRIPT_NAME'] = dirname($_SERVER['SCRIPT_NAME']);
-                }
-
-            } else { //Non root url requests
-
-                if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) !== false) { //No rewrites
-                    $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($_SERVER['SCRIPT_NAME']));
-                    $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
-                } else { //Rewrites
+                    //Return script folder path
                     $env['SCRIPT_NAME'] = dirname($_SERVER['SCRIPT_NAME']);
 
-                    if ($env['SCRIPT_NAME'] == '/') {
-                        $env['PATH_INFO'] = $appUri;
-                    } else {
-                        $env['PATH_INFO'] = str_replace($env['SCRIPT_NAME'], '', $appUri);
+                    if ($env['SCRIPT_NAME'] != '/') {
+                        //Remove the script path from the request
+                        $env['PATH_INFO'] = str_replace($env['SCRIPT_NAME'], '', $env['PATH_INFO']);
                     }
                 }
             }
