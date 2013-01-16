@@ -133,23 +133,66 @@ class Environment implements \ArrayAccess, \IteratorAggregate
              * directory or a subdirectory of the public document root. The PATH_INFO is the
              * virtual path to the requested resource within the application context.
              *
-             * With htaccess, the SCRIPT_NAME will be an absolute path (without file name);
-             * if not using htaccess, it will also include the file name. If it is "/",
+             * SCRIPT_NAME
+             * Rewrites - the SCRIPT_NAME will be an absolute path without file name.
+             * No Rewrites - SCRIPT_NAME will also include the file name. If it is "/",
              * it is set to an empty string (since it cannot have a trailing slash).
              *
-             * The PATH_INFO will be an absolute path with a leading slash; this will be
-             * used for application routing.
+             * PATH_INFO
+             * Rewrites - PATH_INFO will be the rewritten path with a leading slash
+             * No Rewrites - PATH_INFO will be an absolute path with a leading slash
              */
-            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
-                $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
+
+            //Remove trailing slashes
+            foreach (array('REQUEST_URI', 'SCRIPT_NAME') as $value) {
+                $_SERVER[$value] = rtrim($_SERVER[$value], '/');
+            }
+
+            if (strpos($_SERVER['REQUEST_URI'], '?')) {
+                //Remove query string
+                $appUri = substr($_SERVER['REQUEST_URI'], 0, strpos($_SERVER['REQUEST_URI'], '?'));
             } else {
-                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']) ); //With URL rewrite
+                $appUri = $_SERVER['REQUEST_URI'];
             }
-            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            if (strpos($env['PATH_INFO'], '?') !== false) {
-                $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
+
+            if (strpos($appUri, $_SERVER['SCRIPT_NAME'])) {
+               $appUri = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($_SERVER['SCRIPT_NAME']));
             }
+
+            if (empty($appUri)) { //Root url requests
+
+                if (!empty($_SERVER['REQUEST_URI']) && $_SERVER['REQUEST_URI'] != dirname($_SERVER['SCRIPT_NAME'])) {
+                    $env['PATH_INFO'] = $_SERVER['REQUEST_URI'];
+                } else {
+                    $env['PATH_INFO'] = '/';
+                }
+
+                if ($_SERVER['REQUEST_URI'] == $_SERVER['SCRIPT_NAME']) { //No rewrites
+                    $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
+                } else { //Using rewrites
+                    $env['SCRIPT_NAME'] = dirname($_SERVER['SCRIPT_NAME']);
+                }
+
+            } else { //Non root url requests
+
+                if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) !== false) { //No rewrites
+                    $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($_SERVER['SCRIPT_NAME']));
+                    $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'];
+                } else { //Rewrites
+                    $env['SCRIPT_NAME'] = dirname($_SERVER['SCRIPT_NAME']);
+
+                    if ($env['SCRIPT_NAME'] == '/') {
+                        $env['PATH_INFO'] = $appUri;
+                    } else {
+                        $env['PATH_INFO'] = str_replace($env['SCRIPT_NAME'], '', $appUri);
+                    }
+                }
+            }
+
+            // Remove trailing '/' from script name
             $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
+
+            //Ensure path begins with a '/'
             $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
 
             //The portion of the request URI following the '?'
