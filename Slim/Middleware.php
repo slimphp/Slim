@@ -2,12 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.2.0
- * @package     Slim
+ * @author			Josh Lockhart <info@slimframework.com>
+ * @copyright	 2011 Josh Lockhart
+ * @link				http://www.slimframework.com
+ * @license		 http://www.slimframework.com/license
+ * @version		 2.2.0
+ * @package		 Slim
  *
  * MIT LICENSE
  *
@@ -36,79 +36,79 @@ namespace Slim;
  * Middleware
  *
  * @package Slim
- * @author  Josh Lockhart
- * @since   1.6.0
+ * @author	Josh Lockhart
+ * @since	 1.6.0
  */
 abstract class Middleware
 {
-    /**
-     * @var \Slim Reference to the primary application instance
-     */
-    protected $app;
+		/**
+		 * @var \Slim Reference to the primary application instance
+		 */
+		protected $app;
 
-    /**
-     * @var mixed Reference to the next downstream middleware
-     */
-    protected $next;
+		/**
+		 * @var mixed Reference to the next downstream middleware
+		 */
+		protected $next;
 
-    /**
-     * Set application
-     *
-     * This method injects the primary Slim application instance into
-     * this middleware.
-     *
-     * @param  \Slim $application
-     */
-    final public function setApplication($application)
-    {
-        $this->app = $application;
-    }
+		/**
+		 * Set application
+		 *
+		 * This method injects the primary Slim application instance into
+		 * this middleware.
+		 *
+		 * @param	\Slim $application
+		 */
+		final public function setApplication($application)
+		{
+				$this->app = $application;
+		}
 
-    /**
-     * Get application
-     *
-     * This method retrieves the application previously injected
-     * into this middleware.
-     *
-     * @return \Slim
-     */
-    final public function getApplication()
-    {
-        return $this->app;
-    }
+		/**
+		 * Get application
+		 *
+		 * This method retrieves the application previously injected
+		 * into this middleware.
+		 *
+		 * @return \Slim
+		 */
+		final public function getApplication()
+		{
+				return $this->app;
+		}
 
-    /**
-     * Set next middleware
-     *
-     * This method injects the next downstream middleware into
-     * this middleware so that it may optionally be called
-     * when appropriate.
-     *
-     * @param \Slim|\Slim\Middleware
-     */
-    final public function setNextMiddleware($nextMiddleware)
-    {
-        $this->next = $nextMiddleware;
-    }
+		/**
+		 * Set next middleware
+		 *
+		 * This method injects the next downstream middleware into
+		 * this middleware so that it may optionally be called
+		 * when appropriate.
+		 *
+		 * @param \Slim|\Slim\Middleware
+		 */
+		final public function setNextMiddleware($nextMiddleware)
+		{
+				$this->next = $nextMiddleware;
+		}
 
-    /**
-     * Get next middleware
-     *
-     * This method retrieves the next downstream middleware
-     * previously injected into this middleware.
-     *
-     * @return \Slim|\Slim\Middleware
-     */
-    final public function getNextMiddleware()
-    {
-        return $this->next;
-    }
+		/**
+		 * Get next middleware
+		 *
+		 * This method retrieves the next downstream middleware
+		 * previously injected into this middleware.
+		 *
+		 * @return \Slim|\Slim\Middleware
+		 */
+		final public function getNextMiddleware()
+		{
+				return $this->next;
+		}
 
-    /**
-     * Call
-     *
-     * Perform actions specific to this middleware and optionally
-     * call the next downstream middleware.
-     */
-    abstract public function call();
+		/**
+		 * Call
+		 *
+		 * Perform actions specific to this middleware and optionally
+		 * call the next downstream middleware.
+		 */
+		abstract public function call();
 }

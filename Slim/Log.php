@@ -2,12 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.2.0
- * @package     Slim
+ * @author			Josh Lockhart <info@slimframework.com>
+ * @copyright	 2011 Josh Lockhart
+ * @link				http://www.slimframework.com
+ * @license		 http://www.slimframework.com/license
+ * @version		 2.2.0
+ * @package		 Slim
  *
  * MIT LICENSE
  *
@@ -51,187 +51,187 @@ namespace Slim;
  * a remote web API, etc. The possibilities are endless.
  *
  * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @author	Josh Lockhart
+ * @since	 1.0.0
  */
 class Log
 {
-    const FATAL = 0;
-    const ERROR = 1;
-    const WARN = 2;
-    const INFO = 3;
-    const DEBUG = 4;
+		const FATAL = 0;
+		const ERROR = 1;
+		const WARN = 2;
+		const INFO = 3;
+		const DEBUG = 4;
 
-    /**
-     * @var array
-     */
-    protected static $levels = array(
-        self::FATAL => 'FATAL',
-        self::ERROR => 'ERROR',
-        self::WARN =>  'WARN',
-        self::INFO =>  'INFO',
-        self::DEBUG => 'DEBUG'
-    );
+		/**
+		 * @var array
+		 */
+		protected static $levels = array(
+				self::FATAL => 'FATAL',
+				self::ERROR => 'ERROR',
+				self::WARN =>	'WARN',
+				self::INFO =>	'INFO',
+				self::DEBUG => 'DEBUG'
+		);
 
-    /**
-     * @var mixed
-     */
-    protected $writer;
+		/**
+		 * @var mixed
+		 */
+		protected $writer;
 
-    /**
-     * @var bool
-     */
-    protected $enabled;
+		/**
+		 * @var bool
+		 */
+		protected $enabled;
 
-    /**
-     * @var int
-     */
-    protected $level;
+		/**
+		 * @var int
+		 */
+		protected $level;
 
-    /**
-     * Constructor
-     * @param  mixed $writer
-     */
-    public function __construct($writer)
-    {
-        $this->writer = $writer;
-        $this->enabled = true;
-        $this->level = self::DEBUG;
-    }
+		/**
+		 * Constructor
+		 * @param	mixed $writer
+		 */
+		public function __construct($writer)
+		{
+				$this->writer = $writer;
+				$this->enabled = true;
+				$this->level = self::DEBUG;
+		}
 
-    /**
-     * Is logging enabled?
-     * @return bool
-     */
-    public function getEnabled()
-    {
-        return $this->enabled;
-    }
+		/**
+		 * Is logging enabled?
+		 * @return bool
+		 */
+		public function getEnabled()
+		{
+				return $this->enabled;
+		}
 
-    /**
-     * Enable or disable logging
-     * @param  bool $enabled
-     */
-    public function setEnabled($enabled)
-    {
-        if ($enabled) {
-            $this->enabled = true;
-        } else {
-            $this->enabled = false;
-        }
-    }
+		/**
+		 * Enable or disable logging
+		 * @param	bool $enabled
+		 */
+		public function setEnabled($enabled)
+		{
+				if ($enabled) {
+						$this->enabled = true;
+				} else {
+						$this->enabled = false;
+				}
+		}
 
-    /**
-     * Set level
-     * @param  int                          $level
-     * @throws \InvalidArgumentException    If invalid log level specified
-     */
-    public function setLevel($level)
-    {
-        if (!isset(self::$levels[$level])) {
-            throw new \InvalidArgumentException('Invalid log level');
-        }
-        $this->level = $level;
-    }
+		/**
+		 * Set level
+		 * @param	int													$level
+		 * @throws \InvalidArgumentException		If invalid log level specified
+		 */
+		public function setLevel($level)
+		{
+				if (!isset(self::$levels[$level])) {
+						throw new \InvalidArgumentException('Invalid log level');
+				}
+				$this->level = $level;
+		}
 
-    /**
-     * Get level
-     * @return int
-     */
-    public function getLevel()
-    {
-        return $this->level;
-    }
+		/**
+		 * Get level
+		 * @return int
+		 */
+		public function getLevel()
+		{
+				return $this->level;
+		}
 
-    /**
-     * Set writer
-     * @param  mixed $writer
-     */
-    public function setWriter($writer)
-    {
-        $this->writer = $writer;
-    }
+		/**
+		 * Set writer
+		 * @param	mixed $writer
+		 */
+		public function setWriter($writer)
+		{
+				$this->writer = $writer;
+		}
 
-    /**
-     * Get writer
-     * @return mixed
-     */
-    public function getWriter()
-    {
-        return $this->writer;
-    }
+		/**
+		 * Get writer
+		 * @return mixed
+		 */
+		public function getWriter()
+		{
+				return $this->writer;
+		}
 
-    /**
-     * Is logging enabled?
-     * @return bool
-     */
-    public function isEnabled()
-    {
-        return $this->enabled;
-    }
+		/**
+		 * Is logging enabled?
+		 * @return bool
+		 */
+		public function isEnabled()
+		{
+				return $this->enabled;
+		}
 
-    /**
-     * Log debug message
-     * @param  mixed       $object
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function debug($object)
-    {
-        return $this->write($object, self::DEBUG);
-    }
+		/**
+		 * Log debug message
+		 * @param	mixed			 $object
+		 * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+		 */
+		public function debug($object)
+		{
+				return $this->write($object, self::DEBUG);
+		}
 
-    /**
-     * Log info message
-     * @param  mixed       $object
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function info($object)
-    {
-        return $this->write($object, self::INFO);
-    }
+		/**
+		 * Log info message
+		 * @param	mixed			 $object
+		 * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+		 */
+		public function info($object)
+		{
+				return $this->write($object, self::INFO);
+		}
 
-    /**
-     * Log warn message
-     * @param  mixed       $object
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function warn($object)
-    {
-        return $this->write($object, self::WARN);
-    }
+		/**
+		 * Log warn message
+		 * @param	mixed			 $object
+		 * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+		 */
+		public function warn($object)
+		{
+				return $this->write($object, self::WARN);
+		}
 
-    /**
-     * Log error message
-     * @param  mixed       $object
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function error($object)
-    {
-        return $this->write($object, self::ERROR);
-    }
+		/**
+		 * Log error message
+		 * @param	mixed			 $object
+		 * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+		 */
+		public function error($object)
+		{
+				return $this->write($object, self::ERROR);
+		}
 
-    /**
-     * Log fatal message
-     * @param  mixed       $object
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
-     */
-    public function fatal($object)
-    {
-        return $this->write($object, self::FATAL);
-    }
+		/**
+		 * Log fatal message
+		 * @param	mixed			 $object
+		 * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+		 */
+		public function fatal($object)
+		{
+				return $this->write($object, self::FATAL);
+		}
 
-    /**
-     * Log message
-     * @param   mixed   The object to log
-     * @param   int     The message level
-     * @return int|false
-     */
-    protected function write($object, $level)
-    {
-        if ($this->enabled && $this->writer && $level <= $this->level) {
-            return $this->writer->write($object, $level);
-        } else {
-            return false;
-        }
-    }
+		/**
+		 * Log message
+		 * @param	 mixed	 The object to log
+		 * @param	 int		 The message level
+		 * @return int|false
+		 */
+		protected function write($object, $level)
+		{
+				if ($this->enabled && $this->writer && $level <= $this->level) {
+						return $this->writer->write($object, $level);
+				} else {
+						return false;
+				}
+		}
 }

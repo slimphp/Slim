@@ -2,12 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.2.0
- * @package     Slim
+ * @author			Josh Lockhart <info@slimframework.com>
+ * @copyright	 2011 Josh Lockhart
+ * @link				http://www.slimframework.com
+ * @license		 http://www.slimframework.com/license
+ * @version		 2.2.0
+ * @package		 Slim
  *
  * MIT LICENSE
  *
@@ -39,8 +39,8 @@ namespace Slim\Exception;
  * processing and return control flow to the outer PHP script.
  *
  * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @author	Josh Lockhart
+ * @since	 1.0.0
  */
 class Stop extends \Exception
 {

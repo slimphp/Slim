@@ -2,12 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.2.0
- * @package     Slim
+ * @author			Josh Lockhart <info@slimframework.com>
+ * @copyright	 2011 Josh Lockhart
+ * @link				http://www.slimframework.com
+ * @license		 http://www.slimframework.com/license
+ * @version		 2.2.0
+ * @package		 Slim
  *
  * MIT LICENSE
  *
@@ -54,150 +54,150 @@ namespace Slim\Middleware;
  * you are inherently limtied to 4 Kb. If you attempt to store
  * more than this amount, serialization will fail.
  *
- * @package     Slim
- * @author     Josh Lockhart
- * @since      1.6.0
+ * @package		 Slim
+ * @author		 Josh Lockhart
+ * @since			1.6.0
  */
 class SessionCookie extends \Slim\Middleware
 {
-    /**
-     * @var array
-     */
-    protected $settings;
+		/**
+		 * @var array
+		 */
+		protected $settings;
 
-    /**
-     * Constructor
-     *
-     * @param  array $settings
-     */
-    public function __construct($settings = array())
-    {
-        $this->settings = array_merge(array(
-            'expires' => '20 minutes',
-            'path' => '/',
-            'domain' => null,
-            'secure' => false,
-            'httponly' => false,
-            'name' => 'slim_session',
-            'secret' => 'CHANGE_ME',
-            'cipher' => MCRYPT_RIJNDAEL_256,
-            'cipher_mode' => MCRYPT_MODE_CBC
-        ), $settings);
-        if (is_string($this->settings['expires'])) {
-            $this->settings['expires'] = strtotime($this->settings['expires']);
-        }
+		/**
+		 * Constructor
+		 *
+		 * @param	array $settings
+		 */
+		public function __construct($settings = array())
+		{
+				$this->settings = array_merge(array(
+						'expires' => '20 minutes',
+						'path' => '/',
+						'domain' => null,
+						'secure' => false,
+						'httponly' => false,
+						'name' => 'slim_session',
+						'secret' => 'CHANGE_ME',
+						'cipher' => MCRYPT_RIJNDAEL_256,
+						'cipher_mode' => MCRYPT_MODE_CBC
+				), $settings);
+				if (is_string($this->settings['expires'])) {
+						$this->settings['expires'] = strtotime($this->settings['expires']);
+				}
 
-        /**
-         * Session
-         *
-         * We must start a native PHP session to initialize the $_SESSION superglobal.
-         * However, we won't be using the native session store for persistence, so we
-         * disable the session cookie and cache limiter. We also set the session
-         * handler to this class instance to avoid PHP's native session file locking.
-         */
-        ini_set('session.use_cookies', 0);
-        session_cache_limiter(false);
-        session_set_save_handler(
-            array($this, 'open'),
-            array($this, 'close'),
-            array($this, 'read'),
-            array($this, 'write'),
-            array($this, 'destroy'),
-            array($this, 'gc')
-        );
-    }
+				/**
+				 * Session
+				 *
+				 * We must start a native PHP session to initialize the $_SESSION superglobal.
+				 * However, we won't be using the native session store for persistence, so we
+				 * disable the session cookie and cache limiter. We also set the session
+				 * handler to this class instance to avoid PHP's native session file locking.
+				 */
+				ini_set('session.use_cookies', 0);
+				session_cache_limiter(false);
+				session_set_save_handler(
+						array($this, 'open'),
+						array($this, 'close'),
+						array($this, 'read'),
+						array($this, 'write'),
+						array($this, 'destroy'),
+						array($this, 'gc')
+				);
+		}
 
-    /**
-     * Call
-     */
-    public function call()
-    {
-        $this->loadSession();
-        $this->next->call();
-        $this->saveSession();
-    }
+		/**
+		 * Call
+		 */
+		public function call()
+		{
+				$this->loadSession();
+				$this->next->call();
+				$this->saveSession();
+		}
 
-    /**
-     * Load session
-     * @param  array $env
-     */
-    protected function loadSession()
-    {
-        if (session_id() === '') {
-            session_start();
-        }
+		/**
+		 * Load session
+		 * @param	array $env
+		 */
+		protected function loadSession()
+		{
+				if (session_id() === '') {
+						session_start();
+				}
 
-        $value = \Slim\Http\Util::decodeSecureCookie(
-            $this->app->request()->cookies($this->settings['name']),
-            $this->settings['secret'],
-            $this->settings['cipher'],
-            $this->settings['cipher_mode']
-        );
-        if ($value) {
-            $_SESSION = unserialize($value);
-        } else {
-            $_SESSION = array();
-        }
-    }
+				$value = \Slim\Http\Util::decodeSecureCookie(
+						$this->app->request()->cookies($this->settings['name']),
+						$this->settings['secret'],
+						$this->settings['cipher'],
+						$this->settings['cipher_mode']
+				);
+				if ($value) {
+						$_SESSION = unserialize($value);
+				} else {
+						$_SESSION = array();
+				}
+		}
 
-    /**
-     * Save session
-     */
-    protected function saveSession()
-    {
-        $value = \Slim\Http\Util::encodeSecureCookie(
-            serialize($_SESSION),
-            $this->settings['expires'],
-            $this->settings['secret'],
-            $this->settings['cipher'],
-            $this->settings['cipher_mode']
-        );
-        if (strlen($value) > 4096) {
-            $this->app->getLog()->error('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
-        } else {
-            $this->app->response()->setCookie($this->settings['name'], array(
-                'value' => $value,
-                'domain' => $this->settings['domain'],
-                'path' => $this->settings['path'],
-                'expires' => $this->settings['expires'],
-                'secure' => $this->settings['secure'],
-                'httponly' => $this->settings['httponly']
-            ));
-        }
-        session_destroy();
-    }
+		/**
+		 * Save session
+		 */
+		protected function saveSession()
+		{
+				$value = \Slim\Http\Util::encodeSecureCookie(
+						serialize($_SESSION),
+						$this->settings['expires'],
+						$this->settings['secret'],
+						$this->settings['cipher'],
+						$this->settings['cipher_mode']
+				);
+				if (strlen($value) > 4096) {
+						$this->app->getLog()->error('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
+				} else {
+						$this->app->response()->setCookie($this->settings['name'], array(
+								'value' => $value,
+								'domain' => $this->settings['domain'],
+								'path' => $this->settings['path'],
+								'expires' => $this->settings['expires'],
+								'secure' => $this->settings['secure'],
+								'httponly' => $this->settings['httponly']
+						));
+				}
+				session_destroy();
+		}
 
-    /********************************************************************************
-    * Session Handler
-    *******************************************************************************/
+		/********************************************************************************
+		* Session Handler
+		*******************************************************************************/
 
-    public function open($savePath, $sessionName)
-    {
-        return true;
-    }
+		public function open($savePath, $sessionName)
+		{
+				return true;
+		}
 
-    public function close()
-    {
-        return true;
-    }
+		public function close()
+		{
+				return true;
+		}
 
-    public function read($id)
-    {
-        return '';
-    }
+		public function read($id)
+		{
+				return '';
+		}
 
-    public function write($id, $data)
-    {
-        return true;
-    }
+		public function write($id, $data)
+		{
+				return true;
+		}
 
-    public function destroy($id)
-    {
-        return true;
-    }
+		public function destroy($id)
+		{
+				return true;
+		}
 
-    public function gc($maxlifetime)
-    {
-        return true;
-    }
+		public function gc($maxlifetime)
+		{
+				return true;
+		}
 }

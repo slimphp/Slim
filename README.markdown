@@ -10,10 +10,10 @@ Thank you for choosing the Slim Framework for your next project. I think you're 
 ## Features
 
 * Powerful router
-    * Standard and custom HTTP methods
-    * Route parameters with wildcards and conditions
-    * Route redirect, halt, and pass
-    * Route middleware
+		* Standard and custom HTTP methods
+		* Route parameters with wildcards and conditions
+		* Route redirect, halt, and pass
+		* Route middleware
 * Template rendering with custom views
 * Flash messages
 * Secure cookies with AES-256 encryption
@@ -39,17 +39,17 @@ You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `m
 
 Instantiate a Slim application:
 
-    $app = new \Slim\Slim();
+		$app = new \Slim\Slim();
 
 Define a HTTP GET route:
 
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name";
-    });
+		$app->get('/hello/:name', function ($name) {
+				echo "Hello, $name";
+		});
 
 Run the Slim application:
 
-    $app->run();
+		$app->run();
 
 ### Setup your web server
 
@@ -58,15 +58,15 @@ Run the Slim application:
 Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file
 should contain this code:
 
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [QSA,L]
+		RewriteEngine On
+		RewriteCond %{REQUEST_FILENAME} !-f
+		RewriteRule ^ index.php [QSA,L]
 
 #### Nginx
 
 Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
 
-    try_files $uri $uri/ /index.php;
+		try_files $uri $uri/ /index.php;
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
@@ -75,7 +75,7 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires
 lighttpd >= 1.4.24.
 
-    url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
+		url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 

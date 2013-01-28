@@ -2,12 +2,12 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.2.0
- * @package     Slim
+ * @author			Josh Lockhart <info@slimframework.com>
+ * @copyright	 2011 Josh Lockhart
+ * @link				http://www.slimframework.com
+ * @license		 http://www.slimframework.com/license
+ * @version		 2.2.0
+ * @package		 Slim
  *
  * MIT LICENSE
  *
@@ -39,37 +39,37 @@ namespace Slim;
  * resource handle (e.g. a file or STDERR).
  *
  * @package Slim
- * @author  Josh Lockhart
- * @since   1.6.0
+ * @author	Josh Lockhart
+ * @since	 1.6.0
  */
 class LogWriter
 {
-    /**
-     * @var resource
-     */
-    protected $resource;
+		/**
+		 * @var resource
+		 */
+		protected $resource;
 
-    /**
-     * Constructor
-     * @param  resource                  $resource
-     * @throws \InvalidArgumentException If invalid resource
-     */
-    public function __construct($resource)
-    {
-        if (!is_resource($resource)) {
-            throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
-        }
-        $this->resource = $resource;
-    }
+		/**
+		 * Constructor
+		 * @param	resource									$resource
+		 * @throws \InvalidArgumentException If invalid resource
+		 */
+		public function __construct($resource)
+		{
+				if (!is_resource($resource)) {
+						throw new \InvalidArgumentException('Cannot create LogWriter. Invalid resource handle.');
+				}
+				$this->resource = $resource;
+		}
 
-    /**
-     * Write message
-     * @param  mixed     $message
-     * @param  int       $level
-     * @return int|false
-     */
-    public function write($message, $level = null)
-    {
-        return fwrite($this->resource, (string) $message . PHP_EOL);
-    }
+		/**
+		 * Write message
+		 * @param	mixed		 $message
+		 * @param	int			 $level
+		 * @return int|false
+		 */
+		public function write($message, $level = null)
+		{
+				return fwrite($this->resource, (string) $message . PHP_EOL);
+		}
 }
