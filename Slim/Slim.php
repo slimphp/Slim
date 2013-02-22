@@ -180,7 +180,7 @@ class Slim
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router();
+        $this->router = $this->router();
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
