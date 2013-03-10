@@ -413,4 +413,17 @@ class Route
 
         return $this;
     }
+
+    /**
+     * Dispatch
+     * @return mixed The return value of the route callable, or FALSE on error
+     */
+    public function dispatch()
+    {
+        foreach ($this->middleware as $routeMiddleware) {
+            call_user_func_array($routeMiddleware, array($this));
+        }
+
+        return call_user_func_array($this->callable, array_values($this->params));
+    }
 }
