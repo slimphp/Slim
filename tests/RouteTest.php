@@ -54,10 +54,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/foo', function () {});
         $route->name('foo'); // <-- Alias for `setName()`
 
-        $property = new \ReflectionProperty($route, 'name');
-        $property->setAccessible(true);
-
-        $this->assertEquals('foo', $property->getValue($route));
+        $this->assertAttributeEquals('foo', 'name', $route);
     }
 
     public function testGetCallable()
@@ -77,10 +74,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         };
         $route = new \Slim\Route('/foo', $callable); // <-- Called inside __construct()
 
-        $property = new \ReflectionProperty($route, 'callable');
-        $property->setAccessible(true);
-
-        $this->assertSame($callable, $property->getValue($route));
+        $this->assertAttributeSame($callable, 'callable', $route);
     }
 
     public function testSetCallableWithInvalidArgument()
@@ -109,13 +103,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
             'last' => 'smith'
         ));
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-
-        $this->assertEquals(array(
+        $this->assertAttributeEquals(array(
             'first' => 'agent',
             'last' => 'smith'
-        ), $property->getValue($route));
+        ), 'params', $route);
     }
 
     public function testGetParam()
@@ -154,13 +145,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
         $route->setParam('last', 'smith');
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-
-        $this->assertEquals(array(
+        $this->assertAttributeEquals(array(
             'first' => 'mr',
             'last' => 'smith'
-        ), $property->getValue($route));
+        ), 'params', $route);
     }
 
     public function testSetParamThatDoesNotExist()
@@ -312,57 +300,46 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $staticProperty->setValue(array(
             'id' => '\d+'
         ));
-
         $route = new \Slim\Route('/foo', function () {});
 
-        $instanceProperty = new \ReflectionProperty($route, 'conditions');
-        $instanceProperty->setAccessible(true);
-
-        $this->assertArrayHasKey('id', $instanceProperty->getValue($route));
+        $this->assertAttributeEquals(array(
+            'id' => '\d+'
+        ), 'conditions', $route);
     }
 
     public function testMatchesWildcard()
     {
         $route = new \Slim\Route('/hello/:path+/world', function () {});
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-
         $this->assertTrue($route->matches('/hello/foo/bar/world'));
-        $this->assertEquals(array(
+        $this->assertAttributeEquals(array(
             'path' => array('foo', 'bar')
-        ), $property->getValue($route));
+        ), 'params', $route);
     }
 
     public function testMatchesMultipleWildcards()
     {
         $route = new \Slim\Route('/hello/:path+/world/:date+', function () {});
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-
         $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10'));
-        $this->assertEquals(array(
+        $this->assertAttributeEquals(array(
             'path' => array('foo', 'bar'),
             'date' => array('2012', '03', '10')
-        ), $property->getValue($route));
+        ), 'params', $route);
     }
 
     public function testMatchesParamsAndWildcards()
     {
         $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-
         $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10/first/second'));
-        $this->assertEquals(array(
+        $this->assertAttributeEquals(array(
             'path' => array('foo', 'bar'),
             'year' => '2012',
             'month' => '03',
             'day' => '10',
             'path2' => array('first', 'second')
-        ), $property->getValue($route));
+        ), 'params', $route);
     }
 
     public function testMatchesParamsWithOptionalWildcard()
@@ -381,13 +358,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw = function () {
             echo 'Foo';
         };
-
-        $property = new \ReflectionProperty($route, 'middleware');
-        $property->setAccessible(true);
-
         $route->setMiddleware($mw);
 
-        $this->assertSame($mw, $property->getValue($route)[0]);
+        $this->assertAttributeContains($mw, 'middleware', $route);
     }
 
     public function testSetMiddlewareMultipleTimes()
@@ -399,15 +372,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw2 = function () {
             echo 'Bar';
         };
-
-        $property = new \ReflectionProperty($route, 'middleware');
-        $property->setAccessible(true);
-
         $route->setMiddleware($mw1);
         $route->setMiddleware($mw2);
 
-        $this->assertSame($mw1, $property->getValue($route)[0]);
-        $this->assertSame($mw2, $property->getValue($route)[1]);
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
     }
 
     public function testSetMiddlewareWithArray()
@@ -419,14 +388,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw2 = function () {
             echo 'Bar';
         };
-
-        $property = new \ReflectionProperty($route, 'middleware');
-        $property->setAccessible(true);
-
         $route->setMiddleware(array($mw1, $mw2));
 
-        $this->assertSame($mw1, $property->getValue($route)[0]);
-        $this->assertSame($mw2, $property->getValue($route)[1]);
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
     }
 
     public function testSetMiddlewareWithInvalidArgument()
@@ -442,10 +407,6 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('InvalidArgumentException');
 
         $route = new \Slim\Route('/foo', function () {});
-
-        $property = new \ReflectionProperty($route, 'middleware');
-        $property->setAccessible(true);
-
         $route->setMiddleware(array('doesNotExist'));
     }
 
@@ -463,13 +424,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetHttpMethods()
     {
         $route = new \Slim\Route('/foo', function () {});
-
-        $property = new \ReflectionProperty($route, 'methods');
-        $property->setAccessible(true);
-
         $route->setHttpMethods('GET', 'POST');
 
-        $this->assertEquals(array('GET', 'POST'), $property->getValue($route));
+        $this->assertAttributeEquals(array('GET', 'POST'), 'methods', $route);
     }
 
     public function testGetHttpMethods()
@@ -493,20 +450,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $route->appendHttpMethods('PUT');
 
-        $this->assertEquals(array('GET', 'POST', 'PUT'), $property->getValue($route));
+        $this->assertAttributeEquals(array('GET', 'POST', 'PUT'), 'methods', $route);
     }
 
     public function testAppendHttpMethodsWithVia()
     {
         $route = new \Slim\Route('/foo', function () {});
-
-        $property = new \ReflectionProperty($route, 'methods');
-        $property->setAccessible(true);
-        $property->setValue($route, array('GET', 'POST'));
-
         $route->via('PUT');
 
-        $this->assertEquals(array('GET', 'POST', 'PUT'), $property->getValue($route));
+        $this->assertAttributeContains('PUT', 'methods', $route);
     }
 
     public function testSupportsHttpMethod()
@@ -519,5 +471,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($route->supportsHttpMethod('POST'));
         $this->assertFalse($route->supportsHttpMethod('PUT'));
+    }
+
+    public function testDispatch()
+    {
+
     }
 }
