@@ -422,7 +422,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
-        foreach ($route as $i => $method) {
+        foreach ($methods as $i => $method) {
             \Slim\Environment::mock(array(
                 'REQUEST_METHOD' => $method,
                 'SCRIPT_NAME' => '/foo', //<-- Physical
