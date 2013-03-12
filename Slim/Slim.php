@@ -483,6 +483,18 @@ class Slim
     }
 
     /**
+     * Add route for any HTTP method
+     * @see    mapRoute()
+     * @return \Slim\Route
+     */
+    public function any()
+    {
+        $args = func_get_args();
+
+        return $this->mapRoute($args)->via("ANY");
+    }
+
+    /**
      * Not Found Handler
      *
      * This method defines or invokes the application-wide Not Found handler.
