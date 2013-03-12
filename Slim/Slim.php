@@ -491,7 +491,7 @@ class Slim
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->setHttpMethods("ANY");
+        return $this->mapRoute($args)->via("ANY");
     }
 
     /**
