@@ -1160,6 +1160,30 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Foo', $_SESSION['slim.flash']['info']);
     }
 
+
+    /************************************************
+     * FORBIDDEN HANDLING
+     ************************************************/
+
+    /**
+     * Test custom Forbidden handler
+     */
+    public function testForbidden()
+    {
+        $s = new \Slim\Slim();
+        $s->forbidden(function () use ($s) {
+            $s->response()->status(403);
+            echo "Forbidden";
+        });
+        $s->get('/bar', function () use ($s) {
+            $s->forbidden();
+        });
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertEquals(403, $status);
+        $this->assertEquals('Forbidden', $body);
+    }
+
     /************************************************
      * NOT FOUND HANDLING
      ************************************************/
@@ -1361,6 +1385,16 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $errCallback = 'foo';
         $s->error($errCallback);
+    }
+
+    /**
+     * Slim should keep reference to a callable Forbidden callback
+     */
+    public function testForbiddenHandler() {
+        $s = new \Slim\Slim();
+        $forbiddenCallback = function () { echo "404"; };
+        $s->forbidden($forbiddenCallback);
+        $this->assertSame($forbiddenCallback, PHPUnit_Framework_Assert::readAttribute($s, 'forbidden'));
     }
 
     /**
