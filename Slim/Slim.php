@@ -107,6 +107,11 @@ class Slim
     protected $error;
 
     /**
+     * @var mixed Callable to be invoked if user forbidden
+     */
+    protected $forbidden;
+
+    /**
      * @var mixed Callable to be invoked if no matching routes are found
      */
     protected $notFound;
@@ -483,6 +488,42 @@ class Slim
     }
 
     /**
+     * Forbidden Handler
+     *
+     * This method defines or invokes the application-wide Forbidden handler.
+     * There are two contexts in which this method may be invoked:
+     *
+     * 1. When declaring the handler:
+     *
+     * If the $callable parameter is not null and is callable, this
+     * method will register the callable to be invoked when no
+     * routes match the current HTTP request. It WILL NOT invoke the callable.
+     *
+     * 2. When invoking the handler:
+     *
+     * If the $callable parameter is null, Slim assumes you want
+     * to invoke an already-registered handler. If the handler has been
+     * registered and is callable, it is invoked and sends a 403 HTTP Response
+     * whose body is the output of the Forbidden handler.
+     *
+     * @param  mixed $callable Anything that returns true for is_callable()
+     */
+    public function forbidden($callable = null)
+    {
+        if (is_callable($callable)) {
+            $this->forbidden = $callable;
+        } else {
+            ob_start();
+            if (is_callable($this->forbidden)) {
+                call_user_func($this->forbidden);
+            } else {
+                call_user_func(array($this, 'defaultForbidden'));
+            }
+            $this->halt(403, ob_get_clean());
+        }
+    }
+
+    /**
      * Not Found Handler
      *
      * This method defines or invokes the application-wide Not Found handler.
@@ -503,12 +544,13 @@ class Slim
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound( $callable = null ) {
-        if ( is_callable($callable) ) {
+    public function notFound($callable = null)
+    {
+        if (is_callable($callable)) {
             $this->notFound = $callable;
         } else {
             ob_start();
-            if ( is_callable($this->notFound) ) {
+            if (is_callable($this->notFound)) {
                 call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
@@ -1288,6 +1330,14 @@ class Slim
     protected static function generateTemplateMarkup($title, $body)
     {
         return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>", $title, $title, $body);
+    }
+
+    /**
+     * Default Forbidden handler
+     */
+    protected function defaultForbidden()
+    {
+        echo static::generateTemplateMarkup('403 Forbidden', '<p>You do not have permission to view this page.  From here, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
     }
 
     /**
