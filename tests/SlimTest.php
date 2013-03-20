@@ -1392,7 +1392,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testForbiddenHandler() {
         $s = new \Slim\Slim();
-        $forbiddenCallback = function () { echo "404"; };
+        $forbiddenCallback = function () { echo "403"; };
         $s->forbidden($forbiddenCallback);
         $this->assertSame($forbiddenCallback, PHPUnit_Framework_Assert::readAttribute($s, 'forbidden'));
     }
