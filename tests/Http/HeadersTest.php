@@ -35,9 +35,25 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function testNormalizesKey()
     {
         $h = new \Slim\Http\Headers();
-        $h->set('Content-Type', 'text/html');
+        $h->set('Http-Content-Type', 'text/html');
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
-        $this->assertArrayHasKey('content-type', $prop->getValue($h));
+        $this->assertArrayHasKey('CONTENT_TYPE', $prop->getValue($h));
+    }
+
+    public function testExtractHeaders()
+    {
+        $test = array(
+            'HTTP_HOST' => 'foo.com',
+            'SERVER_NAME' => 'foo',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        );
+        $results = \Slim\Http\Headers::extract($test);
+        $this->assertEquals(array(
+            'HTTP_HOST' => 'foo.com',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        ), $results);
     }
 }
