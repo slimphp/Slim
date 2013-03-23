@@ -32,112 +32,136 @@
 
 class HeadersTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Test constructor without args
-     */
-    public function testConstructorWithoutArgs()
+    public function testConstructWithoutArg()
     {
-        $h = new \Slim\Http\Headers();
-        $this->assertEquals(0, count($h));
+        $headers = new \Slim\Http\Headers();
+
+        $this->assertAttributeEquals(array(), 'headers', $headers);
     }
 
-    /**
-     * Test constructor with args
-     */
-    public function testConstructorWithArgs()
+    public function testConstructWithArg()
     {
-        $h = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
-        $this->assertEquals(1, count($h));
+        $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+
+        $this->assertAttributeEquals(array('content-type' => 'text/html'), 'headers', $headers);
     }
 
-    /**
-     * Test get and set header
-     */
-    public function testSetAndGetHeader()
+    public function testMerge()
     {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals('text/html', $h['Content-Type']);
-        $this->assertEquals('text/html', $h['Content-type']);
-        $this->assertEquals('text/html', $h['content-type']);
+        $headers = new \Slim\Http\Headers();
+
+        $property = new \ReflectionProperty($headers, 'headers');
+        $property->setAccessible(true);
+        $property->setValue($headers, array('content-length' => 100));
+
+        $headers->merge(array('Content-Type' => 'text/html'));
+
+        $this->assertAttributeEquals(
+            array(
+                'content-type' => 'text/html',
+                'content-length' => 100
+            ),
+            'headers',
+            $headers
+        );
     }
 
-    /**
-     * Test get non-existent header
-     */
-    public function testGetNonExistentHeader()
+    public function testIterable()
     {
-        $h = new \Slim\Http\Headers();
-        $this->assertNull($h['foo']);
-    }
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+        $iteratorResults = array();
 
-    /**
-     * Test isset header
-     */
-    public function testHeaderIsSet()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertTrue(isset($h['Content-Type']));
-        $this->assertTrue(isset($h['Content-type']));
-        $this->assertTrue(isset($h['content-type']));
-        $this->assertFalse(isset($h['foo']));
-    }
-
-    /**
-     * Test unset header
-     */
-    public function testUnsetHeader()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        unset($h['Content-Type']);
-        $this->assertEquals(0, count($h));
-    }
-
-    /**
-     * Test merge headers
-     */
-    public function testMergeHeaders()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        $h->merge(array('Content-type' => 'text/csv', 'content-length' => 10));
-        $this->assertEquals(2, count($h));
-        $this->assertEquals('text/csv', $h['content-type']);
-        $this->assertEquals(10, $h['Content-length']);
-    }
-
-    /**
-     * Test iteration
-     */
-    public function testIteration()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['One'] = 'Foo';
-        $h['Two'] = 'Bar';
-        $output = '';
-        foreach ($h as $key => $value) {
-            $output .= $key . $value;
+        foreach ($headers as $name => $value) {
+            $iteratorResults[$name] = $value;
         }
-        $this->assertEquals('OneFooTwoBar', $output);
+
+        $this->assertEquals(
+            array(
+                'Content-Type' => 'text/html',
+                'Content-Length' => 100
+            ),
+            $iteratorResults
+        );
+    }
+
+    public function testCountable()
+    {
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+
+        $this->assertEquals(2, count($headers));
     }
 
     /**
-     * Test outputs header name in original form, not canonical form
+     * @covers Slim\Http\Response::setHeader
      */
-    public function testOutputsOriginalNotCanonicalName()
+    public function testArrayAccessSetter()
     {
-        $h = new \Slim\Http\Headers();
-        $h['X-Powered-By'] = 'Slim';
-        $h['Content-Type'] = 'text/csv';
-        $keys = array();
-        foreach ($h as $name => $value) {
-            $keys[] = $name;
-        }
-        $this->assertContains('X-Powered-By', $keys);
-        $this->assertContains('Content-Type', $keys);
+        $headers = new \Slim\Http\Headers();
+        $headers['Content-Length'] = 100;
+
+        $this->assertAttributeEquals(
+            array('content-length' => 100),
+            'headers',
+            $headers
+        );
+    }
+
+    /**
+     * @covers Slim\Http\Headers::offsetGet
+     * @covers Slim\Http\Response::getHeader
+     */
+    public function testArrayAccessGetterExists()
+    {
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+
+        $this->assertEquals('text/html', $headers['Content-Type']);
+    }
+
+    /**
+     * @covers Slim\Http\Headers::offsetGet
+     * @covers Slim\Http\Response::getHeader
+     */
+    public function testArrayAccessGetterNotExists()
+    {
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+
+        $this->assertNull($headers['foo']);
+    }
+
+    public function testArrayAccessExists()
+    {
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+
+        $this->assertTrue(isset($headers['Content-Type']));
+    }
+
+    public function testArrayAccessUnset()
+    {
+        $headers = new \Slim\Http\Headers(array(
+            'Content-Type' => 'text/html',
+            'Content-Length' => 100
+        ));
+        unset($headers['Content-Type']);
+
+        $this->assertAttributeEquals(
+            array('content-length' => 100),
+            'headers',
+            $headers
+        );
     }
 }
