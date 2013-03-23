@@ -43,7 +43,8 @@ class SetTest extends PHPUnit_Framework_TestCase
     {
         $this->bag->set('foo', 'bar');
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
-        $this->assertEquals('bar', $this->property->getValue($this->bag)['foo']);
+		$bag =  $this->property->getValue($this->bag);
+        $this->assertEquals('bar', $bag['foo']);
     }
 
     public function testGet()
@@ -66,8 +67,9 @@ class SetTest extends PHPUnit_Framework_TestCase
         ));
         $this->assertArrayHasKey('abc', $this->property->getValue($this->bag));
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
-        $this->assertEquals('123', $this->property->getValue($this->bag)['abc']);
-        $this->assertEquals('bar', $this->property->getValue($this->bag)['foo']);
+		$bag = $this->property->getValue($this->bag);
+        $this->assertEquals('123', $bag['abc']);
+        $this->assertEquals('bar', $bag['foo']);
     }
 
     public function testAll()
@@ -119,7 +121,8 @@ class SetTest extends PHPUnit_Framework_TestCase
         );
         $this->property->setValue($this->bag, $data);
         $this->bag['foo'] = 'changed';
-        $this->assertEquals('changed', $this->property->getValue($this->bag)['foo']);
+		$bag = $this->property->getValue($this->bag);
+        $this->assertEquals('changed', $bag['foo']);
     }
 
     public function testArrayAccessExists()
