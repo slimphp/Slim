@@ -39,7 +39,7 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase
 {
     public function testSetApplication()
     {
-        $app = new MyApplication();
+        $app = new stdClass();
         $mw = new MyMiddleware();
         $mw->setApplication($app);
 
@@ -48,7 +48,7 @@ class MiddlewareTest extends PHPUnit_Framework_TestCase
 
     public function testGetApplication()
     {
-        $app = new MyApplication();
+        $app = new stdClass();
         $mw = new MyMiddleware();
         $property = new \ReflectionProperty($mw, 'app');
         $property->setAccessible(true);
