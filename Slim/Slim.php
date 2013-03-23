@@ -69,22 +69,22 @@ class Slim
     /**
      * @var \Slim\Http\Request
      */
-    protected $request;
+    public $request;
 
     /**
      * @var \Slim\Http\Response
      */
-    protected $response;
+    public $response;
 
     /**
      * @var \Slim\Router
      */
-    protected $router;
+    public $router;
 
     /**
      * @var \Slim\View
      */
-    protected $view;
+    public $view;
 
     /**
      * @var array
@@ -692,8 +692,8 @@ class Slim
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this->response['Last-Modified'] = date(DATE_RFC1123, $time);
-            if ($time === strtotime($this->request->headers('IF_MODIFIED_SINCE'))) {
+            $this->response->headers->set('Last-Modified', date(DATE_RFC1123, $time));
+            if ($time === strtotime($this->request->headers->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
         } else {
@@ -730,7 +730,7 @@ class Slim
         $this->response['ETag'] = $value;
 
         //Check conditional GET
-        if ($etagsHeader = $this->request->headers('IF_NONE_MATCH')) {
+        if ($etagsHeader = $this->request->headers->get('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if (in_array($value, $etags) || in_array('*', $etags)) {
                 $this->halt(304);
@@ -756,7 +756,7 @@ class Slim
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response['Expires'] = gmdate(DATE_RFC1123, $time);
+        $this->response->headers->set('Expires', gmdate(DATE_RFC1123, $time));
     }
 
     /********************************************************************************
@@ -779,7 +779,7 @@ class Slim
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->setCookie($name, array(
+        $this->response->cookies->set($name, array(
             'value' => $value,
             'expires' => is_null($time) ? $this->config('cookies.lifetime') : $time,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
@@ -801,7 +801,7 @@ class Slim
      */
     public function getCookie($name)
     {
-        return $this->request->cookies($name);
+        return $this->request->cookies->get($name);
     }
 
     /**
@@ -847,7 +847,7 @@ class Slim
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
     {
         $value = \Slim\Http\Util::decodeSecureCookie(
-            $this->request->cookies($name),
+            $this->request->cookies->get($name),
             $this->config('cookies.secret_key'),
             $this->config('cookies.cipher'),
             $this->config('cookies.cipher_mode')
@@ -877,7 +877,7 @@ class Slim
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->deleteCookie($name, array(
+        $this->response->cookies->remove($name, array(
             'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
@@ -968,7 +968,7 @@ class Slim
      */
     public function contentType($type)
     {
-        $this->response['Content-Type'] = $type;
+        $this->response->headers->set('Content-Type', $type);
     }
 
     /**
@@ -977,7 +977,7 @@ class Slim
      */
     public function status($code)
     {
-        $this->response->status($code);
+        $this->response->setStatus($code);
     }
 
     /**
