@@ -66,7 +66,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
 
-        $this->assertSame($route, $property->getValue($router)['foo']);
+		$rV = $property->getValue($router);
+        $this->assertSame($route, $rV['foo']);
     }
 
     /**
