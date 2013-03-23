@@ -66,7 +66,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
 
-        $this->assertSame($route, $property->getValue($router)['foo']);
+		$rV = $property->getValue($router);
+        $this->assertSame($route, $rV['foo']);
     }
 
     /**
@@ -210,9 +211,15 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testGetMatchedRoutes()
     {
         $router = new \Slim\Router();
-        $route1 = (new \Slim\Route('/foo', function () {}))->via('GET');
-        $route2 = (new \Slim\Route('/foo', function () {}))->via('POST');
-        $route3 = (new \Slim\Route('/bar', function () {}))->via('PUT');
+
+        $route1 = new \Slim\Route('/foo', function () {});
+		$route1 = $route1->via('GET');
+
+        $route2 = new \Slim\Route('/foo', function () {});
+		$route2 = $route2->via('POST');
+
+        $route3 = new \Slim\Route('/bar', function () {});
+		$route3 = $route3->via('PUT');
 
         $routes = new \ReflectionProperty($router, 'routes');
         $routes->setAccessible(true);
@@ -227,7 +234,8 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlFor()
     {
         $router = new \Slim\Router();
-        $route1 = (new \Slim\Route('/hello/:first/:last', function () {}))->via('GET')->name('hello');
+        $route1 = new \Slim\Route('/hello/:first/:last', function () {});
+		$route1 = $route1->via('GET')->name('hello');
 
         $routes = new \ReflectionProperty($router, 'namedRoutes');
         $routes->setAccessible(true);
