@@ -161,16 +161,21 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //Number of server port that is running the script
             $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-            //HTTP request headers
-            $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
-            foreach ($_SERVER as $key => $value) {
-                $value = is_string($value) ? trim($value) : $value;
-                if (strpos($key, 'HTTP_') === 0) {
-                    $env[substr($key, 5)] = $value;
-                } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
-                    $env[$key] = $value;
-                }
+            //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+            $headers = \Slim\Http\Headers::extract($_SERVER);
+            foreach ($headers as $key => $value) {
+                $env[$key] = $value;
             }
+
+            // $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
+            // foreach ($_SERVER as $key => $value) {
+            //     $value = is_string($value) ? trim($value) : $value;
+            //     if (strpos($key, 'HTTP_') === 0) {
+            //         $env[substr($key, 5)] = $value;
+            //     } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
+            //         $env[$key] = $value;
+            //     }
+            // }
 
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';

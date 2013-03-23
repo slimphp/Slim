@@ -32,112 +32,28 @@
 
 class HeadersTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Test constructor without args
-     */
-    public function testConstructorWithoutArgs()
+    public function testNormalizesKey()
     {
         $h = new \Slim\Http\Headers();
-        $this->assertEquals(0, count($h));
+        $h->set('Http-Content-Type', 'text/html');
+        $prop = new \ReflectionProperty($h, 'data');
+        $prop->setAccessible(true);
+        $this->assertArrayHasKey('CONTENT_TYPE', $prop->getValue($h));
     }
 
-    /**
-     * Test constructor with args
-     */
-    public function testConstructorWithArgs()
+    public function testExtractHeaders()
     {
-        $h = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
-        $this->assertEquals(1, count($h));
-    }
-
-    /**
-     * Test get and set header
-     */
-    public function testSetAndGetHeader()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals('text/html', $h['Content-Type']);
-        $this->assertEquals('text/html', $h['Content-type']);
-        $this->assertEquals('text/html', $h['content-type']);
-    }
-
-    /**
-     * Test get non-existent header
-     */
-    public function testGetNonExistentHeader()
-    {
-        $h = new \Slim\Http\Headers();
-        $this->assertNull($h['foo']);
-    }
-
-    /**
-     * Test isset header
-     */
-    public function testHeaderIsSet()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertTrue(isset($h['Content-Type']));
-        $this->assertTrue(isset($h['Content-type']));
-        $this->assertTrue(isset($h['content-type']));
-        $this->assertFalse(isset($h['foo']));
-    }
-
-    /**
-     * Test unset header
-     */
-    public function testUnsetHeader()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        unset($h['Content-Type']);
-        $this->assertEquals(0, count($h));
-    }
-
-    /**
-     * Test merge headers
-     */
-    public function testMergeHeaders()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        $h->merge(array('Content-type' => 'text/csv', 'content-length' => 10));
-        $this->assertEquals(2, count($h));
-        $this->assertEquals('text/csv', $h['content-type']);
-        $this->assertEquals(10, $h['Content-length']);
-    }
-
-    /**
-     * Test iteration
-     */
-    public function testIteration()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['One'] = 'Foo';
-        $h['Two'] = 'Bar';
-        $output = '';
-        foreach ($h as $key => $value) {
-            $output .= $key . $value;
-        }
-        $this->assertEquals('OneFooTwoBar', $output);
-    }
-
-    /**
-     * Test outputs header name in original form, not canonical form
-     */
-    public function testOutputsOriginalNotCanonicalName()
-    {
-        $h = new \Slim\Http\Headers();
-        $h['X-Powered-By'] = 'Slim';
-        $h['Content-Type'] = 'text/csv';
-        $keys = array();
-        foreach ($h as $name => $value) {
-            $keys[] = $name;
-        }
-        $this->assertContains('X-Powered-By', $keys);
-        $this->assertContains('Content-Type', $keys);
+        $test = array(
+            'HTTP_HOST' => 'foo.com',
+            'SERVER_NAME' => 'foo',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        );
+        $results = \Slim\Http\Headers::extract($test);
+        $this->assertEquals(array(
+            'HTTP_HOST' => 'foo.com',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        ), $results);
     }
 }

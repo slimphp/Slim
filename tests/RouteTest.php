@@ -29,292 +29,185 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-// Used for passing callable via string
-function testCallable() {}
-
 class RouteTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Route should set name
-     */
-    public function testRouteSetsName()
+    public function testGetPattern()
     {
-        $route = new \Slim\Route('/foo/bar', function () {});
-        $route->name('foo');
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertEquals('/foo', $route->getPattern());
+    }
+
+    public function testGetName()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'name');
+        $property->setAccessible(true);
+        $property->setValue($route, 'foo');
+
         $this->assertEquals('foo', $route->getName());
     }
 
-    /**
-     * Route should set pattern
-     */
-    public function testRouteSetsPattern()
+    public function testSetName()
     {
-        $route1 = new \Slim\Route('/foo/bar', function () {});
-        $this->assertEquals('/foo/bar', $route1->getPattern());
+        $route = new \Slim\Route('/foo', function () {});
+        $route->name('foo'); // <-- Alias for `setName()`
+
+        $this->assertAttributeEquals('foo', 'name', $route);
     }
 
-    /**
-     * Route sets pattern with params
-     */
-    public function testRouteSetsPatternWithParams()
+    public function testGetCallable()
     {
-        $route = new \Slim\Route('/hello/:first/:last', function () {});
-        $this->assertEquals('/hello/:first/:last', $route->getPattern());
-    }
+        $callable = function () {
+            echo 'Foo';
+        };
+        $route = new \Slim\Route('/foo', $callable);
 
-    /**
-     * Route sets custom pattern that overrides pattern
-     */
-    public function testRouteSetsCustomTemplate()
-    {
-        $route = new \Slim\Route('/hello/*', function () {});
-        $route->setPattern('/hello/:name');
-        $this->assertEquals('/hello/:name', $route->getPattern());
-    }
-
-    /**
-     * Route should store a reference to the callable
-     * anonymous function.
-     */
-    public function testRouteSetsCallableAsFunction()
-    {
-        $callable = function () { echo "Foo!"; };
-        $route = new \Slim\Route('/foo/bar', $callable);
         $this->assertSame($callable, $route->getCallable());
     }
 
-    /**
-     * Route should store a reference to the callable
-     * regular function (for PHP 5 < 5.3)
-     */
-    public function testRouteSetsCallableAsString()
+    public function testSetCallable()
     {
-        $route = new \Slim\Route('/foo/bar', 'testCallable');
-        $this->assertEquals('testCallable', $route->getCallable());
+        $callable = function () {
+            echo 'Foo';
+        };
+        $route = new \Slim\Route('/foo', $callable); // <-- Called inside __construct()
+
+        $this->assertAttributeSame($callable, 'callable', $route);
     }
 
-    /**
-     * Route should throw exception when creating with an invalid callable
-     */
-    public function testRouteThrowsExecptionWithInvalidCallable()
+    public function testSetCallableWithInvalidArgument()
     {
-        $this->setExpectedException('InvalidArgumentException');
-        $route = new \Slim\Route('/foo/bar', 'fnDoesNotExist');
+        $this->setExpectedException('\InvalidArgumentException');
+        $route = new \Slim\Route('/foo', 'doesNotExist'); // <-- Called inside __construct()
     }
 
-    /**
-     * Route should throw exception when setting an invalid callable
-     */
-    public function testRouteThrowsExecptionWhenSettingInvalidCallable()
+    public function testGetParams()
     {
-        $route = new \Slim\Route('/foo/bar', function () {});
-        try
-        {
-            $route->setCallable('fnDoesNotExist');
-            $this->fail('Did not catch InvalidArgumentException when setting invalid callable');
-        } catch(\InvalidArgumentException $e) {}
-    }
-
-    /**
-     * Test gets all params
-     */
-    public function testGetRouteParams()
-    {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', function () {});
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
 
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
-
-        // Get params
-        $params = $route->getParams();
-        $this->assertEquals(2, count($params));
-        $this->assertEquals('mr', $params['first']);
-        $this->assertEquals('anderson', $params['last']);
+        $this->assertEquals(array(
+            'first' => 'mr',
+            'last' => 'anderson'
+        ), $route->getParams());
     }
 
-    /**
-     * Test sets all params
-     */
-    public function testSetRouteParams()
+    public function testSetParams()
     {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', function () {});
-
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
-
-        // Get params
-        $params = $route->getParams();
-        $this->assertEquals(2, count($params));
-        $this->assertEquals('mr', $params['first']);
-        $this->assertEquals('anderson', $params['last']);
-
-        // Replace params
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
         $route->setParams(array(
-            'first' => 'john',
+            'first' => 'agent',
             'last' => 'smith'
         ));
 
-        // Get new params
-        $params = $route->getParams();
-        $this->assertEquals(2, count($params));
-        $this->assertEquals('john', $params['first']);
-        $this->assertEquals('smith', $params['last']);
+        $this->assertAttributeEquals(array(
+            'first' => 'agent',
+            'last' => 'smith'
+        ), 'params', $route);
     }
 
-    /**
-     * Test gets param when exists
-     */
-    public function testGetRouteParamWhenExists()
+    public function testGetParam()
     {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', function () {});
 
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
+        $property = new \ReflectionProperty($route, 'params');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'first' => 'foo',
+            'last' => 'bar'
+        ));
 
-        // Get param
-        $this->assertEquals('anderson', $route->getParam('last'));
+        $this->assertEquals('foo', $route->getParam('first'));
     }
 
-    /**
-     * Test gets param when not exists
-     */
-    public function testGetRouteParamWhenNotExists()
+    public function testGetParamThatDoesNotExist()
     {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
+        $this->setExpectedException('InvalidArgumentException');
+
         $route = new \Slim\Route('/hello/:first/:last', function () {});
 
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
+        $property = new \ReflectionProperty($route, 'params');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'first' => 'foo',
+            'last' => 'bar'
+        ));
 
-        // Get param
-        try {
-            $param = $route->getParam('foo');
-            $this->fail('Did not catch expected InvalidArgumentException');
-        } catch ( \InvalidArgumentException $e ) {}
+        $route->getParam('middle');
     }
 
-    /**
-     * Test sets param when exists
-     */
-    public function testSetRouteParamWhenExists()
+    public function testSetParam()
     {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
         $route = new \Slim\Route('/hello/:first/:last', function () {});
-
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
-
-        // Get param
-        $this->assertEquals('anderson', $route->getParam('last'));
-
-        // Set param
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
         $route->setParam('last', 'smith');
 
-        // Get new param
-        $this->assertEquals('smith', $route->getParam('last'));
+        $this->assertAttributeEquals(array(
+            'first' => 'mr',
+            'last' => 'smith'
+        ), 'params', $route);
     }
 
-    /**
-     * Test sets param when not exists
-     */
-    public function testSetRouteParamWhenNotExists()
+    public function testSetParamThatDoesNotExist()
     {
-        // Prepare route
-        $requestUri = '/hello/mr/anderson';
+        $this->setExpectedException('InvalidArgumentException');
+
         $route = new \Slim\Route('/hello/:first/:last', function () {});
-
-        // Parse route params
-        $this->assertTrue($route->matches($requestUri));
-
-        // Get param
-        try {
-            $param = $route->setParam('foo', 'bar');
-            $this->fail('Did not catch expected InvalidArgumentException');
-        } catch ( \InvalidArgumentException $e ) {}
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+        $route->setParam('middle', 'smith'); // <-- Should trigger InvalidArgumentException
     }
 
-    /**
-     * If route matches a resource URI, param should be extracted.
-     */
-    public function testRouteMatchesAndParamExtracted()
+    public function testMatches()
     {
-        $resource = '/hello/Josh';
         $route = new \Slim\Route('/hello/:name', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('name' => 'Josh'), $route->getParams());
+
+        $this->assertTrue($route->matches('/hello/josh'));
     }
 
-    /**
-     * If route matches a resource URI, multiple params should be extracted.
-     */
-    public function testRouteMatchesAndMultipleParamsExtracted()
+    public function testMatchesIsFalse()
     {
-        $resource = '/hello/Josh/and/John';
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertFalse($route->matches('/bar'));
+    }
+
+    public function testMatchesPatternWithTrailingSlash()
+    {
+        $route = new \Slim\Route('/foo/', function () {});
+
+        $this->assertTrue($route->matches('/foo/'));
+        $this->assertTrue($route->matches('/foo'));
+    }
+
+    public function testMatchesPatternWithoutTrailingSlash()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertFalse($route->matches('/foo/'));
+        $this->assertTrue($route->matches('/foo'));
+    }
+
+    public function testMatchesWithConditions()
+    {
         $route = new \Slim\Route('/hello/:first/and/:second', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
+        $route->conditions(array(
+            'first' => '[a-zA-Z]{3,}'
+        ));
+
+        $this->assertTrue($route->matches('/hello/Josh/and/John'));
     }
 
-    /**
-     * If route does not match a resource URI, params remain an empty array
-     */
-    public function testRouteDoesNotMatchAndParamsNotExtracted()
+    public function testMatchesWithConditionsIsFalse()
     {
-        $resource = '/foo/bar';
-        $route = new \Slim\Route('/hello/:name', function () {});
-        $result = $route->matches($resource);
-        $this->assertFalse($result);
-        $this->assertEquals(array(), $route->getParams());
-    }
-
-    /**
-     * Route matches URI with trailing slash
-     *
-     */
-    public function testRouteMatchesWithTrailingSlash()
-    {
-        $resource1 = '/foo/bar/';
-        $resource2 = '/foo/bar';
-        $route = new \Slim\Route('/foo/:one/', function () {});
-        $this->assertTrue($route->matches($resource1));
-        $this->assertTrue($route->matches($resource2));
-    }
-
-    /**
-     * Route matches URI with conditions
-     */
-    public function testRouteMatchesResourceWithConditions()
-    {
-        $resource = '/hello/Josh/and/John';
         $route = new \Slim\Route('/hello/:first/and/:second', function () {});
-        $route->conditions(array('first' => '[a-zA-Z]{3,}'));
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
-    }
+        $route->conditions(array(
+            'first' => '[a-z]{3,}'
+        ));
 
-    /**
-     * Route does not match URI with conditions
-     */
-    public function testRouteDoesNotMatchResourceWithConditions()
-    {
-        $resource = '/hello/Josh/and/John';
-        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
-        $route->conditions(array('first' => '[a-z]{3,}'));
-        $result = $route->matches($resource);
-        $this->assertFalse($result);
-        $this->assertEquals(array(), $route->getParams());
+        $this->assertFalse($route->matches('/hello/Josh/and/John'));
     }
 
     /*
@@ -324,14 +217,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
      *
      * Excludes "+" which is valid but decodes into a space character
      */
-    public function testRouteMatchesResourceWithValidRfc2396PathComponent()
+    public function testMatchesWithValidRfc2396PathComponent()
     {
         $symbols = ':@&=$,';
-        $resource = '/rfc2386/' . $symbols;
         $route = new \Slim\Route('/rfc2386/:symbols', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('symbols' => $symbols), $route->getParams());
+
+        $this->assertTrue($route->matches('/rfc2386/' . $symbols));
     }
 
     /*
@@ -339,221 +230,251 @@ class RouteTest extends PHPUnit_Framework_TestCase
      *
      * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
      */
-    public function testRouteMatchesResourceWithUnreservedMarks()
+    public function testMatchesWithUnreservedMarks()
     {
         $marks = "-_.!~*'()";
-        $resource = '/marks/' . $marks;
         $route = new \Slim\Route('/marks/:marks', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('marks' => $marks), $route->getParams());
+
+        $this->assertTrue($route->matches('/marks/' . $marks));
     }
 
-    /**
-     * Route optional parameters
-     *
-     * Pre-conditions:
-     * Route pattern requires :year, optionally accepts :month and :day
-     *
-     * Post-conditions:
-     * All: Year is 2010
-     * Case A: Month and day default values are used
-     * Case B: Month is "05" and day default value is used
-     * Case C: Month is "05" and day is "13"
-     */
-    public function testRouteOptionalParameters()
+    public function testMatchesOptionalParameters()
     {
         $pattern = '/archive/:year(/:month(/:day))';
 
-        //Case A
-        $routeA = new \Slim\Route($pattern, function () {});
-        $resourceA = '/archive/2010';
-        $resultA = $routeA->matches($resourceA);
-        $this->assertTrue($resultA);
-        $this->assertEquals(array('year' => '2010'), $routeA->getParams());
+        $route1 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route1->matches('/archive/2010'));
+        $this->assertEquals(array('year' => '2010'), $route1->getParams());
 
-        //Case B
-        $routeB = new \Slim\Route($pattern, function () {});
-        $resourceB = '/archive/2010/05';
-        $resultB = $routeB->matches($resourceB);
-        $this->assertTrue($resultB);
-        $this->assertEquals(array('year' => '2010', 'month' => '05'), $routeB->getParams());
+        $route2 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route2->matches('/archive/2010/05'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05'), $route2->getParams());
 
-        //Case C
-        $routeC = new \Slim\Route($pattern, function () {});
-        $resourceC = '/archive/2010/05/13';
-        $resultC = $routeC->matches($resourceC);
-        $this->assertTrue($resultC);
-        $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $routeC->getParams());
+        $route3 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route3->matches('/archive/2010/05/13'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $route3->getParams());
     }
 
-    /**
-     * Test route default conditions
-     *
-     * Pre-conditions:
-     * Route class has default conditions;
-     *
-     * Post-conditions:
-     * Case A: Route instance has default conditions;
-     * Case B: Route instance has newly merged conditions;
-     */
-    public function testRouteDefaultConditions()
+    public function testGetConditions()
     {
-        \Slim\Route::setDefaultConditions(array('id' => '\d+'));
-        $r = new \Slim\Route('/foo', function () {});
-        //Case A
-        $this->assertEquals(\Slim\Route::getDefaultConditions(), $r->getConditions());
-        //Case B
-        $r->conditions(array('name' => '[a-z]{2,5}'));
-        $c = $r->getConditions();
-        $this->assertArrayHasKey('id', $c);
-        $this->assertArrayHasKey('name', $c);
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'conditions');
+        $property->setAccessible(true);
+        $property->setValue($route, array('foo' => '\d{3}'));
+
+        $this->assertEquals(array('foo' => '\d{3}'), $route->getConditions());
     }
 
-    /**
-     * Route matches URI with wildcard
-     */
-    public function testRouteMatchesResourceWithWildcard()
+    public function testSetDefaultConditions()
     {
-        $resource = '/hello/foo/bar/world';
+        \Slim\Route::setDefaultConditions(array(
+            'id' => '\d+'
+        ));
+
+        $property = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $property->setAccessible(true);
+
+        $this->assertEquals(array(
+            'id' => '\d+'
+        ), $property->getValue());
+    }
+
+    public function testGetDefaultConditions()
+    {
+        $property = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $property->setAccessible(true);
+        $property->setValue(array(
+            'id' => '\d+'
+        ));
+
+        $this->assertEquals(array(
+            'id' => '\d+'
+        ), \Slim\Route::getDefaultConditions());
+    }
+
+    public function testDefaultConditionsAssignedToInstance()
+    {
+        $staticProperty = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $staticProperty->setAccessible(true);
+        $staticProperty->setValue(array(
+            'id' => '\d+'
+        ));
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertAttributeEquals(array(
+            'id' => '\d+'
+        ), 'conditions', $route);
+    }
+
+    public function testMatchesWildcard()
+    {
         $route = new \Slim\Route('/hello/:path+/world', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('path'=>array('foo', 'bar')), $route->getParams());
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar')
+        ), 'params', $route);
     }
 
-    /**
-     * Route matches URI with more than one wildcard
-     */
-    public function testRouteMatchesResourceWithMultipleWildcards()
+    public function testMatchesMultipleWildcards()
     {
-        $resource = '/hello/foo/bar/world/2012/03/10';
         $route = new \Slim\Route('/hello/:path+/world/:date+', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('path'=>array('foo', 'bar'), 'date'=>array('2012', '03', '10')), $route->getParams());
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'date' => array('2012', '03', '10')
+        ), 'params', $route);
     }
 
-    /**
-     * Route matches URI with wildcards and parameters
-     */
-    public function testRouteMatchesResourceWithWildcardsAndParams()
+    public function testMatchesParamsAndWildcards()
     {
-        $resource = '/hello/foo/bar/world/2012/03/10/first/second';
         $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('path'=>array('foo', 'bar'), 'year'=>'2012', 'month'=>'03', 'day'=>'10', 'path2'=>array('first', 'second')), $route->getParams());
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10/first/second'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'year' => '2012',
+            'month' => '03',
+            'day' => '10',
+            'path2' => array('first', 'second')
+        ), 'params', $route);
     }
 
-    /**
-     * Route matches URI with optional wildcard and parameter
-     */
-    public function testRouteMatchesResourceWithOptionalWildcardsAndParams()
+    public function testMatchesParamsWithOptionalWildcard()
     {
-        $resourceA = '/hello/world/foo/bar';
-        $routeA = new \Slim\Route('/hello(/:world(/:path+))', function () {});
-        $this->assertTrue($routeA->matches($resourceA));
-        $this->assertEquals(array('world'=>'world', 'path'=>array('foo', 'bar')), $routeA->getParams());
+        $route = new \Slim\Route('/hello(/:foo(/:bar+))', function () {});
 
-        $resourceB = '/hello/world';
-        $routeB = new \Slim\Route('/hello(/:world(/:path))', function () {});
-        $this->assertTrue($routeB->matches($resourceB));
-        $this->assertEquals(array('world'=>'world'), $routeB->getParams());
+        $this->assertTrue($route->matches('/hello'));
+        $this->assertTrue($route->matches('/hello/world'));
+        $this->assertTrue($route->matches('/hello/world/foo'));
+        $this->assertTrue($route->matches('/hello/world/foo/bar'));
     }
 
-    /**
-     * Route does not match URI with wildcard
-     */
-    public function testRouteDoesNotMatchResourceWithWildcard()
+    public function testSetMiddleware()
     {
-        $resource = '/hello';
-        $route = new \Slim\Route('/hello/:path+', function () {});
-        $result = $route->matches($resource);
-        $this->assertFalse($result);
-        $this->assertEquals(array(), $route->getParams());
+        $route = new \Slim\Route('/foo', function () {});
+        $mw = function () {
+            echo 'Foo';
+        };
+        $route->setMiddleware($mw);
+
+        $this->assertAttributeContains($mw, 'middleware', $route);
     }
 
-    /**
-     * Test route sets and gets middleware
-     *
-     * Pre-conditions:
-     * Route instantiated
-     *
-     * Post-conditions:
-     * Case A: Middleware set as callable, not array
-     * Case B: Middleware set after other middleware already set
-     * Case C: Middleware set as array of callables
-     * Case D: Middleware set as a callable array
-     * Case E: Middleware is invalid; throws InvalidArgumentException
-     * Case F: Middleware is an array with one invalid callable; throws InvalidArgumentException
-     */
-    public function testRouteMiddleware()
+    public function testSetMiddlewareMultipleTimes()
     {
-        $callable1 = function () {};
-        $callable2 = function () {};
-        //Case A
-        $r1 = new \Slim\Route('/foo', function () {});
-        $r1->setMiddleware($callable1);
-        $mw = $r1->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(1, count($mw));
-        //Case B
-        $r1->setMiddleware($callable2);
-        $mw = $r1->getMiddleware();
-        $this->assertEquals(2, count($mw));
-        //Case C
-        $r2 = new \Slim\Route('/foo', function () {});
-        $r2->setMiddleware(array($callable1, $callable2));
-        $mw = $r2->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(2, count($mw));
-        //Case D
-        $r3 = new \Slim\Route('/foo', function () {});
-        $r3->setMiddleware(array($this, 'callableTestFunction'));
-        $mw = $r3->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(1, count($mw));
-        //Case E
-        try {
-            $r3->setMiddleware('sdjfsoi788');
-            $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
-        } catch ( \InvalidArgumentException $e ) {}
-        //Case F
-        try {
-            $r3->setMiddleware(array($callable1, $callable2, 'sdjfsoi788'));
-            $this->fail('Did not catch InvalidArgumentException when setting an array with one invalid route middleware');
-        } catch ( \InvalidArgumentException $e ) {}
+        $route = new \Slim\Route('/foo', function () {});
+        $mw1 = function () {
+            echo 'Foo';
+        };
+        $mw2 = function () {
+            echo 'Bar';
+        };
+        $route->setMiddleware($mw1);
+        $route->setMiddleware($mw2);
+
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
     }
 
-    public function callableTestFunction() {}
-
-    /**
-     * Test that a Route manages the HTTP methods that it supports
-     *
-     * Case A: Route initially supports no HTTP methods
-     * Case B: Route can set its supported HTTP methods
-     * Case C: Route can append supported HTTP methods
-     * Case D: Route can test if it supports an HTTP method
-     * Case E: Route can lazily declare supported HTTP methods with `via`
-     */
-    public function testHttpMethods()
+    public function testSetMiddlewareWithArray()
     {
-        //Case A
-        $r = new \Slim\Route('/foo', function () {});
-        $this->assertEmpty($r->getHttpMethods());
-        //Case B
-        $r->setHttpMethods('GET');
-        $this->assertEquals(array('GET'), $r->getHttpMethods());
-        //Case C
-        $r->appendHttpMethods('POST', 'PUT');
-        $this->assertEquals(array('GET', 'POST', 'PUT'), $r->getHttpMethods());
-        //Case D
-        $this->assertTrue($r->supportsHttpMethod('GET'));
-        $this->assertFalse($r->supportsHttpMethod('DELETE'));
-        //Case E
-        $viaResult = $r->via('DELETE');
-        $this->assertTrue($viaResult instanceof \Slim\Route);
-        $this->assertTrue($r->supportsHttpMethod('DELETE'));
+        $route = new \Slim\Route('/foo', function () {});
+        $mw1 = function () {
+            echo 'Foo';
+        };
+        $mw2 = function () {
+            echo 'Bar';
+        };
+        $route->setMiddleware(array($mw1, $mw2));
+
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
+    }
+
+    public function testSetMiddlewareWithInvalidArgument()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
+    }
+
+    public function testSetMiddlewareWithArrayWithInvalidArgument()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setMiddleware(array('doesNotExist'));
+    }
+
+    public function testGetMiddleware()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'middleware');
+        $property->setAccessible(true);
+        $property->setValue($route, array('foo' => 'bar'));
+
+        $this->assertEquals(array('foo' => 'bar'), $route->getMiddleware());
+    }
+
+    public function testSetHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setHttpMethods('GET', 'POST');
+
+        $this->assertAttributeEquals(array('GET', 'POST'), 'methods', $route);
+    }
+
+    public function testGetHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('GET', 'POST'));
+
+        $this->assertEquals(array('GET', 'POST'), $route->getHttpMethods());
+    }
+
+    public function testAppendHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('GET', 'POST'));
+
+        $route->appendHttpMethods('PUT');
+
+        $this->assertAttributeEquals(array('GET', 'POST', 'PUT'), 'methods', $route);
+    }
+
+    public function testAppendHttpMethodsWithVia()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $route->via('PUT');
+
+        $this->assertAttributeContains('PUT', 'methods', $route);
+    }
+
+    public function testSupportsHttpMethod()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('POST'));
+
+        $this->assertTrue($route->supportsHttpMethod('POST'));
+        $this->assertFalse($route->supportsHttpMethod('PUT'));
+    }
+
+    public function testDispatch()
+    {
+
     }
 }

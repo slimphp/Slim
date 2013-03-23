@@ -292,7 +292,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('text/csv', $env['CONTENT_TYPE']);
         $this->assertEquals('100', $env['CONTENT_LENGTH']);
-        $this->assertEquals('XmlHttpRequest', $env['X_REQUESTED_WITH']);
+        $this->assertEquals('XmlHttpRequest', $env['HTTP_X_REQUESTED_WITH']);
     }
 
     /**
