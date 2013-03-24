@@ -255,6 +255,7 @@ class Slim
             'templates.path' => './templates',
             'view' => '\Slim\View',
             // Cookies
+            'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',
             'cookies.path' => '/',
             'cookies.domain' => null,
@@ -764,7 +765,7 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Set unencrypted HTTP cookie
+     * Set HTTP cookie to be sent with the HTTP response
      *
      * @param string     $name      The cookie name
      * @param string     $value     The cookie value
@@ -790,7 +791,7 @@ class Slim
     }
 
     /**
-     * Get value of unencrypted HTTP cookie
+     * Get value of HTTP cookie from the current HTTP request
      *
      * Return the value of a cookie from the current HTTP request,
      * or return NULL if cookie does not exist. Cookies created during
@@ -799,12 +800,30 @@ class Slim
      * @param  string      $name
      * @return string|null
      */
-    public function getCookie($name)
+    public function getCookie($name, $deleteIfInvalid = true)
     {
-        return $this->request->cookies->get($name);
+        // Get cookie value
+        $value = $this->request->cookies->get($name);
+
+        // Decode if encrypted
+        if ($this->config('cookies.encrypt')) {
+            $value = \Slim\Http\Util::decodeSecureCookie(
+                $value,
+                $this->config('cookies.secret_key'),
+                $this->config('cookies.cipher'),
+                $this->config('cookies.cipher_mode')
+            );
+            if ($value === false && $deleteIfInvalid) {
+                $this->deleteCookie($name);
+            }
+        }
+
+        return $value;
     }
 
     /**
+     * DEPRECATION WARNING! Use `setCookie` with the `cookies.encrypt` app setting set to `true`.
+     *
      * Set encrypted HTTP cookie
      *
      * @param string    $name       The cookie name
@@ -818,23 +837,14 @@ class Slim
      *                              HTTPS connection from the client
      * @param  bool     $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
      */
-    public function setEncryptedCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = null, $httponly = null)
+    public function setEncryptedCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = false, $httponly = false)
     {
-        $expires = is_null($expires) ? $this->config('cookies.lifetime') : $expires;
-        if (is_string($expires)) {
-            $expires = strtotime($expires);
-        }
-        $secureValue = \Slim\Http\Util::encodeSecureCookie(
-            $value,
-            $expires,
-            $this->config('cookies.secret_key'),
-            $this->config('cookies.cipher'),
-            $this->config('cookies.cipher_mode')
-        );
-        $this->setCookie($name, $secureValue, $expires, $path, $domain, $secure, $httponly);
+        $this->setCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
     }
 
     /**
+     * DEPRECATION WARNING! Use `getCookie` with the `cookies.encrypt` app setting set to `true`.
+     *
      * Get value of encrypted HTTP cookie
      *
      * Return the value of an encrypted cookie from the current HTTP request,
@@ -846,17 +856,7 @@ class Slim
      */
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
     {
-        $value = \Slim\Http\Util::decodeSecureCookie(
-            $this->request->cookies->get($name),
-            $this->config('cookies.secret_key'),
-            $this->config('cookies.cipher'),
-            $this->config('cookies.cipher_mode')
-        );
-        if ($value === false && $deleteIfInvalid) {
-            $this->deleteCookie($name);
-        }
-
-        return $value;
+        return $this->getCookie($name, $deleteIfInvalid);
     }
 
     /**
@@ -1174,7 +1174,10 @@ class Slim
         $this->middleware[0]->call();
 
         //Fetch status, header, and body
-        list($status, $header, $body) = $this->response->finalize();
+        list($status, $headers, $body) = $this->response->finalize();
+
+        // Serialize cookies (with optional encryption)
+        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
 
         //Send headers
         if (headers_sent() === false) {
@@ -1186,7 +1189,7 @@ class Slim
             }
 
             //Send headers
-            foreach ($header as $name => $value) {
+            foreach ($headers as $name => $value) {
                 $hValues = explode("\n", $value);
                 foreach ($hValues as $hVal) {
                     header("$name: $hVal", false);

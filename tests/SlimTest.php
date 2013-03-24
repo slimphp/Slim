@@ -706,11 +706,11 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->setCookie('foo1', 'bar1', '2 days');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(2, count($cookies));
-        $this->assertEquals(1, preg_match('@foo=bar@', $cookies[0]));
-        $this->assertEquals(1, preg_match('@foo1=bar1@', $cookies[1]));
+        $cookie1 = $s->response->cookies->get('foo');
+        $cookie2 = $s->response->cookies->get('foo1');
+        $this->assertEquals(2, count($s->response->cookies));
+        $this->assertEquals('bar', $cookie1['value']);
+        $this->assertEquals('bar1', $cookie2['value']);
     }
 
     /**
@@ -773,60 +773,10 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->deleteCookie('foo');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(1, count($cookies));
-        $this->assertEquals(1, preg_match('@^foo=;@', $cookies[0]));
-    }
-
-    /**
-     * Test set encrypted cookie
-     *
-     * This method ensures that the `Set-Cookie:` HTTP request
-     * header is set. The implementation is tested in a separate file.
-     */
-    // public function testSetEncryptedCookie()
-    // {
-    //     $s = new \Slim\Slim();
-    //     $s->setEncryptedCookie('foo', 'bar');
-    //     $r = $s->response();
-    //     $this->assertEquals(1, preg_match("@^foo=.+%7C.+%7C.+@", $r['Set-Cookie'])); //<-- %7C is a url-encoded pipe
-    // }
-
-    /**
-     * Test get encrypted cookie
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    // public function testGetEncryptedCookieAndDeletingIt()
-    // {
-    //     \Slim\Environment::mock(array(
-    //         'SCRIPT_NAME' => '/foo', //<-- Physical
-    //         'PATH_INFO' => '/bar', //<-- Virtual
-    //     ));
-    //     $s = new \Slim\Slim();
-    //     $r = $s->response();
-    //     $this->assertFalse($s->getEncryptedCookie('foo'));
-    //     $this->assertEquals(1, preg_match("@foo=;.*@", $r['Set-Cookie']));
-    // }
-
-    /**
-     * Test get encrypted cookie WITHOUT deleting it
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    public function testGetEncryptedCookieWithoutDeletingIt()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $r = $s->response();
-        $this->assertFalse($s->getEncryptedCookie('foo', false));
-        $this->assertEquals(0, preg_match("@foo=;.*@", $r['Set-Cookie']));
+        $cookie = $s->response->cookies->get('foo');
+        $this->assertEquals(1, count($s->response->cookies));
+        $this->assertEquals('', $cookie['value']);
+        $this->assertLessThan(time(), $cookie['expires']);
     }
 
     /************************************************

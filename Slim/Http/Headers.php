@@ -93,10 +93,11 @@ class Headers extends \Slim\Helper\Set
      */
     protected function normalizeKey($key)
     {
-        $key = trim($key);
-        $key = strtoupper($key);
-        $key = str_replace('-', '_', $key);
-        $key = preg_replace('#^HTTP_#', '', $key);
+        $key = strtolower($key);
+        $key = str_replace(array('-', '_'), ' ', $key);
+        $key = preg_replace('#^http #', '', $key);
+        $key = ucwords($key);
+        $key = str_replace(' ', '-', $key);
 
         return $key;
     }
