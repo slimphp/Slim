@@ -174,6 +174,32 @@ class Util
     }
 
     /**
+     * Serialize Response cookies into raw HTTP header
+     * @param  \Slim\Http\Headers $headers The Response headers
+     * @param  \Slim\Http\Cookies $cookies The Response cookies
+     * @param  array              $config  The Slim app settings
+     */
+    public static function serializeCookies(\Slim\Http\Headers &$headers, \Slim\Http\Cookies $cookies, array $config)
+    {
+        if ($config['cookies.encrypt']) {
+            foreach ($cookies as $name => $settings) {
+                $settings['value'] = static::encodeSecureCookie(
+                    $settings['value'],
+                    $settings['expires'],
+                    $config['cookies.secret_key'],
+                    $config['cookies.cipher'],
+                    $config['cookies.cipher_mode']
+                );
+                static::setCookieHeader($headers, $name, $settings);
+            }
+        } else {
+            foreach ($cookies as $name => $settings) {
+                static::setCookieHeader($headers, $name, $settings);
+            }
+        }
+    }
+
+    /**
      * Encode secure cookie value
      *
      * This method will create the secure value of an HTTP cookie. The
