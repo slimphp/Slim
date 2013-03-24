@@ -48,7 +48,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      * 1) That the HTTP cookie is added to the `Set-Cookie:` response header;
      * 2) That the HTTP cookie is constructed in the expected format;
      */
-    public function testSessionCookieIsCreatedAndEncrypted()
+    public function testSessionCookieIsCreated()
     {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
@@ -63,9 +63,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
         list($status, $header, $body) = $app->response()->finalize();
-        $matches = array();
-        preg_match_all('@^slim_session=.+|.+|.+; expires=@', $header['Set-Cookie'], $matches, PREG_SET_ORDER);
-        $this->assertEquals(1, count($matches));
+        $this->assertTrue($app->response->cookies->has('slim_session'));
     }
 
     /**
