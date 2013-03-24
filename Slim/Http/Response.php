@@ -269,11 +269,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function finalize()
     {
-        // Serialize cookies into raw HTTP headers
-        foreach ($this->cookies as $name => $value) {
-            Util::setCookieHeader($this->headers, $name, $value);
-        }
-
         // Prepare response
         if (in_array($this->status, array(204, 304))) {
             $this->headers->remove('Content-Type');
