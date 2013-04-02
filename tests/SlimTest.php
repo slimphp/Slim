@@ -414,6 +414,27 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+    * Test route groups
+    */
+    public function testRouteGroups()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar/baz', //<-- Virtual'
+        ));
+        $s = new \Slim\Slim();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "xyz"; };
+        $s->group('/bar', $mw1, function () use ($s, $mw2, $callable) {
+            $s->get('/baz', $mw2, $callable);
+        });
+        $s->call();
+        $this->assertEquals('foobarxyz', $s->response()->body());
+    }
+
+    /**
      * Test if route does NOT expect trailing slash and URL has one
      */
     public function testRouteWithoutSlashAndUrlWithOne()
