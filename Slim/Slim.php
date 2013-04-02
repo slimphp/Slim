@@ -503,12 +503,13 @@ class Slim
      *
      * @param  mixed $callable Anything that returns true for is_callable()
      */
-    public function notFound( $callable = null ) {
-        if ( is_callable($callable) ) {
+    public function notFound ($callable = null)
+    {
+        if (is_callable($callable)) {
             $this->notFound = $callable;
         } else {
             ob_start();
-            if ( is_callable($this->notFound) ) {
+            if (is_callable($this->notFound)) {
                 call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
@@ -566,7 +567,7 @@ class Slim
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        if ( is_callable($this->error) ) {
+        if (is_callable($this->error)) {
             call_user_func_array($this->error, array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
@@ -726,7 +727,9 @@ class Slim
 
         //Set etag value
         $value = '"' . $value . '"';
-        if ($type === 'weak') $value = 'W/'.$value;
+        if ($type === 'weak') {
+            $value = 'W/'.$value;
+        }
         $this->response['ETag'] = $value;
 
         //Check conditional GET
@@ -779,14 +782,15 @@ class Slim
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->cookies->set($name, array(
+        $settings = array(
             'value' => $value,
             'expires' => is_null($time) ? $this->config('cookies.lifetime') : $time,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
             'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
-        ));
+        );
+        $this->response->cookies->set($name, $settings);
     }
 
     /**
@@ -877,12 +881,13 @@ class Slim
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
-        $this->response->cookies->remove($name, array(
+        $settings = array(
             'domain' => is_null($domain) ? $this->config('cookies.domain') : $domain,
             'path' => is_null($path) ? $this->config('cookies.path') : $path,
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
-        ));
+        );
+        $this->response->cookies->remove($name, $settings);
     }
 
     /********************************************************************************
@@ -1229,7 +1234,7 @@ class Slim
                 }
             }
             if (!$dispatched) {
-               $this->notFound();
+                $this->notFound();
             }
             $this->applyHook('slim.after.router');
             $this->stop();

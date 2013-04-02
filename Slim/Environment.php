@@ -87,7 +87,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      */
     public static function mock($userSettings = array())
     {
-        self::$environment = new self(array_merge(array(
+        $defaults = array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '',
             'PATH_INFO' => '',
@@ -102,7 +102,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
-        ), $userSettings));
+        );
+        self::$environment = new self(array_merge($defaults, $userSettings));
 
         return self::$environment;
     }
@@ -143,7 +144,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
                 $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
             } else {
-                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']) ); //With URL rewrite
+                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); //With URL rewrite
             }
             $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
             if (strpos($env['PATH_INFO'], '?') !== false) {

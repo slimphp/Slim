@@ -72,7 +72,7 @@ class SessionCookie extends \Slim\Middleware
      */
     public function __construct($settings = array())
     {
-        $this->settings = array_merge(array(
+        $defaults = array(
             'expires' => '20 minutes',
             'path' => '/',
             'domain' => null,
@@ -82,7 +82,8 @@ class SessionCookie extends \Slim\Middleware
             'secret' => 'CHANGE_ME',
             'cipher' => MCRYPT_RIJNDAEL_256,
             'cipher_mode' => MCRYPT_MODE_CBC
-        ), $settings);
+        );
+        $this->settings = array_merge($defaults, $settings);
         if (is_string($this->settings['expires'])) {
             $this->settings['expires'] = strtotime($this->settings['expires']);
         }
@@ -155,14 +156,17 @@ class SessionCookie extends \Slim\Middleware
         if (strlen($value) > 4096) {
             $this->app->getLog()->error('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
         } else {
-            $this->app->response()->setCookie($this->settings['name'], array(
-                'value' => $value,
-                'domain' => $this->settings['domain'],
-                'path' => $this->settings['path'],
-                'expires' => $this->settings['expires'],
-                'secure' => $this->settings['secure'],
-                'httponly' => $this->settings['httponly']
-            ));
+            $this->app->response()->setCookie(
+                $this->settings['name'],
+                array(
+                    'value' => $value,
+                    'domain' => $this->settings['domain'],
+                    'path' => $this->settings['path'],
+                    'expires' => $this->settings['expires'],
+                    'secure' => $this->settings['secure'],
+                    'httponly' => $this->settings['httponly']
+                )
+            );
         }
         session_destroy();
     }
