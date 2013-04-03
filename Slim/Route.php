@@ -425,7 +425,7 @@ class Route
      */
     public function dispatch()
     {
-        foreach ($this->getMiddleware() as $mw) {
+        foreach ($this->middleware as $mw) {
             call_user_func_array($mw, array($this));
         }
 
