@@ -47,6 +47,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
      */
     public function testMap()
     {
+        $this->setExpectedException('\RuntimeException');
         $router = new \Slim\Router();
         $route = $router->map('/foo', function() {});
 
