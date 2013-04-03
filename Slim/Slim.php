@@ -401,7 +401,10 @@ class Slim
     protected function mapRoute($args)
     {
         $pattern = array_shift($args);
-        $callable = array_pop($args);
+	$callable = array_pop($args);
+	if(isset($this->settings['prependToRoutes'])) {
+		$pattern = $this->settings['prependToRoutes'] . $pattern;
+	}
         $route = $this->router->map($pattern, $callable);
         if (count($args) > 0) {
             $route->setMiddleware($args);
