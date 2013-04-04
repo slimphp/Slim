@@ -492,12 +492,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $s = new \Slim\Slim(array('templates.path' => dirname(__FILE__) . '/templates'));
         $s->get('/bar', function () use ($s) {
-            $s->render('test.php', array('foo' => 'bar'));
+            $s->render('test', array(
+                        'firstVariable' => 'Hi there, I am first variable',
+                        'secondVariable' => 100,
+                        'thirdVariable' => 200,
+                        'fourthVariable' => 400,
+                        'forCount' => 1,
+                        'forCap' => 5,
+                        'whilevar' => 3
+                    ));
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $this->assertEquals(200, $status);
-        $this->assertEquals('test output bar', $body);
     }
 
     /**
@@ -507,12 +512,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $s = new \Slim\Slim(array('templates.path' => dirname(__FILE__) . '/templates'));
         $s->get('/bar', function () use ($s) {
-            $s->render('test.php', array('foo' => 'bar'), 500);
+            $s->render('test', array(
+                        'firstVariable' => 'Hi there, I am first variable',
+                        'secondVariable' => 100,
+                        'thirdVariable' => 200,
+                        'fourthVariable' => 400,
+                        'forCount' => 1,
+                        'forCap' => 5,
+                        'whilevar' => 3
+                    ), 500);
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $this->assertEquals(500, $status);
-        $this->assertEquals('test output bar', $body);
     }
 
     /************************************************

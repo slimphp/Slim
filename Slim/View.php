@@ -73,8 +73,8 @@ class View
     protected $compilers = array(
                             'comments',
                             'echos',
-                            'else',
                             'structure_start',
+                            'else',
                             'structure_end'
                         );
 
@@ -212,7 +212,7 @@ class View
      */
     public function render($template)
     {
-        $template = $this->getTemplatesDirectory() . '/' . ltrim($template, '/') . 'tpl.php';
+        $template = $this->getTemplatesDirectory() . '/' . ltrim($template, '/') . '.tpl.php';
         
         if(!file_exists($template)) {
             throw new \Exception("Cannot render non existing view file " . $template);
@@ -302,7 +302,7 @@ class View
 
         foreach ($included as $view_name) {
             
-            $path = $this->getTemplatesDirectory() . '/' . ltrim($view_name, '/') . 'tpl.php';
+            $path = $this->getTemplatesDirectory() . '/' . ltrim($view_name, '/') . '.tpl.php';
             
             if (!file_exists($path)) {
                 throw new \RuntimeException('View cannot render template `' . $path . '`. Template does not exist.');
