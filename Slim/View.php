@@ -212,6 +212,14 @@ class View
      */
     public function render($template)
     {
+        $template = $this->getTemplatesDirectory() . '/' . ltrim($template, '/') . 'tpl.php';
+        
+        if(!file_exists($template)) {
+            throw new \Exception("Cannot render non existing view file " . $template);
+        }
+
+        $template = file_get_contents($template);
+
         // Make sure we include all the required views first
         
         $template = $this->compile_includes($template);
