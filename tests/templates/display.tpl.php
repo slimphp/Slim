@@ -1,0 +1,1 @@
+Doing well {{ $foo }}

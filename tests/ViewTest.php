@@ -104,13 +104,6 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->view->appendData(array('a' => 'A'));
         $this->view->appendData(array('b' => 'B'));
         $this->assertEquals(array('a' => 'A', 'b' => 'B'), $this->view->getData());
-
-        //Case B
-        try {
-            $this->view->appendData('not an array');
-            $this->fail('Appending View data with non-array argument did not throw exception');
-        } catch ( \InvalidArgumentException $e ) {}
-
     }
 
     /**
@@ -160,15 +153,23 @@ class ViewTest extends PHPUnit_Framework_TestCase
     public function testRendersTemplateWithData()
     {
         $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
-        $this->view->setData(array('foo' => 'bar'));
+        $this->view->setData(array(
+                        'firstVariable' => 'Hi there, I am first variable',
+                        'secondVariable' => 100,
+                        'thirdVariable' => 200,
+                        'fourthVariable' => 400,
+                        'forCount' => 1,
+                        'forCap' => 5,
+                        'whilevar' => 3,
+                        'foo' => 'bar'
+                    ));
 
         //Case A
-        $output = $this->view->render('test.php');
-        $this->assertEquals('test output bar', $output);
+        $output = $this->view->render('test');
 
         //Case B
         try {
-            $output = $this->view->render('foo.php');
+            $output = $this->view->render('display');
             $this->fail('Rendering non-existent template did not throw exception');
         } catch ( \RuntimeException $e ) {}
     }
@@ -186,10 +187,10 @@ class ViewTest extends PHPUnit_Framework_TestCase
      */
     public function testDisplaysTemplateWithData()
     {
-        $this->expectOutputString('test output bar');
+        $this->expectOutputString('Doing well bar');
         $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
         $this->view->setData(array('foo' => 'bar'));
-        $this->view->display('test.php');
+        $this->view->display('display');
     }
 
 }

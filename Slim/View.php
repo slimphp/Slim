@@ -68,6 +68,17 @@ class View
     protected $templatesDirectory;
 
     /**
+     * @var array supported keywords in templating
+     */
+    protected $compilers = array(
+                            'comments',
+                            'echos',
+                            'structure_start',
+                            'else',
+                            'structure_end'
+                        );
+
+    /**
      * Constructor
      *
      * This is empty but may be implemented in a subclass
@@ -124,14 +135,10 @@ class View
 
     /**
      * Append new data to existing template data
-     * @param  array
-     * @throws InvalidArgumentException If not given an array argument
+     * @param  array $data
      */
-    public function appendData($data)
+    public function appendData(array $data)
     {
-        if (!is_array($data)) {
-            throw new \InvalidArgumentException('Cannot append view data. Expected array argument.');
-        }
         $this->data = array_merge($this->data, $data);
     }
 
@@ -201,16 +208,138 @@ class View
      * @param  string   $template   Pathname of template file relative to templates directory
      * @return string
      *
-     * DEPRECATION WARNING!
-     * Use `\Slim\View::fetch` to return a rendered template instead of `\Slim\View::render`.
+     * @author Gufran <http://github.com/dragon-bird>
      */
     public function render($template)
     {
-        $this->setTemplate($template);
-        extract($this->data);
-        ob_start();
-        require $this->templatePath;
+        $template = $this->getTemplatesDirectory() . '/' . ltrim($template, '/') . '.tpl.php';
+        
+        if(!file_exists($template)) {
+            throw new \Exception("Cannot render non existing view file " . $template);
+        }
+
+        $template = file_get_contents($template);
+
+        // Make sure we include all the required views first
+        
+        $template = $this->compile_includes($template);
+
+        foreach ($this->compilers as $compiler) {
+            $method = 'compile_' . $compiler;
+            $template = $this->$method($template);
+        }
+
+        extract($this->data) and ob_start();
+
+        try
+        {
+            eval('?>' . $template);
+        }
+        catch(\Exception $e)
+        {
+            ob_get_clean();
+            throw $e;
+        }
 
         return ob_get_clean();
     }
+
+    /**
+     * Compile template comments into php comments
+     * @param  string $template Template text
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_comments($template)
+    {
+        $template = preg_replace('/\{\{--(.+?)(--\}\})?\n/', "<?php // $1 ?>", $template);
+        return preg_replace('/\{\{--((.|\s)*?)--\}\}/', "<?php /* $1 */ ?>\n", $template);
+    }
+
+    /**
+     * Compile echos in template
+     * @param  string $template
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_echos($template)
+    {
+        $template = preg_replace('/\{\{\{(.+?)\}\}\}/', '<?php echo htmlspecialchars($1); ?>', $template);
+        return preg_replace('/\{\{(.+?)\}\}/', '<?php echo $1; ?>', $template);
+    }
+
+    /**
+     * Compile else block in @if..@else
+     * @param  string $template 
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_else($template)
+    {
+        return preg_replace('/(\s*)@(else)(\s*)/', '$1<?php $2: ?>$3', $template);
+    }
+
+    /**
+     * Include template files using @include and return rendered template
+     * @param  string $template 
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_includes($template)
+    {
+        $pattern = "/@include\s*\(\s*'(\w+)'\s*\)/";
+        $included = array();
+
+        if(preg_match_all($pattern, $template, $included) === 0) {
+            return $template;
+        }
+
+        $included = $included[1];
+
+        foreach ($included as $view_name) {
+            
+            $path = $this->getTemplatesDirectory() . '/' . ltrim($view_name, '/') . '.tpl.php';
+            
+            if (!file_exists($path)) {
+                throw new \RuntimeException('View cannot render template `' . $path . '`. Template does not exist.');
+            }
+
+            $template = preg_replace("/@include\s*\(\s*'($view_name)'\s*\)/", file_get_contents($path), $template);
+        }
+
+        return $template;
+    }
+
+    /**
+     * Compile various control structures like if,elseif,foreach,for,while
+     * @param  string $template 
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_structure_start($template)
+    {
+        $pattern = '/(\s*)@(if|elseif|foreach|for|while)(\s*\(.*\))/';
+
+        return preg_replace($pattern, '$1<?php $2$3: ?>', $template);
+    }
+
+    /**
+     * close control structures 
+     * @param  string $template 
+     * @return string           compiled template
+     *
+     * @author Gufran <http://github.com/dragon-bird>
+     */
+    private function compile_structure_end($template)
+    {
+        $pattern = '/(\s*)@(endif|endforeach|endfor|endwhile)(\s*)/';
+
+        return preg_replace($pattern, '$1<?php $2; ?>$3', $template);
+    }
+
 }
