@@ -61,7 +61,7 @@ class SetTest extends PHPUnit_Framework_TestCase
 
     public function testAdd()
     {
-        $this->bag->add(array(
+        $this->bag->replace(array(
             'abc' => '123',
             'foo' => 'bar'
         ));
