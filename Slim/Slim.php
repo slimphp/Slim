@@ -493,7 +493,6 @@ class Slim
      * Accepts the same paramters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
      */
-
     public function group()
     {
         $args = func_get_args();
@@ -504,6 +503,18 @@ class Slim
             call_user_func($callable);
         }
         $this->router->popGroup();
+    }
+
+    /*
+     * Add route for any HTTP method
+     * @see    mapRoute()
+     * @return \Slim\Route
+     */
+    public function any()
+    {
+        $args = func_get_args();
+
+        return $this->mapRoute($args)->via("ANY");
     }
 
     /**

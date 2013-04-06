@@ -434,6 +434,30 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foobarxyz', $s->response()->body());
     }
 
+    /*
+     * Test ANY route
+     */
+    public function testAnyRoute()
+    {
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "xyz"; };
+        $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+        foreach ($methods as $i => $method) {
+            \Slim\Environment::mock(array(
+                'REQUEST_METHOD' => $method,
+                'SCRIPT_NAME' => '/foo', //<-- Physical
+                'PATH_INFO' => '/bar', //<-- Virtual
+            ));
+            $s = new \Slim\Slim();
+            $route = $s->any('/bar', $mw1, $mw2, $callable);
+            $s->call();
+            $this->assertEquals('foobarxyz', $s->response()->body());
+            $this->assertEquals('/bar', $route->getPattern());
+            $this->assertSame($callable, $route->getCallable());
+        }
+    }
+
     /**
      * Test if route does NOT expect trailing slash and URL has one
      */
