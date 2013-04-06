@@ -484,6 +484,29 @@ class Slim
     }
 
     /**
+     * Route Groups
+     *
+     * This method accepts a route pattern and a callback all Route
+     * declarations in the callback will be prepended by the group(s)
+     * that it is in
+     *
+     * Accepts the same paramters as a standard route so:
+     * (pattern, middleware1, middleware2, ..., $callback)
+     */
+
+    public function group()
+    {
+        $args = func_get_args();
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $this->router->pushGroup($pattern, $args);
+        if (is_callable($callable)) {
+            call_user_func($callable);
+        }
+        $this->router->popGroup();
+    }
+
+    /**
      * Not Found Handler
      *
      * This method defines or invokes the application-wide Not Found handler.
