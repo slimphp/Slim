@@ -66,7 +66,7 @@ should contain this code:
 
 Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
 
-    try_files $uri $uri/ /index.php;
+    try_files $uri $uri/ /index.php?$args;
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
