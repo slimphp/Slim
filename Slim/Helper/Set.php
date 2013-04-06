@@ -46,7 +46,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function __construct($items = array())
     {
-        $this->add($items);
+        $this->replace($items);
     }
 
     /**
