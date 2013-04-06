@@ -93,7 +93,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      * Add data to set
      * @param array $items Key-value array of data to append to this set
      */
-    public function add($items)
+    public function replace($items)
     {
         foreach ($items as $key => $value) {
             $this->set($key, $value); // Ensure keys are normalized
@@ -135,6 +135,15 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     public function remove($key)
     {
         unset($this->data[$this->normalizeKey($key)]);
+    }
+
+    /**
+     * Clear all values
+     */
+    public function clear()
+    {
+        unset($this->data);
+        $this->data = array();
     }
 
     /**
