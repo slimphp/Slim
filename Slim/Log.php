@@ -63,7 +63,7 @@ class Log
     const EMERGENCY = 1;
     const ALERT     = 2;
     const CRITICAL  = 3;
-    const FATAL     = 3; //Depracated replace with CRITICAL
+    const FATAL     = 3; //DEPRECATED replace with CRITICAL
     const ERROR     = 4;
     const WARN      = 5;
     const NOTICE    = 6;
@@ -226,7 +226,7 @@ class Log
     }
 
     /**
-     * DEPRACATED for function warning
+     * DEPRECATED for function warning
      * Log warning message
      * @param  mixed       $object
      * @param  array       $context
@@ -260,7 +260,7 @@ class Log
     }
 
     /**
-     * DEPRACATED for function critical
+     * DEPRECATED for function critical
      * Log fatal message
      * @param  mixed       $object
      * @param  array       $context
@@ -320,7 +320,7 @@ class Log
     }
 
     /**
-     * DEPRACATED for function log
+     * DEPRECATED for function log
      * Log message
      * @param   mixed   The object to log
      * @param   int     The message level
