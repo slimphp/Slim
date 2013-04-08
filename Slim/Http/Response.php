@@ -439,7 +439,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset )
+    public function offsetExists($offset)
     {
         return isset($this->headers[$offset]);
     }
@@ -447,7 +447,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset )
+    public function offsetGet($offset)
     {
         return $this->headers[$offset];
     }
