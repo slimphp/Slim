@@ -343,6 +343,6 @@ class Log
         foreach ($context as $key => $value) {
             $replace['{' . $key . '}'] = $value;
         }
-        return strstr($message, $replace);
+        return strtr($message, $replace);
     }
 }
