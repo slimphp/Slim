@@ -488,6 +488,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('jo hnsmi th', $s->response()->body());
     }
 
+    /**
+     * Test if dispatch context is work properly
+     */
+    public function testRouteWithDispatchContext()
+    {
+        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+            \Slim\Environment::mock(array(
+                'REQUEST_METHOD' => 'GET',
+                'SCRIPT_NAME' => '/foo', //<-- Physical
+                'PATH_INFO' => '/bar/', //<-- Virtual
+            ));
+            $s = new \Slim\Slim();
+            $s->setDispatchContext(new \stdClass());
+            $s->get('/bar/', function() { echo '$this instanceof ' . get_class($this); });
+            $s->call();
+            $this->assertEquals('$this instanceof stdClass', $s->response()->body());
+        }
+    }
+
     /************************************************
      * VIEW
      ************************************************/

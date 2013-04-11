@@ -419,12 +419,19 @@ class Route
 
     /**
      * Dispatch
-     * @return mixed The return value of the route callable, or FALSE on error
+     * @param  mixed  $context the object context in which the callable should be invoked
+     * @return object          The return value of the route callable, or FALSE on error
      */
-    public function dispatch()
+    public function dispatch($context = null)
     {
         foreach ($this->middleware as $routeMiddleware) {
             call_user_func_array($routeMiddleware, array($this));
+        }
+
+        if ($context // only available in PHP 5.4+
+                && $this->callable instanceof \Closure
+                && method_exists($this->callable, 'bindTo')) {
+            $this->callable = $this->callable->bindTo($context);
         }
 
         return call_user_func_array($this->callable, array_values($this->params));
