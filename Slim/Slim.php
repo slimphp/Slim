@@ -112,6 +112,11 @@ class Slim
     protected $notFound;
 
     /**
+     * @var object The object context for dispatch closures
+     */
+    protected $dispatchContext;
+
+    /**
      * @var array
      */
     protected $hooks = array(
@@ -1049,6 +1054,15 @@ class Slim
         $this->halt($status);
     }
 
+    /**
+     * Set the object context ($this) for dispatch callables
+     *
+     * @param object $context The object context ($this) in which
+     */
+    public function setDispatchContext($context) {
+        $this->dispatchContext = $context;
+    }
+
     /********************************************************************************
     * Flash Messages
     *******************************************************************************/
@@ -1261,7 +1275,7 @@ class Slim
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $this->router->dispatch($route);
+                    $dispatched = $this->router->dispatch($route, $this->dispatchContext);
                     $this->applyHook('slim.after.dispatch');
                     if ($dispatched) {
                         break;

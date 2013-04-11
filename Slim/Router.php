@@ -166,7 +166,7 @@ class Router
     /**
      * Add a route group to the array
      * @param  string     $group      The group pattern (ie. "/books/:id")
-     * @param  array|null $middleware Optional parameter array of middleware 
+     * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
     public function pushGroup($group, $middleware = null)
@@ -208,14 +208,15 @@ class Router
 
     /**
      * Dispatch route
-     * @param  \Slim\Route  $route  The route to dispatch
-     * @return bool                 True if route dispatched successfully, else false
+     * @param  \Slim\Route  $route   The route to dispatch
+     * @param  object       $context The object context ($this) in which the callable will be invoked
+     * @return bool                  True if route dispatched successfully, else false
      */
-    public function dispatch(\Slim\Route $route)
+    public function dispatch(\Slim\Route $route, $context = null)
     {
         $this->currentRoute = $route;
 
-        return ($route->dispatch() !== false);
+        return ($route->dispatch($context) !== false);
     }
 
     /**
