@@ -131,6 +131,17 @@ EOT;
     }
 );
 
+$app->get("/trigger",function() use ($app){
+    echo "triggering routes...";
+    $app->trigger("/post","POST");
+    echo "<br />";
+    $app->trigger("/put","PUT");
+    echo "<br />";
+    $app->trigger("/delete","DELETE");
+    echo "<br />";
+    $app->trigger("/");
+});
+
 // POST route
 $app->post(
     '/post',

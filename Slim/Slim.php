@@ -1243,12 +1243,38 @@ class Slim
     }
 
     /**
+     * Trigger
+     *
+     * This method allows you to call / trigger a route from a uri string
+     *
+     * @param   string   $uri   A URI string eg. /foo/bar
+     * @param   string   $method A Request Method (Optional)
+     */
+    public function trigger($uri,$method="GET"){
+
+        $env = $this->environment;
+        $env->offsetSet("REQUEST_METHOD",$method);
+        $env->offsetSet("PATH_INFO",$uri);
+
+        $old_request = $this->request;
+
+        $this->request = new \Slim\Http\Request($env);
+        $this->call(true);
+
+        $this->request = $old_request;
+
+    }
+
+    /**
      * Call
      *
      * This method finds and iterates all route objects that match the current request URI.
+     *
+     * @param   bool   $reload   Should matching routes be re-parsed? (Optional)
      */
-    public function call()
+    public function call($force_match_reload=false)
     {
+
         try {
             if (isset($this->environment['slim.flash'])) {
                 $this->view()->setData('flash', $this->environment['slim.flash']);
@@ -1257,7 +1283,8 @@ class Slim
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
+            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri(),$force_match_reload);
+
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -1270,6 +1297,7 @@ class Slim
                     continue;
                 }
             }
+
             if (!$dispatched) {
                 $this->notFound();
             }
