@@ -44,6 +44,12 @@ namespace Slim;
 class Router
 {
     /**
+     * @var string classname to use for constructing new routes
+     * @see \Slim\Router::map()
+     */
+    public static $CLASS_ROUTE = '\Slim\Route';
+
+    /**
      * @var Route The current route (most recently dispatched)
      */
     protected $currentRoute;
@@ -131,7 +137,7 @@ class Router
         if (count($this->routeGroups) > 0) {
             $pattern = $groupPattern . ltrim($pattern, '/');
         }
-        $route = new \Slim\Route($pattern, $callable);
+        $route = new static::$CLASS_ROUTE($pattern, $callable);
         $this->routes[] = $route;
 
         if (count($this->routeGroups) > 0) {
@@ -166,7 +172,7 @@ class Router
     /**
      * Add a route group to the array
      * @param  string     $group      The group pattern (ie. "/books/:id")
-     * @param  array|null $middleware Optional parameter array of middleware 
+     * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
     public function pushGroup($group, $middleware = null)

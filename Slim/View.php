@@ -50,6 +50,13 @@ namespace Slim;
 class View
 {
     /**
+     * @var string classname for $data instance
+     * @see \Slim\View::$data
+     * @see \Slim\View::__construct
+     */
+    public static $CLASS_HELPER_SET = '\Slim\Helper\Set';
+
+    /**
      * Data available to the view templates
      * @var \Slim\Helper\Set
      */
@@ -66,7 +73,7 @@ class View
      */
     public function __construct()
     {
-        $this->data = new \Slim\Helper\Set();
+        $this->data = new static::$CLASS_HELPER_SET();
     }
 
     /********************************************************************************
