@@ -84,7 +84,12 @@ class MethodOverride extends \Slim\Middleware
             $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
         } elseif (isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST') {
             // HTML Form Override
-            $req = new \Slim\Http\Request($env);
+
+            $reqClass = get_class($this->app->request());
+            // new Request should match the classname of the old...
+
+            $req = new $reqClass($env);
+
             $method = $req->post($this->settings['key']);
             if ($method) {
                 $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];

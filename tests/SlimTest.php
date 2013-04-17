@@ -67,6 +67,12 @@ class CustomMiddleware extends \Slim\Middleware
     }
 }
 
+//Mock Router
+class MockRouter
+{
+    function __call($method, $arguments) { return $this; }
+}
+
 class SlimTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
@@ -134,6 +140,20 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->setName('foo');
         $this->assertSame($s, \Slim\Slim::getInstance('foo'));
+    }
+
+
+    public function testWithCustomRouter()
+    {
+        $oldRouter = \Slim\Slim::$CLASS_ROUTER;
+
+        \Slim\Slim::$CLASS_ROUTER = 'MockRouter';
+
+        $s = new \Slim\Slim;
+
+        $this->assertInstanceOf('MockRouter', $s->router);
+
+        \Slim\Slim::$CLASS_ROUTER = $oldRouter;
     }
 
     /**
