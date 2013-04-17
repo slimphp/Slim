@@ -277,8 +277,7 @@ class Route
      */
     public function via()
     {
-        $args = func_get_args();
-        $this->methods = array_merge($this->methods, $args);
+        call_user_func_array(array($this, 'appendHttpMethods'), func_get_args());
 
         return $this;
     }
