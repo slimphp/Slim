@@ -163,19 +163,24 @@ class Request
      * Fetch GET and POST data
      *
      * This method returns a union of GET and POST data as a key-value array, or the value
-     * of the array key if requested; if the array key does not exist, NULL is returned.
+     * of the array key if requested; if the array key does not exist, if passed, the default value is return, otherwise NULL is returned.
      *
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function params($key = null)
+    public function params($key = null, $default = null)
     {
         $union = array_merge($this->get(), $this->post());
         if ($key) {
             if (isset($union[$key])) {
                 return $union[$key];
             } else {
-                return null;
+                if (!empty($default)) {
+                    return $default;
+                } else {
+                    return null;
+                }
             }
         } else {
             return $union;
@@ -186,12 +191,13 @@ class Request
      * Fetch GET data
      *
      * This method returns a key-value array of data sent in the HTTP request query string, or
-     * the value of the array key if requested; if the array key does not exist, NULL is returned.
+     * the value of the array key if requested; if the array key does not exist, if passed, the default value is return, otherwise NULL is returned.
      *
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function get($key = null)
+    public function get($key = null, $default = null)
     {
         if (!isset($this->env['slim.request.query_hash'])) {
             $output = array();
@@ -206,7 +212,11 @@ class Request
             if (isset($this->env['slim.request.query_hash'][$key])) {
                 return $this->env['slim.request.query_hash'][$key];
             } else {
-                return null;
+                if (!empty($default)) {
+                    return $default;
+                } else {
+                    return null;
+                }
             }
         } else {
             return $this->env['slim.request.query_hash'];
@@ -217,13 +227,14 @@ class Request
      * Fetch POST data
      *
      * This method returns a key-value array of data sent in the HTTP request body, or
-     * the value of a hash key if requested; if the array key does not exist, NULL is returned.
+     * the value of a hash key if requested; if the array key does not exist, if passed, the default value is return, otherwise NULL is returned.
      *
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      * @throws \RuntimeException If environment input is not available
      */
-    public function post($key = null)
+    public function post($key = null, $default = null)
     {
         if (!isset($this->env['slim.input'])) {
             throw new \RuntimeException('Missing slim.input in environment variables');
@@ -246,7 +257,11 @@ class Request
             if (isset($this->env['slim.request.form_hash'][$key])) {
                 return $this->env['slim.request.form_hash'][$key];
             } else {
-                return null;
+                if (!empty($default)) {
+                    return $default;
+                } else {
+                    return null;
+                }
             }
         } else {
             return $this->env['slim.request.form_hash'];
@@ -256,33 +271,36 @@ class Request
     /**
      * Fetch PUT data (alias for \Slim\Http\Request::post)
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function put($key = null)
+    public function put($key = null, $default)
     {
-        return $this->post($key);
+        return $this->post($key, $default);
     }
 
     /**
      * Fetch DELETE data (alias for \Slim\Http\Request::post)
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function delete($key = null)
+    public function delete($key = null, $default)
     {
-        return $this->post($key);
+        return $this->post($key, $default);
     }
 
     /**
      * Fetch COOKIE data
      *
      * This method returns a key-value array of Cookie data sent in the HTTP request, or
-     * the value of a array key if requested; if the array key does not exist, NULL is returned.
+     * the value of a array key if requested; if the array key does not exist, if passed, the default value is return, otherwise NULL is returned.
      *
      * @param  string            $key
+     * @param  mixed             $default
      * @return array|string|null
      */
-    public function cookies($key = null)
+    public function cookies($key = null, $default = null)
     {
         if (!isset($this->env['slim.request.cookie_hash'])) {
             $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
@@ -292,7 +310,11 @@ class Request
             if (isset($this->env['slim.request.cookie_hash'][$key])) {
                 return $this->env['slim.request.cookie_hash'][$key];
             } else {
-                return null;
+                if (!empty($default)) {
+                    return $default;
+                } else {
+                    return null;
+                }
             }
         } else {
             return $this->env['slim.request.cookie_hash'];
