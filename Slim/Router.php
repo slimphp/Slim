@@ -166,7 +166,7 @@ class Router
     /**
      * Add a route group to the array
      * @param  string     $group      The group pattern (ie. "/books/:id")
-     * @param  array|null $middleware Optional parameter array of middleware 
+     * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
     public function pushGroup($group, $middleware = null)
@@ -275,5 +275,25 @@ class Router
         }
 
         return new \ArrayIterator($this->namedRoutes);
+    }
+
+    /**
+     * Get all the defined routes
+     * @param string $separator separator between the method and the route ( default: "::" )
+     * @param bool $showMethods show the method of the route ( default: true )
+     * @return string
+     */
+    public function listRoutes( $separator = '::', $showMethods = true ) {
+      $allRoutes = array();
+      if ( count( $this->routes ) > 0 ) {
+        foreach( $this->routes AS $route ) {
+          if ( !$showMethods ) {
+            $allRoutes[] = $route->getPattern();
+          } else {
+            $allRoutes[] = implode( ',', $route->getHttpMethods() ) . $separator . $route->getPattern();
+          }
+        }
+      }
+      return $allRoutes;
     }
 }
