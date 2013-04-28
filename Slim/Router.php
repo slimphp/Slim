@@ -281,7 +281,7 @@ class Router
      * Get all the defined routes
      * @param string $separator separator between the method and the route ( default: "::" )
      * @param bool $showMethods show the method of the route ( default: true )
-     * @return string
+     * @return array
      */
     public function listRoutes( $separator = '::', $showMethods = true ) {
       $allRoutes = array();
