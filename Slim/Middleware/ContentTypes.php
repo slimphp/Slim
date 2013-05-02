@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.1.0
+ * @version     2.2.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -58,12 +58,13 @@ class ContentTypes extends \Slim\Middleware
      */
     public function __construct($settings = array())
     {
-        $this->contentTypes = array_merge(array(
+        $defaults = array(
             'application/json' => array($this, 'parseJson'),
             'application/xml' => array($this, 'parseXml'),
             'text/xml' => array($this, 'parseXml'),
             'text/csv' => array($this, 'parseCsv')
-        ), $settings);
+        );
+        $this->contentTypes = array_merge($defaults, $settings);
     }
 
     /**

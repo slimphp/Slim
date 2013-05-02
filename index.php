@@ -33,8 +33,10 @@ $app = new Slim();
  */
 
 // GET route
-$app->get('/', function () {
-    $template = <<<EOT
+$app->get(
+    '/',
+    function () {
+        $template = <<<EOT
 <!DOCTYPE html>
     <html>
         <head>
@@ -127,23 +129,33 @@ $app->get('/', function () {
         </body>
     </html>
 EOT;
-    echo $template;
-});
+        echo $template;
+    }
+);
 
 // POST route
-$app->post('/post', function () {
-    echo 'This is a POST route';
-});
+$app->post(
+    '/post',
+    function () {
+        echo 'This is a POST route';
+    }
+);
 
 // PUT route
-$app->put('/put', function () {
-    echo 'This is a PUT route';
-});
+$app->put(
+    '/put',
+    function () {
+        echo 'This is a PUT route';
+    }
+);
 
 // DELETE route
-$app->delete('/delete', function () {
-    echo 'This is a DELETE route';
-});
+$app->delete(
+    '/delete',
+    function () {
+        echo 'This is a DELETE route';
+    }
+);
 
 /**
  * Step 4: Run the Slim application

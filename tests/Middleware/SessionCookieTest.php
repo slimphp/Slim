@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.1.0
+ * @version     2.2.0
  *
  * MIT LICENSE
  *
@@ -48,7 +48,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
      * 1) That the HTTP cookie is added to the `Set-Cookie:` response header;
      * 2) That the HTTP cookie is constructed in the expected format;
      */
-    public function testSessionCookieIsCreatedAndEncrypted()
+    public function testSessionCookieIsCreated()
     {
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
@@ -63,9 +63,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
         list($status, $header, $body) = $app->response()->finalize();
-        $matches = array();
-        preg_match_all('@^slim_session=.+|.+|.+; expires=@', $header['Set-Cookie'], $matches, PREG_SET_ORDER);
-        $this->assertEquals(1, count($matches));
+        $this->assertTrue($app->response->cookies->has('slim_session'));
     }
 
     /**
@@ -80,7 +78,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo',
-            'COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
+            'HTTP_COOKIE' => 'slim_session=1644004961%7CLKkYPwqKIMvBK7MWl6D%2BxeuhLuMaW4quN%2F512ZAaVIY%3D%7Ce0f007fa852c7101e8224bb529e26be4d0dfbd63',
         ));
         $app = new \Slim\Slim();
         $app->get('/foo', function () {

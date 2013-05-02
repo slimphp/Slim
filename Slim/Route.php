@@ -320,7 +320,7 @@ class Route
         if (is_callable($middleware)) {
             $this->middleware[] = $middleware;
         } elseif (is_array($middleware)) {
-            foreach($middleware as $callable) {
+            foreach ($middleware as $callable) {
                 if (!is_callable($callable)) {
                     throw new \InvalidArgumentException('All Route middleware must be callable');
                 }
@@ -347,8 +347,11 @@ class Route
     public function matches($resourceUri)
     {
         //Convert URL params into regex patterns, construct a regex for this route, init params
-        $patternAsRegex = preg_replace_callback('#:([\w]+)\+?#', array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string) $this->pattern));
+        $patternAsRegex = preg_replace_callback(
+            '#:([\w]+)\+?#',
+            array($this, 'matchesCallback'),
+            str_replace(')', ')?', (string) $this->pattern)
+        );
         if (substr($this->pattern, -1) === '/') {
             $patternAsRegex .= '?';
         }
@@ -412,5 +415,18 @@ class Route
         $this->conditions = array_merge($this->conditions, $conditions);
 
         return $this;
+    }
+
+    /**
+     * Dispatch
+     * @return mixed The return value of the route callable, or FALSE on error
+     */
+    public function dispatch()
+    {
+        foreach ($this->middleware as $routeMiddleware) {
+            call_user_func_array($routeMiddleware, array($this));
+        }
+
+        return call_user_func_array($this->callable, array_values($this->params));
     }
 }

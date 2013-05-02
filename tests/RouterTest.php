@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.1.0
+ * @version     2.2.0
  *
  * MIT LICENSE
  *
@@ -32,384 +32,223 @@
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
-    protected $env;
-    protected $req;
-    protected $res;
-
-    public function setUp()
+    /**
+     * Constructor should initialize routes as empty array
+     */
+    public function testConstruct()
     {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $this->env = \Slim\Environment::getInstance();
-        $this->req = new \Slim\Http\Request($this->env);
-        $this->res = new \Slim\Http\Response();
+        $router = new \Slim\Router();
+
+        $this->assertAttributeEquals(array(), 'routes', $router);
     }
 
     /**
-     * Router::urlFor should return a full route pattern
-     * even if no params data is provided.
+     * Map should set and return instance of \Slim\Route
      */
-    public function testUrlForNamedRouteWithoutParams()
+    public function testMap()
     {
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/foo/bar', function () {})->via('GET');
+        $route = $router->map('/foo', function() {});
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains($route, 'routes', $router);
+    }
+
+    /**
+     * Named route should be added and indexed by name
+     */
+    public function testAddNamedRoute()
+    {
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/foo', function () {});
         $router->addNamedRoute('foo', $route);
-        $this->assertEquals('/foo/bar', $router->urlFor('foo'));
+
+        $property = new \ReflectionProperty($router, 'namedRoutes');
+        $property->setAccessible(true);
+
+		$rV = $property->getValue($router);
+        $this->assertSame($route, $rV['foo']);
     }
 
     /**
-     * Router::urlFor should return a full route pattern if
-     * param data is provided.
+     * Named route should have unique name
      */
-    public function testUrlForNamedRouteWithParams()
+    public function testAddNamedRouteWithDuplicateKey()
     {
+        $this->setExpectedException('RuntimeException');
+
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/foo/:one/and/:two', function ($one, $two) {})->via('GET');
+        $route = new \Slim\Route('/foo', function () {});
         $router->addNamedRoute('foo', $route);
-        $this->assertEquals('/foo/Josh/and/John', $router->urlFor('foo', array('one' => 'Josh', 'two' => 'John')));
+        $router->addNamedRoute('foo', $route);
     }
 
     /**
-     * Router::urlFor should throw an exception if Route with name
-     * does not exist.
-     * @expectedException \RuntimeException
+     * Router should return named route by name, or null if not found
      */
-    public function testUrlForNamedRouteThatDoesNotExist()
+    public function testGetNamedRoute()
     {
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/foo/bar', function () {})->via('GET');
-        $router->addNamedRoute('bar', $route);
-        $router->urlFor('foo');
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($router, 'namedRoutes');
+        $property->setAccessible(true);
+        $property->setValue($router, array('foo' => $route));
+
+        $this->assertSame($route, $router->getNamedRoute('foo'));
+        $this->assertNull($router->getNamedRoute('bar'));
     }
 
     /**
-     * Router::addNamedRoute should throw an exception if named Route
-     * with same name already exists.
+     * Router should determine named routes and cache results
      */
-    public function testNamedRouteWithExistingName()
+    public function testGetNamedRoutes()
     {
-        $this->setExpectedException('\RuntimeException');
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route1 = $router->map('/foo/bar', function () {})->via('GET');
-        $route2 = $router->map('/foo/bar/2', function () {})->via('GET');
-        $router->addNamedRoute('bar', $route1);
-        $router->addNamedRoute('bar', $route2);
+        $route1 = new \Slim\Route('/foo', function () {});
+        $route2 = new \Slim\Route('/bar', function () {});
+
+        // Init router routes to array
+        $propertyRouterRoutes = new \ReflectionProperty($router, 'routes');
+        $propertyRouterRoutes->setAccessible(true);
+        $propertyRouterRoutes->setValue($router, array($route1, $route2));
+
+        // Init router named routes to null
+        $propertyRouterNamedRoutes = new \ReflectionProperty($router, 'namedRoutes');
+        $propertyRouterNamedRoutes->setAccessible(true);
+        $propertyRouterNamedRoutes->setValue($router, null);
+
+        // Init route name
+        $propertyRouteName = new \ReflectionProperty($route2, 'name');
+        $propertyRouteName->setAccessible(true);
+        $propertyRouteName->setValue($route2, 'bar');
+
+        $namedRoutes = $router->getNamedRoutes();
+        $this->assertCount(1, $namedRoutes);
+        $this->assertSame($route2, $namedRoutes['bar']);
     }
 
     /**
-     * Test if named route exists
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Named route created;
-     *
-     * Post-conditions:
-     * Named route found to exist;
-     * Non-existant route found not to exist;
+     * Router should detect presence of a named route by name
      */
     public function testHasNamedRoute()
     {
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/foo', function () {})->via('GET');
-        $router->addNamedRoute('foo', $route);
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($router, 'namedRoutes');
+        $property->setAccessible(true);
+        $property->setValue($router, array('foo' => $route));
+
         $this->assertTrue($router->hasNamedRoute('foo'));
         $this->assertFalse($router->hasNamedRoute('bar'));
     }
 
     /**
-     * Test Router gets named route
-     *
-     * Pre-conditions;
-     * Slim app instantiated;
-     * Named route created;
-     *
-     * Post-conditions:
-     * Named route fetched by named;
-     * NULL is returned if named route does not exist;
+     * Router should set current route and dispatch returns non-false value
      */
-    public function testGetNamedRoute()
+    public function testDispatch()
     {
         $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route1 = $router->map('/foo', function () {})->via('GET');
-        $router->addNamedRoute('foo', $route1);
-        $this->assertSame($route1, $router->getNamedRoute('foo'));
-        $this->assertNull($router->getNamedRoute('bar'));
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertTrue($router->dispatch($route) !== false);
+        $this->assertAttributeSame($route, 'currentRoute', $router);
     }
 
     /**
-     * Test external iterator for Router's named routes
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Named routes created;
-     *
-     * Post-conditions:
-     * Array iterator returned for named routes;
-     */
-    public function testGetNamedRoutes()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route1 = $router->map('/foo', function () {})->via('GET');
-        $route2 = $router->map('/bar', function () {})->via('POST');
-        $router->addNamedRoute('foo', $route1);
-        $router->addNamedRoute('bar', $route2);
-        $namedRoutesIterator = $router->getNamedRoutes();
-        $this->assertInstanceOf('ArrayIterator', $namedRoutesIterator);
-        $this->assertEquals(2, $namedRoutesIterator->count());
-    }
-
-    /**
-     * Router considers HEAD requests as GET requests
-     */
-    public function testRouterConsidersHeadAsGet()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'HEAD',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $this->env = \Slim\Environment::getInstance();
-        $this->req = new \Slim\Http\Request($this->env);
-        $this->res = new \Slim\Http\Response();
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route = $router->map('/bar', function () {})->via('GET', 'HEAD');
-        $numberOfMatchingRoutes = count($router->getMatchedRoutes());
-        $this->assertEquals(1, $numberOfMatchingRoutes);
-    }
-
-    /**
-     * Router::urlFor
-     */
-    public function testRouterUrlFor()
-    {
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $route1 = $router->map('/foo/bar', function () {})->via('GET');
-        $route2 = $router->map('/foo/:one/:two', function () {})->via('GET');
-        $route3 = $router->map('/foo/:one(/:two)', function () {})->via('GET');
-        $route4 = $router->map('/foo/:one/(:two/)', function () {})->via('GET');
-        $route5 = $router->map('/foo/:one/(:two/(:three/))', function () {})->via('GET');
-        $route6 = $router->map('/foo/:path+/bar', function (){})->via('GET');
-        $route7 = $router->map('/foo/:path+/:path2+/bar', function (){})->via('GET');
-        $route8 = $router->map('/foo/:path+', function (){})->via('GET');
-        $route9 = $router->map('/foo/:var/:var2', function (){})->via('GET');
-        $route1->setName('route1');
-        $route2->setName('route2');
-        $route3->setName('route3');
-        $route4->setName('route4');
-        $route5->setName('route5');
-        $route6->setName('route6');
-        $route7->setName('route7');
-        $route8->setName('route8');
-        $route9->setName('route9');
-        //Route
-        $this->assertEquals('/foo/bar', $router->urlFor('route1'));
-        //Route with params
-        $this->assertEquals('/foo/foo/bar', $router->urlFor('route2', array('one' => 'foo', 'two' => 'bar')));
-        $this->assertEquals('/foo/foo/:two', $router->urlFor('route2', array('one' => 'foo')));
-        $this->assertEquals('/foo/:one/bar', $router->urlFor('route2', array('two' => 'bar')));
-        //Route with params and optional segments
-        $this->assertEquals('/foo/foo/bar', $router->urlFor('route3', array('one' => 'foo', 'two' => 'bar')));
-        $this->assertEquals('/foo/foo', $router->urlFor('route3', array('one' => 'foo')));
-        $this->assertEquals('/foo/:one/bar', $router->urlFor('route3', array('two' => 'bar')));
-        $this->assertEquals('/foo/:one', $router->urlFor('route3'));
-        //Route with params and optional segments
-        $this->assertEquals('/foo/foo/bar/', $router->urlFor('route4', array('one' => 'foo', 'two' => 'bar')));
-        $this->assertEquals('/foo/foo/', $router->urlFor('route4', array('one' => 'foo')));
-        $this->assertEquals('/foo/:one/bar/', $router->urlFor('route4', array('two' => 'bar')));
-        $this->assertEquals('/foo/:one/', $router->urlFor('route4'));
-        //Route with params and optional segments
-        $this->assertEquals('/foo/foo/bar/what/', $router->urlFor('route5', array('one' => 'foo', 'two' => 'bar', 'three' => 'what')));
-        $this->assertEquals('/foo/foo/', $router->urlFor('route5', array('one' => 'foo')));
-        $this->assertEquals('/foo/:one/bar/', $router->urlFor('route5', array('two' => 'bar')));
-        $this->assertEquals('/foo/:one/bar/what/', $router->urlFor('route5', array('two' => 'bar', 'three' => 'what')));
-        $this->assertEquals('/foo/:one/', $router->urlFor('route5'));
-        //Route with wildcard params
-        $this->assertEquals('/foo/bar/bar', $router->urlFor('route6', array('path'=>'bar')));
-        $this->assertEquals('/foo/foo/bar/bar', $router->urlFor('route7', array('path'=>'foo', 'path2'=>'bar')));
-        $this->assertEquals('/foo/bar', $router->urlFor('route8', array('path'=>'bar')));
-        //Route with similar param names, test greedy matching
-        $this->assertEquals('/foo/1/2', $router->urlFor('route9', array('var2'=>'2', 'var'=>'1')));
-        $this->assertEquals('/foo/1/2', $router->urlFor('route9', array('var'=>'1', 'var2'=>'2')));
-    }
-
-    /**
-     * Test that router returns matched routes based on URI only, not
-     * based on the HTTP method.
-     */
-    public function testRouterMatchesRoutesByUriOnly()
-    {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/foo', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $this->env = \Slim\Environment::getInstance();
-        $this->req = new \Slim\Http\Request($this->env);
-        $this->res = new \Slim\Http\Response();
-        $router = new \Slim\Router();
-        $router->setResourceUri($this->req->getResourceUri());
-        $router->map('/foo', function () {})->via('GET');
-        $router->map('/foo', function () {})->via('POST');
-        $router->map('/foo', function () {})->via('PUT');
-        $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(3, count($router->getMatchedRoutes()));
-    }
-
-    /**
-     * Test get current route
+     * Router should return current route if set during iteration
      */
     public function testGetCurrentRoute()
     {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/foo' //<-- Virtual
-        ));
-        $app = new \Slim\Slim();
-        $route1 = $app->get('/bar', function () {
-            echo "Bar";
-        });
-        $route2 = $app->get('/foo', function () {
-            echo "Foo";
-        });
-        $app->call();
-        $this->assertSame($route2, $app->router()->getCurrentRoute());
+        $router = new \Slim\Router();
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($router, 'currentRoute');
+        $property->setAccessible(true);
+        $property->setValue($router, $route);
+
+        $this->assertSame($route, $router->getCurrentRoute());
     }
 
-    public function testDispatch()
+    /**
+     * Router should return first matching route if current route not set yet by iteration
+     */
+    public function testGetCurrentRouteIfMatchedRoutes()
     {
-        $this->expectOutputString('Hello josh');
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
         $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $router->dispatch($route);
+        $route = new \Slim\Route('/foo', function () {});
+
+        $propertyMatchedRoutes = new \ReflectionProperty($router, 'matchedRoutes');
+        $propertyMatchedRoutes->setAccessible(true);
+        $propertyMatchedRoutes->setValue($router, array($route));
+
+        $propertyCurrentRoute = new \ReflectionProperty($router, 'currentRoute');
+        $propertyCurrentRoute->setAccessible(true);
+        $propertyCurrentRoute->setValue($router, null);
+
+        $this->assertSame($route, $router->getCurrentRoute());
     }
 
-    public function testDispatchWithMiddlware()
+    /**
+     * Router should return `null` if current route not set yet and there are no matching routes
+     */
+    public function testGetCurrentRouteIfNoMatchedRoutes()
     {
-        $this->expectOutputString('First! Second! Hello josh');
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
         $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setMiddleware(function () {
-            echo "First! ";
-        });
-        $route->setMiddleware(function () {
-            echo "Second! ";
-        });
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $router->dispatch($route);
+
+        $propertyMatchedRoutes = new \ReflectionProperty($router, 'matchedRoutes');
+        $propertyMatchedRoutes->setAccessible(true);
+        $propertyMatchedRoutes->setValue($router, array());
+
+        $propertyCurrentRoute = new \ReflectionProperty($router, 'currentRoute');
+        $propertyCurrentRoute->setAccessible(true);
+        $propertyCurrentRoute->setValue($router, null);
+
+        $this->assertNull($router->getCurrentRoute());
     }
 
-    public function testRouteMiddlwareArguments()
+    public function testGetMatchedRoutes()
     {
-        $this->expectOutputString('foobar');
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/foo' //<-- Virtual
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
         $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/foo', function () { echo "bar"; });
-        $route->setName('foo');
-        $route->setMiddleware(function ($route) {
-            echo $route->getName();
-        });
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $router->dispatch($route);
+
+        $route1 = new \Slim\Route('/foo', function () {});
+		$route1 = $route1->via('GET');
+
+        $route2 = new \Slim\Route('/foo', function () {});
+		$route2 = $route2->via('POST');
+
+        $route3 = new \Slim\Route('/bar', function () {});
+		$route3 = $route3->via('PUT');
+
+        $routes = new \ReflectionProperty($router, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array($route1, $route2, $route3));
+
+        $matchedRoutes = $router->getMatchedRoutes('GET', '/foo');
+        $this->assertSame($route1, $matchedRoutes[0]);
     }
 
-    public function testDispatchWithRequestSlash()
+    // Test url for named route
+
+    public function testUrlFor()
     {
-        $this->setExpectedException('\Slim\Exception\RequestSlash');
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = \Slim\Environment::getInstance();
-        $req = new \Slim\Http\Request($env);
         $router = new \Slim\Router();
-        $router->setResourceUri($req->getResourceUri());
-        $route = new \Slim\Route('/hello/:name/', function ($name) { echo "Hello $name"; });
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $router->dispatch($route);
+        $route1 = new \Slim\Route('/hello/:first/:last', function () {});
+		$route1 = $route1->via('GET')->name('hello');
+
+        $routes = new \ReflectionProperty($router, 'namedRoutes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array('hello' => $route1));
+
+        $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', array('first' => 'Josh', 'last' => 'Lockhart')));
+    }
+
+    public function testUrlForIfNoSuchRoute()
+    {
+        $this->setExpectedException('RuntimeException');
+
+        $router = new \Slim\Router();
+        $router->urlFor('foo', array('abc' => '123'));
     }
 }

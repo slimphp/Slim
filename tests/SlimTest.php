@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.1.0
+ * @version     2.2.0
  *
  * MIT LICENSE
  *
@@ -34,6 +34,23 @@
 class CustomView extends \Slim\View
 {
     public function render($template) { echo "Custom view"; }
+}
+
+//Echo Logger
+class EchoErrorLogger
+{
+   public function error($object) { echo get_class($object) .':'.$object->getMessage(); }
+}
+
+//Mock extending class
+class Derived extends \Slim\Slim
+{
+	public static function getDefaultSettings()
+	{
+        return array_merge(
+            array("late-static-binding" => true)
+        , parent::getDefaultSettings());
+	}
 }
 
 //Mock middleware
@@ -286,6 +303,17 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test GET routes also get mapped as a HEAD route
+     */
+    public function testGetRouteIsAlsoMappedAsHead()
+    {
+        $s = new \Slim\Slim();
+        $route = $s->get('/foo', function () {});
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
+        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
+    }
+
+    /**
      * Test GET route
      */
     public function testGetRoute()
@@ -386,34 +414,48 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if route expects trailing slash and URL does not have one
-     */
-    public function testRouteWithSlashAndUrlWithout()
+    * Test route groups
+    */
+    public function testRouteGroups()
     {
         \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
+            'PATH_INFO' => '/bar/baz', //<-- Virtual'
         ));
         $s = new \Slim\Slim();
-        $s->get('/bar/', function () { echo "xyz"; });
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "xyz"; };
+        $s->group('/bar', $mw1, function () use ($s, $mw2, $callable) {
+            $s->get('/baz', $mw2, $callable);
+        });
         $s->call();
-        $this->assertEquals(301, $s->response()->status());
+        $this->assertEquals('foobarxyz', $s->response()->body());
     }
 
-    /**
-     * Test 405 Method Not Allowed
+    /*
+     * Test ANY route
      */
-    public function testMethodNotAllowed()
+    public function testAnyRoute()
     {
-        \Slim\Environment::mock(array(
-            'REQUEST_METHOD' => 'POST',
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () { echo "xyz"; });
-        $s->call();
-        $this->assertEquals(405, $s->response()->status());
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "xyz"; };
+        $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+        foreach ($methods as $i => $method) {
+            \Slim\Environment::mock(array(
+                'REQUEST_METHOD' => $method,
+                'SCRIPT_NAME' => '/foo', //<-- Physical
+                'PATH_INFO' => '/bar', //<-- Virtual
+            ));
+            $s = new \Slim\Slim();
+            $route = $s->any('/bar', $mw1, $mw2, $callable);
+            $s->call();
+            $this->assertEquals('foobarxyz', $s->response()->body());
+            $this->assertEquals('/bar', $route->getPattern());
+            $this->assertSame($callable, $route->getCallable());
+        }
     }
 
     /**
@@ -548,7 +590,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
+            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
         ));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
@@ -598,7 +640,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_NONE_MATCH' => '"abc123"',
+            'HTTP_IF_NONE_MATCH' => '"abc123"',
         ));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
@@ -709,11 +751,11 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->setCookie('foo1', 'bar1', '2 days');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(2, count($cookies));
-        $this->assertEquals(1, preg_match('@foo=bar@', $cookies[0]));
-        $this->assertEquals(1, preg_match('@foo1=bar1@', $cookies[1]));
+        $cookie1 = $s->response->cookies->get('foo');
+        $cookie2 = $s->response->cookies->get('foo1');
+        $this->assertEquals(2, count($s->response->cookies));
+        $this->assertEquals('bar', $cookie1['value']);
+        $this->assertEquals('bar1', $cookie2['value']);
     }
 
     /**
@@ -733,7 +775,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'QUERY_STRING' => 'one=foo&two=bar',
             'SERVER_NAME' => 'slimframework.com',
             'SERVER_PORT' => 80,
-            'COOKIE' => 'foo=bar; foo2=bar2',
+            'HTTP_COOKIE' => 'foo=bar; foo2=bar2',
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
@@ -776,60 +818,10 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->deleteCookie('foo');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
-        $cookies = explode("\n", $header['Set-Cookie']);
-        $this->assertEquals(1, count($cookies));
-        $this->assertEquals(1, preg_match('@^foo=;@', $cookies[0]));
-    }
-
-    /**
-     * Test set encrypted cookie
-     *
-     * This method ensures that the `Set-Cookie:` HTTP request
-     * header is set. The implementation is tested in a separate file.
-     */
-    public function testSetEncryptedCookie()
-    {
-        $s = new \Slim\Slim();
-        $s->setEncryptedCookie('foo', 'bar');
-        $r = $s->response();
-        $this->assertEquals(1, preg_match("@^foo=.+%7C.+%7C.+@", $r['Set-Cookie'])); //<-- %7C is a url-encoded pipe
-    }
-
-    /**
-     * Test get encrypted cookie
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    public function testGetEncryptedCookieAndDeletingIt()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $r = $s->response();
-        $this->assertFalse($s->getEncryptedCookie('foo'));
-        $this->assertEquals(1, preg_match("@foo=;.*@", $r['Set-Cookie']));
-    }
-
-    /**
-     * Test get encrypted cookie WITHOUT deleting it
-     *
-     * This only tests that this method runs without error. The implementation of
-     * fetching the encrypted cookie is tested separately.
-     */
-    public function testGetEncryptedCookieWithoutDeletingIt()
-    {
-        \Slim\Environment::mock(array(
-            'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar', //<-- Virtual
-        ));
-        $s = new \Slim\Slim();
-        $r = $s->response();
-        $this->assertFalse($s->getEncryptedCookie('foo', false));
-        $this->assertEquals(0, preg_match("@foo=;.*@", $r['Set-Cookie']));
+        $cookie = $s->response->cookies->get('foo');
+        $this->assertEquals(1, count($s->response->cookies));
+        $this->assertEquals('', $cookie['value']);
+        $this->assertLessThan(time(), $cookie['expires']);
     }
 
     /************************************************
@@ -1207,6 +1199,31 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test default error handler logs the error when debug is false.
+     *
+     * Pre-conditions:
+     * Invoked app route calls default error handler;
+     *
+     * Post-conditions:
+     * Error log is called
+     */
+    public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
+    {
+        $s = new \Slim\Slim(array('debug' => false));
+        $s->get('/bar', function () use ($s) {
+            throw new \InvalidArgumentException('my specific error message');
+        });
+
+        $env = $s->environment();
+        $env['slim.log'] = new EchoErrorLogger();    // <-- inject the fake logger
+
+        ob_start();
+        $s->run();
+        $output = ob_get_clean();
+        $this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
+    }
+
+    /**
      * Test triggered errors are converted to ErrorExceptions
      *
      * Pre-conditions:
@@ -1257,8 +1274,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'debug' => false
         ));
         $s2 = new \Slim\Slim();
-        $s1->get('/bar', function () {
-            trigger_error('error');
+        $s1->get('/bar', function () use ($s1) {
+            $s1->error();
         });
         $s2->get('/bar', function () {
             echo 'success';
@@ -1449,5 +1466,22 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(count($hookOne[10]) === 1);
         $app->clearHooks();
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
+    }
+
+	/**
+     * Test late static binding
+     *
+     * Pre-conditions:
+     * Slim app is extended by Derived class and instantiated;
+     * Derived class overrides the 'getDefaultSettings' function and adds an extra default config value
+	 * Test that the new config value exists
+     *
+     * Post-conditions:
+     * Config value exists and is equal to expected value
+     */
+    public function testDerivedClassCanOverrideStaticFunction()
+    {
+        $app = new Derived();
+        $this->assertEquals($app->config("late-static-binding"), true);
     }
 }
