@@ -9,9 +9,7 @@
  */
 require 'Slim/Slim.php';
 
-use \Slim\Slim;
-
-Slim::registerAutoloader();
+\Slim\Slim::registerAutoloader();
 
 /**
  * Step 2: Instantiate a Slim application
@@ -21,7 +19,7 @@ Slim::registerAutoloader();
  * your Slim application now by passing an associative array
  * of setting names and values into the application constructor.
  */
-$app = new Slim();
+$app = new \Slim\Slim();
 
 /**
  * Step 3: Define the Slim application routes
