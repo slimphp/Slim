@@ -129,7 +129,7 @@ class Router
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
         if (count($this->routeGroups) > 0) {
-            $pattern = $groupPattern . ltrim($pattern, '/');
+            $pattern = $groupPattern . $pattern;
         }
         $route = new \Slim\Route($pattern, $callable);
         $this->routes[] = $route;
@@ -153,11 +153,11 @@ class Router
      */
     protected function processGroups()
     {
-        $pattern = "/";
+        $pattern = "";
         $middleware = array();
         foreach ($this->routeGroups as $group) {
             $k = key($group);
-            $pattern .= $k . "/";
+            $pattern .= $k;
             array_push($middleware, $group[$k]);
         }
         return array($pattern, $middleware);
@@ -171,7 +171,6 @@ class Router
      */
     public function pushGroup($group, $middleware = null)
     {
-        $group = trim($group, '/');
         return array_push($this->routeGroups, array($group => $middleware));
     }
 
