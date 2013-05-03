@@ -277,7 +277,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $count = 0;
+        foreach($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri()) as $i){
+            $count++;
+        }
+        $this->assertEquals(0, $count);
     }
 
     /**
@@ -306,7 +310,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $count = 0;
+        foreach($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri()) as $i){
+            $count++;
+        }
+        $this->assertEquals(0, $count);
     }
 
     /**
@@ -335,7 +343,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->map('/foo', function () {})->via('POST');
         $router->map('/foo', function () {})->via('PUT');
         $router->map('/foo/bar/xyz', function () {})->via('DELETE');
-        $this->assertEquals(0, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
+        $count = 0;
+        foreach($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri()) as $i){
+            $count++;
+        }
+        $this->assertEquals(0, $count);
     }
 
     /**
@@ -367,6 +379,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($router->getMatchedRoutes($this->req->getMethod(), $this->req->getResourceUri())));
     }
 
+
     /**
      * Test get current route
      */
@@ -387,6 +400,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $app->call();
         $this->assertSame($route2, $app->router()->getCurrentRoute());
     }
+
 
     /**
      * Test calling get current route before routing doesn't cause errors

@@ -1002,6 +1002,27 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test pass when there is dynamically added route
+     */
+    public function testPassDynamicallyAddedRoute()
+    {
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/name/Frank/test', //<-- Virtual
+        ));
+        $s = new \Slim\Slim();
+        $s->get('/name/:name+', function () use ($s) {
+            echo "Fail"; //<-- Should not be in response body!
+            $s->get('/name/Frank/test', function () use ($s) {
+                echo "Frank";
+            });
+            $s->pass();
+        });
+        $s->call();
+        $this->assertEquals('Frank', $s->response()->body());
+    }
+
+    /**
      * Test content type
      */
     public function testContentType()

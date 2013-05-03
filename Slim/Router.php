@@ -68,7 +68,7 @@ class Router
      */
     public function __construct()
     {
-        $this->routes = array();
+        $this->routes = new RouteIterator();
     }
 
     /**
@@ -81,8 +81,11 @@ class Router
             return $this->currentRoute;
         }
 
-        if (is_array($this->matchedRoutes) && count($this->matchedRoutes) > 0) {
-            return $this->matchedRoutes[0];
+        // if (is_array($this->matchedRoutes) && count($this->matchedRoutes) > 0) {
+        //     return $this->matchedRoutes[0];
+        // }
+        if ($this->routes->valid()){
+            return $this->routes->current();
         }
 
         return null;
@@ -97,20 +100,11 @@ class Router
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
-        if ($reload || is_null($this->matchedRoutes)) {
-            $this->matchedRoutes = array();
-            foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($httpMethod)) {
-                    continue;
-                }
-
-                if ($route->matches($resourceUri)) {
-                    $this->matchedRoutes[] = $route;
-                }
-            }
+        if ($reload) {
+            $this->routes->reset();
         }
-
-        return $this->matchedRoutes;
+        $this->routes->setFilter($httpMethod, $resourceUri);
+        return $this->routes;
     }
 
     /**
@@ -122,7 +116,7 @@ class Router
     public function map($pattern, $callable)
     {
         $route = new \Slim\Route($pattern, $callable);
-        $this->routes[] = $route;
+        $this->routes->push($route);
 
         return $route;
     }
@@ -223,7 +217,7 @@ class Router
     {
         if (is_null($this->namedRoutes)) {
             $this->namedRoutes = array();
-            foreach ($this->routes as $route) {
+            foreach ($this->routes->getAll() as $route) {
                 if ($route->getName() !== null) {
                     $this->addNamedRoute($route->getName(), $route);
                 }
