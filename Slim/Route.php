@@ -375,7 +375,7 @@ class Route
      * @param  array    URL parameters
      * @return string   Regular expression for URL parameter
      */
-    protected function matchesCallback($m)
+    protected function matchesCallback(array $m)
     {
         $this->paramNames[] = $m[1];
         if (isset($this->conditions[ $m[1] ])) {
