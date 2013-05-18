@@ -274,7 +274,7 @@ class Request
      * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function put($key = null, $default)
+    public function put($key = null, $default = null)
     {
         return $this->post($key, $default);
     }
@@ -285,7 +285,7 @@ class Request
      * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function delete($key = null, $default)
+    public function delete($key = null, $default = null)
     {
         return $this->post($key, $default);
     }
