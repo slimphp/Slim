@@ -902,6 +902,7 @@ class Slim
      * the current request will not be available until the next request.
      *
      * @param  string       $name
+     * @param  bool         $deleteIfInvalid
      * @return string|false
      */
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
@@ -1024,7 +1025,7 @@ class Slim
 
     /**
      * Set the HTTP response status code
-     * @param  int      $status     The HTTP response status code
+     * @param  int      $code     The HTTP response status code
      */
     public function status($code)
     {
@@ -1122,7 +1123,7 @@ class Slim
     /**
      * Invoke hook
      * @param  string   $name       The hook name
-     * @param  mixed    $hookArgs   (Optional) Argument for hooked functions
+     * @param  mixed    $hookArg    (Optional) Argument for hooked functions
      */
     public function applyHook($name, $hookArg = null)
     {

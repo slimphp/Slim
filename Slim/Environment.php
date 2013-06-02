@@ -181,7 +181,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
-            //Input stream (readable one time only; not available for mutipart/form-data requests)
+            //Input stream (readable one time only; not available for multipart/form-data requests)
             $rawInput = @file_get_contents('php://input');
             if (!$rawInput) {
                 $rawInput = '';

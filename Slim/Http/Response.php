@@ -497,6 +497,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Get message for HTTP status code
+     * @param  int         $status
      * @return string|null
      */
     public static function getMessageForCode($status)

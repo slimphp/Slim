@@ -216,8 +216,11 @@ class View
      *******************************************************************************/
 
     /**
-     * Echo the contents of a rendered template file
-     * @var string $template The template pathname, relative to the template base directory
+     * Display template
+     *
+     * This method echoes the rendered template to the current output buffer
+     *
+     * @param  string   $template   Pathname of template file relative to templates directory
      */
     public function display($template)
     {

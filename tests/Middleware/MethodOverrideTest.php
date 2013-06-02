@@ -98,7 +98,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test does not override method if no method ovveride parameter
+     * Test does not override method if no method override parameter
      */
     public function testDoesNotOverrideMethodAsPostWithoutParameter()
     {
