@@ -26,7 +26,7 @@ $app = new \Slim\Slim();
  *
  * Here we define several Slim application routes that respond
  * to appropriate HTTP request methods. In this example, the second
- * argument for `Slim::get`, `Slim::post`, `Slim::put`, and `Slim::delete`
+ * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
  * is an anonymous function.
  */
 
@@ -146,6 +146,11 @@ $app->put(
         echo 'This is a PUT route';
     }
 );
+
+// PATCH route
+$app->patch('/patch', function () {
+    echo 'This is a PATCH route';
+});
 
 // DELETE route
 $app->delete(

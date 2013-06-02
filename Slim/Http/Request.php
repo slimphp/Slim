@@ -48,6 +48,7 @@ class Request
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
+    const METHOD_PATCH = 'PATCH';
     const METHOD_DELETE = 'DELETE';
     const METHOD_OPTIONS = 'OPTIONS';
     const METHOD_OVERRIDE = '_METHOD';
@@ -122,6 +123,15 @@ class Request
     public function isPut()
     {
         return $this->getMethod() === self::METHOD_PUT;
+    }
+
+    /**
+     * Is this a PATCH request?
+     * @return bool
+     */
+    public function isPatch()
+    {
+        return $this->getMethod() === self::METHOD_PATCH;
     }
 
     /**
@@ -271,6 +281,16 @@ class Request
      * @return array|mixed|null
      */
     public function put($key = null)
+    {
+        return $this->post($key);
+    }
+
+    /**
+     * Fetch PATCH data (alias for \Slim\Http\Request::post)
+     * @param  string           $key
+     * @return array|mixed|null
+     */
+    public function patch($key = null)
     {
         return $this->post($key);
     }

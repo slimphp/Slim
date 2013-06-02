@@ -117,6 +117,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test HTTP PATCH method detection
+     */
+    public function testIsPatch()
+    {
+        $env = \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'PATCH',
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertTrue($req->isPatch());
+    }
+
+    /**
      * Test AJAX method detection w/ header
      */
     public function testIsAjaxWithHeader()
@@ -307,6 +319,24 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->put('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+    }
+
+    /**
+     * Test fetch PATCH params
+     */
+    public function testPatch()
+    {
+        $env = \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'PATCH',
+            'slim.input' => 'foo=bar&abc=123',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 15
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals(2, count($req->patch()));
+        $this->assertEquals('bar', $req->patch('foo'));
+        $this->assertEquals('bar', $req->params('foo'));
+        $this->assertNull($req->patch('xyz'));
     }
 
     /**

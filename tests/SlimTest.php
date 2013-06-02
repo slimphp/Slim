@@ -372,6 +372,27 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test PATCH route
+     */
+    public function testPatchRoute()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'PATCH',
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+        ));
+        $s = new \Slim\Slim();
+        $mw1 = function () { echo "foo"; };
+        $mw2 = function () { echo "bar"; };
+        $callable = function () { echo "xyz"; };
+        $route = $s->patch('/bar', $mw1, $mw2, $callable);
+        $s->call();
+        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('/bar', $route->getPattern());
+        $this->assertSame($callable, $route->getCallable());
+    }
+
+    /**
      * Test DELETE route
      */
     public function testDeleteRoute()
