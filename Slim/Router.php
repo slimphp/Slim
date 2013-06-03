@@ -196,12 +196,10 @@ class Router
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
         $search = array();
-        $replace = array();
         foreach ($params as $key => $value) {
-            $search[] = '#:' . preg_quote($key) . '\+?(?!\w)#';
-            $replace[] = preg_quote($value);
+            $search[] = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
         }
-        $pattern = preg_replace($search, $replace, $this->getNamedRoute($name)->getPattern());
+        $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
