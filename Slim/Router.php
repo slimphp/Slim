@@ -166,7 +166,7 @@ class Router
     /**
      * Add a route group to the array
      * @param  string     $group      The group pattern (ie. "/books/:id")
-     * @param  array|null $middleware Optional parameter array of middleware 
+     * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
     public function pushGroup($group, $middleware = null)
@@ -196,10 +196,12 @@ class Router
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
         $search = array();
-        foreach (array_keys($params) as $key) {
-            $search[] = '#:' . $key . '\+?(?!\w)#';
+        $replace = array();
+        foreach ($params as $key => $value) {
+            $search[] = '#:' . preg_quote($key) . '\+?(?!\w)#';
+            $replace[] = preg_quote($value);
         }
-        $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
+        $pattern = preg_replace($search, $replace, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments
         return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
