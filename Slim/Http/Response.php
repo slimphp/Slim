@@ -45,6 +45,21 @@ namespace Slim\Http;
  */
 class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 {
+
+    /**
+     * @var string classname to use for $headers instance
+     * @see \Slim\Http\Response::$headers
+     * @see \Slim\Http\Response::__construct()
+     */
+    public static $CLASS_HTTP_HEADERS = '\Slim\Http\Headers';
+
+    /**
+     * @var string classname to use for $cookies instance
+     * @see \Slim\Http\Response::$cookies
+     * @see \Slim\Http\Response::__construct()
+     */
+    public static $CLASS_HTTP_COOKIES = '\Slim\Http\Cookies';
+
     /**
      * @var int HTTP status code
      */
@@ -133,9 +148,13 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     public function __construct($body = '', $status = 200, $headers = array())
     {
         $this->setStatus($status);
-        $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+
+        $this->headers = new static::$CLASS_HTTP_HEADERS(array('Content-Type' => 'text/html'));
+
         $this->headers->replace($headers);
-        $this->cookies = new \Slim\Http\Cookies();
+
+        $this->cookies = new static::$CLASS_HTTP_COOKIES();
+
         $this->write($body);
     }
 

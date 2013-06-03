@@ -54,6 +54,20 @@ class Request
     const METHOD_OVERRIDE = '_METHOD';
 
     /**
+     * @var string classname to use for $headers instance
+     * @see \Slim\Http\Request::$headers
+     * @see \Slim\Http\Request::__construct()
+     */
+    public static $CLASS_HTTP_HEADERS = '\Slim\Http\Headers';
+
+    /**
+     * @var string classname to use for $cookies instance
+     * @see \Slim\Http\Request::$cookies
+     * @see \Slim\Http\Request::__construct()
+     */
+    public static $CLASS_COOKIE_JAR = '\Slim\Helper\Set';
+
+    /**
      * @var array
      */
     protected static $formDataMediaTypes = array('application/x-www-form-urlencoded');
@@ -85,8 +99,12 @@ class Request
     public function __construct(\Slim\Environment $env)
     {
         $this->env = $env;
-        $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->cookies = new \Slim\Helper\Set(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+
+        $this->headers = new static::$CLASS_HTTP_HEADERS(
+            \Slim\Http\Headers::extract($env));
+
+        $this->cookies = new static::$CLASS_COOKIE_JAR(
+            \Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**

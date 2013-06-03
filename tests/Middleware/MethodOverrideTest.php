@@ -48,6 +48,10 @@ class CustomAppMethod
         return $this->environment;
     }
 
+    public function request() {
+        return new \Slim\Http\Request($this->environment());
+    }
+
     public function call()
     {
         //Do nothing

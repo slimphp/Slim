@@ -51,6 +51,12 @@ class Slim
      */
     const VERSION = '2.2.0';
 
+    public static $CLASS_HTTP_REQUEST = '\Slim\Http\Request';
+
+    public static $CLASS_HTTP_RESPONSE = '\Slim\Http\Response';
+
+    public static $CLASS_ROUTER = '\Slim\Router';
+
     /**
      * @var array[\Slim]
      */
@@ -177,10 +183,15 @@ class Slim
     {
         // Setup Slim application
         $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
+
         $this->environment = \Slim\Environment::getInstance();
-        $this->request = new \Slim\Http\Request($this->environment);
-        $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router();
+
+        $this->request = new static::$CLASS_HTTP_REQUEST($this->environment);
+
+        $this->response = new static::$CLASS_HTTP_RESPONSE();
+
+        $this->router = new static::$CLASS_ROUTER();
+
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
