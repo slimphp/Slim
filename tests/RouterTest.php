@@ -145,18 +145,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Router should set current route and dispatch returns non-false value
-     */
-    public function testDispatch()
-    {
-        $router = new \Slim\Router();
-        $route = new \Slim\Route('/foo', function () {});
-
-        $this->assertTrue($router->dispatch($route) !== false);
-        $this->assertAttributeSame($route, 'currentRoute', $router);
-    }
-
-    /**
      * Router should return current route if set during iteration
      */
     public function testGetCurrentRoute()

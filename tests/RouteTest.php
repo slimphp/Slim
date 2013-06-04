@@ -473,8 +473,46 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($route->supportsHttpMethod('PUT'));
     }
 
+    /**
+     * Test dispatch with params
+     */
     public function testDispatch()
     {
+        $this->expectOutputString('Hello josh');
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route->matches('/hello/josh'); //<-- Extracts params from resource URI
+        $route->dispatch();
+    }
 
+    /**
+     * Test dispatch with middleware
+     */
+    public function testDispatchWithMiddlware()
+    {
+        $this->expectOutputString('First! Second! Hello josh');
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route->setMiddleware(function () {
+            echo "First! ";
+        });
+        $route->setMiddleware(function () {
+            echo "Second! ";
+        });
+        $route->matches('/hello/josh'); //<-- Extracts params from resource URI
+        $route->dispatch();
+    }
+
+    /**
+     * Test middleware with arguments
+     */
+    public function testRouteMiddlwareArguments()
+    {
+        $this->expectOutputString('foobar');
+        $route = new \Slim\Route('/foo', function () { echo "bar"; });
+        $route->setName('foo');
+        $route->setMiddleware(function ($route) {
+            echo $route->getName();
+        });
+        $route->matches('/foo'); //<-- Extracts params from resource URI
+        $route->dispatch();
     }
 }
