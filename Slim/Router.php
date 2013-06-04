@@ -201,18 +201,6 @@ class Router
     }
 
     /**
-     * Dispatch route
-     * @param  \Slim\Route  $route  The route to dispatch
-     * @return bool                 True if route dispatched successfully, else false
-     */
-    public function dispatch(\Slim\Route $route)
-    {
-        $this->currentRoute = $route;
-
-        return ($route->dispatch() !== false);
-    }
-
-    /**
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
