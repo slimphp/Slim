@@ -120,18 +120,15 @@ class Router
     }
 
     /**
-     * Map a route object to a callback function
-     * @param  string     $pattern      The URL pattern (ie. "/books/:id")
-     * @param  mixed      $callable     Anything that returns TRUE for is_callable()
-     * @return \Slim\Route
+     * Add a route object to the router
+     * @param  \Slim\Route     $route      The Slim Route
      */
-    public function map($pattern, $callable)
+    public function map(\Slim\Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
         if (count($this->routeGroups) > 0) {
-            $pattern = $groupPattern . $pattern;
+            $route->setPattern($groupPattern . $route->getPattern());
         }
-        $route = new \Slim\Route($pattern, $callable);
         $this->routes[] = $route;
 
         if (count($this->routeGroups) > 0) {
@@ -143,8 +140,6 @@ class Router
                 }
             }
         }
-
-        return $route;
     }
 
     /**
