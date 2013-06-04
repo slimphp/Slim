@@ -1068,14 +1068,18 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Set flash message for subsequent request
+     * Set/Get flash message for subsequent request
      * @param  string   $key
      * @param  mixed    $value
      */
-    public function flash($key, $value)
+    public function flash($key, $value = null)
     {
         if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
+            if (!empty($value)) {
+                $this->environment['slim.flash']->set($key, $value);
+            } else {
+                return $this->environment['slim.flash'][$key];
+            }
         }
     }
 
