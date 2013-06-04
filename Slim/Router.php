@@ -258,4 +258,24 @@ class Router
 
         return new \ArrayIterator($this->namedRoutes);
     }
+
+    /**
+     * Get all the defined routes
+     * @param string $separator separator between the method and the route ( default: "::" )
+     * @param bool $showMethods show the method of the route ( default: true )
+     * @return array
+     */
+    public function listRoutes( $separator = '::', $showMethods = true ) {
+      $allRoutes = array();
+      if ( count( $this->routes ) > 0 ) {
+        foreach( $this->routes AS $route ) {
+          if ( !$showMethods ) {
+            $allRoutes[] = $route->getPattern();
+          } else {
+            $allRoutes[] = implode( ',', $route->getHttpMethods() ) . $separator . $route->getPattern();
+          }
+        }
+      }
+      return $allRoutes;
+    }
 }
