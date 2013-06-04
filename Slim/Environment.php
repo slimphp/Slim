@@ -189,7 +189,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['slim.input'] = $rawInput;
 
             //Error stream
-            $env['slim.errors'] = fopen('php://stderr', 'w');
+            $env['slim.errors'] = @fopen('php://stderr', 'w');
 
             $this->properties = $env;
         }
