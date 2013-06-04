@@ -118,6 +118,7 @@ class Slim
         'slim.before' => array(array()),
         'slim.before.router' => array(array()),
         'slim.before.dispatch' => array(array()),
+        'slim.before.render' => array(array()),
         'slim.after.dispatch' => array(array()),
         'slim.after.router' => array(array()),
         'slim.after' => array(array())
@@ -718,6 +719,7 @@ class Slim
         }
         $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
+        $this->applyHook('slim.before.render');
         $this->view->display($template);
     }
 
