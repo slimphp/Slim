@@ -137,6 +137,16 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test set name using configuration
+     */
+     public function testSetNameUsingConfiguration() {
+        $name = 'Foo';
+        $config = array('name' => $name);
+        $s = new \Slim\Slim($config);
+        $this->assertEquals($s->getName(), 'Foo');
+     }
+
+    /**
      * Test Slim autoloader ignores non-Slim classes
      *
      * Pre-conditions:
