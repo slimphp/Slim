@@ -1231,7 +1231,11 @@ class Slim
 
         // Serialize cookies (with optional encryption)
         \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
-
+        
+        // Set header for OPTIONS and all other routes
+        if($this->router()->getCurrentRoute()) {
+            $this->response()->header('Access-Control-Allow-Methods', implode(", ", $this->router()->getMethodsAvailable($this->router()->getCurrentRoute()->getPattern())));   
+        }
         //Send headers
         if (headers_sent() === false) {
             //Send status

@@ -95,6 +95,41 @@ class Router
     }
 
     /**
+     * Return all route objects that match the given URI
+     * @param  string               $pattern      The pattern to match against
+     * @return array[\Slim\Route]
+     */
+    public function getAllRoutes($pattern = null) 
+    {
+        if(null === $pattern) {
+            return $this->routes;
+        } else {
+            $routes = array();
+            foreach($this->routes as $route) {
+                if($route->getPattern() == $pattern) {
+                    $routes[] = $route;
+                }
+            }
+            return $routes;
+        }
+    }
+    
+    /**
+     * Return array of methods avaliable for the current pattern
+     * @param  string               $pattern      The pattern to match against
+     * @return array
+     */
+    public function getMethodsAvailable($pattern) 
+    {
+        $methods = array();
+        foreach($this->getAllRoutes($pattern) as $route) {
+            $methods = array_merge($route->getHttpMethods(), $methods);
+        }
+        $methods[] = "OPTIONS"; // Force options method as available as it must return this method's return value or self
+        return array_unique($methods);
+    }
+
+    /**
      * Return route objects that match the given HTTP method and URI
      * @param  string               $httpMethod   The HTTP method to match against
      * @param  string               $resourceUri  The resource URI to match against
