@@ -164,7 +164,7 @@ class View
      */
     public function setTemplate($template)
     {
-        $this->templatePath = $this->getTemplatesDirectory() . '/' . ltrim($template, '/');
+        $this->templatePath = $this->getTemplatesDirectory() . DIRECTORY_SEPARATOR . ltrim($template, '/');
         if (!file_exists($this->templatePath)) {
             throw new \RuntimeException('View cannot render template `' . $this->templatePath . '`. Template does not exist.');
         }
