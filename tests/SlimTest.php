@@ -291,6 +291,27 @@ class SlimTest extends PHPUnit_Framework_TestCase
      ************************************************/
 
     /**
+     * Test custom router
+     */
+    public function testCustomRouter()
+    {
+        $router = $this->getMock('\Slim\Router');
+        $routerClass = get_class($router);
+        $s = new \Slim\Slim();
+
+        $this->assertInstanceOf($routerClass, $s->router($routerClass));
+
+        $this->assertSame($router, $s->router($router));
+
+        try {
+            $s->router('stdClass');
+            $this->fail('Expected exception was not thrown');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertSame('$routerClass is not an instance or name of a subclass of \Slim\Router', $e->getMessage());
+        }
+    }
+
+    /**
      * Test GENERIC route
      */
     public function testGenericRoute()

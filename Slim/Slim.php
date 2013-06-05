@@ -180,7 +180,7 @@ class Slim
         $this->environment = \Slim\Environment::getInstance();
         $this->request = new \Slim\Http\Request($this->environment);
         $this->response = new \Slim\Http\Response();
-        $this->router = new \Slim\Router();
+        $this->router = $this->router();
         $this->middleware = array($this);
         $this->add(new \Slim\Middleware\Flash());
         $this->add(new \Slim\Middleware\MethodOverride());
@@ -656,11 +656,25 @@ class Slim
     }
 
     /**
-     * Get the Router object
+     * Get and/or set the Router object
+     *
+     * @param  string|\Slim\Router      $routerClass The name or instance of a \Slim\Router subclass
+     * @throws InvalidArgumentException If $routerClass is not the name or a \Slim\Router subclass
      * @return \Slim\Router
      */
-    public function router()
+    public function router($routerClass = null)
     {
+        if ($routerClass !== null) {
+            if ($routerClass instanceof \Slim\Router) {
+                $this->router = $routerClass;
+            } elseif (class_exists($routerClass) && in_array('Slim\Router', class_parents($routerClass))) {
+                $this->router = new $routerClass($this->request);
+            } else {
+                throw new \InvalidArgumentException('$routerClass is not an instance or name of a subclass of \Slim\Router');
+            }
+        } elseif (!$this->router) {
+            $this->router = new \Slim\Router();
+        }
         return $this->router;
     }
 
