@@ -146,7 +146,7 @@ class Slim
     public function __construct(array $userSettings = array())
     {
         // Setup IoC container
-        $this->container = new \Slim\Container();
+        $this->container = new \Slim\Helper\Set();
         $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
 
         // Default environment
