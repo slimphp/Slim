@@ -1231,12 +1231,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
     {
         $s = new \Slim\Slim(array('debug' => false));
+        $s->container->singleton('log', function ($c) {
+            return new EchoErrorLogger();
+        });
         $s->get('/bar', function () use ($s) {
             throw new \InvalidArgumentException('my specific error message');
         });
-
-        $env = $s->environment();
-        $env['slim.log'] = new EchoErrorLogger();    // <-- inject the fake logger
 
         ob_start();
         $s->run();

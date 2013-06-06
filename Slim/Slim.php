@@ -188,7 +188,8 @@ class Slim
             $log = new \Slim\Log($c['logWriter']);
             $log->setEnabled($c['settings']['log.enabled']);
             $log->setLevel($c['settings']['log.level']);
-            $c['environment']['slim.log'] = $log;
+            $env = $c['environment'];
+            $env['slim.log'] = $log;
 
             return $log;
         });
@@ -321,7 +322,9 @@ class Slim
                 return isset($this->settings[$name]) ? $this->settings[$name] : null;
             }
         } else {
-            $this->settings[$name] = $value;
+            $settings = $this->settings;
+            $settings[$name] = $value;
+            $this->settings = $settings;
         }
     }
 
