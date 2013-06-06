@@ -83,7 +83,9 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     public function get($key, $default = null)
     {
         if ($this->has($key)) {
-            return $this->data[$this->normalizeKey($key)];
+            $isInvokable = is_object($this->data[$this->normalizeKey($key)]) && method_exists($this->data[$this->normalizeKey($key)], '__invoke');
+
+            return $isInvokable ? $this->data[$this->normalizeKey($key)]($this) : $this->data[$this->normalizeKey($key)];
         }
 
         return $default;
@@ -186,5 +188,24 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     public function getIterator()
     {
         return new \ArrayIterator($this->data);
+    }
+
+    /**
+     * Ensure a value or object will remain globally unique
+     * @param  string  $key   The value or object name
+     * @param  Closure        The closure that defines the object
+     * @return mixed
+     */
+    public function singleton($key, $value)
+    {
+        $this->set($key, function ($c) use ($value) {
+            static $object;
+
+            if (null === $object) {
+                $object = $value($c);
+            }
+
+            return $object;
+        });
     }
 }
