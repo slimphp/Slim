@@ -209,8 +209,13 @@ class View
         $this->setTemplate($template);
         extract($this->data);
         ob_start();
-        require $this->templatePath;
-
-        return ob_get_clean();
+        ob_start();
+        try{
+            require $this->templatePath;
+            return ob_get_clean();
+        } catch( \Exception $e){
+            ob_get_clean();
+            throw $e;
+        }
     }
 }
