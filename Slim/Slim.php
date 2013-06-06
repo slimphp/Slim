@@ -52,7 +52,7 @@ class Slim
     const VERSION = '2.2.0';
 
     /**
-     * @var \Slim\Container
+     * @var \Slim\Helper\Set
      */
     public $container;
 
