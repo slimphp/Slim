@@ -209,7 +209,6 @@ class View
         $this->setTemplate($template);
         extract($this->data);
         ob_start();
-        ob_start();
         try{
             require $this->templatePath;
             return ob_get_clean();
