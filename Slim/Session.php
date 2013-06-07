@@ -63,7 +63,7 @@ class Session extends \Slim\Helper\Set
      * @param  array  $options Session settings
      * @param  mixed  $handler The session save handler
      */
-    public function _construct(array $options = array(), $handler = null)
+    public function __construct(array $options = array(), $handler = null)
     {
         $this->setOptions($options);
         $this->setHandler($handler);
