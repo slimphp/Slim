@@ -33,27 +33,7 @@
 namespace Slim\Middleware;
 
 /**
- * Session Cookie
- *
- * This class provides an HTTP cookie storage mechanism
- * for session data. This class avoids using a PHP session
- * and instead serializes/unserializes the $_SESSION global
- * variable to/from an HTTP cookie.
- *
- * If a secret key is provided with this middleware, the HTTP
- * cookie will be checked for integrity to ensure the client-side
- * cookie is not changed.
- *
- * You should NEVER store sensitive data in a client-side cookie
- * in any format, encrypted or not. If you need to store sensitive
- * user information in a session, you should rely on PHP's native
- * session implementation, or use other middleware to store
- * session data in a database or alternative server-side cache.
- *
- * Because this class stores serialized session data in an HTTP cookie,
- * you are inherently limited to 4 Kb. If you attempt to store
- * more than this amount, serialization will fail.
- *
+ * Session Middleware
  * @package    Slim
  * @author     Josh Lockhart
  * @since      2.3.0
@@ -61,19 +41,37 @@ namespace Slim\Middleware;
 class Session extends \Slim\Middleware
 {
     /**
+     * Session settings
+     * @var array
+     */
+    protected $settings;
+
+    /**
+     * Session save handler
+     * @var mixed
+     */
+    protected $handler;
+
+    /**
      * Constructor
      * @param  array $settings The session settings
      * @param  mixed $handler  The custom session handler
      */
     public function __construct(array $settings = array(), $handler = null)
     {
-        $this->app->session = function ($c) use ($settings, $handler) {
-            return new \Slim\Session($settings['options'], $settings['handler']);
-        });
+        $this->settings = $settings;
+        $this->handler = $handler;
     }
 
+    /**
+     * Call next middleware or application
+     */
     public function call()
     {
+        // Init session
+        $this->app->session = new \Slim\Session($this->settings, $this->handler);
+
+        // Call next wrapped with session
         $this->app->session->start();
         $this->next->call();
         $this->app->session->save();
