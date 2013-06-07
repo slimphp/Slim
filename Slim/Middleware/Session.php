@@ -34,6 +34,26 @@ namespace Slim\Middleware;
 
 /**
  * Session Middleware
+ *
+ * This middleware provides a simple interface to interact with PHP
+ * session data. After adding this middleware to your application,
+ * a `session` property will become available on the Slim instance.
+ *
+ * This middleware's constructor accepts two optional arguments:
+ *
+ * 1. Session settings
+ * An array of INI settings used to configure the PHP session. Array
+ * keys should omit the "session." prefix. See
+ * http://php.net/manual/en/session.configuration.php
+ *
+ * 2. Session save handler
+ * An object that implements the \SessionHandlerInterface interface. See
+ * http://php.net/manual/en/class.sessionhandlerinterface.php
+ *
+ * USAGE:
+ *
+ * $app->add(new \Slim\Middleware\Session());
+ *
  * @package    Slim
  * @author     Josh Lockhart
  * @since      2.3.0
