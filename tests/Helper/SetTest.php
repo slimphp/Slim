@@ -166,4 +166,29 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->property->setValue($this->bag, $data);
         $this->assertInstanceOf('\ArrayIterator', $this->bag->getIterator());
     }
+
+	public function testPropertyOverloadGet()
+	{
+		$data = array(
+			'abc' => '123',
+			'foo' => 'bar'
+		);
+		$this->property->setValue($this->bag, $data);
+
+		$this->assertEquals('123', $this->bag->abc);
+		$this->assertEquals('bar', $this->bag->foo);
+	}
+
+	public function testPropertyOverloadingIsset()
+	{
+		$data = array(
+			'abc' => '123',
+			'foo' => 'bar'
+		);
+		$this->property->setValue($this->bag, $data);
+
+		$this->assertTrue(isset($this->bag->abc));
+		$this->assertTrue(isset($this->bag->foo));
+		$this->assertFalse(isset($this->bag->foobar));
+	}
 }

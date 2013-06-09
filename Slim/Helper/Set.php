@@ -139,6 +139,20 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
         unset($this->data[$this->normalizeKey($key)]);
     }
 
+	/**
+	 * Property Overloading
+	 */
+
+	public function __get($key)
+	{
+		return $this->get($key);
+	}
+
+	public function __isset($key)
+	{
+		return $this->has($key);
+	}
+
     /**
      * Clear all values
      */
