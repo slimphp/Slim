@@ -210,7 +210,7 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(isset($this->bag->abc));
         unset($this->bag->abc);
         $this->assertFalse(isset($this->bag->abc));
-		$this->assertArrayNotHasKey('abc', $this->property->getValue($this->bag));
+        $this->assertArrayNotHasKey('abc', $this->property->getValue($this->bag));
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));			
     }
 }
