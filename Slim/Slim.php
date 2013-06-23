@@ -1334,7 +1334,13 @@ class Slim
                $this->notFound();
             }
             $this->applyHook('slim.after.router');
+            $this->response()->write(ob_get_clean());
+            $this->applyHook('slim.after');
+            $this->finalize($this->response);
         } catch (\Slim\Exception\Stop $e) {
+            $this->response()->write(ob_get_clean());
+            $this->applyHook('slim.after');
+            $this->finalize($this->response);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
@@ -1345,11 +1351,7 @@ class Slim
                     // Do nothing
                 }
             }
-            exit;
         }
-        $this->response()->write(ob_get_clean());
-        $this->applyHook('slim.after');
-        $this->finalize($this->response);
     }
 
     /**
@@ -1387,10 +1389,9 @@ class Slim
             if ($resp->isStream()) {
 
                 echo ob_get_clean();
-                $fp = $resp->getStream();
-                while (!feof($fp)) {
+                while (!feof($body)) {
                     ob_start();
-                    echo fread($fp, 1024);
+                    echo fread($body, 1024);
                     echo ob_get_clean();
                     ob_flush();
                 }

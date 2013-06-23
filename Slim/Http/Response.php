@@ -66,6 +66,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     protected $body;
 
     /**
+     * @var string HTTP response body
+     */
+    protected $isStream;
+
+    /**
      * @var int Length of HTTP response body
      */
     protected $length;
@@ -136,12 +141,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
         $this->headers->replace($headers);
         $this->cookies = new \Slim\Http\Cookies();
-        $this->body = (object) array(
-           "text" => "",
-           "isStream" => false,
-           "handle" => null
-        );
-        $this->write($body);
+        $this->isStream = false;
+        $this->write($body, true);
     }
 
     public function getStatus()
@@ -200,7 +201,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function getBody()
     {
-        return $this->body->text;
+        return $this->body;
     }
 
     public function setBody($content)
@@ -210,7 +211,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function isStream()
     {
-        return $this->body->isStream;
+        return $this->isStream;
     }
 
     /**
@@ -226,7 +227,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
             $this->write($body, true);
         }
 
-        return $this->body->text;
+        return $this->body;
     }
 
     /**
@@ -238,13 +239,13 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     public function write($body, $replace = false)
     {
         if ($replace) {
-            $this->body->text = $body;
+            $this->body = $body;
         } else {
-            $this->body->text .= (string)$body;
+            $this->body .= (string)$body;
         }
-        $this->length = strlen($this->body->text);
+        $this->length = strlen($this->body);
 
-        return $this->body->text;
+        return $this->body;
     }
 
    /**
@@ -253,8 +254,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     */
     public function stream($handle)
     {
-        $this->body->isStream = true;
-        $this->body->handle = $handle;
+        $this->isStream = true;
+        $this->body = $handle;
     }
 
     /**
@@ -263,7 +264,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function getStream()
     {
-        return $this->body->handle;
+        return ($this->isStream) ? $this->body : false;
     }
 
     public function getLength()
@@ -305,7 +306,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
             $this->setBody('');
         }
 
-        return array($this->status, $this->headers, $this->body->text);
+        return array($this->status, $this->headers, $this->body);
     }
 
     /**
