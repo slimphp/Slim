@@ -1226,7 +1226,7 @@ class Slim
                 }
             }
         }
-        $this->finalize($this->response);
+        $this->finalize();
     }
 
     /**
@@ -1242,7 +1242,7 @@ class Slim
         $ph = popen($command, 'r');
         $this->response()->stream($ph);
         $this->response()->header("Content-Type", $contentType);
-        $this->finalize($this->response);
+        $this->finalize();
     }
 
     /**
@@ -1300,6 +1300,8 @@ class Slim
 
         //Invoke middleware and application stack
         $this->middleware[0]->call();
+
+        $this->finalize();
     }
 
     /**
@@ -1336,11 +1338,9 @@ class Slim
             $this->applyHook('slim.after.router');
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after');
-            $this->finalize($this->response);
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
             $this->applyHook('slim.after');
-            $this->finalize($this->response);
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
@@ -1357,17 +1357,16 @@ class Slim
     /**
      * Finalize send response
      *
-     * This method accepts a response object and sends
-     * @param \Slim\Http\Response
+     * This method sends the response object
      */
-    public function finalize(\Slim\Http\Response $resp) {
+    public function finalize() {
         if (!$this->responded) {
             $this->responded = true;
             //Fetch status, header, and body
-            list($status, $headers, $body) = $resp->finalize();
+            list($status, $headers, $body) = $this->response->finalize();
 
             // Serialize cookies (with optional encryption)
-            \Slim\Http\Util::serializeCookies($headers, $resp->cookies, $this->settings);
+            \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
 
             //Send headers
             if (headers_sent() === false) {
@@ -1386,7 +1385,7 @@ class Slim
                     }
                 }
             }
-            if ($resp->isStream()) {
+            if ($this->response->isStream()) {
 
                 echo ob_get_clean();
                 while (!feof($body)) {
