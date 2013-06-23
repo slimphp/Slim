@@ -136,6 +136,11 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
         $this->headers->replace($headers);
         $this->cookies = new \Slim\Http\Cookies();
+        $this->body = (object) array(
+           "text" => "",
+           "isStream" => false,
+           "handle" => null
+        );
         $this->write($body);
     }
 
@@ -195,12 +200,17 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function getBody()
     {
-        return $this->body;
+        return $this->body->text;
     }
 
     public function setBody($content)
     {
         $this->write($content, true);
+    }
+
+    public function isStream()
+    {
+        return $this->body->isStream;
     }
 
     /**
@@ -216,7 +226,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
             $this->write($body, true);
         }
 
-        return $this->body;
+        return $this->body->text;
     }
 
     /**
@@ -228,13 +238,32 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     public function write($body, $replace = false)
     {
         if ($replace) {
-            $this->body = $body;
+            $this->body->text = $body;
         } else {
-            $this->body .= (string)$body;
+            $this->body->text .= (string)$body;
         }
-        $this->length = strlen($this->body);
+        $this->length = strlen($this->body->text);
 
-        return $this->body;
+        return $this->body->text;
+    }
+
+   /**
+    * Set the response to a stream
+    * @param  resource   $handle    Resource stream to send
+    */
+    public function stream($handle)
+    {
+        $this->body->isStream = true;
+        $this->body->handle = $handle;
+    }
+
+    /**
+     * Get the stream
+     * @return  resource   $handle    Resource stream
+     */
+    public function getStream()
+    {
+        return $this->body->handle;
     }
 
     public function getLength()
@@ -276,7 +305,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
             $this->setBody('');
         }
 
-        return array($this->status, $this->headers, $this->body);
+        return array($this->status, $this->headers, $this->body->text);
     }
 
     /**
