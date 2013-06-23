@@ -1387,7 +1387,6 @@ class Slim
             }
             if ($this->response->isStream()) {
 
-                echo ob_get_clean();
                 while (!feof($body)) {
                     ob_start();
                     echo fread($body, 1024);
