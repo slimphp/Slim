@@ -175,6 +175,18 @@ class Router
     }
 
     /**
+     * Add an unnamed route from previously created route object
+     * @param  \Slim\Route       $route  The route object
+     * @return \Slim\Router
+     */
+    public function addRoute(\Slim\Route $route)
+    {
+        $this->routes[] = $route;
+        
+        return $this; // enable chaining
+    }
+
+    /**
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
