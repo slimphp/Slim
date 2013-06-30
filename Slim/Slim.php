@@ -1242,7 +1242,10 @@ class Slim
         set_error_handler(array('\Slim\Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
-        $this->add(new \Slim\Middleware\PrettyExceptions());
+        if($this->config('debug')){
+        	//Apply pretty exceptions only in debug to avoid accidental information leakage in production
+        	$this->add(new \Slim\Middleware\PrettyExceptions());
+        }
 
         //Invoke middleware and application stack
         $this->middleware[0]->call();
