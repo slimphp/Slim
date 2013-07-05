@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -101,6 +101,17 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->property->setValue($this->bag, $data);
         $this->bag->remove('foo');
         $this->assertEquals(array('abc' => '123'), $this->property->getValue($this->bag));
+    }
+
+    public function testClear()
+    {
+        $data = array(
+            'abc' => '123',
+            'foo' => 'bar'
+        );
+        $this->property->setValue($this->bag, $data);
+        $this->bag->clear();
+        $this->assertEquals(array(), $this->property->getValue($this->bag));
     }
 
     public function testArrayAccessGet()
