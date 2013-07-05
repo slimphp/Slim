@@ -176,6 +176,16 @@ class Slim
             return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
         });
 
+        // Default session
+        $this->container->singleton('session', function ($c) {
+            return new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+        });
+
+        // Default flash
+        $this->container->singleton('flash', function ($c) {
+            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
+        });
+
         // Default log writer
         $this->container->singleton('logWriter', function ($c) {
             $logWriter = $c['settings']['log.writer'];
@@ -212,8 +222,6 @@ class Slim
 
         // Define default middleware stack
         $this->middleware = array($this);
-        $this->add(new \Slim\Middleware\Flash());
-        $this->add(new \Slim\Middleware\MethodOverride());
 
         // Make default if first instance
         if (is_null(static::getInstance())) {
@@ -289,6 +297,11 @@ class Slim
             'cookies.secret_key' => 'CHANGE_ME',
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+            // Session
+            'session.enabled' => false,
+            'session.options' => array(),
+            'session.handler' => null,
+            'session.flash_key' => 'slim.flash',
             // HTTP
             'http.version' => '1.1'
         );
@@ -1233,13 +1246,17 @@ class Slim
     {
         set_error_handler(array('\Slim\Slim', 'handleErrors'));
 
-        //Apply final outer middleware layers
+        // Add final middlewares
+        if ($this->settings['session.enabled'] === true) {
+            $this->add(new \Slim\Middleware\Session());
+        }
         $this->add(new \Slim\Middleware\PrettyExceptions());
+        $this->add(new \Slim\Middleware\MethodOverride());
 
-        //Invoke middleware and application stack
+        // Invoke middleware and application stack
         $this->middleware[0]->call();
 
-        //Fetch status, header, and body
+        // Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
         // Serialize cookies (with optional encryption)
@@ -1277,9 +1294,7 @@ class Slim
     public function call()
     {
         try {
-            if (isset($this->environment['slim.flash'])) {
-                $this->view()->setData('flash', $this->environment['slim.flash']);
-            }
+            $this->view->setData('flash', $this->flash);
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');

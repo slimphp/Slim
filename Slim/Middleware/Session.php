@@ -60,40 +60,11 @@ namespace Slim\Middleware;
  */
 class Session extends \Slim\Middleware
 {
-    /**
-     * Session settings
-     * @var array
-     */
-    protected $settings;
-
-    /**
-     * Session save handler
-     * @var mixed
-     */
-    protected $handler;
-
-    /**
-     * Constructor
-     * @param  array $settings The session settings
-     * @param  mixed $handler  The custom session handler
-     */
-    public function __construct(array $settings = array(), $handler = null)
-    {
-        $this->settings = $settings;
-        $this->handler = $handler;
-    }
-
-    /**
-     * Call next middleware or application
-     */
     public function call()
     {
-        // Init session
-        $this->app->session = new \Slim\Session($this->settings, $this->handler);
-
-        // Call next wrapped with session
         $this->app->session->start();
         $this->next->call();
+        $this->app->flash->save();
         $this->app->session->save();
     }
 }
