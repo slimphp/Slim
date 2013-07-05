@@ -103,6 +103,17 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('abc' => '123'), $this->property->getValue($this->bag));
     }
 
+    public function testClear()
+    {
+        $data = array(
+            'abc' => '123',
+            'foo' => 'bar'
+        );
+        $this->property->setValue($this->bag, $data);
+        $this->bag->clear();
+        $this->assertEquals(array(), $this->property->getValue($this->bag));
+    }
+
     public function testArrayAccessGet()
     {
         $data = array(
