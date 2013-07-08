@@ -66,7 +66,7 @@ class LogWriter
      * Write message
      * @param  mixed     $message
      * @param  int       $level
-     * @return int|false
+     * @return int|bool
      */
     public function write($message, $level = null)
     {

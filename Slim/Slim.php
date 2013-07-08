@@ -234,7 +234,7 @@ class Slim
     /**
      * Get application instance by name
      * @param  string    $name The name of the Slim application
-     * @return \Slim|null
+     * @return \Slim\Slim|null
      */
     public static function getInstance($name = 'default')
     {
@@ -917,7 +917,7 @@ class Slim
      *
      * @param  string       $name
      * @param  bool         $deleteIfInvalid
-     * @return string|false
+     * @return string|bool
      */
     public function getEncryptedCookie($name, $deleteIfInvalid = true)
     {
@@ -1333,7 +1333,7 @@ class Slim
      * @param  string         $errstr  The error message
      * @param  string         $errfile The absolute path to the affected file
      * @param  int            $errline The line number of the error in the affected file
-     * @return true
+     * @return bool
      * @throws \ErrorException
      */
     public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')

@@ -376,8 +376,8 @@ class Route
 
     /**
      * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param  array    URL parameters
-     * @return string   Regular expression for URL parameter
+     * @param  array    $m  URL parameters
+     * @return string       Regular expression for URL parameter
      */
     protected function matchesCallback($m)
     {
