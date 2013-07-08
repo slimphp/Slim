@@ -126,19 +126,13 @@ class Router
     public function map(\Slim\Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
-        if (count($this->routeGroups) > 0) {
-            $route->setPattern($groupPattern . $route->getPattern());
-        }
+
+        $route->setPattern($groupPattern . $route->getPattern());
         $this->routes[] = $route;
 
-        if (count($this->routeGroups) > 0) {
-            foreach ($groupMiddleware as $middlewareArr) {
-                if (is_array($middlewareArr)) {
-                    foreach ($middlewareArr as $middleware) {
-                        $route->setMiddleware($middleware);
-                    }
-                }
-            }
+
+        foreach ($groupMiddleware as $middleware) {
+            $route->setMiddleware($middleware);
         }
     }
 
@@ -153,7 +147,9 @@ class Router
         foreach ($this->routeGroups as $group) {
             $k = key($group);
             $pattern .= $k;
-            array_push($middleware, $group[$k]);
+            if (is_array($group[$k])) {
+                $middleware = array_merge($middleware, $group[$k]);
+            }
         }
         return array($pattern, $middleware);
     }
@@ -164,7 +160,7 @@ class Router
      * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
-    public function pushGroup($group, $middleware = null)
+    public function pushGroup($group, $middleware = array())
     {
         return array_push($this->routeGroups, array($group => $middleware));
     }
