@@ -230,7 +230,7 @@ class View
     /**
      * Return the contents of a rendered template file
      * @var    string $template The template pathname, relative to the template base directory
-     * @return The rendered template
+     * @return string           The rendered template
      */
     public function fetch($template)
     {
@@ -242,9 +242,9 @@ class View
      *
      * NOTE: This method should be overridden by custom view subclasses
      *
-     * @var    string $template The template pathname, relative to the template base directory
-     * @return The rendered template
-     * @throws \RuntimeException If resolved template pathname is not a valid file
+     * @var    string $template     The template pathname, relative to the template base directory
+     * @return string               The rendered template
+     * @throws \RuntimeException    If resolved template pathname is not a valid file
      */
     protected function render($template)
     {

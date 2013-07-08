@@ -78,10 +78,8 @@ class Request
 
     /**
      * Constructor
-     * @param array $env
-     * @see   \Slim\Environment
+     * @param \Slim\Environment $env
      */
-
     public function __construct(\Slim\Environment $env)
     {
         $this->env = $env;
@@ -337,7 +335,7 @@ class Request
     }
 
     /**
-     * Does the Request body contain parseable form data?
+     * Does the Request body contain parsed form data?
      * @return bool
      */
     public function isFormData()

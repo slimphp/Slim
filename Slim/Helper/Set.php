@@ -42,7 +42,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Constructor
-     * @param array $items Prepopulate set with this key-value array
+     * @param array $items Pre-populate set with this key-value array
      */
     public function __construct($items = array())
     {

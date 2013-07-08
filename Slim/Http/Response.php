@@ -128,7 +128,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      * Constructor
      * @param string                   $body   The HTTP response body
      * @param int                      $status The HTTP response status
-     * @param \Slim\Http\Headers|array $header The HTTP response headers
+     * @param \Slim\Http\Headers|array $headers The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $headers = array())
     {
@@ -223,7 +223,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      * Append HTTP response body
      * @param  string   $body       Content to append to the current HTTP response body
      * @param  bool     $replace    Overwrite existing response body?
-     * @return string   The updated HTTP response body
+     * @return string               The updated HTTP response body
      */
     public function write($body, $replace = false)
     {
@@ -317,8 +317,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
      * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
      * sent with this response will adopt all properties of the second argument.
      *
-     * @param string $name  The name of the cookie
-     * @param array  $value Properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $name     The name of the cookie
+     * @param array  $settings Properties for cookie including: value, expire, path, domain, secure, httponly
      */
     public function deleteCookie($name, $settings = array())
     {

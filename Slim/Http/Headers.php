@@ -88,7 +88,7 @@ class Headers extends \Slim\Helper\Set
 
     /**
      * Transform header name into canonical form
-     * @param  string $name
+     * @param  string $key
      * @return string
      */
     protected function normalizeKey($key)

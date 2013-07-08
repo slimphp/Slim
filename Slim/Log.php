@@ -185,7 +185,7 @@ class Log
      * Log debug message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function debug($object, $context = array())
     {
@@ -196,7 +196,7 @@ class Log
      * Log info message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function info($object, $context = array())
     {
@@ -207,7 +207,7 @@ class Log
      * Log notice message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function notice($object, $context = array())
     {
@@ -218,7 +218,7 @@ class Log
      * Log warning message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function warning($object, $context = array())
     {
@@ -230,7 +230,7 @@ class Log
      * Log warning message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function warn($object, $context = array())
     {
@@ -241,7 +241,7 @@ class Log
      * Log error message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function error($object, $context = array())
     {
@@ -252,7 +252,7 @@ class Log
      * Log critical message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function critical($object, $context = array())
     {
@@ -264,7 +264,7 @@ class Log
      * Log fatal message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function fatal($object, $context = array())
     {
@@ -275,7 +275,7 @@ class Log
      * Log alert message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function alert($object, $context = array())
     {
@@ -286,7 +286,7 @@ class Log
      * Log emergency message
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
      */
     public function emergency($object, $context = array())
     {
@@ -298,7 +298,8 @@ class Log
      * @param  mixed       $level
      * @param  mixed       $object
      * @param  array       $context
-     * @return mixed|false What the Logger returns, or false if Logger not set or not enabled
+     * @return mixed|bool What the Logger returns, or false if Logger not set or not enabled
+     * @throws \InvalidArgumentException If invalid log level
      */
     public function log($level, $object, $context = array())
     {
@@ -322,9 +323,9 @@ class Log
     /**
      * DEPRECATED for function log
      * Log message
-     * @param   mixed   The object to log
-     * @param   int     The message level
-     * @return int|false
+     * @param   mixed    $object The object to log
+     * @param   int      $level  The message level
+     * @return  int|bool
      */
     protected function write($object, $level)
     {
@@ -333,8 +334,8 @@ class Log
 
     /**
      * Interpolate log message
-     * @param  mixed     The log message
-     * @param  array     An array of placeholder values
+     * @param  mixed     $message               The log message
+     * @param  array     $context               An array of placeholder values
      * @return string    The processed string
      */
     protected function interpolate($message, $context = array())
