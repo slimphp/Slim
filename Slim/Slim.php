@@ -1338,11 +1338,11 @@ class Slim
      */
     public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
     {
-        if (error_reporting() & $errno) {
-            throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
+        if (!($errno & error_reporting())) {
+            return;
         }
 
-        return true;
+        throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
     }
 
     /**
