@@ -32,6 +32,9 @@
 
 class SetTest extends PHPUnit_Framework_TestCase
 {
+    protected $bag;
+    protected $property;
+
     public function setUp()
     {
         $this->bag = new \Slim\Helper\Set();
