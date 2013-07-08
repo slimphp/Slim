@@ -144,7 +144,6 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function clear()
     {
-        unset($this->data);
         $this->data = array();
     }
 
