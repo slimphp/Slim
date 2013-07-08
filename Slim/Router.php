@@ -162,7 +162,7 @@ class Router
      */
     public function pushGroup($group, $middleware = array())
     {
-        return array_push($this->routeGroups, array($pattern . $group => $m));
+        return array_push($this->routeGroups, array($group => $m));
     }
 
     /**
