@@ -108,6 +108,22 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
+     * Fix $_SERVER['REMOTE_ADDR'] behind load balancer
+     * works before or after Slim's initialization
+     */
+    public static function fixIp()
+    {
+        $HTTP_X_FORWARDED_FOR = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        $userIP = $HTTP_X_FORWARDED_FOR[0];
+        
+        if (!is_null(self::$environment)) {
+            self::$environment['REMOTE_ADDR'] = $userIP;
+        }
+        
+        $_SERVER['REMOTE_ADDR'] = $userIP;
+    }
+
+    /**
      * Constructor (private access)
      *
      * @param  array|null $settings If present, these are used instead of global server variables
