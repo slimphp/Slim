@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -64,11 +64,17 @@ class Router
     protected $matchedRoutes;
 
     /**
+     * @var array Array containing all route groups
+     */
+    protected $routeGroups;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->routes = array();
+        $this->routeGroups = array();
     }
 
     /**
@@ -100,7 +106,7 @@ class Router
         if ($reload || is_null($this->matchedRoutes)) {
             $this->matchedRoutes = array();
             foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($httpMethod)) {
+                if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
                     continue;
                 }
 
@@ -114,25 +120,66 @@ class Router
     }
 
     /**
-     * Map a route object to a callback function
-     * @param  string     $pattern      The URL pattern (ie. "/books/:id")
-     * @param  mixed      $callable     Anything that returns TRUE for is_callable()
-     * @return \Slim\Route
+     * Add a route object to the router
+     * @param  \Slim\Route     $route      The Slim Route
      */
-    public function map($pattern, $callable)
+    public function map(\Slim\Route $route)
     {
-        $route = new \Slim\Route($pattern, $callable);
+        list($groupPattern, $groupMiddleware) = $this->processGroups();
+
+        $route->setPattern($groupPattern . $route->getPattern());
         $this->routes[] = $route;
 
-        return $route;
+
+        foreach ($groupMiddleware as $middleware) {
+            $route->setMiddleware($middleware);
+        }
+    }
+
+    /**
+     * A helper function for processing the group's pattern and middleware
+     * @return array Returns an array with the elements: pattern, middlewareArr
+     */
+    protected function processGroups()
+    {
+        $pattern = "";
+        $middleware = array();
+        foreach ($this->routeGroups as $group) {
+            $k = key($group);
+            $pattern .= $k;
+            if (is_array($group[$k])) {
+                $middleware = array_merge($middleware, $group[$k]);
+            }
+        }
+        return array($pattern, $middleware);
+    }
+
+    /**
+     * Add a route group to the array
+     * @param  string     $group      The group pattern (ie. "/books/:id")
+     * @param  array|null $middleware Optional parameter array of middleware
+     * @return int        The index of the new group
+     */
+    public function pushGroup($group, $middleware = array())
+    {
+        return array_push($this->routeGroups, array($group => $middleware));
+    }
+
+    /**
+     * Removes the last route group from the array
+     * @return bool    True if successful, else False
+     */
+    public function popGroup()
+    {
+        return (array_pop($this->routeGroups) !== null);
     }
 
     /**
      * Get URL for named route
      * @param  string               $name   The name of the route
-     * @param  array                Associative array of URL parameter names and replacement values
-     * @throws RuntimeException     If named route not found
-     * @return string               The URL for the given route populated with provided replacement values
+     * @param  array                $params Associative array of URL parameter names and replacement values
+     * @throws \RuntimeException            If named route not found
+     * @return string                       The URL for the given route populated with provided replacement values
      */
     public function urlFor($name, $params = array())
     {
@@ -140,8 +187,8 @@ class Router
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
         $search = array();
-        foreach (array_keys($params) as $key) {
-            $search[] = '#:' . $key . '\+?(?!\w)#';
+        foreach ($params as $key => $value) {
+            $search[] = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
         }
         $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
@@ -150,35 +197,10 @@ class Router
     }
 
     /**
-     * Dispatch route
-     *
-     * This method invokes the route object's callable. If middleware is
-     * registered for the route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * @param  \Slim\Route                  $route  The route object
-     * @return bool                         Was route callable invoked successfully?
-     */
-    public function dispatch(\Slim\Route $route)
-    {
-        $this->currentRoute = $route;
-
-        //Invoke middleware
-        foreach ($route->getMiddleware() as $mw) {
-            call_user_func_array($mw, array($route));
-        }
-
-        //Invoke callable
-        call_user_func_array($route->getCallable(), array_values($route->getParams()));
-
-        return true;
-    }
-
-    /**
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
-     * @throws \RuntimeException If a named route already exists with the same name
+     * @throws \RuntimeException         If a named route already exists with the same name
      */
     public function addNamedRoute($name, \Slim\Route $route)
     {

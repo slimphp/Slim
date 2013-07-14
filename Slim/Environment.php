@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -87,7 +87,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      */
     public static function mock($userSettings = array())
     {
-        self::$environment = new self(array_merge(array(
+        $defaults = array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '',
             'PATH_INFO' => '',
@@ -102,7 +102,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             'slim.url_scheme' => 'http',
             'slim.input' => '',
             'slim.errors' => @fopen('php://stderr', 'w')
-        ), $userSettings));
+        );
+        self::$environment = new self(array_merge($defaults, $userSettings));
 
         return self::$environment;
     }
@@ -143,7 +144,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
                 $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
             } else {
-                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']) ); //With URL rewrite
+                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); //With URL rewrite
             }
             $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
             if (strpos($env['PATH_INFO'], '?') !== false) {
@@ -161,21 +162,26 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //Number of server port that is running the script
             $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-            //HTTP request headers
-            $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
-            foreach ($_SERVER as $key => $value) {
-                $value = is_string($value) ? trim($value) : $value;
-                if (strpos($key, 'HTTP_') === 0) {
-                    $env[substr($key, 5)] = $value;
-                } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
-                    $env[$key] = $value;
-                }
+            //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+            $headers = \Slim\Http\Headers::extract($_SERVER);
+            foreach ($headers as $key => $value) {
+                $env[$key] = $value;
             }
+
+            // $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
+            // foreach ($_SERVER as $key => $value) {
+            //     $value = is_string($value) ? trim($value) : $value;
+            //     if (strpos($key, 'HTTP_') === 0) {
+            //         $env[substr($key, 5)] = $value;
+            //     } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
+            //         $env[$key] = $value;
+            //     }
+            // }
 
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
-            //Input stream (readable one time only; not available for mutipart/form-data requests)
+            //Input stream (readable one time only; not available for multipart/form-data requests)
             $rawInput = @file_get_contents('php://input');
             if (!$rawInput) {
                 $rawInput = '';
@@ -183,7 +189,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['slim.input'] = $rawInput;
 
             //Error stream
-            $env['slim.errors'] = fopen('php://stderr', 'w');
+            $env['slim.errors'] = @fopen('php://stderr', 'w');
 
             $this->properties = $env;
         }

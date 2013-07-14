@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -66,7 +66,7 @@ class LogWriter
      * Write message
      * @param  mixed     $message
      * @param  int       $level
-     * @return int|false
+     * @return int|bool
      */
     public function write($message, $level = null)
     {

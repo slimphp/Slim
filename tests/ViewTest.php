@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -32,164 +32,137 @@
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {
-    public function setUp()
+    public function testGetDataAll()
     {
-        $this->view = new \Slim\View();
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+
+        $this->assertSame(array('foo' => 'bar'), $view->getData());
     }
 
-    public function generateTestData()
+    public function testGetDataKeyExists()
     {
-        return array('a' => 1, 'b' => 2, 'c' => 3);
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+
+        $this->assertEquals('bar', $view->getData('foo'));
     }
 
-    /**
-     * Test initial View data is an empty array
-     *
-     * Pre-conditions:
-     * None
-     *
-     * Post-conditions:
-     * The View object's data attribute is an empty array
-     */
-    public function testViewIsConstructedWithDataArray()
+    public function testGetDataKeyNotExists()
     {
-        $this->assertEquals(array(), $this->view->getData());
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+
+        $this->assertNull($view->getData('abc'));
     }
 
-    /**
-     * Test View sets and gets data
-     *
-     * Pre-conditions:
-     * Case A: Set view data key/value
-     * Case B: Set view data as array
-     * Case C: Set view data with one argument that is not an array
-     *
-     * Post-conditions:
-     * Case A: Data key/value are set
-     * Case B: Data is set to array
-     * Case C: An InvalidArgumentException is thrown
-     */
-    public function testViewSetAndGetData()
+    public function testSetDataKeyValue()
     {
-        //Case A
-        $this->view->setData('one', 1);
-        $this->assertEquals(1, $this->view->getData('one'));
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $view->setData('foo', 'bar');
 
-        //Case B
-        $data = array('foo' => 'bar', 'a' => 'A');
-        $this->view->setData($data);
-        $this->assertSame($data, $this->view->getData());
-
-        //Case C
-        try {
-            $this->view->setData('foo');
-            $this->fail('Setting View data with non-array single argument did not throw exception');
-        } catch ( \InvalidArgumentException $e ) {}
+        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
 
-    /**
-     * Test View appends data
-     *
-     * Pre-conditions:
-     * Case A: Append data to View several times
-     * Case B: Append view data which is not an array
-     *
-     * Post-conditions:
-     * Case A: The View data contains all appended data
-     * Case B: An InvalidArgumentException is thrown
-     */
-    public function testViewAppendsData()
+    public function testSetDataArray()
     {
-        //Case A
-        $this->view->appendData(array('a' => 'A'));
-        $this->view->appendData(array('b' => 'B'));
-        $this->assertEquals(array('a' => 'A', 'b' => 'B'), $this->view->getData());
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $view->setData(array('foo' => 'bar'));
 
-        //Case B
-        try {
-            $this->view->appendData('not an array');
-            $this->fail('Appending View data with non-array argument did not throw exception');
-        } catch ( \InvalidArgumentException $e ) {}
-
+        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
 
-    /**
-     * Test View templates directory
-     *
-     * Pre-conditions:
-     * View templates directory is set to an existing directory
-     *
-     * Post-conditions:
-     * The templates directory is set correctly.
-     */
-    public function testSetsTemplatesDirectory()
+    public function testSetDataInvalidArgument()
     {
-        $templatesDirectory = dirname(__FILE__) . '/templates';
-        $this->view->setTemplatesDirectory($templatesDirectory);
-        $this->assertEquals($templatesDirectory, $this->view->getTemplatesDirectory());
+        $this->setExpectedException('InvalidArgumentException');
+
+        $view = new \Slim\View();
+        $view->setData('foo');
     }
 
-    /**
-     * Test View templates directory may have a trailing slash when set
-     *
-     * Pre-conditions:
-     * View templates directory is set to an existing directory with a trailing slash
-     *
-     * Post-conditions:
-     * The View templates directory is set correctly without a trailing slash
-     */
-    public function testTemplatesDirectoryWithTrailingSlash()
+    public function testAppendData()
     {
-        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates/');
-        $this->assertEquals(dirname(__FILE__) . '/templates', $this->view->getTemplatesDirectory());
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $view->appendData(array('foo' => 'bar'));
+
+        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
 
-    /**
-     * Test View renders template
-     *
-     * Pre-conditions:
-     * View templates directory is set to an existing directory.
-     * View data is set without errors
-     * Case A: View renders an existing template
-     * Case B: View renders a non-existing template
-     *
-     * Post-conditions:
-     * Case A: The rendered template is returned as a string
-     * Case B: A RuntimeException is thrown
-     */
-    public function testRendersTemplateWithData()
+    public function testAppendDataOverwrite()
     {
-        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
-        $this->view->setData(array('foo' => 'bar'));
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $view->appendData(array('foo' => '123'));
 
-        //Case A
-        $output = $this->view->render('test.php');
-        $this->assertEquals('test output bar', $output);
-
-        //Case B
-        try {
-            $output = $this->view->render('foo.php');
-            $this->fail('Rendering non-existent template did not throw exception');
-        } catch ( \RuntimeException $e ) {}
+        $this->assertEquals(array('foo' => '123'), $prop->getValue($view)->all());
     }
 
-    /**
-     * Test View displays template
-     *
-     * Pre-conditions:
-     * View templates directory is set to an existing directory.
-     * View data is set without errors
-     * View is displayed
-     *
-     * Post-conditions:
-     * The output buffer contains the rendered template
-     */
-    public function testDisplaysTemplateWithData()
+    public function testAppendDataInvalidArgument()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $view = new \Slim\View();
+        $view->appendData('foo');
+    }
+
+    public function testGetTemplatesDirectory()
+    {
+        $view = new \Slim\View();
+        $property = new \ReflectionProperty($view, 'templatesDirectory');
+        $property->setAccessible(true);
+        $property->setValue($view, 'templates');
+
+        $this->assertEquals('templates', $view->getTemplatesDirectory());
+    }
+
+    public function testSetTemplatesDirectory()
+    {
+        $view = new \Slim\View();
+        $view->setTemplatesDirectory('templates/'); // <-- Should strip trailing slash
+
+        $this->assertAttributeEquals('templates', 'templatesDirectory', $view);
+    }
+
+    public function testDisplay()
     {
         $this->expectOutputString('test output bar');
-        $this->view->setTemplatesDirectory(dirname(__FILE__) . '/templates');
-        $this->view->setData(array('foo' => 'bar'));
-        $this->view->display('test.php');
+
+        $view = new \Slim\View();
+        $prop1 = new \ReflectionProperty($view, 'data');
+        $prop1->setAccessible(true);
+        $prop1->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+
+        $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
+        $prop2->setAccessible(true);
+        $prop2->setValue($view, dirname(__FILE__) . '/templates');
+
+        $view->display('test.php');
     }
 
+    public function testDisplayTemplateThatDoesNotExist()
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $view = new \Slim\View();
+
+        $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
+        $prop2->setAccessible(true);
+        $prop2->setValue($view, dirname(__FILE__) . '/templates');
+
+        $view->display('foo.php');
+    }
 }

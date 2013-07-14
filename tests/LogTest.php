@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -98,6 +98,21 @@ class LogTest extends PHPUnit_Framework_TestCase
     public function testLogInfoExcludedByLevel()
     {
         $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::NOTICE);
+        $this->assertFalse($log->info('Info'));
+    }
+
+    public function testLogNotice()
+    {
+        $this->expectOutputString('Notice');
+        $log = new \Slim\Log(new MyWriter());
+        $result = $log->notice('Notice');
+        $this->assertTrue($result);
+    }
+
+    public function testLogNoticeExcludedByLevel()
+    {
+        $log = new \Slim\Log(new MyWriter());
         $log->setLevel(\Slim\Log::WARN);
         $this->assertFalse($log->info('Info'));
     }
@@ -106,7 +121,7 @@ class LogTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('Warn');
         $log = new \Slim\Log(new MyWriter());
-        $result = $log->warn('Warn');
+        $result = $log->warning('Warn');
         $this->assertTrue($result);
     }
 
@@ -114,7 +129,7 @@ class LogTest extends PHPUnit_Framework_TestCase
     {
         $log = new \Slim\Log(new MyWriter());
         $log->setLevel(\Slim\Log::ERROR);
-        $this->assertFalse($log->warn('Warn'));
+        $this->assertFalse($log->warning('Warn'));
     }
 
     public function testLogError()
@@ -128,15 +143,56 @@ class LogTest extends PHPUnit_Framework_TestCase
     public function testLogErrorExcludedByLevel()
     {
         $log = new \Slim\Log(new MyWriter());
-        $log->setLevel(\Slim\Log::FATAL);
+        $log->setLevel(\Slim\Log::CRITICAL);
         $this->assertFalse($log->error('Error'));
     }
 
-    public function testLogFatal()
+    public function testLogCritical()
     {
-        $this->expectOutputString('Fatal');
+        $this->expectOutputString('Critical');
         $log = new \Slim\Log(new MyWriter());
-        $result = $log->fatal('Fatal');
+        $result = $log->critical('Critical');
+        $this->assertTrue($result);
+    }
+
+    public function testLogCriticalExcludedByLevel()
+    {
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::ALERT);
+        $this->assertFalse($log->critical('Critical'));
+    }
+
+    public function testLogAlert()
+    {
+        $this->expectOutputString('Alert');
+        $log = new \Slim\Log(new MyWriter());
+        $result = $log->alert('Alert');
+        $this->assertTrue($result);
+    }
+
+    public function testLogAlertExcludedByLevel()
+    {
+        $log = new \Slim\Log(new MyWriter());
+        $log->setLevel(\Slim\Log::EMERGENCY);
+        $this->assertFalse($log->alert('Alert'));
+    }
+
+    public function testLogEmergency()
+    {
+        $this->expectOutputString('Emergency');
+        $log = new \Slim\Log(new MyWriter());
+        $result = $log->emergency('Emergency');
+        $this->assertTrue($result);
+    }
+
+    public function testInterpolateMessage()
+    {
+        $this->expectOutputString('Hello Slim !');
+        $log = new \Slim\Log(new MyWriter());
+        $result = $log->debug(
+            'Hello {framework} !',
+            array('framework' => "Slim")
+        );
         $this->assertTrue($result);
     }
 
