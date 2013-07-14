@@ -29,7 +29,7 @@ Thank you for choosing the Slim Framework for your next project. I think you're 
 
 You may install the Slim Framework with Composer (recommended) or manually.
 
-[Read how to install Slim](http://docs.slimframework.com/pages/getting-started-install)
+[Read how to install Slim](http://docs.slimframework.com/#Installation)
 
 ### System Requirements
 
