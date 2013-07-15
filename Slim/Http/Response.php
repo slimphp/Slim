@@ -508,4 +508,18 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
             return null;
         }
     }
+
+    public function __toString()
+    {
+        $output = sprintf('HTTP/1.1 %s', static::getMessageForCode($this->getStatus())) . PHP_EOL;
+        foreach ($this->headers as $name => $value) {
+            $output .= sprintf('%s: %s', $name, $value) . PHP_EOL;
+        }
+        $body = $this->getBody();
+        if ($body) {
+            $output .= PHP_EOL . $body;
+        }
+
+        return $output;
+    }
 }
