@@ -104,6 +104,16 @@ class View
     }
 
     /**
+     * Set view data value as Closure with key
+     * @param string $key
+     * @param mixed $value
+     */
+    public function keep($key, Closure $value)
+    {
+        $this->data->keep($key, $value);
+    }
+
+    /**
      * Return view data
      * @return array
      */
@@ -158,7 +168,12 @@ class View
         if (count($args) === 1 && is_array($args[0])) {
             $this->data->replace($args[0]);
         } elseif (count($args) === 2) {
-            $this->data->set($args[0], $args[1]);
+            // Ensure original behavior is maintained. DO NOT invoke stored Closures.
+            if (is_object($args[1]) && method_exists($args[1], '__invoke')) {
+                $this->data->keep($args[0], $args[1]);
+            } else {
+                $this->data->set($args[0], $args[1]);
+            }
         } else {
             throw new \InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
         }
