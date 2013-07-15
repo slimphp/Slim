@@ -1238,7 +1238,7 @@ class Slim
      * @param string $contentType   Optional content type of the stream
      */
 
-    public function sendProc($command, $contentType = "text/plain") {
+    public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
         $this->response()->stream($ph);
         $this->response()->header("Content-Type", $contentType);

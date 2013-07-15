@@ -507,7 +507,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString("FooBar\n");
         $s = new \Slim\Slim();
         $s->get('/bar', function() use ($s) {
-            $s->sendProc("echo 'FooBar'");
+            $s->sendProcess("echo 'FooBar'");
         });
         $s->run();
     }
