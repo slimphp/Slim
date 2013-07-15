@@ -566,6 +566,22 @@ class Request
     }
 
     /**
+     * Get query string
+     */
+    public function getQueryString()
+    {
+        return $this->env['QUERY_STRING'];
+    }
+
+    /**
+     * Get protocol
+     */
+    public function getProtocol()
+    {
+        return $this->env['SERVER_PROTOCOL'];
+    }
+
+    /**
      * Get IP
      * @return string
      */
@@ -605,5 +621,29 @@ class Request
     public function getUserAgent()
     {
         return $this->headers->get('HTTP_USER_AGENT');
+    }
+
+    public function __toString()
+    {
+        // Build path with query string
+        $path = $this->getPath();
+        $qs = $this->getQueryString();
+        if ($qs) {
+            $path = sprintf('%s?%s', $path, $qs);
+        }
+
+        // Build headers
+        $output = sprintf('%s %s %s', $this->getMethod(), $path, $this->getProtocol()) . PHP_EOL;
+        foreach ($this->headers as $name => $value) {
+            $output .= sprintf("%s: %s", $name, $value) . PHP_EOL;
+        }
+
+        // Build body
+        $body = $this->getBody();
+        if ($body) {
+            $output .= PHP_EOL . $this->getBody();
+        }
+
+        return $output;
     }
 }
