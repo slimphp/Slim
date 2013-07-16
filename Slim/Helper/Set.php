@@ -209,15 +209,14 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * Keep closure as value (i.e. DO NOT invoke it, just return the closure itself)
-     * @param  string  $key      The value or object name
+     * Protect closure from being directly invoked
      * @param  Closure $callable A closure to keep from being invoked and evaluated
      * @return Closure
      */
-    public function keep($key, \Closure $callable)
+    public function protect(\Closure $callable)
     {
-        $this->set($key, function ($c) use ($callable) {
+        return function () use ($callable) {
             return $callable;
-        });
+        };
     }
 }

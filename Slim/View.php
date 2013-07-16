@@ -170,7 +170,7 @@ class View
         } elseif (count($args) === 2) {
             // Ensure original behavior is maintained. DO NOT invoke stored Closures.
             if (is_object($args[1]) && method_exists($args[1], '__invoke')) {
-                $this->data->keep($args[0], $args[1]);
+                $this->data->set($args[0], $this->data->protect($args[1]));
             } else {
                 $this->data->set($args[0], $args[1]);
             }

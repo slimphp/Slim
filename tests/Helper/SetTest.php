@@ -181,15 +181,14 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\ArrayIterator', $this->bag->getIterator());
     }
 
-    public function testKeep()
+    public function testProtect()
     {
         $callable = function () {
             return 'foo';
         };
-        $this->bag->keep('foo', $callable);
-        $value = $this->bag['foo'];
+        $result = $this->bag->protect($callable);
 
-        $this->assertInstanceOf('Closure', $value);
-        $this->assertEquals('foo', $value());
+        $this->assertInstanceOf('\Closure', $result);
+        $this->assertSame($callable, $result());
     }
 }
