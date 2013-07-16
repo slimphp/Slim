@@ -234,6 +234,10 @@ class Slim
     public function __isset($name){
     	return isset($this->container[$name]);
     }
+  
+    public function __unset($name){
+    	unset($this->container[$name]);
+    }
 
     /**
      * Get application instance by name
