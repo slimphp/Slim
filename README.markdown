@@ -14,6 +14,7 @@ Thank you for choosing the Slim Framework for your next project. I think you're 
     * Route parameters with wildcards and conditions
     * Route redirect, halt, and pass
     * Route middleware
+* Resource Locator and DI container
 * Template rendering with custom views
 * Flash messages
 * Secure cookies with AES-256 encryption
