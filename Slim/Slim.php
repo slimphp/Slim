@@ -820,7 +820,7 @@ class Slim
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response->headers->set('Expires', gmdate(DATE_RFC1123, $time));
+        $this->response->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 
     /********************************************************************************
