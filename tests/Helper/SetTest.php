@@ -180,4 +180,15 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->property->setValue($this->bag, $data);
         $this->assertInstanceOf('\ArrayIterator', $this->bag->getIterator());
     }
+
+    public function testProtect()
+    {
+        $callable = function () {
+            return 'foo';
+        };
+        $result = $this->bag->protect($callable);
+
+        $this->assertInstanceOf('\Closure', $result);
+        $this->assertSame($callable, $result());
+    }
 }

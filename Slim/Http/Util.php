@@ -186,9 +186,15 @@ class Util
     {
         if ($config['cookies.encrypt']) {
             foreach ($cookies as $name => $settings) {
+                if (is_string($settings['expires'])) {
+                    $expires = strtotime($settings['expires']);
+                } else {
+                    $expires = (int) $settings['expires'];
+                }
+
                 $settings['value'] = static::encodeSecureCookie(
                     $settings['value'],
-                    $settings['expires'],
+                    $expires,
                     $config['cookies.secret_key'],
                     $config['cookies.cipher'],
                     $config['cookies.cipher_mode']
