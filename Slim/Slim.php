@@ -230,6 +230,14 @@ class Slim
     {
         $this->container[$name] = $value;
     }
+    
+    public function __isset($name){
+    	return isset($this->container[$name]);
+    }
+  
+    public function __unset($name){
+    	unset($this->container[$name]);
+    }
 
     /**
      * Get application instance by name
@@ -754,7 +762,7 @@ class Slim
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this->response->headers->set('Last-Modified', date(DATE_RFC1123, $time));
+            $this->response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
             if ($time === strtotime($this->request->headers->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
@@ -820,7 +828,7 @@ class Slim
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response->headers->set('Expires', gmdate(DATE_RFC1123, $time));
+        $this->response->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 
     /********************************************************************************

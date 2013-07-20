@@ -72,6 +72,21 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
 
+    public function testSetDataKeyValueAsClosure()
+    {
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+
+        $view->setData('fooClosure', function () {
+            return 'foo';
+        });
+
+        $value = $prop->getValue($view)->get('fooClosure');
+        $this->assertInstanceOf('Closure', $value);
+        $this->assertEquals('foo', $value());
+    }
+
     public function testSetDataArray()
     {
         $view = new \Slim\View();

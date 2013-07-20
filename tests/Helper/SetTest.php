@@ -225,6 +225,17 @@ class SetTest extends PHPUnit_Framework_TestCase
         unset($this->bag->abc);
         $this->assertFalse(isset($this->bag->abc));
         $this->assertArrayNotHasKey('abc', $this->property->getValue($this->bag));
-        $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));			
+        $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
+    }
+
+    public function testProtect()
+    {
+        $callable = function () {
+            return 'foo';
+        };
+        $result = $this->bag->protect($callable);
+
+        $this->assertInstanceOf('\Closure', $result);
+        $this->assertSame($callable, $result());
     }
 }

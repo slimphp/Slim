@@ -231,4 +231,16 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
             return $object;
         });
     }
+
+    /**
+     * Protect closure from being directly invoked
+     * @param  Closure $callable A closure to keep from being invoked and evaluated
+     * @return Closure
+     */
+    public function protect(\Closure $callable)
+    {
+        return function () use ($callable) {
+            return $callable;
+        };
+    }
 }
