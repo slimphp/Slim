@@ -1159,43 +1159,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
-     * FLASH MESSAGING
-     ************************************************/
-
-    public function testSetFlashForNextRequest()
-    {
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->flash('info', 'bar');
-        });
-        $this->assertFalse(isset($_SESSION['slim.flash']));
-        $s->run();
-        $this->assertEquals('bar', $_SESSION['slim.flash']['info']);
-    }
-
-    public function testSetFlashForCurrentRequest()
-    {
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->flashNow('info', 'bar');
-        });
-        $s->run();
-        $env = $s->environment();
-        $this->assertEquals('bar', $env['slim.flash']['info']);
-    }
-
-    public function testKeepFlashForNextRequest()
-    {
-        $_SESSION['slim.flash'] = array('info' => 'Foo');
-        $s = new \Slim\Slim();
-        $s->get('/bar', function () use ($s) {
-            $s->flashKeep();
-        });
-        $s->run();
-        $this->assertEquals('Foo', $_SESSION['slim.flash']['info']);
-    }
-
-    /************************************************
      * NOT FOUND HANDLING
      ************************************************/
 

@@ -62,7 +62,16 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      */
     public function next($key, $value)
     {
-        $this->messages['next'][(string)$key] = $value;
+        // NOTE: This is a makeshift hack. If I instead do this in `save()`:
+        //
+        // $this->session->set($this->getKey(), $this->messages['next'])
+        //
+        // it will not work for whatever reason. I will revert to that
+        // when I figure out why it isn't working. For now, this will do.
+        $values = isset($this->session[$this->getKey()]) ? $this->session[$this->getKey()] : array();
+        $values[$key] = $value;
+        $this->session->set($this->getKey(), $values);
+        // $this->messages['next'][(string)$key] = $value;
     }
 
     /**
@@ -81,7 +90,8 @@ class Flash implements \ArrayAccess, \IteratorAggregate
     public function keep()
     {
         foreach ($this->messages['prev'] as $key => $val) {
-            $this->messages['next'][$key] = $val;
+            $this->next($key, $val);
+            // $this->messages['next'][$key] = $val;
         }
     }
 
@@ -90,7 +100,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      */
     public function save()
     {
-        $this->session->set($this->getKey(), $this->messages['next']);
+        //$this->session->set($this->getKey(), $this->messages['next']);
     }
 
     /**

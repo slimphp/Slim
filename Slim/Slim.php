@@ -311,7 +311,7 @@ class Slim
             // Session
             'session.options' => array(),
             'session.handler' => null,
-            'session.flash_key' => 'flash',
+            'session.flash_key' => 'slimflash',
             // HTTP
             'http.version' => '1.1'
         );
@@ -1104,37 +1104,34 @@ class Slim
     *******************************************************************************/
 
     /**
+     * DEPRECATED
      * Set flash message for subsequent request
      * @param  string   $key
      * @param  mixed    $value
      */
     public function flash($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
-        }
+        $this->flash->next($key, $value);
     }
 
     /**
+     * DEPRECATED
      * Set flash message for current request
      * @param  string   $key
      * @param  mixed    $value
      */
     public function flashNow($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->now($key, $value);
-        }
+        $this->flash->now($key, $value);
     }
 
     /**
+     * DEPRECATED
      * Keep flash messages from previous request for subsequent request
      */
     public function flashKeep()
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->keep();
-        }
+        $this->flash->keep();
     }
 
     /********************************************************************************
@@ -1267,8 +1264,6 @@ class Slim
 
         // Save flash messages to session
         $this->flash->save();
-        // var_dump($_SESSION);
-        // exit;
 
         // Save session and close
         $this->session->save();

@@ -21,14 +21,6 @@ require 'Slim/Slim.php';
  */
 $app = new \Slim\Slim();
 
-$app->get('/set', function () use ($app) {
-    $app->flash->next('foo', 'bar');
-});
-
-$app->get('/get', function () use ($app) {
-    var_dump($app->session);
-});
-
 /**
  * Step 3: Define the Slim application routes
  *

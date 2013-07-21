@@ -113,20 +113,20 @@ class Session extends \Slim\Helper\Set
             return true;
         }
 
-        if (ini_get('session.use_cookies') && headers_sent($file, $line)) {
-            throw new \RuntimeException(sprintf('Unable to start session because headers have already been sent by "%s" (line %d).', $file, $line));
-        }
+        if (headers_sent() === false) {
+            if (isset($_SESSION) === false || session_id() === '') {
+                session_cache_limiter(''); // Disable cache headers from being sent by PHP
+                ini_set('session.use_cookies', 1);
 
-        if (isset($_SESSION) === false || session_id() === '') {
-            session_cache_limiter(''); // Disable cache headers from being sent by PHP
-            ini_set('session.use_cookies', 1);
-
-            if (session_start() === false) {
-                throw new \RuntimeException('Unable to start session');
+                if (session_start() === false) {
+                    throw new \RuntimeException('Unable to start session');
+                }
             }
+
+            // Needed to use inherited \Slim\Helper\Set methods on the $_SESSION array
+            $this->data = &$_SESSION;
         }
 
-        $this->data = &$_SESSION; // Needed to use inherited \Slim\Helper\Set methods on the $_SESSION array
         $this->started = true;
     }
 
