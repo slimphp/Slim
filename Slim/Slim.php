@@ -1274,8 +1274,10 @@ class Slim
             }
         }
 
-        //Send body
-        echo $body;
+        //Send body, but only if it isn't a HEAD request
+        if (!$this->request->isHead()) {
+            echo $body;
+        }
 
         restore_error_handler();
     }
