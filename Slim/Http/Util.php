@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -186,9 +186,15 @@ class Util
     {
         if ($config['cookies.encrypt']) {
             foreach ($cookies as $name => $settings) {
+                if (is_string($settings['expires'])) {
+                    $expires = strtotime($settings['expires']);
+                } else {
+                    $expires = (int) $settings['expires'];
+                }
+
                 $settings['value'] = static::encodeSecureCookie(
                     $settings['value'],
-                    $settings['expires'],
+                    $expires,
                     $config['cookies.secret_key'],
                     $config['cookies.cipher'],
                     $config['cookies.cipher_mode']
@@ -209,7 +215,7 @@ class Util
      * cookie value is encrypted and hashed so that its value is
      * secure and checked for integrity when read in subsequent requests.
      *
-     * @param string $value     The unsecure HTTP cookie value
+     * @param string $value     The insecure HTTP cookie value
      * @param int    $expires   The UNIX timestamp at which this cookie will expire
      * @param string $secret    The secret key used to hash the cookie value
      * @param int    $algorithm The algorithm to use for encryption
@@ -247,7 +253,7 @@ class Util
      * @param string $secret    The secret key used to hash the cookie value
      * @param int    $algorithm The algorithm to use for encryption
      * @param int    $mode      The algorithm mode to use for encryption
-     * @return false|string
+     * @return bool|string
      */
     public static function decodeSecureCookie($value, $secret, $algorithm, $mode)
     {
@@ -416,7 +422,7 @@ class Util
      *
      * @param  int    $expires The UNIX timestamp at which this cookie will expire
      * @param  string $secret  The secret key used to hash the cookie value
-     * @return binary string with length 40
+     * @return string Hash
      */
     private static function getIv($expires, $secret)
     {

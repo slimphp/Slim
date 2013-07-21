@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -104,6 +104,16 @@ class View
     }
 
     /**
+     * Set view data value as Closure with key
+     * @param string $key
+     * @param mixed $value
+     */
+    public function keep($key, Closure $value)
+    {
+        $this->data->keep($key, $value);
+    }
+
+    /**
      * Return view data
      * @return array
      */
@@ -158,7 +168,12 @@ class View
         if (count($args) === 1 && is_array($args[0])) {
             $this->data->replace($args[0]);
         } elseif (count($args) === 2) {
-            $this->data->set($args[0], $args[1]);
+            // Ensure original behavior is maintained. DO NOT invoke stored Closures.
+            if (is_object($args[1]) && method_exists($args[1], '__invoke')) {
+                $this->data->set($args[0], $this->data->protect($args[1]));
+            } else {
+                $this->data->set($args[0], $args[1]);
+            }
         } else {
             throw new \InvalidArgumentException('Cannot set View data with provided arguments. Usage: `View::setData( $key, $value );` or `View::setData([ key => value, ... ]);`');
         }
@@ -230,7 +245,7 @@ class View
     /**
      * Return the contents of a rendered template file
      * @var    string $template The template pathname, relative to the template base directory
-     * @return The rendered template
+     * @return string           The rendered template
      */
     public function fetch($template)
     {
@@ -242,9 +257,9 @@ class View
      *
      * NOTE: This method should be overridden by custom view subclasses
      *
-     * @var    string $template The template pathname, relative to the template base directory
-     * @return The rendered template
-     * @throws \RuntimeException If resolved template pathname is not a valid file
+     * @var    string $template     The template pathname, relative to the template base directory
+     * @return string               The rendered template
+     * @throws \RuntimeException    If resolved template pathname is not a valid file
      */
     protected function render($template)
     {

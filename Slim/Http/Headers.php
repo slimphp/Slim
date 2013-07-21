@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -88,7 +88,7 @@ class Headers extends \Slim\Helper\Set
 
     /**
      * Transform header name into canonical form
-     * @param  string $name
+     * @param  string $key
      * @return string
      */
     protected function normalizeKey($key)

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -322,6 +322,50 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
             'httponly' => $httpOnly
         ));
         $this->assertEquals('foo=bar; domain=foo.com; path=/foo; expires=' . $expiresFormat . '; secure; HttpOnly', $header['Set-Cookie']);
+    }
+
+    /**
+     * Test serializeCookies and decrypt with string expires
+     *
+     * In this test a cookie with a string typed value for 'expires' is set,
+     * which should be parsed by `strtotime` to a timestamp when it's added to
+     * the headers; this timestamp should then be correctly parsed, and the
+     * value correctly decrypted, by `decodeSecureCookie`.
+     */
+    public function testSerializeCookiesAndDecryptWithStringExpires()
+    {
+        $value = 'bar';
+
+        $headers = new \Slim\Http\Headers();
+
+        $settings = array(
+            'cookies.encrypt' => true,
+            'cookies.secret_key' => 'secret',
+            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+            'cookies.cipher_mode' => MCRYPT_MODE_CBC
+        );
+
+        $cookies = new \Slim\Http\Cookies();
+        $cookies->set('foo',  array(
+            'value' => $value,
+            'expires' => '1 hour'
+        ));
+
+        \Slim\Http\Util::serializeCookies($headers, $cookies, $settings);
+
+        $encrypted = $headers->get('Set-Cookie');
+        $encrypted = strstr($encrypted, ';', true);
+        $encrypted = urldecode(substr(strstr($encrypted, '='), 1));
+
+        $decrypted = \Slim\Http\Util::decodeSecureCookie(
+            $encrypted,
+            $settings['cookies.secret_key'],
+            $settings['cookies.cipher'],
+            $settings['cookies.cipher_mode']
+        );
+
+        $this->assertEquals($value, $decrypted);
+        $this->assertTrue($value !== $encrypted);
     }
 
     public function testDeleteCookieHeaderWithSurvivingCookie()

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -42,7 +42,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Constructor
-     * @param array $items Prepopulate set with this key-value array
+     * @param array $items Pre-populate set with this key-value array
      */
     public function __construct($items = array())
     {
@@ -144,7 +144,6 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function clear()
     {
-        unset($this->data);
         $this->data = array();
     }
 
@@ -207,5 +206,17 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
             return $object;
         });
+    }
+
+    /**
+     * Protect closure from being directly invoked
+     * @param  Closure $callable A closure to keep from being invoked and evaluated
+     * @return Closure
+     */
+    public function protect(\Closure $callable)
+    {
+        return function () use ($callable) {
+            return $callable;
+        };
     }
 }

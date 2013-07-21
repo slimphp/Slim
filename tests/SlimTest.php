@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -611,7 +611,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
+            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT',
         ));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
@@ -629,7 +629,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
-            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 17:00:52 -0400',
+            'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT',
         ));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
@@ -651,6 +651,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->lastModified('Test');
         });
         $s->call();
+    }
+
+    /**
+     * Test Last Modified header format
+     */
+    public function testLastModifiedHeaderFormat()
+    {
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+        ));
+        $s = new \Slim\Slim();
+        $s->get('/bar', function () use ($s) {
+            $s->lastModified(1286139652);
+        });
+        $s->call();
+        list($status, $header, $body) = $s->response()->finalize();
+        $this->assertTrue(isset($header['Last-Modified']));
+        $this->assertEquals('Sun, 03 Oct 2010 21:00:52 GMT', $header['Last-Modified']);
     }
 
     /**
@@ -716,7 +735,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
-        $expectedDate = gmdate('D, d M Y', strtotime('5 days')); //Just the day, month, and year
+        $expectedDate = gmdate('D, d M Y H:i:s T', strtotime('5 days'));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
             $s->expires('5 days');
@@ -724,7 +743,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
+        $this->assertEquals($header['Expires'], $expectedDate);
     }
 
     /**
@@ -737,7 +756,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
-        $expectedDate = gmdate('D, d M Y', $fiveDaysFromNow); //Just the day, month, and year
+        $expectedDate = gmdate('D, d M Y H:i:s T', $fiveDaysFromNow);
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s, $fiveDaysFromNow) {
             $s->expires($fiveDaysFromNow);
@@ -745,7 +764,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals(0, strpos($header['Expires'], $expectedDate));
+        $this->assertEquals($header['Expires'], $expectedDate);
     }
 
     /************************************************
@@ -1339,22 +1358,20 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $defaultErrorReporting = error_reporting();
 
-        // Assert Slim ignores E_NOTICE errors
+        // Test 1
         error_reporting(E_ALL ^ E_NOTICE); // <-- Report all errors EXCEPT notices
         try {
-            $this->assertTrue(\Slim\Slim::handleErrors(E_NOTICE, 'test error', 'Slim.php', 119));
+            \Slim\Slim::handleErrors(E_NOTICE, 'test error', 'Slim.php', 119);
         } catch (\ErrorException $e) {
             $this->fail('Slim::handleErrors reported a disabled error level.');
         }
 
-        // Assert Slim reports E_STRICT errors
+        // Test 2
         error_reporting(E_ALL | E_STRICT); // <-- Report all errors, including E_STRICT
         try {
             \Slim\Slim::handleErrors(E_STRICT, 'test error', 'Slim.php', 119);
             $this->fail('Slim::handleErrors didn\'t report a enabled error level');
-        } catch (\ErrorException $e) {
-            $this->assertEquals('test error', $e->getMessage());
-        }
+        } catch (\ErrorException $e) {}
 
         error_reporting($defaultErrorReporting);
     }

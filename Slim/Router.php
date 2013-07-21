@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -126,24 +126,18 @@ class Router
     public function map(\Slim\Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
-        if (count($this->routeGroups) > 0) {
-            $route->setPattern($groupPattern . $route->getPattern());
-        }
+
+        $route->setPattern($groupPattern . $route->getPattern());
         $this->routes[] = $route;
 
-        if (count($this->routeGroups) > 0) {
-            foreach ($groupMiddleware as $middlewareArr) {
-                if (is_array($middlewareArr)) {
-                    foreach ($middlewareArr as $middleware) {
-                        $route->setMiddleware($middleware);
-                    }
-                }
-            }
+
+        foreach ($groupMiddleware as $middleware) {
+            $route->setMiddleware($middleware);
         }
     }
 
     /**
-     * A helper function for proccesing the group's pattern and middleware
+     * A helper function for processing the group's pattern and middleware
      * @return array Returns an array with the elements: pattern, middlewareArr
      */
     protected function processGroups()
@@ -153,7 +147,9 @@ class Router
         foreach ($this->routeGroups as $group) {
             $k = key($group);
             $pattern .= $k;
-            array_push($middleware, $group[$k]);
+            if (is_array($group[$k])) {
+                $middleware = array_merge($middleware, $group[$k]);
+            }
         }
         return array($pattern, $middleware);
     }
@@ -164,7 +160,7 @@ class Router
      * @param  array|null $middleware Optional parameter array of middleware
      * @return int        The index of the new group
      */
-    public function pushGroup($group, $middleware = null)
+    public function pushGroup($group, $middleware = array())
     {
         return array_push($this->routeGroups, array($group => $middleware));
     }
@@ -181,9 +177,9 @@ class Router
     /**
      * Get URL for named route
      * @param  string               $name   The name of the route
-     * @param  array                Associative array of URL parameter names and replacement values
-     * @throws RuntimeException     If named route not found
-     * @return string               The URL for the given route populated with provided replacement values
+     * @param  array                $params Associative array of URL parameter names and replacement values
+     * @throws \RuntimeException            If named route not found
+     * @return string                       The URL for the given route populated with provided replacement values
      */
     public function urlFor($name, $params = array())
     {
@@ -204,7 +200,7 @@ class Router
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
-     * @throws \RuntimeException If a named route already exists with the same name
+     * @throws \RuntimeException         If a named route already exists with the same name
      */
     public function addNamedRoute($name, \Slim\Route $route)
     {

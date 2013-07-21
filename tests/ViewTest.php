@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  *
  * MIT LICENSE
  *
@@ -70,6 +70,21 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view->setData('foo', 'bar');
 
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
+    }
+
+    public function testSetDataKeyValueAsClosure()
+    {
+        $view = new \Slim\View();
+        $prop = new \ReflectionProperty($view, 'data');
+        $prop->setAccessible(true);
+
+        $view->setData('fooClosure', function () {
+            return 'foo';
+        });
+
+        $value = $prop->getValue($view)->get('fooClosure');
+        $this->assertInstanceOf('Closure', $value);
+        $this->assertEquals('foo', $value());
     }
 
     public function testSetDataArray()
