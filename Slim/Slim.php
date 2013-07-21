@@ -178,7 +178,10 @@ class Slim
 
         // Default session
         $this->container->singleton('session', function ($c) {
-            return new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $s->start();
+
+            return $s;
         });
 
         // Default flash
@@ -306,10 +309,9 @@ class Slim
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             // Session
-            'session.enabled' => false,
             'session.options' => array(),
             'session.handler' => null,
-            'session.flash_key' => 'slim.flash',
+            'session.flash_key' => 'flash',
             // HTTP
             'http.version' => '1.1'
         );
@@ -1262,6 +1264,14 @@ class Slim
 
         // Invoke middleware and application stack
         $this->middleware[0]->call();
+
+        // Save flash messages to session
+        $this->flash->save();
+        // var_dump($_SESSION);
+        // exit;
+
+        // Save session and close
+        $this->session->save();
 
         // Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();

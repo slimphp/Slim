@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.2.0
+ * @version     2.3.0
  * @package     Slim
  *
  * MIT LICENSE
@@ -101,7 +101,9 @@ class Session extends \Slim\Helper\Set
 
     /**
      * Start the session
-     * @throws \RuntimeException If session already started by PHP
+     *
+     * This method is designed to automatically adopt a pre-existing PHP session.
+     *
      * @throws \RuntimeException If HTTP headers have already been sent and using HTTP session cookie
      * @throws \RuntimeException If unable to start new PHP session
      */
@@ -111,19 +113,17 @@ class Session extends \Slim\Helper\Set
             return true;
         }
 
-        if (isset($_SESSION) && session_id()) {
-            throw new \RuntimeException('Session already started by PHP.');
-        }
-
         if (ini_get('session.use_cookies') && headers_sent($file, $line)) {
             throw new \RuntimeException(sprintf('Unable to start session because headers have already been sent by "%s" (line %d).', $file, $line));
         }
 
-        session_cache_limiter(''); // Disable cache headers from being sent by PHP
-        ini_set('session.use_cookies', 1);
+        if (isset($_SESSION) === false || session_id() === '') {
+            session_cache_limiter(''); // Disable cache headers from being sent by PHP
+            ini_set('session.use_cookies', 1);
 
-        if (session_start() === false) {
-            throw new \RuntimeException('Unable to start session');
+            if (session_start() === false) {
+                throw new \RuntimeException('Unable to start session');
+            }
         }
 
         $this->data = &$_SESSION; // Needed to use inherited \Slim\Helper\Set methods on the $_SESSION array
@@ -147,14 +147,6 @@ class Session extends \Slim\Helper\Set
     public function regenerate($destroy = false)
     {
         return session_regenerate_id($destroy);
-    }
-
-    /**
-     * Clear session data
-     */
-    public function clear()
-    {
-        $this->data = array();
     }
 
     /**

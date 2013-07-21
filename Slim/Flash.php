@@ -26,7 +26,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      * @param \Slim\Session $session
      * @param string        $key     The flash session storage key
      */
-    public function __construct(\Slim\Session $session, $key = 'slim.flash')
+    public function __construct(\Slim\Session $session, $key = 'slimflash')
     {
         $this->session = $session;
         $this->key = $key;
@@ -90,7 +90,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      */
     public function save()
     {
-        $this->session[$this->getKey()] = $this->messages['next'];
+        $this->session->set($this->getKey(), $this->messages['next']);
     }
 
     /**
