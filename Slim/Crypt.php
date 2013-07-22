@@ -41,7 +41,7 @@ namespace Slim;
 class Crypt
 {
     /**
-     * Encryption key (should be correct length for selectec algorithm)
+     * Encryption key (should be correct length for selected cipher)
      * @var string
      */
     protected $key;
@@ -76,7 +76,6 @@ class Crypt
     /**
      * Encrypt data
      * @param  string $data Unencrypted string
-     * @param  string $iv   Initialization vector
      * @return string       Encrypted data
      */
     public function encrypt($data)
@@ -113,7 +112,6 @@ class Crypt
     /**
      * Decrypt data
      * @param  string $data Encrypted string
-     * @param  string $iv   Initialization vector
      * @return string       Decrypted data
      */
     public function decrypt($data)
@@ -124,6 +122,10 @@ class Crypt
 
         // Extract components of encrypted data string
         $parts = explode('|', $data);
+        if (count($parts) !== 3) {
+            return $data;
+        }
+
         $iv = base64_decode($parts[0]);
         $encryptedData = base64_decode($parts[1]);
         $hmac = $parts[2];

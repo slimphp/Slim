@@ -34,6 +34,19 @@ namespace Slim;
 
 /**
  * Session
+ *
+ * This class is an adapter for a session. By default, it will persist data
+ * using PHP's native session handler. However, it is possible to register
+ * a custom session handler.
+ *
+ * This class will namespace its session data into the `slim.session` namespace
+ * so that it will not pollute the global session namespace that may be used
+ * by third-party code.
+ *
+ * This class is designed to automatically adopt an existing PHP session
+ * if one has already been started. Otherwise, it will start a new PHP
+ * session with the appropriate settings for you.
+ *
  * @package    Slim
  * @author     Josh Lockhart
  * @since      2.3.0
@@ -102,9 +115,8 @@ class Session extends \Slim\Helper\Set
     /**
      * Start the session
      *
-     * This method is designed to automatically adopt a pre-existing PHP session.
+     * This method is designed to automatically adopt a pre-existing PHP session if available.
      *
-     * @throws \RuntimeException If HTTP headers have already been sent and using HTTP session cookie
      * @throws \RuntimeException If unable to start new PHP session
      */
     public function start()
@@ -123,8 +135,9 @@ class Session extends \Slim\Helper\Set
                 }
             }
 
-            // Needed to use inherited \Slim\Helper\Set methods on the $_SESSION array
-            $this->data = &$_SESSION;
+            // If headers are already sent, this will act like a normal Set and will
+            // not interface with the $_SESSION superglobal.
+            $this->data = isset($_SESSION['slim.session']) ? $_SESSION['slim.session'] : array();
         }
 
         $this->started = true;
@@ -135,8 +148,9 @@ class Session extends \Slim\Helper\Set
      */
     public function save()
     {
-        session_write_close();
+        $_SESSION['slim.session'] = $this->all();
         $this->finished = true;
+        session_write_close();
     }
 
     /**

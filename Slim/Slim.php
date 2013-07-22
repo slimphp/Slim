@@ -176,10 +176,18 @@ class Slim
             return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
         });
 
+        // Default crypt
+        $this->container->singleton('crypt', function ($c) {
+            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+        });
+
         // Default session
         $this->container->singleton('session', function ($c) {
             $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
             $s->start();
+            if ($c['settings']['session.encrypt'] === true) {
+                $s->decrypt($c['crypt']);
+            }
 
             return $s;
         });
@@ -305,13 +313,14 @@ class Slim
             'cookies.secure' => false,
             'cookies.httponly' => false,
             // Encryption
-            'cookies.secret_key' => 'CHANGE_ME',
-            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-            'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+            'crypt.key' => 'CHANGE_ME',
+            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+            'crypt.mode' => MCRYPT_MODE_CBC,
             // Session
             'session.options' => array(),
             'session.handler' => null,
             'session.flash_key' => 'slimflash',
+            'session.encrypt' => false,
             // HTTP
             'http.version' => '1.1'
         );
@@ -1266,6 +1275,9 @@ class Slim
         $this->flash->save();
 
         // Save session and close
+        if ($this->config('session.encrypt') === true) {
+            $this->session->encrypt($this->crypt);
+        }
         $this->session->save();
 
         // Fetch status, header, and body
