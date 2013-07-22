@@ -191,4 +191,25 @@ class SetTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Closure', $result);
         $this->assertSame($callable, $result());
     }
+
+    public function testEncryptAndDecrypt()
+    {
+        // Prepare crypt
+        $crypt = new \Slim\Crypt(md5('secret'));
+
+        // Prepare set
+        $bag = new \Slim\Helper\Set();
+        $bag->set('foo', 'bar');
+        $bag->set('abc', '123');
+
+        // Test encrypt
+        $bag->encrypt($crypt);
+        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag->get('foo')));
+        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag->get('abc')));
+
+        // Test decrypt
+        $bag->decrypt($crypt);
+        $this->assertEquals('bar', $bag->get('foo'));
+        $this->assertEquals('123', $bag->get('abc'));
+    }
 }
