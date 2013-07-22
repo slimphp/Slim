@@ -47,11 +47,11 @@ class Crypt
     protected $key;
 
     /**
-     * Encryption algorithm
+     * Encryption cipher
      * @var integer
      * @see http://www.php.net/manual/mcrypt.ciphers.php
      */
-    protected $algorithm;
+    protected $cipher;
 
     /**
      * Encryption mode
@@ -63,13 +63,13 @@ class Crypt
     /**
      * Constructor
      * @param string  $key       Encryption key
-     * @param int     $algorithm Encryption algorithm
+     * @param int     $cipher    Encryption algorithm
      * @param integer $mode      Encryption mode
      */
-    public function __construct($key, $algorithm = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
+    public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
         $this->key = $key;
-        $this->algorithm = $algorithm;
+        $this->cipher = $cipher;
         $this->mode = $mode;
     }
 
@@ -79,34 +79,35 @@ class Crypt
      * @param  string $iv   Initialization vector
      * @return string       Encrypted data
      */
-    public function encrypt($data, $iv)
+    public function encrypt($data)
     {
         if ($data === '' || !extension_loaded('mcrypt')) {
             return $data;
         }
 
-        //Get module
-        $module = mcrypt_module_open($this->algorithm, '', $this->mode, '');
+        // Get module
+        $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
-        //Validate IV
+        // Create IV
         $ivSize = mcrypt_enc_get_iv_size($module);
-        if (strlen($iv) > $ivSize) {
-            $iv = substr($iv, 0, $ivSize);
-        }
+        $iv = mcrypt_create_iv($ivSize, MCRYPT_DEV_URANDOM);
 
-        //Validate key
+        // Validate key
         $key = $this->key;
         $keySize = mcrypt_enc_get_key_size($module);
         if (strlen($key) > $keySize) {
             $key = substr($key, 0, $keySize);
         }
 
-        //Encrypt value
+        // Encrypt value
         mcrypt_generic_init($module, $key, $iv);
-        $res = @mcrypt_generic($module, $data);
+        $encryptedData = @mcrypt_generic($module, $data);
         mcrypt_generic_deinit($module);
 
-        return $res;
+        // Generate HMAC
+        $hmac = $this->getHmac($data);
+
+        return implode('|', array(base64_encode($iv), base64_encode($encryptedData), $hmac));
     }
 
     /**
@@ -115,34 +116,51 @@ class Crypt
      * @param  string $iv   Initialization vector
      * @return string       Decrypted data
      */
-    public function decrypt($data, $iv)
+    public function decrypt($data)
     {
         if ($data === '' || !extension_loaded('mcrypt')) {
             return $data;
         }
 
-        //Get module
-        $module = mcrypt_module_open($this->algorithm, '', $this->mode, '');
+        // Extract components of encrypted data string
+        $parts = explode('|', $data);
+        $iv = base64_decode($parts[0]);
+        $encryptedData = base64_decode($parts[1]);
+        $hmac = $parts[2];
 
-        //Validate IV
+        // Get module
+        $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
+
+        // Validate IV
         $ivSize = mcrypt_enc_get_iv_size($module);
         if (strlen($iv) > $ivSize) {
             $iv = substr($iv, 0, $ivSize);
         }
 
-        //Validate key
+        // Validate key
         $key = $this->key;
         $keySize = mcrypt_enc_get_key_size($module);
         if (strlen($key) > $keySize) {
             $key = substr($key, 0, $keySize);
         }
 
-        //Decrypt value
+        // Decrypt value
         mcrypt_generic_init($module, $key, $iv);
-        $decryptedData = @mdecrypt_generic($module, $data);
-        $res = str_replace("\x0", '', $decryptedData);
+        $decryptedData = @mdecrypt_generic($module, $encryptedData);
+        $decryptedData = str_replace("\x0", '', $decryptedData);
         mcrypt_generic_deinit($module);
 
-        return $res;
+        // Verify hmac
+        return ($this->getHmac($decryptedData) === $hmac) ? $decryptedData : false;
+    }
+
+    /**
+     * Generate HMAC message authentication hash to verify and authenticate message integrity
+     * @param  string $data Unencrypted data
+     * @return string       HMAC hash
+     */
+    protected function getHmac($data)
+    {
+        return hash_hmac('sha1', $data, $this->key);
     }
 }
