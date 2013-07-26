@@ -140,8 +140,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
     
     /**
-     * Provides read only access to headers and cokkies objects 
+     * Provides read only access to headers and cookies objects 
      * 
+     * @author Tivie (githib.com/tivie)
      */
     public function __get($name)
     {
