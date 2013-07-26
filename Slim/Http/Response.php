@@ -53,12 +53,12 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * @var \Slim\Http\Headers
      */
-    public $headers;
+    protected $headers;
 
     /**
      * @var \Slim\Http\Cookies
      */
-    public $cookies;
+    protected $cookies;
 
     /**
      * @var string HTTP response body
@@ -138,7 +138,32 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->cookies = new \Slim\Http\Cookies();
         $this->write($body);
     }
-
+    
+    /**
+     * Provides read only access to headers and cokkies objects 
+     * 
+     */
+    public function __get($name)
+    {
+        if (property_exists($this, $name)) {
+            switch ($name) {
+                case 'headers':
+                    return $this->headers;
+                    break;
+                case 'cookies':
+                    return $this->cookies;
+                    break;
+                default:
+                    trigger_error("Cannot access protected/private property ".__CLASS__."::$name", E_USER_ERROR);
+                    return;
+            }
+        }
+        trigger_error("Undefined property: ".__CLASS__."::$name", E_USER_NOTICE);
+    }
+    
+    
+    
+    
     public function getStatus()
     {
         return $this->status;
