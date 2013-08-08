@@ -65,7 +65,7 @@ should contain this code:
 
 #### Nginx
 
-Your nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
+The nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
 
     try_files $uri $uri/ /index.php?$args;
 
