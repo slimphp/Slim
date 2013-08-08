@@ -1,4 +1,6 @@
 <?php
+ini_set('session.save_path', dirname(__FILE__) . '/tmp');
+
 /**
  * Step 1: Require the Slim Framework
  *
@@ -19,7 +21,17 @@ require 'Slim/Slim.php';
  * your Slim application now by passing an associative array
  * of setting names and values into the application constructor.
  */
-$app = new \Slim\Slim();
+$app = new \Slim\Slim(array(
+    'session.encrypt' => true
+));
+
+$app->get('/set', function () use ($app) {
+    $app->session->set('abc', '123');
+});
+
+$app->get('/get', function () use ($app) {
+    echo $app->session->get('abc');
+});
 
 /**
  * Step 3: Define the Slim application routes
