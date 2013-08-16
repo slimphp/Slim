@@ -357,13 +357,12 @@ class Route
             $patternAsRegex .= '?';
         }
 
+        // Match path fragments as whole words
         $patternAsRegex = preg_replace(
             '#/([\w]+)/#',
             '/\b${1}\b/',
             $patternAsRegex
         );
-
-        error_log('#^' . $patternAsRegex . '$#');
 
         //Cache URL params' names and values if this route matches the current HTTP request
         if (!preg_match('#^' . $patternAsRegex . '$#', $resourceUri, $paramValues)) {
