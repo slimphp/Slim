@@ -170,7 +170,7 @@ class Util
         //Decrypt value
         mcrypt_generic_init($module, $key, $iv);
         $decryptedData = @mdecrypt_generic($module, $data);
-        $res = str_replace("\x0", '', $decryptedData);
+        $res = rtrim($decryptedData, "\0");
         mcrypt_generic_deinit($module);
 
         return $res;
