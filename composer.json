@@ -1,5 +1,5 @@
 {
-    "name": "slim/slim",
+    "name": "solas/slim",
     "type": "library",
     "description": "Slim Framework, a PHP micro framework",
     "keywords": ["microframework","rest","router"],
