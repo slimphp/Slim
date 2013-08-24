@@ -64,7 +64,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-            'CONENT_LENGTH' => 11,
+            'CONTENT_LENGTH' => 11,
             'slim.input' => '_METHOD=PUT'
         ));
         $app = new CustomAppMethod();
@@ -132,7 +132,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json',
-            'CONENT_LENGTH' => 0,
+            'CONTENT_LENGTH' => 0,
             'slim.input' => '',
             'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE'
         ));
