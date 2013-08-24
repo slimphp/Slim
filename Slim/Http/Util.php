@@ -389,7 +389,7 @@ class Util
     /**
      * Parse cookie header
      *
-     * This method will parse the HTTP requst's `Cookie` header
+     * This method will parse the HTTP request's `Cookie` header
      * and extract cookies into an associative array.
      *
      * @param  string
@@ -431,5 +431,4 @@ class Util
 
         return pack("h*", $data1.$data2);
     }
-
 }
