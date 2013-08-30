@@ -32,6 +32,8 @@
  */
 namespace Slim\Middleware;
 
+use Slim\Slim;
+
 /**
  * Pretty Exceptions
  *
@@ -70,17 +72,16 @@ class PrettyExceptions extends \Slim\Middleware
             $env['slim.log']->error($e);
             $this->app->contentType('text/html');
             $this->app->response()->status(500);
-            $this->app->response()->body($this->renderBody($env, $e));
+            $this->app->response()->body($this->renderBody($e));
         }
     }
 
     /**
      * Render response body
-     * @param  array      $env
      * @param  \Exception $exception
      * @return string
      */
-    protected function renderBody(&$env, $exception)
+    protected function renderBody($exception)
     {
         $title = 'Slim Application Error';
         $code = $exception->getCode();
@@ -88,8 +89,7 @@ class PrettyExceptions extends \Slim\Middleware
         $file = $exception->getFile();
         $line = $exception->getLine();
         $trace = $exception->getTraceAsString();
-        $html = sprintf('<h1>%s</h1>', $title);
-        $html .= '<p>The application could not run because of the following error:</p>';
+        $html = '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
         $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
         if ($code) {
@@ -109,6 +109,6 @@ class PrettyExceptions extends \Slim\Middleware
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
 
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
+        return Slim::generateTemplateMarkup($title, $html);
     }
 }

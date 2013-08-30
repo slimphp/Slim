@@ -67,6 +67,23 @@ class CustomMiddleware extends \Slim\Middleware
     }
 }
 
+class CustomExceptionHandler extends \Slim\Middleware
+{
+    public function call()
+    {
+        try {
+            $thi->next->call();
+        } catch (\Exception $e) {
+            $this->app->contentType('application/json');
+            $this->app->response()->setStatus(503);
+            $this->app->response()->setBody(json_encode(array(
+                'code' => '1B',
+                'message' => 'You dun broke it.',
+            )));
+        }
+    }
+}
+
 class SlimTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
@@ -1116,6 +1133,51 @@ class SlimTest extends PHPUnit_Framework_TestCase
         });
         $s->run();
         $this->assertEquals('Hello', $s->response()->header('X-Slim-Test'));
+    }
+
+    /**
+     * Test remove middleware
+     *
+     * Test that middleware can be removed by removing the default 
+     * \Slim\Middleware\MethodOverride middleware.
+     */
+    public function testRemoveMiddleware()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'X_HTTP_METHOD_OVERRIDE' => 'PUT'
+        ));
+        $s = new \Slim\Slim();
+        $s->remove('\Slim\Middleware\MethodOverride');
+        $s->run();
+        $this->assertEquals('POST', $s->request()->getMethod());
+    }
+
+    /**
+     * Test custom exception handler
+     */
+    public function testCustomExceptionHandler()
+    {
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '/foo', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+        ));
+        $s = new \Slim\Slim(array('exception.handler' => 'CustomExceptionHandler'));
+        $s->get('/bar', function() {
+            throw new \Exception('Too much input');
+        });
+        $s->run();
+        $res = $s->response();
+        // These should all be different than the default exception handler
+        $this->assertEquals('application/json', $res['Content-Type']);
+        $this->assertEquals(503, $res->getStatus());
+        $this->assertEquals(
+            $res->getBody(),
+            json_encode(array(
+                'code' => '1B',
+                'message' => 'You dun broke it.',
+            ))
+        );
     }
 
     /************************************************

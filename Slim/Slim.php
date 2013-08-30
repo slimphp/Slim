@@ -266,7 +266,9 @@ class Slim
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             // HTTP
-            'http.version' => '1.1'
+            'http.version' => '1.1',
+            // Exception handler middleware
+            'exception.handler' => 'Slim\Middleware\PrettyExceptions'
         );
     }
 
@@ -1191,6 +1193,42 @@ class Slim
         array_unshift($this->middleware, $newMiddleware);
     }
 
+    /**
+     * Remove middleware
+     *
+     * This method removes all middleware of the given class from the middleware stack.
+     * Pass the fully qualified class name as a string. You can not remove \Slim\Slim
+     * or \Slim\Middleware.
+     *
+     * @param string
+     * @throws \LogicException
+     */
+    public function remove($removeClass)
+    {
+        // force a rekey of array so indexes increase by 1
+        $middlewares = array_values($this->middleware);
+
+        $removeClass = ltrim($removeClass, '\\');
+
+        if ($removeClass == 'Slim\Slim' || $removeClass == 'Slim\Middleware') {
+            throw new \LogicException('You can not remove instances of Slim\Slim or Slim\Middleware from the middleware stack.');
+        }
+
+        foreach ($middlewares as $i => $middleware) {
+            if ($middleware instanceof $removeClass) {
+                if ($i === 0) {
+                    array_shift($middlewares);
+                    continue;
+                }
+
+                $prev = $middlewares[$i - 1];
+                $prev->setNextMiddleware($middleware->getNextMiddleware());
+                unset($middlewares[$i]);
+            }
+        }
+        $this->middleware = $middlewares;
+    }
+
     /********************************************************************************
     * Runner
     *******************************************************************************/
@@ -1207,7 +1245,8 @@ class Slim
         set_error_handler(array('\Slim\Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
-        $this->add(new \Slim\Middleware\PrettyExceptions());
+        $exceptionHandler = $this->config('exception.handler');
+        $this->add(new $exceptionHandler());
 
         //Invoke middleware and application stack
         $this->middleware[0]->call();
@@ -1327,9 +1366,9 @@ class Slim
      * @param  string   $body   The body content of the HTML template
      * @return string
      */
-    protected static function generateTemplateMarkup($title, $body)
+    public static function generateTemplateMarkup($title, $body)
     {
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>", $title, $title, $body);
+        return sprintf('<html><head><title>%1$s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1>%1$s</h1>%2$s</body></html>', $title, $body);
     }
 
     /**
