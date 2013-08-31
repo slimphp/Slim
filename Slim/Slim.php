@@ -539,8 +539,8 @@ class Slim
         // Get params
         $route = new \Slim\Route($pattern, $callable);
         $resourceUri = explode('/', $this->request->getResourceUri());
-        $patternLength = count(explode('/', $pattern));
-        $groupResourceUri = array_slice($resourceUri, 0, $patternLength);
+        $lenToMatch = substr_count($pattern, '/') + 1;
+        $groupResourceUri = array_slice($resourceUri, 0, $lenToMatch);
         $route->matches(implode('/', $groupResourceUri));
         if (is_callable($callable)) {
             call_user_func_array($callable, $route->getParams());
