@@ -230,12 +230,14 @@ class Slim
     {
         $this->container[$name] = $value;
     }
-    
-    public function __isset($name){
+
+    public function __isset($name)
+    {
     	return isset($this->container[$name]);
     }
-  
-    public function __unset($name){
+
+    public function __unset($name)
+    {
     	unset($this->container[$name]);
     }
 
@@ -533,8 +535,15 @@ class Slim
         $pattern = array_shift($args);
         $callable = array_pop($args);
         $this->router->pushGroup($pattern, $args);
+
+        // Get params
+        $route = new \Slim\Route($pattern, $callable);
+        $resourceUri = explode('/', $this->request->getResourceUri());
+        $patternLength = count(explode('/', $pattern));
+        $groupResourceUri = array_slice($resourceUri, 0, $patternLength);
+        $route->matches(implode('/', $groupResourceUri));
         if (is_callable($callable)) {
-            call_user_func($callable);
+            call_user_func_array($callable, $route->getParams());
         }
         $this->router->popGroup();
     }
