@@ -442,17 +442,18 @@ class SlimTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
-            'PATH_INFO' => '/bar/baz', //<-- Virtual'
+            'PATH_INFO' => '/abc/bar/baz', //<-- Virtual'
         ));
         $s = new \Slim\Slim();
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
-        $s->group('/bar', $mw1, function () use ($s, $mw2, $callable) {
+        $s->group('/:arg/bar', $mw1, function ($arg) use ($s, $mw2, $callable) {
+            $s->response()->setBody($arg);
             $s->get('/baz', $mw2, $callable);
         });
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('abcfoobarxyz', $s->response()->body());
     }
 
     /*
