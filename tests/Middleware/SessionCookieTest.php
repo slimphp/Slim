@@ -67,6 +67,35 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that SessionCookie value is md5 hashed and added to the
+     * \Slim\Http\Util::$encryptionExclusions list if cookies.encrypt = true
+     */
+    public function testSessionCookieValueHashIsAddedToUtilsExclusionListIfCookiesEncryptTrue()
+    {
+        \Slim\Environment::mock(array(
+            'SCRIPT_NAME' => '/index.php',
+            'PATH_INFO' => '/foo'
+        ));
+        $app = new \Slim\Slim();
+        $app->config('cookies.encrypt', true);
+        $app->get('/foo', function () {
+            echo "Success";
+        });
+        $mw = new \Slim\Middleware\SessionCookie(array('expires' => '10 years'));
+        $mw->setApplication($app);
+        $mw->setNextMiddleware($app);
+        $mw->call();
+        list($status, $header, $body) = $app->response()->finalize();
+        $this->assertTrue($app->response->cookies->has('slim_session'));
+
+        // With the md5 hashed value of the cookie in its encryption exclusion list,
+        // \Slim\Http\Util::serializeCookies() should skip encrypting this cookie
+        $cookie = $app->response->cookies->get('slim_session');
+        $this->assertEquals(1, count(\Slim\Http\Util::getEncryptionExclusions()));
+        $this->assertContains(md5($cookie['value']), \Slim\Http\Util::getEncryptionExclusions()); 
+    }
+
+    /**
      * Test $_SESSION is populated from HTTP cookie
      *
      * The HTTP cookie in this test was created using the previous test; the encrypted cookie contains
@@ -110,4 +139,6 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         $mw->call();
         $this->assertEquals(array(), $_SESSION);
     }
+
+
 }

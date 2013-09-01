@@ -166,6 +166,10 @@ class SessionCookie extends \Slim\Middleware
                     'httponly' => $this->settings['httponly']
                 )
             );
+
+            if ($this->app->config('cookies.encrypt')) {
+                \Slim\Http\Util::addEncryptionExclusion(md5($value));
+            }
         }
         session_destroy();
     }

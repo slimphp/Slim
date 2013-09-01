@@ -44,6 +44,14 @@ namespace Slim\Http;
 class Util
 {
     /**
+     * An array of md5 hashed cookie values that will be excluded from
+     * encryption during the serialization process.
+     *
+     * @var array Exclude from encryption in Util::serializeCookies()
+     */
+    protected static $encryptionExclusions = array();
+
+    /**
      * Strip slashes from string or array
      *
      * This method strips slashes from its input. By default, this method will only
@@ -192,13 +200,15 @@ class Util
                     $expires = (int) $settings['expires'];
                 }
 
-                $settings['value'] = static::encodeSecureCookie(
-                    $settings['value'],
-                    $expires,
-                    $config['cookies.secret_key'],
-                    $config['cookies.cipher'],
-                    $config['cookies.cipher_mode']
-                );
+                if (!in_array(md5($settings['value']), self::$encryptionExclusions)) {
+                    $settings['value'] = static::encodeSecureCookie(
+                        $settings['value'],
+                        $expires,
+                        $config['cookies.secret_key'],
+                        $config['cookies.cipher'],
+                        $config['cookies.cipher_mode']
+                    );
+                }
                 static::setCookieHeader($headers, $name, $settings);
             }
         } else {
@@ -432,4 +442,33 @@ class Util
         return pack("h*", $data1.$data2);
     }
 
+    /**
+     * Add an exclusion to the encryption exclusion list
+     *
+     * @param string $hash MD5 hash of the cookie value to exclude
+     */
+    public static function addEncryptionExclusion($hash)
+    {
+        self::$encryptionExclusions[] = $hash;
+    }
+
+    /**
+     * Get the exclusion list
+     *
+     * @return array Exclusion list
+     */
+    public static function getEncryptionExclusions()
+    {
+        return self::$encryptionExclusions;
+    }
+
+    /**
+     * Get the exclusion list
+     *
+     * @return array Exclusion list
+     */
+    public static function clearEncryptionExclusions()
+    {
+        self::$encryptionExclusions = array();
+    }
 }

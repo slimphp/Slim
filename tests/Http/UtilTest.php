@@ -32,6 +32,11 @@
 
 class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
 {
+    protected function tearDown()
+    {
+        \Slim\Http\Util::clearEncryptionExclusions();
+    }
+
     /**
      * Test strip slashes when magic quotes disabled
      */
@@ -366,6 +371,59 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($value, $decrypted);
         $this->assertTrue($value !== $encrypted);
+    }
+
+    /**
+     * The ability to skip encoding cookies during serialization is critical to
+     * ensuring cookies encoded via \Slim\Middleware\SessionCookie (or elsewhere)
+     * are not encoded twice.
+     *
+     * This test verifies that the encryptionExclusions list will cause 
+     * \Slim\Http\Util::serialzieCookies() to skip encoding excluded cookies when 
+     * global cookies.encrypt is set to true.
+     */
+    public function testSerializeCookiesSkipsEncodingCookiesWithHashedValueInExclusionListWhenCookiesEncryptIsTrue()
+    {
+        $headers = new \Slim\Http\Headers();
+
+        $settings = array(
+            'cookies.encrypt' => true,
+            'cookies.secret_key' => 'secret',
+            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
+            'cookies.cipher_mode' => MCRYPT_MODE_CBC
+        );
+
+        $value = 'Must not be encoded by \Slim\Http\Util::serializeCookies()';
+        $encodedValue = \Slim\Http\Util::encodeSecureCookie(
+            $value, 
+            time() + 86400,
+            $settings['cookies.secret_key'],
+            $settings['cookies.cipher'],
+            $settings['cookies.cipher_mode']
+        );
+
+        \Slim\Http\Util::addEncryptionExclusion(md5($encodedValue));
+
+        $cookies = new \Slim\Http\Cookies();
+        $cookies->set('already_encoded',  array(
+            'value' => $encodedValue,
+            'expires' => time() + 86400,
+        ));
+
+        \Slim\Http\Util::serializeCookies($headers, $cookies, $settings);
+
+        $encrypted = $headers->get('Set-Cookie');
+        $encrypted = strstr($encrypted, ';', true);
+        $encrypted = urldecode(substr(strstr($encrypted, '='), 1));
+        
+        $decrypted = \Slim\Http\Util::decodeSecureCookie(
+            $encrypted,
+            $settings['cookies.secret_key'],
+            $settings['cookies.cipher'],
+            $settings['cookies.cipher_mode']
+        );
+
+        $this->assertEquals($value, $decrypted);
     }
 
     public function testDeleteCookieHeaderWithSurvivingCookie()
