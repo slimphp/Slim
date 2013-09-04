@@ -134,7 +134,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase
             'CONTENT_TYPE' => 'application/json',
             'CONENT_LENGTH' => 0,
             'slim.input' => '',
-            'X_HTTP_METHOD_OVERRIDE' => 'DELETE'
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE'
         ));
         $app = new CustomAppMethod();
         $mw = new \Slim\Middleware\MethodOverride();
