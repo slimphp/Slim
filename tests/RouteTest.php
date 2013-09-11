@@ -342,6 +342,54 @@ class RouteTest extends PHPUnit_Framework_TestCase
         ), 'params', $route);
     }
 
+    public function testMatchesParamsAndWildcardsAndQuery()
+    {
+        $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+?id=7&param=:getParam', function () {});
+
+        $oldGet = $_GET;
+        $_GET = array (
+            'id' => '7',
+            'param' => 'paramValue',
+            'extraUnneeded' => '1',
+        );
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10/first/second'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'year' => '2012',
+            'month' => '03',
+            'day' => '10',
+            'path2' => array('first', 'second'),
+            'getParam' => 'paramValue',
+        ), 'params', $route);
+
+        $_GET = $oldGet;
+    }
+
+    public function testMatchesParamsAndWildcardsAndQueryFail()
+    {
+        $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+?id=7&param=:getParam&needed=1', function () {});
+
+        $oldGet = $_GET;
+        $_GET = array (
+            'id' => '7',
+            'param' => 'paramValue',
+            'extraUnneeded' => 'q',
+        );
+
+        $this->assertFalse($route->matches('/hello/foo/bar/world/2012/03/10/first/second'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'year' => '2012',
+            'month' => '03',
+            'day' => '10',
+            'path2' => array('first', 'second'),
+            'getParam' => 'paramValue',
+        ), 'params', $route);
+
+        $_GET = $oldGet;
+    }
+
     public function testMatchesParamsWithOptionalWildcard()
     {
         $route = new \Slim\Route('/hello(/:foo(/:bar+))', function () {});
