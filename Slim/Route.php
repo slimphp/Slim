@@ -46,6 +46,11 @@ class Route
     protected $pattern;
 
     /**
+     * @var array The query pattern (e.g. "/books/?id=:id"), but in array form
+     */
+    protected $query;
+
+    /**
      * @var mixed The route callable
      */
     protected $callable;
@@ -121,21 +126,33 @@ class Route
     }
 
     /**
-     * Get route pattern
+     * Get full route pattern including query
      * @return string
      */
     public function getPattern()
     {
-        return $this->pattern;
+        $ret = $this->pattern;
+        if ($this->query) {
+            $ret .= '?' . str_replace('=%3A', '=:', http_build_query($this->query));
+        }
+        return $ret;
     }
 
     /**
      * Set route pattern
+     * The query part of the url is separated and is stored in a separate property.
      * @param  string $pattern
      */
     public function setPattern($pattern)
     {
-        $this->pattern = $pattern;
+        $split = explode('?', $pattern, 2);
+        $this->pattern = isset($split[0]) ? $split[0] : '';
+
+        $query = array ();
+        if (!empty($split[1])) {
+            parse_str($split[1], $query);
+        }
+        $this->query = $query;
     }
 
     /**
@@ -335,6 +352,25 @@ class Route
     }
 
     /**
+     * Matches URI and Query?
+     *
+     * Check this route's pattern, separate its query part and check the URI part
+     * for matches, then check its query part for matches with the $_GET query.
+     *
+     * @param  string $resourceUri A Request URI
+     * @return bool
+     */
+    public function matches($resourceUri)
+    {
+        $matchesUri = $this->matchesUri($resourceUri);
+        if (!$matchesUri) {
+            return false;
+        }
+        $matchesQuery = $this->matchesQuery($_GET);
+        return $matchesQuery;
+    }
+
+    /**
      * Matches URI?
      *
      * Parse this route's pattern, and then compare it to an HTTP resource URI
@@ -345,7 +381,7 @@ class Route
      * @param  string $resourceUri A Request URI
      * @return bool
      */
-    public function matches($resourceUri)
+    public function matchesUri($resourceUri)
     {
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback(
@@ -371,6 +407,42 @@ class Route
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Matches Query?
+     *
+     * Check the passed query array and make sure the values of each key in the route query
+     * match the values of the input query. Capture each value as params if the route fragment
+     * starts with a colon (:).
+     * If there are extra, unneeded parameters in the input query, they are simply ignored.
+     *
+     * @param  array $inputQuery A query array
+     * @return bool
+     */
+    public function matchesQuery(array $inputQuery)
+    {
+        $routeQuery = $this->query;
+        if ($routeQuery && !$inputQuery) {
+            // there's obviously no match if the query is expected to be something but is empty
+            return false;
+        }
+        foreach ($routeQuery as $key => $value) {
+            if (!isset($inputQuery[$key])) {
+                return false;
+            }
+            if (!$value || $value[0] != ':') {
+                if ($inputQuery[$key] !== $value) {
+                    return false;
+                }
+            }
+            else {
+                // if the value starts with a colon then let's add its value to the params.
+                $paramKey = substr($value, 1);
+                $this->params[$paramKey] = $inputQuery[$key];
+            }
+        }
         return true;
     }
 
