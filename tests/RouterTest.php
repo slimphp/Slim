@@ -239,4 +239,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new \Slim\Router();
         $router->urlFor('foo', array('abc' => '123'));
     }
+
+    public function testUrlForWithQuery()
+    {
+        $oldGet = $_GET;
+        $router = new \Slim\Router();
+        $route1 = new \Slim\Route('/hello/:first/:last?id=9&param=:param', function () {});
+        $route1 = $route1->via('GET')->name('hello');
+
+        $routes = new \ReflectionProperty($router, 'namedRoutes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array('hello' => $route1));
+
+        $this->assertEquals('/hello/Josh/Lockhart?id=9&param=value', $router->urlFor('hello', array(
+            'first' => 'Josh', 'last' => 'Lockhart', 'param' => 'value'
+        )));
+
+        $_GET = $oldGet;
+    }
 }
