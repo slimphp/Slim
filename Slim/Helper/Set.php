@@ -172,6 +172,30 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * Encrypt set
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function encrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $elementName => $elementValue) {
+            $this->set($elementName, $crypt->encrypt($elementValue));
+        }
+    }
+
+    /**
+     * Decrypt set
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function decrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $elementName => $elementValue) {
+            $this->set($elementName, $crypt->decrypt($elementValue));
+        }
+    }
+
+    /**
      * Array Access
      */
 

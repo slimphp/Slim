@@ -156,7 +156,12 @@ class Slim
 
         // Default request
         $this->container->singleton('request', function ($c) {
-            return new \Slim\Http\Request($c['environment']);
+            $request = new \Slim\Http\Request($c['environment']);
+            if ($c['settings']['cookies.encrypt'] ===  true) {
+                $request->cookies->decrypt($c['crypt']);
+            }
+
+            return $request;
         });
 
         // Default response
@@ -174,6 +179,27 @@ class Slim
             $viewClass = $c['settings']['view'];
 
             return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+        });
+
+        // Default crypt
+        $this->container->singleton('crypt', function ($c) {
+            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+        });
+
+        // Default session
+        $this->container->singleton('session', function ($c) {
+            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $s->start();
+            if ($c['settings']['session.encrypt'] === true) {
+                $s->decrypt($c['crypt']);
+            }
+
+            return $s;
+        });
+
+        // Default flash
+        $this->container->singleton('flash', function ($c) {
+            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Default log writer
@@ -212,8 +238,6 @@ class Slim
 
         // Define default middleware stack
         $this->middleware = array($this);
-        $this->add(new \Slim\Middleware\Flash());
-        $this->add(new \Slim\Middleware\MethodOverride());
 
         // Make default if first instance
         if (is_null(static::getInstance())) {
@@ -230,12 +254,12 @@ class Slim
     {
         $this->container[$name] = $value;
     }
-    
+
     public function __isset($name)
     {
         return isset($this->container[$name]);
     }
-  
+
     public function __unset($name)
     {
         unset($this->container[$name]);
@@ -296,9 +320,14 @@ class Slim
             'cookies.secure' => false,
             'cookies.httponly' => false,
             // Encryption
-            'cookies.secret_key' => 'CHANGE_ME',
-            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-            'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+            'crypt.mode' => MCRYPT_MODE_CBC,
+            // Session
+            'session.options' => array(),
+            'session.handler' => null,
+            'session.flash_key' => 'slimflash',
+            'session.encrypt' => false,
             // HTTP
             'http.version' => '1.1'
         );
@@ -877,23 +906,7 @@ class Slim
      */
     public function getCookie($name, $deleteIfInvalid = true)
     {
-        // Get cookie value
-        $value = $this->request->cookies->get($name);
-
-        // Decode if encrypted
-        if ($this->config('cookies.encrypt')) {
-            $value = \Slim\Http\Util::decodeSecureCookie(
-                $value,
-                $this->config('cookies.secret_key'),
-                $this->config('cookies.cipher'),
-                $this->config('cookies.cipher_mode')
-            );
-            if ($value === false && $deleteIfInvalid) {
-                $this->deleteCookie($name);
-            }
-        }
-
-        return $value;
+        return $this->request->cookies->get($name);
     }
 
     /**
@@ -1092,37 +1105,34 @@ class Slim
     *******************************************************************************/
 
     /**
+     * DEPRECATED
      * Set flash message for subsequent request
      * @param  string   $key
      * @param  mixed    $value
      */
     public function flash($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
-        }
+        $this->flash->next($key, $value);
     }
 
     /**
+     * DEPRECATED
      * Set flash message for current request
      * @param  string   $key
      * @param  mixed    $value
      */
     public function flashNow($key, $value)
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->now($key, $value);
-        }
+        $this->flash->now($key, $value);
     }
 
     /**
+     * DEPRECATED
      * Keep flash messages from previous request for subsequent request
      */
     public function flashKeep()
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->keep();
-        }
+        $this->flash->keep();
     }
 
     /********************************************************************************
@@ -1250,14 +1260,26 @@ class Slim
             $this->add(new \Slim\Middleware\PrettyExceptions());
         }
 
-        //Invoke middleware and application stack
+        // Invoke middleware and application stack
         $this->middleware[0]->call();
 
-        //Fetch status, header, and body
+        // Save flash messages to session
+        $this->flash->save();
+
+        // Save session and close
+        if ($this->config('session.encrypt') === true) {
+            $this->session->encrypt($this->crypt);
+        }
+        $this->session->save();
+
+        // Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
-        // Serialize cookies (with optional encryption)
-        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
+        // Encrypt and serialize cookies
+        if ($this->settings['cookies.encrypt']) {
+            $this->response->cookies->encrypt($this->crypt);
+        }
+        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies);
 
         //Send headers
         if (headers_sent() === false) {
@@ -1291,9 +1313,7 @@ class Slim
     public function call()
     {
         try {
-            if (isset($this->environment['slim.flash'])) {
-                $this->view()->setData('flash', $this->environment['slim.flash']);
-            }
+            $this->view->setData('flash', $this->flash);
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');

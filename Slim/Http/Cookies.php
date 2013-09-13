@@ -88,4 +88,20 @@ class Cookies extends \Slim\Helper\Set
         $settings['expires'] = time() - 86400;
         $this->set($key, array_replace($this->defaults, $settings));
     }
+
+    /**
+     * Encrypt cookies
+     *
+     * This method iterates and encrypts data values.
+     *
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function encrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $name => $settings) {
+            $settings['value'] = $crypt->encrypt($settings['value']);
+            $this->set($name, $settings);
+        }
+    }
 }
