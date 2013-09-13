@@ -100,13 +100,15 @@ class Crypt
         if (!is_null($initResult)) {
             switch ($initResult) {
                 case -4:
-                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::encrypt');
+                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::decrypt');
                     break;
                 case -3:
-                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::encrypt');
+                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::decrypt');
                     break;
                 default:
-                    throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::encrypt');
+                    if (is_integer($initResult) && $initResult < 0) {
+                        throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
+                    }
                     break;
             }
         }
@@ -141,7 +143,8 @@ class Crypt
         // Extract components of encrypted data string
         $parts = explode('|', $data);
         if (count($parts) !== 3) {
-            throw new \RuntimeException('Trying to decrypt invalid data in \Slim\Crypt::decrypt');
+            return $data;
+            // throw new \RuntimeException('Trying to decrypt invalid data in \Slim\Crypt::decrypt');
         }
         $iv = base64_decode($parts[0]);
         $encryptedData = base64_decode($parts[1]);
@@ -169,7 +172,9 @@ class Crypt
                     throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::decrypt');
                     break;
                 default:
-                    throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
+                    if (is_integer($initResult) && $initResult < 0) {
+                        throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
+                    }
                     break;
             }
         }
@@ -192,6 +197,15 @@ class Crypt
     protected function getHmac($data)
     {
         return hash_hmac('sha256', $data, $this->key);
+    }
+
+    /**
+     * Get key
+     * @return string
+     */
+    public function getKey()
+    {
+        return $this->key;
     }
 
     /**

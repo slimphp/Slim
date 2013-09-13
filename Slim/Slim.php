@@ -156,7 +156,12 @@ class Slim
 
         // Default request
         $this->container->singleton('request', function ($c) {
-            return new \Slim\Http\Request($c['environment']);
+            $request = new \Slim\Http\Request($c['environment']);
+            if ($c['settings']['cookies.encrypt'] ===  true) {
+                $request->cookies->decrypt($c['crypt']);
+            }
+
+            return $request;
         });
 
         // Default response
@@ -315,7 +320,7 @@ class Slim
             'cookies.secure' => false,
             'cookies.httponly' => false,
             // Encryption
-            'crypt.key' => 'CHANGE_ME',
+            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
             'crypt.cipher' => MCRYPT_RIJNDAEL_256,
             'crypt.mode' => MCRYPT_MODE_CBC,
             // Session
@@ -901,23 +906,7 @@ class Slim
      */
     public function getCookie($name, $deleteIfInvalid = true)
     {
-        // Get cookie value
-        $value = $this->request->cookies->get($name);
-
-        // Decode if encrypted
-        if ($this->config('cookies.encrypt')) {
-            $value = \Slim\Http\Util::decodeSecureCookie(
-                $value,
-                $this->config('cookies.secret_key'),
-                $this->config('cookies.cipher'),
-                $this->config('cookies.cipher_mode')
-            );
-            if ($value === false && $deleteIfInvalid) {
-                $this->deleteCookie($name);
-            }
-        }
-
-        return $value;
+        return $this->request->cookies->get($name);
     }
 
     /**
@@ -1286,8 +1275,11 @@ class Slim
         // Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
-        // Serialize cookies (with optional encryption)
-        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
+        // Encrypt and serialize cookies
+        if ($this->settings['cookies.encrypt']) {
+            $this->response->cookies->encrypt($this->crypt);
+        }
+        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies);
 
         //Send headers
         if (headers_sent() === false) {

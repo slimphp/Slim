@@ -100,53 +100,8 @@ class Cookies extends \Slim\Helper\Set
     public function encrypt(\Slim\Crypt $crypt)
     {
         foreach ($this as $name => $settings) {
-            $value = $settings['value'];
-            $expires = $settings['expires'];
-            $iv = static::getCookieIv($expires, $crypt->getKey());
-            $secureValue = base64_encode($crypt->encrypt($value, $iv));
-            $verifyValue = hash_hmac('sha1', $expires . $value, $crypt->getKey());
-            $settings['value'] = implode('|', $expires, $secureValue, $verifyValue);
-
+            $settings['value'] = $crypt->encrypt($settings['value']);
             $this->set($name, $settings);
         }
-    }
-
-    /**
-     * Decrypt cookies
-     *
-     * This method iterates and decrypts data values.
-     *
-     * @param  \Slim\Crypt $crypt
-     * @return void
-     */
-    public function decrypt(\Slim\Crypt $crypt)
-    {
-        foreach ($this as $name => $value) {
-            if ($value) {
-                $value = explode('|', $value);
-                if (count($value) === 3 && ((int) $value[0] === 0 || (int) $value[0] > time())) {
-                    $iv = self::getIv($value[0], $crypt->getKey());
-                    $data = $crypt->decrypt(base64_decode($value[1]), $iv);
-                    $verifyValue = hash_hmac('sha1', $value[0] . $data, $crypt->getKey());
-                    if ($verifyValue === $value[2]) {
-                        $this->set($name, $data);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Get cookie encryption IV
-     * @param  int    $expires Cookie expiration time as UNIX timestamp
-     * @param  string $secret  Cookie encryption key
-     * @return string          Psuedo-random bytestring
-     */
-    protected static function getCookieIv($expires, $secret)
-    {
-        $data1 = hash_hmac('sha1', 'a' . $expires . 'b', $secret);
-        $data2 = hash_hmac('sha1', 'z' . $expires . 'y', $secret);
-
-        return pack("h*", $data1.$data2);
     }
 }
