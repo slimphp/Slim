@@ -75,36 +75,50 @@ class Crypt
 
     /**
      * Encrypt data
-     * @param  string $data Unencrypted string
-     * @return string       Encrypted data
+     * @param  string               $data        Unencrypted data
+     * @return string                            Encrypted data
+     * @throws \RuntimeException                 If mcrypt extension not loaded
+     * @throws \RuntimeException                 If encryption module initialization failed
      */
     public function encrypt($data)
     {
-        if ($data === '' || !extension_loaded('mcrypt')) {
-            return $data;
+        if (extension_loaded('mcrypt') === false) {
+            throw new \RuntimeException('The PHP mcrypt extension must be installed to use encryption');
         }
 
         // Get module
         $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
-        // Create IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
-        $iv = mcrypt_create_iv($ivSize, MCRYPT_DEV_URANDOM);
+        // Create initialization vector
+        $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($module), MCRYPT_DEV_URANDOM);
 
-        // Validate key
-        $key = $this->key;
-        $keySize = mcrypt_enc_get_key_size($module);
-        if (strlen($key) > $keySize) {
-            $key = substr($key, 0, $keySize);
+        // Validate key length
+        $this->validateKey($this->key, $module);
+
+        // Initialize encryption
+        $initResult = mcrypt_generic_init($module, $this->key, $iv);
+        if (!is_null($initResult)) {
+            switch ($initResult) {
+                case -4:
+                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::encrypt');
+                    break;
+                case -3:
+                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::encrypt');
+                    break;
+                default:
+                    throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::encrypt');
+                    break;
+            }
         }
 
-        // Encrypt value
-        mcrypt_generic_init($module, $key, $iv);
-        $encryptedData = @mcrypt_generic($module, $data);
+        // Encrypt
+        $encryptedData = mcrypt_generic($module, $data);
+
+        // Deinitialize encryption
         mcrypt_generic_deinit($module);
 
-        // Generate HMAC
-        $hmac = $this->getHmac($data);
+        // Ensure integrity of encrypted data with HMAC hash
+        $hmac = $this->getHmac($encryptedData);
 
         return implode('|', array(base64_encode($iv), base64_encode($encryptedData), $hmac));
     }
@@ -113,47 +127,61 @@ class Crypt
      * Decrypt data
      * @param  string $data Encrypted string
      * @return string       Decrypted data
+     * @throws \RuntimeException                 If mcrypt extension not loaded
+     * @throws \RuntimeException                 If encrypted data does not match expected format
+     * @throws \RuntimeException                 If decryption module initialization failed
+     * @throws \RuntimeException                 If HMAC integrity verification fails
      */
     public function decrypt($data)
     {
-        if ($data === '' || !extension_loaded('mcrypt')) {
-            return $data;
+        if (extension_loaded('mcrypt') === false) {
+            throw new \RuntimeException('The PHP mcrypt extension must be installed to use encryption');
         }
 
         // Extract components of encrypted data string
         $parts = explode('|', $data);
         if (count($parts) !== 3) {
-            return $data;
+            throw new \RuntimeException('Trying to decrypt invalid data in \Slim\Crypt::decrypt');
         }
-
         $iv = base64_decode($parts[0]);
         $encryptedData = base64_decode($parts[1]);
         $hmac = $parts[2];
 
+        // Verify integrity of encrypted data
+        if ($this->getHmac($encryptedData) !== $hmac) {
+            throw new \RuntimeException('Integrity of encrypted data has been compromised in \Slim\Crypt::decrypt');
+        }
+
         // Get module
         $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
-        // Validate IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
-        if (strlen($iv) > $ivSize) {
-            $iv = substr($iv, 0, $ivSize);
-        }
-
         // Validate key
-        $key = $this->key;
-        $keySize = mcrypt_enc_get_key_size($module);
-        if (strlen($key) > $keySize) {
-            $key = substr($key, 0, $keySize);
+        $this->validateKey($this->key, $module);
+
+        // Initialize decryption
+        $initResult = mcrypt_generic_init($module, $this->key, $iv);
+        if (!is_null($initResult)) {
+            switch ($initResult) {
+                case -4:
+                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::decrypt');
+                    break;
+                case -3:
+                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::decrypt');
+                    break;
+                default:
+                    throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
+                    break;
+            }
         }
 
-        // Decrypt value
-        mcrypt_generic_init($module, $key, $iv);
-        $decryptedData = @mdecrypt_generic($module, $encryptedData);
+        // Decrypt
+        $decryptedData = mdecrypt_generic($module, $encryptedData);
         $decryptedData = str_replace("\x0", '', $decryptedData);
+
+        // Deinitialize decryption
         mcrypt_generic_deinit($module);
 
-        // Verify hmac
-        return ($this->getHmac($decryptedData) === $hmac) ? $decryptedData : false;
+        return $decryptedData;
     }
 
     /**
@@ -163,6 +191,34 @@ class Crypt
      */
     protected function getHmac($data)
     {
-        return hash_hmac('sha1', $data, $this->key);
+        return hash_hmac('sha256', $data, $this->key);
+    }
+
+    /**
+     * Validate encryption key based on valid key sizes for selected cipher and cipher mode
+     * @param  string   $key    Encryption key
+     * @param  resource $module Encryption module
+     * @return void
+     * @throws \InvalidArgumentException If key size is invalid for selected cipher
+     */
+    protected function validateKey($key, $module)
+    {
+        $keySize = strlen($key);
+        $keySizeMin = 1;
+        $keySizeMax = mcrypt_enc_get_key_size($module);
+        $validKeySizes = mcrypt_enc_get_supported_key_sizes($module);
+        if ($validKeySizes) {
+            if (!in_array($keySize, $validKeySizes)) {
+                throw new \InvalidArgumentException('Encryption key length must be one of: ' . implode(', ', $validKeySizes));
+            }
+        } else {
+            if ($keySize < $keySizeMin || $keySize > $keySizeMax) {
+                throw new \InvalidArgumentException(sprintf(
+                    'Encryption key length must be between %s and %s, inclusive',
+                    $keySizeMin,
+                    $keySizeMax
+                ));
+            }
+        }
     }
 }
