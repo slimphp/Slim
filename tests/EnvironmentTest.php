@@ -296,6 +296,19 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests X-HTTP-Method-Override is allowed through unmolested.
+     *
+     * Pre-conditions:
+     * X_HTTP_METHOD_OVERRIDE is sent in client HTTP request;
+     * X_HTTP_METHOD_OVERRIDE is not empty;
+     */
+    public function testSetsHttpMethodOverrideHeader() {
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals('DELETE', $env['HTTP_X_HTTP_METHOD_OVERRIDE']);
+    }
+
+    /**
      * Test detects HTTPS
      *
      * Pre-conditions:

@@ -1193,7 +1193,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testSlimError()
     {
-        $s = new \Slim\Slim();
+        $s = new \Slim\Slim(array(
+            "log.enabled" => false
+        ));
         $s->get('/bar', function () use ($s) {
             $s->error();
         });
@@ -1274,7 +1276,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testErrorWithMultipleApps()
     {
         $s1 = new \Slim\Slim(array(
-            'debug' => false
+            'debug' => false,
+            'log.enabled' => false
         ));
         $s2 = new \Slim\Slim();
         $s1->get('/bar', function () use ($s1) {
@@ -1353,8 +1356,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
      * Slim should throw a Slim_Exception_Stop if error callback is not callable
      */
     public function testErrorHandlerIfNotCallable() {
-       $this->setExpectedException('\Slim\Exception\Stop');
-        $s = new \Slim\Slim();
+        $this->setExpectedException('\Slim\Exception\Stop');
+        $s = new \Slim\Slim(array("log.enabled" => false));
         $errCallback = 'foo';
         $s->error($errCallback);
     }
@@ -1373,7 +1376,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      * Slim should throw a Slim_Exception_Stop if NotFound callback is not callable
      */
     public function testNotFoundHandlerIfNotCallable() {
-       $this->setExpectedException('\Slim\Exception\Stop');
+        $this->setExpectedException('\Slim\Exception\Stop');
         $s = new \Slim\Slim();
         $notFoundCallback = 'foo';
         $s->notFound($notFoundCallback);
@@ -1469,13 +1472,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
 
-	/**
+    /**
      * Test late static binding
      *
      * Pre-conditions:
      * Slim app is extended by Derived class and instantiated;
      * Derived class overrides the 'getDefaultSettings' function and adds an extra default config value
-	 * Test that the new config value exists
+     * Test that the new config value exists
      *
      * Post-conditions:
      * Config value exists and is equal to expected value
