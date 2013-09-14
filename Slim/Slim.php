@@ -160,24 +160,6 @@ class Slim
             return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
-        // Default log writer
-        $this->container->singleton('logWriter', function ($c) {
-            $logWriter = $c['settings']['log.writer'];
-
-            return is_object($logWriter) ? $logWriter : new \Slim\LogWriter($c['environment']['slim.errors']);
-        });
-
-        // Default log
-        $this->container->singleton('log', function ($c) {
-            $log = new \Slim\Log($c['logWriter']);
-            $log->setEnabled($c['settings']['log.enabled']);
-            $log->setLevel($c['settings']['log.level']);
-            $env = $c['environment'];
-            $env['slim.log'] = $log;
-
-            return $log;
-        });
-
         // Default mode
         $this->container['mode'] = function ($c) {
             $mode = $c['settings']['mode'];
@@ -263,10 +245,6 @@ class Slim
             'mode' => 'development',
             // Debugging
             'debug' => true,
-            // Logging
-            'log.writer' => null,
-            'log.level' => \Slim\Log::DEBUG,
-            'log.enabled' => true,
             // View
             'templates.path' => './templates',
             'view' => '\Slim\View',
@@ -360,19 +338,6 @@ class Slim
         if ($mode === $this->getMode() && is_callable($callable)) {
             call_user_func($callable);
         }
-    }
-
-    /********************************************************************************
-    * Logging
-    *******************************************************************************/
-
-    /**
-     * Get application log
-     * @return \Slim\Log
-     */
-    public function getLog()
-    {
-        return $this->log;
     }
 
     /********************************************************************************
@@ -1364,7 +1329,6 @@ class Slim
      */
     protected function defaultError($e)
     {
-        $this->getLog()->error($e);
         echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

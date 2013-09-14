@@ -36,12 +36,6 @@ class CustomView extends \Slim\View
     public function render($template) { echo "Custom view"; }
 }
 
-//Echo Logger
-class EchoErrorLogger
-{
-   public function error($object) { echo get_class($object) .':'.$object->getMessage(); }
-}
-
 //Mock extending class
 class Derived extends \Slim\Slim
 {
@@ -108,9 +102,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Http\Response', $s->response());
         $this->assertInstanceOf('\Slim\Router', $s->router());
         $this->assertInstanceOf('\Slim\View', $s->view());
-        $this->assertInstanceOf('\Slim\Log', $s->getLog());
-        $this->assertEquals(\Slim\Log::DEBUG, $s->getLog()->getLevel());
-        $this->assertTrue($s->getLog()->getEnabled());
         $this->assertInstanceOf('\Slim\Environment', $s->environment());
     }
 
@@ -579,23 +570,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('test output bar', $body);
-    }
-
-    /************************************************
-     * LOG
-     ************************************************/
-
-    /**
-     * Test get log
-     *
-     * This asserts that a Slim app has a default Log
-     * upon instantiation. The Log itself is tested
-     * separately in another file.
-     */
-    public function testGetLog()
-    {
-        $s = new \Slim\Slim();
-        $this->assertInstanceOf('\Slim\Log', $s->getLog());
     }
 
     /************************************************
@@ -1193,39 +1167,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testSlimError()
     {
-        $s = new \Slim\Slim(array(
-            "log.enabled" => false
-        ));
+        $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
             $s->error();
         });
         $s->call();
         $this->assertEquals(500, $s->response()->status());
-    }
-
-    /**
-     * Test default error handler logs the error when debug is false.
-     *
-     * Pre-conditions:
-     * Invoked app route calls default error handler;
-     *
-     * Post-conditions:
-     * Error log is called
-     */
-    public function testDefaultHandlerLogsTheErrorWhenDebugIsFalse()
-    {
-        $s = new \Slim\Slim(array('debug' => false));
-        $s->container->singleton('log', function ($c) {
-            return new EchoErrorLogger();
-        });
-        $s->get('/bar', function () use ($s) {
-            throw new \InvalidArgumentException('my specific error message');
-        });
-
-        ob_start();
-        $s->run();
-        $output = ob_get_clean();
-        $this->assertTrue(strpos($output, 'InvalidArgumentException:my specific error message') !== false);
     }
 
     /**
@@ -1276,8 +1223,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testErrorWithMultipleApps()
     {
         $s1 = new \Slim\Slim(array(
-            'debug' => false,
-            'log.enabled' => false
+            'debug' => false
         ));
         $s2 = new \Slim\Slim();
         $s1->get('/bar', function () use ($s1) {
@@ -1357,7 +1303,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerIfNotCallable() {
         $this->setExpectedException('\Slim\Exception\Stop');
-        $s = new \Slim\Slim(array("log.enabled" => false));
+        $s = new \Slim\Slim();
         $errCallback = 'foo';
         $s->error($errCallback);
     }
