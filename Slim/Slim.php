@@ -910,41 +910,6 @@ class Slim
     }
 
     /********************************************************************************
-    * Flash Messages
-    *******************************************************************************/
-
-    /**
-     * DEPRECATED
-     * Set flash message for subsequent request
-     * @param  string   $key
-     * @param  mixed    $value
-     */
-    public function flash($key, $value)
-    {
-        $this->flash->next($key, $value);
-    }
-
-    /**
-     * DEPRECATED
-     * Set flash message for current request
-     * @param  string   $key
-     * @param  mixed    $value
-     */
-    public function flashNow($key, $value)
-    {
-        $this->flash->now($key, $value);
-    }
-
-    /**
-     * DEPRECATED
-     * Keep flash messages from previous request for subsequent request
-     */
-    public function flashKeep()
-    {
-        $this->flash->keep();
-    }
-
-    /********************************************************************************
     * Hooks
     *******************************************************************************/
 
