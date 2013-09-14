@@ -53,7 +53,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 13,
             'slim.input' => '{"foo":"bar"}'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();
@@ -72,7 +72,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 12,
             'slim.input' => '{"foo":"bar"' //<-- This should be incorrect!
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();
@@ -91,7 +91,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 68,
             'slim.input' => '<books><book><id>1</id><author>Clive Cussler</author></book></books>'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();
@@ -110,7 +110,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONTENT_LENGTH' => 68,
             'slim.input' => '<books><book><id>1</id><author>Clive Cussler</book></books>' //<-- This should be incorrect!
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();
@@ -129,7 +129,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONTENT_LENGTH' => 44,
             'slim.input' => "John,Doe,000-111-2222\nJane,Doe,111-222-3333"
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();
@@ -151,7 +151,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONTENT_LENGTH' => 13,
             'slim.input' => '{"foo":"bar"}'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
         $body = $s->request->getBody();

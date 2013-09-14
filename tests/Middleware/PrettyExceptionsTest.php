@@ -41,7 +41,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new \Slim\App();
         $app->get('/foo', function () {
             echo "Success";
         });
@@ -62,7 +62,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new \Slim\App();
         $app->get('/foo', function () {
             throw new \Exception('Test Message', 100);
         });
@@ -83,7 +83,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new \Slim\App();
         $app->get('/foo', function () use ($app) {
             $app->contentType('application/json;charset=utf-8'); //<-- set content type to something else
             throw new \Exception('Test Message', 100);
@@ -105,7 +105,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new \Slim\App();
         $app->get('/foo', function () use ($app) {
             throw new \LogicException('Test Message', 100);
         });
