@@ -162,6 +162,9 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //Number of server port that is running the script
             $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
+            //Request protocol (e.g. "HTTP/1.1")
+            $env['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'];
+
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Slim\Http\Headers::extract($_SERVER);
             foreach ($headers as $key => $value) {
