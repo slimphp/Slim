@@ -758,45 +758,6 @@ class Slim
     }
 
     /**
-     * DEPRECATION WARNING! Use `setCookie` with the `cookies.encrypt` app setting set to `true`.
-     *
-     * Set encrypted HTTP cookie
-     *
-     * @param string    $name       The cookie name
-     * @param mixed     $value      The cookie value
-     * @param mixed     $expires    The duration of the cookie;
-     *                                  If integer, should be UNIX timestamp;
-     *                                  If string, converted to UNIX timestamp with `strtotime`;
-     * @param string    $path       The path on the server in which the cookie will be available on
-     * @param string    $domain     The domain that the cookie is available to
-     * @param bool      $secure     Indicates that the cookie should only be transmitted over a secure
-     *                              HTTPS connection from the client
-     * @param  bool     $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
-     */
-    public function setEncryptedCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = false, $httponly = false)
-    {
-        $this->setCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
-    }
-
-    /**
-     * DEPRECATION WARNING! Use `getCookie` with the `cookies.encrypt` app setting set to `true`.
-     *
-     * Get value of encrypted HTTP cookie
-     *
-     * Return the value of an encrypted cookie from the current HTTP request,
-     * or return NULL if cookie does not exist. Encrypted cookies created during
-     * the current request will not be available until the next request.
-     *
-     * @param  string       $name
-     * @param  bool         $deleteIfInvalid
-     * @return string|bool
-     */
-    public function getEncryptedCookie($name, $deleteIfInvalid = true)
-    {
-        return $this->getCookie($name, $deleteIfInvalid);
-    }
-
-    /**
      * Delete HTTP cookie (encrypted or unencrypted)
      *
      * Remove a Cookie from the client. This method will overwrite an existing Cookie
