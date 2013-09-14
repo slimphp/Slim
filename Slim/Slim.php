@@ -99,7 +99,7 @@ class Slim
      */
     public function __construct(array $userSettings = array())
     {
-        // Setup IoC container
+        // Setup DI container
         $this->container = new \Slim\Helper\Set();
         $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
 
@@ -178,6 +178,13 @@ class Slim
         // Keep reference to first instantiated Slim app; legacy support only.
         static::$singleton = $this;
     }
+
+    /********************************************************************************
+     * Magic setters and getters
+     *
+     * Fallback to the DI container if properties are not available
+     * on the Slim instance itself.
+     *******************************************************************************/
 
     public function __get($name)
     {
