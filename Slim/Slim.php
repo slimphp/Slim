@@ -44,32 +44,12 @@ if (!extension_loaded('mcrypt')) {
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim
+class Slim extends \Slim\Helper\Set
 {
     /**
      * @const string
      */
     const VERSION = '2.3.0';
-
-    /**
-     * @var \Slim\Helper\Set
-     */
-    public $container;
-
-    /**
-     * @var array[\Slim]
-     */
-    protected static $apps = array();
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var array
-     */
-    protected $middleware;
 
     /**
      * @var mixed Callable to be invoked if application error
@@ -103,17 +83,16 @@ class Slim
      */
     public function __construct(array $userSettings = array())
     {
-        // Setup IoC container
-        $this->container = new \Slim\Helper\Set();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+        // Default and overriding settings
+        $this->set('settings', array_merge(static::getDefaultSettings(), $userSettings));
 
         // Default environment
-        $this->container->singleton('environment', function ($c) {
+        $this->singleton('environment', function ($c) {
             return \Slim\Environment::getInstance();
         });
 
         // Default request
-        $this->container->singleton('request', function ($c) {
+        $this->singleton('request', function ($c) {
             $request = new \Slim\Http\Request($c['environment']);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
@@ -123,17 +102,17 @@ class Slim
         });
 
         // Default response
-        $this->container->singleton('response', function ($c) {
+        $this->singleton('response', function ($c) {
             return new \Slim\Http\Response();
         });
 
         // Default router
-        $this->container->singleton('router', function ($c) {
+        $this->singleton('router', function ($c) {
             return new \Slim\Router();
         });
 
         // Default view
-        $this->container->singleton('view', function ($c) {
+        $this->singleton('view', function ($c) {
             $viewClass = $c['settings']['view'];
 
             return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
@@ -161,14 +140,14 @@ class Slim
         });
 
         // Default log writer
-        $this->container->singleton('logWriter', function ($c) {
+        $this->singleton('logWriter', function ($c) {
             $logWriter = $c['settings']['log.writer'];
 
             return is_object($logWriter) ? $logWriter : new \Slim\LogWriter($c['environment']['slim.errors']);
         });
 
         // Default log
-        $this->container->singleton('log', function ($c) {
+        $this->singleton('log', function ($c) {
             $log = new \Slim\Log($c['logWriter']);
             $log->setEnabled($c['settings']['log.enabled']);
             $log->setLevel($c['settings']['log.level']);
@@ -179,7 +158,7 @@ class Slim
         });
 
         // Default mode
-        $this->container['mode'] = function ($c) {
+        $this->set('mode', function ($c) {
             $mode = $c['settings']['mode'];
 
             if (isset($_ENV['SLIM_MODE'])) {
@@ -192,35 +171,22 @@ class Slim
             }
 
             return $mode;
-        };
+        });
 
         // Define default middleware stack
-        $this->middleware = array($this);
+        $this->set('middleware', array($this));
+
+        // Create a singleton container for app instances
+        $this->singleton('apps', function ($c) {
+            $apps = new \Slim\Helper\Set();
+
+            return $apps;
+        });
 
         // Make default if first instance
         if (is_null(static::getInstance())) {
             $this->setName('default');
         }
-    }
-
-    public function __get($name)
-    {
-        return $this->container[$name];
-    }
-
-    public function __set($name, $value)
-    {
-        $this->container[$name] = $value;
-    }
-
-    public function __isset($name)
-    {
-        return isset($this->container[$name]);
-    }
-
-    public function __unset($name)
-    {
-        unset($this->container[$name]);
     }
 
     /**
@@ -230,7 +196,7 @@ class Slim
      */
     public static function getInstance($name = 'default')
     {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
+        return isset($this->apps[$name]) ? $this->apps[$name] : null;
     }
 
     /**
@@ -240,7 +206,7 @@ class Slim
     public function setName($name)
     {
         $this->name = $name;
-        static::$apps[$name] = $this;
+        $this->apps[$name] = $this;
     }
 
     /**
@@ -319,9 +285,7 @@ class Slim
                 return isset($this->settings[$name]) ? $this->settings[$name] : null;
             }
         } else {
-            $settings = $this->settings;
-            $settings[$name] = $value;
-            $this->settings = $settings;
+            $this->settings[$name] = $value;
         }
     }
 
@@ -415,6 +379,7 @@ class Slim
         $callable = array_pop($args);
         $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
+
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
