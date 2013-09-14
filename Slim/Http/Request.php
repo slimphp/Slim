@@ -319,19 +319,6 @@ class Request
         }
 
         return $this->cookies;
-        // if (!isset($this->env['slim.request.cookie_hash'])) {
-        //     $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-        //     $this->env['slim.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
-        // }
-        // if ($key) {
-        //     if (isset($this->env['slim.request.cookie_hash'][$key])) {
-        //         return $this->env['slim.request.cookie_hash'][$key];
-        //     } else {
-        //         return null;
-        //     }
-        // } else {
-        //     return $this->env['slim.request.cookie_hash'];
-        // }
     }
 
     /**
@@ -362,25 +349,6 @@ class Request
         }
 
         return $this->headers;
-        // if ($key) {
-        //     $key = strtoupper($key);
-        //     $key = str_replace('-', '_', $key);
-        //     $key = preg_replace('@^HTTP_@', '', $key);
-        //     if (isset($this->env[$key])) {
-        //         return $this->env[$key];
-        //     } else {
-        //         return $default;
-        //     }
-        // } else {
-        //     $headers = array();
-        //     foreach ($this->env as $key => $value) {
-        //         if (strpos($key, 'slim.') !== 0) {
-        //             $headers[$key] = $value;
-        //         }
-        //     }
-        //
-        //     return $headers;
-        // }
     }
 
     /**
@@ -623,6 +591,10 @@ class Request
         return $this->headers->get('HTTP_USER_AGENT');
     }
 
+    /**
+     * Convert HTTP request into a string
+     * @return string
+     */
     public function __toString()
     {
         // Build path with query string

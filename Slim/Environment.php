@@ -88,6 +88,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     public static function mock($userSettings = array())
     {
         $defaults = array(
+            'SERVER_PROTOCOL' => 'HTTP/1.1',
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '',
             'PATH_INFO' => '',

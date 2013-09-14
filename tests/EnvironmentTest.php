@@ -43,6 +43,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['SERVER_NAME'] = 'slim';
         $_SERVER['SERVER_PORT'] = '80';
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
