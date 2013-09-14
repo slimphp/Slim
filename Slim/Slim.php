@@ -57,14 +57,10 @@ class Slim
     public $container;
 
     /**
-     * @var array[\Slim]
+     * Reference first instantiated Slim app; legacy support only.
+     * @var \Slim\Slim
      */
-    protected static $apps = array();
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected static $singleton;
 
     /**
      * @var array
@@ -179,10 +175,8 @@ class Slim
         // Define default middleware stack
         $this->middleware = array($this);
 
-        // Make default if first instance
-        if (is_null(static::getInstance())) {
-            $this->setName('default');
-        }
+        // Keep reference to first instantiated Slim app; legacy support only.
+        static::$singleton = $this;
     }
 
     public function __get($name)
@@ -212,26 +206,7 @@ class Slim
      */
     public static function getInstance($name = 'default')
     {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
-    }
-
-    /**
-     * Set Slim application name
-     * @param  string $name The name of this Slim application
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        static::$apps[$name] = $this;
-    }
-
-    /**
-     * Get Slim application name
-     * @return string|null
-     */
-    public function getName()
-    {
-        return $this->name;
+        return static::$singleton;
     }
 
     /**

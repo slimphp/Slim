@@ -111,20 +111,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetDefaultInstance()
     {
         $s = new \Slim\Slim();
-        $s->setName('default'); //We must do this manually since a default app is already set in prev tests
-        $this->assertEquals('default', $s->getName());
-        $this->assertInstanceOf('\Slim\Slim', \Slim\Slim::getInstance());
         $this->assertSame($s, \Slim\Slim::getInstance());
-    }
-
-    /**
-     * Test get named instance
-     */
-    public function testGetNamedInstance()
-    {
-        $s = new \Slim\Slim();
-        $s->setName('foo');
-        $this->assertSame($s, \Slim\Slim::getInstance('foo'));
     }
 
     /**
