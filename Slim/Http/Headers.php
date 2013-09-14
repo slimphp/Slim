@@ -39,7 +39,7 @@ namespace Slim\Http;
   * @author  Josh Lockhart
   * @since   1.6.0
   */
-class Headers extends \Slim\Helper\Set
+class Headers extends \Slim\Container
 {
     /********************************************************************************
     * Static interface

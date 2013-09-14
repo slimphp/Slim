@@ -53,7 +53,7 @@ class App
 
     /**
      * The dependency injection container
-     * @var \Slim\Helper\Set
+     * @var \Slim\Container
      */
     public $container;
 
@@ -101,7 +101,7 @@ class App
     public function __construct(array $userSettings = array())
     {
         // Setup DI container
-        $this->container = new \Slim\Helper\Set();
+        $this->container = new \Slim\Container();
         $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
 
         // Default environment

@@ -37,7 +37,7 @@ class SetTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->bag = new \Slim\Helper\Set();
+        $this->bag = new \Slim\Container();
         $this->property = new \ReflectionProperty($this->bag, 'data');
         $this->property->setAccessible(true);
     }
@@ -245,7 +245,7 @@ class SetTest extends PHPUnit_Framework_TestCase
         $crypt = new \Slim\Crypt(md5('secret'));
 
         // Prepare set
-        $bag = new \Slim\Helper\Set();
+        $bag = new \Slim\Container();
         $bag->set('foo', 'bar');
         $bag->set('abc', '123');
 

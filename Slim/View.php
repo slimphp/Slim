@@ -51,7 +51,7 @@ class View
 {
     /**
      * Data available to the view templates
-     * @var \Slim\Helper\Set
+     * @var \Slim\Container
      */
     protected $data;
 
@@ -66,7 +66,7 @@ class View
      */
     public function __construct()
     {
-        $this->data = new \Slim\Helper\Set();
+        $this->data = new \Slim\Container();
     }
 
     /********************************************************************************

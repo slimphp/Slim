@@ -30,9 +30,9 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Helper;
+namespace Slim;
 
-class Set implements \ArrayAccess, \Countable, \IteratorAggregate
+class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Key-value array of arbitrary data

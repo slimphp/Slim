@@ -51,7 +51,7 @@ namespace Slim;
  * @author     Josh Lockhart
  * @since      2.3.0
  */
-class Session extends \Slim\Helper\Set
+class Session extends \Slim\Container
 {
     /**
      * The session save handler

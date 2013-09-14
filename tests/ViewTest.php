@@ -37,7 +37,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
 
         $this->assertSame(array('foo' => 'bar'), $view->getData());
     }
@@ -47,7 +47,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
 
         $this->assertEquals('bar', $view->getData('foo'));
     }
@@ -57,7 +57,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
 
         $this->assertNull($view->getData('abc'));
     }
@@ -120,7 +120,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
         $view->appendData(array('foo' => '123'));
 
         $this->assertEquals(array('foo' => '123'), $prop->getValue($view)->all());
@@ -159,7 +159,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop1 = new \ReflectionProperty($view, 'data');
         $prop1->setAccessible(true);
-        $prop1->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+        $prop1->setValue($view, new \Slim\Container(array('foo' => 'bar')));
 
         $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
         $prop2->setAccessible(true);
