@@ -752,7 +752,7 @@ class Slim
      * @param  bool        $deleteIfInvalid
      * @return string|null
      */
-    public function getCookie($name, $deleteIfInvalid = true)
+    public function getCookie($name)
     {
         return $this->request->cookies->get($name);
     }
