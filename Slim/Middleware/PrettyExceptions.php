@@ -66,10 +66,10 @@ class PrettyExceptions extends \Slim\Middleware
         try {
             $this->next->call();
         } catch (\Exception $e) {
-            $env = $this->app->environment();
+            $env = $this->app->environment;
             $this->app->contentType('text/html');
-            $this->app->response()->status(500);
-            $this->app->response()->body($this->renderBody($env, $e));
+            $this->app->response->setStatus(500);
+            $this->app->response->setBody($this->renderBody($env, $e));
         }
     }
 

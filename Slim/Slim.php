@@ -565,42 +565,6 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Get a reference to the Environment object
-     * @return \Slim\Environment
-     */
-    public function environment()
-    {
-        return $this->environment;
-    }
-
-    /**
-     * Get the Request object
-     * @return \Slim\Http\Request
-     */
-    public function request()
-    {
-        return $this->request;
-    }
-
-    /**
-     * Get the Response object
-     * @return \Slim\Http\Response
-     */
-    public function response()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Get the Router object
-     * @return \Slim\Router
-     */
-    public function router()
-    {
-        return $this->router;
-    }
-
-    /**
      * Get and/or set the View
      *
      * This method declares the View to be used by the Slim application.
@@ -1221,7 +1185,7 @@ class Slim
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
-            $this->response()->write(ob_get_clean());
+            $this->response->write(ob_get_clean());
             $this->applyHook('slim.after');
         } catch (\Exception $e) {
             if ($this->config('debug')) {

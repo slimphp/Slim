@@ -52,8 +52,8 @@ class CustomMiddleware extends \Slim\Middleware
 {
     public function call()
     {
-        $env = $this->app->environment();
-        $res = $this->app->response();
+        $env = $this->app->environment;
+        $res = $this->app->response;
         $env['slim.test'] = 'Hello';
         $this->next->call();
         $res->header('X-Slim-Test', 'Hello');
@@ -98,11 +98,11 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testDefaultInstanceProperties()
     {
         $s = new \Slim\Slim();
-        $this->assertInstanceOf('\Slim\Http\Request', $s->request());
-        $this->assertInstanceOf('\Slim\Http\Response', $s->response());
-        $this->assertInstanceOf('\Slim\Router', $s->router());
-        $this->assertInstanceOf('\Slim\View', $s->view());
-        $this->assertInstanceOf('\Slim\Environment', $s->environment());
+        $this->assertInstanceOf('\Slim\Http\Request', $s->request);
+        $this->assertInstanceOf('\Slim\Http\Response', $s->response);
+        $this->assertInstanceOf('\Slim\Router', $s->router);
+        $this->assertInstanceOf('\Slim\View', $s->view);
+        $this->assertInstanceOf('\Slim\Environment', $s->environment);
     }
 
     /**
@@ -302,7 +302,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->get('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -323,7 +323,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->post('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -344,7 +344,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->put('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -365,7 +365,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->patch('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -386,7 +386,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->delete('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -407,7 +407,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $s->options('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -430,7 +430,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->get('/baz', $mw2, $callable);
         });
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('foobarxyz', $s->response->getBody());
     }
 
     /*
@@ -451,7 +451,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s = new \Slim\Slim();
             $route = $s->any('/bar', $mw1, $mw2, $callable);
             $s->call();
-            $this->assertEquals('foobarxyz', $s->response()->body());
+            $this->assertEquals('foobarxyz', $s->response->getBody());
             $this->assertEquals('/bar', $route->getPattern());
             $this->assertSame($callable, $route->getCallable());
         }
@@ -469,7 +469,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->get('/bar', function () { echo "xyz"; });
         $s->call();
-        $this->assertEquals(404, $s->response()->status());
+        $this->assertEquals(404, $s->response->getStatus());
     }
 
     /**
@@ -484,7 +484,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
         $s->call();
-        $this->assertEquals('jo hnsmi th', $s->response()->body());
+        $this->assertEquals('jo hnsmi th', $s->response->getBody());
     }
 
     /************************************************
@@ -539,7 +539,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->render('test.php', array('foo' => 'bar'));
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(200, $status);
         $this->assertEquals('test output bar', $body);
     }
@@ -554,7 +554,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->render('test.php', array('foo' => 'bar'), 500);
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('test output bar', $body);
     }
@@ -579,7 +579,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->lastModified(1286139652);
         });
         $s->call();
-        $this->assertEquals(304, $s->response()->status());
+        $this->assertEquals(304, $s->response->getStatus());
     }
 
     /**
@@ -597,7 +597,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->lastModified(1286139250);
         });
         $s->call();
-        $this->assertEquals(200, $s->response()->status());
+        $this->assertEquals(200, $s->response->getStatus());
     }
 
     public function testLastModifiedOnlyAcceptsIntegers()
@@ -628,7 +628,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->lastModified(1286139652);
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertTrue(isset($header['Last-Modified']));
         $this->assertEquals('Sun, 03 Oct 2010 21:00:52 GMT', $header['Last-Modified']);
     }
@@ -648,7 +648,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->etag('abc123');
         });
         $s->call();
-        $this->assertEquals(304, $s->response()->status());
+        $this->assertEquals(304, $s->response->getStatus());
     }
 
     /**
@@ -666,7 +666,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->etag('abc123');
         });
         $s->call();
-        $this->assertEquals(200, $s->response()->status());
+        $this->assertEquals(200, $s->response->getStatus());
     }
 
     /**
@@ -702,7 +702,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->expires('5 days');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertTrue(isset($header['Expires']));
         $this->assertEquals($header['Expires'], $expectedDate);
     }
@@ -723,7 +723,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->expires($fiveDaysFromNow);
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertTrue(isset($header['Expires']));
         $this->assertEquals($header['Expires'], $expectedDate);
     }
@@ -861,7 +861,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             echo "Bar"; //<-- Should not be in response body!
         });
         $s->call();
-        $this->assertEquals('Foo', $s->response()->body());
+        $this->assertEquals('Foo', $s->response->getBody());
     }
 
     /**
@@ -906,7 +906,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->halt(500, 'Something broke');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('Something broke', $body);
     }
@@ -976,7 +976,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             echo $name; //<-- Should be in response body!
         });
         $s->call();
-        $this->assertEquals('Frank', $s->response()->body());
+        $this->assertEquals('Frank', $s->response->getBody());
     }
 
     /**
@@ -994,7 +994,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->pass();
         });
         $s->call();
-        $this->assertEquals(404, $s->response()->status());
+        $this->assertEquals(404, $s->response->getStatus());
     }
 
     /**
@@ -1007,7 +1007,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->contentType('application/json');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals('application/json', $header['Content-Type']);
     }
 
@@ -1021,7 +1021,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->status(403);
         });
         $s->call();
-        $this->assertEquals(403, $s->response()->status());
+        $this->assertEquals(403, $s->response->getStatus());
     }
 
     /**
@@ -1045,7 +1045,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->redirect('/somewhere/else', 303);
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(303, $status);
         $this->assertEquals('/somewhere/else', $header['Location']);
         $this->assertEquals('', $body);
@@ -1116,7 +1116,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             echo 'Foo';
         });
         $s->run();
-        $this->assertEquals('Hello', $s->response()->header('X-Slim-Test'));
+        $this->assertEquals('Hello', $s->response->headers['X-Slim-Test']);
     }
 
     /************************************************
@@ -1134,7 +1134,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         });
         $s->get('/foo', function () {});
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(404, $status);
         $this->assertEquals('Not Found', $body);
     }
@@ -1159,7 +1159,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->error();
         });
         $s->call();
-        $this->assertEquals(500, $s->response()->status());
+        $this->assertEquals(500, $s->response->getStatus());
     }
 
     /**
@@ -1188,7 +1188,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             trigger_error('Foo I say!');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(500, $status);
         $this->assertEquals('Foo I say!', $body);
     }
@@ -1221,8 +1221,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
         });
         $s1->call();
         $s2->call();
-        $this->assertEquals(500, $s1->response()->status());
-        $this->assertEquals(200, $s2->response()->status());
+        $this->assertEquals(500, $s1->response->getStatus());
+        $this->assertEquals(200, $s2->response->getStatus());
     }
 
     /**
@@ -1234,8 +1234,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'debug' => false
         ));
         $s->error(function ( \Exception $e ) use ($s) {
-            $r = $s->response();
-            $r->status(503);
+            $r = $s->response;
+            $r->setStatus(503);
             $r->write('Foo');
             $r['X-Powered-By'] = 'Slim';
             echo 'Bar';
@@ -1244,7 +1244,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             throw new \Exception('Foo');
         });
         $s->call();
-        list($status, $header, $body) = $s->response()->finalize();
+        list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(503, $status);
         $this->assertEquals('FooBar', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);

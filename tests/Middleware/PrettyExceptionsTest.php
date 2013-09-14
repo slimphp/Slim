@@ -49,8 +49,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $this->assertEquals(200, $app->response()->status());
-        $this->assertEquals('Success', $app->response()->body());
+        $this->assertEquals(200, $app->response->getStatus());
+        $this->assertEquals('Success', $app->response->getBody());
     }
 
     /**
@@ -70,8 +70,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response()->body()));
-        $this->assertEquals(500, $app->response()->status());
+        $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response->getBody()));
+        $this->assertEquals(500, $app->response->getStatus());
     }
 
     /**
@@ -92,7 +92,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $response = $app->response();
+        $response = $app->response;
         $this->assertEquals('text/html', $response['Content-Type']);
     }
 
@@ -114,6 +114,6 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
 
-        $this->assertContains('LogicException', $app->response()->body());
+        $this->assertContains('LogicException', $app->response->getBody());
     }
 }

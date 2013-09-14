@@ -56,7 +56,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals('bar', $body['foo']);
     }
@@ -75,7 +75,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_string($body));
         $this->assertEquals('{"foo":"bar"', $body);
     }
@@ -94,7 +94,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertInstanceOf('SimpleXMLElement', $body);
         $this->assertEquals('Clive Cussler', (string) $body->book->author);
     }
@@ -113,7 +113,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_string($body));
         $this->assertEquals('<books><book><id>1</id><author>Clive Cussler</book></books>', $body);
     }
@@ -132,7 +132,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals(2, count($body));
         $this->assertEquals('000-111-2222', $body[0][2]);
@@ -154,7 +154,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals('bar', $body['foo']);
     }
