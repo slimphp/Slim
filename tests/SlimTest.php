@@ -187,7 +187,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetDefaultMode()
     {
         $s = new \Slim\Slim();
-        $this->assertEquals('development', $s->getMode());
+        $this->assertEquals('development', $s->mode);
     }
 
     /**
@@ -197,7 +197,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $_ENV['SLIM_MODE'] = 'production';
         $s = new \Slim\Slim();
-        $this->assertEquals('production', $s->getMode());
+        $this->assertEquals('production', $s->mode);
     }
 
     /**
@@ -208,7 +208,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim(array(
             'mode' => 'test'
         ));
-        $this->assertEquals('test', $s->getMode());
+        $this->assertEquals('test', $s->mode);
         }
 
     /**
@@ -261,7 +261,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         putenv('SLIM_MODE=production');
         $s = new \Slim\Slim();
-        $this->assertEquals('production', $s->getMode());
+        $this->assertEquals('production', $s->mode);
     }
 
     /************************************************

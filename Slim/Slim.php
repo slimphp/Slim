@@ -283,20 +283,6 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Get application mode
-     *
-     * This method determines the application mode. It first inspects the $_ENV
-     * superglobal for key `SLIM_MODE`. If that is not found, it queries
-     * the `getenv` function. Else, it uses the application `mode` setting.
-     *
-     * @return string
-     */
-    public function getMode()
-    {
-        return $this->mode;
-    }
-
-    /**
      * Configure Slim for a given mode
      *
      * This method will immediately invoke the callable if
@@ -310,7 +296,7 @@ class Slim
      */
     public function configureMode($mode, $callable)
     {
-        if ($mode === $this->getMode() && is_callable($callable)) {
+        if ($mode === $this->mode && is_callable($callable)) {
             call_user_func($callable);
         }
     }
