@@ -32,6 +32,22 @@
  */
 namespace Slim;
 
+/**
+ * Container
+ *
+ * This is a very simple dependency injection (DI) container. I must
+ * give a hat tip to Fabien Potencier, because a few methods in this
+ * class are borrowed wholesale from his `Pimple` library.
+ *
+ * I wanted to avoid third-party dependencies, so I created this
+ * DI container as a simple derivative of Pimple. If you need a separate
+ * stand-alone DI container component, please use Pimple:
+ *
+ * @package    Slim
+ * @author     Fabien Potencier, Josh Lockhart
+ * @since      2.3.0
+ * @see        https://github.com/fabpot/Pimple
+ */
 class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
