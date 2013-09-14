@@ -53,6 +53,7 @@ class Autoloader
         }
         $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
 
+        // Require file only if it exists. Else let other registered autoloaders worry about it.
         if (file_exists($fileName)) {
             require $fileName;
         }
