@@ -1224,7 +1224,7 @@ class Slim
         // Save flash messages to session
         $this->flash->save();
 
-        // Save session and close
+        // Encrypt, save, close session
         if ($this->config('session.encrypt') === true) {
             $this->session->encrypt($this->crypt);
         }
