@@ -84,7 +84,7 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->cookies = new \Slim\Container(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->cookies = new \Slim\Container(\Slim\Http\Cookies::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**

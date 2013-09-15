@@ -1061,7 +1061,7 @@ class App
         if ($this->settings['cookies.encrypt']) {
             $this->response->cookies->encrypt($this->crypt);
         }
-        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies);
+        \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
 
         //Send headers
         if (headers_sent() === false) {
