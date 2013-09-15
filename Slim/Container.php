@@ -30,9 +30,25 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Helper;
+namespace Slim;
 
-class Set implements \ArrayAccess, \Countable, \IteratorAggregate
+/**
+ * Container
+ *
+ * This is a very simple dependency injection (DI) container. I must
+ * give a hat tip to Fabien Potencier, because a few methods in this
+ * class are borrowed wholesale from his `Pimple` library.
+ *
+ * I wanted to avoid third-party dependencies, so I created this
+ * DI container as a simple derivative of Pimple. If you need a separate
+ * stand-alone DI container component, please use Pimple:
+ *
+ * @package    Slim
+ * @author     Fabien Potencier, Josh Lockhart
+ * @since      2.3.0
+ * @see        https://github.com/fabpot/Pimple
+ */
+class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * Key-value array of arbitrary data
@@ -169,6 +185,30 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     public function clear()
     {
         $this->data = array();
+    }
+
+    /**
+     * Encrypt set
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function encrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $elementName => $elementValue) {
+            $this->set($elementName, $crypt->encrypt($elementValue));
+        }
+    }
+
+    /**
+     * Decrypt set
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function decrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $elementName => $elementValue) {
+            $this->set($elementName, $crypt->decrypt($elementValue));
+        }
     }
 
     /**

@@ -37,7 +37,7 @@ class SetTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->bag = new \Slim\Helper\Set();
+        $this->bag = new \Slim\Container();
         $this->property = new \ReflectionProperty($this->bag, 'data');
         $this->property->setAccessible(true);
     }
@@ -237,5 +237,26 @@ class SetTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Closure', $result);
         $this->assertSame($callable, $result());
+    }
+
+    public function testEncryptAndDecrypt()
+    {
+        // Prepare crypt
+        $crypt = new \Slim\Crypt(md5('secret'));
+
+        // Prepare set
+        $bag = new \Slim\Container();
+        $bag->set('foo', 'bar');
+        $bag->set('abc', '123');
+
+        // Test encrypt
+        $bag->encrypt($crypt);
+        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag->get('foo')));
+        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag->get('abc')));
+
+        // Test decrypt
+        $bag->decrypt($crypt);
+        $this->assertEquals('bar', $bag->get('foo'));
+        $this->assertEquals('123', $bag->get('abc'));
     }
 }

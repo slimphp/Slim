@@ -53,10 +53,10 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 13,
             'slim.input' => '{"foo":"bar"}'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals('bar', $body['foo']);
     }
@@ -72,10 +72,10 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 12,
             'slim.input' => '{"foo":"bar"' //<-- This should be incorrect!
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_string($body));
         $this->assertEquals('{"foo":"bar"', $body);
     }
@@ -91,10 +91,10 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
             'CONENT_LENGTH' => 68,
             'slim.input' => '<books><book><id>1</id><author>Clive Cussler</author></book></books>'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertInstanceOf('SimpleXMLElement', $body);
         $this->assertEquals('Clive Cussler', (string) $body->book->author);
     }
@@ -107,13 +107,13 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/xml',
-            'CONENT_LENGTH' => 68,
+            'CONTENT_LENGTH' => 68,
             'slim.input' => '<books><book><id>1</id><author>Clive Cussler</book></books>' //<-- This should be incorrect!
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_string($body));
         $this->assertEquals('<books><book><id>1</id><author>Clive Cussler</book></books>', $body);
     }
@@ -126,13 +126,13 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'text/csv',
-            'CONENT_LENGTH' => 44,
+            'CONTENT_LENGTH' => 44,
             'slim.input' => "John,Doe,000-111-2222\nJane,Doe,111-222-3333"
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals(2, count($body));
         $this->assertEquals('000-111-2222', $body[0][2]);
@@ -148,13 +148,13 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4',
-            'CONENT_LENGTH' => 13,
+            'CONTENT_LENGTH' => 13,
             'slim.input' => '{"foo":"bar"}'
         ));
-        $s = new \Slim\Slim();
+        $s = new \Slim\App();
         $s->add(new \Slim\Middleware\ContentTypes());
         $s->run();
-        $body = $s->request()->getBody();
+        $body = $s->request->getBody();
         $this->assertTrue(is_array($body));
         $this->assertEquals('bar', $body['foo']);
     }

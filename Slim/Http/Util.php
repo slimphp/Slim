@@ -76,209 +76,21 @@ class Util
     }
 
     /**
-     * Encrypt data
-     *
-     * This method will encrypt data using a given key, vector, and cipher.
-     * By default, this will encrypt data using the RIJNDAEL/AES 256 bit cipher. You
-     * may override the default cipher and cipher mode by passing your own desired
-     * cipher and cipher mode as the final key-value array argument.
-     *
-     * @param  string $data     The unencrypted data
-     * @param  string $key      The encryption key
-     * @param  string $iv       The encryption initialization vector
-     * @param  array  $settings Optional key-value array with custom algorithm and mode
-     * @return string
-     */
-    public static function encrypt($data, $key, $iv, $settings = array())
-    {
-        if ($data === '' || !extension_loaded('mcrypt')) {
-            return $data;
-        }
-
-        //Merge settings with defaults
-        $defaults = array(
-            'algorithm' => MCRYPT_RIJNDAEL_256,
-            'mode' => MCRYPT_MODE_CBC
-        );
-        $settings = array_merge($defaults, $settings);
-
-        //Get module
-        $module = mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
-
-        //Validate IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
-        if (strlen($iv) > $ivSize) {
-            $iv = substr($iv, 0, $ivSize);
-        }
-
-        //Validate key
-        $keySize = mcrypt_enc_get_key_size($module);
-        if (strlen($key) > $keySize) {
-            $key = substr($key, 0, $keySize);
-        }
-
-        //Encrypt value
-        mcrypt_generic_init($module, $key, $iv);
-        $res = @mcrypt_generic($module, $data);
-        mcrypt_generic_deinit($module);
-
-        return $res;
-    }
-
-    /**
-     * Decrypt data
-     *
-     * This method will decrypt data using a given key, vector, and cipher.
-     * By default, this will decrypt data using the RIJNDAEL/AES 256 bit cipher. You
-     * may override the default cipher and cipher mode by passing your own desired
-     * cipher and cipher mode as the final key-value array argument.
-     *
-     * @param  string $data     The encrypted data
-     * @param  string $key      The encryption key
-     * @param  string $iv       The encryption initialization vector
-     * @param  array  $settings Optional key-value array with custom algorithm and mode
-     * @return string
-     */
-    public static function decrypt($data, $key, $iv, $settings = array())
-    {
-        if ($data === '' || !extension_loaded('mcrypt')) {
-            return $data;
-        }
-
-        //Merge settings with defaults
-        $defaults = array(
-            'algorithm' => MCRYPT_RIJNDAEL_256,
-            'mode' => MCRYPT_MODE_CBC
-        );
-        $settings = array_merge($defaults, $settings);
-
-        //Get module
-        $module = mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
-
-        //Validate IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
-        if (strlen($iv) > $ivSize) {
-            $iv = substr($iv, 0, $ivSize);
-        }
-
-        //Validate key
-        $keySize = mcrypt_enc_get_key_size($module);
-        if (strlen($key) > $keySize) {
-            $key = substr($key, 0, $keySize);
-        }
-
-        //Decrypt value
-        mcrypt_generic_init($module, $key, $iv);
-        $decryptedData = @mdecrypt_generic($module, $data);
-        $res = str_replace("\x0", '', $decryptedData);
-        mcrypt_generic_deinit($module);
-
-        return $res;
-    }
-
-    /**
      * Serialize Response cookies into raw HTTP header
      * @param  \Slim\Http\Headers $headers The Response headers
      * @param  \Slim\Http\Cookies $cookies The Response cookies
      * @param  array              $config  The Slim app settings
      */
-    public static function serializeCookies(\Slim\Http\Headers &$headers, \Slim\Http\Cookies $cookies, array $config)
+    public static function serializeCookies(\Slim\Http\Headers &$headers, \Slim\Http\Cookies $cookies)
     {
-        if ($config['cookies.encrypt']) {
-            foreach ($cookies as $name => $settings) {
-                if (is_string($settings['expires'])) {
-                    $expires = strtotime($settings['expires']);
-                } else {
-                    $expires = (int) $settings['expires'];
-                }
-
-                $settings['value'] = static::encodeSecureCookie(
-                    $settings['value'],
-                    $expires,
-                    $config['cookies.secret_key'],
-                    $config['cookies.cipher'],
-                    $config['cookies.cipher_mode']
-                );
-                static::setCookieHeader($headers, $name, $settings);
+        foreach ($cookies as $name => $settings) {
+            if (is_string($settings['expires'])) {
+                $expires = strtotime($settings['expires']);
+            } else {
+                $expires = (int)$settings['expires'];
             }
-        } else {
-            foreach ($cookies as $name => $settings) {
-                static::setCookieHeader($headers, $name, $settings);
-            }
+            static::setCookieHeader($headers, $name, $settings);
         }
-    }
-
-    /**
-     * Encode secure cookie value
-     *
-     * This method will create the secure value of an HTTP cookie. The
-     * cookie value is encrypted and hashed so that its value is
-     * secure and checked for integrity when read in subsequent requests.
-     *
-     * @param string $value     The insecure HTTP cookie value
-     * @param int    $expires   The UNIX timestamp at which this cookie will expire
-     * @param string $secret    The secret key used to hash the cookie value
-     * @param int    $algorithm The algorithm to use for encryption
-     * @param int    $mode      The algorithm mode to use for encryption
-     * @return string
-     */
-    public static function encodeSecureCookie($value, $expires, $secret, $algorithm, $mode)
-    {
-        $key = hash_hmac('sha1', $expires, $secret);
-        $iv = self::getIv($expires, $secret);
-        $secureString = base64_encode(
-            self::encrypt(
-                $value,
-                $key,
-                $iv,
-                array(
-                    'algorithm' => $algorithm,
-                    'mode' => $mode
-                )
-            )
-        );
-        $verificationString = hash_hmac('sha1', $expires . $value, $key);
-
-        return implode('|', array($expires, $secureString, $verificationString));
-    }
-
-    /**
-     * Decode secure cookie value
-     *
-     * This method will decode the secure value of an HTTP cookie. The
-     * cookie value is encrypted and hashed so that its value is
-     * secure and checked for integrity when read in subsequent requests.
-     *
-     * @param string $value     The secure HTTP cookie value
-     * @param string $secret    The secret key used to hash the cookie value
-     * @param int    $algorithm The algorithm to use for encryption
-     * @param int    $mode      The algorithm mode to use for encryption
-     * @return bool|string
-     */
-    public static function decodeSecureCookie($value, $secret, $algorithm, $mode)
-    {
-        if ($value) {
-            $value = explode('|', $value);
-            if (count($value) === 3 && ((int) $value[0] === 0 || (int) $value[0] > time())) {
-                $key = hash_hmac('sha1', $value[0], $secret);
-                $iv = self::getIv($value[0], $secret);
-                $data = self::decrypt(
-                    base64_decode($value[1]),
-                    $key,
-                    $iv,
-                    array(
-                        'algorithm' => $algorithm,
-                        'mode' => $mode
-                    )
-                );
-                $verificationString = hash_hmac('sha1', $value[0] . $data, $key);
-                if ($verificationString === $value[2]) {
-                    return $data;
-                }
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -389,7 +201,7 @@ class Util
     /**
      * Parse cookie header
      *
-     * This method will parse the HTTP requst's `Cookie` header
+     * This method will parse the HTTP request's `Cookie` header
      * and extract cookies into an associative array.
      *
      * @param  string
@@ -413,23 +225,4 @@ class Util
 
         return $cookies;
     }
-
-    /**
-     * Generate a random IV
-     *
-     * This method will generate a non-predictable IV for use with
-     * the cookie encryption
-     *
-     * @param  int    $expires The UNIX timestamp at which this cookie will expire
-     * @param  string $secret  The secret key used to hash the cookie value
-     * @return string Hash
-     */
-    private static function getIv($expires, $secret)
-    {
-        $data1 = hash_hmac('sha1', 'a'.$expires.'b', $secret);
-        $data2 = hash_hmac('sha1', 'z'.$expires.'y', $secret);
-
-        return pack("h*", $data1.$data2);
-    }
-
 }

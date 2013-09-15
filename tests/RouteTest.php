@@ -487,7 +487,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     /**
      * Test dispatch with middleware
      */
-    public function testDispatchWithMiddlware()
+    public function testDispatchWithMiddleware()
     {
         $this->expectOutputString('First! Second! Hello josh');
         $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });

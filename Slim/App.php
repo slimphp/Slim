@@ -39,12 +39,12 @@ if (!extension_loaded('mcrypt')) {
 }
 
 /**
- * Slim
+ * App
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim
+class App
 {
     /**
      * @const string
@@ -52,19 +52,16 @@ class Slim
     const VERSION = '2.3.0';
 
     /**
-     * @var \Slim\Helper\Set
+     * The dependency injection container
+     * @var \Slim\Container
      */
     public $container;
 
     /**
-     * @var array[\Slim]
+     * Reference first instantiated Slim app; legacy support only.
+     * @var \Slim\App
      */
-    protected static $apps = array();
-
-    /**
-     * @var string
-     */
-    protected $name;
+    protected static $singleton;
 
     /**
      * @var array
@@ -94,48 +91,6 @@ class Slim
     );
 
     /********************************************************************************
-    * PSR-0 Autoloader
-    *
-    * Do not use if you are using Composer to autoload dependencies.
-    *******************************************************************************/
-
-    /**
-     * Slim PSR-0 autoloader
-     */
-    public static function autoload($className)
-    {
-        $thisClass = str_replace(__NAMESPACE__.'\\', '', __CLASS__);
-
-        $baseDir = __DIR__;
-
-        if (substr($baseDir, -strlen($thisClass)) === $thisClass) {
-            $baseDir = substr($baseDir, 0, -strlen($thisClass));
-        }
-
-        $className = ltrim($className, '\\');
-        $fileName  = $baseDir;
-        $namespace = '';
-        if ($lastNsPos = strripos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-            $className = substr($className, $lastNsPos + 1);
-            $fileName  .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
-
-        if (file_exists($fileName)) {
-            require $fileName;
-        }
-    }
-
-    /**
-     * Register Slim's PSR-0 autoloader
-     */
-    public static function registerAutoloader()
-    {
-        spl_autoload_register(__NAMESPACE__ . "\\Slim::autoload");
-    }
-
-    /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
 
@@ -145,8 +100,8 @@ class Slim
      */
     public function __construct(array $userSettings = array())
     {
-        // Setup IoC container
-        $this->container = new \Slim\Helper\Set();
+        // Setup DI container
+        $this->container = new \Slim\Container();
         $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
 
         // Default environment
@@ -156,7 +111,12 @@ class Slim
 
         // Default request
         $this->container->singleton('request', function ($c) {
-            return new \Slim\Http\Request($c['environment']);
+            $request = new \Slim\Http\Request($c['environment']);
+            if ($c['settings']['cookies.encrypt'] ===  true) {
+                $request->cookies->decrypt($c['crypt']);
+            }
+
+            return $request;
         });
 
         // Default response
@@ -176,22 +136,25 @@ class Slim
             return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
         });
 
-        // Default log writer
-        $this->container->singleton('logWriter', function ($c) {
-            $logWriter = $c['settings']['log.writer'];
-
-            return is_object($logWriter) ? $logWriter : new \Slim\LogWriter($c['environment']['slim.errors']);
+        // Default crypt
+        $this->container->singleton('crypt', function ($c) {
+            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
-        // Default log
-        $this->container->singleton('log', function ($c) {
-            $log = new \Slim\Log($c['logWriter']);
-            $log->setEnabled($c['settings']['log.enabled']);
-            $log->setLevel($c['settings']['log.level']);
-            $env = $c['environment'];
-            $env['slim.log'] = $log;
+        // Default session
+        $this->container->singleton('session', function ($c) {
+            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $s->start();
+            if ($c['settings']['session.encrypt'] === true) {
+                $s->decrypt($c['crypt']);
+            }
 
-            return $log;
+            return $s;
+        });
+
+        // Default flash
+        $this->container->singleton('flash', function ($c) {
+            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Default mode
@@ -212,14 +175,17 @@ class Slim
 
         // Define default middleware stack
         $this->middleware = array($this);
-        $this->add(new \Slim\Middleware\Flash());
-        $this->add(new \Slim\Middleware\MethodOverride());
 
-        // Make default if first instance
-        if (is_null(static::getInstance())) {
-            $this->setName('default');
-        }
+        // Keep reference to first instantiated Slim app; legacy support only.
+        static::$singleton = $this;
     }
+
+    /********************************************************************************
+     * Magic setters and getters
+     *
+     * Fallback to the DI container if properties are not available
+     * on the Slim instance itself.
+     *******************************************************************************/
 
     public function __get($name)
     {
@@ -230,42 +196,25 @@ class Slim
     {
         $this->container[$name] = $value;
     }
-    
-    public function __isset($name){
-    	return isset($this->container[$name]);
+
+    public function __isset($name)
+    {
+        return isset($this->container[$name]);
     }
-  
-    public function __unset($name){
-    	unset($this->container[$name]);
+
+    public function __unset($name)
+    {
+        unset($this->container[$name]);
     }
 
     /**
      * Get application instance by name
      * @param  string    $name The name of the Slim application
-     * @return \Slim\Slim|null
+     * @return \Slim\App|null
      */
     public static function getInstance($name = 'default')
     {
-        return isset(static::$apps[$name]) ? static::$apps[$name] : null;
-    }
-
-    /**
-     * Set Slim application name
-     * @param  string $name The name of this Slim application
-     */
-    public function setName($name)
-    {
-        $this->name = $name;
-        static::$apps[$name] = $this;
-    }
-
-    /**
-     * Get Slim application name
-     * @return string|null
-     */
-    public function getName()
-    {
-        return $this->name;
+        return static::$singleton;
     }
 
     /**
@@ -279,10 +228,6 @@ class Slim
             'mode' => 'development',
             // Debugging
             'debug' => true,
-            // Logging
-            'log.writer' => null,
-            'log.level' => \Slim\Log::DEBUG,
-            'log.enabled' => true,
             // View
             'templates.path' => './templates',
             'view' => '\Slim\View',
@@ -294,9 +239,14 @@ class Slim
             'cookies.secure' => false,
             'cookies.httponly' => false,
             // Encryption
-            'cookies.secret_key' => 'CHANGE_ME',
-            'cookies.cipher' => MCRYPT_RIJNDAEL_256,
-            'cookies.cipher_mode' => MCRYPT_MODE_CBC,
+            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+            'crypt.mode' => MCRYPT_MODE_CBC,
+            // Session
+            'session.options' => array(),
+            'session.handler' => null,
+            'session.flash_key' => 'slimflash',
+            'session.encrypt' => false,
             // HTTP
             'http.version' => '1.1'
         );
@@ -341,20 +291,6 @@ class Slim
     *******************************************************************************/
 
     /**
-     * Get application mode
-     *
-     * This method determines the application mode. It first inspects the $_ENV
-     * superglobal for key `SLIM_MODE`. If that is not found, it queries
-     * the `getenv` function. Else, it uses the application `mode` setting.
-     *
-     * @return string
-     */
-    public function getMode()
-    {
-        return $this->mode;
-    }
-
-    /**
      * Configure Slim for a given mode
      *
      * This method will immediately invoke the callable if
@@ -368,22 +304,9 @@ class Slim
      */
     public function configureMode($mode, $callable)
     {
-        if ($mode === $this->getMode() && is_callable($callable)) {
+        if ($mode === $this->mode && is_callable($callable)) {
             call_user_func($callable);
         }
-    }
-
-    /********************************************************************************
-    * Logging
-    *******************************************************************************/
-
-    /**
-     * Get application log
-     * @return \Slim\Log
-     */
-    public function getLog()
-    {
-        return $this->log;
     }
 
     /********************************************************************************
@@ -524,7 +447,7 @@ class Slim
      * declarations in the callback will be prepended by the group(s)
      * that it is in
      *
-     * Accepts the same paramters as a standard route so:
+     * Accepts the same parameters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
      */
     public function group()
@@ -648,42 +571,6 @@ class Slim
     /********************************************************************************
     * Application Accessors
     *******************************************************************************/
-
-    /**
-     * Get a reference to the Environment object
-     * @return \Slim\Environment
-     */
-    public function environment()
-    {
-        return $this->environment;
-    }
-
-    /**
-     * Get the Request object
-     * @return \Slim\Http\Request
-     */
-    public function request()
-    {
-        return $this->request;
-    }
-
-    /**
-     * Get the Response object
-     * @return \Slim\Http\Response
-     */
-    public function response()
-    {
-        return $this->response;
-    }
-
-    /**
-     * Get the Router object
-     * @return \Slim\Router
-     */
-    public function router()
-    {
-        return $this->router;
-    }
 
     /**
      * Get and/or set the View
@@ -870,66 +757,12 @@ class Slim
      * the current request will not be available until the next request.
      *
      * @param  string      $name
+     * @param  bool        $deleteIfInvalid
      * @return string|null
      */
-    public function getCookie($name, $deleteIfInvalid = true)
+    public function getCookie($name)
     {
-        // Get cookie value
-        $value = $this->request->cookies->get($name);
-
-        // Decode if encrypted
-        if ($this->config('cookies.encrypt')) {
-            $value = \Slim\Http\Util::decodeSecureCookie(
-                $value,
-                $this->config('cookies.secret_key'),
-                $this->config('cookies.cipher'),
-                $this->config('cookies.cipher_mode')
-            );
-            if ($value === false && $deleteIfInvalid) {
-                $this->deleteCookie($name);
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * DEPRECATION WARNING! Use `setCookie` with the `cookies.encrypt` app setting set to `true`.
-     *
-     * Set encrypted HTTP cookie
-     *
-     * @param string    $name       The cookie name
-     * @param mixed     $value      The cookie value
-     * @param mixed     $expires    The duration of the cookie;
-     *                                  If integer, should be UNIX timestamp;
-     *                                  If string, converted to UNIX timestamp with `strtotime`;
-     * @param string    $path       The path on the server in which the cookie will be available on
-     * @param string    $domain     The domain that the cookie is available to
-     * @param bool      $secure     Indicates that the cookie should only be transmitted over a secure
-     *                              HTTPS connection from the client
-     * @param  bool     $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
-     */
-    public function setEncryptedCookie($name, $value, $expires = null, $path = null, $domain = null, $secure = false, $httponly = false)
-    {
-        $this->setCookie($name, $value, $expires, $path, $domain, $secure, $httponly);
-    }
-
-    /**
-     * DEPRECATION WARNING! Use `getCookie` with the `cookies.encrypt` app setting set to `true`.
-     *
-     * Get value of encrypted HTTP cookie
-     *
-     * Return the value of an encrypted cookie from the current HTTP request,
-     * or return NULL if cookie does not exist. Encrypted cookies created during
-     * the current request will not be available until the next request.
-     *
-     * @param  string       $name
-     * @param  bool         $deleteIfInvalid
-     * @return string|bool
-     */
-    public function getEncryptedCookie($name, $deleteIfInvalid = true)
-    {
-        return $this->getCookie($name, $deleteIfInvalid);
+        return $this->request->cookies->get($name);
     }
 
     /**
@@ -1085,44 +918,6 @@ class Slim
     }
 
     /********************************************************************************
-    * Flash Messages
-    *******************************************************************************/
-
-    /**
-     * Set flash message for subsequent request
-     * @param  string   $key
-     * @param  mixed    $value
-     */
-    public function flash($key, $value)
-    {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
-        }
-    }
-
-    /**
-     * Set flash message for current request
-     * @param  string   $key
-     * @param  mixed    $value
-     */
-    public function flashNow($key, $value)
-    {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->now($key, $value);
-        }
-    }
-
-    /**
-     * Keep flash messages from previous request for subsequent request
-     */
-    public function flashKeep()
-    {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->keep();
-        }
-    }
-
-    /********************************************************************************
     * Hooks
     *******************************************************************************/
 
@@ -1239,22 +1034,34 @@ class Slim
      */
     public function run()
     {
-        set_error_handler(array('\Slim\Slim', 'handleErrors'));
+        set_error_handler(array('\Slim\App', 'handleErrors'));
 
         //Apply final outer middleware layers
-        if($this->config('debug')){
-        	//Apply pretty exceptions only in debug to avoid accidental information leakage in production
-        	$this->add(new \Slim\Middleware\PrettyExceptions());
+        if ($this->config('debug')) {
+            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
+            $this->add(new \Slim\Middleware\PrettyExceptions());
         }
 
-        //Invoke middleware and application stack
+        // Invoke middleware and application stack
         $this->middleware[0]->call();
 
-        //Fetch status, header, and body
+        // Save flash messages to session
+        $this->flash->save();
+
+        // Encrypt, save, close session
+        if ($this->config('session.encrypt') === true) {
+            $this->session->encrypt($this->crypt);
+        }
+        $this->session->save();
+
+        // Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
 
-        // Serialize cookies (with optional encryption)
-        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies, $this->settings);
+        // Encrypt and serialize cookies
+        if ($this->settings['cookies.encrypt']) {
+            $this->response->cookies->encrypt($this->crypt);
+        }
+        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies);
 
         //Send headers
         if (headers_sent() === false) {
@@ -1288,9 +1095,7 @@ class Slim
     public function call()
     {
         try {
-            if (isset($this->environment['slim.flash'])) {
-                $this->view()->setData('flash', $this->environment['slim.flash']);
-            }
+            $this->view->setData('flash', $this->flash);
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
@@ -1314,7 +1119,7 @@ class Slim
             $this->applyHook('slim.after.router');
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
-            $this->response()->write(ob_get_clean());
+            $this->response->write(ob_get_clean());
             $this->applyHook('slim.after');
         } catch (\Exception $e) {
             if ($this->config('debug')) {
@@ -1383,7 +1188,6 @@ class Slim
      */
     protected function defaultError($e)
     {
-        $this->getLog()->error($e);
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

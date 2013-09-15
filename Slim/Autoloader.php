@@ -7,6 +7,7 @@
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
  * @version     2.3.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -29,20 +30,37 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim;
 
-class LogWriterTest extends PHPUnit_Framework_TestCase
+/**
+ * Autoloader
+ * @package    Slim
+ * @author     PHP Framework Interop Group, Josh Lockhart
+ * @since      2.3.0
+ * @see        https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
+ */
+class Autoloader
 {
-    public function testInstantiation()
+    public static function autoload($className)
     {
-        $this->expectOutputString('Hello!' . PHP_EOL);
-        $handle = fopen('php://output', 'w');
-        $fw = new \Slim\LogWriter($handle);
-        $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
+        $className = ltrim($className, '\\');
+        $fileName  = '';
+        $namespace = '';
+        if ($lastNsPos = strrpos($className, '\\')) {
+            $namespace = substr($className, 0, $lastNsPos);
+            $className = substr($className, $lastNsPos + 1);
+            $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+        }
+        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+
+        // Require file only if it exists. Else let other registered autoloaders worry about it.
+        if (file_exists($fileName)) {
+            require $fileName;
+        }
     }
 
-    public function testInstantiationWithNonResource()
+    public static function register()
     {
-        $this->setExpectedException('InvalidArgumentException');
-        $fw = new \Slim\LogWriter(@fopen('/foo/bar.txt', 'w'));
+        spl_autoload_register(__NAMESPACE__ . "\\Autoloader::autoload");
     }
 }

@@ -43,6 +43,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
+        $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['SERVER_NAME'] = 'slim';
         $_SERVER['SERVER_PORT'] = '80';
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
@@ -293,6 +294,19 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('text/csv', $env['CONTENT_TYPE']);
         $this->assertEquals('100', $env['CONTENT_LENGTH']);
         $this->assertEquals('XmlHttpRequest', $env['HTTP_X_REQUESTED_WITH']);
+    }
+
+    /**
+     * Tests X-HTTP-Method-Override is allowed through unmolested.
+     *
+     * Pre-conditions:
+     * X_HTTP_METHOD_OVERRIDE is sent in client HTTP request;
+     * X_HTTP_METHOD_OVERRIDE is not empty;
+     */
+    public function testSetsHttpMethodOverrideHeader() {
+        $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'] = 'DELETE';
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals('DELETE', $env['HTTP_X_HTTP_METHOD_OVERRIDE']);
     }
 
     /**

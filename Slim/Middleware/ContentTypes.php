@@ -72,9 +72,9 @@ class ContentTypes extends \Slim\Middleware
      */
     public function call()
     {
-        $mediaType = $this->app->request()->getMediaType();
+        $mediaType = $this->app->request->getMediaType();
         if ($mediaType) {
-            $env = $this->app->environment();
+            $env = $this->app->environment;
             $env['slim.input_original'] = $env['slim.input'];
             $env['slim.input'] = $this->parse($env['slim.input'], $mediaType);
         }
@@ -137,7 +137,10 @@ class ContentTypes extends \Slim\Middleware
     {
         if (class_exists('SimpleXMLElement')) {
             try {
-                return new \SimpleXMLElement($input);
+                $backup = libxml_disable_entity_loader(true);
+                $result = new \SimpleXMLElement($input);
+                libxml_disable_entity_loader($backup);
+                return $result;
             } catch (\Exception $e) {
                 // Do nothing
             }

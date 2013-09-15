@@ -41,7 +41,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim();
+        $app = new \Slim\App();
         $app->get('/foo', function () {
             echo "Success";
         });
@@ -49,8 +49,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $this->assertEquals(200, $app->response()->status());
-        $this->assertEquals('Success', $app->response()->body());
+        $this->assertEquals(200, $app->response->getStatus());
+        $this->assertEquals('Success', $app->response->getBody());
     }
 
     /**
@@ -62,9 +62,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim(array(
-            'log.enabled' => false
-        ));
+        $app = new \Slim\App();
         $app->get('/foo', function () {
             throw new \Exception('Test Message', 100);
         });
@@ -72,8 +70,8 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response()->body()));
-        $this->assertEquals(500, $app->response()->status());
+        $this->assertEquals(1, preg_match('@Slim Application Error@', $app->response->getBody()));
+        $this->assertEquals(500, $app->response->getStatus());
     }
 
     /**
@@ -85,9 +83,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim(array(
-            'log.enabled' => false
-        ));
+        $app = new \Slim\App();
         $app->get('/foo', function () use ($app) {
             $app->contentType('application/json;charset=utf-8'); //<-- set content type to something else
             throw new \Exception('Test Message', 100);
@@ -96,7 +92,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
-        $response = $app->response();
+        $response = $app->response;
         $this->assertEquals('text/html', $response['Content-Type']);
     }
 
@@ -109,9 +105,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'PATH_INFO' => '/foo'
         ));
-        $app = new \Slim\Slim(array(
-            'log.enabled' => false
-        ));
+        $app = new \Slim\App();
         $app->get('/foo', function () use ($app) {
             throw new \LogicException('Test Message', 100);
         });
@@ -120,6 +114,6 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
 
-        $this->assertContains('LogicException', $app->response()->body());
+        $this->assertContains('LogicException', $app->response->getBody());
     }
 }

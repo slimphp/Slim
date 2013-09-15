@@ -72,7 +72,7 @@ class Request
 
     /**
      * HTTP Cookies
-     * @var \Slim\Helper\Set
+     * @var \Slim\Container
      */
     public $cookies;
 
@@ -84,7 +84,7 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->cookies = new \Slim\Helper\Set(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->cookies = new \Slim\Container(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**
@@ -319,19 +319,6 @@ class Request
         }
 
         return $this->cookies;
-        // if (!isset($this->env['slim.request.cookie_hash'])) {
-        //     $cookieHeader = isset($this->env['COOKIE']) ? $this->env['COOKIE'] : '';
-        //     $this->env['slim.request.cookie_hash'] = Util::parseCookieHeader($cookieHeader);
-        // }
-        // if ($key) {
-        //     if (isset($this->env['slim.request.cookie_hash'][$key])) {
-        //         return $this->env['slim.request.cookie_hash'][$key];
-        //     } else {
-        //         return null;
-        //     }
-        // } else {
-        //     return $this->env['slim.request.cookie_hash'];
-        // }
     }
 
     /**
@@ -362,25 +349,6 @@ class Request
         }
 
         return $this->headers;
-        // if ($key) {
-        //     $key = strtoupper($key);
-        //     $key = str_replace('-', '_', $key);
-        //     $key = preg_replace('@^HTTP_@', '', $key);
-        //     if (isset($this->env[$key])) {
-        //         return $this->env[$key];
-        //     } else {
-        //         return $default;
-        //     }
-        // } else {
-        //     $headers = array();
-        //     foreach ($this->env as $key => $value) {
-        //         if (strpos($key, 'slim.') !== 0) {
-        //             $headers[$key] = $value;
-        //         }
-        //     }
-        //
-        //     return $headers;
-        // }
     }
 
     /**
@@ -566,6 +534,22 @@ class Request
     }
 
     /**
+     * Get query string
+     */
+    public function getQueryString()
+    {
+        return $this->env['QUERY_STRING'];
+    }
+
+    /**
+     * Get protocol
+     */
+    public function getProtocol()
+    {
+        return $this->env['SERVER_PROTOCOL'];
+    }
+
+    /**
      * Get IP
      * @return string
      */
@@ -605,5 +589,33 @@ class Request
     public function getUserAgent()
     {
         return $this->headers->get('HTTP_USER_AGENT');
+    }
+
+    /**
+     * Convert HTTP request into a string
+     * @return string
+     */
+    public function __toString()
+    {
+        // Build path with query string
+        $path = $this->getPath();
+        $qs = $this->getQueryString();
+        if ($qs) {
+            $path = sprintf('%s?%s', $path, $qs);
+        }
+
+        // Build headers
+        $output = sprintf('%s %s %s', $this->getMethod(), $path, $this->getProtocol()) . PHP_EOL;
+        foreach ($this->headers as $name => $value) {
+            $output .= sprintf("%s: %s", $name, $value) . PHP_EOL;
+        }
+
+        // Build body
+        $body = $this->getBody();
+        if ($body) {
+            $output .= PHP_EOL . $this->getBody();
+        }
+
+        return $output;
     }
 }

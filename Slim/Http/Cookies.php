@@ -32,7 +32,7 @@
  */
 namespace Slim\Http;
 
-class Cookies extends \Slim\Helper\Set
+class Cookies extends \Slim\Container
 {
     /**
      * Default cookie settings
@@ -74,7 +74,7 @@ class Cookies extends \Slim\Helper\Set
     /**
      * Remove cookie
      *
-     * Unlike \Slim\Helper\Set, this will actually *set* a cookie with
+     * Unlike \Slim\Container, this will actually *set* a cookie with
      * an expiration date in the past. This expiration date will force
      * the client-side cache to remove its cookie with the given name
      * and settings.
@@ -87,5 +87,21 @@ class Cookies extends \Slim\Helper\Set
         $settings['value'] = '';
         $settings['expires'] = time() - 86400;
         $this->set($key, array_replace($this->defaults, $settings));
+    }
+
+    /**
+     * Encrypt cookies
+     *
+     * This method iterates and encrypts data values.
+     *
+     * @param  \Slim\Crypt $crypt
+     * @return void
+     */
+    public function encrypt(\Slim\Crypt $crypt)
+    {
+        foreach ($this as $name => $settings) {
+            $settings['value'] = $crypt->encrypt($settings['value']);
+            $this->set($name, $settings);
+        }
     }
 }
