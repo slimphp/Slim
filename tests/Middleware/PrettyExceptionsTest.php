@@ -93,7 +93,7 @@ class PrettyExceptionsTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
         $response = $app->response;
-        $this->assertEquals('text/html', $response['Content-Type']);
+        $this->assertEquals('text/html', $response->headers->get('Content-Type'));
     }
 
     /**

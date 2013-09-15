@@ -56,7 +56,7 @@ class CustomMiddleware extends \Slim\Middleware
         $res = $this->app->response;
         $env['slim.test'] = 'Hello';
         $this->next->call();
-        $res->header('X-Slim-Test', 'Hello');
+        $res->headers->set('X-Slim-Test', 'Hello');
         $res->write('Hello');
     }
 }
@@ -1237,7 +1237,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $r = $s->response;
             $r->setStatus(503);
             $r->write('Foo');
-            $r['X-Powered-By'] = 'Slim';
+            $r->headers->set('X-Powered-By', 'Slim');
             echo 'Bar';
         });
         $s->get('/bar', function () {

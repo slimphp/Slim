@@ -540,8 +540,8 @@ class App
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->status(500);
-            $this->response->body('');
+            $this->response->setStatus(500);
+            $this->response->setBody('');
             $this->response->write($this->callErrorHandler($argument));
             $this->stop();
         }
@@ -622,7 +622,7 @@ class App
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->status($status);
+            $this->response->setStatus($status);
         }
         $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
@@ -686,7 +686,7 @@ class App
         if ($type === 'weak') {
             $value = 'W/'.$value;
         }
-        $this->response['ETag'] = $value;
+        $this->response->headers->set('ETag', $value);
 
         //Check conditional GET
         if ($etagsHeader = $this->request->headers->get('IF_NONE_MATCH')) {
@@ -849,8 +849,8 @@ class App
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
-        $this->response->body($message);
+        $this->response->setStatus($status);
+        $this->response->setBody($message);
         $this->stop();
     }
 
