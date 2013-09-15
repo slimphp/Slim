@@ -38,9 +38,6 @@ namespace Slim;
  * This class creates and returns a key/value array of common
  * environment variables for the current HTTP request.
  *
- * This is a singleton class; derived environment variables will
- * be common across multiple Slim applications.
- *
  * This class matches the Rack (Ruby) specification as closely
  * as possible. More information available below.
  *
@@ -121,10 +118,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
         } else {
             $env = array();
 
-            //The HTTP request method
+            // The HTTP request method
             $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
-            //The IP
+            // The IP address
             $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 
             /**
@@ -154,46 +151,33 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
             $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
 
-            //The portion of the request URI following the '?'
+            // The portion of the request URI following the '?'
             $env['QUERY_STRING'] = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
 
-            //Name of server host that is running the script
+            // Name of server host that is running the script
             $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
-            //Number of server port that is running the script
+            // Number of server port that is running the script
             $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-            //Request protocol (e.g. "HTTP/1.1")
+            // Request protocol (e.g. "HTTP/1.1")
             $env['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'];
 
-            //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+            // HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Slim\Http\Headers::extract($_SERVER);
             foreach ($headers as $key => $value) {
                 $env[$key] = $value;
             }
 
-            // $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
-            // foreach ($_SERVER as $key => $value) {
-            //     $value = is_string($value) ? trim($value) : $value;
-            //     if (strpos($key, 'HTTP_') === 0) {
-            //         $env[substr($key, 5)] = $value;
-            //     } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
-            //         $env[$key] = $value;
-            //     }
-            // }
-
-            //Is the application running under HTTPS or HTTP protocol?
+            // Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
-            //Input stream (readable one time only; not available for multipart/form-data requests)
+            // Raw request body (readable one time only; not available for multipart/form-data requests)
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false) {
                 $rawInput = '';
             }
             $env['slim.input'] = $rawInput;
-
-            //Error stream
-            $env['slim.errors'] = @fopen('php://stderr', 'w');
 
             $this->properties = $env;
         }

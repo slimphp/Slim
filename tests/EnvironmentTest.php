@@ -360,13 +360,4 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::getInstance(true);
         $this->assertEquals('', $env['slim.input']);
     }
-
-    /**
-     * Test valid resource handle to php://stdErr
-     */
-    public function testErrorResource()
-    {
-        $env = \Slim\Environment::getInstance(true);
-        $this->assertTrue(is_resource($env['slim.errors']));
-    }
 }
