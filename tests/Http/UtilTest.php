@@ -32,46 +32,6 @@
 
 class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Test strip slashes when magic quotes disabled
-     */
-    public function testStripSlashesWithoutMagicQuotes()
-    {
-        $data = "This should have \"quotes\" in it";
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, false);
-        $this->assertEquals($data, $stripped);
-    }
-
-    /**
-     * Test strip slashes from array when magic quotes disabled
-     */
-    public function testStripSlashesFromArrayWithoutMagicQuotes()
-    {
-        $data = array("This should have \"quotes\" in it", "And this \"too\" has quotes");
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, false);
-        $this->assertEquals($data, $stripped);
-    }
-
-    /**
-     * Test strip slashes when magic quotes enabled
-     */
-    public function testStripSlashesWithMagicQuotes()
-    {
-        $data = "This should have \"quotes\" in it";
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, true);
-        $this->assertEquals('This should have "quotes" in it', $stripped);
-    }
-
-    /**
-     * Test strip slashes from array when magic quotes enabled
-     */
-    public function testStripSlashesFromArrayWithMagicQuotes()
-    {
-        $data = array("This should have \"quotes\" in it", "And this \"too\" has quotes");
-        $stripped = \Slim\Http\Util::stripSlashesIfMagicQuotes($data, true);
-        $this->assertEquals($data = array('This should have "quotes" in it', 'And this "too" has quotes'), $stripped);
-    }
-
     public function testSetCookieHeaderWithNameAndValue()
     {
         $name = 'foo';

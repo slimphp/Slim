@@ -220,7 +220,7 @@ class Request
             } else {
                 parse_str($this->env['QUERY_STRING'], $output);
             }
-            $this->env['slim.request.query_hash'] = Util::stripSlashesIfMagicQuotes($output);
+            $this->env['slim.request.query_hash'] = $output;
         }
         if ($key) {
             if (isset($this->env['slim.request.query_hash'][$key])) {
@@ -257,9 +257,9 @@ class Request
                 } else {
                     parse_str($this->env['slim.input'], $output);
                 }
-                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($output);
+                $this->env['slim.request.form_hash'] = $output;
             } else {
-                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($_POST);
+                $this->env['slim.request.form_hash'] = $_POST;
             }
         }
         if ($key) {
