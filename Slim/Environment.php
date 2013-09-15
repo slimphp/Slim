@@ -186,8 +186,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
             //Input stream (readable one time only; not available for multipart/form-data requests)
-            $rawInput = @file_get_contents('php://input');
-            if (!$rawInput) {
+            $rawInput = file_get_contents('php://input');
+            if ($rawInput === false) {
                 $rawInput = '';
             }
             $env['slim.input'] = $rawInput;
