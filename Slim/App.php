@@ -131,9 +131,11 @@ class App
 
         // Default view
         $this->container->singleton('view', function ($c) {
-            $viewClass = $c['settings']['view'];
+            if ($c['settings']['view'] instanceof \Slim\View === false) {
+                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
+            }
 
-            return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            return $c['settings']['view'];
         });
 
         // Default crypt
@@ -226,11 +228,9 @@ class App
         return array(
             // Application
             'mode' => 'development',
+            'view' => null,
             // Debugging
             'debug' => true,
-            // View
-            'templates.path' => './templates',
-            'view' => '\Slim\View',
             // Cookies
             'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',
@@ -569,41 +569,6 @@ class App
     }
 
     /********************************************************************************
-    * Application Accessors
-    *******************************************************************************/
-
-    /**
-     * Get and/or set the View
-     *
-     * This method declares the View to be used by the Slim application.
-     * If the argument is a string, Slim will instantiate a new object
-     * of the same class. If the argument is an instance of View or a subclass
-     * of View, Slim will use the argument as the View.
-     *
-     * If a View already exists and this method is called to create a
-     * new View, data already set in the existing View will be
-     * transferred to the new View.
-     *
-     * @param  string|\Slim\View $viewClass The name or instance of a \Slim\View subclass
-     * @return \Slim\View
-     */
-    public function view($viewClass = null)
-    {
-        if (!is_null($viewClass)) {
-            $existingData = is_null($this->view) ? array() : $this->view->getData();
-            if ($viewClass instanceOf \Slim\View) {
-                $this->view = $viewClass;
-            } else {
-                $this->view = new $viewClass();
-            }
-            $this->view->appendData($existingData);
-            $this->view->setTemplatesDirectory($this->config('templates.path'));
-        }
-
-        return $this->view;
-    }
-
-    /********************************************************************************
     * Rendering
     *******************************************************************************/
 
@@ -624,8 +589,7 @@ class App
         if (!is_null($status)) {
             $this->response->setStatus($status);
         }
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
-        $this->view->appendData($data);
+        $this->view->replace($data);
         $this->view->display($template);
     }
 
@@ -1095,7 +1059,9 @@ class App
     public function call()
     {
         try {
-            $this->view->setData('flash', $this->flash);
+            if ($this->settings['view'] instanceof \Slim\View) {
+                $this->view->set('flash', $this->flash);
+            }
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');

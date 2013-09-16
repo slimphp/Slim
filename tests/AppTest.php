@@ -101,7 +101,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Http\Request', $s->request);
         $this->assertInstanceOf('\Slim\Http\Response', $s->response);
         $this->assertInstanceOf('\Slim\Router', $s->router);
-        $this->assertInstanceOf('\Slim\View', $s->view);
         $this->assertInstanceOf('\Slim\Environment', $s->environment);
     }
 
@@ -138,7 +137,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetSettingThatExists()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
+        $this->assertEquals('development', $s->config('mode'));
     }
 
     /**
@@ -156,9 +155,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testSetSetting()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
-        $s->config('templates.path', './tmpl');
-        $this->assertEquals('./tmpl', $s->config('templates.path'));
+        $this->assertEquals('development', $s->config('mode'));
+        $s->config('mode', 'staging');
+        $this->assertEquals('staging', $s->config('mode'));
     }
 
     /**
@@ -167,13 +166,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testBatchSetSettings()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
+        $this->assertEquals('development', $s->config('mode'));
         $this->assertTrue($s->config('debug'));
         $s->config(array(
-            'templates.path' => './tmpl',
+            'mode' => 'staging',
             'debug' => false
         ));
-        $this->assertEquals('./tmpl', $s->config('templates.path'));
+        $this->assertEquals('staging', $s->config('mode'));
         $this->assertFalse($s->config('debug'));
     }
 
@@ -492,37 +491,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
      ************************************************/
 
     /**
-     * Test set view with string class name
-     */
-    public function testSetSlimViewFromString()
-    {
-        $s = new \Slim\App();
-        $this->assertInstanceOf('\Slim\View', $s->view());
-        $s->view('CustomView');
-        $this->assertInstanceOf('CustomView', $s->view());
-    }
-
-    /**
      * Test set view with object instance
      */
     public function testSetSlimViewFromInstance()
     {
-        $s = new \Slim\App();
-        $this->assertInstanceOf('\Slim\View', $s->view());
-        $s->view(new CustomView());
-        $this->assertInstanceOf('CustomView', $s->view());
-    }
-
-    /**
-     * Test view data is transferred to newer view
-     */
-    public function testViewDataTransfer()
-    {
-        $data = array('foo' => 'bar');
-        $s = new \Slim\App();
-        $s->view()->setData($data);
-        $s->view('CustomView');
-        $this->assertSame($data, $s->view()->getData());
+        $s = new \Slim\App(array(
+            'view' => new CustomView()
+        ));
+        $this->assertInstanceOf('CustomView', $s->view);
     }
 
     /************************************************
@@ -534,7 +510,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithData()
     {
-        $s = new \Slim\App(array('templates.path' => dirname(__FILE__) . '/templates'));
+        $s = new \Slim\App(array(
+            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+        ));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'));
         });
@@ -549,7 +527,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithDataAndStatus()
     {
-        $s = new \Slim\App(array('templates.path' => dirname(__FILE__) . '/templates'));
+        $s = new \Slim\App(array(
+            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+        ));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'), 500);
         });
