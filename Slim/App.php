@@ -1169,12 +1169,10 @@ class App
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
-            $this->response->write(ob_get_clean());
-            $this->applyHook('slim.after');
-        } catch (\Slim\Exception\Stop $e) {
-            $this->response->write(ob_get_clean());
-            $this->applyHook('slim.after');
-        }
+        } catch (\Slim\Exception\Stop $e) {}
+
+        $this->response->write(ob_get_clean());
+        $this->applyHook('slim.after');
     }
 
     /**
