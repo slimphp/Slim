@@ -35,7 +35,10 @@ namespace Slim;
 /**
  * Router
  *
- * This class organizes, iterates, and dispatches \Slim\Route objects.
+ * This class organizes Slim application route objects. It is responsible
+ * for registering route objects, assigning names to route objects,
+ * finding routes that match the current HTTP request, and creating
+ * URLs for a named route.
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -44,27 +47,32 @@ namespace Slim;
 class Router
 {
     /**
-     * @var Route The current route (most recently dispatched)
+     * The current (most recently dispatched) route
+     * @var \Slim\Route
      */
     protected $currentRoute;
 
     /**
-     * @var array Lookup hash of all route objects
+     * All route objects, numerically indexed
+     * @var array[\Slim\Route]
      */
     protected $routes;
 
     /**
-     * @var array Lookup hash of named route objects, keyed by route name (lazy-loaded)
+     * Named route objects, indexed by route name
+     * @var array[\Slim\Route]
      */
     protected $namedRoutes;
 
     /**
-     * @var array Array of route objects that match the request URI (lazy-loaded)
+     * Route objects that match the request URI
+     * @var array[\Slim\Route]
      */
     protected $matchedRoutes;
 
     /**
-     * @var array Array containing all route groups
+     * Route groups
+     * @var array
      */
     protected $routeGroups;
 
@@ -78,7 +86,13 @@ class Router
     }
 
     /**
-     * Get Current Route object or the first matched one if matching has been performed
+     * Get current route
+     *
+     * This method will return the current \Slim\Route object. If a route
+     * has not been dispatched, but route matching has been completed, the
+     * first matching \Slim\Route object will be returned. If route matching
+     * has not completed, null will be returned.
+     *
      * @return \Slim\Route|null
      */
     public function getCurrentRoute()
@@ -95,9 +109,15 @@ class Router
     }
 
     /**
-     * Return route objects that match the given HTTP method and URI
-     * @param  string               $httpMethod   The HTTP method to match against
-     * @param  string               $resourceUri  The resource URI to match against
+     * Get route objects that match a given HTTP method and URI
+     *
+     * This method is responsible for finding and returning all \Slim\Route
+     * objects that match a given HTTP method and URI. Slim uses this method to
+     * determine which \Slim\Route objects are candidates to be
+     * dispatched for the current HTTP request.
+     *
+     * @param  string               $httpMethod   The HTTP method
+     * @param  string               $resourceUri  The resource URI
      * @param  bool                 $reload       Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
@@ -120,17 +140,17 @@ class Router
     }
 
     /**
-     * Add a route object to the router
-     * @param  \Slim\Route     $route      The Slim Route
+     * Add a route
+     *
+     * This method will register a \Slim\Route object with the router.
+     *
+     * @param \Slim\Route $route The Slim Route
      */
     public function map(\Slim\Route $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
-
         $route->setPattern($groupPattern . $route->getPattern());
         $this->routes[] = $route;
-
-
         foreach ($groupMiddleware as $middleware) {
             $route->setMiddleware($middleware);
         }
@@ -167,7 +187,7 @@ class Router
 
     /**
      * Removes the last route group from the array
-     * @return bool    True if successful, else False
+     * @return bool True if successful, else False
      */
     public function popGroup()
     {
@@ -176,10 +196,10 @@ class Router
 
     /**
      * Get URL for named route
-     * @param  string               $name   The name of the route
-     * @param  array                $params Associative array of URL parameter names and replacement values
-     * @throws \RuntimeException            If named route not found
-     * @return string                       The URL for the given route populated with provided replacement values
+     * @param  string               $name       The name of the route
+     * @param  array                $params     Associative array of URL parameter names and replacement values
+     * @throws \RuntimeException                If named route not found
+     * @return string                           The URL for the given route populated with provided replacement values
      */
     public function urlFor($name, $params = array())
     {
@@ -212,7 +232,7 @@ class Router
 
     /**
      * Has named route
-     * @param  string   $name   The route name
+     * @param  string $name The route name
      * @return bool
      */
     public function hasNamedRoute($name)
