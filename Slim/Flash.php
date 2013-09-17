@@ -1,6 +1,56 @@
 <?php
+/**
+ * Slim - a micro PHP 5 framework
+ *
+ * @author      Josh Lockhart <info@slimframework.com>
+ * @copyright   2011 Josh Lockhart
+ * @link        http://www.slimframework.com
+ * @license     http://www.slimframework.com/license
+ * @version     2.3.0
+ * @package     Slim
+ *
+ * MIT LICENSE
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 namespace Slim;
 
+/**
+ * Flash
+ *
+ * This class enables temporary messages to persist across HTTP requests. This
+ * is useful to display informational or error messages to end-users after
+ * a form is submitted and processed (e.g. "Item saved successfully" or
+ * "There are errors with your submission").
+ *
+ * Flash messages may be set to display for the current HTTP request
+ * or for the next HTTP request. Flash messages will not persist beyond the
+ * subsequent HTTP request unless you explicitly pass them forward with
+ * the `keep` method.
+ *
+ * Flash messages are stored in the PHP session in the `slimflash` namespace.
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   3.0.0
+ */
 class Flash implements \ArrayAccess, \IteratorAggregate
 {
     /**
@@ -90,6 +140,8 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Offset exists
+     * @param  mixed $offset
+     * @return bool
      */
     public function offsetExists($offset)
     {
@@ -100,6 +152,8 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Offset get
+     * @param  mixed      $offset
+     * @return mixed|null The value at specified offset, or null
      */
     public function offsetGet($offset)
     {
@@ -110,6 +164,8 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Offset set
+     * @param mixed $offset
+     * @param mixed $value
      */
     public function offsetSet($offset, $value)
     {
@@ -118,6 +174,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Offset unset
+     * @param mixed $offset
      */
     public function offsetUnset($offset)
     {
