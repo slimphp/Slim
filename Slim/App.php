@@ -295,8 +295,6 @@ class App
             // Application
             'mode' => 'development',
             'view' => null,
-            // Debugging
-            'debug' => true,
             // Cookies
             'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',

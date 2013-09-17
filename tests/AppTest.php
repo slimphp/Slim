@@ -167,13 +167,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $s = new \Slim\App();
         $this->assertEquals('development', $s->config('mode'));
-        $this->assertTrue($s->config('debug'));
+        $this->assertNull($s->config('view'));
         $s->config(array(
             'mode' => 'staging',
-            'debug' => false
+            'view' => 'foo'
         ));
         $this->assertEquals('staging', $s->config('mode'));
-        $this->assertFalse($s->config('debug'));
+        $this->assertEquals('foo', $s->config('view'));
     }
 
     /************************************************
