@@ -34,6 +34,21 @@ namespace Slim;
 
 /**
  * Crypt
+ *
+ * This class enables secure Slim application data encryption and decryption.
+ * Specifically, it is used to encrypt session and HTTP cookie data.
+ *
+ * This uses the PHP `mcrypt` cryptography library with the MCRYPT_RIJNDAEL_256
+ * cipher in cipher block chaining mode. This also uses a random initialization
+ * vector with entropy derived from `/dev/urandom`. A unique initialzation vector
+ * is created each time you invoke the `encrypt` method. Encrypted data
+ * is signed using a hashed message authentication code (HMAC) to verify
+ * the data integrity and authenticity during decryption.
+ *
+ * Even though this class is used by the Slim application behind the scenes,
+ * you may also use this class to encrypt your own arbitrary application data.
+ * Just invoke `$app->crypt->encrypt()` and `$app->crypt->decrypt($data)`.
+ *
  * @package    Slim
  * @author     Josh Lockhart
  * @since      2.3.0
@@ -48,14 +63,14 @@ class Crypt
 
     /**
      * Encryption cipher
-     * @var integer
+     * @var int
      * @see http://www.php.net/manual/mcrypt.ciphers.php
      */
     protected $cipher;
 
     /**
      * Encryption mode
-     * @var integer
+     * @var int
      * @see http://www.php.net/manual/mcrypt.constants.php
      */
     protected $mode;
@@ -64,7 +79,7 @@ class Crypt
      * Constructor
      * @param string  $key       Encryption key
      * @param int     $cipher    Encryption algorithm
-     * @param integer $mode      Encryption mode
+     * @param int     $mode      Encryption mode
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
@@ -127,8 +142,8 @@ class Crypt
 
     /**
      * Decrypt data
-     * @param  string $data Encrypted string
-     * @return string       Decrypted data
+     * @param  string               $data        Encrypted string
+     * @return string                            Decrypted data
      * @throws \RuntimeException                 If mcrypt extension not loaded
      * @throws \RuntimeException                 If encrypted data does not match expected format
      * @throws \RuntimeException                 If decryption module initialization failed
