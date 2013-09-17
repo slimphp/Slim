@@ -42,7 +42,7 @@ if (!extension_loaded('mcrypt')) {
  * App
  *
  * You will isntantiate this class to create a new Slim application.
- * It's constructor accepts an associative array of application settings.
+ * Its constructor accepts an associative array of application settings.
  *
  * This class uses a dependency injection (DI) container to locate resources
  * on-demand (e.g. environment, request, response, view, router, flash, and session).
