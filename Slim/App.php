@@ -606,9 +606,7 @@ class App
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->setStatus(500);
-            $this->response->setBody('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this->response->setBody($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -624,6 +622,9 @@ class App
      */
     protected function callErrorHandler($argument = null)
     {
+        $this->response->setBody('');
+        $this->response->setStatus(500);
+
         ob_start();
         if (is_callable($this->error)) {
             call_user_func_array($this->error, array($argument));
@@ -1148,24 +1149,15 @@ class App
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
+        // Invoke middleware and application stack
         try {
-            // Invoke middleware and application stack
             $this->middleware[0]->call();
-
-            // Save flash messages to session
-            $this->flash->save();
-
-            // Encrypt, save, close session
-            if ($this->config('session.encrypt') === true) {
-                $this->session->encrypt($this->crypt);
-            }
-            $this->session->save();
-
-            // Finalize and send response
-            $this->finalize();
         } catch (\Exception $e) {
-            echo $this->callErrorHandler($e);
+            $this->response->write($this->callErrorHandler($e));
         }
+
+        // Finalize and send response
+        $this->finalize();
 
         restore_error_handler();
     }
@@ -1219,6 +1211,15 @@ class App
         if (!$this->responded) {
             $this->responded = true;
 
+            // Save flash messages to session
+            $this->flash->save();
+
+            // Encrypt, save, close session
+            if ($this->config('session.encrypt') === true) {
+                $this->session->encrypt($this->crypt);
+            }
+            $this->session->save();
+
             //Fetch status, header, and body
             list($status, $headers, $body) = $this->response->finalize();
 
@@ -1246,7 +1247,9 @@ class App
                 }
             }
 
+            // Send body
             if ($this->response->isStream()) {
+                // As stream
                 while (!feof($body)) {
                     ob_start();
                     echo fread($body, 1024);
@@ -1254,11 +1257,9 @@ class App
                     ob_flush();
                 }
             } else {
-                //Send body
+                // As text
                 echo $body;
             }
-
-            restore_error_handler();
         }
     }
 
@@ -1317,7 +1318,6 @@ class App
     protected function defaultError($e)
     {
         $this->contentType('text/html');
-        $this->response->setStatus(500);
 
         if ($this->mode === 'development') {
             $title = 'Slim Application Error';

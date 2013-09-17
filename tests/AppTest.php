@@ -1234,6 +1234,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerUsesCurrentResponseObject()
     {
+        $this->expectOutputString('Foo');
         $s = new \Slim\App(array(
             'debug' => false
         ));
@@ -1249,7 +1250,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->run();
         list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(503, $status);
-        $this->assertEquals('Foo', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);
     }
 
