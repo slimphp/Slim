@@ -1060,7 +1060,7 @@ class App
     {
         try {
             if ($this->settings['view'] instanceof \Slim\View) {
-                $this->view->set('flash', $this->flash);
+                $this->view->set('flash', $this->flash->getMessages());
             }
             $this->applyHook('slim.before');
             ob_start();
