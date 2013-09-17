@@ -1148,26 +1148,24 @@ class App
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
-        //Apply final outer middleware layers
-        if ($this->config('debug')) {
-            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
-            $this->add(new \Slim\Middleware\PrettyExceptions());
+        try {
+            // Invoke middleware and application stack
+            $this->middleware[0]->call();
+
+            // Save flash messages to session
+            $this->flash->save();
+
+            // Encrypt, save, close session
+            if ($this->config('session.encrypt') === true) {
+                $this->session->encrypt($this->crypt);
+            }
+            $this->session->save();
+
+            // Finalize and send response
+            $this->finalize();
+        } catch (\Exception $e) {
+            echo $this->callErrorHandler($e);
         }
-
-        // Invoke middleware and application stack
-        $this->middleware[0]->call();
-
-        // Save flash messages to session
-        $this->flash->save();
-
-        // Encrypt, save, close session
-        if ($this->config('session.encrypt') === true) {
-            $this->session->encrypt($this->crypt);
-        }
-        $this->session->save();
-
-        // Finalize and send response
-        $this->finalize();
 
         restore_error_handler();
     }
@@ -1209,16 +1207,6 @@ class App
         } catch (\Slim\Exception\Stop $e) {
             $this->response->write(ob_get_clean());
             $this->applyHook('slim.after');
-        } catch (\Exception $e) {
-            if ($this->config('debug')) {
-                throw $e;
-            } else {
-                try {
-                    $this->error($e);
-                } catch (\Slim\Exception\Stop $e) {
-                    // Do nothing
-                }
-            }
         }
     }
 
@@ -1328,6 +1316,50 @@ class App
      */
     protected function defaultError($e)
     {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        $this->contentType('text/html');
+        $this->response->setStatus(500);
+
+        if ($this->mode === 'development') {
+            $title = 'Slim Application Error';
+            $html = '';
+
+            if ($e instanceof \Exception) {
+                $code = $e->getCode();
+                $message = $e->getMessage();
+                $file = $e->getFile();
+                $line = $e->getLine();
+                $trace = $e->getTraceAsString();
+
+                $html = '<p>The application could not run because of the following error:</p>';
+                $html .= '<h2>Details</h2>';
+                $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($e));
+                if ($code) {
+                    $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
+                }
+                if ($message) {
+                    $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
+                }
+                if ($file) {
+                    $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+                }
+                if ($line) {
+                    $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+                }
+                if ($trace) {
+                    $html .= '<h2>Trace</h2>';
+                    $html .= sprintf('<pre>%s</pre>', $trace);
+                }
+            } else {
+                $html = sprintf('<p>%s</p>', $e);
+            }
+
+            echo self::generateTemplateMarkup($title, $html);
+        } else {
+            echo self::generateTemplateMarkup(
+                'Error',
+                '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry'
+                . 'for the temporary inconvenience.</p>'
+            );
+        }
     }
 }

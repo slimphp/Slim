@@ -1237,20 +1237,19 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'debug' => false
         ));
-        $s->error(function ( \Exception $e ) use ($s) {
+        $s->error(function(\Exception $e) use ($s) {
             $r = $s->response;
             $r->setStatus(503);
             $r->write('Foo');
             $r->headers->set('X-Powered-By', 'Slim');
-            echo 'Bar';
         });
         $s->get('/bar', function () {
             throw new \Exception('Foo');
         });
-        $s->call();
+        $s->run();
         list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(503, $status);
-        $this->assertEquals('FooBar', $body);
+        $this->assertEquals('Foo', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);
     }
 
