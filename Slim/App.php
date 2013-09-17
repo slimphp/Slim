@@ -220,52 +220,6 @@ class App
         $this->middleware = array($this);
     }
 
-    /********************************************************************************
-     * Magic setters and getters
-     *
-     * Fallback to the DI container if properties are not available
-     * on the Slim instance itself.
-     *******************************************************************************/
-
-    /**
-     * Get magic property
-     * @param  mixed $name The property name
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return $this->container[$name];
-    }
-
-    /**
-     * Set magic property
-     * @param mixed $name  The property name
-     * @param mixed $value The property value
-     */
-    public function __set($name, $value)
-    {
-        $this->container[$name] = $value;
-    }
-
-    /**
-     * Is magic property set?
-     * @param  mixed  $name The property name
-     * @return bool
-     */
-    public function __isset($name)
-    {
-        return isset($this->container[$name]);
-    }
-
-    /**
-     * Unset magic property
-     * @param mixed $name The property name
-     */
-    public function __unset($name)
-    {
-        unset($this->container[$name]);
-    }
-
     /**
      * Get default application settings
      * @return array
@@ -331,10 +285,6 @@ class App
         }
     }
 
-    /********************************************************************************
-    * Application Modes
-    *******************************************************************************/
-
     /**
      * Configure Slim for a given mode
      *
@@ -352,6 +302,52 @@ class App
         if ($mode === $this->mode && is_callable($callable)) {
             call_user_func($callable);
         }
+    }
+
+    /********************************************************************************
+     * Magic setters and getters
+     *
+     * Fallback to the DI container if properties are not available
+     * on the Slim instance itself.
+     *******************************************************************************/
+
+    /**
+     * Get magic property
+     * @param  mixed $name The property name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->container[$name];
+    }
+
+    /**
+     * Set magic property
+     * @param mixed $name  The property name
+     * @param mixed $value The property value
+     */
+    public function __set($name, $value)
+    {
+        $this->container[$name] = $value;
+    }
+
+    /**
+     * Is magic property set?
+     * @param  mixed  $name The property name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->container[$name]);
+    }
+
+    /**
+     * Unset magic property
+     * @param mixed $name The property name
+     */
+    public function __unset($name)
+    {
+        unset($this->container[$name]);
     }
 
     /********************************************************************************
