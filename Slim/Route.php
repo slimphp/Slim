@@ -34,6 +34,26 @@ namespace Slim;
 
 /**
  * Route
+ *
+ * This class is a relationship of HTTP method(s), an HTTP URI, and a callback
+ * to create a Slim application route. The Slim application will determine
+ * the one Route object to dispatch for the current HTTP request.
+ *
+ * Each route object will have a URI pattern. This pattern must match the
+ * current HTTP request's URI for the route object to be dispatched by
+ * the Slim application. The route pattern may contain parameters, segments
+ * prefixed with a colon (:). For example:
+ *
+ *     /hello/:first/:last
+ *
+ * When the route is dispatched, it's parameters array will be populated
+ * with the values of the corresponding HTTP request URI segments.
+ *
+ * Each route object may also be assigned middleware; middleware are callbacks
+ * to be invoked before the route's callable is invoked. Route middleware (not
+ * to be confused with Slim application middleware) are useful for applying route
+ * specific logic such as authentication.
+ *
  * @package Slim
  * @author  Josh Lockhart, Thomas Bley
  * @since   1.0.0
@@ -41,59 +61,69 @@ namespace Slim;
 class Route
 {
     /**
-     * @var string The route pattern (e.g. "/books/:id")
+     * The route pattern (e.g. "/hello/:first/:name")
+     * @var string
      */
     protected $pattern;
 
     /**
-     * @var mixed The route callable
+     * The route callable
+     * @var mixed
      */
     protected $callable;
 
     /**
-     * @var array Conditions for this route's URL parameters
+     * Conditions for this route's URL parameters
+     * @var array
      */
     protected $conditions = array();
 
     /**
-     * @var array Default conditions applied to all route instances
+     * Default conditions applied to all route instances
+     * @var array
      */
     protected static $defaultConditions = array();
 
     /**
-     * @var string The name of this route (optional)
+     * The name of this route (optional)
+     * @var string
      */
     protected $name;
 
     /**
-     * @var array Key-value array of URL parameters
+     * Array of URL parameters
+     * @var array
      */
     protected $params = array();
 
     /**
-     * @var array value array of URL parameter names
+     * Array of URL parameter names
+     * @var array
      */
     protected $paramNames = array();
 
     /**
-     * @var array key array of URL parameter names with + at the end
+     * Array of URL parameter names with + at the end
+     * @var array
      */
     protected $paramNamesPath = array();
 
     /**
-     * @var array HTTP methods supported by this Route
+     * HTTP methods supported by this route
+     * @var array
      */
     protected $methods = array();
 
     /**
-     * @var array[Callable] Middleware to be run before only this route instance
+     * Middleware to be invoked before immediately before this route is dispatched
+     * @var array[Callable]
      */
     protected $middleware = array();
 
     /**
      * Constructor
-     * @param string $pattern  The URL pattern (e.g. "/books/:id")
-     * @param mixed  $callable Anything that returns TRUE for is_callable()
+     * @param string $pattern  The URL pattern
+     * @param mixed  $callable Anything that returns `true` for `is_callable()`
      */
     public function __construct($pattern, $callable)
     {
@@ -103,8 +133,8 @@ class Route
     }
 
     /**
-     * Set default route conditions for all instances
-     * @param  array $defaultConditions
+     * Set default route conditions for all routes
+     * @param array $defaultConditions
      */
     public static function setDefaultConditions(array $defaultConditions)
     {
@@ -149,8 +179,8 @@ class Route
 
     /**
      * Set route callable
-     * @param  mixed $callable
-     * @throws \InvalidArgumentException If argument is not callable
+     * @param  mixed                        $callable
+     * @throws \InvalidArgumentException    If argument is not callable
      */
     public function setCallable($callable)
     {
@@ -172,7 +202,7 @@ class Route
 
     /**
      * Set route conditions
-     * @param  array $conditions
+     * @param array $conditions
      */
     public function setConditions(array $conditions)
     {
@@ -180,7 +210,7 @@ class Route
     }
 
     /**
-     * Get route name
+     * Get route name (this may be null if not set)
      * @return string|null
      */
     public function getName()
@@ -190,7 +220,7 @@ class Route
 
     /**
      * Set route name
-     * @param  string $name
+     * @param string $name
      */
     public function setName($name)
     {
@@ -208,9 +238,9 @@ class Route
 
     /**
      * Set route parameters
-     * @param  array $params
+     * @param array $params
      */
-    public function setParams($params)
+    public function setParams(array $params)
     {
         $this->params = $params;
     }
@@ -219,7 +249,7 @@ class Route
      * Get route parameter value
      * @param  string                    $index     Name of URL parameter
      * @return string
-     * @throws \InvalidArgumentException If route parameter does not exist at index
+     * @throws \InvalidArgumentException            If route parameter does not exist at index
      */
     public function getParam($index)
     {
@@ -234,7 +264,7 @@ class Route
      * Set route parameter value
      * @param  string                    $index     Name of URL parameter
      * @param  mixed                     $value     The new parameter value
-     * @throws \InvalidArgumentException If route parameter does not exist at index
+     * @throws \InvalidArgumentException            If route parameter does not exist at index
      */
     public function setParam($index, $value)
     {
@@ -246,6 +276,8 @@ class Route
 
     /**
      * Add supported HTTP method(s)
+     *
+     * This method accepts an unlimited number of string arguments.
      */
     public function setHttpMethods()
     {
@@ -264,6 +296,8 @@ class Route
 
     /**
      * Append supported HTTP methods
+     *
+     * This method accepts an unlimited number of string arguments.
      */
     public function appendHttpMethods()
     {
