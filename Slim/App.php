@@ -982,23 +982,23 @@ class App
 
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
-        $this->response()->stream($fp);
+        $this->response->stream($fp);
         if ($contentType) {
-            $this->response()->header("Content-Type", $contentType);
+            $this->response->headers->set("Content-Type", $contentType);
         } else {
             if (file_exists($file)) {
                 //Set Content-Type
                 if ($contentType) {
-                    $this->response()->header("Content-Type", $contentType);
+                    $this->response->headers->set("Content-Type", $contentType);
                 } else {
                     $finfo = new \finfo(FILEINFO_MIME_TYPE);
                     $type = $finfo->file($file);
-                    $this->response()->header("Content-Type", $type);
+                    $this->response->headers->set("Content-Type", $type);
                 }
 
                 //Set Content-Length
                 $stat = fstat($fp);
-                $this->response()->header("Content-Length", $stat['size']);
+                $this->response->headers->set("Content-Length", $stat['size']);
 
             } else {
                 //Set Content-Type and Content-Length
@@ -1009,12 +1009,12 @@ class App
 
                     if ($k === "Content-Type") {
                         if ($contentType) {
-                            $this->response()->header("Content-Type", $contentType);
+                            $this->response->headers->set("Content-Type", $contentType);
                         } else {
-                            $this->response()->header("Content-Type", $v);
+                            $this->response->headers->set("Content-Type", $v);
                         }
                     } else if ($k === "Content-Length") {
-                        $this->response()->header("Content-Length", $v);
+                        $this->response->headers->set("Content-Length", $v);
                     }
                 }
             }
@@ -1033,8 +1033,8 @@ class App
 
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
-        $this->response()->stream($ph);
-        $this->response()->header("Content-Type", $contentType);
+        $this->response->stream($ph);
+        $this->response->headers->set("Content-Type", $contentType);
         $this->finalize();
     }
 
@@ -1051,7 +1051,7 @@ class App
         if ($filename) {
             $h .= "filename='" . $filename . "'";
         }
-        $this->response()->header("Content-Disposition", $h);
+        $this->response->headers->set("Content-Disposition", $h);
     }
 
     /********************************************************************************
@@ -1144,7 +1144,7 @@ class App
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
-            $this->response()->write(ob_get_clean());
+            $this->response->write(ob_get_clean());
             $this->applyHook('slim.after');
         } catch (\Slim\Exception\Stop $e) {
             $this->response->write(ob_get_clean());
