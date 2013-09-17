@@ -35,17 +35,30 @@ namespace Slim;
 /**
  * Session
  *
- * This class is an adapter for a session. By default, it will persist data
- * using PHP's native session handler. However, it is possible to register
- * a custom session handler.
+ * This class provides a wrapper around a native PHP session. It will
+ * start a new PHP session on-demand if a PHP session is not already
+ * started. If a session is already started, this class will use the existing
+ * session; however, it is recommended that you allow this class to start
+ * and configure the PHP session on its own.
  *
- * This class will namespace its session data into the `slim.session` namespace
- * so that it will not pollute the global session namespace that may be used
+ * This class extends \Slim\Container, so you may manipulate session data
+ * using the convenient \Slim\Container interface used by other Slim application objects:
+ *
+ *     set($key, $value)
+ *     get($key)
+ *     replace($array)
+ *     all()
+ *     keys()
+ *     has($key)
+ *     remove($key)
+ *     clear()
+ *
+ * This class will use the default filesystem session storage. You may
+ * define your own session handler to persist session data elsewhere.
+ *
+ * Session data is serialized and placed in the `slim.session` namespace
+ * to avoid polluting the global session namespace potentially used
  * by third-party code.
- *
- * This class is designed to automatically adopt an existing PHP session
- * if one has already been started. Otherwise, it will start a new PHP
- * session with the appropriate settings for you.
  *
  * @package    Slim
  * @author     Josh Lockhart
@@ -61,13 +74,13 @@ class Session extends \Slim\Container
 
     /**
      * Has the session started?
-     * @var boolean
+     * @var bool
      */
     protected $started = false;
 
     /**
      * Has the session finished?
-     * @var boolean
+     * @var bool
      */
     protected $finished = false;
 
@@ -93,8 +106,8 @@ class Session extends \Slim\Container
 
     /**
      * Set the session save handler
-     * @param mixed $handler
-     * @return  bool
+     * @param  mixed $handler
+     * @return bool
      */
     public function setHandler($handler)
     {
@@ -155,7 +168,7 @@ class Session extends \Slim\Container
 
     /**
      * Regenerate session ID
-     * @param  boolean $destroy Destroy existing session data?
+     * @param  bool $destroy Destroy existing session data?
      * @return bool
      */
     public function regenerate($destroy = false)
@@ -165,7 +178,7 @@ class Session extends \Slim\Container
 
     /**
      * Is the session started?
-     * @return boolean
+     * @return bool
      */
     public function isStarted()
     {
@@ -174,7 +187,7 @@ class Session extends \Slim\Container
 
     /**
      * Is the session finished?
-     * @return boolean
+     * @return bool
      */
     public function isFinished()
     {
