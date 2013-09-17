@@ -487,6 +487,30 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
+     * File Streaming
+     ************************************************/
+
+    public function testStreamingAFile()
+    {
+        $this->expectOutputString(file_get_contents("composer.json"));
+        $s = new \Slim\Slim();
+        $s->get('/bar', function() use ($s) {
+            $s->sendFile("composer.json");
+        });
+        $s->run();
+    }
+
+    public function testStreamingAProc()
+    {
+        $this->expectOutputString("FooBar\n");
+        $s = new \Slim\Slim();
+        $s->get('/bar', function() use ($s) {
+            $s->sendProcess("echo 'FooBar'");
+        });
+        $s->run();
+    }
+
+    /************************************************
      * VIEW
      ************************************************/
 

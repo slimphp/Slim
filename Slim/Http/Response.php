@@ -66,6 +66,11 @@ class Response
     protected $body;
 
     /**
+     * @var string HTTP response body
+     */
+    protected $isStream;
+
+    /**
      * @var int Length of HTTP response body
      */
     protected $length;
@@ -136,7 +141,8 @@ class Response
         $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
         $this->headers->replace($headers);
         $this->cookies = new \Slim\Http\Cookies();
-        $this->write($body);
+        $this->isStream = false;
+        $this->write($body, true);
     }
 
     public function getStatus()
@@ -159,6 +165,11 @@ class Response
         $this->write($content, true);
     }
 
+    public function isStream()
+    {
+        return $this->isStream;
+    }
+
     /**
      * Append HTTP response body
      * @param  string   $body       Content to append to the current HTTP response body
@@ -175,6 +186,25 @@ class Response
         $this->length = strlen($this->body);
 
         return $this->body;
+    }
+
+   /**
+    * Set the response to a stream
+    * @param  resource   $handle    Resource stream to send
+    */
+    public function stream($handle)
+    {
+        $this->isStream = true;
+        $this->body = $handle;
+    }
+
+    /**
+     * Get the stream
+     * @return  resource   $handle    Resource stream
+     */
+    public function getStream()
+    {
+        return ($this->isStream) ? $this->body : false;
     }
 
     public function getLength()

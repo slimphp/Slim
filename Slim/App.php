@@ -967,6 +967,94 @@ class App
     }
 
     /********************************************************************************
+     * Streaming Files
+     *******************************************************************************/
+
+
+    /**
+     * Send a File
+     *
+     * This method streams a local or remote file to the client
+     *
+     * @param string $file          The URI of the file, can be local or remote
+     * @param string $contentType   Optional content type of the stream, if not specified Slim will attempt to get this
+     */
+
+    public function sendFile($file, $contentType = false) {
+        $fp = fopen($file, "r");
+        $this->response()->stream($fp);
+        if ($contentType) {
+            $this->response()->header("Content-Type", $contentType);
+        } else {
+            if (file_exists($file)) {
+                //Set Content-Type
+                if ($contentType) {
+                    $this->response()->header("Content-Type", $contentType);
+                } else {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $type = $finfo->file($file);
+                    $this->response()->header("Content-Type", $type);
+                }
+
+                //Set Content-Length
+                $stat = fstat($fp);
+                $this->response()->header("Content-Length", $stat['size']);
+
+            } else {
+                //Set Content-Type and Content-Length
+                $data = stream_get_meta_data($fp);
+
+                foreach ($data['wrapper_data'] as $header) {
+                    list($k, $v) = explode(": ", $header, 2);
+
+                    if ($k === "Content-Type") {
+                        if ($contentType) {
+                            $this->response()->header("Content-Type", $contentType);
+                        } else {
+                            $this->response()->header("Content-Type", $v);
+                        }
+                    } else if ($k === "Content-Length") {
+                        $this->response()->header("Content-Length", $v);
+                    }
+                }
+            }
+        }
+        $this->finalize();
+    }
+
+    /**
+     * Send a Process
+     *
+     * This method streams a process to a client
+     *
+     * @param string $command       The command to run
+     * @param string $contentType   Optional content type of the stream
+     */
+
+    public function sendProcess($command, $contentType = "text/plain") {
+        $ph = popen($command, 'r');
+        $this->response()->stream($ph);
+        $this->response()->header("Content-Type", $contentType);
+        $this->finalize();
+    }
+
+    /**
+     * Set Download
+     *
+     * This method triggers a download in the browser
+     *
+     * @param string $filename      Optional filename for the download
+     */
+
+    public function setDownload($filename = false) {
+        $h = "attachment;";
+        if ($filename) {
+            $h .= "filename='" . $filename . "'";
+        }
+        $this->response()->header("Content-Disposition", $h);
+    }
+
+    /********************************************************************************
     * Middleware
     *******************************************************************************/
 
@@ -1018,35 +1106,8 @@ class App
         }
         $this->session->save();
 
-        // Fetch status, header, and body
-        list($status, $headers, $body) = $this->response->finalize();
-
-        // Encrypt and serialize cookies
-        if ($this->settings['cookies.encrypt']) {
-            $this->response->cookies->encrypt($this->crypt);
-        }
-        \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
-
-        //Send headers
-        if (headers_sent() === false) {
-            //Send status
-            if (strpos(PHP_SAPI, 'cgi') === 0) {
-                header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
-            } else {
-                header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
-            }
-
-            //Send headers
-            foreach ($headers as $name => $value) {
-                $hValues = explode("\n", $value);
-                foreach ($hValues as $hVal) {
-                    header("$name: $hVal", false);
-                }
-            }
-        }
-
-        //Send body
-        echo $body;
+        // Finalize and send response
+        $this->finalize();
 
         restore_error_handler();
     }
@@ -1083,7 +1144,8 @@ class App
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
-            $this->stop();
+            $this->response()->write(ob_get_clean());
+            $this->applyHook('slim.after');
         } catch (\Slim\Exception\Stop $e) {
             $this->response->write(ob_get_clean());
             $this->applyHook('slim.after');
@@ -1097,6 +1159,58 @@ class App
                     // Do nothing
                 }
             }
+        }
+    }
+
+    /**
+     * Finalize send response
+     *
+     * This method sends the response object
+     */
+    public function finalize() {
+        if (!$this->responded) {
+            $this->responded = true;
+
+            //Fetch status, header, and body
+            list($status, $headers, $body) = $this->response->finalize();
+
+            // Encrypt and serialize cookies
+            if ($this->settings['cookies.encrypt']) {
+                $this->response->cookies->encrypt($this->crypt);
+            }
+            \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
+
+            //Send headers
+            if (headers_sent() === false) {
+                //Send status
+                if (strpos(PHP_SAPI, 'cgi') === 0) {
+                    header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
+                } else {
+                    header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
+                }
+
+                //Send headers
+                foreach ($headers as $name => $value) {
+                    $hValues = explode("\n", $value);
+                    foreach ($hValues as $hVal) {
+                        header("$name: $hVal", false);
+                    }
+                }
+            }
+
+            if ($this->response->isStream()) {
+                while (!feof($body)) {
+                    ob_start();
+                    echo fread($body, 1024);
+                    echo ob_get_clean();
+                    ob_flush();
+                }
+            } else {
+                //Send body
+                echo $body;
+            }
+
+            restore_error_handler();
         }
     }
 
