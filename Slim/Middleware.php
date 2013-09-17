@@ -71,7 +71,7 @@ abstract class Middleware
      *
      * @param  \Slim\App $application
      */
-    final public function setApplication(\Slim\App $application)
+    final public function setApplication($application)
     {
         $this->app = $application;
     }
