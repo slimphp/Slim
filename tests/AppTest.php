@@ -105,15 +105,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get default instance
-     */
-    public function testGetDefaultInstance()
-    {
-        $s = new \Slim\App();
-        $this->assertSame($s, \Slim\App::getInstance());
-    }
-
-    /**
      * Test Slim autoloader ignores non-Slim classes
      *
      * Pre-conditions:
