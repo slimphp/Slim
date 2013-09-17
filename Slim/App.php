@@ -40,6 +40,50 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ *
+ * You will isntantiate this class to create a new Slim application.
+ * It's constructor accepts an associative array of application settings.
+ *
+ * This class uses a dependency injection (DI) container to locate resources
+ * on-demand (e.g. environment, request, response, view, router, flash, and session).
+ * The DI container makes it super simple to override any of the Slim application's
+ * default implementations or to inject your own custom objects to be used as you
+ * see fit in your custom application.
+ *
+ * You may use any of these methods provided by this class to define your
+ * Slim application's routes:
+ *
+ *     get()
+ *     post()
+ *     put()
+ *     delete()
+ *     options()
+ *     patch()
+ *     any()
+ *
+ * This class also provides several helper methods for common tasks:
+ *
+ *     status()
+ *     contentType()
+ *
+ * methods for HTTP caching:
+ *
+ *     etag()
+ *     expires()
+ *     lastModified()
+ *
+ * and methods for HTTP cookie handling:
+ *
+ *     setCookie()
+ *     getCookie()
+ *     deleteCookie()
+ *
+ * There are, of course, more methods available for you to use. Refer to the code
+ * below or to the Slim Framework documentation for more information.
+ *
+ * Most importantly, you must invoke your Slim application instance's `run()` method
+ * after you define your routes, else the magic just won't happen!
+ *
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
@@ -69,16 +113,19 @@ class App
     protected $middleware;
 
     /**
-     * @var mixed Callable to be invoked if application error
+     * Callable to be invoked if application error
+     * @var mixed
      */
     protected $error;
 
     /**
-     * @var mixed Callable to be invoked if no matching routes are found
+     * Callable to be invoked if no matching routes are found
+     * @var mixed
      */
     protected $notFound;
 
     /**
+     * Application hooks
      * @var array
      */
     protected $hooks = array(
@@ -96,7 +143,7 @@ class App
 
     /**
      * Constructor
-     * @param  array $userSettings Associative array of application settings
+     * @param array $userSettings Associative array of application settings
      */
     public function __construct(array $userSettings = array())
     {
@@ -189,21 +236,40 @@ class App
      * on the Slim instance itself.
      *******************************************************************************/
 
+    /**
+     * Get magic property
+     * @param  mixed $name The property name
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->container[$name];
     }
 
+    /**
+     * Set magic property
+     * @param mixed $name  The property name
+     * @param mixed $value The property value
+     */
     public function __set($name, $value)
     {
         $this->container[$name] = $value;
     }
 
+    /**
+     * Is magic property set?
+     * @param  mixed  $name The property name
+     * @return bool
+     */
     public function __isset($name)
     {
         return isset($this->container[$name]);
     }
 
+    /**
+     * Unset magic property
+     * @param mixed $name The property name
+     */
     public function __unset($name)
     {
         unset($this->container[$name]);
@@ -211,7 +277,7 @@ class App
 
     /**
      * Get application instance by name
-     * @param  string    $name The name of the Slim application
+     * @param  string           $name   The name of the Slim application
      * @return \Slim\App|null
      */
     public static function getInstance($name = 'default')
@@ -267,9 +333,9 @@ class App
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
      *
-     * @param  string|array $name  If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-     * @param  mixed        $value If name is a string, the value of the setting identified by $name
-     * @return mixed        The value of a setting if only one argument is a string
+     * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+     * @param  mixed        $value  If name is a string, the value of the setting identified by $name
+     * @return mixed                The value of a setting if only one argument is a string
      */
     public function config($name, $value = null)
     {
@@ -607,8 +673,8 @@ class App
      * matches the specified last modified time, the application will stop
      * and send a '304 Not Modified' response to the client.
      *
-     * @param  int                       $time The last modified UNIX timestamp
-     * @throws \InvalidArgumentException If provided timestamp is not an integer
+     * @param  int                       $time  The last modified UNIX timestamp
+     * @throws \InvalidArgumentException        If provided timestamp is not an integer
      */
     public function lastModified($time)
     {
@@ -636,7 +702,7 @@ class App
      *
      * @param  string                    $value The etag value
      * @param  string                    $type  The type of etag to create; either "strong" or "weak"
-     * @throws \InvalidArgumentException If provided type is invalid
+     * @throws \InvalidArgumentException        If provided type is invalid
      */
     public function etag($value, $type = 'strong')
     {
@@ -720,8 +786,7 @@ class App
      * or return NULL if cookie does not exist. Cookies created during
      * the current request will not be available until the next request.
      *
-     * @param  string      $name
-     * @param  bool        $deleteIfInvalid
+     * @param  string      $name    The cookie name
      * @return string|null
      */
     public function getCookie($name)
@@ -835,7 +900,7 @@ class App
 
     /**
      * Set the HTTP response Content-Type
-     * @param  string   $type   The Content-Type for the Response (ie. text/html)
+     * @param string $type The Content-Type for the Response (ie. text/html)
      */
     public function contentType($type)
     {
@@ -844,7 +909,7 @@ class App
 
     /**
      * Set the HTTP response status code
-     * @param  int      $code     The HTTP response status code
+     * @param int $code The HTTP response status code
      */
     public function status($code)
     {
@@ -855,7 +920,7 @@ class App
      * Get the URL for a named route
      * @param  string               $name       The route name
      * @param  array                $params     Associative array of URL parameters and replacement values
-     * @throws \RuntimeException    If named route does not exist
+     * @throws \RuntimeException                If named route does not exist
      * @return string
      */
     public function urlFor($name, $params = array())
@@ -953,7 +1018,7 @@ class App
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param  string   $name   A hook name (Optional)
+     * @param string $name A hook name (Optional)
      */
     public function clearHooks($name = null)
     {
@@ -970,7 +1035,6 @@ class App
      * Streaming Files
      *******************************************************************************/
 
-
     /**
      * Send a File
      *
@@ -979,7 +1043,6 @@ class App
      * @param string $file          The URI of the file, can be local or remote
      * @param string $contentType   Optional content type of the stream, if not specified Slim will attempt to get this
      */
-
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
         $this->response->stream($fp);
@@ -999,7 +1062,6 @@ class App
                 //Set Content-Length
                 $stat = fstat($fp);
                 $this->response->headers->set("Content-Length", $stat['size']);
-
             } else {
                 //Set Content-Type and Content-Length
                 $data = stream_get_meta_data($fp);
@@ -1030,7 +1092,6 @@ class App
      * @param string $command       The command to run
      * @param string $contentType   Optional content type of the stream
      */
-
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
         $this->response->stream($ph);
@@ -1043,9 +1104,8 @@ class App
      *
      * This method triggers a download in the browser
      *
-     * @param string $filename      Optional filename for the download
+     * @param string $filename Optional filename for the download
      */
-
     public function setDownload($filename = false) {
         $h = "attachment;";
         if ($filename) {
