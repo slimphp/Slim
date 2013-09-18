@@ -50,37 +50,44 @@ namespace Slim\Http;
 class Response
 {
     /**
-     * @var int HTTP status code
+     * Response status code
+     * @var int
      */
     protected $status;
 
     /**
+     * Response headers
      * @var \Slim\Http\Headers
      */
     public $headers;
 
     /**
+     * Response cookies
      * @var \Slim\Http\Cookies
      */
     public $cookies;
 
     /**
-     * @var string HTTP response body
+     * Response body
+     * @var string|resource
      */
     protected $body;
 
     /**
-     * @var string HTTP response body
+     * Is this response a resource stream?
+     * @var bool
      */
     protected $isStream;
 
     /**
-     * @var int Length of HTTP response body
+     * Response body length
+     * @var int
      */
     protected $length;
 
     /**
-     * @var array HTTP response codes and messages
+     * Response codes and associated messages
+     * @var array
      */
     protected static $messages = array(
         //Informational 1xx
@@ -135,8 +142,8 @@ class Response
 
     /**
      * Constructor
-     * @param string                   $body   The HTTP response body
-     * @param int                      $status The HTTP response status
+     * @param string                   $body    The HTTP response body
+     * @param int                      $status  The HTTP response status
      * @param \Slim\Http\Headers|array $headers The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $headers = array())
@@ -149,33 +156,53 @@ class Response
         $this->write($body, true);
     }
 
+    /**
+     * Get response status code
+     * @return int
+     */
     public function getStatus()
     {
         return $this->status;
     }
 
+    /**
+     * Set response status code
+     * @param int $status The HTTP status code
+     */
     public function setStatus($status)
     {
         $this->status = (int)$status;
     }
 
+    /**
+     * Get response body
+     * @return string|resource
+     */
     public function getBody()
     {
         return $this->body;
     }
 
+    /**
+     * Set response body
+     * @param string $content The new response body
+     */
     public function setBody($content)
     {
         $this->write($content, true);
     }
 
+    /**
+     * Is the response body a resource stream?
+     * @return bool
+     */
     public function isStream()
     {
         return $this->isStream;
     }
 
     /**
-     * Append HTTP response body
+     * Append response body
      * @param  string   $body       Content to append to the current HTTP response body
      * @param  bool     $replace    Overwrite existing response body?
      * @return string               The updated HTTP response body
@@ -193,8 +220,8 @@ class Response
     }
 
    /**
-    * Set the response to a stream
-    * @param  resource   $handle    Resource stream to send
+    * Set the response body to a stream resource
+    * @param resource $handle Resource stream to send
     */
     public function stream($handle)
     {
@@ -203,27 +230,31 @@ class Response
     }
 
     /**
-     * Get the stream
-     * @return  resource   $handle    Resource stream
+     * Get the response body stream resource
+     * @return resource|false
      */
     public function getStream()
     {
         return ($this->isStream) ? $this->body : false;
     }
 
+    /**
+     * Get the response body length
+     * @return int
+     */
     public function getLength()
     {
         return $this->length;
     }
 
     /**
-     * Finalize
+     * Finalize response for delivery to client
      *
-     * This prepares this response and returns an array
-     * of [status, headers, body]. This array is passed to outer middleware
-     * if available or directly to the Slim run method.
+     * Apply finaly preparations to the resposne object
+     * so that it is suitable for delivery to the client. This
+     * method returns an array of [status, headers, body].
      *
-     * @return array[int status, array headers, string body]
+     * @return array[int $status, array $headers, string|resource $body]
      */
     public function finalize()
     {
@@ -240,8 +271,8 @@ class Response
     /**
      * Redirect
      *
-     * This method prepares this response to return an HTTP Redirect response
-     * to the HTTP client.
+     * This method prepares the response object to return an HTTP Redirect response
+     * to the client.
      *
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
@@ -351,11 +382,15 @@ class Response
     {
         if (isset(self::$messages[$status])) {
             return self::$messages[$status];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
+    /**
+     * Convert response to string
+     * @return string
+     */
     public function __toString()
     {
         $output = sprintf('HTTP/1.1 %s', static::getMessageForCode($this->getStatus())) . PHP_EOL;
