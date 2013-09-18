@@ -56,7 +56,7 @@ class CustomMiddleware extends \Slim\Middleware
         $res = $this->app->response;
         $env['slim.test'] = 'Hello';
         $this->next->call();
-        $res->header('X-Slim-Test', 'Hello');
+        $res->headers->set('X-Slim-Test', 'Hello');
         $res->write('Hello');
     }
 }
@@ -101,17 +101,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Http\Request', $s->request);
         $this->assertInstanceOf('\Slim\Http\Response', $s->response);
         $this->assertInstanceOf('\Slim\Router', $s->router);
-        $this->assertInstanceOf('\Slim\View', $s->view);
         $this->assertInstanceOf('\Slim\Environment', $s->environment);
-    }
-
-    /**
-     * Test get default instance
-     */
-    public function testGetDefaultInstance()
-    {
-        $s = new \Slim\App();
-        $this->assertSame($s, \Slim\App::getInstance());
     }
 
     /**
@@ -138,7 +128,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetSettingThatExists()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
+        $this->assertEquals('development', $s->config('mode'));
     }
 
     /**
@@ -156,9 +146,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testSetSetting()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
-        $s->config('templates.path', './tmpl');
-        $this->assertEquals('./tmpl', $s->config('templates.path'));
+        $this->assertEquals('development', $s->config('mode'));
+        $s->config('mode', 'staging');
+        $this->assertEquals('staging', $s->config('mode'));
     }
 
     /**
@@ -167,14 +157,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testBatchSetSettings()
     {
         $s = new \Slim\App();
-        $this->assertEquals('./templates', $s->config('templates.path'));
-        $this->assertTrue($s->config('debug'));
+        $this->assertEquals('development', $s->config('mode'));
+        $this->assertNull($s->config('view'));
         $s->config(array(
-            'templates.path' => './tmpl',
-            'debug' => false
+            'mode' => 'staging',
+            'view' => 'foo'
         ));
-        $this->assertEquals('./tmpl', $s->config('templates.path'));
-        $this->assertFalse($s->config('debug'));
+        $this->assertEquals('staging', $s->config('mode'));
+        $this->assertEquals('foo', $s->config('view'));
     }
 
     /************************************************
@@ -488,41 +478,42 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
-     * VIEW
+     * File Streaming
      ************************************************/
 
-    /**
-     * Test set view with string class name
-     */
-    public function testSetSlimViewFromString()
+    public function testStreamingAFile()
     {
+        $this->expectOutputString(file_get_contents("composer.json"));
         $s = new \Slim\App();
-        $this->assertInstanceOf('\Slim\View', $s->view());
-        $s->view('CustomView');
-        $this->assertInstanceOf('CustomView', $s->view());
+        $s->get('/bar', function() use ($s) {
+            $s->sendFile("composer.json");
+        });
+        $s->run();
     }
+
+    public function testStreamingAProc()
+    {
+        $this->expectOutputString("FooBar\n");
+        $s = new \Slim\App();
+        $s->get('/bar', function() use ($s) {
+            $s->sendProcess("echo 'FooBar'");
+        });
+        $s->run();
+    }
+
+    /************************************************
+     * VIEW
+     ************************************************/
 
     /**
      * Test set view with object instance
      */
     public function testSetSlimViewFromInstance()
     {
-        $s = new \Slim\App();
-        $this->assertInstanceOf('\Slim\View', $s->view());
-        $s->view(new CustomView());
-        $this->assertInstanceOf('CustomView', $s->view());
-    }
-
-    /**
-     * Test view data is transferred to newer view
-     */
-    public function testViewDataTransfer()
-    {
-        $data = array('foo' => 'bar');
-        $s = new \Slim\App();
-        $s->view()->setData($data);
-        $s->view('CustomView');
-        $this->assertSame($data, $s->view()->getData());
+        $s = new \Slim\App(array(
+            'view' => new CustomView()
+        ));
+        $this->assertInstanceOf('CustomView', $s->view);
     }
 
     /************************************************
@@ -534,7 +525,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithData()
     {
-        $s = new \Slim\App(array('templates.path' => dirname(__FILE__) . '/templates'));
+        $s = new \Slim\App(array(
+            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+        ));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'));
         });
@@ -549,7 +542,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRenderTemplateWithDataAndStatus()
     {
-        $s = new \Slim\App(array('templates.path' => dirname(__FILE__) . '/templates'));
+        $s = new \Slim\App(array(
+            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+        ));
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'), 500);
         });
@@ -1230,23 +1225,22 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerUsesCurrentResponseObject()
     {
+        $this->expectOutputString('Foo');
         $s = new \Slim\App(array(
             'debug' => false
         ));
-        $s->error(function ( \Exception $e ) use ($s) {
+        $s->error(function(\Exception $e) use ($s) {
             $r = $s->response;
             $r->setStatus(503);
             $r->write('Foo');
-            $r['X-Powered-By'] = 'Slim';
-            echo 'Bar';
+            $r->headers->set('X-Powered-By', 'Slim');
         });
         $s->get('/bar', function () {
             throw new \Exception('Foo');
         });
-        $s->call();
+        $s->run();
         list($status, $header, $body) = $s->response->finalize();
         $this->assertEquals(503, $status);
-        $this->assertEquals('FooBar', $body);
         $this->assertEquals('Slim', $header['X-Powered-By']);
     }
 

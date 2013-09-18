@@ -40,6 +40,50 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ *
+ * You will isntantiate this class to create a new Slim application.
+ * Its constructor accepts an associative array of application settings.
+ *
+ * This class uses a dependency injection (DI) container to locate resources
+ * on-demand (e.g. environment, request, response, view, router, flash, and session).
+ * The DI container makes it super simple to override any of the Slim application's
+ * default implementations or to inject your own custom objects to be used as you
+ * see fit in your custom application.
+ *
+ * You may use any of these methods provided by this class to define your
+ * Slim application's routes:
+ *
+ *     get()
+ *     post()
+ *     put()
+ *     delete()
+ *     options()
+ *     patch()
+ *     any()
+ *
+ * This class also provides several helper methods for common tasks:
+ *
+ *     status()
+ *     contentType()
+ *
+ * methods for HTTP caching:
+ *
+ *     etag()
+ *     expires()
+ *     lastModified()
+ *
+ * and methods for HTTP cookie handling:
+ *
+ *     setCookie()
+ *     getCookie()
+ *     deleteCookie()
+ *
+ * There are, of course, more methods available for you to use. Refer to the code
+ * below or to the Slim Framework documentation for more information.
+ *
+ * Most importantly, you must invoke your Slim application instance's `run()` method
+ * after you define your routes, else the magic just won't happen!
+ *
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
@@ -58,27 +102,24 @@ class App
     public $container;
 
     /**
-     * Reference first instantiated Slim app; legacy support only.
-     * @var \Slim\App
-     */
-    protected static $singleton;
-
-    /**
      * @var array
      */
     protected $middleware;
 
     /**
-     * @var mixed Callable to be invoked if application error
+     * Callable to be invoked if application error
+     * @var mixed
      */
     protected $error;
 
     /**
-     * @var mixed Callable to be invoked if no matching routes are found
+     * Callable to be invoked if no matching routes are found
+     * @var mixed
      */
     protected $notFound;
 
     /**
+     * Application hooks
      * @var array
      */
     protected $hooks = array(
@@ -96,7 +137,7 @@ class App
 
     /**
      * Constructor
-     * @param  array $userSettings Associative array of application settings
+     * @param array $userSettings Associative array of application settings
      */
     public function __construct(array $userSettings = array())
     {
@@ -134,9 +175,11 @@ class App
 
         // Default view
         $this->container->singleton('view', function ($c) {
-            $viewClass = $c['settings']['view'];
+            if ($c['settings']['view'] instanceof \Slim\View === false) {
+                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
+            }
 
-            return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            return $c['settings']['view'];
         });
 
         // Default crypt
@@ -178,46 +221,6 @@ class App
 
         // Define default middleware stack
         $this->middleware = array($this);
-
-        // Keep reference to first instantiated Slim app; legacy support only.
-        static::$singleton = $this;
-    }
-
-    /********************************************************************************
-     * Magic setters and getters
-     *
-     * Fallback to the DI container if properties are not available
-     * on the Slim instance itself.
-     *******************************************************************************/
-
-    public function __get($name)
-    {
-        return $this->container[$name];
-    }
-
-    public function __set($name, $value)
-    {
-        $this->container[$name] = $value;
-    }
-
-    public function __isset($name)
-    {
-        return isset($this->container[$name]);
-    }
-
-    public function __unset($name)
-    {
-        unset($this->container[$name]);
-    }
-
-    /**
-     * Get application instance by name
-     * @param  string    $name The name of the Slim application
-     * @return \Slim\App|null
-     */
-    public static function getInstance($name = 'default')
-    {
-        return static::$singleton;
     }
 
     /**
@@ -229,11 +232,7 @@ class App
         return array(
             // Application
             'mode' => 'development',
-            // Debugging
-            'debug' => true,
-            // View
-            'templates.path' => './templates',
-            'view' => '\Slim\View',
+            'view' => null,
             // Cookies
             'cookies.encrypt' => false,
             'cookies.lifetime' => '20 minutes',
@@ -270,9 +269,9 @@ class App
      * If two arguments are provided, the first argument is the name of the setting
      * to be created or updated, and the second argument is the setting value.
      *
-     * @param  string|array $name  If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-     * @param  mixed        $value If name is a string, the value of the setting identified by $name
-     * @return mixed        The value of a setting if only one argument is a string
+     * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
+     * @param  mixed        $value  If name is a string, the value of the setting identified by $name
+     * @return mixed                The value of a setting if only one argument is a string
      */
     public function config($name, $value = null)
     {
@@ -288,10 +287,6 @@ class App
             $this->settings = $settings;
         }
     }
-
-    /********************************************************************************
-    * Application Modes
-    *******************************************************************************/
 
     /**
      * Configure Slim for a given mode
@@ -310,6 +305,52 @@ class App
         if ($mode === $this->mode && is_callable($callable)) {
             call_user_func($callable);
         }
+    }
+
+    /********************************************************************************
+     * Magic setters and getters
+     *
+     * Fallback to the DI container if properties are not available
+     * on the Slim instance itself.
+     *******************************************************************************/
+
+    /**
+     * Get magic property
+     * @param  mixed $name The property name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->container[$name];
+    }
+
+    /**
+     * Set magic property
+     * @param mixed $name  The property name
+     * @param mixed $value The property value
+     */
+    public function __set($name, $value)
+    {
+        $this->container[$name] = $value;
+    }
+
+    /**
+     * Is magic property set?
+     * @param  mixed  $name The property name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->container[$name]);
+    }
+
+    /**
+     * Unset magic property
+     * @param mixed $name The property name
+     */
+    public function __unset($name)
+    {
+        unset($this->container[$name]);
     }
 
     /********************************************************************************
@@ -543,9 +584,7 @@ class App
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->status(500);
-            $this->response->body('');
-            $this->response->write($this->callErrorHandler($argument));
+            $this->response->setBody($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -561,6 +600,9 @@ class App
      */
     protected function callErrorHandler($argument = null)
     {
+        $this->response->setBody('');
+        $this->response->setStatus(500);
+
         ob_start();
         if (is_callable($this->error)) {
             call_user_func_array($this->error, array($argument));
@@ -569,41 +611,6 @@ class App
         }
 
         return ob_get_clean();
-    }
-
-    /********************************************************************************
-    * Application Accessors
-    *******************************************************************************/
-
-    /**
-     * Get and/or set the View
-     *
-     * This method declares the View to be used by the Slim application.
-     * If the argument is a string, Slim will instantiate a new object
-     * of the same class. If the argument is an instance of View or a subclass
-     * of View, Slim will use the argument as the View.
-     *
-     * If a View already exists and this method is called to create a
-     * new View, data already set in the existing View will be
-     * transferred to the new View.
-     *
-     * @param  string|\Slim\View $viewClass The name or instance of a \Slim\View subclass
-     * @return \Slim\View
-     */
-    public function view($viewClass = null)
-    {
-        if (!is_null($viewClass)) {
-            $existingData = is_null($this->view) ? array() : $this->view->getData();
-            if ($viewClass instanceOf \Slim\View) {
-                $this->view = $viewClass;
-            } else {
-                $this->view = new $viewClass();
-            }
-            $this->view->appendData($existingData);
-            $this->view->setTemplatesDirectory($this->config('templates.path'));
-        }
-
-        return $this->view;
     }
 
     /********************************************************************************
@@ -625,10 +632,9 @@ class App
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->status($status);
+            $this->response->setStatus($status);
         }
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
-        $this->view->appendData($data);
+        $this->view->replace($data);
         $this->view->display($template);
     }
 
@@ -646,8 +652,8 @@ class App
      * matches the specified last modified time, the application will stop
      * and send a '304 Not Modified' response to the client.
      *
-     * @param  int                       $time The last modified UNIX timestamp
-     * @throws \InvalidArgumentException If provided timestamp is not an integer
+     * @param  int                       $time  The last modified UNIX timestamp
+     * @throws \InvalidArgumentException        If provided timestamp is not an integer
      */
     public function lastModified($time)
     {
@@ -675,7 +681,7 @@ class App
      *
      * @param  string                    $value The etag value
      * @param  string                    $type  The type of etag to create; either "strong" or "weak"
-     * @throws \InvalidArgumentException If provided type is invalid
+     * @throws \InvalidArgumentException        If provided type is invalid
      */
     public function etag($value, $type = 'strong')
     {
@@ -689,7 +695,7 @@ class App
         if ($type === 'weak') {
             $value = 'W/'.$value;
         }
-        $this->response['ETag'] = $value;
+        $this->response->headers->set('ETag', $value);
 
         //Check conditional GET
         if ($etagsHeader = $this->request->headers->get('IF_NONE_MATCH')) {
@@ -759,8 +765,7 @@ class App
      * or return NULL if cookie does not exist. Cookies created during
      * the current request will not be available until the next request.
      *
-     * @param  string      $name
-     * @param  bool        $deleteIfInvalid
+     * @param  string      $name    The cookie name
      * @return string|null
      */
     public function getCookie($name)
@@ -852,8 +857,8 @@ class App
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
-        $this->response->body($message);
+        $this->response->setStatus($status);
+        $this->response->setBody($message);
         $this->stop();
     }
 
@@ -874,7 +879,7 @@ class App
 
     /**
      * Set the HTTP response Content-Type
-     * @param  string   $type   The Content-Type for the Response (ie. text/html)
+     * @param string $type The Content-Type for the Response (ie. text/html)
      */
     public function contentType($type)
     {
@@ -883,7 +888,7 @@ class App
 
     /**
      * Set the HTTP response status code
-     * @param  int      $code     The HTTP response status code
+     * @param int $code The HTTP response status code
      */
     public function status($code)
     {
@@ -894,7 +899,7 @@ class App
      * Get the URL for a named route
      * @param  string               $name       The route name
      * @param  array                $params     Associative array of URL parameters and replacement values
-     * @throws \RuntimeException    If named route does not exist
+     * @throws \RuntimeException                If named route does not exist
      * @return string
      */
     public function urlFor($name, $params = array())
@@ -992,7 +997,7 @@ class App
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param  string   $name   A hook name (Optional)
+     * @param string $name A hook name (Optional)
      */
     public function clearHooks($name = null)
     {
@@ -1003,6 +1008,89 @@ class App
                 $this->hooks[$key] = array(array());
             }
         }
+    }
+
+    /********************************************************************************
+     * Streaming Files
+     *******************************************************************************/
+
+    /**
+     * Send a File
+     *
+     * This method streams a local or remote file to the client
+     *
+     * @param string $file          The URI of the file, can be local or remote
+     * @param string $contentType   Optional content type of the stream, if not specified Slim will attempt to get this
+     */
+    public function sendFile($file, $contentType = false) {
+        $fp = fopen($file, "r");
+        $this->response->stream($fp);
+        if ($contentType) {
+            $this->response->headers->set("Content-Type", $contentType);
+        } else {
+            if (file_exists($file)) {
+                //Set Content-Type
+                if ($contentType) {
+                    $this->response->headers->set("Content-Type", $contentType);
+                } else {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $type = $finfo->file($file);
+                    $this->response->headers->set("Content-Type", $type);
+                }
+
+                //Set Content-Length
+                $stat = fstat($fp);
+                $this->response->headers->set("Content-Length", $stat['size']);
+            } else {
+                //Set Content-Type and Content-Length
+                $data = stream_get_meta_data($fp);
+
+                foreach ($data['wrapper_data'] as $header) {
+                    list($k, $v) = explode(": ", $header, 2);
+
+                    if ($k === "Content-Type") {
+                        if ($contentType) {
+                            $this->response->headers->set("Content-Type", $contentType);
+                        } else {
+                            $this->response->headers->set("Content-Type", $v);
+                        }
+                    } else if ($k === "Content-Length") {
+                        $this->response->headers->set("Content-Length", $v);
+                    }
+                }
+            }
+        }
+        $this->finalize();
+    }
+
+    /**
+     * Send a Process
+     *
+     * This method streams a process to a client
+     *
+     * @param string $command       The command to run
+     * @param string $contentType   Optional content type of the stream
+     */
+    public function sendProcess($command, $contentType = "text/plain") {
+        $ph = popen($command, 'r');
+        $this->response->stream($ph);
+        $this->response->headers->set("Content-Type", $contentType);
+        $this->finalize();
+    }
+
+    /**
+     * Set Download
+     *
+     * This method triggers a download in the browser
+     *
+     * @param string $filename Optional filename for the download
+     */
+    public function setDownload($filename = false) {
+        $h = "attachment;";
+        if ($filename) {
+            $h .= "filename='" . $filename . "'";
+        }
+        $this->response->headers->set("Content-Disposition", $h);
     }
 
     /********************************************************************************
@@ -1039,53 +1127,15 @@ class App
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
-        //Apply final outer middleware layers
-        if ($this->config('debug')) {
-            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
-            $this->add(new \Slim\Middleware\PrettyExceptions());
-        }
-
         // Invoke middleware and application stack
-        $this->middleware[0]->call();
-
-        // Save flash messages to session
-        $this->flash->save();
-
-        // Encrypt, save, close session
-        if ($this->config('session.encrypt') === true) {
-            $this->session->encrypt($this->crypt);
-        }
-        $this->session->save();
-
-        // Fetch status, header, and body
-        list($status, $headers, $body) = $this->response->finalize();
-
-        // Encrypt and serialize cookies
-        if ($this->settings['cookies.encrypt']) {
-            $this->response->cookies->encrypt($this->crypt);
-        }
-        \Slim\Http\Util::serializeCookies($headers, $this->response->cookies);
-
-        //Send headers
-        if (headers_sent() === false) {
-            //Send status
-            if (strpos(PHP_SAPI, 'cgi') === 0) {
-                header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
-            } else {
-                header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
-            }
-
-            //Send headers
-            foreach ($headers as $name => $value) {
-                $hValues = explode("\n", $value);
-                foreach ($hValues as $hVal) {
-                    header("$name: $hVal", false);
-                }
-            }
+        try {
+            $this->middleware[0]->call();
+        } catch (\Exception $e) {
+            $this->response->write($this->callErrorHandler($e));
         }
 
-        //Send body
-        echo $body;
+        // Finalize and send response
+        $this->finalize();
 
         restore_error_handler();
     }
@@ -1098,7 +1148,9 @@ class App
     public function call()
     {
         try {
-            $this->view->setData('flash', $this->flash);
+            if ($this->settings['view'] instanceof \Slim\View) {
+                $this->view->set('flash', $this->flash->getMessages());
+            }
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
@@ -1120,19 +1172,69 @@ class App
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
-            $this->stop();
-        } catch (\Slim\Exception\Stop $e) {
-            $this->response->write(ob_get_clean());
-            $this->applyHook('slim.after');
-        } catch (\Exception $e) {
-            if ($this->config('debug')) {
-                throw $e;
-            } else {
-                try {
-                    $this->error($e);
-                } catch (\Slim\Exception\Stop $e) {
-                    // Do nothing
+        } catch (\Slim\Exception\Stop $e) {}
+
+        $this->response->write(ob_get_clean());
+        $this->applyHook('slim.after');
+    }
+
+    /**
+     * Finalize send response
+     *
+     * This method sends the response object
+     */
+    public function finalize() {
+        if (!$this->responded) {
+            $this->responded = true;
+
+            // Save flash messages to session
+            $this->flash->save();
+
+            // Encrypt, save, close session
+            if ($this->config('session.encrypt') === true) {
+                $this->session->encrypt($this->crypt);
+            }
+            $this->session->save();
+
+            //Fetch status, header, and body
+            list($status, $headers, $body) = $this->response->finalize();
+
+            // Encrypt and serialize cookies
+            if ($this->settings['cookies.encrypt']) {
+                $this->response->cookies->encrypt($this->crypt);
+            }
+            \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
+
+            //Send headers
+            if (headers_sent() === false) {
+                //Send status
+                if (strpos(PHP_SAPI, 'cgi') === 0) {
+                    header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
+                } else {
+                    header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
                 }
+
+                //Send headers
+                foreach ($headers as $name => $value) {
+                    $hValues = explode("\n", $value);
+                    foreach ($hValues as $hVal) {
+                        header("$name: $hVal", false);
+                    }
+                }
+            }
+
+            // Send body
+            if ($this->response->isStream()) {
+                // As stream
+                while (!feof($body)) {
+                    ob_start();
+                    echo fread($body, 1024);
+                    echo ob_get_clean();
+                    ob_flush();
+                }
+            } else {
+                // As text
+                echo $body;
             }
         }
     }
@@ -1191,6 +1293,49 @@ class App
      */
     protected function defaultError($e)
     {
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        $this->contentType('text/html');
+
+        if ($this->mode === 'development') {
+            $title = 'Slim Application Error';
+            $html = '';
+
+            if ($e instanceof \Exception) {
+                $code = $e->getCode();
+                $message = $e->getMessage();
+                $file = $e->getFile();
+                $line = $e->getLine();
+                $trace = $e->getTraceAsString();
+
+                $html = '<p>The application could not run because of the following error:</p>';
+                $html .= '<h2>Details</h2>';
+                $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($e));
+                if ($code) {
+                    $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
+                }
+                if ($message) {
+                    $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
+                }
+                if ($file) {
+                    $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+                }
+                if ($line) {
+                    $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+                }
+                if ($trace) {
+                    $html .= '<h2>Trace</h2>';
+                    $html .= sprintf('<pre>%s</pre>', $trace);
+                }
+            } else {
+                $html = sprintf('<p>%s</p>', $e);
+            }
+
+            echo self::generateTemplateMarkup($title, $html);
+        } else {
+            echo self::generateTemplateMarkup(
+                'Error',
+                '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry'
+                . 'for the temporary inconvenience.</p>'
+            );
+        }
     }
 }

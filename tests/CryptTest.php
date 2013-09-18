@@ -37,9 +37,8 @@ class CryptTest extends PHPUnit_Framework_TestCase
         $key = md5('this is my key');
         $crypt = new \Slim\Crypt($key);
         $data = 'secret';
-        $iv = 'abcdefghijklmnopqrstuvwxyz1234567890';
-        $dataEncrypted = $crypt->encrypt($data, $iv);
-        $dataDecrypted = $crypt->decrypt($dataEncrypted, $iv);
+        $dataEncrypted = $crypt->encrypt($data);
+        $dataDecrypted = $crypt->decrypt($dataEncrypted);
 
         $this->assertEquals($data, $dataDecrypted);
     }

@@ -63,28 +63,6 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals(301, 'status', $res);
     }
 
-    /**
-     * DEPRECATION WARNING!
-     */
-    public function testStatusGetOld()
-    {
-        $res = new \Slim\Http\Response('', 201);
-        $this->assertEquals(201, $res->status());
-    }
-
-    /**
-     * DEPRECATION WARNING!
-     */
-    public function testStatusSetOld()
-    {
-        $res = new \Slim\Http\Response();
-        $prop = new \ReflectionProperty($res, 'status');
-        $prop->setAccessible(true);
-        $res->status(301);
-
-        $this->assertEquals(301, $prop->getValue($res));
-    }
-
     public function testGetBody()
     {
         $res = new \Slim\Http\Response();

@@ -35,6 +35,16 @@ namespace Slim;
 /**
  * Middleware
  *
+ * This abstract class provides the core scaffolding for Slim application
+ * middleware. Middleware is a layer of logic that wraps itself around
+ * the core Slim application. Each middleware applied to a Slim application
+ * will run before and after the Slim application is run.
+ *
+ * With middleware, you can access the core Slim application objects,
+ * such as the environment, request, response, view, router, etc.,
+ * to affect how the Slim application is run and how it utlimately responds to
+ * the HTTP client.
+ *
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.6.0
@@ -42,12 +52,14 @@ namespace Slim;
 abstract class Middleware
 {
     /**
-     * @var \Slim\App Reference to the primary application instance
+     * Reference to the primary application instance
+     * @var \Slim\App
      */
     protected $app;
 
     /**
-     * @var mixed Reference to the next downstream middleware
+     * Reference to the next downstream middleware
+     * @var \Slim\Middleware|\Slim\App
      */
     protected $next;
 
@@ -84,7 +96,7 @@ abstract class Middleware
      * this middleware so that it may optionally be called
      * when appropriate.
      *
-     * @param \Slim|\Slim\Middleware
+     * @param \Slim\App|\Slim\Middleware
      */
     final public function setNextMiddleware($nextMiddleware)
     {

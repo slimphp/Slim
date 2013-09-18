@@ -35,8 +35,16 @@ namespace Slim\Http;
 /**
  * Slim HTTP Request
  *
- * This class provides a human-friendly interface to the Slim environment variables;
- * environment variables are passed by reference and will be modified directly.
+ * This class provides a simple interface around the Slim application environment
+ * and raw HTTP request. Use this class to inspect the current HTTP request, including:
+ *
+ * - The request method
+ * - The request headers
+ * - The request cookies
+ * - The request body
+ * - The request parameters (via GET, POST, etc.)
+ *
+ * This class also contains many other helper methods to inspect the current HTTP request.
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -65,16 +73,28 @@ class Request
     protected $env;
 
     /**
-     * HTTP Headers
+     * HTTP request headers
      * @var \Slim\Http\Headers
      */
     public $headers;
 
     /**
-     * HTTP Cookies
+     * HTTP request cookies
      * @var \Slim\Container
      */
     public $cookies;
+
+    /**
+     * HTTP request query parameters
+     * @var  array
+     */
+    protected $queryParameters;
+
+    /**
+     * HTTP request body parameters (for content-type "application/x-www-form-urlencoded" only)
+     * @var array
+     */
+    protected $body;
 
     /**
      * Constructor
@@ -84,7 +104,7 @@ class Request
     {
         $this->env = $env;
         $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->cookies = new \Slim\Container(\Slim\Http\Util::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->cookies = new \Slim\Container(\Slim\Http\Cookies::parseCookieHeader($env['HTTP_COOKIE']));
     }
 
     /**
@@ -203,80 +223,91 @@ class Request
     }
 
     /**
-     * Fetch GET data
+     * Fetch GET query parameter(s)
      *
-     * This method returns a key-value array of data sent in the HTTP request query string, or
-     * the value of the array key if requested; if the array key does not exist, NULL is returned.
+     * Use this method to fetch a GET request query parameter. If the requested GET query parameter
+     * identified by the argument does not exist, NULL is returned. If the argument is omittec,
+     * all GET query parameters are returned as an array.
      *
-     * @param  string           $key
-     * @return array|mixed|null
+     * @param  string               $key    The name of the GET query parameter
+     * @return array|string|null
      */
     public function get($key = null)
     {
-        if (!isset($this->env['slim.request.query_hash'])) {
-            $output = array();
-            if (function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte'])) {
-                mb_parse_str($this->env['QUERY_STRING'], $output);
+        // Parse and cache query parameters from \Slim\Environment
+        if (!isset($this->queryParameters)) {
+            if (function_exists('mb_parse_str')) {
+                mb_parse_str($this->env['QUERY_STRING'], $this->queryParameters);
             } else {
-                parse_str($this->env['QUERY_STRING'], $output);
+                parse_str($this->env['QUERY_STRING'], $this->queryParameters);
             }
-            $this->env['slim.request.query_hash'] = Util::stripSlashesIfMagicQuotes($output);
         }
+
+        // Fetch requested query parameter(s)
         if ($key) {
-            if (isset($this->env['slim.request.query_hash'][$key])) {
-                return $this->env['slim.request.query_hash'][$key];
+            if (isset($this->queryParameters[$key])) {
+                $returnVal = $this->queryParameters[$key];
             } else {
-                return null;
+                $returnVal = null;
             }
         } else {
-            return $this->env['slim.request.query_hash'];
+            $returnVal = $this->queryParameters;
         }
+
+        return $returnVal;
     }
 
     /**
-     * Fetch POST data
+     * Fetch POST parameter(s)
      *
-     * This method returns a key-value array of data sent in the HTTP request body, or
-     * the value of a hash key if requested; if the array key does not exist, NULL is returned.
+     * Use this method to fetch a POST body parameter. If the requested POST body parameter
+     * identified by the argument does not exist, NULL is returned. If the argument is omitted,
+     * all POST body parameters are returned as an array.
      *
-     * @param  string           $key
-     * @return array|mixed|null
-     * @throws \RuntimeException If environment input is not available
+     * @param  string               $key    The name of the POST body parameter
+     * @return array|string|null
+     * @throws \RuntimeException            If the raw POST body is not available in \Slim\Environment
      */
     public function post($key = null)
     {
+        // Ensure the POST request body is available
         if (!isset($this->env['slim.input'])) {
-            throw new \RuntimeException('Missing slim.input in environment variables');
+            throw new \RuntimeException('The raw POST body is not available in \Slim\Environment');
         }
-        if (!isset($this->env['slim.request.form_hash'])) {
-            $this->env['slim.request.form_hash'] = array();
+
+        // Parse and cache POST request body
+        if (!isset($this->body)) {
+            // Default body
+            $this->body = $_POST;
+
+            // Parse body ONLY IF the request content-type is "application/x-www-form-urlencoded"
             if ($this->isFormData() && is_string($this->env['slim.input'])) {
-                $output = array();
-                if (function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte'])) {
-                    mb_parse_str($this->env['slim.input'], $output);
+                if (function_exists('mb_parse_str')) {
+                    mb_parse_str($this->env['slim.input'], $this->body);
                 } else {
-                    parse_str($this->env['slim.input'], $output);
+                    parse_str($this->env['slim.input'], $this->body);
                 }
-                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($output);
-            } else {
-                $this->env['slim.request.form_hash'] = Util::stripSlashesIfMagicQuotes($_POST);
             }
         }
+
+        // Fetch POST parameter(s)
         if ($key) {
-            if (isset($this->env['slim.request.form_hash'][$key])) {
-                return $this->env['slim.request.form_hash'][$key];
+            if (isset($this->body[$key])) {
+                $returnVal = $this->body[$key];
             } else {
-                return null;
+                $returnVal = null;
             }
         } else {
-            return $this->env['slim.request.form_hash'];
+            $returnVal = $this->body;
         }
+
+        return $returnVal;
     }
 
     /**
      * Fetch PUT data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|mixed|null
+     * @return array|string|null
      */
     public function put($key = null)
     {
@@ -286,7 +317,7 @@ class Request
     /**
      * Fetch PATCH data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|mixed|null
+     * @return array|string|null
      */
     public function patch($key = null)
     {
@@ -296,7 +327,7 @@ class Request
     /**
      * Fetch DELETE data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|mixed|null
+     * @return array|string|null
      */
     public function delete($key = null)
     {

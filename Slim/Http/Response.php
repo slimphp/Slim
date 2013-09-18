@@ -35,43 +35,59 @@ namespace Slim\Http;
 /**
  * Response
  *
- * This is a simple abstraction over top an HTTP response. This
- * provides methods to set the HTTP status, the HTTP headers,
- * and the HTTP body.
+ * This class provides a simple interface around the HTTP response. Use this class
+ * to build and inspect the current HTTP response before it is returned to the client:
+ *
+ * - The response status
+ * - The response headers
+ * - The response cookies
+ * - The response body
  *
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Response implements \ArrayAccess, \Countable, \IteratorAggregate
+class Response
 {
     /**
-     * @var int HTTP status code
+     * Response status code
+     * @var int
      */
     protected $status;
 
     /**
+     * Response headers
      * @var \Slim\Http\Headers
      */
     public $headers;
 
     /**
+     * Response cookies
      * @var \Slim\Http\Cookies
      */
     public $cookies;
 
     /**
-     * @var string HTTP response body
+     * Response body
+     * @var string|resource
      */
     protected $body;
 
     /**
-     * @var int Length of HTTP response body
+     * Is this response a resource stream?
+     * @var bool
+     */
+    protected $isStream;
+
+    /**
+     * Response body length
+     * @var int
      */
     protected $length;
 
     /**
-     * @var array HTTP response codes and messages
+     * Response codes and associated messages
+     * @var array
      */
     protected static $messages = array(
         //Informational 1xx
@@ -126,8 +142,8 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Constructor
-     * @param string                   $body   The HTTP response body
-     * @param int                      $status The HTTP response status
+     * @param string                   $body    The HTTP response body
+     * @param int                      $status  The HTTP response status
      * @param \Slim\Http\Headers|array $headers The HTTP response headers
      */
     public function __construct($body = '', $status = 200, $headers = array())
@@ -136,91 +152,57 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
         $this->headers->replace($headers);
         $this->cookies = new \Slim\Http\Cookies();
-        $this->write($body);
+        $this->isStream = false;
+        $this->write($body, true);
     }
 
+    /**
+     * Get response status code
+     * @return int
+     */
     public function getStatus()
     {
         return $this->status;
     }
 
+    /**
+     * Set response status code
+     * @param int $status The HTTP status code
+     */
     public function setStatus($status)
     {
         $this->status = (int)$status;
     }
 
     /**
-     * DEPRECATION WARNING! Use `getStatus` or `setStatus` instead.
-     *
-     * Get and set status
-     * @param  int|null $status
-     * @return int
+     * Get response body
+     * @return string|resource
      */
-    public function status($status = null)
-    {
-        if (!is_null($status)) {
-            $this->status = (int) $status;
-        }
-
-        return $this->status;
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `headers` property directly.
-     *
-     * Get and set header
-     * @param  string      $name  Header name
-     * @param  string|null $value Header value
-     * @return string      Header value
-     */
-    public function header($name, $value = null)
-    {
-        if (!is_null($value)) {
-            $this->headers->set($name, $value);
-        }
-
-        return $this->headers->get($name);
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `headers` property directly.
-     *
-     * Get headers
-     * @return \Slim\Http\Headers
-     */
-    public function headers()
-    {
-        return $this->headers;
-    }
-
     public function getBody()
     {
         return $this->body;
     }
 
+    /**
+     * Set response body
+     * @param string $content The new response body
+     */
     public function setBody($content)
     {
         $this->write($content, true);
     }
 
     /**
-     * DEPRECATION WARNING! use `getBody` or `setBody` instead.
-     *
-     * Get and set body
-     * @param  string|null $body Content of HTTP response body
-     * @return string
+     * Is the response body a resource stream?
+     * @return bool
      */
-    public function body($body = null)
+    public function isStream()
     {
-        if (!is_null($body)) {
-            $this->write($body, true);
-        }
-
-        return $this->body;
+        return $this->isStream;
     }
 
     /**
-     * Append HTTP response body
+     * Append response body
      * @param  string   $body       Content to append to the current HTTP response body
      * @param  bool     $replace    Overwrite existing response body?
      * @return string               The updated HTTP response body
@@ -237,35 +219,42 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         return $this->body;
     }
 
+   /**
+    * Set the response body to a stream resource
+    * @param resource $handle Resource stream to send
+    */
+    public function stream($handle)
+    {
+        $this->isStream = true;
+        $this->body = $handle;
+    }
+
+    /**
+     * Get the response body stream resource
+     * @return resource|false
+     */
+    public function getStream()
+    {
+        return ($this->isStream) ? $this->body : false;
+    }
+
+    /**
+     * Get the response body length
+     * @return int
+     */
     public function getLength()
     {
         return $this->length;
     }
 
     /**
-     * DEPRECATION WARNING! Use `getLength` or `write` or `body` instead.
+     * Finalize response for delivery to client
      *
-     * Get and set length
-     * @param  int|null $length
-     * @return int
-     */
-    public function length($length = null)
-    {
-        if (!is_null($length)) {
-            $this->length = (int) $length;
-        }
-
-        return $this->length;
-    }
-
-    /**
-     * Finalize
+     * Apply finaly preparations to the resposne object
+     * so that it is suitable for delivery to the client. This
+     * method returns an array of [status, headers, body].
      *
-     * This prepares this response and returns an array
-     * of [status, headers, body]. This array is passed to outer middleware
-     * if available or directly to the Slim run method.
-     *
-     * @return array[int status, array headers, string body]
+     * @return array[int $status, array $headers, string|resource $body]
      */
     public function finalize()
     {
@@ -280,57 +269,10 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! Access `cookies` property directly.
-     *
-     * Set cookie
-     *
-     * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Slim_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
-     *
-     * @param string        $name    The name of the cookie
-     * @param string|array  $value   If string, the value of cookie; if array, properties for
-     *                               cookie including: value, expire, path, domain, secure, httponly
-     */
-    public function setCookie($name, $value)
-    {
-        // Util::setCookieHeader($this->header, $name, $value);
-        $this->cookies->set($name, $value);
-    }
-
-    /**
-     * DEPRECATION WARNING! Access `cookies` property directly.
-     *
-     * Delete cookie
-     *
-     * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
-     * header on its own and delegates this responsibility to the `Slim_Http_Util` class. This
-     * response's header is passed by reference to the utility class and is directly modified. By not
-     * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
-     * analyze the raw header before the response is ultimately delivered to the HTTP client.
-     *
-     * This method will set a cookie with the given name that has an expiration time in the past; this will
-     * prompt the HTTP client to invalidate and remove the client-side cookie. Optionally, you may
-     * also pass a key/value array as the second argument. If the "domain" key is present in this
-     * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
-     * sent with this response will adopt all properties of the second argument.
-     *
-     * @param string $name     The name of the cookie
-     * @param array  $settings Properties for cookie including: value, expire, path, domain, secure, httponly
-     */
-    public function deleteCookie($name, $settings = array())
-    {
-        $this->cookies->remove($name, $settings);
-        // Util::deleteCookieHeader($this->header, $name, $value);
-    }
-
-    /**
      * Redirect
      *
-     * This method prepares this response to return an HTTP Redirect response
-     * to the HTTP client.
+     * This method prepares the response object to return an HTTP Redirect response
+     * to the client.
      *
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
@@ -432,70 +374,6 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! ArrayAccess interface will be removed from \Slim\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     */
-
-    /**
-     * Array Access: Offset Exists
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->headers[$offset]);
-    }
-
-    /**
-     * Array Access: Offset Get
-     */
-    public function offsetGet($offset)
-    {
-        return $this->headers[$offset];
-    }
-
-    /**
-     * Array Access: Offset Set
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->headers[$offset] = $value;
-    }
-
-    /**
-     * Array Access: Offset Unset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->headers[$offset]);
-    }
-
-    /**
-     * DEPRECATION WARNING! Countable interface will be removed from \Slim\Http\Response.
-     * Call `count` on `headers` or `cookies` properties directly.
-     *
-     * Countable: Count
-     */
-    public function count()
-    {
-        return count($this->headers);
-    }
-
-    /**
-     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Slim\Http\Response.
-     * Iterate `headers` or `cookies` properties directly.
-     *
-     * Get Iterator
-     *
-     * This returns the contained `\Slim\Http\Headers` instance which
-     * is itself iterable.
-     *
-     * @return \Slim\Http\Headers
-     */
-    public function getIterator()
-    {
-        return $this->headers->getIterator();
-    }
-
-    /**
      * Get message for HTTP status code
      * @param  int         $status
      * @return string|null
@@ -504,11 +382,15 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     {
         if (isset(self::$messages[$status])) {
             return self::$messages[$status];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
+    /**
+     * Convert response to string
+     * @return string
+     */
     public function __toString()
     {
         $output = sprintf('HTTP/1.1 %s', static::getMessageForCode($this->getStatus())) . PHP_EOL;

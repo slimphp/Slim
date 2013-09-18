@@ -32,139 +32,12 @@
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {
-    public function testGetDataAll()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
-
-        $this->assertSame(array('foo' => 'bar'), $view->getData());
-    }
-
-    public function testGetDataKeyExists()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
-
-        $this->assertEquals('bar', $view->getData('foo'));
-    }
-
-    public function testGetDataKeyNotExists()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
-
-        $this->assertNull($view->getData('abc'));
-    }
-
-    public function testSetDataKeyValue()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $view->setData('foo', 'bar');
-
-        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
-    }
-
-    public function testSetDataKeyValueAsClosure()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-
-        $view->setData('fooClosure', function () {
-            return 'foo';
-        });
-
-        $value = $prop->getValue($view)->get('fooClosure');
-        $this->assertInstanceOf('Closure', $value);
-        $this->assertEquals('foo', $value());
-    }
-
-    public function testSetDataArray()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $view->setData(array('foo' => 'bar'));
-
-        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
-    }
-
-    public function testSetDataInvalidArgument()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $view = new \Slim\View();
-        $view->setData('foo');
-    }
-
-    public function testAppendData()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $view->appendData(array('foo' => 'bar'));
-
-        $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
-    }
-
-    public function testAppendDataOverwrite()
-    {
-        $view = new \Slim\View();
-        $prop = new \ReflectionProperty($view, 'data');
-        $prop->setAccessible(true);
-        $prop->setValue($view, new \Slim\Container(array('foo' => 'bar')));
-        $view->appendData(array('foo' => '123'));
-
-        $this->assertEquals(array('foo' => '123'), $prop->getValue($view)->all());
-    }
-
-    public function testAppendDataInvalidArgument()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $view = new \Slim\View();
-        $view->appendData('foo');
-    }
-
-    public function testGetTemplatesDirectory()
-    {
-        $view = new \Slim\View();
-        $property = new \ReflectionProperty($view, 'templatesDirectory');
-        $property->setAccessible(true);
-        $property->setValue($view, 'templates');
-
-        $this->assertEquals('templates', $view->getTemplatesDirectory());
-    }
-
-    public function testSetTemplatesDirectory()
-    {
-        $view = new \Slim\View();
-        $view->setTemplatesDirectory('templates/'); // <-- Should strip trailing slash
-
-        $this->assertAttributeEquals('templates', 'templatesDirectory', $view);
-    }
-
     public function testDisplay()
     {
         $this->expectOutputString('test output bar');
 
-        $view = new \Slim\View();
-        $prop1 = new \ReflectionProperty($view, 'data');
-        $prop1->setAccessible(true);
-        $prop1->setValue($view, new \Slim\Container(array('foo' => 'bar')));
-
-        $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
-        $prop2->setAccessible(true);
-        $prop2->setValue($view, dirname(__FILE__) . '/templates');
-
+        $view = new \Slim\View(dirname(__FILE__) . '/templates');
+        $view->set('foo', 'bar');
         $view->display('test.php');
     }
 
@@ -172,12 +45,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('\RuntimeException');
 
-        $view = new \Slim\View();
-
-        $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
-        $prop2->setAccessible(true);
-        $prop2->setValue($view, dirname(__FILE__) . '/templates');
-
+        $view = new \Slim\View(dirname(__FILE__) . '/templates');
         $view->display('foo.php');
     }
 }
