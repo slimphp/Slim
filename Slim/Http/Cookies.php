@@ -32,6 +32,24 @@
  */
 namespace Slim\Http;
 
+/**
+ * Cookies
+ *
+ * This class manages a collection of HTTP response cookies. Each
+ * \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ *
+ * This class also has several static helper methods used to parse
+ * HTTP request `Cookie` headers and to serialize cookie data into
+ * HTTP response headers.
+ *
+ * Like many other Slim application objects, \Slim\Http\Cookies extends
+ * \Slim\Container so you have access to a simple and common interface
+ * to manipulate HTTP response cookies.
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   2.3.0
+ */
 class Cookies extends \Slim\Container
 {
     /**
