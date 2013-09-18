@@ -102,7 +102,10 @@ class App
     {
         // Setup DI container
         $this->container = new \Slim\Container();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+
+        $this->container->singleton('settings', function ($c) use ($userSettings) {
+            return \Slim\Configuration($userSettings, true);
+        });
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
