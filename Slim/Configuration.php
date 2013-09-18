@@ -93,7 +93,9 @@ class Configuration extends NestedArrayHandler implements ArrayAccess, IteratorA
      */
     public function __construct(array $configuration = array() $mergeDefaults = false)
     {
-        if (!empty($array)) {
+        if (!empty($configuration)) {
+            $configuration = array_merge($configuration, $this->defaults);
+
             $this->set($configuration);
         }
     }
