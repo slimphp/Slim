@@ -172,61 +172,47 @@ class Environment implements \ArrayAccess, \IteratorAggregate
         } else {
             $env = array();
 
-            // The HTTP request method
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
-
-            // The IP address
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
-
-            /**
-             * Application paths
-             *
-             * This derives two paths: SCRIPT_NAME and PATH_INFO. The SCRIPT_NAME
-             * is the real, physical path to the application, be it in the root
-             * directory or a subdirectory of the public document root. The PATH_INFO is the
-             * virtual path to the requested resource within the application context.
-             *
-             * With htaccess, the SCRIPT_NAME will be an absolute path (without file name);
-             * if not using htaccess, it will also include the file name. If it is "/",
-             * it is set to an empty string (since it cannot have a trailing slash).
-             *
-             * The PATH_INFO will be an absolute path with a leading slash; this will be
-             * used for application routing.
-             */
-            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
-                $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
-            } else {
-                $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); //With URL rewrite
-            }
-            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
-            if (strpos($env['PATH_INFO'], '?') !== false) {
-                $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
-            }
-            $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
-            $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
-
-            // The portion of the request URI following the '?'
-            $env['QUERY_STRING'] = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : '';
-
-            // Name of server host that is running the script
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
-
-            // Number of server port that is running the script
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
-
             // Request protocol (e.g. "HTTP/1.1")
             $env['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'];
 
-            // HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+            // Request method
+            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
+
+            // Root URI (physical path) and resource URI (virtual path)
+            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/physical/index.php"
+            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/physical/index.php/virtual?abc=123" or "/physical/virtual?abc=123"
+            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
+            if (strpos($requestUri, $scriptName) === false) {
+                // With rewriting
+                $env['SCRIPT_NAME'] = str_replace('/' . basename($scriptName), '', $scriptName);
+            } else {
+                // Without rewriting
+                $env['SCRIPT_NAME'] = $scriptName;
+            }
+            $env['PATH_INFO'] = str_replace(array($env['SCRIPT_NAME'], '?' . $queryString), '', $requestUri);
+
+            // Query string (without leading "?")
+            $env['QUERY_STRING'] = $queryString;
+
+            // Server name
+            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+
+            // Server port
+            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+
+            // Request headers (with "HTTP_" prefix)
             $headers = \Slim\Http\Headers::extract($_SERVER);
             foreach ($headers as $key => $value) {
                 $env[$key] = $value;
             }
 
-            // Is the application running under HTTPS or HTTP protocol?
+            // IP address
+            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+
+            // Request scheme ("http" or "https")
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
-            // Raw request body (readable one time only; not available for multipart/form-data requests)
+            // Request body (readable one time only; not available for multipart/form-data requests)
             $rawInput = file_get_contents('php://input');
             if ($rawInput === false) {
                 $rawInput = '';
