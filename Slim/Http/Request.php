@@ -35,8 +35,16 @@ namespace Slim\Http;
 /**
  * Slim HTTP Request
  *
- * This class provides a human-friendly interface to the Slim environment variables;
- * environment variables are passed by reference and will be modified directly.
+ * This class provides a simple interface around the Slim application environment
+ * and raw HTTP request. Use this class to inspect the current HTTP request, including:
+ *
+ * - The request method
+ * - The request headers
+ * - The request cookies
+ * - The request body
+ * - The request parameters (via GET, POST, etc.)
+ *
+ * This class also contains many other helper methods to inspect the current HTTP request.
  *
  * @package Slim
  * @author  Josh Lockhart
