@@ -189,7 +189,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
                 // Without rewriting
                 $env['SCRIPT_NAME'] = $scriptName;
             }
-            $env['PATH_INFO'] = '/' . trim(str_replace(array($env['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
+            $env['PATH_INFO'] = '/' . ltrim(str_replace(array($env['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
 
             // Query string (without leading "?")
             $env['QUERY_STRING'] = $queryString;
