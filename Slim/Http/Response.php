@@ -35,9 +35,13 @@ namespace Slim\Http;
 /**
  * Response
  *
- * This is a simple abstraction over top an HTTP response. This
- * provides methods to set the HTTP status, the HTTP headers,
- * and the HTTP body.
+ * This class provides a simple interface around the HTTP response. Use this class
+ * to build and inspect the current HTTP response before it is returned to the client:
+ *
+ * - The response status
+ * - The response headers
+ * - The response cookies
+ * - The response body
  *
  * @package Slim
  * @author  Josh Lockhart
