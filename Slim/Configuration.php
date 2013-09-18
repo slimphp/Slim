@@ -58,6 +58,35 @@ class Configuration extends NestedArrayHandler implements ArrayAccess, IteratorA
     protected $items = array();
 
     /**
+     * Default settings for the Slim framework
+     *
+     * @var array
+     */
+    protected $defaults = array(
+        // Application
+        'mode' => 'development',
+        'view' => null,
+        // Cookies
+        'cookies.encrypt' => false,
+        'cookies.lifetime' => '20 minutes',
+        'cookies.path' => '/',
+        'cookies.domain' => null,
+        'cookies.secure' => false,
+        'cookies.httponly' => false,
+        // Encryption
+        'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+        'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+        'crypt.mode' => MCRYPT_MODE_CBC,
+        // Session
+        'session.options' => array(),
+        'session.handler' => null,
+        'session.flash_key' => 'slimflash',
+        'session.encrypt' => false,
+        // HTTP
+        'http.version' => '1.1'
+    );
+
+    /**
      * Allow the class to be instantiated with an array of configuration values
      *
      * @param array $configuration
@@ -143,6 +172,16 @@ class Configuration extends NestedArrayHandler implements ArrayAccess, IteratorA
     public function getAll()
     {
         return $this->items;
+    }
+
+    /**
+     * Get the default settings
+     *
+     * @return array
+     */
+    public function getDefaultSettings()
+    {
+        return $this->defaults;
     }
 
     /**
