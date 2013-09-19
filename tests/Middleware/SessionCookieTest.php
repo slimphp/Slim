@@ -67,7 +67,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $app->response()->finalize();
         $this->assertTrue($app->response->cookies->has('slim_session'));
         $cookie = $app->response->cookies->get('slim_session');
-        $this->assertEquals(serialize(array('foo' => 'bar')), $cookie['value']['value']);
+        $this->assertEquals(serialize(array('foo' => 'bar')), $cookie['value']);
     }
 
     /**

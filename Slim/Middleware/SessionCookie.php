@@ -145,14 +145,12 @@ class SessionCookie extends \Slim\Middleware
         } else {
             $this->app->setCookie(
                 $this->settings['name'],
-                array(
-                    'value' => $value,
-                    'domain' => $this->settings['domain'],
-                    'path' => $this->settings['path'],
-                    'expires' => $this->settings['expires'],
-                    'secure' => $this->settings['secure'],
-                    'httponly' => $this->settings['httponly']
-                )
+                $value,
+                $this->settings['expires'],
+                $this->settings['path'],
+                $this->settings['domain'],
+                $this->settings['secure'],
+                $this->settings['httponly']
             );
         }
         session_destroy();
