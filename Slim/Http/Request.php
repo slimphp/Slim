@@ -113,6 +113,28 @@ class Request
      */
     public function getMethod()
     {
+        // Get actual request method
+        $method = $this->env['REQUEST_METHOD'];
+
+        // Detect method override (by HTTP header or POST parameter)
+        if (isset($this->env['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            $method = strtoupper($this->env['HTTP_X_HTTP_METHOD_OVERRIDE']);
+        } else if ($this->env['REQUEST_METHOD'] === 'POST') {
+            $customMethod = $this->post('_METHOD');
+            if ($customMethod) {
+                $method = strtoupper($customMethod);
+            }
+        }
+
+        return $method;
+    }
+
+    /**
+     * Get original HTTP method (before method override applied)
+     * @return string
+     */
+    public function getOriginalMethod()
+    {
         return $this->env['REQUEST_METHOD'];
     }
 

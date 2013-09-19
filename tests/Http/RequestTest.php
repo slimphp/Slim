@@ -929,4 +929,73 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $req = new \Slim\Http\Request($env);
         $this->assertNull($req->getUserAgent());
     }
+
+    /**
+     * Test overrides method as POST
+     */
+    public function testOverrideMethodAsPost()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 11,
+            'slim.input' => '_METHOD=PUT'
+        ));
+        $req = new \Slim\Http\Request(\Slim\Environment::getInstance());
+        $this->assertEquals('PUT', $req->getMethod());
+        $this->assertEquals('POST', $req->getOriginalMethod());
+    }
+
+    /**
+     * Test does not override method if not POST
+     */
+    public function testDoesNotOverrideMethodIfNotPost()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'GET',
+            'slim.input' => ''
+        ));
+        $req = new \Slim\Http\Request(\Slim\Environment::getInstance());
+        $this->assertEquals('GET', $req->getMethod());
+        $this->assertEquals('GET', $req->getOriginalMethod());
+    }
+
+    /**
+     * Test does not override method if no method override parameter
+     */
+    public function testDoesNotOverrideMethodAsPostWithoutParameter()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'REMOTE_ADDR' => '127.0.0.1',
+            'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
+            'PATH_INFO' => '/bar', //<-- Virtual
+            'QUERY_STRING' => 'foo=bar',
+            'SERVER_NAME' => 'slim',
+            'SERVER_PORT' => 80,
+            'slim.url_scheme' => 'http',
+            'slim.input' => '',
+            'slim.errors' => fopen('php://stderr', 'w')
+        ));
+        $req = new \Slim\Http\Request(\Slim\Environment::getInstance());
+        $this->assertEquals('POST', $req->getMethod());
+        $this->assertEquals('POST', $req->getOriginalMethod());
+    }
+
+    /**
+     * Test overrides method with X-Http-Method-Override header
+     */
+    public function testOverrideMethodAsHeader()
+    {
+        \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json',
+            'CONTENT_LENGTH' => 0,
+            'slim.input' => '',
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE'
+        ));
+        $req = new \Slim\Http\Request(\Slim\Environment::getInstance());
+        $this->assertEquals('DELETE', $req->getMethod());
+        $this->assertEquals('POST', $req->getOriginalMethod());
+    }
 }
