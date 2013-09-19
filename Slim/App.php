@@ -143,7 +143,10 @@ class App
     {
         // Setup DI container
         $this->container = new \Slim\Container();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+
+        $this->container->singleton('settings', function ($c) use ($userSettings) {
+            return \Slim\Configuration($userSettings, true);
+        });
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
@@ -218,71 +221,6 @@ class App
 
         // Define default middleware stack
         $this->middleware = array($this);
-    }
-
-    /**
-     * Get default application settings
-     * @return array
-     */
-    public static function getDefaultSettings()
-    {
-        return array(
-            // Application
-            'mode' => 'development',
-            'view' => null,
-            // Cookies
-            'cookies.encrypt' => false,
-            'cookies.lifetime' => '20 minutes',
-            'cookies.path' => '/',
-            'cookies.domain' => null,
-            'cookies.secure' => false,
-            'cookies.httponly' => false,
-            // Encryption
-            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-            'crypt.mode' => MCRYPT_MODE_CBC,
-            // Session
-            'session.options' => array(),
-            'session.handler' => null,
-            'session.flash_key' => 'slimflash',
-            'session.encrypt' => false,
-            // HTTP
-            'http.version' => '1.1'
-        );
-    }
-
-    /**
-     * Configure Slim Settings
-     *
-     * This method defines application settings and acts as a setter and a getter.
-     *
-     * If only one argument is specified and that argument is a string, the value
-     * of the setting identified by the first argument will be returned, or NULL if
-     * that setting does not exist.
-     *
-     * If only one argument is specified and that argument is an associative array,
-     * the array will be merged into the existing application settings.
-     *
-     * If two arguments are provided, the first argument is the name of the setting
-     * to be created or updated, and the second argument is the setting value.
-     *
-     * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-     * @param  mixed        $value  If name is a string, the value of the setting identified by $name
-     * @return mixed                The value of a setting if only one argument is a string
-     */
-    public function config($name, $value = null)
-    {
-        if (func_num_args() === 1) {
-            if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
-            } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
-            }
-        } else {
-            $settings = $this->settings;
-            $settings[$name] = $value;
-            $this->settings = $settings;
-        }
     }
 
     /**
