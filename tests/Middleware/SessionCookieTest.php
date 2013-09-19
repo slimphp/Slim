@@ -73,8 +73,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
     /**
      * Test $_SESSION is populated from an encrypted HTTP cookie
      *
-     * The encrypted cookie contains the serialized array ['foo' => 'bar']. The 
-     * global secret, cipher, and cipher mode are assumed to be the default 
+     * The encrypted cookie contains the serialized array ['foo' => 'bar']. The
+     * global secret, cipher, and cipher mode are assumed to be the default
      * values.
      */
     public function testSessionIsPopulatedFromEncryptedCookie()
@@ -101,7 +101,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
     /**
      * Test $_SESSION is populated from an unencrypted HTTP cookie
      *
-     * The unencrypted cookie contains the serialized array ['foo' => 'bar']. 
+     * The unencrypted cookie contains the serialized array ['foo' => 'bar'].
      * The global cookies.encrypt setting is set to false
      */
     public function testSessionIsPopulatedFromUnencryptedCookie()

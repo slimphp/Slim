@@ -41,9 +41,9 @@ namespace Slim\Middleware;
  * variable to/from an HTTP cookie.
  *
  * You should NEVER store sensitive data in a client-side cookie
- * in any format, encrypted (with cookies.encrypt) or not. If you 
- * need to store sensitive user information in a session, you should 
- * rely on PHP's native session implementation, or use other middleware 
+ * in any format, encrypted (with cookies.encrypt) or not. If you
+ * need to store sensitive user information in a session, you should
+ * rely on PHP's native session implementation, or use other middleware
  * to store session data in a database or alternative server-side cache.
  *
  * Because this class stores serialized session data in an HTTP cookie,
@@ -64,7 +64,7 @@ class SessionCookie extends \Slim\Middleware
     /**
      * Constructor
      *
-     * @param  array $settings
+     * @param array $settings
      */
     public function __construct($settings = array())
     {
