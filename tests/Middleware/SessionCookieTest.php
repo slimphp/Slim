@@ -195,8 +195,10 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
             'log.writer' => $logWriter
         ));
 
-        $app->get('/foo', function () {
-            $_SESSION['test'] = $this->getTooLongValue();
+        $tooLongValue = $this->getTooLongValue();
+
+        $app->get('/foo', function () use ($tooLongValue) {
+            $_SESSION['test'] = $tooLongValue;
             echo "Success";
         });
 
