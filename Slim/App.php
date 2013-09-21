@@ -147,7 +147,7 @@ class App
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
-            return \Slim\Environment::getInstance();
+            return new \Slim\Environment();
         });
 
         // Default request

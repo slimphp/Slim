@@ -100,33 +100,13 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Environment implements \ArrayAccess, \IteratorAggregate
+class Environment extends \Slim\Container
 {
     /**
-     * The environmental variables
-     * @var array
+     * The raw HTTP request body, readable only once from `php://input`
+     * @var string
      */
-    protected $properties;
-
-    /**
-     * A singleton reference to the \Slim\Environment instance
-     * @var \Slim\Environment
-     */
-    protected static $environment;
-
-    /**
-     * Get instance
-     * @param  bool               $refresh  Refresh environmental variables?
-     * @return \Slim\Environment
-     */
-    public static function getInstance($refresh = false)
-    {
-        if (is_null(static::$environment) || $refresh) {
-            static::$environment = new static();
-        }
-
-        return static::$environment;
-    }
+    protected static $requestBody;
 
     /**
      * Mock environment
@@ -138,45 +118,40 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      * @param  array                $userSettings
      * @return \Slim\Environment
      */
-    public static function mock($userSettings = array())
+    public static function mock(array $userSettings = array())
     {
-        $defaults = array(
-            'SERVER_PROTOCOL' => 'HTTP/1.1',
-            'REQUEST_METHOD'  => 'GET',
-            'SCRIPT_NAME'     => '',
-            'PATH_INFO'       => '',
-            'QUERY_STRING'    => '',
-            'SERVER_NAME'     => 'localhost',
-            'SERVER_PORT'     => 80,
+        return new static(array_merge(array(
+            'SERVER_PROTOCOL'      => 'HTTP/1.1',
+            'REQUEST_METHOD'       => 'GET',
+            'SCRIPT_NAME'          => '',
+            'PATH_INFO'            => '',
+            'QUERY_STRING'         => '',
+            'SERVER_NAME'          => 'localhost',
+            'SERVER_PORT'          => 80,
             'HTTP_ACCEPT'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
             'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
             'HTTP_USER_AGENT'      => 'Slim Framework',
-            'REMOTE_ADDR'     => '127.0.0.1',
-            'slim.url_scheme' => 'http',
-            'slim.input'      => ''
-        );
-        static::$environment = new self(array_merge($defaults, $userSettings));
-
-        return static::$environment;
+            'REMOTE_ADDR'          => '127.0.0.1',
+            'slim.url_scheme'      => 'http',
+            'slim.input'           => ''
+        ), $userSettings));
     }
 
     /**
-     * Constructor (private)
+     * Constructor
      * @param array $settings Environmental variables. Leave blank to use $_SERVER superglobal
      */
-    private function __construct(array $settings = null)
+    public function __construct(array $settings = null)
     {
-        if ($settings) {
-            $this->properties = $settings;
-        } else {
-            $env = array();
+        if (is_null($settings)) {
+            $settings = array();
 
             // Request protocol (e.g. "HTTP/1.1")
-            $env['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'];
+            $settings['SERVER_PROTOCOL'] = $_SERVER['SERVER_PROTOCOL'];
 
             // Request method
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
+            $settings['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
             // Root URI (physical path) and resource URI (virtual path)
             $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/physical/index.php"
@@ -184,94 +159,45 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
             if (strpos($requestUri, $scriptName) === false) {
                 // With rewriting
-                $env['SCRIPT_NAME'] = str_replace('/' . basename($scriptName), '', $scriptName);
+                $settings['SCRIPT_NAME'] = str_replace('/' . basename($scriptName), '', $scriptName);
             } else {
                 // Without rewriting
-                $env['SCRIPT_NAME'] = $scriptName;
+                $settings['SCRIPT_NAME'] = $scriptName;
             }
-            $env['PATH_INFO'] = '/' . ltrim(str_replace(array($env['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
+            $settings['PATH_INFO'] = '/' . ltrim(str_replace(array($settings['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
 
             // Query string (without leading "?")
-            $env['QUERY_STRING'] = $queryString;
+            $settings['QUERY_STRING'] = $queryString;
 
             // Server name
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+            $settings['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
             // Server port
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+            $settings['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
             // Request headers (with "HTTP_" prefix)
             $headers = \Slim\Http\Headers::extract($_SERVER);
             foreach ($headers as $key => $value) {
-                $env[$key] = $value;
+                $settings[$key] = $value;
             }
 
             // IP address
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+            $settings['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 
             // Request scheme ("http" or "https")
-            $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
+            $settings['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
             // Request body (readable one time only; not available for multipart/form-data requests)
-            $rawInput = file_get_contents('php://input');
-            if ($rawInput === false) {
-                $rawInput = '';
+            if (is_null(static::$requestBody)) {
+                $body = file_get_contents('php://input');
+                if ($body === false) {
+                    $body = '';
+                }
+                static::$requestBody = $body;
             }
-            $env['slim.input'] = $rawInput;
-
-            $this->properties = $env;
+            $settings['slim.input'] = static::$requestBody;
         }
-    }
 
-    /**
-     * Array Access: Offset Exists
-     * @param  mixed $offset
-     * @return bool
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->properties[$offset]);
-    }
-
-    /**
-     * Array Access: Offset Get
-     * @param  mixed $offset
-     * @return mixed
-     */
-    public function offsetGet($offset)
-    {
-        if (isset($this->properties[$offset])) {
-            return $this->properties[$offset];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Array Access: Offset Set
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        $this->properties[$offset] = $value;
-    }
-
-    /**
-     * Array Access: Offset Unset
-     * @param mixed $offset
-     */
-    public function offsetUnset($offset)
-    {
-        unset($this->properties[$offset]);
-    }
-
-    /**
-     * IteratorAggregate
-     * @return \ArrayIterator
-     */
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->properties);
+        parent::__construct($settings);
     }
 }

@@ -63,6 +63,12 @@ class CustomMiddleware extends \Slim\Middleware
 
 class SlimTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * Default mock environment
+     * @var \Slim\Environment
+     */
+    protected $env;
+
     public function setUp()
     {
         //Remove environment mode if set
@@ -72,7 +78,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $_SESSION = array();
 
         //Prepare default environment variables
-        \Slim\Environment::mock(array(
+        $this->env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'QUERY_STRING' => 'one=foo&two=bar',
@@ -98,6 +104,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testDefaultInstanceProperties()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertInstanceOf('\Slim\Http\Request', $s->request);
         $this->assertInstanceOf('\Slim\Http\Response', $s->response);
         $this->assertInstanceOf('\Slim\Router', $s->router);
@@ -128,6 +135,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetSettingThatExists()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('development', $s->config('mode'));
     }
 
@@ -137,6 +145,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetSettingThatDoesNotExist()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertNull($s->config('foo'));
     }
 
@@ -146,6 +155,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testSetSetting()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('development', $s->config('mode'));
         $s->config('mode', 'staging');
         $this->assertEquals('staging', $s->config('mode'));
@@ -157,6 +167,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testBatchSetSettings()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('development', $s->config('mode'));
         $this->assertNull($s->config('view'));
         $s->config(array(
@@ -177,6 +188,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetDefaultMode()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('development', $s->mode);
     }
 
@@ -187,6 +199,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $_ENV['SLIM_MODE'] = 'production';
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('production', $s->mode);
     }
 
@@ -198,8 +211,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'mode' => 'test'
         ));
+        $s->environment = $this->env;
         $this->assertEquals('test', $s->mode);
-        }
+    }
 
     /**
      * Test mode configuration
@@ -214,6 +228,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $flag = 'production';
         };
         $s = new \Slim\App(array('mode' => 'test'));
+        $s->environment = $this->env;
         $s->configureMode('test', $configureTest);
         $s->configureMode('production', $configureProduction);
         $this->assertEquals('test', $flag);
@@ -229,6 +244,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $flag = 'test';
         };
         $s = new \Slim\App(array('mode' => 'production'));
+        $s->environment = $this->env;
         $s->configureMode('test', $configureTest);
         $this->assertEquals(0, $flag);
     }
@@ -240,6 +256,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $flag = 0;
         $s = new \Slim\App(array('mode' => 'production'));
+        $s->environment = $this->env;
         $s->configureMode('production', 'foo');
         $this->assertEquals(0, $flag);
     }
@@ -251,6 +268,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         putenv('SLIM_MODE=production');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals('production', $s->mode);
     }
 
@@ -264,6 +282,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGenericRoute()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $callable = function () { echo "foo"; };
         $route = $s->map('/bar', $callable);
         $this->assertInstanceOf('\Slim\Route', $route);
@@ -276,6 +295,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetRouteIsAlsoMappedAsHead()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $route = $s->get('/foo', function () {});
         $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
         $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
@@ -287,6 +307,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetRoute()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -302,12 +323,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testPostRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -323,12 +345,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testPutRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -344,12 +367,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testPatchRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PATCH',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -365,12 +389,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'DELETE',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -386,12 +411,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testOptionsRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'OPTIONS',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -407,12 +433,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
     */
     public function testRouteGroups()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar/baz', //<-- Virtual'
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $mw1 = function () { echo "foo"; };
         $mw2 = function () { echo "bar"; };
         $callable = function () { echo "xyz"; };
@@ -433,12 +460,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
         foreach ($methods as $i => $method) {
-            \Slim\Environment::mock(array(
+            $env = \Slim\Environment::mock(array(
                 'REQUEST_METHOD' => $method,
                 'SCRIPT_NAME' => '/foo', //<-- Physical
                 'PATH_INFO' => '/bar', //<-- Virtual
             ));
             $s = new \Slim\App();
+            $s->environment = $env;
             $route = $s->any('/bar', $mw1, $mw2, $callable);
             $s->call();
             $this->assertEquals('foobarxyz', $s->response->getBody());
@@ -452,11 +480,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRouteWithoutSlashAndUrlWithOne()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar/', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () { echo "xyz"; });
         $s->call();
         $this->assertEquals(404, $s->response->getStatus());
@@ -467,11 +496,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testRouteWithUrlEncodedCharacters()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar/jo%20hn/smi%20th', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
         $s->call();
         $this->assertEquals('jo hnsmi th', $s->response->getBody());
@@ -485,6 +515,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString(file_get_contents("composer.json"));
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function() use ($s) {
             $s->sendFile("composer.json");
         });
@@ -495,6 +526,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString("FooBar\n");
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function() use ($s) {
             $s->sendProcess("echo 'FooBar'");
         });
@@ -513,6 +545,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'view' => new CustomView()
         ));
+        $s->environment = $this->env;
         $this->assertInstanceOf('CustomView', $s->view);
     }
 
@@ -528,6 +561,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'view' => new \Slim\View(dirname(__FILE__) . '/templates')
         ));
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'));
         });
@@ -545,6 +579,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'view' => new \Slim\View(dirname(__FILE__) . '/templates')
         ));
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->render('test.php', array('foo' => 'bar'), 500);
         });
@@ -563,13 +598,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testLastModifiedMatch()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->lastModified(1286139652);
         });
@@ -582,12 +618,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testLastModifiedDoesNotMatch()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->lastModified(1286139250);
         });
@@ -598,11 +635,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testLastModifiedOnlyAcceptsIntegers()
     {
         $this->setExpectedException('\InvalidArgumentException');
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->lastModified('Test');
         });
@@ -614,11 +652,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testLastModifiedHeaderFormat()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->lastModified(1286139652);
         });
@@ -633,12 +672,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testEtagMatches()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'HTTP_IF_NONE_MATCH' => '"abc123"',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->etag('abc123');
         });
@@ -651,12 +691,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testEtagDoesNotMatch()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'IF_NONE_MATCH' => '"abc1234"',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->etag('abc123');
         });
@@ -670,12 +711,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testETagWithInvalidType()
     {
         $this->setExpectedException('\InvalidArgumentException');
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'IF_NONE_MATCH' => '"abc1234"',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->etag('123','foo');
         });
@@ -687,12 +729,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testExpiresAsString()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $expectedDate = gmdate('D, d M Y H:i:s T', strtotime('5 days'));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->expires('5 days');
         });
@@ -707,13 +750,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testExpiresAsInteger()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
         $expectedDate = gmdate('D, d M Y H:i:s T', $fiveDaysFromNow);
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s, $fiveDaysFromNow) {
             $s->expires($fiveDaysFromNow);
         });
@@ -737,11 +781,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testSetCookie()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->setCookie('foo', 'bar', '2 days');
             $s->setCookie('foo1', 'bar1', '2 days');
@@ -763,7 +808,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testGetCookie()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo', //<-- Physical
@@ -777,6 +822,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'slim.errors' => @fopen('php://stderr', 'w')
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $this->assertEquals('bar', $s->getCookie('foo'));
         $this->assertEquals('bar2', $s->getCookie('foo2'));
     }
@@ -786,11 +832,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testGetCookieThatDoesNotExist()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $this->assertNull($s->getCookie('foo'));
     }
 
@@ -803,12 +850,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testDeleteCookie()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
             'COOKIE' => 'foo=bar; foo2=bar2',
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/bar', function () use ($s) {
             $s->setCookie('foo', 'bar');
             $s->deleteCookie('foo');
@@ -831,6 +879,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $_SERVER['DOCUMENT_ROOT'] = dirname(__FILE__); //<-- No trailing slash
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/foo/', $s->root()); //<-- Appends physical app path with trailing slash
     }
 
@@ -841,6 +890,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('\Slim\Exception\Stop');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->stop();
     }
 
@@ -850,6 +900,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testStopWithSubsequentOutput()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo"; //<-- Should be in response body!
             $s->stop();
@@ -867,6 +918,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('1.2.Foo.3'); //<-- PHP unit uses OB here
         echo "1.";
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo";
             $s->stop();
@@ -883,6 +935,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $level_start = ob_get_level();
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->stop();
         });
@@ -896,6 +949,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testHalt()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo!"; //<-- Should not be in response body!
             $s->halt(500, 'Something broke');
@@ -914,6 +968,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('1.2.Something broke.3'); //<-- PHP unit uses OB here
         echo "1.";
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo!"; //<-- Should not be in response body!
             $s->halt(500, 'Something broke');
@@ -930,6 +985,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $level_start = ob_get_level();
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->halt(500, '');
         });
@@ -944,6 +1000,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         ob_start();
         $s = new \Slim\App();
+        $s->environment = $this->env;
         echo "Foo";
         try {
             $s->pass();
@@ -958,11 +1015,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testPassWithSubsequentRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/name/Frank', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/name/Frank', function () use ($s) {
             echo "Fail"; //<-- Should not be in response body!
             $s->pass();
@@ -979,11 +1037,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testPassWithoutSubsequentRoute()
     {
-        \Slim\Environment::mock(array(
+        $env = \Slim\Environment::mock(array(
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/name/Frank', //<-- Virtual
         ));
         $s = new \Slim\App();
+        $s->environment = $env;
         $s->get('/name/Frank', function () use ($s) {
             echo "Fail"; //<-- Should not be in response body!
             $s->pass();
@@ -998,6 +1057,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testContentType()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->contentType('application/json');
         });
@@ -1012,6 +1072,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testStatus()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->status(403);
         });
@@ -1025,6 +1086,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testSlimUrlFor()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/hello/:name', function () {})->name('hello');
         $this->assertEquals('/foo/hello/Josh', $s->urlFor('hello', array('name' => 'Josh'))); //<-- Prepends physical path!
     }
@@ -1035,6 +1097,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testRedirect()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo"; //<-- Should not be in response body!
             $s->redirect('/somewhere/else', 303);
@@ -1057,6 +1120,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('Foo');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             echo "Foo";
         });
@@ -1070,6 +1134,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
       $this->expectOutputString('1.2.Foo.3');  //<-- PHP unit uses OB here
       $s = new \Slim\App();
+      $s->environment = $this->env;
       echo "1.";
       $s->get('/bar', function () use ($s) {
           echo "Foo";
@@ -1086,6 +1151,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
       $level_start = ob_get_level();
       $s = new \Slim\App();
+      $s->environment = $this->env;
       $s->get('/bar', function () use ($s) {});
       $s->run();
       $this->assertEquals($level_start, ob_get_level());
@@ -1106,6 +1172,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('FooHello');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->add(new CustomMiddleware()); //<-- See top of this file for class definition
         $s->get('/bar', function () {
             echo 'Foo';
@@ -1124,6 +1191,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testNotFound()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->notFound(function () {
             echo "Not Found";
         });
@@ -1150,6 +1218,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testSlimError()
     {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $s->get('/bar', function () use ($s) {
             $s->error();
         });
@@ -1174,6 +1243,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'debug' => false
         ));
+        $s->environment = $this->env;
         $s->error(function ( $e ) {
             if ($e instanceof \ErrorException) {
                 echo $e->getMessage();
@@ -1207,7 +1277,9 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s1 = new \Slim\App(array(
             'debug' => false
         ));
+        $s1->environment = $this->env;
         $s2 = new \Slim\App();
+        $s2->environment = $this->env;
         $s1->get('/bar', function () use ($s1) {
             $s1->error();
         });
@@ -1229,6 +1301,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\App(array(
             'debug' => false
         ));
+        $s->environment = $this->env;
         $s->error(function(\Exception $e) use ($s) {
             $r = $s->response;
             $r->setStatus(503);
@@ -1274,6 +1347,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandler() {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $errCallback = function () { echo "404"; };
         $s->error($errCallback);
         $this->assertSame($errCallback, PHPUnit_Framework_Assert::readAttribute($s, 'error'));
@@ -1285,6 +1359,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testErrorHandlerIfNotCallable() {
         $this->setExpectedException('\Slim\Exception\Stop');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $errCallback = 'foo';
         $s->error($errCallback);
     }
@@ -1294,6 +1369,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testNotFoundHandler() {
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $notFoundCallback = function () { echo "404"; };
         $s->notFound($notFoundCallback);
         $this->assertSame($notFoundCallback, PHPUnit_Framework_Assert::readAttribute($s, 'notFound'));
@@ -1305,6 +1381,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testNotFoundHandlerIfNotCallable() {
         $this->setExpectedException('\Slim\Exception\Stop');
         $s = new \Slim\App();
+        $s->environment = $this->env;
         $notFoundCallback = 'foo';
         $s->notFound($notFoundCallback);
     }
@@ -1328,6 +1405,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('barfoo');
         $app = new \Slim\App();
+        $app->environment = $this->env;
         $callable1 = function () { echo "foo"; };
         $callable2 = function () { echo "bar"; };
         $app->hook('test.hook.one', $callable1); //default is 10
@@ -1352,6 +1430,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testHookInvalidCallable()
     {
         $app = new \Slim\App();
+        $app->environment = $this->env;
         $callable = 'test'; //NOT callable
         $app->hook('test.hook.one', $callable);
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
@@ -1371,6 +1450,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testHookInvocationIfNotExists()
     {
         $app = new \Slim\App();
+        $app->environment = $this->env;
         $app->applyHook('test.hook.one');
         $this->assertEquals(array(array()), $app->getHooks('test.hook.one'));
     }
@@ -1389,6 +1469,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testHookClear()
     {
         $app = new \Slim\App();
+        $app->environment = $this->env;
         $app->hook('test.hook.one', function () {});
         $app->hook('test.hook.two', function () {});
         $app->clearHooks('test.hook.two');
