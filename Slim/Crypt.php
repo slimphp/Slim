@@ -215,15 +215,6 @@ class Crypt
     }
 
     /**
-     * Get key
-     * @return string
-     */
-    public function getKey()
-    {
-        return $this->key;
-    }
-
-    /**
      * Validate encryption key based on valid key sizes for selected cipher and cipher mode
      * @param  string   $key    Encryption key
      * @param  resource $module Encryption module

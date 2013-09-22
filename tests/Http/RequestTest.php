@@ -366,9 +366,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_COOKIE' => 'foo=bar; abc=123'
         ));
         $req = new \Slim\Http\Request($env);
-        $this->assertEquals(2, count($req->cookies()));
-        $this->assertEquals('bar', $req->cookies('foo'));
-        $this->assertNull($req->cookies('xyz'));
+        $this->assertEquals(2, count($req->cookies));
+        $this->assertEquals('bar', $req->cookies->get('foo'));
+        $this->assertNull($req->cookies->get('xyz'));
     }
 
     /**
@@ -434,17 +434,17 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_ACCEPT_ENCODING' => 'gzip'
         ));
         $req = new \Slim\Http\Request($env);
-        $headers = $req->headers();
+        $headers = $req->headers;
         $this->assertInstanceOf('\Slim\Http\Headers', $headers);
-        $this->assertEquals('gzip', $req->headers('HTTP_ACCEPT_ENCODING'));
-        $this->assertEquals('gzip', $req->headers('HTTP-ACCEPT-ENCODING'));
-        $this->assertEquals('gzip', $req->headers('http_accept_encoding'));
-        $this->assertEquals('gzip', $req->headers('http-accept-encoding'));
-        $this->assertEquals('gzip', $req->headers('ACCEPT_ENCODING'));
-        $this->assertEquals('gzip', $req->headers('ACCEPT-ENCODING'));
-        $this->assertEquals('gzip', $req->headers('accept_encoding'));
-        $this->assertEquals('gzip', $req->headers('accept-encoding'));
-        $this->assertNull($req->headers('foo'));
+        $this->assertEquals('gzip', $req->headers->get('HTTP_ACCEPT_ENCODING'));
+        $this->assertEquals('gzip', $req->headers->get('HTTP-ACCEPT-ENCODING'));
+        $this->assertEquals('gzip', $req->headers->get('http_accept_encoding'));
+        $this->assertEquals('gzip', $req->headers->get('http-accept-encoding'));
+        $this->assertEquals('gzip', $req->headers->get('ACCEPT_ENCODING'));
+        $this->assertEquals('gzip', $req->headers->get('ACCEPT-ENCODING'));
+        $this->assertEquals('gzip', $req->headers->get('accept_encoding'));
+        $this->assertEquals('gzip', $req->headers->get('accept-encoding'));
+        $this->assertNull($req->headers->get('foo'));
     }
 
     /**
@@ -458,9 +458,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         //fwrite(fopen('php://stdout', 'w'), print_r($env, true));
         $req = new \Slim\Http\Request($env);
-        $this->assertEquals('PUT', $req->headers('X_HTTP_METHOD_OVERRIDE'));
-        $this->assertNull($req->headers('X_METHOD_OVERRIDE')); //<-- Ensures `HTTP_` is not removed if not prefix
-        $this->assertEquals('application/json', $req->headers('HTTP_CONTENT_TYPE')); //<-- Ensures `HTTP_` is removed if prefix
+        $this->assertEquals('PUT', $req->headers->get('X_HTTP_METHOD_OVERRIDE'));
+        $this->assertNull($req->headers->get('X_METHOD_OVERRIDE')); //<-- Ensures `HTTP_` is not removed if not prefix
+        $this->assertEquals('application/json', $req->headers->get('HTTP_CONTENT_TYPE')); //<-- Ensures `HTTP_` is removed if prefix
     }
 
     /**

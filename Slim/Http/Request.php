@@ -357,24 +357,6 @@ class Request
     }
 
     /**
-     * Fetch COOKIE data
-     *
-     * This method returns a key-value array of Cookie data sent in the HTTP request, or
-     * the value of a array key if requested; if the array key does not exist, NULL is returned.
-     *
-     * @param  string            $key
-     * @return array|string|null
-     */
-    public function cookies($key = null)
-    {
-        if ($key) {
-            return $this->cookies->get($key);
-        }
-
-        return $this->cookies;
-    }
-
-    /**
      * Does the Request body contain parsed form data?
      * @return bool
      */
@@ -383,25 +365,6 @@ class Request
         $method = isset($this->env['slim.method_override.original_method']) ? $this->env['slim.method_override.original_method'] : $this->getMethod();
 
         return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
-    }
-
-    /**
-     * Get Headers
-     *
-     * This method returns a key-value array of headers sent in the HTTP request, or
-     * the value of a hash key if requested; if the array key does not exist, NULL is returned.
-     *
-     * @param  string $key
-     * @param  mixed  $default The default value returned if the requested header is not available
-     * @return mixed
-     */
-    public function headers($key = null, $default = null)
-    {
-        if ($key) {
-            return $this->headers->get($key, $default);
-        }
-
-        return $this->headers;
     }
 
     /**
