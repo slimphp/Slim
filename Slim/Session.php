@@ -164,7 +164,7 @@ class Session extends \Slim\Container
      * Set session options
      * @param array $options
      */
-    public function setOptions(array $options)
+    protected function setOptions(array $options)
     {
         $theOptions = array_flip(array(
             'cache_limiter',
