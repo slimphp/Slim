@@ -533,6 +533,7 @@ class Request
 
     /**
      * Get query string
+     * @return string
      */
     public function getQueryString()
     {
@@ -541,6 +542,7 @@ class Request
 
     /**
      * Get protocol
+     * @return string
      */
     public function getProtocol()
     {
