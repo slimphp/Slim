@@ -500,15 +500,6 @@ class Request
     }
 
     /**
-     * Get Path (physical path + virtual path)
-     * @return string
-     */
-    public function getPath()
-    {
-        return $this->getScriptName() . $this->getPathInfo();
-    }
-
-    /**
      * Get Path Info (virtual path)
      * @return string
      */
@@ -529,6 +520,15 @@ class Request
         }
 
         return $url;
+    }
+
+    /**
+     * Get Path (physical path + virtual path)
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->getScriptName() . $this->getPathInfo();
     }
 
     /**
