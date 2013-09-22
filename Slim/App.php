@@ -372,6 +372,8 @@ class App
      *
      * The last argument is required and must always be the callable object
      * to be invoked when the route matches an HTTP request.
+     * From Slim 3.0.0, controller classes and methods can be used here, and any
+     * parameters from a pattern will be passed through.
      *
      * You may also provide an unlimited number of in-between arguments;
      * each interior argument must be callable and will be invoked in the
@@ -388,8 +390,33 @@ class App
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
+
+        // If the callback function or string isn't callable, add a route slash
+        if (!is_callable($callable)) {
+            $namespace = (isset($this->settings['controller.namespace'])
+                    ? $this->settings['controller.namespace'].'\\'
+                    : '\\');
+            $callable = $namespace . trim($callable, '\\');
+
+            // Check for a class method and create as a closure, passing
+            // any arguments through
+            if (preg_match('/^([a-zA-Z0-9\\\\]+)::([a-zA-Z0-9]+)$/', $callable, $match)) {
+                $class = $match[1];
+                $method = $match[2];
+                $app = &$this;
+
+                $callable = function () use ($app) {
+                    $arguments = func_get_args();
+                    $instance = new $class($app);
+
+                    return call_user_func_array(array($instance, $method), $args);
+                }
+            }
+        }
+
         $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
+
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
