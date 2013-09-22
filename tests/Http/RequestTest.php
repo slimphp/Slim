@@ -742,10 +742,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $this->assertEquals('/foo/index.php', $req->getScriptName());
-        $this->assertEquals('/foo/index.php', $req->getRootUri());
         $this->assertEquals('/foo/index.php/bar/xyz', $req->getPath());
         $this->assertEquals('/bar/xyz', $req->getPathInfo());
-        $this->assertEquals('/bar/xyz', $req->getResourceUri());
     }
 
     /**
@@ -759,10 +757,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $this->assertEquals('/foo', $req->getScriptName());
-        $this->assertEquals('/foo', $req->getRootUri());
         $this->assertEquals('/foo/bar/xyz', $req->getPath());
         $this->assertEquals('/bar/xyz', $req->getPathInfo());
-        $this->assertEquals('/bar/xyz', $req->getResourceUri());
     }
 
     /**
@@ -776,10 +772,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $this->assertEquals('/index.php', $req->getScriptName());
-        $this->assertEquals('/index.php', $req->getRootUri());
         $this->assertEquals('/index.php/bar/xyz', $req->getPath());
         $this->assertEquals('/bar/xyz', $req->getPathInfo());
-        $this->assertEquals('/bar/xyz', $req->getResourceUri());
     }
 
     /**
@@ -793,10 +787,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $this->assertEquals('', $req->getScriptName());
-        $this->assertEquals('', $req->getRootUri());
         $this->assertEquals('/bar/xyz', $req->getPath());
         $this->assertEquals('/bar/xyz', $req->getPathInfo());
-        $this->assertEquals('/bar/xyz', $req->getResourceUri());
     }
 
     /**

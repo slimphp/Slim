@@ -500,15 +500,6 @@ class Request
     }
 
     /**
-     * LEGACY: Get Root URI (alias for Slim_Http_Request::getScriptName)
-     * @return string
-     */
-    public function getRootUri()
-    {
-        return $this->getScriptName();
-    }
-
-    /**
      * Get Path (physical path + virtual path)
      * @return string
      */
@@ -524,15 +515,6 @@ class Request
     public function getPathInfo()
     {
         return $this->env['PATH_INFO'];
-    }
-
-    /**
-     * LEGACY: Get Resource URI (alias for Slim_Http_Request::getPathInfo)
-     * @return string
-     */
-    public function getResourceUri()
-    {
-        return $this->getPathInfo();
     }
 
     /**

@@ -813,7 +813,7 @@ class App
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getRootUri(), '/') . '/';
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getScriptName(), '/') . '/';
     }
 
     /**
@@ -901,7 +901,7 @@ class App
      */
     public function urlFor($name, $params = array())
     {
-        return $this->request->getRootUri() . $this->router->urlFor($name, $params);
+        return $this->request->getScriptName() . $this->router->urlFor($name, $params);
     }
 
     /**
@@ -1152,7 +1152,7 @@ class App
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
+            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getPathInfo());
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -1282,7 +1282,7 @@ class App
      */
     protected function defaultNotFound()
     {
-        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getRootUri() . '/">Visit the Home Page</a>');
+        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getScriptName() . '/">Visit the Home Page</a>');
     }
 
     /**
