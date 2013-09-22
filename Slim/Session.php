@@ -91,26 +91,10 @@ class Session extends \Slim\Container
      */
     public function __construct(array $options = array(), $handler = null)
     {
+        // Apply session settings
         $this->setOptions($options);
-        $this->setHandler($handler);
-    }
 
-    /**
-     * Get the session save handler
-     * @return mixed
-     */
-    public function getHandler()
-    {
-        return $this->handler;
-    }
-
-    /**
-     * Set the session save handler
-     * @param  mixed $handler
-     * @return bool
-     */
-    public function setHandler($handler)
-    {
+        // Set custom session handler
         if ($handler !== null) {
             $this->handler = $handler;
 
@@ -174,24 +158,6 @@ class Session extends \Slim\Container
     public function regenerate($destroy = false)
     {
         return session_regenerate_id($destroy);
-    }
-
-    /**
-     * Is the session started?
-     * @return bool
-     */
-    public function isStarted()
-    {
-        return $this->started;
-    }
-
-    /**
-     * Is the session finished?
-     * @return bool
-     */
-    public function isFinished()
-    {
-        return $this->finished;
     }
 
     /**
