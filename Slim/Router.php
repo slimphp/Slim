@@ -212,8 +212,8 @@ class Router
         }
         $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
-        //Remove remnants of unpopulated, trailing optional pattern segments
-        return preg_replace('#\(/?:.+\)|\(|\)#', '', $pattern);
+        //Remove remnants of unpopulated, trailing optional pattern segments, escaped special characters
+        return preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
     }
 
     /**
