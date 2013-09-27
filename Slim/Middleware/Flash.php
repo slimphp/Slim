@@ -45,7 +45,7 @@ namespace Slim\Middleware;
   * @author     Josh Lockhart
   * @since      1.6.0
   */
-class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
+class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var array
@@ -198,4 +198,15 @@ class Flash extends \Slim\Middleware implements \ArrayAccess, \IteratorAggregate
 
         return new \ArrayIterator($messages);
     }
+
+    /**
+     * Countable: Count
+     */
+    public function count()
+    {
+        return count($this->getMessages());
+    }
+
+
+
 }
