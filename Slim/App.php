@@ -391,26 +391,16 @@ class App
         $pattern = array_shift($args);
         $callable = array_pop($args);
 
-        // If the callback function or string isn't callable, add a route slash
-        if (!is_callable($callable)) {
-            $namespace = (isset($this->settings['controller.namespace'])
-                    ? $this->settings['controller.namespace'].'\\'
-                    : '\\');
-            $callable = $namespace . trim($callable, '\\');
+        preg_match('/^([a-zA-Z0-9\\\\]+)::([a-zA-Z0-9]+)$/', $callable, $matches);
+        @list($string, $class, $method) = $matches;
 
-            // Check for a class method and create as a closure, passing
-            // any arguments through
-            if (preg_match('/^([a-zA-Z0-9\\\\]+)::([a-zA-Z0-9]+)$/', $callable, $match)) {
-                $class = $match[1];
-                $method = $match[2];
-                $app = &$this;
+        if (!is_null($method)) {
+            $app = &$this;
+            $callable = function () use ($app) {
+                $arguments = func_get_args();
+                $instance = new $class($app);
 
-                $callable = function () use ($app) {
-                    $arguments = func_get_args();
-                    $instance = new $class($app);
-
-                    return call_user_func_array(array($instance, $method), $args);
-                }
+                return call_user_func_array(array($instance, $method), $arguments);
             }
         }
 
