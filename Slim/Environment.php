@@ -141,15 +141,18 @@ class Environment implements \ArrayAccess, \IteratorAggregate
              * The PATH_INFO will be an absolute path with a leading slash; this will be
              * used for application routing.
              */
-            if (strpos($_SERVER['REQUEST_URI'], $_SERVER['SCRIPT_NAME']) === 0) {
+            if (strpos(urldecode($_SERVER['REQUEST_URI']), $_SERVER['SCRIPT_NAME']) === 0) {
                 $env['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME']; //Without URL rewrite
             } else {
                 $env['SCRIPT_NAME'] = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])); //With URL rewrite
             }
-            $env['PATH_INFO'] = substr_replace($_SERVER['REQUEST_URI'], '', 0, strlen($env['SCRIPT_NAME']));
+
+            $env['PATH_INFO'] = substr_replace(urldecode($_SERVER['REQUEST_URI']), '', 0, strlen($env['SCRIPT_NAME']));
+
             if (strpos($env['PATH_INFO'], '?') !== false) {
                 $env['PATH_INFO'] = substr_replace($env['PATH_INFO'], '', strpos($env['PATH_INFO'], '?')); //query string is not removed automatically
             }
+
             $env['SCRIPT_NAME'] = rtrim($env['SCRIPT_NAME'], '/');
             $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/');
 
