@@ -115,6 +115,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         417 => '417 Expectation Failed',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
+        424 => '424 Failed Dependency',
         //Server Error 5xx
         500 => '500 Internal Server Error',
         501 => '501 Not Implemented',
