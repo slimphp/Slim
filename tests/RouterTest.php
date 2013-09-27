@@ -222,14 +222,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlFor()
     {
         $router = new \Slim\Router();
+
         $route1 = new \Slim\Route('/hello/:first/:last', function () {});
-		$route1 = $route1->via('GET')->name('hello');
+        $route1 = $route1->via('GET')->name('hello');
+
+        $route2 = new \Slim\Route('/path/(:foo\.:bar)', function () {});
+        $route2 = $route2->via('GET')->name('regexRoute');
 
         $routes = new \ReflectionProperty($router, 'namedRoutes');
         $routes->setAccessible(true);
-        $routes->setValue($router, array('hello' => $route1));
+        $routes->setValue($router, array(
+            'hello' => $route1,
+            'regexRoute' => $route2
+        ));
 
         $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', array('first' => 'Josh', 'last' => 'Lockhart')));
+        $this->assertEquals('/path/Hello.Josh', $router->urlFor('regexRoute', array('foo' => 'Hello', 'bar' => 'Josh')));
     }
 
     public function testUrlForIfNoSuchRoute()
