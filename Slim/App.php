@@ -372,8 +372,6 @@ class App
      *
      * The last argument is required and must always be the callable object
      * to be invoked when the route matches an HTTP request.
-     * From Slim 3.0.0, controller classes and methods can be used here, and any
-     * parameters from a pattern will be passed through.
      *
      * You may also provide an unlimited number of in-between arguments;
      * each interior argument must be callable and will be invoked in the
