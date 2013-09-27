@@ -480,7 +480,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! IteratorAggreate interface will be removed from \Slim\Http\Response.
+     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Slim\Http\Response.
      * Iterate `headers` or `cookies` properties directly.
      *
      * Get Iterator

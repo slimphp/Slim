@@ -46,7 +46,7 @@ class SetTest extends PHPUnit_Framework_TestCase
     {
         $this->bag->set('foo', 'bar');
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
-		$bag =  $this->property->getValue($this->bag);
+        $bag =  $this->property->getValue($this->bag);
         $this->assertEquals('bar', $bag['foo']);
     }
 
@@ -70,7 +70,7 @@ class SetTest extends PHPUnit_Framework_TestCase
         ));
         $this->assertArrayHasKey('abc', $this->property->getValue($this->bag));
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
-		$bag = $this->property->getValue($this->bag);
+        $bag = $this->property->getValue($this->bag);
         $this->assertEquals('123', $bag['abc']);
         $this->assertEquals('bar', $bag['foo']);
     }
@@ -135,7 +135,7 @@ class SetTest extends PHPUnit_Framework_TestCase
         );
         $this->property->setValue($this->bag, $data);
         $this->bag['foo'] = 'changed';
-		$bag = $this->property->getValue($this->bag);
+        $bag = $this->property->getValue($this->bag);
         $this->assertEquals('changed', $bag['foo']);
     }
 
@@ -179,6 +179,53 @@ class SetTest extends PHPUnit_Framework_TestCase
         );
         $this->property->setValue($this->bag, $data);
         $this->assertInstanceOf('\ArrayIterator', $this->bag->getIterator());
+    }
+
+    public function testPropertyOverloadGet()
+    {
+        $data = array(
+            'abc' => '123',
+            'foo' => 'bar'
+        );
+        $this->property->setValue($this->bag, $data);
+
+        $this->assertEquals('123', $this->bag->abc);
+        $this->assertEquals('bar', $this->bag->foo);
+    }
+
+    public function testPropertyOverloadSet()
+    {
+        $this->bag->foo = 'bar';
+        $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
+        $this->assertEquals('bar', $this->bag->foo);
+    }
+
+    public function testPropertyOverloadingIsset()
+    {
+        $data = array(
+            'abc' => '123',
+            'foo' => 'bar'
+        );
+        $this->property->setValue($this->bag, $data);
+
+        $this->assertTrue(isset($this->bag->abc));
+        $this->assertTrue(isset($this->bag->foo));
+        $this->assertFalse(isset($this->bag->foobar));
+    }
+
+    public function testPropertyOverloadingUnset()
+    {
+        $data = array(
+            'abc' => '123',
+            'foo' => 'bar'
+        );
+        $this->property->setValue($this->bag, $data);
+
+        $this->assertTrue(isset($this->bag->abc));
+        unset($this->bag->abc);
+        $this->assertFalse(isset($this->bag->abc));
+        $this->assertArrayNotHasKey('abc', $this->property->getValue($this->bag));
+        $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
     }
 
     public function testProtect()
