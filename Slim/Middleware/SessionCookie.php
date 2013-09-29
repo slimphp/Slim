@@ -153,7 +153,7 @@ class SessionCookie extends \Slim\Middleware
                 $this->settings['httponly']
             );
         }
-        session_destroy();
+        // session_destroy();
     }
 
     /********************************************************************************

@@ -104,6 +104,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
      */
     public function testParsesXmlWithError()
     {
+	libxml_use_internal_errors(true);
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/xml',

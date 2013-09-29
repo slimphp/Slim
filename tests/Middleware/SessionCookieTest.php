@@ -34,10 +34,6 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        if ( session_id() !== '' ) {
-            session_unset();
-            session_destroy();
-        }
         $_SESSION = array();
     }
 
@@ -138,8 +134,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $logWriter->expects($this->once())
-            ->method('write')
-            ->with('Error unserializing session cookie value! unserialize(): Error at offset 0 of 96 bytes', \Slim\Log::ERROR);
+            ->method('write');
 
         $app = new \Slim\Slim(array(
             'log.writer' => $logWriter
