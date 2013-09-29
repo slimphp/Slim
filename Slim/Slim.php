@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.2
  * @package     Slim
  *
  * MIT LICENSE
@@ -49,7 +49,7 @@ class Slim
     /**
      * @const string
      */
-    const VERSION = '2.3.0';
+    const VERSION = '2.3.2';
 
     /**
      * @var \Slim\Helper\Set
@@ -230,12 +230,12 @@ class Slim
     {
         $this->container[$name] = $value;
     }
-    
+
     public function __isset($name)
     {
         return isset($this->container[$name]);
     }
-  
+
     public function __unset($name)
     {
         unset($this->container[$name]);
