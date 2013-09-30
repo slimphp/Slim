@@ -236,7 +236,9 @@ class Request
      */
     public function params($key = null)
     {
-        $union = array_merge($this->get(), $this->post());
+	$get = $this->get() ?: array();
+	$post = $this->post() ?: array();
+        $union = array_merge($get, $post);
         if ($key) {
             return isset($union[$key]) ? $union[$key] : null;
         }
@@ -298,7 +300,7 @@ class Request
         }
 
         // Parse and cache POST request body
-        if (!isset($this->body)) {
+        if (is_null($this->body)) {
             // Default body
             $this->body = $_POST;
 

@@ -153,8 +153,8 @@ class Environment extends \Slim\Container
             // Request method
             $settings['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
-            // Root URI (physical path) and resource URI (virtual path)
-            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/physical/index.php"
+	    // Root URI (physical path) and resource URI (virtual path)
+            $scriptName = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']); // <-- "/physical/index.php"
             $requestUri = $_SERVER['REQUEST_URI']; // <-- "/physical/index.php/virtual?abc=123" or "/physical/virtual?abc=123"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
             if (strpos($requestUri, $scriptName) === false) {
@@ -169,7 +169,6 @@ class Environment extends \Slim\Container
             // Query string (without leading "?")
             $settings['QUERY_STRING'] = $queryString;
 
-            // Server name
             $settings['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
             // Server port

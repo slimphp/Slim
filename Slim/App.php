@@ -1030,9 +1030,13 @@ class App
                 if ($contentType) {
                     $this->response->headers->set("Content-Type", $contentType);
                 } else {
-                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                    $type = $finfo->file($file);
-                    $this->response->headers->set("Content-Type", $type);
+		    if (extension_loaded('fileinfo')) {
+			    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+			    $type = $finfo->file($file);
+			    $this->response->headers->set("Content-Type", $type);
+		    } else {
+			$this->response->headers->set("Content-Type", "application/octet-stream");
+		    }
                 }
 
                 //Set Content-Length
