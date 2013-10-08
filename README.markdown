@@ -71,7 +71,7 @@ The nginx configuration file should contain this code (along with other settings
 
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
-### HipHop Virtual Machine for PHP
+#### HipHop Virtual Machine for PHP
 
 Your HipHop Virtual Machine configuration file should contain this code (along with other settings you may need).
 Be sure you change the `ServerRoot` setting to point to your Slim app's document root directory.
