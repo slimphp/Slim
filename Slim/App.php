@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -93,7 +93,7 @@ class App
     /**
      * @const string
      */
-    const VERSION = '2.3.0';
+    const VERSION = '2.3.3';
 
     /**
      * The dependency injection container
@@ -1224,18 +1224,19 @@ class App
                 }
             }
 
-            // Send body
-            if ($this->response->isStream()) {
-                // As stream
-                while (!feof($body)) {
-                    ob_start();
-                    echo fread($body, 1024);
-                    echo ob_get_clean();
-                    ob_flush();
+            //Send body, but only if it isn't a HEAD request
+            if (!$this->request->isHead()) {
+                if ($this->response->isStream()) {
+                    // As stream
+                    while (!feof($body)) {
+                        ob_start();
+                        echo fread($body, 1024);
+                        echo ob_get_clean();
+                        ob_flush();
+                    }
+                } else {
+                    echo $body;
                 }
-            } else {
-                // As text
-                echo $body;
             }
         }
     }
