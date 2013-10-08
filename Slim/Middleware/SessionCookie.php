@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.2
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -153,7 +153,7 @@ class SessionCookie extends \Slim\Middleware
                 $this->settings['httponly']
             );
         }
-        session_destroy();
+        // session_destroy();
     }
 
     /********************************************************************************
