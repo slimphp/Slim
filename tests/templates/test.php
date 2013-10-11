@@ -1,1 +1,1 @@
-test output <?php echo $foo; ?>
+test output <?php echo $foo; ?> <?php echo $abc; ?>

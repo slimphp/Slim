@@ -32,20 +32,23 @@
 
 class ViewTest extends PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        $this->view = new \Slim\View(dirname(__FILE__) . '/templates');
+        $this->property = new \ReflectionProperty($this->view, 'data');
+        $this->property->setAccessible(true);
+    }
+
     public function testDisplay()
     {
-        $this->expectOutputString('test output bar');
-
-        $view = new \Slim\View(dirname(__FILE__) . '/templates');
-        $view->set('foo', 'bar');
-        $view->display('test.php');
+        $this->expectOutputString('test output bar 123');
+        $this->property->setValue($this->view, array('foo' => 'bar'));
+        $this->view->display('test.php', array('abc' => '123'));
     }
 
     public function testDisplayTemplateThatDoesNotExist()
     {
         $this->setExpectedException('\RuntimeException');
-
-        $view = new \Slim\View(dirname(__FILE__) . '/templates');
-        $view->display('foo.php');
+        $this->view->display('foo.php');
     }
 }

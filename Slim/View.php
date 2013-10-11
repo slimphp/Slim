@@ -64,17 +64,19 @@ namespace Slim;
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
- * @see     \Slim\Container
  */
-class View extends \Slim\Container
+class View extends \Slim\Collection
 {
     /**
      * Constructor
-     * @param string $templateDirectory Path to template directory
+     * @param  string $templateDirectory Path to template directory
+     * @param  array  $items             Initialize set with these items
+     * @return void
      */
-    public function __construct($templateDirectory = null)
+    public function __construct($templateDirectory, array $items = array())
     {
         $this->templateDirectory = rtrim($templateDirectory, DIRECTORY_SEPARATOR);
+        parent::__construct($items);
     }
 
     /**
@@ -82,40 +84,57 @@ class View extends \Slim\Container
      *
      * This method echoes the rendered template to the current output buffer
      *
-     * @param  string   $template   Pathname of template file relative to templates directory
+     * @param  string $template Pathname of template file relative to templates directory
+     * @param  array  $items    Expose these array items to the rendered template
+     * @return void
      */
-    public function display($template)
+    public function display($template, array $data = array())
     {
-        echo $this->fetch($template);
+        echo $this->fetch($template, $data);
     }
 
     /**
-     * Return the content of a rendered template file
-     * @var    string   $template   Pathname of template file relative to templates directory
-     * @return string               The rendered template
+     * Fetch template
+     *
+     * This method returns the rendered template. This is useful if you need to capture
+     * a rendered template into a variable for futher processing.
+     *
+     * @var    string $template Pathname of template file relative to templates directory
+     * @param  array  $items    Expose these array items to the rendered template
+     * @return string           The rendered template
      */
-    public function fetch($template)
+    public function fetch($template, array $data = array())
     {
-        return $this->render($template);
+        return $this->render($template, $data);
     }
 
     /**
-     * Render a template file
-     * @var    string               $template       Pathname of template file relative to templates directory
-     * @return string                               The rendered template
-     * @throws \RuntimeException                    If resolved template pathname is not a valid file
+     * Render template
+     *
+     * This method will render the specified template file using the current application view.
+     * Although this method will work perfectly fine, it is recommended that you create your
+     * own custom view class that implements \Slim\ViewInterface instead of using this default
+     * view class. This default implementation is largely intended as an example.
+     *
+     * @var    string            $template Pathname of template file relative to templates directory
+     * @return string                      The rendered template
+     * @throws \RuntimeException           If resolved template pathname is not a valid file
      */
-    protected function render($template)
+    protected function render($template, array $data = array())
     {
+        // Resolve and verify template file
         $templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
         if (!is_file($templatePathname)) {
             throw new \RuntimeException("Cannot render template `$templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
         }
 
+        // Render template with view variables into a temporary output buffer
+        $this->replace($data);
         extract($this->all());
         ob_start();
         require $templatePathname;
 
+        // Return temporary output buffer content, destroy output buffer
         return ob_get_clean();
     }
 }
