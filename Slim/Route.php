@@ -122,8 +122,9 @@ class Route
 
     /**
      * Constructor
-     * @param string $pattern  The URL pattern
-     * @param mixed  $callable Anything that returns `true` for `is_callable()`
+     * @param  string $pattern  The URL pattern
+     * @param  mixed  $callable Anything that returns `true` for `is_callable()`
+     * @return void
      */
     public function __construct($pattern, $callable)
     {
@@ -134,7 +135,8 @@ class Route
 
     /**
      * Set default route conditions for all routes
-     * @param array $defaultConditions
+     * @param  array $defaultConditions
+     * @return void
      */
     public static function setDefaultConditions(array $defaultConditions)
     {
@@ -162,6 +164,7 @@ class Route
     /**
      * Set route pattern
      * @param  string $pattern
+     * @return void
      */
     public function setPattern($pattern)
     {
@@ -179,8 +182,9 @@ class Route
 
     /**
      * Set route callable
-     * @param  mixed                        $callable
-     * @throws \InvalidArgumentException    If argument is not callable
+     * @param  mixed                     $callable
+     * @return void
+     * @throws \InvalidArgumentException If argument is not callable
      */
     public function setCallable($callable)
     {
@@ -202,7 +206,8 @@ class Route
 
     /**
      * Set route conditions
-     * @param array $conditions
+     * @param  array $conditions
+     * @return void
      */
     public function setConditions(array $conditions)
     {
@@ -221,6 +226,7 @@ class Route
     /**
      * Set route name
      * @param string $name
+     * @return void
      */
     public function setName($name)
     {
@@ -238,7 +244,8 @@ class Route
 
     /**
      * Set route parameters
-     * @param array $params
+     * @param  array $params
+     * @return void
      */
     public function setParams(array $params)
     {
@@ -247,9 +254,9 @@ class Route
 
     /**
      * Get route parameter value
-     * @param  string                    $index     Name of URL parameter
+     * @param  string                    $index Name of URL parameter
      * @return string
-     * @throws \InvalidArgumentException            If route parameter does not exist at index
+     * @throws \InvalidArgumentException        If route parameter does not exist at index
      */
     public function getParam($index)
     {
@@ -264,6 +271,7 @@ class Route
      * Set route parameter value
      * @param  string                    $index     Name of URL parameter
      * @param  mixed                     $value     The new parameter value
+     * @return void
      * @throws \InvalidArgumentException            If route parameter does not exist at index
      */
     public function setParam($index, $value)
@@ -275,9 +283,8 @@ class Route
     }
 
     /**
-     * Add supported HTTP method(s)
-     *
-     * This method accepts an unlimited number of string arguments.
+     * Add supported HTTP methods (this method accepts an unlimited number of string arguments)
+     * @return void
      */
     public function setHttpMethods()
     {
@@ -295,9 +302,8 @@ class Route
     }
 
     /**
-     * Append supported HTTP methods
-     *
-     * This method accepts an unlimited number of string arguments.
+     * Append supported HTTP methods (this method accepts an unlimited number of string arguments)
+     * @return void
      */
     public function appendHttpMethods()
     {
@@ -410,8 +416,8 @@ class Route
 
     /**
      * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param  array    $m  URL parameters
-     * @return string       Regular expression for URL parameter
+     * @param  array  $m URL parameters
+     * @return string    Regular expression for URL parameter
      */
     protected function matchesCallback($m)
     {
@@ -430,7 +436,7 @@ class Route
 
     /**
      * Set route name
-     * @param  string     $name The name of the route
+     * @param  string      $name The name of the route
      * @return \Slim\Route
      */
     public function name($name)
@@ -442,7 +448,7 @@ class Route
 
     /**
      * Merge route conditions
-     * @param  array      $conditions Key-value array of URL parameter conditions
+     * @param  array       $conditions Key-value array of URL parameter conditions
      * @return \Slim\Route
      */
     public function conditions(array $conditions)
