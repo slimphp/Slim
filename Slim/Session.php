@@ -41,18 +41,6 @@ namespace Slim;
  * session; however, it is recommended that you allow this class to start
  * and configure the PHP session on its own.
  *
- * This class extends \Slim\Container, so you may manipulate session data
- * using the convenient \Slim\Container interface used by other Slim application objects:
- *
- *     set($key, $value)
- *     get($key)
- *     replace($array)
- *     all()
- *     keys()
- *     has($key)
- *     remove($key)
- *     clear()
- *
  * This class will use the default filesystem session storage. You may
  * define your own session handler to persist session data elsewhere.
  *
@@ -64,7 +52,7 @@ namespace Slim;
  * @author     Josh Lockhart
  * @since      2.3.0
  */
-class Session extends \Slim\Container
+class Session extends \Slim\Collection
 {
     /**
      * The session save handler
@@ -86,8 +74,9 @@ class Session extends \Slim\Container
 
     /**
      * Constructor
-     * @param  array  $options Session settings
-     * @param  mixed  $handler The session save handler
+     * @param  array $options Session settings
+     * @param  mixed $handler The session save handler
+     * @return void
      */
     public function __construct(array $options = array(), $handler = null)
     {
@@ -111,15 +100,13 @@ class Session extends \Slim\Container
 
     /**
      * Start the session
-     *
-     * This method is designed to automatically adopt a pre-existing PHP session if available.
-     *
+     * @return void
      * @throws \RuntimeException If unable to start new PHP session
      */
     public function start()
     {
         if ($this->started === true && $this->finished === false) {
-            return true;
+            return;
         }
 
         if (headers_sent() === false) {
@@ -142,6 +129,7 @@ class Session extends \Slim\Container
 
     /**
      * Save session data and close session
+     * @return void
      */
     public function save()
     {
@@ -162,7 +150,8 @@ class Session extends \Slim\Container
 
     /**
      * Set session options
-     * @param array $options
+     * @param  array $options
+     * @return void
      */
     protected function setOptions(array $options)
     {
