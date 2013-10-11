@@ -41,9 +41,6 @@ namespace Slim;
  * depend on a controlled set of environmental variables that may be
  * mocked, if necessary.
  *
- * Only one instance of \Slim\Environment will be created. It will be stored
- * and returned as a singleton value.
- *
  * The set of environmental variables mirrors the Rack (Ruby) specification
  * as closely as possible. The environmental variables are:
  *
@@ -100,7 +97,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Environment extends \Slim\Container
+class Environment extends \Slim\Collection
 {
     /**
      * The raw HTTP request body, readable only once from `php://input`
@@ -115,7 +112,7 @@ class Environment extends \Slim\Container
      * instead of relying on the $_SERVER superglobal. This is useful
      * for unit testing.
      *
-     * @param  array                $userSettings
+     * @param  array             $userSettings
      * @return \Slim\Environment
      */
     public static function mock(array $userSettings = array())
@@ -124,7 +121,7 @@ class Environment extends \Slim\Container
             'SERVER_PROTOCOL'      => 'HTTP/1.1',
             'REQUEST_METHOD'       => 'GET',
             'SCRIPT_NAME'          => '',
-            'PATH_INFO'            => '',
+            'PATH_INFO'            => '/',
             'QUERY_STRING'         => '',
             'SERVER_NAME'          => 'localhost',
             'SERVER_PORT'          => 80,
@@ -140,7 +137,8 @@ class Environment extends \Slim\Container
 
     /**
      * Constructor
-     * @param array $settings Environmental variables. Leave blank to use $_SERVER superglobal
+     * @param  array $settings Environmental variables. Leave blank to use $_SERVER superglobal
+     * @return void
      */
     public function __construct(array $settings = null)
     {
@@ -175,7 +173,7 @@ class Environment extends \Slim\Container
             $settings['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
             // Request headers (with "HTTP_" prefix)
-            $headers = \Slim\Http\Headers::extract($_SERVER);
+            $headers = \Slim\Http\Headers::find($_SERVER);
             foreach ($headers as $key => $value) {
                 $settings[$key] = $value;
             }
