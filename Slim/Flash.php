@@ -51,7 +51,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   3.0.0
  */
-class Flash implements \ArrayAccess, \IteratorAggregate
+class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     /**
      * The flash session storage key
@@ -73,15 +73,16 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Constructor
-     * @param \Slim\Session $session
-     * @param string        $key     The flash session storage key
+     * @param  \Slim\Session $session
+     * @param  string        $key     The flash session storage key
+     * @return void
      */
     public function __construct(\Slim\Session $session, $key = 'slimflash')
     {
         $this->session = $session;
         $this->key = $key;
         $this->messages = array(
-            'prev' => isset($session[$key]) ? $session[$key] : array(),
+            'prev' => $session->get($key, array()),
             'next' => array(),
             'now' => array()
         );
@@ -89,8 +90,9 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Set flash message for next request
-     * @param  string   $key   The flash message key
-     * @param  mixed    $value The flash message value
+     * @param  string $key   The flash message key
+     * @param  mixed  $value The flash message value
+     * @return void
      */
     public function next($key, $value)
     {
@@ -101,6 +103,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
      * Set flash message for current request
      * @param  string $key   The flash message key
      * @param  mixed  $value The flash message value
+     * @return void
      */
     public function now($key, $value)
     {
@@ -109,6 +112,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Persist flash messages from previous request to the next request
+     * @return void
      */
     public function keep()
     {
@@ -119,6 +123,7 @@ class Flash implements \ArrayAccess, \IteratorAggregate
 
     /**
      * Save flash messages to session
+     * @return void
      */
     public function save()
     {
@@ -133,10 +138,6 @@ class Flash implements \ArrayAccess, \IteratorAggregate
     {
         return array_merge($this->messages['prev'], $this->messages['now']);
     }
-
-    /********************************************************************************
-     * Array access interface
-     *******************************************************************************/
 
     /**
      * Offset exists
@@ -181,10 +182,6 @@ class Flash implements \ArrayAccess, \IteratorAggregate
         unset($this->messages['prev'][$offset], $this->messages['now'][$offset]);
     }
 
-    /********************************************************************************
-     * Interator Aggregate interface
-     *******************************************************************************/
-
     /**
      * Get iterator
      * @return \ArrayIterator
@@ -192,5 +189,14 @@ class Flash implements \ArrayAccess, \IteratorAggregate
     public function getIterator()
     {
         return new \ArrayIterator($this->getMessages());
+    }
+
+    /**
+     * Count
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->getMessages());
     }
 }
