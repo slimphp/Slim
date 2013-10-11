@@ -47,13 +47,13 @@ class HeadersTest extends PHPUnit_Framework_TestCase
             'HTTP_HOST' => 'foo.com',
             'SERVER_NAME' => 'foo',
             'CONTENT_TYPE' => 'text/html',
-            'X_FORWARDED_FOR' => '127.0.0.1'
+            'HTTP_X_FORWARDED_FOR' => '127.0.0.1'
         );
-        $results = \Slim\Http\Headers::extract($test);
+        $results = \Slim\Http\Headers::find($test);
         $this->assertEquals(array(
             'HTTP_HOST' => 'foo.com',
             'CONTENT_TYPE' => 'text/html',
-            'X_FORWARDED_FOR' => '127.0.0.1'
+            'HTTP_X_FORWARDED_FOR' => '127.0.0.1'
         ), $results);
     }
 }
