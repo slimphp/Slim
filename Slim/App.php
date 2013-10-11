@@ -131,6 +131,48 @@ class App extends \Slim\Pimple
         'slim.after' => array(array())
     );
 
+    protected $defaultClasses = array(
+        'AppClass'         => '\\Slim\\App',
+        'CollectionClass'  => '\\Slim\\Collection',
+        'CryptClass'       => '\\Slim\\Crypt',
+        'EnvironmentClass' => '\\Slim\\Environment',
+        'FlashClass'       => '\\Slim\\Flash',
+        'MiddlewareClass'  => '\\Slim\\Middleware',
+        'ContainerClass'   => '\\Slim\\Pimple',
+        'RouteClass'       => '\\Slim\\Route',
+        'RouterClass'      => '\\Slim\\Router',
+        'SessionClass'     => '\\Slim\\Session',
+        'ViewClass'        => '\\Slim\\View',
+        'CookiesClass'     => '\\Slim\\Http\\Cookies',
+        'HeadersClass'     => '\\Slim\\Http\\Headers',
+        'RequestClass'     => '\\Slim\\Http\\Request',
+        'ResponseClass'    => '\\Slim\\Http\\Response',
+    );
+
+    protected $defaultSettings = array(
+        // Application
+        'mode' => 'development',
+        'view' => null,
+        // Cookies
+        'cookies.encrypt' => false,
+        'cookies.lifetime' => '20 minutes',
+        'cookies.path' => '/',
+        'cookies.domain' => null,
+        'cookies.secure' => false,
+        'cookies.httponly' => false,
+        // Encryption
+        'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+        'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+        'crypt.mode' => MCRYPT_MODE_CBC,
+        // Session
+        'session.options' => array(),
+        'session.handler' => null,
+        'session.flash_key' => 'slimflash',
+        'session.encrypt' => false,
+        // HTTP
+        'http.version' => '1.1'
+    );
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -139,21 +181,34 @@ class App extends \Slim\Pimple
      * Constructor
      * @param array $userSettings Associative array of application settings
      */
-    public function __construct(array $userSettings = array())
+    public function __construct(array $settings = array(), array $classes = array())
     {
         // Setup DI container
-        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
+        $this['settings'] = array_merge(static::getDefaultSettings(), $settings);
+
+        $classes = array_merge(static::getDefaultClasses(), $classes);
+
+        foreach ($classes as $name => $class) {
+            $this[$name] = $class;
+        }
 
         // Default environment
-        $this->environment = $this->share(function ($c) {
-            return new \Slim\Environment();
+        $this['environment'] = $this->share(function ($c) {
+            $env = new $c['EnvironmentClass']();
+
+            return $env;
         });
 
         // Default request
-        $this->request = $this->share(function ($c) {
-            $headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($c['environment']->all()));
-            $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($c['environment']->get('HTTP_COOKIE')));
-            $request = new \Slim\Http\Request($c['environment'], $headers, $cookies);
+        $this['request'] = $this->share(function ($c) {
+            $env = call_user_func(array($c['HeadersClass'], 'find'), $c['environment']->all());
+            $headers = new $c['HeadersClass']($env);
+
+            $array = call_user_func(array($c['CookiesClass'], 'parseHeader'), $c['environment']->get('HTTP_COOKIE'));
+            $cookies = new $c['CollectionClass']($array);
+
+            $request = new $c['RequestClass']($c['environment'], $headers, $cookies);
+
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
             }
@@ -162,34 +217,35 @@ class App extends \Slim\Pimple
         });
 
         // Default response
-        $this->response = $this->share(function ($c) {
-            $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
-            $cookies = new \Slim\Http\Cookies();
-            return new \Slim\Http\Response();
+        $this['response'] = $this->share(function ($c) {
+            $headers = new $c['HeadersClass'](array('Content-Type' => 'text/html'));
+            $cookies = new $c['CookiesClass']();
+
+            return new $c['ResponseClass']('', 200, $headers, $cookies);
         });
 
         // Default router
-        $this->router = $this->share(function ($c) {
-            return new \Slim\Router();
+        $this['router'] = $this->share(function ($c) {
+            return new $c['RouterClass']();
         });
 
         // Default view
-        $this->view = $this->share(function ($c) {
-            if ($c['settings']['view'] instanceof \Slim\View === false) {
-                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
+        $this['view'] = $this->share(function ($c) {
+            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface === false) {
+                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\Interfaces\ViewInterface.');
             }
 
             return $c['settings']['view'];
         });
 
         // Default crypt
-        $this->crypt = $this->share(function ($c) {
-            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+        $this['crypt'] = $this->share(function ($c) {
+            return new $c['CryptClass']($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
         // Default session
-        $this->session = $this->share(function ($c) {
-            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+        $this['session'] = $this->share(function ($c) {
+            $s = new $c['SessionClass']($c['settings']['session.options'], $c['settings']['session.handler']);
             $s->start();
             if ($c['settings']['session.encrypt'] === true) {
                 $s->decrypt($c['crypt']);
@@ -199,12 +255,12 @@ class App extends \Slim\Pimple
         });
 
         // Default flash
-        $this->flash = $this->share(function ($c) {
-            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
+        $this['flash'] = $this->share(function ($c) {
+            return new $c['FlashClass']($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Default mode
-        $this->mode = function ($c) {
+        $this['mode'] = function ($c) {
             $mode = $c['settings']['mode'];
 
             if (isset($_ENV['SLIM_MODE'])) {
@@ -224,34 +280,21 @@ class App extends \Slim\Pimple
     }
 
     /**
+     * Get default application classes
+     * @return array
+     */
+    public static function getDefaultClasses()
+    {
+        return $this->defaultClasses;
+    }
+
+    /**
      * Get default application settings
      * @return array
      */
     public static function getDefaultSettings()
     {
-        return array(
-            // Application
-            'mode' => 'development',
-            'view' => null,
-            // Cookies
-            'cookies.encrypt' => false,
-            'cookies.lifetime' => '20 minutes',
-            'cookies.path' => '/',
-            'cookies.domain' => null,
-            'cookies.secure' => false,
-            'cookies.httponly' => false,
-            // Encryption
-            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-            'crypt.mode' => MCRYPT_MODE_CBC,
-            // Session
-            'session.options' => array(),
-            'session.handler' => null,
-            'session.flash_key' => 'slimflash',
-            'session.encrypt' => false,
-            // HTTP
-            'http.version' => '1.1'
-        );
+        return $this->defaultSettings;
     }
 
     /**
@@ -373,7 +416,7 @@ class App extends \Slim\Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new \Slim\Route($pattern, $callable);
+        $route = new $this['RouteClass']($pattern, $callable);
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
@@ -403,7 +446,10 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_GET, \Slim\Http\Request::METHOD_HEAD);
+        $get = constant($this['RequestClass'] . '::METHOD_GET');
+        $head = constant($this['RequestClass'] . '::METHOD_HEAD');
+
+        return $this->mapRoute($args)->via($get, $head);
     }
 
     /**
@@ -415,7 +461,9 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_POST);
+        $post = constant($this['RequestClass'] . '::METHOD_POST')
+
+        return $this->mapRoute($args)->via($post);
     }
 
     /**
@@ -427,7 +475,9 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PUT);
+        $put = constant($this['RequestClass'] . '::METHOD_PUT');
+
+        return $this->mapRoute($args)->via($put);
     }
 
     /**
@@ -439,7 +489,9 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PATCH);
+        $patch = constant($this['RequestClass'] . '::METHOD_PATCH');
+
+        return $this->mapRoute($args)->via($patch);
     }
 
     /**
@@ -451,7 +503,9 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_DELETE);
+        $delete = constant($this['RequestClass'] . '::METHOD_DELETE');
+
+        return $this->mapRoute($args)->via($delete);
     }
 
     /**
@@ -463,7 +517,9 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_OPTIONS);
+        $options = constant($this['RequestClass'] . '::METHOD_OPTIONS');
+
+        return $this->mapRoute($args)->via($options);
     }
 
     /**
@@ -1133,7 +1189,7 @@ class App extends \Slim\Pimple
     public function call()
     {
         try {
-            if ($this->settings['view'] instanceof \Slim\View) {
+            if ($this->settings['view'] instanceof \Slim\Interfaces\ViewInterface) {
                 $this->view->set('flash', $this->flash->getMessages());
             }
             $this->applyHook('slim.before');
@@ -1188,15 +1244,17 @@ class App extends \Slim\Pimple
             if ($this->settings['cookies.encrypt']) {
                 $this->response->cookies->encrypt($this->crypt);
             }
-            \Slim\Http\Cookies::serialize($headers, $this->response->cookies);
+            call_user_func_array(array($this['CookiesClass']), array($headers, $this->response->cookies));
 
             //Send headers
             if (headers_sent() === false) {
                 //Send status
                 if (strpos(PHP_SAPI, 'cgi') === 0) {
-                    header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
+                    $message = call_user_func(array($this['ResponseClass'], 'getMessageForCode'), $status);
+                    header(sprintf('Status: %s', $message));
                 } else {
-                    header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
+                    $message = call_user_func(array($this['ResponseClass'], 'getMessageForCode'), $status);
+                    header(sprintf('HTTP/%s %s', $this->config('http.version'), $message));
                 }
 
                 //Send headers
