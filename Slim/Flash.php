@@ -77,7 +77,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
      * @param  string        $key     The flash session storage key
      * @return void
      */
-    public function __construct(\Slim\Session $session, $key = 'slimflash')
+    public function __construct(\Slim\Interfaces\SessionInterface $session, $key = 'slimflash')
     {
         $this->session = $session;
         $this->key = $key;

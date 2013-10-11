@@ -44,7 +44,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Router
+class Router \Slim\Interfaces\RouterInterface
 {
     /**
      * The current (most recently dispatched) route
@@ -148,7 +148,7 @@ class Router
      * @param  \Slim\Route $route The route object
      * @return void
      */
-    public function map(\Slim\Route $route)
+    public function map(\Slim\Interfaces\RouteInterface $route)
     {
         list($groupPattern, $groupMiddleware) = $this->processGroups();
         $route->setPattern($groupPattern . $route->getPattern());
@@ -228,7 +228,7 @@ class Router
      * @return void
      * @throws \RuntimeException         If a named route already exists with the same name
      */
-    public function addNamedRoute($name, \Slim\Route $route)
+    public function addNamedRoute($name, \Slim\Interfaces\RouteInterface $route)
     {
         if ($this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route already exists with name: ' . $name);

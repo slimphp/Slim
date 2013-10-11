@@ -151,7 +151,9 @@ class App extends \Slim\Pimple
 
         // Default request
         $this->request = $this->share(function ($c) {
-            $request = new \Slim\Http\Request($c['environment']);
+            $headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($c['environment']->all()));
+            $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($c['environment']->get('HTTP_COOKIE')));
+            $request = new \Slim\Http\Request($c['environment'], $headers, $cookies);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
             }
@@ -161,6 +163,8 @@ class App extends \Slim\Pimple
 
         // Default response
         $this->response = $this->share(function ($c) {
+            $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+            $cookies = new \Slim\Http\Cookies();
             return new \Slim\Http\Response();
         });
 
@@ -1086,7 +1090,7 @@ class App extends \Slim\Pimple
      *
      * @param \Slim\Middleware
      */
-    public function add(\Slim\Middleware $newMiddleware)
+    public function add(\Slim\Interfaces\MiddlewareInterface $newMiddleware)
     {
         $newMiddleware->setApplication($this);
         $newMiddleware->setNextMiddleware($this->middleware[0]);
@@ -1184,7 +1188,7 @@ class App extends \Slim\Pimple
             if ($this->settings['cookies.encrypt']) {
                 $this->response->cookies->encrypt($this->crypt);
             }
-            \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
+            \Slim\Http\Cookies::serialize($headers, $this->response->cookies);
 
             //Send headers
             if (headers_sent() === false) {

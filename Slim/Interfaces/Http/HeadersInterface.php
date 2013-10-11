@@ -41,7 +41,7 @@ namespace Slim\Interfaces\Http;
  */
 interface HeadersInterface
 {
-    public static function extract($data);
+    public static function find($data);
 
     protected function normalizeKey($key);
 }

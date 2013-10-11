@@ -41,5 +41,21 @@ namespace Slim\Interfaces\Http;
  */
 interface ResponseInterface
 {
+    public function getStatus();
 
+    public function setStatus($status);
+
+    public function getBody();
+
+    public function setBody($content);
+
+    public function redirect($url, $status = 302);
+
+    public function stream($handle);
+
+    public function write($body, $replace = false);
+
+    public function finalize();
+
+    public function isStream()
 }

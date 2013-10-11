@@ -41,5 +41,11 @@ namespace Slim\Interfaces\Http;
  */
 interface RequestInterface
 {
+    public function getScriptName();
 
+    public function getMethod();
+
+    public function getPathInfo();
+
+    public function isHead();
 }

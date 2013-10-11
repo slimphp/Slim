@@ -41,5 +41,25 @@ namespace Slim\Interfaces;
  */
 interface RouteInterface
 {
+    public function dispatch();
 
+    public function getCallable();
+
+    public function setCallable($callable);
+
+    public function getMiddleware();
+
+    public function setMiddleware($middleware);
+
+    public function getName();
+
+    public function setName($name);
+
+    public function getPattern();
+
+    public function setPattern($pattern);
+
+    public function supportsHttpMethod($method);
+
+    public function matches($resourceUri);
 }

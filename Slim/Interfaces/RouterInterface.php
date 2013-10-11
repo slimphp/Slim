@@ -45,7 +45,7 @@ interface RouterInterface
 
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false);
 
-    public function map(RouteInterface $route);
+    public function map(\Slim\Interfaces\RouteInterface $route);
 
     public function pushGroup($group, $middleware = array());
 

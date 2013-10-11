@@ -45,9 +45,9 @@ interface CookiesInterface
 
     public function remove($key, $settings = array());
 
-    public function encrypt(\Slim\Crypt $crypt);
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt);
 
-    public static function serialize(&$headers, \Slim\Http\Cookies $cookies);
+    public static function serialize(&$headers, \Slim\Interfaces\Http\CookiesInterface $cookies);
 
     public static function setHeader(&$header, $name, $value);
 
