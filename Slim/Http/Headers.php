@@ -49,7 +49,7 @@ namespace Slim\Http;
   * @author  Josh Lockhart
   * @since   1.6.0
   */
-class Headers extends \Slim\Container
+class Headers extends \Slim\Collection
 {
     /********************************************************************************
     * Static interface
@@ -76,12 +76,12 @@ class Headers extends \Slim\Container
      * @param  array $data
      * @return array
      */
-    public static function extract($data)
+    public static function find($data)
     {
         $results = array();
         foreach ($data as $key => $value) {
             $key = strtoupper($key);
-            if (strpos($key, 'X_') === 0 || strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
+            if (strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
                 if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
                     continue;
                 }
@@ -97,11 +97,51 @@ class Headers extends \Slim\Container
     *******************************************************************************/
 
     /**
+     * Set data key to value
+     * @param string $key   The data key
+     * @param mixed  $value The data value
+     */
+    public function set($key, $value)
+    {
+        parent::set(static::normalizeKey($key), $value);
+    }
+
+    /**
+     * Get data value with key
+     * @param  string $key     The data key
+     * @param  mixed  $default The value to return if data key does not exist
+     * @return mixed           The data value, or the default value
+     */
+    public function get($key, $default = null)
+    {
+        return parent::get(static::normalizeKey($key), $default);
+    }
+
+    /**
+     * Does this set contain a key?
+     * @param  string  $key The data key
+     * @return boolean
+     */
+    public function has($key)
+    {
+        return parent::has(static::normalizeKey($key));
+    }
+
+    /**
+     * Remove value with key from this set
+     * @param  string $key The data key
+     */
+    public function remove($key)
+    {
+        parent::remove(static::normalizeKey($key));
+    }
+
+    /**
      * Transform header name into canonical form
      * @param  string $key
      * @return string
      */
-    protected function normalizeKey($key)
+    protected static function normalizeKey($key)
     {
         $key = strtolower($key);
         $key = str_replace(array('-', '_'), ' ', $key);
