@@ -88,18 +88,12 @@ if (!extension_loaded('mcrypt')) {
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class App
+class App extends \Slim\Pimple
 {
     /**
      * @const string
      */
     const VERSION = '2.3.3';
-
-    /**
-     * The dependency injection container
-     * @var \Slim\Container
-     */
-    public $container;
 
     /**
      * @var array
@@ -117,6 +111,12 @@ class App
      * @var mixed
      */
     protected $notFound;
+
+    /**
+     * Has the app response been sent to the client?
+     * @var bool
+     */
+    protected $responded = false;
 
     /**
      * Application hooks
@@ -142,16 +142,15 @@ class App
     public function __construct(array $userSettings = array())
     {
         // Setup DI container
-        $this->container = new \Slim\Container();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
 
         // Default environment
-        $this->container->singleton('environment', function ($c) {
+        $this->environment = $this->share(function ($c) {
             return new \Slim\Environment();
         });
 
         // Default request
-        $this->container->singleton('request', function ($c) {
+        $this->request = $this->share(function ($c) {
             $request = new \Slim\Http\Request($c['environment']);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
@@ -161,17 +160,17 @@ class App
         });
 
         // Default response
-        $this->container->singleton('response', function ($c) {
+        $this->response = $this->share(function ($c) {
             return new \Slim\Http\Response();
         });
 
         // Default router
-        $this->container->singleton('router', function ($c) {
+        $this->router = $this->share(function ($c) {
             return new \Slim\Router();
         });
 
         // Default view
-        $this->container->singleton('view', function ($c) {
+        $this->view = $this->share(function ($c) {
             if ($c['settings']['view'] instanceof \Slim\View === false) {
                 throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
             }
@@ -180,12 +179,12 @@ class App
         });
 
         // Default crypt
-        $this->container->singleton('crypt', function ($c) {
+        $this->crypt = $this->share(function ($c) {
             return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
         // Default session
-        $this->container->singleton('session', function ($c) {
+        $this->session = $this->share(function ($c) {
             $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
             $s->start();
             if ($c['settings']['session.encrypt'] === true) {
@@ -196,12 +195,12 @@ class App
         });
 
         // Default flash
-        $this->container->singleton('flash', function ($c) {
+        $this->flash = $this->share(function ($c) {
             return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Default mode
-        $this->container['mode'] = function ($c) {
+        $this->mode = function ($c) {
             $mode = $c['settings']['mode'];
 
             if (isset($_ENV['SLIM_MODE'])) {
@@ -305,49 +304,31 @@ class App
     }
 
     /********************************************************************************
-     * Magic setters and getters
-     *
-     * Fallback to the DI container if properties are not available
-     * on the Slim instance itself.
-     *******************************************************************************/
+    * Magic methods for inaccessible properties
+    *
+    * The `\Slim\App` class extends the dependency injection container. The container
+    * class must implement the `\ArrayAccess` interface, but we do not assume it
+    * implements object overloading magic methods. We do that here.
+    *******************************************************************************/
 
-    /**
-     * Get magic property
-     * @param  mixed $name The property name
-     * @return mixed
-     */
-    public function __get($name)
+    public function __get($key)
     {
-        return $this->container[$name];
+        return $this[$key];
     }
 
-    /**
-     * Set magic property
-     * @param mixed $name  The property name
-     * @param mixed $value The property value
-     */
-    public function __set($name, $value)
+    public function __set($key, $value)
     {
-        $this->container[$name] = $value;
+        $this[$key] = $value;
     }
 
-    /**
-     * Is magic property set?
-     * @param  mixed  $name The property name
-     * @return bool
-     */
-    public function __isset($name)
+    public function __isset($key)
     {
-        return isset($this->container[$name]);
+        return isset($this[$key]);
     }
 
-    /**
-     * Unset magic property
-     * @param mixed $name The property name
-     */
-    public function __unset($name)
+    public function __unset($key)
     {
-        unset($this->container[$name]);
+        unset($this[$key]);
     }
 
     /********************************************************************************
@@ -631,8 +612,7 @@ class App
         if (!is_null($status)) {
             $this->response->setStatus($status);
         }
-        $this->view->replace($data);
-        $this->view->display($template);
+        $this->view->display($template, $data);
     }
 
     /********************************************************************************
