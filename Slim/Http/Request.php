@@ -103,8 +103,8 @@ class Request
     public function __construct(\Slim\Environment $env)
     {
         $this->env = $env;
-        $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::extract($env));
-        $this->cookies = new \Slim\Container(\Slim\Http\Cookies::parseCookieHeader($env['HTTP_COOKIE']));
+        $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($env->all()));
+        $this->cookies = new \Slim\Collection(\Slim\Http\Cookies::parseCookieHeader($env->get('HTTP_COOKIE')));
     }
 
     /**
@@ -114,12 +114,13 @@ class Request
     public function getMethod()
     {
         // Get actual request method
-        $method = $this->env['REQUEST_METHOD'];
+        $method = $this->env->get('REQUEST_METHOD');
+        $methodOverride = $this->env->get('HTTP_X_HTTP_METHOD_OVERRIDE');
 
         // Detect method override (by HTTP header or POST parameter)
-        if (isset($this->env['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
-            $method = strtoupper($this->env['HTTP_X_HTTP_METHOD_OVERRIDE']);
-        } else if ($this->env['REQUEST_METHOD'] === 'POST') {
+        if ($methodOverride) {
+            $method = strtoupper($methodOverride);
+        } else if ($method === 'POST') {
             $customMethod = $this->post('_METHOD');
             if ($customMethod) {
                 $method = strtoupper($customMethod);
@@ -135,7 +136,7 @@ class Request
      */
     public function getOriginalMethod()
     {
-        return $this->env['REQUEST_METHOD'];
+        return $this->env->get('REQUEST_METHOD');
     }
 
     /**
@@ -209,7 +210,7 @@ class Request
     {
         if ($this->params('isajax')) {
             return true;
-        } elseif (isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+        } elseif ($this->headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest') {
             return true;
         } else {
             return false;
@@ -261,9 +262,9 @@ class Request
         // Parse and cache query parameters from \Slim\Environment
         if (!isset($this->queryParameters)) {
             if (function_exists('mb_parse_str')) {
-                mb_parse_str($this->env['QUERY_STRING'], $this->queryParameters);
+                mb_parse_str($this->env->get('QUERY_STRING'), $this->queryParameters);
             } else {
-                parse_str($this->env['QUERY_STRING'], $this->queryParameters);
+                parse_str($this->env->get('QUERY_STRING'), $this->queryParameters);
             }
         }
 
@@ -295,7 +296,7 @@ class Request
     public function post($key = null)
     {
         // Ensure the POST request body is available
-        if (!isset($this->env['slim.input'])) {
+        if (is_null($this->env->get('slim.input'))) {
             throw new \RuntimeException('The raw POST body is not available in \Slim\Environment');
         }
 
@@ -305,11 +306,11 @@ class Request
             $this->body = $_POST;
 
             // Parse body ONLY IF the request content-type is "application/x-www-form-urlencoded"
-            if ($this->isFormData() && is_string($this->env['slim.input'])) {
+            if ($this->isFormData() && is_string($this->env->get('slim.input'))) {
                 if (function_exists('mb_parse_str')) {
-                    mb_parse_str($this->env['slim.input'], $this->body);
+                    mb_parse_str($this->env->get('slim.input'), $this->body);
                 } else {
-                    parse_str($this->env['slim.input'], $this->body);
+                    parse_str($this->env->get('slim.input'), $this->body);
                 }
             }
         }
@@ -364,7 +365,7 @@ class Request
      */
     public function isFormData()
     {
-        $method = isset($this->env['slim.method_override.original_method']) ? $this->env['slim.method_override.original_method'] : $this->getMethod();
+        $method = $this->env->get('slim.method_override.original_method', $this->getMethod());
 
         return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
@@ -375,7 +376,7 @@ class Request
      */
     public function getBody()
     {
-        return $this->env['slim.input'];
+        return $this->env->get('slim.input');
     }
 
     /**
@@ -452,17 +453,18 @@ class Request
      */
     public function getHost()
     {
-        if (isset($this->env['HTTP_HOST'])) {
-            if (strpos($this->env['HTTP_HOST'], ':') !== false) {
-                $hostParts = explode(':', $this->env['HTTP_HOST']);
+        $host = $this->env->get('HTTP_HOST');
+        if ($host) {
+            if (strpos($host, ':') !== false) {
+                $hostParts = explode(':', $host);
 
                 return $hostParts[0];
             }
 
-            return $this->env['HTTP_HOST'];
+            return $host;
         }
 
-        return $this->env['SERVER_NAME'];
+        return $this->env->get('SERVER_NAME');
     }
 
     /**
@@ -480,7 +482,7 @@ class Request
      */
     public function getPort()
     {
-        return (int)$this->env['SERVER_PORT'];
+        return (int)$this->env->get('SERVER_PORT');
     }
 
     /**
@@ -489,7 +491,7 @@ class Request
      */
     public function getScheme()
     {
-        return $this->env['slim.url_scheme'];
+        return $this->env->get('slim.url_scheme');
     }
 
     /**
@@ -498,7 +500,7 @@ class Request
      */
     public function getScriptName()
     {
-        return $this->env['SCRIPT_NAME'];
+        return $this->env->get('SCRIPT_NAME');
     }
 
     /**
@@ -507,7 +509,7 @@ class Request
      */
     public function getPathInfo()
     {
-        return $this->env['PATH_INFO'];
+        return $this->env->get('PATH_INFO');
     }
 
     /**
@@ -539,7 +541,7 @@ class Request
      */
     public function getQueryString()
     {
-        return $this->env['QUERY_STRING'];
+        return $this->env->get('QUERY_STRING');
     }
 
     /**
@@ -548,7 +550,7 @@ class Request
      */
     public function getProtocol()
     {
-        return $this->env['SERVER_PROTOCOL'];
+        return $this->env->get('SERVER_PROTOCOL');
     }
 
     /**
@@ -557,13 +559,13 @@ class Request
      */
     public function getIp()
     {
-        if (isset($this->env['X_FORWARDED_FOR'])) {
-            return $this->env['X_FORWARDED_FOR'];
-        } elseif (isset($this->env['CLIENT_IP'])) {
-            return $this->env['CLIENT_IP'];
+        if ($this->env->get('X_FORWARDED_FOR')) {
+            return $this->env->get('X_FORWARDED_FOR');
+        } elseif ($this->env->get('CLIENT_IP')) {
+            return $this->env->get('CLIENT_IP');
         }
 
-        return $this->env['REMOTE_ADDR'];
+        return $this->env->get('REMOTE_ADDR');
     }
 
     /**
@@ -615,7 +617,7 @@ class Request
         // Build body
         $body = $this->getBody();
         if ($body) {
-            $output .= PHP_EOL . $this->getBody();
+            $output .= PHP_EOL . $body;
         }
 
         return $output;
