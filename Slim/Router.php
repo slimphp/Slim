@@ -78,6 +78,7 @@ class Router
 
     /**
      * Constructor
+     * @return void
      */
     public function __construct()
     {
@@ -116,9 +117,9 @@ class Router
      * determine which \Slim\Route objects are candidates to be
      * dispatched for the current HTTP request.
      *
-     * @param  string               $httpMethod   The HTTP method
-     * @param  string               $resourceUri  The resource URI
-     * @param  bool                 $reload       Should matching routes be re-parsed?
+     * @param  string             $httpMethod  The HTTP request method
+     * @param  string             $resourceUri The resource URI
+     * @param  bool               $reload      Should matching routes be re-parsed?
      * @return array[\Slim\Route]
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
@@ -142,9 +143,10 @@ class Router
     /**
      * Add a route
      *
-     * This method will register a \Slim\Route object with the router.
+     * This method registers a \Slim\Route object with the router.
      *
-     * @param \Slim\Route $route The Slim Route
+     * @param  \Slim\Route $route The route object
+     * @return void
      */
     public function map(\Slim\Route $route)
     {
@@ -157,8 +159,11 @@ class Router
     }
 
     /**
-     * A helper function for processing the group's pattern and middleware
-     * @return array Returns an array with the elements: pattern, middlewareArr
+     * Process route groups
+     *
+     * A helper method for processing the group's pattern and middleware.
+     *
+     * @return array An array with the elements: pattern, middlewareArr
      */
     protected function processGroups()
     {
@@ -178,7 +183,7 @@ class Router
      * Add a route group to the array
      * @param  string     $group      The group pattern (ie. "/books/:id")
      * @param  array|null $middleware Optional parameter array of middleware
-     * @return int        The index of the new group
+     * @return int                    The index of the new group
      */
     public function pushGroup($group, $middleware = array())
     {
@@ -196,10 +201,10 @@ class Router
 
     /**
      * Get URL for named route
-     * @param  string               $name       The name of the route
-     * @param  array                $params     Associative array of URL parameter names and replacement values
-     * @throws \RuntimeException                If named route not found
-     * @return string                           The URL for the given route populated with provided replacement values
+     * @param  string            $name   The name of the route
+     * @param  array             $params Associative array of URL parameter names and replacement values
+     * @return string                    The URL for the given route populated with provided replacement values
+     * @throws \RuntimeException         If named route not found
      */
     public function urlFor($name, $params = array())
     {
@@ -220,6 +225,7 @@ class Router
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
+     * @return void
      * @throws \RuntimeException         If a named route already exists with the same name
      */
     public function addNamedRoute($name, \Slim\Route $route)
@@ -252,13 +258,13 @@ class Router
         $this->getNamedRoutes();
         if ($this->hasNamedRoute($name)) {
             return $this->namedRoutes[(string) $name];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
-     * Get named routes
+     * Get external iterator for named routes
      * @return \ArrayIterator
      */
     public function getNamedRoutes()
