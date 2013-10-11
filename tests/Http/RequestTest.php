@@ -134,7 +134,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsAjaxWithHeader()
     {
         $env = \Slim\Environment::mock(array(
-            'X_REQUESTED_WITH' => 'XMLHttpRequest'
+            'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
         ));
         $req = new \Slim\Http\Request($env);
         $this->assertTrue($req->isAjax());
@@ -280,7 +280,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
         $env = \Slim\Environment::mock();
-        unset($env['slim.input']);
+        $env->remove('slim.input');
         $req = new \Slim\Http\Request($env);
         $req->post('foo');
     }
@@ -406,7 +406,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
         ));
-        $env['slim.method_override.original_method'] = 'POST';
+        $env->set('slim.method_override.original_method', 'POST');
         $req = new \Slim\Http\Request($env);
         $this->assertTrue($req->isPut());
         $this->assertTrue($req->isFormData());
@@ -453,7 +453,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testHeaderRemovesHttpPrefix()
     {
         $env = \Slim\Environment::mock(array(
-            'X_HTTP_METHOD_OVERRIDE' => 'PUT',
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT',
             'CONTENT_TYPE' => 'application/json'
         ));
         //fwrite(fopen('php://stdout', 'w'), print_r($env, true));
@@ -659,7 +659,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'SERVER_NAME' => 'slim',
             'HTTP_HOST' => 'slimframework.com'
         ));
-        unset($env['HTTP_HOST']);
+        $env->remove('HTTP_HOST');
         $req = new \Slim\Http\Request($env);
         $this->assertEquals('slim', $req->getHost()); //Uses SERVER_NAME as backup
     }
@@ -792,6 +792,26 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test get protocol
+     */
+    public function testGetProtocol()
+    {
+        $req = new \Slim\Http\Request(\Slim\Environment::mock());
+        $this->assertEquals('HTTP/1.1', $req->getProtocol());
+    }
+
+    /**
+     * Test get protocol
+     */
+    public function testGetQueryString()
+    {
+        $req = new \Slim\Http\Request(\Slim\Environment::mock(array(
+            'QUERY_STRING' => 'abc=123'
+        )));
+        $this->assertEquals('abc=123', $req->getQueryString());
+    }
+
+    /**
      * Test get URL
      */
     public function testGetUrl()
@@ -917,7 +937,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetUserAgentWhenNotExists()
     {
         $env = \Slim\Environment::mock();
-        unset($env['HTTP_USER_AGENT']);
+        $env->remove('HTTP_USER_AGENT');
         $req = new \Slim\Http\Request($env);
         $this->assertNull($req->getUserAgent());
     }
