@@ -77,9 +77,10 @@ class Crypt
 
     /**
      * Constructor
-     * @param string  $key       Encryption key
-     * @param int     $cipher    Encryption algorithm
-     * @param int     $mode      Encryption mode
+     * @param  string $key    Encryption key
+     * @param  int    $cipher Encryption algorithm
+     * @param  int    $mode   Encryption mode
+     * @return void
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
@@ -90,10 +91,10 @@ class Crypt
 
     /**
      * Encrypt data
-     * @param  string               $data        Unencrypted data
-     * @return string                            Encrypted data
-     * @throws \RuntimeException                 If mcrypt extension not loaded
-     * @throws \RuntimeException                 If encryption module initialization failed
+     * @param  string            $data Unencrypted data
+     * @return string                  Encrypted data
+     * @throws \RuntimeException       If mcrypt extension not loaded
+     * @throws \RuntimeException       If encryption module initialization failed
      */
     public function encrypt($data)
     {
@@ -142,12 +143,11 @@ class Crypt
 
     /**
      * Decrypt data
-     * @param  string               $data        Encrypted string
-     * @return string                            Decrypted data
-     * @throws \RuntimeException                 If mcrypt extension not loaded
-     * @throws \RuntimeException                 If encrypted data does not match expected format
-     * @throws \RuntimeException                 If decryption module initialization failed
-     * @throws \RuntimeException                 If HMAC integrity verification fails
+     * @param  string            $data Encrypted string
+     * @return string                  Decrypted data
+     * @throws \RuntimeException       If mcrypt extension not loaded
+     * @throws \RuntimeException       If decryption module initialization failed
+     * @throws \RuntimeException       If HMAC integrity verification fails
      */
     public function decrypt($data)
     {
@@ -216,10 +216,10 @@ class Crypt
 
     /**
      * Validate encryption key based on valid key sizes for selected cipher and cipher mode
-     * @param  string   $key    Encryption key
-     * @param  resource $module Encryption module
+     * @param  string                    $key    Encryption key
+     * @param  resource                  $module Encryption module
      * @return void
-     * @throws \InvalidArgumentException If key size is invalid for selected cipher
+     * @throws \InvalidArgumentException         If key size is invalid for selected cipher
      */
     protected function validateKey($key, $module)
     {
