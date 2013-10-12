@@ -131,24 +131,6 @@ class App extends \Slim\Pimple
         'slim.after' => array(array())
     );
 
-    protected static $defaultClasses = array(
-        'AppClass'         => '\\Slim\\App',
-        'CollectionClass'  => '\\Slim\\Collection',
-        'CryptClass'       => '\\Slim\\Crypt',
-        'EnvironmentClass' => '\\Slim\\Environment',
-        'FlashClass'       => '\\Slim\\Flash',
-        'MiddlewareClass'  => '\\Slim\\Middleware',
-        'ContainerClass'   => '\\Slim\\Pimple',
-        'RouteClass'       => '\\Slim\\Route',
-        'RouterClass'      => '\\Slim\\Router',
-        'SessionClass'     => '\\Slim\\Session',
-        'ViewClass'        => '\\Slim\\View',
-        'CookiesClass'     => '\\Slim\\Http\\Cookies',
-        'HeadersClass'     => '\\Slim\\Http\\Headers',
-        'RequestClass'     => '\\Slim\\Http\\Request',
-        'ResponseClass'    => '\\Slim\\Http\\Response',
-    );
-
     protected static $defaultSettings = array(
         // Application
         'mode' => 'development',
@@ -181,34 +163,21 @@ class App extends \Slim\Pimple
      * Constructor
      * @param array $userSettings Associative array of application settings
      */
-    public function __construct(array $settings = array(), array $classes = array())
+    public function __construct(array $userSettings = array())
     {
         // Setup DI container
-        $this['settings'] = array_merge(static::getDefaultSettings(), $settings);
-
-        $classes = array_merge(static::getDefaultClasses(), $classes);
-
-        foreach ($classes as $name => $class) {
-            $this[$name] = $class;
-        }
+        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
 
         // Default environment
-        $this['environment'] = $this->share(function ($c) {
-            $env = new $c['EnvironmentClass']();
-
-            return $env;
+        $this->environment = $this->share(function ($c) {
+            return new \Slim\Environment();
         });
 
         // Default request
-        $this['request'] = $this->share(function ($c) {
-            $env = call_user_func(array($c['HeadersClass'], 'find'), $c['environment']->all());
-            $headers = new $c['HeadersClass']($env);
-
-            $array = call_user_func(array($c['CookiesClass'], 'parseHeader'), $c['environment']->get('HTTP_COOKIE'));
-            $cookies = new $c['CollectionClass']($array);
-
-            $request = new $c['RequestClass']($c['environment'], $headers, $cookies);
-
+        $this->request = $this->share(function ($c) {
+            $headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($c['environment']->all()));
+            $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($c['environment']->get('HTTP_COOKIE')));
+            $request = new \Slim\Http\Request($c['environment'], $headers, $cookies);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
             }
@@ -217,35 +186,34 @@ class App extends \Slim\Pimple
         });
 
         // Default response
-        $this['response'] = $this->share(function ($c) {
-            $headers = new $c['HeadersClass'](array('Content-Type' => 'text/html'));
-            $cookies = new $c['CookiesClass']();
-
-            return new $c['ResponseClass']('', 200, $headers, $cookies);
+        $this->response = $this->share(function ($c) {
+            $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+            $cookies = new \Slim\Http\Cookies();
+            return new \Slim\Http\Response();
         });
 
         // Default router
-        $this['router'] = $this->share(function ($c) {
-            return new $c['RouterClass']();
+        $this->router = $this->share(function ($c) {
+            return new \Slim\Router();
         });
 
         // Default view
-        $this['view'] = $this->share(function ($c) {
-            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface === false) {
-                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\Interfaces\ViewInterface.');
+        $this->view = $this->share(function ($c) {
+            if ($c['settings']['view'] instanceof \Slim\View === false) {
+                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
             }
 
             return $c['settings']['view'];
         });
 
         // Default crypt
-        $this['crypt'] = $this->share(function ($c) {
-            return new $c['CryptClass']($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+        $this->crypt = $this->share(function ($c) {
+            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
         // Default session
-        $this['session'] = $this->share(function ($c) {
-            $s = new $c['SessionClass']($c['settings']['session.options'], $c['settings']['session.handler']);
+        $this->session = $this->share(function ($c) {
+            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
             $s->start();
             if ($c['settings']['session.encrypt'] === true) {
                 $s->decrypt($c['crypt']);
@@ -255,12 +223,12 @@ class App extends \Slim\Pimple
         });
 
         // Default flash
-        $this['flash'] = $this->share(function ($c) {
-            return new $c['FlashClass']($c['session'], $c['settings']['session.flash_key']);
+        $this->flash = $this->share(function ($c) {
+            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Default mode
-        $this['mode'] = function ($c) {
+        $this->mode = function ($c) {
             $mode = $c['settings']['mode'];
 
             if (isset($_ENV['SLIM_MODE'])) {
@@ -277,15 +245,6 @@ class App extends \Slim\Pimple
 
         // Define default middleware stack
         $this->middleware = array($this);
-    }
-
-    /**
-     * Get default application classes
-     * @return array
-     */
-    public static function getDefaultClasses()
-    {
-        return static::$defaultClasses;
     }
 
     /**
@@ -416,7 +375,7 @@ class App extends \Slim\Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new $this['RouteClass']($pattern, $callable);
+        $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
@@ -446,10 +405,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $get = constant($this['RequestClass'] . '::METHOD_GET');
-        $head = constant($this['RequestClass'] . '::METHOD_HEAD');
-
-        return $this->mapRoute($args)->via($get, $head);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_GET, \Slim\Http\Request::METHOD_HEAD);
     }
 
     /**
@@ -461,9 +417,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $post = constant($this['RequestClass'] . '::METHOD_POST');
-
-        return $this->mapRoute($args)->via($post);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_POST);
     }
 
     /**
@@ -475,9 +429,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $put = constant($this['RequestClass'] . '::METHOD_PUT');
-
-        return $this->mapRoute($args)->via($put);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PUT);
     }
 
     /**
@@ -489,9 +441,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $patch = constant($this['RequestClass'] . '::METHOD_PATCH');
-
-        return $this->mapRoute($args)->via($patch);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PATCH);
     }
 
     /**
@@ -503,9 +453,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $delete = constant($this['RequestClass'] . '::METHOD_DELETE');
-
-        return $this->mapRoute($args)->via($delete);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_DELETE);
     }
 
     /**
@@ -517,9 +465,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $options = constant($this['RequestClass'] . '::METHOD_OPTIONS');
-
-        return $this->mapRoute($args)->via($options);
+        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_OPTIONS);
     }
 
     /**
@@ -1189,7 +1135,7 @@ class App extends \Slim\Pimple
     public function call()
     {
         try {
-            if ($this->settings['view'] instanceof \Slim\Interfaces\ViewInterface) {
+            if ($this->settings['view'] instanceof \Slim\View) {
                 $this->view->set('flash', $this->flash->getMessages());
             }
             $this->applyHook('slim.before');
@@ -1244,17 +1190,15 @@ class App extends \Slim\Pimple
             if ($this->settings['cookies.encrypt']) {
                 $this->response->cookies->encrypt($this->crypt);
             }
-            call_user_func_array(array($this['CookiesClass'], 'serialize'), array(&$headers, $this->response->cookies));
+            \Slim\Http\Cookies::serialize($headers, $this->response->cookies);
 
             //Send headers
             if (headers_sent() === false) {
                 //Send status
                 if (strpos(PHP_SAPI, 'cgi') === 0) {
-                    $message = call_user_func(array($this['ResponseClass'], 'getMessageForCode'), $status);
-                    header(sprintf('Status: %s', $message));
+                    header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
                 } else {
-                    $message = call_user_func(array($this['ResponseClass'], 'getMessageForCode'), $status);
-                    header(sprintf('HTTP/%s %s', $this->config('http.version'), $message));
+                    header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
                 }
 
                 //Send headers
