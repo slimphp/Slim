@@ -143,7 +143,7 @@ class Session extends \Slim\Collection implements \Slim\Interfaces\SessionInterf
      * @param  array $options
      * @return void
      */
-    protected function setOptions(array $options)
+    public function setOptions(array $options)
     {
         $theOptions = array_flip(array(
             'cache_limiter',
@@ -181,7 +181,7 @@ class Session extends \Slim\Collection implements \Slim\Interfaces\SessionInterf
         }
     }
 
-    protected function setHandler($handler = null)
+    public function setHandler($handler = null)
     {
         if ($handler !== null) {
             $this->handler = $handler;

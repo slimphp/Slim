@@ -47,7 +47,7 @@ interface SessionInterface
 
     public function setHandler($handler);
 
-    protected function setOptions(array $options);
+    public function setOptions(array $options);
 
     public function encrypt(CryptInterface $crypt);
 
