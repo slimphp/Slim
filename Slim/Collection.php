@@ -32,7 +32,7 @@
  */
 namespace Slim;
 
-class Collection implements \Countable, \IteratorAggregate
+class Collection implements \Countable, \IteratorAggregate, \Slim\Interfaces\CollectionInterface
 {
     /**
      * Key-value array of data
