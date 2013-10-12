@@ -461,7 +461,7 @@ class App extends \Slim\Pimple
     {
         $args = func_get_args();
 
-        $post = constant($this['RequestClass'] . '::METHOD_POST')
+        $post = constant($this['RequestClass'] . '::METHOD_POST');
 
         return $this->mapRoute($args)->via($post);
     }
@@ -1244,7 +1244,7 @@ class App extends \Slim\Pimple
             if ($this->settings['cookies.encrypt']) {
                 $this->response->cookies->encrypt($this->crypt);
             }
-            call_user_func_array(array($this['CookiesClass']), array($headers, $this->response->cookies));
+            call_user_func_array(array($this['CookiesClass'], 'serialize'), array(&$headers, $this->response->cookies));
 
             //Send headers
             if (headers_sent() === false) {
