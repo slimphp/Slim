@@ -44,7 +44,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Router \Slim\Interfaces\RouterInterface
+class Router implements \Slim\Interfaces\RouterInterface
 {
     /**
      * The current (most recently dispatched) route

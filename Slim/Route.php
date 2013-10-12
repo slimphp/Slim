@@ -58,7 +58,7 @@ namespace Slim;
  * @author  Josh Lockhart, Thomas Bley
  * @since   1.0.0
  */
-class Route \Slim\Interfaces\RouteInterface
+class Route implements \Slim\Interfaces\RouteInterface
 {
     /**
      * The route pattern (e.g. "/hello/:first/:name")
