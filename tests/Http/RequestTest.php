@@ -40,7 +40,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertEquals('GET', $req->getMethod());
     }
 
@@ -52,7 +54,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isGet());
     }
 
@@ -64,7 +68,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPost());
     }
 
@@ -76,7 +82,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPut());
     }
 
@@ -88,7 +96,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'DELETE',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $cookies, $headers);
         $this->assertTrue($req->isDelete());
     }
 
@@ -100,7 +110,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'OPTIONS',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isOptions());
     }
 
@@ -112,7 +124,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'HEAD',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isHead());
     }
 
@@ -124,7 +138,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PATCH',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPatch());
     }
 
@@ -136,7 +152,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
     }
@@ -149,7 +167,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'QUERY_STRING' => 'isajax=1',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
     }
@@ -160,7 +180,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsAjaxWithoutHeaderOrQueryParameter()
     {
         $env = \Slim\Environment::mock();
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertFalse($req->isAjax());
         $this->assertFalse($req->isXhr());
     }
@@ -280,8 +302,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
         $env = \Slim\Environment::mock();
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
         $env->remove('slim.input');
-        $req = new \Slim\Http\Request($env);
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $req->post('foo');
     }
 

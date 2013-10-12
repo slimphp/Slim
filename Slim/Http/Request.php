@@ -100,7 +100,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      * Constructor
      * @param \Slim\Environment $env
      */
-    public function __construct(\Slim\Interfaces\EnvironmentInterface $env, \Slim\Interfaces\Http\HeadersInterface $headers, \Slim\Interfaces\CollectionInterface $cookies)
+    public function __construct($env, $headers, $cookies)
     {
         $this->env = $env;
         $this->headers = $headers;
