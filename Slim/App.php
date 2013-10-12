@@ -131,7 +131,7 @@ class App extends \Slim\Pimple
         'slim.after' => array(array())
     );
 
-    protected $defaultClasses = array(
+    protected static $defaultClasses = array(
         'AppClass'         => '\\Slim\\App',
         'CollectionClass'  => '\\Slim\\Collection',
         'CryptClass'       => '\\Slim\\Crypt',
@@ -149,7 +149,7 @@ class App extends \Slim\Pimple
         'ResponseClass'    => '\\Slim\\Http\\Response',
     );
 
-    protected $defaultSettings = array(
+    protected static $defaultSettings = array(
         // Application
         'mode' => 'development',
         'view' => null,
@@ -285,7 +285,7 @@ class App extends \Slim\Pimple
      */
     public static function getDefaultClasses()
     {
-        return $this->defaultClasses;
+        return static::$defaultClasses;
     }
 
     /**
@@ -294,7 +294,7 @@ class App extends \Slim\Pimple
      */
     public static function getDefaultSettings()
     {
-        return $this->defaultSettings;
+        return static::$defaultSettings;
     }
 
     /**

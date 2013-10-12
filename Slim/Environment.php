@@ -97,7 +97,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Environment extends \Slim\Collection
+class Environment extends \Slim\Collection implements \Slim\Interfaces\EnvironmentInterface
 {
     /**
      * The raw HTTP request body, readable only once from `php://input`

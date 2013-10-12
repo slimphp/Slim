@@ -141,7 +141,7 @@ class Headers extends \Slim\Collection implements \Slim\Interfaces\Http\HeadersI
      * @param  string $key
      * @return string
      */
-    protected static function normalizeKey($key)
+    public static function normalizeKey($key)
     {
         $key = strtolower($key);
         $key = str_replace(array('-', '_'), ' ', $key);
