@@ -67,7 +67,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT'
         ));
-        $this->assertInstanceOf('\Slim\Environment', $env);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
         $this->assertEquals('PUT', $env->get('REQUEST_METHOD'));
         $this->assertEquals(80, $env->get('SERVER_PORT'));
         $this->assertNull($env->get('foo'));

@@ -435,7 +435,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $headers = $req->headers;
-        $this->assertInstanceOf('\Slim\Http\Headers', $headers);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\HeadersInterface', $headers);
         $this->assertEquals('gzip', $req->headers->get('HTTP_ACCEPT_ENCODING'));
         $this->assertEquals('gzip', $req->headers->get('HTTP-ACCEPT-ENCODING'));
         $this->assertEquals('gzip', $req->headers->get('http_accept_encoding'));
