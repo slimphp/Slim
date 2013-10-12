@@ -80,7 +80,7 @@ class Crypt implements \Slim\Interfaces\CryptInterface
      * @param  string $key    Encryption key
      * @param  int    $cipher Encryption algorithm
      * @param  int    $mode   Encryption mode
-     * @return void
+     * @api
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
@@ -95,6 +95,7 @@ class Crypt implements \Slim\Interfaces\CryptInterface
      * @return string                  Encrypted data
      * @throws \RuntimeException       If mcrypt extension not loaded
      * @throws \RuntimeException       If encryption module initialization failed
+     * @api
      */
     public function encrypt($data)
     {
@@ -148,6 +149,7 @@ class Crypt implements \Slim\Interfaces\CryptInterface
      * @throws \RuntimeException       If mcrypt extension not loaded
      * @throws \RuntimeException       If decryption module initialization failed
      * @throws \RuntimeException       If HMAC integrity verification fails
+     * @api
      */
     public function decrypt($data)
     {

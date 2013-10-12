@@ -78,6 +78,7 @@ class Cookies extends \Slim\Collection implements \Slim\Interfaces\Http\CookiesI
      *
      * @param string $key   Cookie name
      * @param mixed  $value Cookie settings
+     * @api
      */
     public function set($key, $value)
     {
@@ -97,8 +98,9 @@ class Cookies extends \Slim\Collection implements \Slim\Interfaces\Http\CookiesI
      * the client-side cache to remove its cookie with the given name
      * and settings.
      *
-     * @param  string $key      Cookie name
-     * @param  array  $settings Optional cookie settings
+     * @param string $key      Cookie name
+     * @param array  $settings Optional cookie settings
+     * @api
      */
     public function remove($key, $settings = array())
     {
@@ -112,8 +114,8 @@ class Cookies extends \Slim\Collection implements \Slim\Interfaces\Http\CookiesI
      *
      * This method iterates and encrypts data values.
      *
-     * @param  \Slim\Crypt $crypt
-     * @return void
+     * @param \Slim\Crypt $crypt
+     * @api
      */
     public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {

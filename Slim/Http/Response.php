@@ -58,12 +58,14 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Response headers
      * @var \Slim\Http\Headers
+     * @api
      */
     public $headers;
 
     /**
      * Response cookies
      * @var \Slim\Http\Cookies
+     * @api
      */
     public $cookies;
 
@@ -145,6 +147,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
      * @param string                   $body    The HTTP response body
      * @param int                      $status  The HTTP response status
      * @param \Slim\Http\Headers|array $headers The HTTP response headers
+     * @api
      */
     public function __construct($body = '', $status = 200, \Slim\Interfaces\Http\HeadersInterface $headers, \Slim\Interfaces\Http\CookiesInterface $cookies)
     {
@@ -158,6 +161,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Get response status code
      * @return int
+     * @api
      */
     public function getStatus()
     {
@@ -167,6 +171,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Set response status code
      * @param int $status The HTTP status code
+     * @api
      */
     public function setStatus($status)
     {
@@ -176,6 +181,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Get response body
      * @return string|resource
+     * @api
      */
     public function getBody()
     {
@@ -185,6 +191,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Set response body
      * @param string $content The new response body
+     * @api
      */
     public function setBody($content)
     {
@@ -194,6 +201,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Is the response body a resource stream?
      * @return bool
+     * @api
      */
     public function isStream()
     {
@@ -205,6 +213,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
      * @param  string   $body       Content to append to the current HTTP response body
      * @param  bool     $replace    Overwrite existing response body?
      * @return string               The updated HTTP response body
+     * @api
      */
     public function write($body, $replace = false)
     {
@@ -221,6 +230,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
    /**
     * Set the response body to a stream resource
     * @param resource $handle Resource stream to send
+    * @api
     */
     public function stream($handle)
     {
@@ -231,6 +241,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Get the response body stream resource
      * @return resource|false
+     * @api
      */
     public function getStream()
     {
@@ -240,6 +251,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Get the response body length
      * @return int
+     * @api
      */
     public function getLength()
     {
@@ -275,6 +287,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
      *
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
+     * @api
      */
     public function redirect ($url, $status = 302)
     {
@@ -285,6 +298,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Empty?
      * @return bool
+     * @api
      */
     public function isEmpty()
     {
@@ -294,6 +308,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Informational?
      * @return bool
+     * @api
      */
     public function isInformational()
     {
@@ -303,6 +318,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: OK?
      * @return bool
+     * @api
      */
     public function isOk()
     {
@@ -312,6 +328,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Successful?
      * @return bool
+     * @api
      */
     public function isSuccessful()
     {
@@ -321,6 +338,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Redirect?
      * @return bool
+     * @api
      */
     public function isRedirect()
     {
@@ -330,6 +348,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Redirection?
      * @return bool
+     * @api
      */
     public function isRedirection()
     {
@@ -339,6 +358,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Forbidden?
      * @return bool
+     * @api
      */
     public function isForbidden()
     {
@@ -348,6 +368,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Not Found?
      * @return bool
+     * @api
      */
     public function isNotFound()
     {
@@ -357,6 +378,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Client error?
      * @return bool
+     * @api
      */
     public function isClientError()
     {
@@ -366,6 +388,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
     /**
      * Helpers: Server Error?
      * @return bool
+     * @api
      */
     public function isServerError()
     {

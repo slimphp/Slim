@@ -124,7 +124,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * Constructor
      * @param  string $pattern  The URL pattern
      * @param  mixed  $callable Anything that returns `true` for `is_callable()`
-     * @return void
+     * @api
      */
     public function __construct($pattern, $callable)
     {
@@ -136,7 +136,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set default route conditions for all routes
      * @param  array $defaultConditions
-     * @return void
+     * @api
      */
     public static function setDefaultConditions(array $defaultConditions)
     {
@@ -146,6 +146,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get default route conditions for all instances
      * @return array
+     * @api
      */
     public static function getDefaultConditions()
     {
@@ -155,6 +156,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get route pattern
      * @return string
+     * @api
      */
     public function getPattern()
     {
@@ -164,7 +166,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set route pattern
      * @param  string $pattern
-     * @return void
+     * @api
      */
     public function setPattern($pattern)
     {
@@ -174,6 +176,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get route callable
      * @return mixed
+     * @api
      */
     public function getCallable()
     {
@@ -183,8 +186,8 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set route callable
      * @param  mixed                     $callable
-     * @return void
      * @throws \InvalidArgumentException If argument is not callable
+     * @api
      */
     public function setCallable($callable)
     {
@@ -198,6 +201,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get route conditions
      * @return array
+     * @api
      */
     public function getConditions()
     {
@@ -207,7 +211,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set route conditions
      * @param  array $conditions
-     * @return void
+     * @api
      */
     public function setConditions(array $conditions)
     {
@@ -217,6 +221,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get route name (this may be null if not set)
      * @return string|null
+     * @api
      */
     public function getName()
     {
@@ -226,7 +231,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set route name
      * @param string $name
-     * @return void
+     * @api
      */
     public function setName($name)
     {
@@ -236,6 +241,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get route parameters
      * @return array
+     * @api
      */
     public function getParams()
     {
@@ -245,7 +251,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Set route parameters
      * @param  array $params
-     * @return void
+     * @api
      */
     public function setParams(array $params)
     {
@@ -257,6 +263,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * @param  string                    $index Name of URL parameter
      * @return string
      * @throws \InvalidArgumentException        If route parameter does not exist at index
+     * @api
      */
     public function getParam($index)
     {
@@ -273,6 +280,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * @param  mixed                     $value     The new parameter value
      * @return void
      * @throws \InvalidArgumentException            If route parameter does not exist at index
+     * @api
      */
     public function setParam($index, $value)
     {
@@ -284,7 +292,7 @@ class Route implements \Slim\Interfaces\RouteInterface
 
     /**
      * Add supported HTTP methods (this method accepts an unlimited number of string arguments)
-     * @return void
+     * @api
      */
     public function setHttpMethods()
     {
@@ -295,6 +303,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get supported HTTP methods
      * @return array
+     * @api
      */
     public function getHttpMethods()
     {
@@ -303,7 +312,7 @@ class Route implements \Slim\Interfaces\RouteInterface
 
     /**
      * Append supported HTTP methods (this method accepts an unlimited number of string arguments)
-     * @return void
+     * @api
      */
     public function appendHttpMethods()
     {
@@ -314,6 +323,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Append supported HTTP methods (alias for Route::appendHttpMethods)
      * @return \Slim\Route
+     * @api
      */
     public function via()
     {
@@ -327,6 +337,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * Detect support for an HTTP method
      * @param  string $method
      * @return bool
+     * @api
      */
     public function supportsHttpMethod($method)
     {
@@ -336,6 +347,7 @@ class Route implements \Slim\Interfaces\RouteInterface
     /**
      * Get middleware
      * @return array[Callable]
+     * @api
      */
     public function getMiddleware()
     {
@@ -355,6 +367,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * @param  Callable|array[Callable]
      * @return \Slim\Route
      * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
+     * @api
      */
     public function setMiddleware($middleware)
     {
@@ -384,6 +397,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      *
      * @param  string $resourceUri A Request URI
      * @return bool
+     * @api
      */
     public function matches($resourceUri)
     {
@@ -438,6 +452,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * Set route name
      * @param  string      $name The name of the route
      * @return \Slim\Route
+     * @api
      */
     public function name($name)
     {
@@ -450,6 +465,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * Merge route conditions
      * @param  array       $conditions Key-value array of URL parameter conditions
      * @return \Slim\Route
+     * @api
      */
     public function conditions(array $conditions)
     {
@@ -466,6 +482,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      * the order specified.
      *
      * @return bool
+     * @api
      */
     public function dispatch()
     {

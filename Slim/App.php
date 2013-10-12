@@ -161,19 +161,20 @@ class App extends \Slim\Pimple
 
     /**
      * Constructor
-     * @param array $userSettings Associative array of application settings
+     * @param  array $userSettings Associative array of application settings
+     * @api
      */
     public function __construct(array $userSettings = array())
     {
-        // Setup DI container
+        // Settings
         $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
 
-        // Default environment
+        // Environment
         $this->environment = $this->share(function ($c) {
             return new \Slim\Environment();
         });
 
-        // Default request
+        // Request
         $this->request = $this->share(function ($c) {
             $headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($c['environment']->all()));
             $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($c['environment']->get('HTTP_COOKIE')));
@@ -185,19 +186,19 @@ class App extends \Slim\Pimple
             return $request;
         });
 
-        // Default response
+        // Response
         $this->response = $this->share(function ($c) {
             $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
             $cookies = new \Slim\Http\Cookies();
             return new \Slim\Http\Response();
         });
 
-        // Default router
+        // Router
         $this->router = $this->share(function ($c) {
             return new \Slim\Router();
         });
 
-        // Default view
+        // View
         $this->view = $this->share(function ($c) {
             if ($c['settings']['view'] instanceof \Slim\View === false) {
                 throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
@@ -206,12 +207,12 @@ class App extends \Slim\Pimple
             return $c['settings']['view'];
         });
 
-        // Default crypt
+        // Crypt
         $this->crypt = $this->share(function ($c) {
             return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
-        // Default session
+        // Session
         $this->session = $this->share(function ($c) {
             $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
             $s->start();
@@ -222,12 +223,12 @@ class App extends \Slim\Pimple
             return $s;
         });
 
-        // Default flash
+        // Flash
         $this->flash = $this->share(function ($c) {
             return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
-        // Default mode
+        // Mode
         $this->mode = function ($c) {
             $mode = $c['settings']['mode'];
 
@@ -243,7 +244,7 @@ class App extends \Slim\Pimple
             return $mode;
         };
 
-        // Define default middleware stack
+        // Middleware stack
         $this->middleware = array($this);
     }
 
@@ -274,6 +275,7 @@ class App extends \Slim\Pimple
      * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
      * @param  mixed        $value  If name is a string, the value of the setting identified by $name
      * @return mixed                The value of a setting if only one argument is a string
+     * @api
      */
     public function config($name, $value = null)
     {
@@ -300,7 +302,7 @@ class App extends \Slim\Pimple
      *
      * @param  string $mode
      * @param  mixed  $callable
-     * @return void
+     * @api
      */
     public function configureMode($mode, $callable)
     {
@@ -317,21 +319,44 @@ class App extends \Slim\Pimple
     * implements object overloading magic methods. We do that here.
     *******************************************************************************/
 
+    /**
+     * Get inaccessible property
+     * @param  mixed $key
+     * @return mixed
+     * @codeCoverageIgnore
+     */
     public function __get($key)
     {
         return $this[$key];
     }
 
+    /**
+     * Set inaccessible property
+     * @param mixed $key
+     * @param mixed $value
+     * @codeCoverageIgnore
+     */
     public function __set($key, $value)
     {
         $this[$key] = $value;
     }
 
+    /**
+     * Is inaccessible property set?
+     * @param  mixed  $key
+     * @return bool
+     * @codeCoverageIgnore
+     */
     public function __isset($key)
     {
         return isset($this[$key]);
     }
 
+    /**
+     * Unset inaccessible property
+     * @param mixed $key
+     * @codeCoverageIgnore
+     */
     public function __unset($key)
     {
         unset($this[$key]);
@@ -368,8 +393,8 @@ class App extends \Slim\Pimple
      *
      * Slim::get('/foo'[, middleware, middleware, ...], callable);
      *
-     * @param   array (See notes above)
-     * @return  \Slim\Route
+     * @param  array
+     * @return \Slim\Route
      */
     protected function mapRoute($args)
     {
@@ -385,8 +410,7 @@ class App extends \Slim\Pimple
     }
 
     /**
-     * Add generic route without associated HTTP method
-     * @see    mapRoute()
+     * Add route without HTTP method
      * @return \Slim\Route
      */
     public function map()
@@ -398,8 +422,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add GET route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function get()
     {
@@ -410,8 +434,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add POST route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function post()
     {
@@ -422,8 +446,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add PUT route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function put()
     {
@@ -434,8 +458,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add PATCH route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function patch()
     {
@@ -446,8 +470,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add DELETE route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function delete()
     {
@@ -458,8 +482,8 @@ class App extends \Slim\Pimple
 
     /**
      * Add OPTIONS route
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function options()
     {
@@ -471,12 +495,14 @@ class App extends \Slim\Pimple
     /**
      * Route Groups
      *
-     * This method accepts a route pattern and a callback all Route
+     * This method accepts a route pattern and a callback. All route
      * declarations in the callback will be prepended by the group(s)
-     * that it is in
+     * that it is in.
      *
      * Accepts the same parameters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
+     *
+     * @api
      */
     public function group()
     {
@@ -490,10 +516,10 @@ class App extends \Slim\Pimple
         $this->router->popGroup();
     }
 
-    /*
+    /**
      * Add route for any HTTP method
-     * @see    mapRoute()
      * @return \Slim\Route
+     * @api
      */
     public function any()
     {
@@ -522,6 +548,7 @@ class App extends \Slim\Pimple
      * whose body is the output of the Not Found handler.
      *
      * @param  mixed $callable Anything that returns true for is_callable()
+     * @api
      */
     public function notFound ($callable = null)
     {
@@ -559,7 +586,8 @@ class App extends \Slim\Pimple
      * as its one and only argument. The error handler's output is captured
      * into an output buffer and sent as the body of a 500 HTTP Response.
      *
-     * @param  mixed $argument Callable|\Exception
+     * @param  mixed $argument A callable or an exception
+     * @api
      */
     public function error($argument = null)
     {
@@ -612,6 +640,7 @@ class App extends \Slim\Pimple
      * @param  string $template The name of the template passed into the view's render() method
      * @param  array  $data     Associative array of data made available to the view
      * @param  int    $status   The HTTP response status code to use (optional)
+     * @api
      */
     public function render($template, $data = array(), $status = null)
     {
@@ -637,6 +666,7 @@ class App extends \Slim\Pimple
      *
      * @param  int                       $time  The last modified UNIX timestamp
      * @throws \InvalidArgumentException        If provided timestamp is not an integer
+     * @api
      */
     public function lastModified($time)
     {
@@ -665,22 +695,23 @@ class App extends \Slim\Pimple
      * @param  string                    $value The etag value
      * @param  string                    $type  The type of etag to create; either "strong" or "weak"
      * @throws \InvalidArgumentException        If provided type is invalid
+     * @api
      */
     public function etag($value, $type = 'strong')
     {
-        //Ensure type is correct
+        // Ensure type is correct
         if (!in_array($type, array('strong', 'weak'))) {
             throw new \InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
         }
 
-        //Set etag value
+        // Set etag value
         $value = '"' . $value . '"';
         if ($type === 'weak') {
             $value = 'W/'.$value;
         }
         $this->response->headers->set('ETag', $value);
 
-        //Check conditional GET
+        // Check conditional GET
         if ($etagsHeader = $this->request->headers->get('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if (in_array($value, $etags) || in_array('*', $etags)) {
@@ -701,6 +732,7 @@ class App extends \Slim\Pimple
      *
      * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
      *                              If int, a UNIX timestamp;
+     * @api
      */
     public function expires($time)
     {
@@ -717,16 +749,17 @@ class App extends \Slim\Pimple
     /**
      * Set HTTP cookie to be sent with the HTTP response
      *
-     * @param string     $name      The cookie name
-     * @param string     $value     The cookie value
-     * @param int|string $time      The duration of the cookie;
+     * @param  string     $name     The cookie name
+     * @param  string     $value    The cookie value
+     * @param  int|string $time     The duration of the cookie;
      *                                  If integer, should be UNIX timestamp;
      *                                  If string, converted to UNIX timestamp with `strtotime`;
-     * @param string     $path      The path on the server in which the cookie will be available on
-     * @param string     $domain    The domain that the cookie is available to
-     * @param bool       $secure    Indicates that the cookie should only be transmitted over a secure
+     * @param  string     $path     The path on the server in which the cookie will be available on
+     * @param  string     $domain   The domain that the cookie is available to
+     * @param  bool       $secure   Indicates that the cookie should only be transmitted over a secure
      *                              HTTPS connection to/from the client
-     * @param bool       $httponly  When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @param  bool       $httponly When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @api
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
@@ -750,6 +783,7 @@ class App extends \Slim\Pimple
      *
      * @param  string      $name    The cookie name
      * @return string|null
+     * @api
      */
     public function getCookie($name)
     {
@@ -765,12 +799,13 @@ class App extends \Slim\Pimple
      * removed. If any of this method's arguments are omitted or set to NULL, the
      * default Cookie setting values (set during Slim::init) will be used instead.
      *
-     * @param string    $name       The cookie name
-     * @param string    $path       The path on the server in which the cookie will be available on
-     * @param string    $domain     The domain that the cookie is available to
-     * @param bool      $secure     Indicates that the cookie should only be transmitted over a secure
-     *                              HTTPS connection from the client
-     * @param  bool     $httponly   When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @param  string $name     The cookie name
+     * @param  string $path     The path on the server in which the cookie will be available on
+     * @param  string $domain   The domain that the cookie is available to
+     * @param  bool   $secure   Indicates that the cookie should only be transmitted over a secure
+     *                          HTTPS connection from the client
+     * @param  bool   $httponly When TRUE the cookie will be made accessible only through the HTTP protocol
+     * @api
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
@@ -796,6 +831,7 @@ class App extends \Slim\Pimple
      * will always return an absolute path WITH a trailing slash.
      *
      * @return string
+     * @api
      */
     public function root()
     {
@@ -819,6 +855,7 @@ class App extends \Slim\Pimple
      * and the response will be sent as is to the HTTP client.
      *
      * @throws \Slim\Exception\Stop
+     * @api
      */
     public function stop()
     {
@@ -834,8 +871,9 @@ class App extends \Slim\Pimple
      * If you need to render a template AND customize the response status,
      * use the application's `render()` method instead.
      *
-     * @param  int      $status     The HTTP response status
-     * @param  string   $message    The HTTP response body
+     * @param  int    $status  The HTTP response status
+     * @param  string $message The HTTP response body
+     * @api
      */
     public function halt($status, $message = '')
     {
@@ -853,6 +891,7 @@ class App extends \Slim\Pimple
      * If no subsequent matching routes are found, a 404 response will be sent to the client.
      *
      * @throws \Slim\Exception\Pass
+     * @api
      */
     public function pass()
     {
@@ -862,7 +901,8 @@ class App extends \Slim\Pimple
 
     /**
      * Set the HTTP response Content-Type
-     * @param string $type The Content-Type for the Response (ie. text/html)
+     * @param  string $type The Content-Type for the Response (ie. text/html)
+     * @api
      */
     public function contentType($type)
     {
@@ -871,7 +911,8 @@ class App extends \Slim\Pimple
 
     /**
      * Set the HTTP response status code
-     * @param int $code The HTTP response status code
+     * @param  int $code The HTTP response status code
+     * @api
      */
     public function status($code)
     {
@@ -880,10 +921,11 @@ class App extends \Slim\Pimple
 
     /**
      * Get the URL for a named route
-     * @param  string               $name       The route name
-     * @param  array                $params     Associative array of URL parameters and replacement values
-     * @throws \RuntimeException                If named route does not exist
+     * @param  string            $name   The route name
+     * @param  array             $params Associative array of URL parameters and replacement values
+     * @throws \RuntimeException         If named route does not exist
      * @return string
+     * @api
      */
     public function urlFor($name, $params = array())
     {
@@ -899,8 +941,9 @@ class App extends \Slim\Pimple
      * 3xx status code if you want. This method will automatically set the
      * HTTP Location header for you using the URL parameter.
      *
-     * @param  string   $url        The destination URL
-     * @param  int      $status     The HTTP redirect status code (optional)
+     * @param  string $url    The destination URL
+     * @param  int    $status The HTTP redirect status code (optional)
+     * @api
      */
     public function redirect($url, $status = 302)
     {
@@ -914,9 +957,10 @@ class App extends \Slim\Pimple
 
     /**
      * Assign hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $callable   A callable object
-     * @param  int      $priority   The hook priority; 0 = high, 10 = low
+     * @param  string $name     The hook name
+     * @param  mixed  $callable A callable object
+     * @param  int    $priority The hook priority; 0 = high, 10 = low
+     * @api
      */
     public function hook($name, $callable, $priority = 10)
     {
@@ -930,8 +974,9 @@ class App extends \Slim\Pimple
 
     /**
      * Invoke hook
-     * @param  string   $name       The hook name
-     * @param  mixed    $hookArg    (Optional) Argument for hooked functions
+     * @param  string $name    The hook name
+     * @param  mixed  $hookArg (Optional) Argument for hooked functions
+     * @api
      */
     public function applyHook($name, $hookArg = null)
     {
@@ -961,8 +1006,9 @@ class App extends \Slim\Pimple
      * Else, all listeners are returned as an associative array whose
      * keys are hook names and whose values are arrays of listeners.
      *
-     * @param  string     $name     A hook name (Optional)
+     * @param  string     $name A hook name (Optional)
      * @return array|null
+     * @api
      */
     public function getHooks($name = null)
     {
@@ -980,7 +1026,8 @@ class App extends \Slim\Pimple
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param string $name A hook name (Optional)
+     * @param  string $name A hook name (Optional)
+     * @api
      */
     public function clearHooks($name = null)
     {
@@ -1002,8 +1049,9 @@ class App extends \Slim\Pimple
      *
      * This method streams a local or remote file to the client
      *
-     * @param string $file          The URI of the file, can be local or remote
-     * @param string $contentType   Optional content type of the stream, if not specified Slim will attempt to get this
+     * @param  string $file        The URI of the file, can be local or remote
+     * @param  string $contentType Optional content type of the stream, if not specified Slim will attempt to get this
+     * @api
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
@@ -1016,13 +1064,13 @@ class App extends \Slim\Pimple
                 if ($contentType) {
                     $this->response->headers->set("Content-Type", $contentType);
                 } else {
-		    if (extension_loaded('fileinfo')) {
-			    $finfo = new \finfo(FILEINFO_MIME_TYPE);
-			    $type = $finfo->file($file);
-			    $this->response->headers->set("Content-Type", $type);
-		    } else {
-			$this->response->headers->set("Content-Type", "application/octet-stream");
-		    }
+                    if (extension_loaded('fileinfo')) {
+                        $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                        $type = $finfo->file($file);
+                        $this->response->headers->set("Content-Type", $type);
+                    } else {
+                        $this->response->headers->set("Content-Type", "application/octet-stream");
+                    }
                 }
 
                 //Set Content-Length
@@ -1055,8 +1103,9 @@ class App extends \Slim\Pimple
      *
      * This method streams a process to a client
      *
-     * @param string $command       The command to run
-     * @param string $contentType   Optional content type of the stream
+     * @param  string $command     The command to run
+     * @param  string $contentType Optional content type of the stream
+     * @api
      */
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
@@ -1070,7 +1119,8 @@ class App extends \Slim\Pimple
      *
      * This method triggers a download in the browser
      *
-     * @param string $filename Optional filename for the download
+     * @param  string $filename Optional filename for the download
+     * @api
      */
     public function setDownload($filename = false) {
         $h = "attachment;";
@@ -1090,7 +1140,8 @@ class App extends \Slim\Pimple
      * This method prepends new middleware to the application middleware stack.
      * The argument must be an instance that subclasses Slim_Middleware.
      *
-     * @param \Slim\Middleware
+     * @param  \Slim\Middleware
+     * @api
      */
     public function add(\Slim\Interfaces\MiddlewareInterface $newMiddleware)
     {
@@ -1109,6 +1160,8 @@ class App extends \Slim\Pimple
      * This method invokes the middleware stack, including the core Slim application;
      * the result is an array of HTTP status, header, and body. These three items
      * are returned to the HTTP client.
+     *
+     * @api
      */
     public function run()
     {
@@ -1259,8 +1312,8 @@ class App extends \Slim\Pimple
      *
      * This method accepts a title and body content to generate an HTML document layout.
      *
-     * @param  string   $title  The title of the HTML template
-     * @param  string   $body   The body content of the HTML template
+     * @param  string $title The title of the HTML template
+     * @param  string $body  The body content of the HTML template
      * @return string
      */
     protected static function generateTemplateMarkup($title, $body)

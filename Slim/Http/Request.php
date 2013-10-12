@@ -75,12 +75,14 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * HTTP request headers
      * @var \Slim\Http\Headers
+     * @api
      */
     public $headers;
 
     /**
      * HTTP request cookies
      * @var \Slim\Container
+     * @api
      */
     public $cookies;
 
@@ -99,6 +101,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Constructor
      * @param \Slim\Environment $env
+     * @api
      */
     public function __construct($env, $headers, $cookies)
     {
@@ -110,6 +113,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get HTTP method
      * @return string
+     * @api
      */
     public function getMethod()
     {
@@ -133,6 +137,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get original HTTP method (before method override applied)
      * @return string
+     * @api
      */
     public function getOriginalMethod()
     {
@@ -142,6 +147,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a GET request?
      * @return bool
+     * @api
      */
     public function isGet()
     {
@@ -151,6 +157,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a POST request?
      * @return bool
+     * @api
      */
     public function isPost()
     {
@@ -160,6 +167,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a PUT request?
      * @return bool
+     * @api
      */
     public function isPut()
     {
@@ -169,6 +177,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a PATCH request?
      * @return bool
+     * @api
      */
     public function isPatch()
     {
@@ -178,6 +187,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a DELETE request?
      * @return bool
+     * @api
      */
     public function isDelete()
     {
@@ -187,6 +197,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a HEAD request?
      * @return bool
+     * @api
      */
     public function isHead()
     {
@@ -196,6 +207,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this a OPTIONS request?
      * @return bool
+     * @api
      */
     public function isOptions()
     {
@@ -205,6 +217,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this an AJAX request?
      * @return bool
+     * @api
      */
     public function isAjax()
     {
@@ -220,6 +233,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Is this an XHR request? (alias of Slim_Http_Request::isAjax)
      * @return bool
+     * @api
      */
     public function isXhr()
     {
@@ -234,6 +248,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      *
      * @param  string           $key
      * @return array|mixed|null
+     * @api
      */
     public function params($key = null)
     {
@@ -256,6 +271,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      *
      * @param  string               $key    The name of the GET query parameter
      * @return array|string|null
+     * @api
      */
     public function get($key = null)
     {
@@ -292,6 +308,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      * @param  string               $key    The name of the POST body parameter
      * @return array|string|null
      * @throws \RuntimeException            If the raw POST body is not available in \Slim\Environment
+     * @api
      */
     public function post($key = null)
     {
@@ -333,6 +350,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      * Fetch PUT data (alias for \Slim\Http\Request::post)
      * @param  string           $key
      * @return array|string|null
+     * @api
      */
     public function put($key = null)
     {
@@ -343,6 +361,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      * Fetch PATCH data (alias for \Slim\Http\Request::post)
      * @param  string           $key
      * @return array|string|null
+     * @api
      */
     public function patch($key = null)
     {
@@ -353,6 +372,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
      * Fetch DELETE data (alias for \Slim\Http\Request::post)
      * @param  string           $key
      * @return array|string|null
+     * @api
      */
     public function delete($key = null)
     {
@@ -362,6 +382,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Does the Request body contain parsed form data?
      * @return bool
+     * @api
      */
     public function isFormData()
     {
@@ -373,6 +394,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Body
      * @return string
+     * @api
      */
     public function getBody()
     {
@@ -382,6 +404,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Content Type
      * @return string|null
+     * @api
      */
     public function getContentType()
     {
@@ -391,6 +414,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Media Type (type/subtype within Content Type header)
      * @return string|null
+     * @api
      */
     public function getMediaType()
     {
@@ -407,6 +431,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Media Type Params
      * @return array
+     * @api
      */
     public function getMediaTypeParams()
     {
@@ -427,6 +452,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Content Charset
      * @return string|null
+     * @api
      */
     public function getContentCharset()
     {
@@ -441,6 +467,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Content-Length
      * @return int
+     * @api
      */
     public function getContentLength()
     {
@@ -450,6 +477,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Host
      * @return string
+     * @api
      */
     public function getHost()
     {
@@ -470,6 +498,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Host with Port
      * @return string
+     * @api
      */
     public function getHostWithPort()
     {
@@ -479,6 +508,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Port
      * @return int
+     * @api
      */
     public function getPort()
     {
@@ -488,6 +518,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Scheme (https or http)
      * @return string
+     * @api
      */
     public function getScheme()
     {
@@ -497,6 +528,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Script Name (physical path)
      * @return string
+     * @api
      */
     public function getScriptName()
     {
@@ -506,6 +538,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Path Info (virtual path)
      * @return string
+     * @api
      */
     public function getPathInfo()
     {
@@ -515,6 +548,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get URL (scheme + host [ + port if non-standard ])
      * @return string
+     * @api
      */
     public function getUrl()
     {
@@ -529,6 +563,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Path (physical path + virtual path)
      * @return string
+     * @api
      */
     public function getPath()
     {
@@ -538,6 +573,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get query string
      * @return string
+     * @api
      */
     public function getQueryString()
     {
@@ -547,6 +583,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get protocol
      * @return string
+     * @api
      */
     public function getProtocol()
     {
@@ -556,6 +593,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get IP
      * @return string
+     * @api
      */
     public function getIp()
     {
@@ -571,6 +609,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Referrer
      * @return string|null
+     * @api
      */
     public function getReferrer()
     {
@@ -580,6 +619,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get Referer (for those who can't spell)
      * @return string|null
+     * @api
      */
     public function getReferer()
     {
@@ -589,6 +629,7 @@ class Request implements \Slim\Interfaces\Http\RequestInterface
     /**
      * Get User Agent
      * @return string|null
+     * @api
      */
     public function getUserAgent()
     {
