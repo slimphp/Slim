@@ -317,7 +317,6 @@ class App extends \Slim\Pimple
      * Get inaccessible property
      * @param  mixed $key
      * @return mixed
-     * @api
      * @codeCoverageIgnore
      */
     public function __get($key)
@@ -329,7 +328,6 @@ class App extends \Slim\Pimple
      * Set inaccessible property
      * @param mixed $key
      * @param mixed $value
-     * @api
      * @codeCoverageIgnore
      */
     public function __set($key, $value)
@@ -341,7 +339,6 @@ class App extends \Slim\Pimple
      * Is inaccessible property set?
      * @param  mixed  $key
      * @return bool
-     * @api
      * @codeCoverageIgnore
      */
     public function __isset($key)
@@ -352,7 +349,6 @@ class App extends \Slim\Pimple
     /**
      * Unset inaccessible property
      * @param mixed $key
-     * @api
      * @codeCoverageIgnore
      */
     public function __unset($key)
