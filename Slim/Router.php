@@ -78,7 +78,7 @@ class Router
 
     /**
      * Constructor
-     * @return void
+     * @api
      */
     public function __construct()
     {
@@ -95,6 +95,7 @@ class Router
      * has not completed, null will be returned.
      *
      * @return \Slim\Route|null
+     * @api
      */
     public function getCurrentRoute()
     {
@@ -121,6 +122,7 @@ class Router
      * @param  string             $resourceUri The resource URI
      * @param  bool               $reload      Should matching routes be re-parsed?
      * @return array[\Slim\Route]
+     * @api
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
@@ -146,7 +148,7 @@ class Router
      * This method registers a \Slim\Route object with the router.
      *
      * @param  \Slim\Route $route The route object
-     * @return void
+     * @api
      */
     public function map(\Slim\Route $route)
     {
@@ -184,6 +186,7 @@ class Router
      * @param  string     $group      The group pattern (ie. "/books/:id")
      * @param  array|null $middleware Optional parameter array of middleware
      * @return int                    The index of the new group
+     * @api
      */
     public function pushGroup($group, $middleware = array())
     {
@@ -193,6 +196,7 @@ class Router
     /**
      * Removes the last route group from the array
      * @return bool True if successful, else False
+     * @api
      */
     public function popGroup()
     {
@@ -205,6 +209,7 @@ class Router
      * @param  array             $params Associative array of URL parameter names and replacement values
      * @return string                    The URL for the given route populated with provided replacement values
      * @throws \RuntimeException         If named route not found
+     * @api
      */
     public function urlFor($name, $params = array())
     {
@@ -225,8 +230,8 @@ class Router
      * Add named route
      * @param  string            $name   The route name
      * @param  \Slim\Route       $route  The route object
-     * @return void
      * @throws \RuntimeException         If a named route already exists with the same name
+     * @api
      */
     public function addNamedRoute($name, \Slim\Route $route)
     {
@@ -240,6 +245,7 @@ class Router
      * Has named route
      * @param  string $name The route name
      * @return bool
+     * @api
      */
     public function hasNamedRoute($name)
     {
@@ -252,6 +258,7 @@ class Router
      * Get named route
      * @param  string           $name
      * @return \Slim\Route|null
+     * @api
      */
     public function getNamedRoute($name)
     {
@@ -266,6 +273,7 @@ class Router
     /**
      * Get external iterator for named routes
      * @return \ArrayIterator
+     * @api
      */
     public function getNamedRoutes()
     {

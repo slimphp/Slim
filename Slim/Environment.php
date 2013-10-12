@@ -114,6 +114,7 @@ class Environment extends \Slim\Collection
      *
      * @param  array             $userSettings
      * @return \Slim\Environment
+     * @api
      */
     public static function mock(array $userSettings = array())
     {
@@ -138,7 +139,7 @@ class Environment extends \Slim\Collection
     /**
      * Constructor
      * @param  array $settings Environmental variables. Leave blank to use $_SERVER superglobal
-     * @return void
+     * @api
      */
     public function __construct(array $settings = null)
     {

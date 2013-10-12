@@ -75,7 +75,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
      * Constructor
      * @param  \Slim\Session $session
      * @param  string        $key     The flash session storage key
-     * @return void
+     * @api
      */
     public function __construct(\Slim\Session $session, $key = 'slimflash')
     {
@@ -92,7 +92,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
      * Set flash message for next request
      * @param  string $key   The flash message key
      * @param  mixed  $value The flash message value
-     * @return void
+     * @api
      */
     public function next($key, $value)
     {
@@ -103,7 +103,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
      * Set flash message for current request
      * @param  string $key   The flash message key
      * @param  mixed  $value The flash message value
-     * @return void
+     * @api
      */
     public function now($key, $value)
     {
@@ -112,7 +112,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Persist flash messages from previous request to the next request
-     * @return void
+     * @api
      */
     public function keep()
     {
@@ -123,7 +123,6 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Save flash messages to session
-     * @return void
      */
     public function save()
     {
@@ -133,6 +132,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Return flash messages to be shown for the current request
      * @return array
+     * @api
      */
     public function getMessages()
     {

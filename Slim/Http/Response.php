@@ -58,12 +58,14 @@ class Response
     /**
      * Response headers
      * @var \Slim\Http\Headers
+     * @api
      */
     public $headers;
 
     /**
      * Response cookies
      * @var \Slim\Http\Cookies
+     * @api
      */
     public $cookies;
 
@@ -145,6 +147,7 @@ class Response
      * @param string                   $body    The HTTP response body
      * @param int                      $status  The HTTP response status
      * @param \Slim\Http\Headers|array $headers The HTTP response headers
+     * @api
      */
     public function __construct($body = '', $status = 200, $headers = array())
     {
@@ -159,6 +162,7 @@ class Response
     /**
      * Get response status code
      * @return int
+     * @api
      */
     public function getStatus()
     {
@@ -168,6 +172,7 @@ class Response
     /**
      * Set response status code
      * @param int $status The HTTP status code
+     * @api
      */
     public function setStatus($status)
     {
@@ -177,6 +182,7 @@ class Response
     /**
      * Get response body
      * @return string|resource
+     * @api
      */
     public function getBody()
     {
@@ -186,6 +192,7 @@ class Response
     /**
      * Set response body
      * @param string $content The new response body
+     * @api
      */
     public function setBody($content)
     {
@@ -195,6 +202,7 @@ class Response
     /**
      * Is the response body a resource stream?
      * @return bool
+     * @api
      */
     public function isStream()
     {
@@ -206,6 +214,7 @@ class Response
      * @param  string   $body       Content to append to the current HTTP response body
      * @param  bool     $replace    Overwrite existing response body?
      * @return string               The updated HTTP response body
+     * @api
      */
     public function write($body, $replace = false)
     {
@@ -222,6 +231,7 @@ class Response
    /**
     * Set the response body to a stream resource
     * @param resource $handle Resource stream to send
+    * @api
     */
     public function stream($handle)
     {
@@ -232,6 +242,7 @@ class Response
     /**
      * Get the response body stream resource
      * @return resource|false
+     * @api
      */
     public function getStream()
     {
@@ -241,6 +252,7 @@ class Response
     /**
      * Get the response body length
      * @return int
+     * @api
      */
     public function getLength()
     {
@@ -276,6 +288,7 @@ class Response
      *
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
+     * @api
      */
     public function redirect ($url, $status = 302)
     {
@@ -286,6 +299,7 @@ class Response
     /**
      * Helpers: Empty?
      * @return bool
+     * @api
      */
     public function isEmpty()
     {
@@ -295,6 +309,7 @@ class Response
     /**
      * Helpers: Informational?
      * @return bool
+     * @api
      */
     public function isInformational()
     {
@@ -304,6 +319,7 @@ class Response
     /**
      * Helpers: OK?
      * @return bool
+     * @api
      */
     public function isOk()
     {
@@ -313,6 +329,7 @@ class Response
     /**
      * Helpers: Successful?
      * @return bool
+     * @api
      */
     public function isSuccessful()
     {
@@ -322,6 +339,7 @@ class Response
     /**
      * Helpers: Redirect?
      * @return bool
+     * @api
      */
     public function isRedirect()
     {
@@ -331,6 +349,7 @@ class Response
     /**
      * Helpers: Redirection?
      * @return bool
+     * @api
      */
     public function isRedirection()
     {
@@ -340,6 +359,7 @@ class Response
     /**
      * Helpers: Forbidden?
      * @return bool
+     * @api
      */
     public function isForbidden()
     {
@@ -349,6 +369,7 @@ class Response
     /**
      * Helpers: Not Found?
      * @return bool
+     * @api
      */
     public function isNotFound()
     {
@@ -358,6 +379,7 @@ class Response
     /**
      * Helpers: Client error?
      * @return bool
+     * @api
      */
     public function isClientError()
     {
@@ -367,6 +389,7 @@ class Response
     /**
      * Helpers: Server Error?
      * @return bool
+     * @api
      */
     public function isServerError()
     {

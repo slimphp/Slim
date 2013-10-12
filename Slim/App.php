@@ -138,7 +138,7 @@ class App extends \Slim\Pimple
     /**
      * Constructor
      * @param  array $userSettings Associative array of application settings
-     * @return void
+     * @api
      */
     public function __construct(array $userSettings = array())
     {
@@ -269,6 +269,7 @@ class App extends \Slim\Pimple
      * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
      * @param  mixed        $value  If name is a string, the value of the setting identified by $name
      * @return mixed                The value of a setting if only one argument is a string
+     * @api
      */
     public function config($name, $value = null)
     {
@@ -295,7 +296,7 @@ class App extends \Slim\Pimple
      *
      * @param  string $mode
      * @param  mixed  $callable
-     * @return void
+     * @api
      */
     public function configureMode($mode, $callable)
     {
@@ -316,6 +317,7 @@ class App extends \Slim\Pimple
      * Get inaccessible property
      * @param  mixed $key
      * @return mixed
+     * @api
      * @codeCoverageIgnore
      */
     public function __get($key)
@@ -327,6 +329,7 @@ class App extends \Slim\Pimple
      * Set inaccessible property
      * @param mixed $key
      * @param mixed $value
+     * @api
      * @codeCoverageIgnore
      */
     public function __set($key, $value)
@@ -338,6 +341,7 @@ class App extends \Slim\Pimple
      * Is inaccessible property set?
      * @param  mixed  $key
      * @return bool
+     * @api
      * @codeCoverageIgnore
      */
     public function __isset($key)
@@ -348,6 +352,7 @@ class App extends \Slim\Pimple
     /**
      * Unset inaccessible property
      * @param mixed $key
+     * @api
      * @codeCoverageIgnore
      */
     public function __unset($key)
@@ -416,6 +421,7 @@ class App extends \Slim\Pimple
     /**
      * Add GET route
      * @return \Slim\Route
+     * @api
      */
     public function get()
     {
@@ -427,6 +433,7 @@ class App extends \Slim\Pimple
     /**
      * Add POST route
      * @return \Slim\Route
+     * @api
      */
     public function post()
     {
@@ -438,6 +445,7 @@ class App extends \Slim\Pimple
     /**
      * Add PUT route
      * @return \Slim\Route
+     * @api
      */
     public function put()
     {
@@ -449,6 +457,7 @@ class App extends \Slim\Pimple
     /**
      * Add PATCH route
      * @return \Slim\Route
+     * @api
      */
     public function patch()
     {
@@ -460,6 +469,7 @@ class App extends \Slim\Pimple
     /**
      * Add DELETE route
      * @return \Slim\Route
+     * @api
      */
     public function delete()
     {
@@ -471,6 +481,7 @@ class App extends \Slim\Pimple
     /**
      * Add OPTIONS route
      * @return \Slim\Route
+     * @api
      */
     public function options()
     {
@@ -489,7 +500,7 @@ class App extends \Slim\Pimple
      * Accepts the same parameters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
      *
-     * @return void
+     * @api
      */
     public function group()
     {
@@ -506,6 +517,7 @@ class App extends \Slim\Pimple
     /**
      * Add route for any HTTP method
      * @return \Slim\Route
+     * @api
      */
     public function any()
     {
@@ -534,7 +546,7 @@ class App extends \Slim\Pimple
      * whose body is the output of the Not Found handler.
      *
      * @param  mixed $callable Anything that returns true for is_callable()
-     * @return void
+     * @api
      */
     public function notFound ($callable = null)
     {
@@ -573,7 +585,7 @@ class App extends \Slim\Pimple
      * into an output buffer and sent as the body of a 500 HTTP Response.
      *
      * @param  mixed $argument A callable or an exception
-     * @return void
+     * @api
      */
     public function error($argument = null)
     {
@@ -626,7 +638,7 @@ class App extends \Slim\Pimple
      * @param  string $template The name of the template passed into the view's render() method
      * @param  array  $data     Associative array of data made available to the view
      * @param  int    $status   The HTTP response status code to use (optional)
-     * @return void
+     * @api
      */
     public function render($template, $data = array(), $status = null)
     {
@@ -651,8 +663,8 @@ class App extends \Slim\Pimple
      * and send a '304 Not Modified' response to the client.
      *
      * @param  int                       $time  The last modified UNIX timestamp
-     * @return void
      * @throws \InvalidArgumentException        If provided timestamp is not an integer
+     * @api
      */
     public function lastModified($time)
     {
@@ -680,8 +692,8 @@ class App extends \Slim\Pimple
      *
      * @param  string                    $value The etag value
      * @param  string                    $type  The type of etag to create; either "strong" or "weak"
-     * @return void
      * @throws \InvalidArgumentException        If provided type is invalid
+     * @api
      */
     public function etag($value, $type = 'strong')
     {
@@ -718,6 +730,7 @@ class App extends \Slim\Pimple
      *
      * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
      *                              If int, a UNIX timestamp;
+     * @api
      */
     public function expires($time)
     {
@@ -744,7 +757,7 @@ class App extends \Slim\Pimple
      * @param  bool       $secure   Indicates that the cookie should only be transmitted over a secure
      *                              HTTPS connection to/from the client
      * @param  bool       $httponly When TRUE the cookie will be made accessible only through the HTTP protocol
-     * @return void
+     * @api
      */
     public function setCookie($name, $value, $time = null, $path = null, $domain = null, $secure = null, $httponly = null)
     {
@@ -768,6 +781,7 @@ class App extends \Slim\Pimple
      *
      * @param  string      $name    The cookie name
      * @return string|null
+     * @api
      */
     public function getCookie($name)
     {
@@ -789,7 +803,7 @@ class App extends \Slim\Pimple
      * @param  bool   $secure   Indicates that the cookie should only be transmitted over a secure
      *                          HTTPS connection from the client
      * @param  bool   $httponly When TRUE the cookie will be made accessible only through the HTTP protocol
-     * @return void
+     * @api
      */
     public function deleteCookie($name, $path = null, $domain = null, $secure = null, $httponly = null)
     {
@@ -815,6 +829,7 @@ class App extends \Slim\Pimple
      * will always return an absolute path WITH a trailing slash.
      *
      * @return string
+     * @api
      */
     public function root()
     {
@@ -823,7 +838,6 @@ class App extends \Slim\Pimple
 
     /**
      * Clean current output buffer
-     * @return void
      */
     protected function cleanBuffer()
     {
@@ -838,8 +852,8 @@ class App extends \Slim\Pimple
      * The thrown exception will be caught in application's `call()` method
      * and the response will be sent as is to the HTTP client.
      *
-     * @return void
      * @throws \Slim\Exception\Stop
+     * @api
      */
     public function stop()
     {
@@ -857,7 +871,7 @@ class App extends \Slim\Pimple
      *
      * @param  int    $status  The HTTP response status
      * @param  string $message The HTTP response body
-     * @return void
+     * @api
      */
     public function halt($status, $message = '')
     {
@@ -874,8 +888,8 @@ class App extends \Slim\Pimple
      * the router's current iteration to stop and continue to the subsequent route if available.
      * If no subsequent matching routes are found, a 404 response will be sent to the client.
      *
-     * @return void
      * @throws \Slim\Exception\Pass
+     * @api
      */
     public function pass()
     {
@@ -886,7 +900,7 @@ class App extends \Slim\Pimple
     /**
      * Set the HTTP response Content-Type
      * @param  string $type The Content-Type for the Response (ie. text/html)
-     * @return void
+     * @api
      */
     public function contentType($type)
     {
@@ -896,7 +910,7 @@ class App extends \Slim\Pimple
     /**
      * Set the HTTP response status code
      * @param  int $code The HTTP response status code
-     * @return void
+     * @api
      */
     public function status($code)
     {
@@ -909,6 +923,7 @@ class App extends \Slim\Pimple
      * @param  array             $params Associative array of URL parameters and replacement values
      * @throws \RuntimeException         If named route does not exist
      * @return string
+     * @api
      */
     public function urlFor($name, $params = array())
     {
@@ -926,7 +941,7 @@ class App extends \Slim\Pimple
      *
      * @param  string $url    The destination URL
      * @param  int    $status The HTTP redirect status code (optional)
-     * @return void
+     * @api
      */
     public function redirect($url, $status = 302)
     {
@@ -943,7 +958,7 @@ class App extends \Slim\Pimple
      * @param  string $name     The hook name
      * @param  mixed  $callable A callable object
      * @param  int    $priority The hook priority; 0 = high, 10 = low
-     * @return void
+     * @api
      */
     public function hook($name, $callable, $priority = 10)
     {
@@ -959,7 +974,7 @@ class App extends \Slim\Pimple
      * Invoke hook
      * @param  string $name    The hook name
      * @param  mixed  $hookArg (Optional) Argument for hooked functions
-     * @return void
+     * @api
      */
     public function applyHook($name, $hookArg = null)
     {
@@ -991,6 +1006,7 @@ class App extends \Slim\Pimple
      *
      * @param  string     $name A hook name (Optional)
      * @return array|null
+     * @api
      */
     public function getHooks($name = null)
     {
@@ -1009,7 +1025,7 @@ class App extends \Slim\Pimple
      * to that hook will be cleared.
      *
      * @param  string $name A hook name (Optional)
-     * @return void
+     * @api
      */
     public function clearHooks($name = null)
     {
@@ -1033,7 +1049,7 @@ class App extends \Slim\Pimple
      *
      * @param  string $file        The URI of the file, can be local or remote
      * @param  string $contentType Optional content type of the stream, if not specified Slim will attempt to get this
-     * @return void
+     * @api
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
@@ -1087,7 +1103,7 @@ class App extends \Slim\Pimple
      *
      * @param  string $command     The command to run
      * @param  string $contentType Optional content type of the stream
-     * @return void
+     * @api
      */
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
@@ -1102,7 +1118,7 @@ class App extends \Slim\Pimple
      * This method triggers a download in the browser
      *
      * @param  string $filename Optional filename for the download
-     * @return void
+     * @api
      */
     public function setDownload($filename = false) {
         $h = "attachment;";
@@ -1123,7 +1139,7 @@ class App extends \Slim\Pimple
      * The argument must be an instance that subclasses Slim_Middleware.
      *
      * @param  \Slim\Middleware
-     * @return void
+     * @api
      */
     public function add(\Slim\Middleware $newMiddleware)
     {
@@ -1143,7 +1159,7 @@ class App extends \Slim\Pimple
      * the result is an array of HTTP status, header, and body. These three items
      * are returned to the HTTP client.
      *
-     * @return void
+     * @api
      */
     public function run()
     {
@@ -1166,8 +1182,6 @@ class App extends \Slim\Pimple
      * Call
      *
      * This method finds and iterates all route objects that match the current request URI.
-     *
-     * @return void
      */
     public function call()
     {
@@ -1206,8 +1220,6 @@ class App extends \Slim\Pimple
      * Finalize send response
      *
      * This method sends the response object
-     *
-     * @return void
      */
     public function finalize() {
         if (!$this->responded) {
@@ -1309,7 +1321,6 @@ class App extends \Slim\Pimple
 
     /**
      * Default Not Found handler
-     * @return void
      */
     protected function defaultNotFound()
     {
@@ -1318,7 +1329,6 @@ class App extends \Slim\Pimple
 
     /**
      * Default Error handler
-     * @return void
      */
     protected function defaultError($e)
     {

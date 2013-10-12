@@ -76,7 +76,7 @@ class Session extends \Slim\Collection
      * Constructor
      * @param  array $options Session settings
      * @param  mixed $handler The session save handler
-     * @return void
+     * @api
      */
     public function __construct(array $options = array(), $handler = null)
     {
@@ -100,8 +100,8 @@ class Session extends \Slim\Collection
 
     /**
      * Start the session
-     * @return void
      * @throws \RuntimeException If unable to start new PHP session
+     * @api
      */
     public function start()
     {
@@ -129,7 +129,7 @@ class Session extends \Slim\Collection
 
     /**
      * Save session data and close session
-     * @return void
+     * @api
      */
     public function save()
     {
@@ -142,6 +142,7 @@ class Session extends \Slim\Collection
      * Regenerate session ID
      * @param  bool $destroy Destroy existing session data?
      * @return bool
+     * @api
      */
     public function regenerate($destroy = false)
     {
@@ -151,7 +152,7 @@ class Session extends \Slim\Collection
     /**
      * Set session options
      * @param  array $options
-     * @return void
+     * @api
      */
     protected function setOptions(array $options)
     {

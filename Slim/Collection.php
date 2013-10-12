@@ -43,6 +43,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Constructor
      * @param array $items Pre-populate collection with this key-value array
+     * @api
      */
     public function __construct(array $items = array())
     {
@@ -53,6 +54,7 @@ class Collection implements \Countable, \IteratorAggregate
      * Set data key to value
      * @param string $key   The data key
      * @param mixed  $value The data value
+     * @api
      */
     public function set($key, $value)
     {
@@ -64,6 +66,7 @@ class Collection implements \Countable, \IteratorAggregate
      * @param  string $key     The data key
      * @param  mixed  $default The value to return if data key does not exist
      * @return mixed           The data value, or the default value
+     * @api
      */
     public function get($key, $default = null)
     {
@@ -77,6 +80,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Add data to set
      * @param array $items Key-value array of data to append to this set
+     * @api
      */
     public function replace($items)
     {
@@ -88,6 +92,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Fetch set data
      * @return array This set's key-value data array
+     * @api
      */
     public function all()
     {
@@ -97,6 +102,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Fetch set data keys
      * @return array This set's key-value data array keys
+     * @api
      */
     public function keys()
     {
@@ -107,6 +113,7 @@ class Collection implements \Countable, \IteratorAggregate
      * Does this set contain a key?
      * @param  string  $key The data key
      * @return boolean
+     * @api
      */
     public function has($key)
     {
@@ -116,6 +123,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Remove value with key from this set
      * @param  string $key The data key
+     * @api
      */
     public function remove($key)
     {
@@ -124,6 +132,7 @@ class Collection implements \Countable, \IteratorAggregate
 
     /**
      * Clear all values
+     * @api
      */
     public function clear()
     {
@@ -133,7 +142,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Encrypt set
      * @param  \Slim\Crypt $crypt
-     * @return void
+     * @api
      */
     public function encrypt(\Slim\Crypt $crypt)
     {
@@ -145,7 +154,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Decrypt set
      * @param  \Slim\Crypt $crypt
-     * @return void
+     * @api
      */
     public function decrypt(\Slim\Crypt $crypt)
     {
@@ -157,6 +166,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Get number of items in collection
      * @return int
+     * @api
      */
     public function count()
     {
@@ -166,6 +176,7 @@ class Collection implements \Countable, \IteratorAggregate
     /**
      * Get collection iterator
      * @return \ArrayIterator
+     * @api
      */
     public function getIterator()
     {

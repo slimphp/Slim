@@ -100,6 +100,7 @@ class Headers extends \Slim\Collection
      * Set data key to value
      * @param string $key   The data key
      * @param mixed  $value The data value
+     * @api
      */
     public function set($key, $value)
     {
@@ -111,6 +112,7 @@ class Headers extends \Slim\Collection
      * @param  string $key     The data key
      * @param  mixed  $default The value to return if data key does not exist
      * @return mixed           The data value, or the default value
+     * @api
      */
     public function get($key, $default = null)
     {
@@ -121,6 +123,7 @@ class Headers extends \Slim\Collection
      * Does this set contain a key?
      * @param  string  $key The data key
      * @return boolean
+     * @api
      */
     public function has($key)
     {
@@ -130,6 +133,7 @@ class Headers extends \Slim\Collection
     /**
      * Remove value with key from this set
      * @param  string $key The data key
+     * @api
      */
     public function remove($key)
     {

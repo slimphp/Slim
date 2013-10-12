@@ -71,7 +71,7 @@ class View extends \Slim\Collection
      * Constructor
      * @param  string $templateDirectory Path to template directory
      * @param  array  $items             Initialize set with these items
-     * @return void
+     * @api
      */
     public function __construct($templateDirectory, array $items = array())
     {
@@ -86,7 +86,7 @@ class View extends \Slim\Collection
      *
      * @param  string $template Pathname of template file relative to templates directory
      * @param  array  $items    Expose these array items to the rendered template
-     * @return void
+     * @api
      */
     public function display($template, array $data = array())
     {
@@ -102,6 +102,7 @@ class View extends \Slim\Collection
      * @var    string $template Pathname of template file relative to templates directory
      * @param  array  $items    Expose these array items to the rendered template
      * @return string           The rendered template
+     * @api
      */
     public function fetch($template, array $data = array())
     {
