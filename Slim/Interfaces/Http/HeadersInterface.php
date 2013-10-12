@@ -43,5 +43,5 @@ interface HeadersInterface
 {
     public static function find($data);
 
-    protected function normalizeKey($key);
+    public static function normalizeKey($key);
 }

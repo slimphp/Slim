@@ -41,7 +41,7 @@ namespace Slim\Interfaces;
  */
 interface MiddlewareInterface
 {
-    public function setApplication();
+    public function setApplication($application);
 
     public function getApplication();
 
