@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -76,10 +76,10 @@ class MethodOverride extends \Slim\Middleware
     public function call()
     {
         $env = $this->app->environment();
-        if (isset($env['X_HTTP_METHOD_OVERRIDE'])) {
+        if (isset($env['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             // Header commonly used by Backbone.js and others
             $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
-            $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
+            $env['REQUEST_METHOD'] = strtoupper($env['HTTP_X_HTTP_METHOD_OVERRIDE']);
         } elseif (isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST') {
             // HTML Form Override
             $req = new \Slim\Http\Request($env);

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -170,7 +170,7 @@ class Util
         //Decrypt value
         mcrypt_generic_init($module, $key, $iv);
         $decryptedData = @mdecrypt_generic($module, $data);
-        $res = str_replace("\x0", '', $decryptedData);
+        $res = rtrim($decryptedData, "\0");
         mcrypt_generic_deinit($module);
 
         return $res;
@@ -389,7 +389,7 @@ class Util
     /**
      * Parse cookie header
      *
-     * This method will parse the HTTP requst's `Cookie` header
+     * This method will parse the HTTP request's `Cookie` header
      * and extract cookies into an associative array.
      *
      * @param  string
@@ -431,5 +431,4 @@ class Util
 
         return pack("h*", $data1.$data2);
     }
-
 }

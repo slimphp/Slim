@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -49,7 +49,7 @@ class Slim
     /**
      * @const string
      */
-    const VERSION = '2.3.0';
+    const VERSION = '2.3.3';
 
     /**
      * @var \Slim\Helper\Set
@@ -230,13 +230,15 @@ class Slim
     {
         $this->container[$name] = $value;
     }
-    
-    public function __isset($name){
-    	return isset($this->container[$name]);
+
+    public function __isset($name)
+    {
+        return isset($this->container[$name]);
     }
-  
-    public function __unset($name){
-    	unset($this->container[$name]);
+
+    public function __unset($name)
+    {
+        unset($this->container[$name]);
     }
 
     /**
@@ -524,7 +526,7 @@ class Slim
      * declarations in the callback will be prepended by the group(s)
      * that it is in
      *
-     * Accepts the same paramters as a standard route so:
+     * Accepts the same parameters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
      */
     public function group()
@@ -870,6 +872,7 @@ class Slim
      * the current request will not be available until the next request.
      *
      * @param  string      $name
+     * @param  bool        $deleteIfInvalid
      * @return string|null
      */
     public function getCookie($name, $deleteIfInvalid = true)
@@ -1242,9 +1245,9 @@ class Slim
         set_error_handler(array('\Slim\Slim', 'handleErrors'));
 
         //Apply final outer middleware layers
-        if($this->config('debug')){
-        	//Apply pretty exceptions only in debug to avoid accidental information leakage in production
-        	$this->add(new \Slim\Middleware\PrettyExceptions());
+        if ($this->config('debug')) {
+            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
+            $this->add(new \Slim\Middleware\PrettyExceptions());
         }
 
         //Invoke middleware and application stack
@@ -1274,8 +1277,10 @@ class Slim
             }
         }
 
-        //Send body
-        echo $body;
+        //Send body, but only if it isn't a HEAD request
+        if (!$this->request->isHead()) {
+            echo $body;
+        }
 
         restore_error_handler();
     }
@@ -1384,6 +1389,6 @@ class Slim
     protected function defaultError($e)
     {
         $this->getLog()->error($e);
-        echo self::generateTemplateMarkup('Error', '<p>A website error has occured. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+        echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
     }
 }

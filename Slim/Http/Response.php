@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -480,7 +480,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * DEPRECATION WARNING! IteratorAggreate interface will be removed from \Slim\Http\Response.
+     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Slim\Http\Response.
      * Iterate `headers` or `cookies` properties directly.
      *
      * Get Iterator

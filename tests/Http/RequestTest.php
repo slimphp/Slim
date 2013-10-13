@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  *
  * MIT LICENSE
  *
@@ -682,7 +682,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     /**
      * Test get host with port doesn't duplicate port numbers
      */
-    public function testGetHostDoesntDulplicatePort()
+    public function testGetHostDoesntDuplicatePort()
     {
         $env = \Slim\Environment::mock(array(
             'HTTP_HOST' => 'slimframework.com:80',
@@ -884,7 +884,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get refererer
+     * Test get referer
      */
     public function testGetReferrer()
     {
@@ -897,7 +897,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test get refererer
+     * Test get referer
      */
     public function testGetReferrerWhenNotExists()
     {

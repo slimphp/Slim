@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.3
  *
  * MIT LICENSE
  *
@@ -104,10 +104,11 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
      */
     public function testParsesXmlWithError()
     {
+	libxml_use_internal_errors(true);
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/xml',
-            'CONENT_LENGTH' => 68,
+            'CONTENT_LENGTH' => 68,
             'slim.input' => '<books><book><id>1</id><author>Clive Cussler</book></books>' //<-- This should be incorrect!
         ));
         $s = new \Slim\Slim();
@@ -126,7 +127,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'text/csv',
-            'CONENT_LENGTH' => 44,
+            'CONTENT_LENGTH' => 44,
             'slim.input' => "John,Doe,000-111-2222\nJane,Doe,111-222-3333"
         ));
         $s = new \Slim\Slim();
@@ -148,7 +149,7 @@ class ContentTypesTest extends PHPUnit_Framework_TestCase
         \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json; charset=ISO-8859-4',
-            'CONENT_LENGTH' => 13,
+            'CONTENT_LENGTH' => 13,
             'slim.input' => '{"foo":"bar"}'
         ));
         $s = new \Slim\Slim();
