@@ -349,7 +349,7 @@ class Route
     {
         //Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback(
-            '#:([\w]+)\+?#',
+            '#/?:?([\w]+)\+?/?#',
             array($this, 'matchesCallback'),
             str_replace(')', ')?', (string) $this->pattern)
         );
@@ -381,17 +381,31 @@ class Route
      */
     protected function matchesCallback($m)
     {
+        $isParameter = (substr($m[0], 0, 1) === ':' || substr($m[0], 1, 1) === ':');
+        $isWildcardParameter = (substr($m[0], -1) === '+' || substr($m[0], -2, 1) === '+');
+
+        $leadingSlash = substr($m[0], 0, 1) === '/' ? '/' : '';
+        $trailingSlash = substr($m[0], -1) === '/' ? '/' : '';
+
+        if (! $isParameter ) {
+            if (strlen($leadingSlash) > 0 && strlen($trailingSlash) > 0) {
+                return $leadingSlash  . '\b' . $m[1] . '\b' . $trailingSlash;
+            } else {
+                return $leadingSlash . $m[1] . $trailingSlash;
+            }
+        }
+
         $this->paramNames[] = $m[1];
         if (isset($this->conditions[ $m[1] ])) {
-            return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
+            return $leadingSlash . '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')' . $trailingSlash;
         }
-        if (substr($m[0], -1) === '+') {
+
+        if ($isWildcardParameter) {
             $this->paramNamesPath[ $m[1] ] = 1;
-
-            return '(?P<' . $m[1] . '>.+)';
+            return $leadingSlash . '(?P<' . $m[1] . '>.+)' . $trailingSlash;
         }
 
-        return '(?P<' . $m[1] . '>[^/]+)';
+        return $leadingSlash . '(?P<' . $m[1] . '>[^/]+)' . $trailingSlash;
     }
 
     /**
