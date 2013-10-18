@@ -154,6 +154,11 @@ class Route
      */
     public function setCallable($callable)
     {
+        $matches = [];
+        if(is_string($callable) && preg_match('!^([^\:]+)\:\:(.+)$!', $callable, $matches)) {
+            $callable = [new $matches[1], $matches[2]];
+        }
+
         if (!is_callable($callable)) {
             throw new \InvalidArgumentException('Route callable must be callable');
         }
