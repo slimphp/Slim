@@ -152,8 +152,12 @@ class Environment extends \Slim\Collection
             // Request method
             $settings['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
-	        // Root URI (physical path) and resource URI (virtual path)
-            $scriptName = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']); // <-- "/physical/index.php"
+            // Ensure no trailing slash in $_SERVER['DOCUMENT_ROOT']
+            // Per Apache docs, "DocumentRoot should be specified without a trailing slash"
+            // http://httpd.apache.org/docs/2.2/mod/core.html#documentroot
+            $documentRoot = rtrim($_SERVER['DOCUMENT_ROOT'], '/');
+            // Root URI (physical path) and resource URI (virtual path)
+            $scriptName = str_replace($documentRoot, '', $_SERVER['SCRIPT_FILENAME']); // <-- "/physical/index.php"
             $requestUri = $_SERVER['REQUEST_URI']; // <-- "/physical/index.php/virtual?abc=123" or "/physical/virtual?abc=123"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
             if (strpos($requestUri, $scriptName) === false) {
