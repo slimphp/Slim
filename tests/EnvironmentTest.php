@@ -43,8 +43,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-	    $_SERVER['DOCUMENT_ROOT'] = '/var/www';
-	    $_SERVER['SCRIPT_FILENAME'] = '/var/www/foo/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/var/www';
+        $_SERVER['SCRIPT_FILENAME'] = '/var/www/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/index.php/bar/xyz';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['SERVER_NAME'] = 'slim';
@@ -88,9 +88,12 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * Pre-conditions:
      * URL Rewrite is disabled;
      * App installed in subdirectory;
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithoutUrlRewriteInSubdirectory()
+    public function testParsesPathsWithoutUrlRewriteInSubdirectory($documentRoot)
     {
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
         $env = new \Slim\Environment();
         $this->assertEquals('/bar/xyz', $env->get('PATH_INFO'));
         $this->assertEquals('/foo/index.php', $env->get('SCRIPT_NAME'));
@@ -102,10 +105,13 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * Pre-conditions:
      * URL Rewrite is disabled;
      * App installed in root directory;
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithoutUrlRewriteInRootDirectory()
+    public function testParsesPathsWithoutUrlRewriteInRootDirectory($documentRoot)
     {
-	    $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+        $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
         $_SERVER['REQUEST_URI'] = '/index.php/bar/xyz';
         $env = new \Slim\Environment();
         $this->assertEquals('/bar/xyz', $env->get('PATH_INFO'));
@@ -119,10 +125,13 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * URL Rewrite disabled;
      * App installed in root directory;
      * Requested resource is "/";
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithoutUrlRewriteInRootDirectoryForAppRootUri()
+    public function testParsesPathsWithoutUrlRewriteInRootDirectoryForAppRootUri($documentRoot)
     {
-	    $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
+        $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
         $_SERVER['REQUEST_URI'] = '/index.php';
         unset($_SERVER['PATH_INFO']);
         $env = new \Slim\Environment();
@@ -136,9 +145,12 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * Pre-conditions:
      * URL Rewrite enabled;
      * App installed in subdirectory;
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithUrlRewriteInSubdirectory()
+    public function testParsesPathsWithUrlRewriteInSubdirectory($documentRoot)
     {
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
         $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/bar/xyz';
         unset($_SERVER['PATH_INFO']);
@@ -153,9 +165,12 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * Pre-conditions:
      * URL Rewrite enabled;
      * App installed in root directory;
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithUrlRewriteInRootDirectory()
+    public function testParsesPathsWithUrlRewriteInRootDirectory($documentRoot)
     {
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
         $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
         $_SERVER['REQUEST_URI'] = '/bar/xyz';
         unset($_SERVER['PATH_INFO']);
@@ -171,9 +186,12 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      * URL Rewrite enabled;
      * App installed in root directory;
      * Requested resource is "/"
+     *
+     * @dataProvider documentRootDataProvider
      */
-    public function testParsesPathsWithUrlRewriteInRootDirectoryForAppRootUri()
+    public function testParsesPathsWithUrlRewriteInRootDirectoryForAppRootUri($documentRoot)
     {
+        $_SERVER['DOCUMENT_ROOT'] = $documentRoot;
         $_SERVER['SCRIPT_FILENAME'] = '/var/www/index.php';
         $_SERVER['REQUEST_URI'] = '/';
         unset($_SERVER['PATH_INFO']);
@@ -359,5 +377,19 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
     {
         $env = new \Slim\Environment();
         $this->assertEquals('', $env->get('slim.input'));
+    }
+
+    /**
+     * Provides properly and improperly configured Apache DocumentRoot
+     *
+     * Per Apache docs, "DocumentRoot should be specified without a trailing slash"
+     * @link http://httpd.apache.org/docs/2.2/mod/core.html#documentroot
+     */
+    public function documentRootDataProvider()
+    {
+        return array(
+            array('/var/www'),
+            array('/var/www/'),
+        );
     }
 }
