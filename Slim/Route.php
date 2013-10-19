@@ -156,7 +156,7 @@ class Route
     {
         $matches = [];
         if(is_string($callable) && preg_match('!^([^\:]+)\:\:(.+)$!', $callable, $matches)) {
-            $callable = [new $matches[1], $matches[2]];
+            $callable = array(new $matches[1], $matches[2]);
         }
 
         if (!is_callable($callable)) {
