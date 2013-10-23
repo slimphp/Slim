@@ -153,6 +153,42 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test parses script name and path info when route and installation subdirectory starts with the same name
+     *
+     * Pre-conditions:
+     * URL Rewrite enabled;
+     * App installed in subdirectory;
+     * Route and installation subdirectory starts with the same name
+     */
+    public function testParsesPathsWithCommonPrefixForSubdirectoryAndRouteNameWithUrlRewriteInSubdirectory()
+    {
+        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
+        $_SERVER['REQUEST_URI'] = '/foo/foobar';
+        unset($_SERVER['PATH_INFO']);
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals('/foobar', $env['PATH_INFO']);
+        $this->assertEquals('/foo', $env['SCRIPT_NAME']);
+    }
+
+    /**
+     * Test parses script name and path info when route and installation subdirectory have the same name
+     *
+     * Pre-conditions:
+     * URL Rewrite enabled;
+     * App installed in subdirectory;
+     * Route and installation subdirectory have with the same name
+     */
+    public function testParsesPathsWithCommonSubdirectoryAndRouteNameWithUrlRewriteInSubdirectory()
+    {
+        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
+        $_SERVER['REQUEST_URI'] = '/foo/foo';
+        unset($_SERVER['PATH_INFO']);
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals('/foo', $env['PATH_INFO']);
+        $this->assertEquals('/foo', $env['SCRIPT_NAME']);
+    }
+
+    /**
      * Test parses script name and path info
      *
      * Pre-conditions:
