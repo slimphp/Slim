@@ -426,7 +426,7 @@ class Slim
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $callable = $callable->bindTo($this);
+        if(PHP_MINOR_VERSION >= 4) $callable = $callable->bindTo($this);
         $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
         if (count($args) > 0) {
@@ -535,7 +535,7 @@ class Slim
         $args = func_get_args();
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $callable = $callable->bindTo($this);
+        if(PHP_MINOR_VERSION >= 4) $callable = $callable->bindTo($this);
         $this->router->pushGroup($pattern, $args);
         if (is_callable($callable)) {
             call_user_func($callable);
