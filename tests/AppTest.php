@@ -315,7 +315,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -337,7 +336,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -359,7 +357,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -381,7 +378,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -403,7 +399,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -425,7 +420,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         $this->assertEquals('foobarxyz', $s->response->getBody());
         $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
     }
 
     /**
@@ -471,7 +465,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s->call();
             $this->assertEquals('foobarxyz', $s->response->getBody());
             $this->assertEquals('/bar', $route->getPattern());
-            $this->assertSame($callable, $route->getCallable());
         }
     }
 
