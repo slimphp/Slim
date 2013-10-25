@@ -394,6 +394,9 @@ class App extends \Slim\Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
+        if (PHP_MINOR_VERSION >= 4 && is_callable($callable)) {
+            $callable = $callable->bindTo($this);
+        }
         $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
         if (count($args) > 0) {
@@ -505,6 +508,9 @@ class App extends \Slim\Pimple
         $callable = array_pop($args);
         $this->router->pushGroup($pattern, $args);
         if (is_callable($callable)) {
+            if (PHP_MINOR_VERSION >= 4) {
+                $callable = $callable->bindTo($this);
+            }
             call_user_func($callable);
         }
         $this->router->popGroup();
