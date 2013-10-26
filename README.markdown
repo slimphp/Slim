@@ -45,7 +45,7 @@ Instantiate a Slim application:
 Define a HTTP GET route:
 
     $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name";
+        echo 'Hello, ' . $name;
     });
 
 Run the Slim application:

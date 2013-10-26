@@ -550,7 +550,7 @@ class Slim
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via("ANY");
+        return $this->mapRoute($args)->via('ANY');
     }
 
     /**
@@ -1272,7 +1272,7 @@ class Slim
             foreach ($headers as $name => $value) {
                 $hValues = explode("\n", $value);
                 foreach ($hValues as $hVal) {
-                    header("$name: $hVal", false);
+                    header($name . ': ' . $hVal, false);
                 }
             }
         }
