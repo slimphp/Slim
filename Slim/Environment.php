@@ -126,18 +126,23 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //The IP
             $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 
-            // Root URI (physical path) and resource URI (virtual path)
-            $scriptName = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']); // <-- "/physical/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/physical/index.php/virtual?abc=123" or "/physical/virtual?abc=123"
-            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
-            if (strpos($requestUri, $scriptName) === false) {
-                // With rewriting
-                $env['SCRIPT_NAME'] = str_replace('/' . basename($scriptName), '', $scriptName);
+            // Server params
+            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
+            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
+
+            // Physical path
+            if (strpos($requestUri, $scriptName) !== false) {
+                $physicalPath = $scriptName; // <-- Without rewriting
             } else {
-                // Without rewriting
-                $env['SCRIPT_NAME'] = $scriptName;
+                $physicalPath = dirname($scriptName); // <-- With rewriting
             }
-            $env['PATH_INFO'] = '/' . ltrim(str_replace(array($env['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
+            $env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
+
+            // Virtual path
+            $env['PATH_INFO'] = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
+            $env['PATH_INFO'] = str_replace('?' . $queryString, '', $env['PATH_INFO']); // <-- Remove query string
+            $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/'); // <-- Ensure leading slash
 
             // Query string (without leading "?")
             $env['QUERY_STRING'] = $queryString;
@@ -153,16 +158,6 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             foreach ($headers as $key => $value) {
                 $env[$key] = $value;
             }
-
-            // $specialHeaders = array('CONTENT_TYPE', 'CONTENT_LENGTH', 'PHP_AUTH_USER', 'PHP_AUTH_PW', 'PHP_AUTH_DIGEST', 'AUTH_TYPE');
-            // foreach ($_SERVER as $key => $value) {
-            //     $value = is_string($value) ? trim($value) : $value;
-            //     if (strpos($key, 'HTTP_') === 0) {
-            //         $env[substr($key, 5)] = $value;
-            //     } elseif (strpos($key, 'X_') === 0 || in_array($key, $specialHeaders)) {
-            //         $env[$key] = $value;
-            //     }
-            // }
 
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
