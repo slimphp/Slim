@@ -80,6 +80,10 @@ Be sure you change the `ServerRoot` setting to point to your Slim app's document
         SourceRoot = /path/to/public/directory
     }
 
+    ServerVariables {
+        SCRIPT_NAME = /index.php
+    }
+
     VirtualHost {
         * {
             Pattern = .*
