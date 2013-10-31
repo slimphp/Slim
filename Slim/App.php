@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.4
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -93,7 +93,7 @@ class App extends \Slim\Pimple
     /**
      * @const string
      */
-    const VERSION = '2.3.4';
+    const VERSION = '2.3.5';
 
     /**
      * @var array
