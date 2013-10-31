@@ -224,7 +224,7 @@ class Util
      */
     public static function encodeSecureCookie($value, $expires, $secret, $algorithm, $mode)
     {
-        $key = hash_hmac('sha1', $expires, $secret);
+        $key = hash_hmac('sha1', (string) $expires, $secret);
         $iv = self::getIv($expires, $secret);
         $secureString = base64_encode(
             self::encrypt(
