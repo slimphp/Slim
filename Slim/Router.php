@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -30,6 +31,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 namespace Slim;
 
 /**
@@ -43,6 +45,7 @@ namespace Slim;
  */
 class Router
 {
+
     /**
      * @var Route The current route (most recently dispatched)
      */
@@ -108,6 +111,14 @@ class Router
             foreach ($this->routes as $route) {
                 if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
                     continue;
+                }
+
+                // a # (hash) marks a named anchor (called a fragment) in a page.
+                // it is not relevant to the server but its an official part of an uri.
+                // see also RFC 2396 section 5.2
+                if (strpos($resourceUri, '#') !== false) {
+                    $tmp = explode('#', $resourceUri, 2);
+                    $resourceUri = $tmp[0];
                 }
 
                 if ($route->matches($resourceUri)) {
@@ -254,4 +265,5 @@ class Router
 
         return new \ArrayIterator($this->namedRoutes);
     }
+
 }
