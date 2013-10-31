@@ -161,7 +161,7 @@ class Environment extends \Slim\Collection
             if (strpos($requestUri, $scriptName) !== false) {
                 $physicalPath = $scriptName; // <-- Without rewriting
             } else {
-                $physicalPath = ltrim(dirname($scriptName), '\\'); // <-- With rewriting
+                $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
             }
             $settings['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
 
