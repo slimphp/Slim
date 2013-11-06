@@ -44,10 +44,10 @@ if (!extension_loaded('mcrypt')) {
  * @author   Josh Lockhart
  * @since    1.0.0
  *
- * @property $environment \Slim\Environment
- * @property $response    \Slim\Http\Response
- * @property $request     \Slim\Http\Request
- * @property $router      \Slim\Router
+ * @property \Slim\Environment   $environment
+ * @property \Slim\Http\Response $response
+ * @property \Slim\Http\Request  $request
+ * @property \Slim\Router        $router
  */
 class Slim
 {
