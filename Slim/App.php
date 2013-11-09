@@ -394,8 +394,23 @@ class App extends \Slim\Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
+
+        preg_match('/^([a-zA-Z0-9\\\\]+)::([a-zA-Z0-9]+)$/', $callable, $matches);
+        @list($string, $class, $method) = $matches;
+
+        if (!is_null($method)) {
+            $app = &$this;
+            $callable = function () use ($app) {
+                $arguments = func_get_args();
+                $instance = new $class($app);
+
+                return call_user_func_array(array($instance, $method), $arguments);
+            }
+        }
+
         $route = new \Slim\Route($pattern, $callable);
         $this->router->map($route);
+
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
