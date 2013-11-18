@@ -552,6 +552,16 @@ class SlimTest extends PHPUnit_Framework_TestCase
      ************************************************/
 
     /**
+     * Test template path is passed to view
+     */
+    public function testViewGetsTemplatesPath()
+    {
+        $path = dirname(__FILE__) . '/templates';
+        $s = new \Slim\Slim(array('templates.path' => $path));
+        $this->assertEquals($s->view->getTemplatesDirectory(), $path);
+    }
+
+    /**
      * Test render with template and data
      */
     public function testRenderTemplateWithData()
