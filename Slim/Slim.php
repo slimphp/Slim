@@ -739,7 +739,6 @@ class Slim
         if (!is_null($status)) {
             $this->response->status($status);
         }
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
         $this->view->display($template);
     }
