@@ -172,8 +172,11 @@ class Slim
         // Default view
         $this->container->singleton('view', function ($c) {
             $viewClass = $c['settings']['view'];
+            $templatesPath = $c['settings']['templates.path'];
 
-            return ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            $view = ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            $view->setTemplatesDirectory($templatesPath);
+            return $view;
         });
 
         // Default log writer
@@ -739,7 +742,6 @@ class Slim
         if (!is_null($status)) {
             $this->response->status($status);
         }
-        $this->view->setTemplatesDirectory($this->config('templates.path'));
         $this->view->appendData($data);
         $this->view->display($template);
     }
