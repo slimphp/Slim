@@ -33,7 +33,7 @@
 //Mock custom view
 class CustomView extends \Slim\View
 {
-    public function render($template) { echo "Custom view"; }
+    public function render($template, $data = null) { echo "Custom view"; }
 }
 
 //Echo Logger
