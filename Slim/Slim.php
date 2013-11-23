@@ -40,9 +40,14 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * Slim
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @package  Slim
+ * @author   Josh Lockhart
+ * @since    1.0.0
+ *
+ * @property \Slim\Environment   $environment
+ * @property \Slim\Http\Response $response
+ * @property \Slim\Http\Request  $request
+ * @property \Slim\Router        $router
  */
 class Slim
 {
