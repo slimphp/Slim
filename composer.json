@@ -16,6 +16,10 @@
         "php": ">=5.3.0",
         "ext-mcrypt": "*"
     },
+    "require-dev": {
+        "phpunit/phpunit": "*",
+        "satooshi/php-coveralls": "0.6.*"
+    },
     "autoload": {
         "psr-0": { "Slim": "." }
     }
