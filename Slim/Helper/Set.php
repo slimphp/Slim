@@ -103,6 +103,18 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * Insert or update Key-value pairs in a set without overwriting
+     * @param string $key
+     * @param mixed  $value
+     */
+    public function upsert($key, $value)
+    {
+        if ($this->has($key)) {
+            $this->data[$this->normalizeKey($key)] = ($value + $this->data[$this->normalizeKey($key)]);
+        }
+    }
+
+    /**
      * Fetch set data
      * @return array This set's key-value data array
      */
