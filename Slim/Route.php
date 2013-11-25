@@ -92,8 +92,8 @@ class Route
 
     /**
      * Constructor
-     * @param string $pattern  The URL pattern (e.g. "/books/:id")
-     * @param mixed  $callable Anything that returns TRUE for is_callable()
+     * @param string $pattern The URL pattern (e.g. "/books/:id")
+     * @param mixed $callable Anything that returns TRUE for is_callable()
      */
     public function __construct($pattern, $callable)
     {
@@ -154,8 +154,8 @@ class Route
      */
     public function setCallable($callable)
     {
-        $matches = [];
-        if(is_string($callable) && preg_match('!^([^\:]+)\:\:(.+)$!', $callable, $matches)) {
+        $matches = array();
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
             $callable = array(new $matches[1], $matches[2]);
         }
 
@@ -199,7 +199,7 @@ class Route
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = (string)$name;
     }
 
     /**
@@ -222,7 +222,7 @@ class Route
 
     /**
      * Get route parameter value
-     * @param  string                    $index     Name of URL parameter
+     * @param  string $index Name of URL parameter
      * @return string
      * @throws \InvalidArgumentException If route parameter does not exist at index
      */
@@ -237,8 +237,8 @@ class Route
 
     /**
      * Set route parameter value
-     * @param  string                    $index     Name of URL parameter
-     * @param  mixed                     $value     The new parameter value
+     * @param  string $index Name of URL parameter
+     * @param  mixed $value The new parameter value
      * @throws \InvalidArgumentException If route parameter does not exist at index
      */
     public function setParam($index, $value)
@@ -356,7 +356,7 @@ class Route
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string) $this->pattern)
+            str_replace(')', ')?', (string)$this->pattern)
         );
         if (substr($this->pattern, -1) === '/') {
             $patternAsRegex .= '?';
@@ -368,7 +368,7 @@ class Route
         }
         foreach ($this->paramNames as $name) {
             if (isset($paramValues[$name])) {
-                if (isset($this->paramNamesPath[ $name ])) {
+                if (isset($this->paramNamesPath[$name])) {
                     $this->params[$name] = explode('/', urldecode($paramValues[$name]));
                 } else {
                     $this->params[$name] = urldecode($paramValues[$name]);
@@ -381,17 +381,17 @@ class Route
 
     /**
      * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param  array    $m  URL parameters
+     * @param  array $m URL parameters
      * @return string       Regular expression for URL parameter
      */
     protected function matchesCallback($m)
     {
         $this->paramNames[] = $m[1];
-        if (isset($this->conditions[ $m[1] ])) {
-            return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
+        if (isset($this->conditions[$m[1]])) {
+            return '(?P<' . $m[1] . '>' . $this->conditions[$m[1]] . ')';
         }
         if (substr($m[0], -1) === '+') {
-            $this->paramNamesPath[ $m[1] ] = 1;
+            $this->paramNamesPath[$m[1]] = 1;
 
             return '(?P<' . $m[1] . '>.+)';
         }
@@ -401,7 +401,7 @@ class Route
 
     /**
      * Set route name
-     * @param  string     $name The name of the route
+     * @param  string $name The name of the route
      * @return \Slim\Route
      */
     public function name($name)
@@ -413,7 +413,7 @@ class Route
 
     /**
      * Merge route conditions
-     * @param  array      $conditions Key-value array of URL parameter conditions
+     * @param  array $conditions Key-value array of URL parameter conditions
      * @return \Slim\Route
      */
     public function conditions(array $conditions)
@@ -439,6 +439,6 @@ class Route
         }
 
         $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false)? false : true;
+        return ($return === false) ? false : true;
     }
 }
