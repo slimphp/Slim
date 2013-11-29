@@ -40,53 +40,14 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ * @package  Slim
+ * @author   Josh Lockhart
+ * @since    1.0.0
  *
- * You will isntantiate this class to create a new Slim application.
- * Its constructor accepts an associative array of application settings.
- *
- * This class uses a dependency injection (DI) container to locate resources
- * on-demand (e.g. environment, request, response, view, router, flash, and session).
- * The DI container makes it super simple to override any of the Slim application's
- * default implementations or to inject your own custom objects to be used as you
- * see fit in your custom application.
- *
- * You may use any of these methods provided by this class to define your
- * Slim application's routes:
- *
- *     get()
- *     post()
- *     put()
- *     delete()
- *     options()
- *     patch()
- *     any()
- *
- * This class also provides several helper methods for common tasks:
- *
- *     status()
- *     contentType()
- *
- * methods for HTTP caching:
- *
- *     etag()
- *     expires()
- *     lastModified()
- *
- * and methods for HTTP cookie handling:
- *
- *     setCookie()
- *     getCookie()
- *     deleteCookie()
- *
- * There are, of course, more methods available for you to use. Refer to the code
- * below or to the Slim Framework documentation for more information.
- *
- * Most importantly, you must invoke your Slim application instance's `run()` method
- * after you define your routes, else the magic just won't happen!
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @property \Slim\Environment   $environment
+ * @property \Slim\Http\Response $response
+ * @property \Slim\Http\Request  $request
+ * @property \Slim\Router        $router
  */
 class App extends \Slim\Pimple
 {
@@ -172,11 +133,16 @@ class App extends \Slim\Pimple
 
         // View
         $this->view = $this->share(function ($c) {
-            if ($c['settings']['view'] instanceof \Slim\View === false) {
-                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
+            $view = $c['settings']['view'];
+            if ($view instanceof \Slim\View === false) {
+                throw new \Exception('View class must be instance of \Slim\View');
             }
+            // $templatesPath = $c['settings']['templates.path'];
 
-            return $c['settings']['view'];
+            // $view = ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            // $view->setTemplatesDirectory($templatesPath);
+
+            return $view;
         });
 
         // Crypt

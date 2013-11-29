@@ -269,11 +269,12 @@ class Request
      * identified by the argument does not exist, NULL is returned. If the argument is omittec,
      * all GET query parameters are returned as an array.
      *
-     * @param  string               $key    The name of the GET query parameter
-     * @return array|string|null
+     * @param  string           $key
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
      * @api
      */
-    public function get($key = null)
+    public function get($key = null, $default = null)
     {
         // Parse and cache query parameters from \Slim\Environment
         if (!isset($this->queryParameters)) {
@@ -289,7 +290,7 @@ class Request
             if (isset($this->queryParameters[$key])) {
                 $returnVal = $this->queryParameters[$key];
             } else {
-                $returnVal = null;
+                return $default;
             }
         } else {
             $returnVal = $this->queryParameters;
@@ -305,12 +306,13 @@ class Request
      * identified by the argument does not exist, NULL is returned. If the argument is omitted,
      * all POST body parameters are returned as an array.
      *
-     * @param  string               $key    The name of the POST body parameter
-     * @return array|string|null
-     * @throws \RuntimeException            If the raw POST body is not available in \Slim\Environment
+     * @param  string           $key
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
+     * @throws \RuntimeException If environment input is not available
      * @api
      */
-    public function post($key = null)
+    public function post($key = null, $default = null)
     {
         // Ensure the POST request body is available
         if (is_null($this->env->get('slim.input'))) {
@@ -337,7 +339,7 @@ class Request
             if (isset($this->body[$key])) {
                 $returnVal = $this->body[$key];
             } else {
-                $returnVal = null;
+                return $default;
             }
         } else {
             $returnVal = $this->body;
@@ -349,34 +351,36 @@ class Request
     /**
      * Fetch PUT data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|string|null
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
      * @api
      */
-    public function put($key = null)
+    public function put($key = null, $default = null)
     {
-        return $this->post($key);
+        return $this->post($key, $default);
     }
 
     /**
      * Fetch PATCH data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|string|null
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
      * @api
      */
-    public function patch($key = null)
+    public function patch($key = null, $default = null)
     {
-        return $this->post($key);
+        return $this->post($key, $default);
     }
 
     /**
      * Fetch DELETE data (alias for \Slim\Http\Request::post)
      * @param  string           $key
-     * @return array|string|null
-     * @api
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
      */
-    public function delete($key = null)
+    public function delete($key = null, $default = null)
     {
-        return $this->post($key);
+        return $this->post($key, $default);
     }
 
     /**
