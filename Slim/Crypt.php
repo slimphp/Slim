@@ -84,6 +84,8 @@ class Crypt
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
+        $this->checkRequirements();
+
         $this->key = $key;
         $this->cipher = $cipher;
         $this->mode = $mode;
@@ -99,35 +101,22 @@ class Crypt
      */
     public function encrypt($data)
     {
-        if (extension_loaded('mcrypt') === false) {
-            throw new \RuntimeException('The PHP mcrypt extension must be installed to use encryption');
-        }
+        $this->checkRequirements();
 
         // Get module
         $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
         // Create initialization vector
-        $iv = mcrypt_create_iv(mcrypt_enc_get_iv_size($module), MCRYPT_DEV_URANDOM);
+        $vector = mcrypt_create_iv(mcrypt_enc_get_iv_size($module), MCRYPT_DEV_URANDOM);
 
         // Validate key length
-        $this->validateKey($this->key, $module);
+        $this->validateKeyLength($this->key, $module);
 
         // Initialize encryption
-        $initResult = mcrypt_generic_init($module, $this->key, $iv);
+        $initResult = mcrypt_generic_init($module, $this->key, $vector);
+
         if (!is_null($initResult)) {
-            switch ($initResult) {
-                case -4:
-                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::decrypt');
-                    break;
-                case -3:
-                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::decrypt');
-                    break;
-                default:
-                    if (is_integer($initResult) && $initResult < 0) {
-                        throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
-                    }
-                    break;
-            }
+            $this->throwInitError($initResult, 'encrypt');
         }
 
         // Encrypt
@@ -139,7 +128,7 @@ class Crypt
         // Ensure integrity of encrypted data with HMAC hash
         $hmac = $this->getHmac($encryptedData);
 
-        return implode('|', array(base64_encode($iv), base64_encode($encryptedData), $hmac));
+        return implode('|', array(base64_encode($vector), base64_encode($encryptedData), $hmac));
     }
 
     /**
@@ -153,9 +142,7 @@ class Crypt
      */
     public function decrypt($data)
     {
-        if (extension_loaded('mcrypt') === false) {
-            throw new \RuntimeException('The PHP mcrypt extension must be installed to use encryption');
-        }
+        $this->checkRequirements();
 
         // Extract components of encrypted data string
         $parts = explode('|', $data);
@@ -163,7 +150,7 @@ class Crypt
             return $data;
             // throw new \RuntimeException('Trying to decrypt invalid data in \Slim\Crypt::decrypt');
         }
-        $iv = base64_decode($parts[0]);
+        $vector = base64_decode($parts[0]);
         $encryptedData = base64_decode($parts[1]);
         $hmac = $parts[2];
 
@@ -176,24 +163,13 @@ class Crypt
         $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
         // Validate key
-        $this->validateKey($this->key, $module);
+        $this->validateKeyLength($this->key, $module);
 
         // Initialize decryption
-        $initResult = mcrypt_generic_init($module, $this->key, $iv);
+        $initResult = mcrypt_generic_init($module, $this->key, $vector);
+
         if (!is_null($initResult)) {
-            switch ($initResult) {
-                case -4:
-                    throw new \RuntimeException('There was a memory allocation problem while calling \Slim\Crypt::decrypt');
-                    break;
-                case -3:
-                    throw new \RuntimeException('An incorrect encryption key length was used while calling \Slim\Crypt::decrypt');
-                    break;
-                default:
-                    if (is_integer($initResult) && $initResult < 0) {
-                        throw new \RuntimeException('An unknown error was caught while calling \Slim\Crypt::decrypt');
-                    }
-                    break;
-            }
+            $this->throwInitError($initResult, 'decrypt');
         }
 
         // Decrypt
@@ -223,7 +199,7 @@ class Crypt
      * @return void
      * @throws \InvalidArgumentException         If key size is invalid for selected cipher
      */
-    protected function validateKey($key, $module)
+    protected function validateKeyLength($key, $module)
     {
         $keySize = strlen($key);
         $keySizeMin = 1;
@@ -241,6 +217,57 @@ class Crypt
                     $keySizeMax
                 ));
             }
+        }
+    }
+
+    /**
+     * Check the mcrypt PHP extension is loaded
+     * @throws \RuntimeException If the mcrypt PHP extension is missing
+     */
+    protected function checkRequirements()
+    {
+        if (extension_loaded('mcrypt') === false) {
+            throw new \RuntimeException(sprintf(
+                'The PHP mcrypt extension must be installed to use the %s encryption class.',
+                __CLASS__
+            ));
+        }
+    }
+
+    /**
+     * Throw an exception based on a provided exit code
+     * @param  mixed  $code
+     * @param  string $function
+     * @throws \RuntimeException If there was a memory allocation problem
+     * @throws \RuntimeException If there was an incorrect key length specified
+     * @throws \RuntimeException If an unknown error occured
+     */
+    protected function throwInitError($code, $function)
+    {
+        switch ($code) {
+            case -4:
+                throw new \RuntimeException(sprintf(
+                    'There was a memory allocation problem while calling %s::%s',
+                    __CLASS__,
+                    $function
+                ));
+                break;
+            case -3:
+                throw new \RuntimeException(sprintf(
+                    'An incorrect encryption key length was used while calling %s::%s',
+                    __CLASS__,
+                    $function
+                ));
+                break;
+            default:
+                if (is_integer($code) && $code < 0) {
+                    throw new \RuntimeException(sprintf(
+                        'An unknown error was caught while calling %s::%s',
+                        __CLASS__,
+                        $function
+                    ));
+                }
+                break;
         }
     }
 }
