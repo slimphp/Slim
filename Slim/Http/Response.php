@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -95,6 +95,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
         //Informational 1xx
         100 => '100 Continue',
         101 => '101 Switching Protocols',
+        102 => '102 Processing',
         //Successful 2xx
         200 => '200 OK',
         201 => '201 Created',
@@ -103,6 +104,9 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
         204 => '204 No Content',
         205 => '205 Reset Content',
         206 => '206 Partial Content',
+        207 => '207 Multi-Status',
+        208 => '208 Already Reported',
+        226 => '226 IM Used',
         //Redirection 3xx
         300 => '300 Multiple Choices',
         301 => '301 Moved Permanently',
@@ -112,6 +116,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
         305 => '305 Use Proxy',
         306 => '306 (Unused)',
         307 => '307 Temporary Redirect',
+        308 => '308 Permanent Redirect',
         //Client Error 4xx
         400 => '400 Bad Request',
         401 => '401 Unauthorized',
@@ -133,13 +138,23 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
         417 => '417 Expectation Failed',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
+        424 => '424 Failed Dependency',
+        426 => '426 Upgrade Required',
+        428 => '428 Precondition Required',
+        429 => '429 Too Many Requests',
+        431 => '431 Request Header Fields Too Large',
         //Server Error 5xx
         500 => '500 Internal Server Error',
         501 => '501 Not Implemented',
         502 => '502 Bad Gateway',
         503 => '503 Service Unavailable',
         504 => '504 Gateway Timeout',
-        505 => '505 HTTP Version Not Supported'
+        505 => '505 HTTP Version Not Supported',
+        506 => '506 Variant Also Negotiates',
+        507 => '507 Insufficient Storage',
+        508 => '508 Loop Detected',
+        510 => '510 Not Extended',
+        511 => '511 Network Authentication Required'
     );
 
     /**

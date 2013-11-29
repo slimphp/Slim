@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -152,18 +152,23 @@ class Environment extends \Slim\Collection implements \Slim\Interfaces\Environme
             // Request method
             $settings['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
-	        // Root URI (physical path) and resource URI (virtual path)
-            $scriptName = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']); // <-- "/physical/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/physical/index.php/virtual?abc=123" or "/physical/virtual?abc=123"
-            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "abc=123"
-            if (strpos($requestUri, $scriptName) === false) {
-                // With rewriting
-                $settings['SCRIPT_NAME'] = str_replace('/' . basename($scriptName), '', $scriptName);
+	        // Server params
+            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
+            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
+
+            // Physical path
+            if (strpos($requestUri, $scriptName) !== false) {
+                $physicalPath = $scriptName; // <-- Without rewriting
             } else {
-                // Without rewriting
-                $settings['SCRIPT_NAME'] = $scriptName;
+                $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
             }
-            $settings['PATH_INFO'] = '/' . ltrim(str_replace(array($settings['SCRIPT_NAME'], '?' . $queryString), '', $requestUri), '/');
+            $settings['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
+
+            // Virtual path
+            $settings['PATH_INFO'] = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
+            $settings['PATH_INFO'] = str_replace('?' . $queryString, '', $settings['PATH_INFO']); // <-- Remove query string
+            $settings['PATH_INFO'] = '/' . ltrim($settings['PATH_INFO'], '/'); // <-- Ensure leading slash
 
             // Query string (without leading "?")
             $settings['QUERY_STRING'] = $queryString;
