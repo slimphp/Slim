@@ -135,6 +135,7 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
 
         $logWriter->expects($this->once())
             ->method('write');
+        $oldLevel = error_reporting(E_ALL);
 
         $app = new \Slim\Slim(array(
             'log.writer' => $logWriter
@@ -149,6 +150,8 @@ class SessionCookieTest extends PHPUnit_Framework_TestCase
         $mw->setNextMiddleware($app);
         $mw->call();
         $this->assertEquals(array(), $_SESSION);
+
+        error_reporting($oldLevel);
     }
 
     /**

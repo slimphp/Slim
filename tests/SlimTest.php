@@ -33,7 +33,7 @@
 //Mock custom view
 class CustomView extends \Slim\View
 {
-    public function render($template) { echo "Custom view"; }
+    public function render($template, $data = null) { echo "Custom view"; }
 }
 
 //Echo Logger
@@ -550,6 +550,16 @@ class SlimTest extends PHPUnit_Framework_TestCase
     /************************************************
      * RENDERING
      ************************************************/
+
+    /**
+     * Test template path is passed to view
+     */
+    public function testViewGetsTemplatesPath()
+    {
+        $path = dirname(__FILE__) . '/templates';
+        $s = new \Slim\Slim(array('templates.path' => $path));
+        $this->assertEquals($s->view->getTemplatesDirectory(), $path);
+    }
 
     /**
      * Test render with template and data
