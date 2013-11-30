@@ -136,6 +136,7 @@ class Response implements \Slim\Interfaces\Http\ResponseInterface
         415 => '415 Unsupported Media Type',
         416 => '416 Requested Range Not Satisfiable',
         417 => '417 Expectation Failed',
+        418 => '418 I\'m a teapot',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
         424 => '424 Failed Dependency',

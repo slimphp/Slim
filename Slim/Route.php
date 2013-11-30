@@ -191,6 +191,11 @@ class Route implements \Slim\Interfaces\RouteInterface
      */
     public function setCallable($callable)
     {
+        $matches = array();
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
+            $callable = array(new $matches[1], $matches[2]);
+        }
+
         if (!is_callable($callable)) {
             throw new \InvalidArgumentException('Route callable must be callable');
         }
@@ -235,7 +240,7 @@ class Route implements \Slim\Interfaces\RouteInterface
      */
     public function setName($name)
     {
-        $this->name = (string) $name;
+        $this->name = (string)$name;
     }
 
     /**
@@ -405,7 +410,7 @@ class Route implements \Slim\Interfaces\RouteInterface
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string) $this->pattern)
+            str_replace(')', ')?', (string)$this->pattern)
         );
         if (substr($this->pattern, -1) === '/') {
             $patternAsRegex .= '?';
@@ -417,7 +422,7 @@ class Route implements \Slim\Interfaces\RouteInterface
         }
         foreach ($this->paramNames as $name) {
             if (isset($paramValues[$name])) {
-                if (isset($this->paramNamesPath[ $name ])) {
+                if (isset($this->paramNamesPath[$name])) {
                     $this->params[$name] = explode('/', urldecode($paramValues[$name]));
                 } else {
                     $this->params[$name] = urldecode($paramValues[$name]);
@@ -436,11 +441,11 @@ class Route implements \Slim\Interfaces\RouteInterface
     protected function matchesCallback($m)
     {
         $this->paramNames[] = $m[1];
-        if (isset($this->conditions[ $m[1] ])) {
-            return '(?P<' . $m[1] . '>' . $this->conditions[ $m[1] ] . ')';
+        if (isset($this->conditions[$m[1]])) {
+            return '(?P<' . $m[1] . '>' . $this->conditions[$m[1]] . ')';
         }
         if (substr($m[0], -1) === '+') {
-            $this->paramNamesPath[ $m[1] ] = 1;
+            $this->paramNamesPath[$m[1]] = 1;
 
             return '(?P<' . $m[1] . '>.+)';
         }
@@ -491,6 +496,6 @@ class Route implements \Slim\Interfaces\RouteInterface
         }
 
         $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false)? false : true;
+        return ($return === false) ? false : true;
     }
 }

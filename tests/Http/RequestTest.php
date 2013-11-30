@@ -243,6 +243,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($req->get()));
         $this->assertEquals('1', $req->get('one'));
         $this->assertNull($req->get('foo'));
+        $this->assertFalse($req->get('foo', false));
     }
 
     /**
@@ -258,6 +259,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($req->get()));
         $this->assertEquals('1', $req->get('one'));
         $this->assertNull($req->get('foo'));
+        $this->assertFalse($req->get('foo', false));
     }
 
     /**
@@ -275,6 +277,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($req->post()));
         $this->assertEquals('bar', $req->post('foo'));
         $this->assertNull($req->post('xyz'));
+        $this->assertFalse($req->post('xyz', false));
     }
 
     /**
@@ -293,6 +296,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($req->post()));
         $this->assertEquals('bar', $req->post('foo'));
         $this->assertNull($req->post('xyz'));
+        $this->assertFalse($req->post('xyz', false));
     }
 
     /**
@@ -343,6 +347,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->put('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+        $this->assertFalse($req->put('xyz', false));
     }
 
     /**
@@ -361,6 +366,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->patch('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->patch('xyz'));
+        $this->assertFalse($req->patch('xyz', false));
     }
 
     /**
@@ -379,6 +385,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->delete('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->delete('xyz'));
+        $this->assertFalse($req->delete('xyz', false));
     }
 
     /**
