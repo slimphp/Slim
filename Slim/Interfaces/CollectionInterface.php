@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -6,7 +7,8 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.5
+ * @version     2.3.3
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -29,26 +31,31 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Interfaces;
 
-class ViewTest extends PHPUnit_Framework_TestCase
+interface CollectionInterface
 {
-    public function setUp()
-    {
-        $this->view = new \Slim\View(dirname(__FILE__) . '/templates');
-        $this->property = new \ReflectionProperty($this->view, 'data');
-        $this->property->setAccessible(true);
-    }
+    public function set($key, $value);
 
-    public function testDisplay()
-    {
-        $this->expectOutputString('test output bar 123');
-        $this->property->setValue($this->view, array('foo' => 'bar'));
-        $this->view->display('test.php', array('abc' => '123'));
-    }
+    public function get($key, $default = null);
 
-    public function testDisplayTemplateThatDoesNotExist()
-    {
-        $this->setExpectedException('\RuntimeException');
-        $this->view->display('foo.php');
-    }
+    public function replace($items);
+
+    public function all();
+
+    public function keys();
+
+    public function has($key);
+
+    public function remove($key);
+
+    public function clear();
+
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt);
+
+    public function decrypt(\Slim\Interfaces\CryptInterface $crypt);
+
+    public function count();
+
+    public function getIterator();
 }

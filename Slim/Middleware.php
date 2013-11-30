@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -49,7 +49,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-abstract class Middleware
+abstract class Middleware implements \Slim\Interfaces\MiddlewareInterface
 {
     /**
      * Reference to the primary application instance

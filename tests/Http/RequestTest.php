@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  *
  * MIT LICENSE
  *
@@ -40,7 +40,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertEquals('GET', $req->getMethod());
     }
 
@@ -52,7 +54,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isGet());
     }
 
@@ -64,7 +68,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPost());
     }
 
@@ -76,7 +82,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PUT',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPut());
     }
 
@@ -88,7 +96,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'DELETE',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $cookies, $headers);
         $this->assertTrue($req->isDelete());
     }
 
@@ -100,7 +110,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'OPTIONS',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isOptions());
     }
 
@@ -112,7 +124,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'HEAD',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isHead());
     }
 
@@ -124,7 +138,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'PATCH',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isPatch());
     }
 
@@ -136,7 +152,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'HTTP_X_REQUESTED_WITH' => 'XMLHttpRequest'
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
     }
@@ -149,7 +167,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::mock(array(
             'QUERY_STRING' => 'isajax=1',
         ));
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertTrue($req->isAjax());
         $this->assertTrue($req->isXhr());
     }
@@ -160,7 +180,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsAjaxWithoutHeaderOrQueryParameter()
     {
         $env = \Slim\Environment::mock();
-        $req = new \Slim\Http\Request($env);
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $this->assertFalse($req->isAjax());
         $this->assertFalse($req->isXhr());
     }
@@ -221,6 +243,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($req->get()));
         $this->assertEquals('1', $req->get('one'));
         $this->assertNull($req->get('foo'));
+        $this->assertFalse($req->get('foo', false));
     }
 
     /**
@@ -236,6 +259,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($req->get()));
         $this->assertEquals('1', $req->get('one'));
         $this->assertNull($req->get('foo'));
+        $this->assertFalse($req->get('foo', false));
     }
 
     /**
@@ -253,6 +277,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($req->post()));
         $this->assertEquals('bar', $req->post('foo'));
         $this->assertNull($req->post('xyz'));
+        $this->assertFalse($req->post('xyz', false));
     }
 
     /**
@@ -271,6 +296,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($req->post()));
         $this->assertEquals('bar', $req->post('foo'));
         $this->assertNull($req->post('xyz'));
+        $this->assertFalse($req->post('xyz', false));
     }
 
     /**
@@ -280,8 +306,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $this->setExpectedException('RuntimeException');
         $env = \Slim\Environment::mock();
+        $headers = \Slim\Http\Headers::find($env->all());
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($env->get('HTTP_COOKIE')));
         $env->remove('slim.input');
-        $req = new \Slim\Http\Request($env);
+        $req = new \Slim\Http\Request($env, $headers, $cookies);
         $req->post('foo');
     }
 
@@ -319,6 +347,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->put('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->put('xyz'));
+        $this->assertFalse($req->put('xyz', false));
     }
 
     /**
@@ -337,6 +366,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->patch('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->patch('xyz'));
+        $this->assertFalse($req->patch('xyz', false));
     }
 
     /**
@@ -355,6 +385,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $req->delete('foo'));
         $this->assertEquals('bar', $req->params('foo'));
         $this->assertNull($req->delete('xyz'));
+        $this->assertFalse($req->delete('xyz', false));
     }
 
     /**
@@ -435,7 +466,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $req = new \Slim\Http\Request($env);
         $headers = $req->headers;
-        $this->assertInstanceOf('\Slim\Http\Headers', $headers);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\HeadersInterface', $headers);
         $this->assertEquals('gzip', $req->headers->get('HTTP_ACCEPT_ENCODING'));
         $this->assertEquals('gzip', $req->headers->get('HTTP-ACCEPT-ENCODING'));
         $this->assertEquals('gzip', $req->headers->get('http_accept_encoding'));

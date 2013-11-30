@@ -6,7 +6,8 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.5
+ * @version     2.3.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -29,26 +30,24 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Interfaces;
 
-class ViewTest extends PHPUnit_Framework_TestCase
+/**
+ * Middleware Interface
+ *
+ * @package Slim
+ * @author  John Porter
+ * @since   3.0.0
+ */
+interface MiddlewareInterface
 {
-    public function setUp()
-    {
-        $this->view = new \Slim\View(dirname(__FILE__) . '/templates');
-        $this->property = new \ReflectionProperty($this->view, 'data');
-        $this->property->setAccessible(true);
-    }
+    public function setApplication($application);
 
-    public function testDisplay()
-    {
-        $this->expectOutputString('test output bar 123');
-        $this->property->setValue($this->view, array('foo' => 'bar'));
-        $this->view->display('test.php', array('abc' => '123'));
-    }
+    public function getApplication();
 
-    public function testDisplayTemplateThatDoesNotExist()
-    {
-        $this->setExpectedException('\RuntimeException');
-        $this->view->display('foo.php');
-    }
+    public function setNextMiddleware($middleware);
+
+    public function getNextMiddleware();
+
+    public function call();
 }

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -50,7 +50,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   2.3.0
  */
-class Cookies extends \Slim\Collection
+class Cookies extends \Slim\Collection implements \Slim\Interfaces\Http\CookiesInterface
 {
     /**
      * Default cookie settings
@@ -117,7 +117,7 @@ class Cookies extends \Slim\Collection
      * @param \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);
@@ -135,7 +135,7 @@ class Cookies extends \Slim\Collection
      * @param  \Slim\Http\Cookies $cookies The Response cookies
      * @param  array              $config  The Slim app settings
      */
-    public static function serializeCookies(&$headers, \Slim\Http\Cookies $cookies)
+    public static function serialize(&$headers, \Slim\Interfaces\Http\CookiesInterface $cookies)
     {
         foreach ($cookies as $name => $settings) {
             if (is_string($settings['expires'])) {
@@ -143,7 +143,7 @@ class Cookies extends \Slim\Collection
             } else {
                 $expires = (int)$settings['expires'];
             }
-            static::setCookieHeader($headers, $name, $settings);
+            static::setHeader($headers, $name, $settings);
         }
     }
 
@@ -164,7 +164,7 @@ class Cookies extends \Slim\Collection
      * @param  string              $value
      * @return void
      */
-    public static function setCookieHeader(&$header, $name, $value)
+    public static function setHeader(&$header, $name, $value)
     {
         //Build cookie header
         if (is_array($value)) {
@@ -225,7 +225,7 @@ class Cookies extends \Slim\Collection
      * @param  string $name
      * @param  array  $value
      */
-    public static function deleteCookieHeader(&$header, $name, $value = array())
+    public static function deleteHeader(&$header, $name, $value = array())
     {
         //Remove affected cookies from current response header
         $cookiesOld = array();
@@ -250,7 +250,7 @@ class Cookies extends \Slim\Collection
         }
 
         //Set invalidating cookie to clear client-side cookie
-        static::setCookieHeader($header, $name, array_merge(array('value' => '', 'path' => null, 'domain' => null, 'expires' => time() - 100), $value));
+        static::setHeader($header, $name, array_merge(array('value' => '', 'path' => null, 'domain' => null, 'expires' => time() - 100), $value));
     }
 
     /**
@@ -262,7 +262,7 @@ class Cookies extends \Slim\Collection
      * @param  string
      * @return array
      */
-    public static function parseCookieHeader($header)
+    public static function parseHeader($header)
     {
         $cookies = array();
         $header = rtrim($header, "\r\n");

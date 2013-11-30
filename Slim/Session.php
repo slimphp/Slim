@@ -52,7 +52,8 @@ namespace Slim;
  * @author     Josh Lockhart
  * @since      2.3.0
  */
-class Session extends \Slim\Collection
+
+class Session extends \Slim\Collection implements \Slim\Interfaces\SessionInterface
 {
     /**
      * The session save handler
@@ -84,18 +85,7 @@ class Session extends \Slim\Collection
         $this->setOptions($options);
 
         // Set custom session handler
-        if ($handler !== null) {
-            $this->handler = $handler;
-
-            return session_set_save_handler(
-                array($this->handler, 'open'),
-                array($this->handler, 'close'),
-                array($this->handler, 'read'),
-                array($this->handler, 'write'),
-                array($this->handler, 'destroy'),
-                array($this->handler, 'gc')
-            );
-        }
+        $this->setHandler($handler);
     }
 
     /**
@@ -154,7 +144,7 @@ class Session extends \Slim\Collection
      * @param  array $options
      * @api
      */
-    protected function setOptions(array $options)
+    public function setOptions(array $options)
     {
         $theOptions = array_flip(array(
             'cache_limiter',
@@ -189,6 +179,22 @@ class Session extends \Slim\Collection
             if (isset($theOptions[$key])) {
                 ini_set('session.' . $key, $value);
             }
+        }
+    }
+
+    public function setHandler($handler = null)
+    {
+        if ($handler !== null) {
+            $this->handler = $handler;
+
+            return session_set_save_handler(
+                array($this->handler, 'open'),
+                array($this->handler, 'close'),
+                array($this->handler, 'read'),
+                array($this->handler, 'write'),
+                array($this->handler, 'destroy'),
+                array($this->handler, 'gc')
+            );
         }
     }
 }

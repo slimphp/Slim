@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  *
  * MIT LICENSE
  *
@@ -105,10 +105,10 @@ class SlimTest extends PHPUnit_Framework_TestCase
     {
         $s = new \Slim\App();
         $s->environment = $this->env;
-        $this->assertInstanceOf('\Slim\Http\Request', $s->request);
-        $this->assertInstanceOf('\Slim\Http\Response', $s->response);
-        $this->assertInstanceOf('\Slim\Router', $s->router);
-        $this->assertInstanceOf('\Slim\Environment', $s->environment);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\RequestInterface', $s->request);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $s->response);
+        $this->assertInstanceOf('\Slim\Interfaces\RouterInterface', $s->router);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $s->environment);
     }
 
     /**
@@ -285,7 +285,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->environment = $this->env;
         $callable = function () { echo "foo"; };
         $route = $s->map('/bar', $callable);
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf('\Slim\Interfaces\RouteInterface', $route);
         $this->assertEmpty($route->getHttpMethods());
     }
 

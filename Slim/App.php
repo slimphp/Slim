@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -40,60 +40,21 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ * @package  Slim
+ * @author   Josh Lockhart
+ * @since    1.0.0
  *
- * You will isntantiate this class to create a new Slim application.
- * Its constructor accepts an associative array of application settings.
- *
- * This class uses a dependency injection (DI) container to locate resources
- * on-demand (e.g. environment, request, response, view, router, flash, and session).
- * The DI container makes it super simple to override any of the Slim application's
- * default implementations or to inject your own custom objects to be used as you
- * see fit in your custom application.
- *
- * You may use any of these methods provided by this class to define your
- * Slim application's routes:
- *
- *     get()
- *     post()
- *     put()
- *     delete()
- *     options()
- *     patch()
- *     any()
- *
- * This class also provides several helper methods for common tasks:
- *
- *     status()
- *     contentType()
- *
- * methods for HTTP caching:
- *
- *     etag()
- *     expires()
- *     lastModified()
- *
- * and methods for HTTP cookie handling:
- *
- *     setCookie()
- *     getCookie()
- *     deleteCookie()
- *
- * There are, of course, more methods available for you to use. Refer to the code
- * below or to the Slim Framework documentation for more information.
- *
- * Most importantly, you must invoke your Slim application instance's `run()` method
- * after you define your routes, else the magic just won't happen!
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @property \Slim\Environment   $environment
+ * @property \Slim\Http\Response $response
+ * @property \Slim\Http\Request  $request
+ * @property \Slim\Router        $router
  */
 class App extends \Slim\Pimple
 {
     /**
      * @const string
      */
-    const VERSION = '2.3.3';
+    const VERSION = '2.3.5';
 
     /**
      * @var array
@@ -131,6 +92,30 @@ class App extends \Slim\Pimple
         'slim.after' => array(array())
     );
 
+    protected static $defaultSettings = array(
+        // Application
+        'mode' => 'development',
+        'view' => null,
+        // Cookies
+        'cookies.encrypt' => false,
+        'cookies.lifetime' => '20 minutes',
+        'cookies.path' => '/',
+        'cookies.domain' => null,
+        'cookies.secure' => false,
+        'cookies.httponly' => false,
+        // Encryption
+        'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+        'crypt.cipher' => MCRYPT_RIJNDAEL_256,
+        'crypt.mode' => MCRYPT_MODE_CBC,
+        // Session
+        'session.options' => array(),
+        'session.handler' => null,
+        'session.flash_key' => 'slimflash',
+        'session.encrypt' => false,
+        // HTTP
+        'http.version' => '1.1'
+    );
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -152,7 +137,9 @@ class App extends \Slim\Pimple
 
         // Request
         $this->request = $this->share(function ($c) {
-            $request = new \Slim\Http\Request($c['environment']);
+            $headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($c['environment']->all()));
+            $cookies = new \Slim\Collection(\Slim\Http\Cookies::parseHeader($c['environment']->get('HTTP_COOKIE')));
+            $request = new \Slim\Http\Request($c['environment'], $headers, $cookies);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $request->cookies->decrypt($c['crypt']);
             }
@@ -162,6 +149,8 @@ class App extends \Slim\Pimple
 
         // Response
         $this->response = $this->share(function ($c) {
+            $headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+            $cookies = new \Slim\Http\Cookies();
             return new \Slim\Http\Response();
         });
 
@@ -172,11 +161,16 @@ class App extends \Slim\Pimple
 
         // View
         $this->view = $this->share(function ($c) {
-            if ($c['settings']['view'] instanceof \Slim\View === false) {
-                throw new \RuntimeException('You must specify a view when you instantiate your application. The view must be an instance of \Slim\View.');
+            $view = $c['settings']['view'];
+            if ($view instanceof \Slim\View === false) {
+                throw new \Exception('View class must be instance of \Slim\View');
             }
+            // $templatesPath = $c['settings']['templates.path'];
 
-            return $c['settings']['view'];
+            // $view = ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
+            // $view->setTemplatesDirectory($templatesPath);
+
+            return $view;
         });
 
         // Crypt
@@ -226,29 +220,7 @@ class App extends \Slim\Pimple
      */
     public static function getDefaultSettings()
     {
-        return array(
-            // Application
-            'mode' => 'development',
-            'view' => null,
-            // Cookies
-            'cookies.encrypt' => false,
-            'cookies.lifetime' => '20 minutes',
-            'cookies.path' => '/',
-            'cookies.domain' => null,
-            'cookies.secure' => false,
-            'cookies.httponly' => false,
-            // Encryption
-            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-            'crypt.mode' => MCRYPT_MODE_CBC,
-            // Session
-            'session.options' => array(),
-            'session.handler' => null,
-            'session.flash_key' => 'slimflash',
-            'session.encrypt' => false,
-            // HTTP
-            'http.version' => '1.1'
-        );
+        return static::$defaultSettings;
     }
 
     /**
@@ -1137,7 +1109,7 @@ class App extends \Slim\Pimple
      * @param  \Slim\Middleware
      * @api
      */
-    public function add(\Slim\Middleware $newMiddleware)
+    public function add(\Slim\Interfaces\MiddlewareInterface $newMiddleware)
     {
         $newMiddleware->setApplication($this);
         $newMiddleware->setNextMiddleware($this->middleware[0]);
@@ -1237,7 +1209,7 @@ class App extends \Slim\Pimple
             if ($this->settings['cookies.encrypt']) {
                 $this->response->cookies->encrypt($this->crypt);
             }
-            \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
+            \Slim\Http\Cookies::serialize($headers, $this->response->cookies);
 
             //Send headers
             if (headers_sent() === false) {

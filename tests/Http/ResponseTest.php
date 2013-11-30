@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  *
  * MIT LICENSE
  *
@@ -107,7 +107,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($resFinal));
         $this->assertEquals(3, count($resFinal));
         $this->assertEquals(200, $resFinal[0]);
-        $this->assertInstanceOf('\Slim\Http\Headers', $resFinal[1]);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\HeadersInterface', $resFinal[1]);
         $this->assertEquals('', $resFinal[2]);
     }
 

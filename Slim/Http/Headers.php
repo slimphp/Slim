@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -32,24 +32,24 @@
  */
 namespace Slim\Http;
 
- /**
-  * Headers
-  *
-  * This class manages a collection of HTTP headers. Each \Slim\Http\Request
-  * and \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
-  *
-  * Because HTTP headers may be upper, lower, or mixed case, this class
-  * normalizes the user-requested header name into a canonical internal format
-  * so that it can adapt to and successfully handle any header name format.
-  *
-  * Otherwise, this class extends \Slim\Container and has access to a simple
-  * and common interface to manipulate HTTP header data.
-  *
-  * @package Slim
-  * @author  Josh Lockhart
-  * @since   1.6.0
-  */
-class Headers extends \Slim\Collection
+/**
+ * Headers
+ *
+ * This class manages a collection of HTTP headers. Each \Slim\Http\Request
+ * and \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ *
+ * Because HTTP headers may be upper, lower, or mixed case, this class
+ * normalizes the user-requested header name into a canonical internal format
+ * so that it can adapt to and successfully handle any header name format.
+ *
+ * Otherwise, this class extends \Slim\Container and has access to a simple
+ * and common interface to manipulate HTTP header data.
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   1.6.0
+ */
+class Headers extends \Slim\Collection implements \Slim\Interfaces\Http\HeadersInterface
 {
     /********************************************************************************
     * Static interface
@@ -145,7 +145,7 @@ class Headers extends \Slim\Collection
      * @param  string $key
      * @return string
      */
-    protected static function normalizeKey($key)
+    public static function normalizeKey($key)
     {
         $key = strtolower($key);
         $key = str_replace(array('-', '_'), ' ', $key);

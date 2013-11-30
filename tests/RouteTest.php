@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  *
  * MIT LICENSE
  *
@@ -65,6 +65,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/foo', $callable);
 
         $this->assertSame($callable, $route->getCallable());
+    }
+
+    public function testGetCallableAsClass()
+    {
+        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute');
+
+        $callable = $route->getCallable();
+        $this->assertInstanceOf('\Slim\Router', $callable[0]);
+        $this->assertEquals('getCurrentRoute', $callable[1]);
     }
 
     public function testSetCallable()

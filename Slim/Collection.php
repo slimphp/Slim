@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -32,7 +32,7 @@
  */
 namespace Slim;
 
-class Collection implements \Countable, \IteratorAggregate
+class Collection implements \Countable, \IteratorAggregate, \Slim\Interfaces\CollectionInterface
 {
     /**
      * Key-value array of data
@@ -144,7 +144,7 @@ class Collection implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $elementName => $elementValue) {
             $this->set($elementName, $crypt->encrypt($elementValue));
@@ -156,7 +156,7 @@ class Collection implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function decrypt(\Slim\Crypt $crypt)
+    public function decrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $elementName => $elementValue) {
             $this->set($elementName, $crypt->decrypt($elementValue));

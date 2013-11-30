@@ -1,6 +1,6 @@
 # Slim Framework
 
-[![Build Status](https://secure.travis-ci.org/codeguy/Slim.png)](http://travis-ci.org/codeguy/Slim)
+[![Build Status](https://secure.travis-ci.org/codeguy/Slim.png?branch=master)](http://travis-ci.org/codeguy/Slim)
 
 Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs.
 Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases
@@ -78,6 +78,10 @@ Be sure you change the `ServerRoot` setting to point to your Slim app's document
 
     Server {
         SourceRoot = /path/to/public/directory
+    }
+
+    ServerVariables {
+        SCRIPT_NAME = /index.php
     }
 
     VirtualHost {
@@ -163,7 +167,7 @@ Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive news and
 
 ## Author
 
-The Slim Framework is created and maintained by [Josh Lockhart](https://www.joshlockhart.com). Josh is a senior
+The Slim Framework is created and maintained by [Josh Lockhart](http://www.joshlockhart.com). Josh is a senior
 web developer at [New Media Campaigns](http://www.newmediacampaigns.com/). Josh also created and maintains
 [PHP: The Right Way](http://www.phptherightway.com/), a popular movement in the PHP community to introduce new
 PHP programmers to best practices and good information.

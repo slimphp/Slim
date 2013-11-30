@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -65,7 +65,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class View extends \Slim\Collection
+class View extends \Slim\Collection implements \Slim\Interfaces\ViewInterface
 {
     /**
      * Constructor
