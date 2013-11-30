@@ -101,8 +101,6 @@ class Crypt
      */
     public function encrypt($data)
     {
-        $this->checkRequirements();
-
         // Get module
         $module = mcrypt_module_open($this->cipher, '', $this->mode, '');
 
@@ -142,8 +140,6 @@ class Crypt
      */
     public function decrypt($data)
     {
-        $this->checkRequirements();
-
         // Extract components of encrypted data string
         $parts = explode('|', $data);
         if (count($parts) !== 3) {
