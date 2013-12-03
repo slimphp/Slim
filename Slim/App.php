@@ -57,23 +57,6 @@ class App extends \Slim\Pimple
     const VERSION = '2.3.5';
 
     /**
-     * @var array
-     */
-    protected $middleware;
-
-    /**
-     * Callable to be invoked if application error
-     * @var mixed
-     */
-    protected $error;
-
-    /**
-     * Callable to be invoked if no matching routes are found
-     * @var mixed
-     */
-    protected $notFound;
-
-    /**
      * Has the app response been sent to the client?
      * @var bool
      */
@@ -109,12 +92,12 @@ class App extends \Slim\Pimple
         });
 
         // Environment
-        $this->environment = $this->share(function ($c) {
+        $this['environment'] = $this->share(function ($c) {
             return \Slim\Environment::createFromGlobals();
         });
 
         // Request
-        $this->request = $this->share(function ($c) {
+        $this['request'] = $this->share(function ($c) {
             $environment = $c['environment'];
             $headers = \Slim\Http\Headers::createFromEnvironment($environment);
             $cookies = new \Slim\Collection(\Slim\Http\Cookies::extractFromHeaders($headers));
@@ -126,17 +109,17 @@ class App extends \Slim\Pimple
         });
 
         // Response
-        $this->response = $this->share(function ($c) {
+        $this['response'] = $this->share(function ($c) {
             return new \Slim\Http\Response();
         });
 
         // Router
-        $this->router = $this->share(function ($c) {
+        $this['router'] = $this->share(function ($c) {
             return new \Slim\Router();
         });
 
         // View
-        $this->view = $this->share(function ($c) {
+        $this['view'] = $this->share(function ($c) {
             $view = $c['settings']['view'];
             if ($view instanceof \Slim\View === false) {
                 throw new \Exception('View class must be instance of \Slim\View');
@@ -146,14 +129,15 @@ class App extends \Slim\Pimple
         });
 
         // Crypt
-        $this->crypt = $this->share(function ($c) {
+        $this['crypt'] = $this->share(function ($c) {
             return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         });
 
         // Session
-        $this->session = $this->share(function ($c) {
+        $this['session'] = $this->share(function ($c) {
             $session = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
             $session->start();
+
             if ($c['settings']['session.encrypt'] === true) {
                 $session->decrypt($c['crypt']);
             }
@@ -162,12 +146,12 @@ class App extends \Slim\Pimple
         });
 
         // Flash
-        $this->flash = $this->share(function ($c) {
+        $this['flash'] = $this->share(function ($c) {
             return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
         });
 
         // Mode
-        $this->mode = function ($c) {
+        $this['mode'] = function ($c) {
             $mode = $c['settings']['mode'];
 
             if (isset($_ENV['SLIM_MODE'])) {
@@ -183,7 +167,7 @@ class App extends \Slim\Pimple
         };
 
         // Middleware stack
-        $this->middleware = array($this);
+        $this['middleware'] = array($this);
     }
 
     /**
@@ -214,7 +198,7 @@ class App extends \Slim\Pimple
                     $this->settings[$key] = $value;
                 }
             } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
+                return isset($this['settings'][$name]) ? $this['settings'][$name] : null;
             }
         } else {
             $this->settings[$name] = $value;
@@ -235,7 +219,7 @@ class App extends \Slim\Pimple
      */
     public function configureMode($mode, $callable)
     {
-        if ($mode === $this->mode && is_callable($callable)) {
+        if ($mode === $this['mode'] && is_callable($callable)) {
             call_user_func($callable);
         }
     }
@@ -330,7 +314,7 @@ class App extends \Slim\Pimple
         $pattern = array_shift($args);
         $callable = array_pop($args);
         $route = new \Slim\Route($pattern, $callable);
-        $this->router->map($route);
+        $this['router']->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
@@ -438,11 +422,11 @@ class App extends \Slim\Pimple
         $args = func_get_args();
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $this->router->pushGroup($pattern, $args);
+        $this['router']->pushGroup($pattern, $args);
         if (is_callable($callable)) {
             call_user_func($callable);
         }
-        $this->router->popGroup();
+        $this['router']->popGroup();
     }
 
     /**
@@ -482,11 +466,11 @@ class App extends \Slim\Pimple
     public function notFound ($callable = null)
     {
         if (is_callable($callable)) {
-            $this->notFound = $callable;
+            $this['notFound'] = $callable;
         } else {
             ob_start();
-            if (is_callable($this->notFound)) {
-                call_user_func($this->notFound);
+            if (is_callable($this['notFound'])) {
+                call_user_func($this['notFound']);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -522,7 +506,7 @@ class App extends \Slim\Pimple
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this->error = $argument;
+            $this['error'] = $argument;
         } else {
             //Invoke error handler
             $this->response->setBody($this->callErrorHandler($argument));
@@ -541,12 +525,12 @@ class App extends \Slim\Pimple
      */
     protected function callErrorHandler($argument = null)
     {
-        $this->response->setBody('');
-        $this->response->setStatus(500);
+        $this['response']->setBody('');
+        $this['response']->setStatus(500);
 
         ob_start();
-        if (is_callable($this->error)) {
-            call_user_func_array($this->error, array($argument));
+        if (is_callable($this['error'])) {
+            call_user_func_array($this['error'], array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
@@ -574,9 +558,9 @@ class App extends \Slim\Pimple
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->setStatus($status);
+            $this['response']->setStatus($status);
         }
-        $this->view->display($template, $data);
+        $this['view']->display($template, $data);
     }
 
     /********************************************************************************
@@ -600,8 +584,8 @@ class App extends \Slim\Pimple
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this->response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
-            if ($time === strtotime($this->request->getHeaders()->get('IF_MODIFIED_SINCE'))) {
+            $this['response']['headers']->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
+            if ($time === strtotime($this['request']->getHeaders()->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
         } else {
@@ -638,10 +622,10 @@ class App extends \Slim\Pimple
         if ($type === 'weak') {
             $value = 'W/'.$value;
         }
-        $this->response->headers->set('ETag', $value);
+        $this['response']['headers']->set('ETag', $value);
 
         // Check conditional GET
-        if ($etagsHeader = $this->request->getHeaders()->get('IF_NONE_MATCH')) {
+        if ($etagsHeader = $this['request']->getHeaders()->get('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if (in_array($value, $etags) || in_array('*', $etags)) {
                 $this->halt(304);
@@ -668,7 +652,7 @@ class App extends \Slim\Pimple
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this->response->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
+        $this['response']['headers']->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 
     /********************************************************************************
@@ -700,7 +684,7 @@ class App extends \Slim\Pimple
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this->response->cookies->set($name, $settings);
+        $this['response']['cookies']->set($name, $settings);
     }
 
     /**
@@ -716,7 +700,7 @@ class App extends \Slim\Pimple
      */
     public function getCookie($name)
     {
-        return $this->request->getCookies()->get($name);
+        return $this['request']->getCookies()->get($name);
     }
 
     /**
@@ -744,7 +728,7 @@ class App extends \Slim\Pimple
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this->response->cookies->remove($name, $settings);
+        $this['response']['cookies']->remove($name, $settings);
     }
 
     /********************************************************************************
@@ -764,7 +748,7 @@ class App extends \Slim\Pimple
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this->request->getScriptName(), '/') . '/';
+        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this['request']->getScriptName(), '/') . '/';
     }
 
     /**
@@ -807,8 +791,8 @@ class App extends \Slim\Pimple
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->setStatus($status);
-        $this->response->setBody($message);
+        $this['response']->setStatus($status);
+        $this['response']->setBody($message);
         $this->stop();
     }
 
@@ -835,7 +819,7 @@ class App extends \Slim\Pimple
      */
     public function contentType($type)
     {
-        $this->response->headers->set('Content-Type', $type);
+        $this['response']['headers']->set('Content-Type', $type);
     }
 
     /**
@@ -845,7 +829,7 @@ class App extends \Slim\Pimple
      */
     public function status($code)
     {
-        $this->response->setStatus($code);
+        $this['response']->setStatus($code);
     }
 
     /**
@@ -858,7 +842,7 @@ class App extends \Slim\Pimple
      */
     public function urlFor($name, $params = array())
     {
-        return $this->request->getScriptName() . $this->router->urlFor($name, $params);
+        return $this['request']->getScriptName() . $this['router']->urlFor($name, $params);
     }
 
     /**
@@ -876,7 +860,7 @@ class App extends \Slim\Pimple
      */
     public function redirect($url, $status = 302)
     {
-        $this->response->redirect($url, $status);
+        $this['response']->redirect($url, $status);
         $this->halt($status);
     }
 
@@ -984,27 +968,27 @@ class App extends \Slim\Pimple
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
-        $this->response->stream($fp);
+        $this['response']->stream($fp);
         if ($contentType) {
-            $this->response->getHeaders()->set("Content-Type", $contentType);
+            $this['response']->getHeaders()->set("Content-Type", $contentType);
         } else {
             if (file_exists($file)) {
                 //Set Content-Type
                 if ($contentType) {
-                    $this->response->headers->set("Content-Type", $contentType);
+                    $this['response']['headers']->set("Content-Type", $contentType);
                 } else {
                     if (extension_loaded('fileinfo')) {
                         $finfo = new \finfo(FILEINFO_MIME_TYPE);
                         $type = $finfo->file($file);
-                        $this->response->headers->set("Content-Type", $type);
+                        $this['response']['headers']->set("Content-Type", $type);
                     } else {
-                        $this->response->headers->set("Content-Type", "application/octet-stream");
+                        $this['response']['headers']->set("Content-Type", "application/octet-stream");
                     }
                 }
 
                 //Set Content-Length
                 $stat = fstat($fp);
-                $this->response->headers->set("Content-Length", $stat['size']);
+                $this['response']['headers']->set("Content-Length", $stat['size']);
             } else {
                 //Set Content-Type and Content-Length
                 $data = stream_get_meta_data($fp);
@@ -1014,12 +998,12 @@ class App extends \Slim\Pimple
 
                     if ($k === "Content-Type") {
                         if ($contentType) {
-                            $this->response->headers->set("Content-Type", $contentType);
+                            $this['response']['headers']->set("Content-Type", $contentType);
                         } else {
-                            $this->response->headers->set("Content-Type", $v);
+                            $this['response']['headers']->set("Content-Type", $v);
                         }
                     } else if ($k === "Content-Length") {
-                        $this->response->headers->set("Content-Length", $v);
+                        $this['response']['headers']->set("Content-Length", $v);
                     }
                 }
             }
@@ -1038,8 +1022,8 @@ class App extends \Slim\Pimple
      */
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
-        $this->response->stream($ph);
-        $this->response->headers->set("Content-Type", $contentType);
+        $this['response']->stream($ph);
+        $this['response']['headers']->set("Content-Type", $contentType);
         $this->finalize();
     }
 
@@ -1056,7 +1040,7 @@ class App extends \Slim\Pimple
         if ($filename) {
             $h .= "filename='" . $filename . "'";
         }
-        $this->response->headers->set("Content-Disposition", $h);
+        $this['response']['headers']->set("Content-Disposition", $h);
     }
 
     /********************************************************************************
@@ -1098,9 +1082,9 @@ class App extends \Slim\Pimple
 
         // Invoke middleware and application stack
         try {
-            $this->middleware[0]->call();
+            $this['middleware'][0]->call();
         } catch (\Exception $e) {
-            $this->response->write($this->callErrorHandler($e));
+            $this['response']->write($this->callErrorHandler($e));
         }
 
         // Finalize and send response
@@ -1117,14 +1101,16 @@ class App extends \Slim\Pimple
     public function call()
     {
         try {
-            if ($this->settings['view'] instanceof \Slim\View) {
-                $this->view->set('flash', $this->flash->getMessages());
+            if ($this['settings']['view'] instanceof \Slim\View) {
+                $this['view']->set('flash', $this['flash']->getMessages());
             }
+
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getPathInfo());
+            $matchedRoutes = $this['router']->getMatchedRoutes($this['request']->getMethod(), $this['request']->getPathInfo());
+
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -1143,7 +1129,7 @@ class App extends \Slim\Pimple
             $this->applyHook('slim.after.router');
         } catch (\Slim\Exception\Stop $e) {}
 
-        $this->response->write(ob_get_clean());
+        $this['response']->write(ob_get_clean());
         $this->applyHook('slim.after');
     }
 
@@ -1157,22 +1143,22 @@ class App extends \Slim\Pimple
             $this->responded = true;
 
             // Save flash messages to session
-            $this->flash->save();
+            $this['flash']->save();
 
             // Encrypt, save, close session
             if ($this->config('session.encrypt') === true) {
-                $this->session->encrypt($this->crypt);
+                $this['session']->encrypt($this['crypt']);
             }
-            $this->session->save();
+            $this['session']->save();
 
             //Fetch status, header, and body
-            list($status, $headers, $body) = $this->response->finalize();
+            list($status, $headers, $body) = $this['response']->finalize();
 
             // Encrypt and serialize cookies
-            if ($this->settings['cookies.encrypt']) {
-                $this->response->cookies->encrypt($this->crypt);
+            if ($this['settings']['cookies.encrypt']) {
+                $this['response']['cookies']->encrypt($this['crypt']);
             }
-            \Slim\Http\Cookies::serializeCookies($headers, $this->response->cookies);
+            \Slim\Http\Cookies::serializeCookies($headers, $this['response']['cookies']);
 
             //Send headers
             if (headers_sent() === false) {
@@ -1193,8 +1179,8 @@ class App extends \Slim\Pimple
             }
 
             //Send body, but only if it isn't a HEAD request
-            if (!$this->request->isHead()) {
-                if ($this->response->isStream()) {
+            if (!$this['request']->isHead()) {
+                if ($this['response']->isStream()) {
                     // As stream
                     while (!feof($body)) {
                         ob_start();
@@ -1255,7 +1241,7 @@ class App extends \Slim\Pimple
      */
     protected function defaultNotFound()
     {
-        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this->request->getScriptName() . '/">Visit the Home Page</a>');
+        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this['request']->getScriptName() . '/">Visit the Home Page</a>');
     }
 
     /**
@@ -1265,7 +1251,7 @@ class App extends \Slim\Pimple
     {
         $this->contentType('text/html');
 
-        if ($this->mode === 'development') {
+        if ($this['mode'] === 'development') {
             $title = 'Slim Application Error';
             $html = '';
 
