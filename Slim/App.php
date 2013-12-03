@@ -108,17 +108,19 @@ class App extends \Slim\Pimple
 
         // Environment
         $this->environment = $this->share(function ($c) {
-            return new \Slim\Environment();
+            return \Slim\Environment::createFromGlobals();
         });
 
         // Request
         $this->request = $this->share(function ($c) {
-            $request = new \Slim\Http\Request($c['environment']);
+            $environment = $c['environment'];
+            $headers = \Slim\Http\Headers::createFromEnvironment($environment);
+            $cookies = new \Slim\Collection(\Slim\Http\Cookies::extractFromHeaders($headers));
             if ($c['settings']['cookies.encrypt'] ===  true) {
-                $request->cookies->decrypt($c['crypt']);
+                $cookies->decrypt($c['crypt']);
             }
 
-            return $request;
+            return new \Slim\Http\Request($environment, $headers, $cookies);
         });
 
         // Response
@@ -137,10 +139,6 @@ class App extends \Slim\Pimple
             if ($view instanceof \Slim\View === false) {
                 throw new \Exception('View class must be instance of \Slim\View');
             }
-            // $templatesPath = $c['settings']['templates.path'];
-
-            // $view = ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass;
-            // $view->setTemplatesDirectory($templatesPath);
 
             return $view;
         });
@@ -152,13 +150,13 @@ class App extends \Slim\Pimple
 
         // Session
         $this->session = $this->share(function ($c) {
-            $s = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
-            $s->start();
+            $session = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $session->start();
             if ($c['settings']['session.encrypt'] === true) {
-                $s->decrypt($c['crypt']);
+                $session->decrypt($c['crypt']);
             }
 
-            return $s;
+            return $session;
         });
 
         // Flash
@@ -632,7 +630,7 @@ class App extends \Slim\Pimple
     {
         if (is_integer($time)) {
             $this->response->headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
-            if ($time === strtotime($this->request->headers->get('IF_MODIFIED_SINCE'))) {
+            if ($time === strtotime($this->request->getHeaders()->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
         } else {
@@ -672,7 +670,7 @@ class App extends \Slim\Pimple
         $this->response->headers->set('ETag', $value);
 
         // Check conditional GET
-        if ($etagsHeader = $this->request->headers->get('IF_NONE_MATCH')) {
+        if ($etagsHeader = $this->request->getHeaders()->get('IF_NONE_MATCH')) {
             $etags = preg_split('@\s*,\s*@', $etagsHeader);
             if (in_array($value, $etags) || in_array('*', $etags)) {
                 $this->halt(304);
@@ -747,7 +745,7 @@ class App extends \Slim\Pimple
      */
     public function getCookie($name)
     {
-        return $this->request->cookies->get($name);
+        return $this->request->getCookies()->get($name);
     }
 
     /**
@@ -1017,7 +1015,7 @@ class App extends \Slim\Pimple
         $fp = fopen($file, "r");
         $this->response->stream($fp);
         if ($contentType) {
-            $this->response->headers->set("Content-Type", $contentType);
+            $this->response->getHeaders()->set("Content-Type", $contentType);
         } else {
             if (file_exists($file)) {
                 //Set Content-Type
