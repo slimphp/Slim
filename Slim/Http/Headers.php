@@ -51,15 +51,7 @@ namespace Slim\Http;
   */
 class Headers extends \Slim\Collection
 {
-    /********************************************************************************
-    * Static interface
-    *******************************************************************************/
-
     /**
-     * Special-case HTTP headers that are otherwise unidentifiable as HTTP headers.
-     * Typically, HTTP headers in the $_SERVER array will be prefixed with
-     * `HTTP_` or `X_`. These are not so we list them here for later reference.
-     *
      * @var array
      */
     protected static $special = array(
@@ -72,14 +64,14 @@ class Headers extends \Slim\Collection
     );
 
     /**
-     * Extract HTTP headers from an array of data (e.g. $_SERVER)
-     * @param  array $data
-     * @return array
+     * Extract HTTP headers from the application environment
+     * @param  \Slim\Environment  $env
+     * @return \Slim\Http\Headers
      */
-    public static function find($data)
+    public static function createFromEnvironment(\Slim\Environment $env)
     {
         $results = array();
-        foreach ($data as $key => $value) {
+        foreach ($env as $key => $value) {
             $key = strtoupper($key);
             if (strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
                 if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
@@ -89,12 +81,8 @@ class Headers extends \Slim\Collection
             }
         }
 
-        return $results;
+        return new static($results);
     }
-
-    /********************************************************************************
-    * Instance interface
-    *******************************************************************************/
 
     /**
      * Set data key to value

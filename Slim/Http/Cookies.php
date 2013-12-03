@@ -66,6 +66,16 @@ class Cookies extends \Slim\Collection
     );
 
     /**
+     * Extract cookies from HTTP headers
+     * @param  \Slim\Http\Headers $headers
+     * @return array
+     */
+    public static function extractFromHeaders(\Slim\Http\Headers $headers)
+    {
+        return static::parseCookieHeader($headers->get('Cookie', ''));
+    }
+
+    /**
      * Set cookie
      *
      * The second argument may be a single scalar value, in which case

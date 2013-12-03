@@ -31,6 +31,14 @@
  */
 class CookiesTest extends PHPUnit_Framework_TestCase
 {
+    public function testCreateFromHeaders()
+    {
+        $headers = new \Slim\Http\Headers(array('HTTP_COOKIE' => 'foo=bar;abc=123'));
+        $cookies = new \Slim\Collection(\Slim\Http\Cookies::extractFromHeaders($headers));
+        $this->assertEquals('bar', $cookies->get('foo'));
+        $this->assertEquals('123', $cookies->get('abc'));
+    }
+
     public function testSetWithStringValue()
     {
         $c = new \Slim\Http\Cookies();

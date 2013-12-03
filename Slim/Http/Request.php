@@ -67,47 +67,59 @@ class Request
     protected static $formDataMediaTypes = array('application/x-www-form-urlencoded');
 
     /**
-     * Application Environment
+     * Application environment
      * @var \Slim\Environment
      */
     protected $env;
 
     /**
-     * HTTP request headers
+     * Request paths (physical and virtual) cached per instance
+     * @var array
+     */
+    protected $paths;
+
+    /**
+     * Request headers
      * @var \Slim\Http\Headers
      * @api
      */
     public $headers;
 
     /**
-     * HTTP request cookies
-     * @var \Slim\Container
+     * Request cookies
+     * @var \Slim\Collection
      * @api
      */
     public $cookies;
 
     /**
-     * HTTP request query parameters
+     * Request query parameters
      * @var  array
      */
     protected $queryParameters;
 
     /**
-     * HTTP request body parameters (for content-type "application/x-www-form-urlencoded" only)
+     * Request body (raw)
+     * @var string
+     */
+    protected $bodyRaw;
+
+    /**
+     * Request body (parsed; only available if body is form-urlencoded)
      * @var array
      */
     protected $body;
 
     /**
      * Constructor
-     * @param \Slim\Environment $env
      * @api
      */
-    public function __construct(\Slim\Environment $env)
+    public function __construct(\Slim\Environment $env, \Slim\Http\Headers $headers, \Slim\Collection $cookies, $body = null)
     {
         $this->env = $env;
-        $this->headers = new \Slim\Http\Headers(\Slim\Http\Headers::find($env->all()));
-        $this->cookies = new \Slim\Collection(\Slim\Http\Cookies::parseCookieHeader($env->get('HTTP_COOKIE')));
+        $this->headers = $headers;
+        $this->cookies = $cookies;
+        $this->bodyRaw = $body;
     }
 
     /**
@@ -119,14 +131,14 @@ class Request
     {
         // Get actual request method
         $method = $this->env->get('REQUEST_METHOD');
-        $methodOverride = $this->env->get('HTTP_X_HTTP_METHOD_OVERRIDE');
+        $methodOverride = $this->headers->get('HTTP_X_HTTP_METHOD_OVERRIDE', false);
 
         // Detect method override (by HTTP header or POST parameter)
-        if ($methodOverride) {
+        if ($methodOverride !== false) {
             $method = strtoupper($methodOverride);
-        } else if ($method === 'POST') {
-            $customMethod = $this->post('_METHOD');
-            if ($customMethod) {
+        } else if ($method === static::METHOD_POST) {
+            $customMethod = $this->post(static::METHOD_OVERRIDE, false);
+            if ($customMethod !== false) {
                 $method = strtoupper($customMethod);
             }
         }
@@ -145,13 +157,31 @@ class Request
     }
 
     /**
+     * Get HTTP headers
+     * @return \Slim\Http\Headers
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Get HTTP cookies
+     * @return \Slim\Collection
+     */
+    public function getCookies()
+    {
+        return $this->cookies;
+    }
+
+    /**
      * Is this a GET request?
      * @return bool
      * @api
      */
     public function isGet()
     {
-        return $this->getMethod() === self::METHOD_GET;
+        return $this->getMethod() === static::METHOD_GET;
     }
 
     /**
@@ -161,7 +191,7 @@ class Request
      */
     public function isPost()
     {
-        return $this->getMethod() === self::METHOD_POST;
+        return $this->getMethod() === static::METHOD_POST;
     }
 
     /**
@@ -171,7 +201,7 @@ class Request
      */
     public function isPut()
     {
-        return $this->getMethod() === self::METHOD_PUT;
+        return $this->getMethod() === static::METHOD_PUT;
     }
 
     /**
@@ -181,7 +211,7 @@ class Request
      */
     public function isPatch()
     {
-        return $this->getMethod() === self::METHOD_PATCH;
+        return $this->getMethod() === static::METHOD_PATCH;
     }
 
     /**
@@ -191,7 +221,7 @@ class Request
      */
     public function isDelete()
     {
-        return $this->getMethod() === self::METHOD_DELETE;
+        return $this->getMethod() === static::METHOD_DELETE;
     }
 
     /**
@@ -201,7 +231,7 @@ class Request
      */
     public function isHead()
     {
-        return $this->getMethod() === self::METHOD_HEAD;
+        return $this->getMethod() === static::METHOD_HEAD;
     }
 
     /**
@@ -211,7 +241,7 @@ class Request
      */
     public function isOptions()
     {
-        return $this->getMethod() === self::METHOD_OPTIONS;
+        return $this->getMethod() === static::METHOD_OPTIONS;
     }
 
     /**
@@ -221,13 +251,7 @@ class Request
      */
     public function isAjax()
     {
-        if ($this->params('isajax')) {
-            return true;
-        } elseif ($this->headers->get('X_REQUESTED_WITH') === 'XMLHttpRequest') {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->params('isajax') == true || $this->headers->get('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest'; // <-- Loose equality is on purpose
     }
 
     /**
@@ -252,8 +276,8 @@ class Request
      */
     public function params($key = null)
     {
-	$get = $this->get() ?: array();
-	$post = $this->post() ?: array();
+        $get = $this->get() ?: array();
+        $post = $this->post() ?: array();
         $union = array_merge($get, $post);
         if ($key) {
             return isset($union[$key]) ? $union[$key] : null;
@@ -276,21 +300,23 @@ class Request
      */
     public function get($key = null, $default = null)
     {
-        // Parse and cache query parameters from \Slim\Environment
-        if (!isset($this->queryParameters)) {
-            if (function_exists('mb_parse_str')) {
-                mb_parse_str($this->env->get('QUERY_STRING'), $this->queryParameters);
+        // Parse and cache query parameters
+        if (is_null($this->queryParameters) === true) {
+            $qs = $this->env->get('QUERY_STRING');
+
+            if (function_exists('mb_parse_str') === true) {
+                mb_parse_str($qs, $this->queryParameters); // <-- Url decodes too
             } else {
-                parse_str($this->env->get('QUERY_STRING'), $this->queryParameters);
+                parse_str($qs, $this->queryParameters); // <-- Url decodes too
             }
         }
 
         // Fetch requested query parameter(s)
         if ($key) {
-            if (isset($this->queryParameters[$key])) {
+            if (array_key_exists($key, $this->queryParameters) === true) {
                 $returnVal = $this->queryParameters[$key];
             } else {
-                return $default;
+                $returnVal = $default;
             }
         } else {
             $returnVal = $this->queryParameters;
@@ -314,32 +340,28 @@ class Request
      */
     public function post($key = null, $default = null)
     {
-        // Ensure the POST request body is available
-        if (is_null($this->env->get('slim.input'))) {
-            throw new \RuntimeException('The raw POST body is not available in \Slim\Environment');
-        }
-
-        // Parse and cache POST request body
-        if (is_null($this->body)) {
-            // Default body
+        // Parse and cache request body
+        if (is_null($this->body) === true) {
             $this->body = $_POST;
 
-            // Parse body ONLY IF the request content-type is "application/x-www-form-urlencoded"
-            if ($this->isFormData() && is_string($this->env->get('slim.input'))) {
-                if (function_exists('mb_parse_str')) {
-                    mb_parse_str($this->env->get('slim.input'), $this->body);
+            // Parse raw body if form-urlencoded
+            if ($this->isFormData() === true) {
+                $rawBody = $this->getBody();
+
+                if (function_exists('mb_parse_str') === true) {
+                    mb_parse_str($rawBody, $this->body);
                 } else {
-                    parse_str($this->env->get('slim.input'), $this->body);
+                    parse_str($rawBody, $this->body);
                 }
             }
         }
 
         // Fetch POST parameter(s)
         if ($key) {
-            if (isset($this->body[$key])) {
+            if (array_key_exists($key, $this->body) === true) {
                 $returnVal = $this->body[$key];
             } else {
-                return $default;
+                $returnVal = $default;
             }
         } else {
             $returnVal = $this->body;
@@ -390,9 +412,7 @@ class Request
      */
     public function isFormData()
     {
-        $method = $this->env->get('slim.method_override.original_method', $this->getMethod());
-
-        return ($method === self::METHOD_POST && is_null($this->getContentType())) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        return (is_null($this->getContentType()) && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
@@ -402,7 +422,15 @@ class Request
      */
     public function getBody()
     {
-        return $this->env->get('slim.input');
+        if (is_null($this->bodyRaw) === true) {
+            $bodyRaw = file_get_contents('php://input');
+            if ($bodyRaw === false) {
+                $bodyRaw = '';
+            }
+            $this->bodyRaw = $bodyRaw;
+        }
+
+        return $this->bodyRaw;
     }
 
     /**
@@ -485,7 +513,7 @@ class Request
      */
     public function getHost()
     {
-        $host = $this->env->get('HTTP_HOST');
+        $host = $this->headers->get('HTTP_HOST');
         if ($host) {
             if (strpos($host, ':') !== false) {
                 $hostParts = explode(':', $host);
@@ -526,27 +554,9 @@ class Request
      */
     public function getScheme()
     {
-        return $this->env->get('slim.url_scheme');
-    }
+        $https = $this->env->get('HTTPS');
 
-    /**
-     * Get Script Name (physical path)
-     * @return string
-     * @api
-     */
-    public function getScriptName()
-    {
-        return $this->env->get('SCRIPT_NAME');
-    }
-
-    /**
-     * Get Path Info (virtual path)
-     * @return string
-     * @api
-     */
-    public function getPathInfo()
-    {
-        return $this->env->get('PATH_INFO');
+        return empty($https) || $https === 'off' ? 'http' : 'https';
     }
 
     /**
@@ -565,23 +575,13 @@ class Request
     }
 
     /**
-     * Get Path (physical path + virtual path)
-     * @return string
-     * @api
-     */
-    public function getPath()
-    {
-        return $this->getScriptName() . $this->getPathInfo();
-    }
-
-    /**
      * Get query string
      * @return string
      * @api
      */
     public function getQueryString()
     {
-        return $this->env->get('QUERY_STRING');
+        return $this->env->get('QUERY_STRING', '');
     }
 
     /**
@@ -601,13 +601,14 @@ class Request
      */
     public function getIp()
     {
-        if ($this->env->get('X_FORWARDED_FOR')) {
-            return $this->env->get('X_FORWARDED_FOR');
-        } elseif ($this->env->get('CLIENT_IP')) {
-            return $this->env->get('CLIENT_IP');
+        $keys = array('HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
+        foreach ($keys as $key) {
+            if ($this->env->has($key) === true) {
+                return $this->env->get($key);
+            }
         }
 
-        return $this->env->get('REMOTE_ADDR');
+        return null;
     }
 
     /**
@@ -638,6 +639,73 @@ class Request
     public function getUserAgent()
     {
         return $this->headers->get('HTTP_USER_AGENT');
+    }
+
+    /**
+     * Get Script Name (physical path)
+     * @return string
+     * @api
+     */
+    public function getScriptName()
+    {
+        $paths = $this->parsePaths();
+
+        return $paths['physical'];
+    }
+
+    /**
+     * Get Path Info (virtual path)
+     * @return string
+     * @api
+     */
+    public function getPathInfo()
+    {
+        $paths = $this->parsePaths();
+
+        return $paths['virtual'];
+    }
+
+    /**
+     * Get Path (physical path + virtual path)
+     * @return string
+     * @api
+     */
+    public function getPath()
+    {
+        return $this->getScriptName() . $this->getPathInfo();
+    }
+
+    /**
+     * Parse the physical and virtual paths from the request URI
+     * @return array
+     */
+    protected function parsePaths()
+    {
+        if (is_null($this->paths) === true) {
+            // Server params
+            $scriptName = $this->env->get('SCRIPT_NAME'); // <-- "/foo/index.php"
+            $requestUri = $this->env->get('REQUEST_URI'); // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+            $queryString = $this->getQueryString(); // <-- "test=abc" or ""
+
+            // Physical path
+            if (strpos($requestUri, $scriptName) !== false) {
+                $physicalPath = $scriptName; // <-- Without rewriting
+            } else {
+                $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
+            }
+            $scriptName = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
+
+            // Virtual path
+            $pathInfo = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
+            $pathInfo = str_replace('?' . $queryString, '', $pathInfo); // <-- Remove query string
+            $pathInfo = '/' . ltrim($pathInfo, '/'); // <-- Ensure leading slash
+
+            $this->paths = array();
+            $this->paths['physical'] = $scriptName;
+            $this->paths['virtual'] = $pathInfo;
+        }
+
+        return $this->paths;
     }
 
     /**
