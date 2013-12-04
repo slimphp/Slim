@@ -1009,26 +1009,25 @@ class App extends \Slim\Pimple
      *
      * @param  string $file        The URI of the file, can be local or remote
      * @param  string $contentType Optional content type of the stream, if not specified Slim will attempt to get this
+     * @throws \RuntimeException   If provided $file cannot be opened
      * @api
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
+        if ($fp === false) {
+            throw new \RuntimeException("Cannot open the stream at {$file}");
+        }
         $this->response->stream($fp);
         if ($contentType) {
             $this->response->getHeaders()->set("Content-Type", $contentType);
         } else {
             if (file_exists($file)) {
-                //Set Content-Type
-                if ($contentType) {
-                    $this->response->headers->set("Content-Type", $contentType);
+                if (extension_loaded('fileinfo')) {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $type = $finfo->file($file);
+                    $this->response->headers->set("Content-Type", $type);
                 } else {
-                    if (extension_loaded('fileinfo')) {
-                        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                        $type = $finfo->file($file);
-                        $this->response->headers->set("Content-Type", $type);
-                    } else {
-                        $this->response->headers->set("Content-Type", "application/octet-stream");
-                    }
+                    $this->response->headers->set("Content-Type", "application/octet-stream");
                 }
 
                 //Set Content-Length
