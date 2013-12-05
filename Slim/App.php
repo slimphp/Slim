@@ -104,7 +104,9 @@ class App extends \Slim\Pimple
     public function __construct(array $userSettings = array())
     {
         // Settings
-        $this->settings = array_merge(static::getDefaultSettings(), $userSettings);
+        $this->settings = $this->share(function ($c) use ($userSettings) {
+            return new \Slim\Configuration($userSettings);
+        });
 
         // Environment
         $this->environment = $this->share(function ($c) {
@@ -185,37 +187,6 @@ class App extends \Slim\Pimple
     }
 
     /**
-     * Get default application settings
-     * @return array
-     */
-    public static function getDefaultSettings()
-    {
-        return array(
-            // Application
-            'mode' => 'development',
-            'view' => null,
-            // Cookies
-            'cookies.encrypt' => false,
-            'cookies.lifetime' => '20 minutes',
-            'cookies.path' => '/',
-            'cookies.domain' => null,
-            'cookies.secure' => false,
-            'cookies.httponly' => false,
-            // Encryption
-            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-            'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-            'crypt.mode' => MCRYPT_MODE_CBC,
-            // Session
-            'session.options' => array(),
-            'session.handler' => null,
-            'session.flash_key' => 'slimflash',
-            'session.encrypt' => false,
-            // HTTP
-            'http.version' => '1.1'
-        );
-    }
-
-    /**
      * Configure Slim Settings
      *
      * This method defines application settings and acts as a setter and a getter.
@@ -239,14 +210,14 @@ class App extends \Slim\Pimple
     {
         if (func_num_args() === 1) {
             if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
+                foreach ($name as $key => $value) {
+                    $this->settings[$key] = $value;
+                }
             } else {
                 return isset($this->settings[$name]) ? $this->settings[$name] : null;
             }
         } else {
-            $settings = $this->settings;
-            $settings[$name] = $value;
-            $this->settings = $settings;
+            $this->settings[$name] = $value;
         }
     }
 
