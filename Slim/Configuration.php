@@ -40,7 +40,7 @@ namespace Slim;
  * @author     John Porter
  * @since      3.0.0
  */
-class Configuration implements \ArrayAccess, IteratorAggregate
+class Configuration implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * Cache of previously parsed keys
@@ -95,9 +95,7 @@ class Configuration implements \ArrayAccess, IteratorAggregate
      */
     public function __construct(array $values = array())
     {
-        if (!empty($values)) {
-            $this->values = $this->mergeArrays($this->values, $this->getDefaults(), $values);
-        }
+        $this->values = $this->mergeArrays($this->values, $this->getDefaults(), $values);
     }
 
     /**
@@ -107,6 +105,34 @@ class Configuration implements \ArrayAccess, IteratorAggregate
     public function getDefaults()
     {
         return $this->defaults;
+    }
+
+    /**
+     * Get all values as nested array
+     * @return array
+     */
+    public function getAllNested()
+    {
+        return $this->values;
+    }
+
+    /**
+     * Get all values as flattened key array
+     * @return array
+     */
+    public function getAllFlat()
+    {
+        return $this->flattenArray($this->values);
+    }
+
+    /**
+     * Get all flattened array keys
+     * @return array
+     */
+    public function getKeys()
+    {
+        $flattened = $this->flattenArray($this->values);
+        return array_keys($flattened);
     }
 
     /**
@@ -146,7 +172,20 @@ class Configuration implements \ArrayAccess, IteratorAggregate
      */
     public function offsetUnset($key)
     {
-        $this->setValue($key, null, $this->values);
+        $keys = $this->parseKey($key);
+        $array = &$this->values;
+
+        while (count($keys) > 1) {
+            $key = array_shift($keys);
+
+            if (!isset($array[$key]) || !is_array($array[$key])) {
+                return;
+            }
+
+            $array =& $array[$key];
+        }
+
+        unset($array[array_shift($keys)]);
     }
 
     /**
@@ -191,7 +230,7 @@ class Configuration implements \ArrayAccess, IteratorAggregate
      */
     protected function setValue($key, $value, array &$array = array())
     {
-        $keys = $this->parseKey($key, $separator);
+        $keys = $this->parseKey($key, $this->separator);
         $pointer = &$array;
 
         while (count($keys) > 0) {
@@ -216,11 +255,37 @@ class Configuration implements \ArrayAccess, IteratorAggregate
 
         foreach ($arrays as $array) {
             foreach ($array as $key => $value) {
-                $merged = $this->setValue($key, $value, $merged)
+                $merged = $this->setValue($key, $value, $merged);
             }
         }
 
         return $merged;
+    }
+
+    /**
+     * Flatten a nested array to a separated key
+     *
+     * @param  array  $array
+     * @param  string $separator
+     * @return array
+     */
+    protected function flattenArray(array $array, $separator = null)
+    {
+        $flattened = array();
+
+        if (is_null($separator)) {
+            $separator = $this->separator;
+        }
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $flattened = array_merge($flattened, $this->flattenArray($value, $key.$separator));
+            } else {
+                $flattened[trim($separator.$key, $this->separator)] = $value;
+            }
+        }
+
+        return $flattened;
     }
 
     /**
