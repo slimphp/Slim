@@ -466,10 +466,12 @@ class App extends \Slim\Pimple
     public function notFound ($callable = null)
     {
         if (is_callable($callable)) {
-            $this['notFound'] = $callable;
+            $this['notFound'] = $this->share(function () use ($callable) {
+                return $callable;
+            });
         } else {
             ob_start();
-            if (is_callable($this['notFound'])) {
+            if (isset($this['notFound']) && is_callable($this['notFound'])) {
                 call_user_func($this['notFound']);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
@@ -506,10 +508,12 @@ class App extends \Slim\Pimple
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this['error'] = $argument;
+            $this['error'] = $this->share(function () use ($argument) {
+                return $argument;
+            });
         } else {
             //Invoke error handler
-            $this->response->setBody($this->callErrorHandler($argument));
+            $this['response']->setBody($this->callErrorHandler($argument));
             $this->stop();
         }
     }
@@ -529,7 +533,7 @@ class App extends \Slim\Pimple
         $this['response']->setStatus(500);
 
         ob_start();
-        if (is_callable($this['error'])) {
+        if (isset($this['error']) && is_callable($this['error'])) {
             call_user_func_array($this['error'], array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
@@ -1059,8 +1063,10 @@ class App extends \Slim\Pimple
     public function add(\Slim\Middleware $newMiddleware)
     {
         $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this->middleware[0]);
-        array_unshift($this->middleware, $newMiddleware);
+        $newMiddleware->setNextMiddleware($this['middleware'][0]);
+        $middleware = $this['middleware'];
+        array_unshift($middleware, $newMiddleware);
+        $this['middleware'] = $middleware;
     }
 
     /********************************************************************************
