@@ -225,57 +225,6 @@ class App extends \Slim\Pimple
     }
 
     /********************************************************************************
-    * Magic methods for inaccessible properties
-    *
-    * The `\Slim\App` class extends the dependency injection container. The container
-    * class must implement the `\ArrayAccess` interface, but we do not assume it
-    * implements object overloading magic methods. We do that here.
-    *******************************************************************************/
-
-    /**
-     * Get inaccessible property
-     * @param  mixed $key
-     * @return mixed
-     * @codeCoverageIgnore
-     */
-    public function __get($key)
-    {
-        return $this[$key];
-    }
-
-    /**
-     * Set inaccessible property
-     * @param mixed $key
-     * @param mixed $value
-     * @codeCoverageIgnore
-     */
-    public function __set($key, $value)
-    {
-        $this[$key] = $value;
-    }
-
-    /**
-     * Is inaccessible property set?
-     * @param  mixed  $key
-     * @return bool
-     * @codeCoverageIgnore
-     */
-    public function __isset($key)
-    {
-        return isset($this[$key]);
-    }
-
-    /**
-     * Unset inaccessible property
-     * @param mixed $key
-     * @codeCoverageIgnore
-     */
-    public function __unset($key)
-    {
-        unset($this[$key]);
-    }
-
-    /********************************************************************************
     * Routing
     *******************************************************************************/
 
