@@ -87,7 +87,7 @@ class App extends \Slim\Pimple
     public function __construct(array $userSettings = array())
     {
         // Settings
-        $this->settings = $this->share(function ($c) use ($userSettings) {
+        $this['settings'] = $this->share(function ($c) use ($userSettings) {
             return new \Slim\Configuration($userSettings);
         });
 
@@ -195,13 +195,13 @@ class App extends \Slim\Pimple
         if (func_num_args() === 1) {
             if (is_array($name)) {
                 foreach ($name as $key => $value) {
-                    $this->settings[$key] = $value;
+                    $this['settings'][$key] = $value;
                 }
             } else {
                 return isset($this['settings'][$name]) ? $this['settings'][$name] : null;
             }
         } else {
-            $this->settings[$name] = $value;
+            $this['settings'][$name] = $value;
         }
     }
 
