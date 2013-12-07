@@ -95,7 +95,7 @@ class Configuration implements \ArrayAccess, \IteratorAggregate
      */
     public function __construct(array $values = array())
     {
-        $this->values = $this->mergeArrays($this->values, $this->getDefaults(), $values);
+        $this->values = $this->mergeArrays($this->getDefaults(), $values);
     }
 
     /**
