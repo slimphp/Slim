@@ -1145,7 +1145,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app = $this->createApp(array(), array('debug' => false));
         $app->error(function(\Exception $e) use ($app) {
-            $r = $app->response;
+            $r = $app['response'];
             $r->setStatus(503);
             $r->write('Foo');
             $r->headers->set('X-Powered-By', 'Slim');
