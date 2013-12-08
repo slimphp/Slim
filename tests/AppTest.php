@@ -770,16 +770,25 @@ class AppTest extends PHPUnit_Framework_TestCase
      * HELPERS
      ************************************************/
 
-    // /**
-    //  * Test get filesystem path to Slim app root directory
-    //  */
-    // public function testGetRoot()
-    // {
-    //     $_SERVER['DOCUMENT_ROOT'] = dirname(__FILE__); //<-- No trailing slash
-    //     $s = new \Slim\App();
-    //     $s->environment = $this->env;
-    //     $this->assertEquals($_SERVER['DOCUMENT_ROOT'] . '/foo/', $s->root()); //<-- Appends physical app path with trailing slash
-    // }
+    /**
+     * Test get root directory
+     */
+    public function testGetRoot()
+    {
+        $app = $this->createApp(array('SCRIPT_FILENAME' => '/var/www/index.php'));
+        $this->assertEquals('/var/www', $app->root());
+    }
+
+    /**
+     * Test get root directory when server variable is not present
+     */
+    public function testGetRootWithoutServerVariable()
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $this->app['environment']->remove('SCRIPT_FILENAME');
+        $this->app->root();
+    }
 
     /**
      * Test stop
