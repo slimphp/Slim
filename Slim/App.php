@@ -691,17 +691,20 @@ class App extends \Pimple
     /**
      * Get the absolute path to this Slim application's root directory
      *
-     * This method returns the absolute path to the Slim application's
-     * directory. If the Slim application is installed in a public-accessible
-     * sub-directory, the sub-directory path will be included. This method
-     * will always return an absolute path WITH a trailing slash.
+     * This method returns the absolute path to the filesystem directory in which
+     * the Slim app is instantiated. The return value WILL NOT have a trailing slash.
      *
      * @return string
+     * @throws \RuntimeException If $_SERVER[SCRIPT_FILENAME] is not available
      * @api
      */
     public function root()
     {
-        return rtrim($_SERVER['DOCUMENT_ROOT'], '/') . rtrim($this['request']->getScriptName(), '/') . '/';
+        if ($this['environment']->has('SCRIPT_FILENAME') === false) {
+            throw new \RuntimeException('The `SCRIPT_FILENAME` server variable could not be found. It is required by `Slim::root()`.');
+        }
+
+        return dirname($this['environment']->get('SCRIPT_FILENAME'));
     }
 
     /**
