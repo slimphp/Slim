@@ -124,22 +124,20 @@ class Router
      * @return array[\Slim\Route]
      * @api
      */
-    public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
+    public function getMatchedRoutes($httpMethod, $resourceUri)
     {
-        if ($reload || is_null($this->matchedRoutes)) {
-            $this->matchedRoutes = array();
-            foreach ($this->routes as $route) {
-                if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
-                    continue;
-                }
+        $matchedRoutes = array();
+        foreach ($this->routes as $route) {
+            if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
+                continue;
+            }
 
-                if ($route->matches($resourceUri)) {
-                    $this->matchedRoutes[] = $route;
-                }
+            if ($route->matches($resourceUri)) {
+                $matchedRoutes[] = $route;
             }
         }
 
-        return $this->matchedRoutes;
+        return $matchedRoutes;
     }
 
     /**
