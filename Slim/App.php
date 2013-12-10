@@ -149,7 +149,14 @@ class App extends \Pimple
 
         // Flash
         $this['flash'] = $this->share(function ($c) {
-            return new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
+            $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
+            // TODO: Build array-access to current request messages for easy view integration
+            //
+            // if ($c['settings']['view'] instanceof \Slim\View) {
+            //     $c['view']->set('flash', $flash->getMessages());
+            // }
+
+            return $flash;
         });
 
         // Mode
@@ -1054,23 +1061,26 @@ class App extends \Pimple
     }
 
     /**
-     * Call
+     * Dispatch request and build response
      *
-     * This method finds and iterates all route objects that match the current request URI.
+     * This method will route the provided Request object against all available
+     * application routes. The provided response will reflect the status, header, and body
+     * set by the invoked matching route.
+     *
+     * The provided Request and Response objects are updated by reference. There is no
+     * value returned by this method.
+     *
+     * @param  \Slim\Http\Request  The request instance
+     * @param  \Slim\Http\Response The response instance
      */
-    public function call()
+    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
     {
         try {
-            if ($this['settings']['view'] instanceof \Slim\View) {
-                $this['view']->set('flash', $this['flash']->getMessages());
-            }
-
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($this['request']->getMethod(), $this['request']->getPathInfo());
-
+            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo());
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -1088,9 +1098,66 @@ class App extends \Pimple
             }
             $this->applyHook('slim.after.router');
         } catch (\Slim\Exception\Stop $e) {}
-
-        $this['response']->write(ob_get_clean());
+        $response->write(ob_get_clean());
         $this->applyHook('slim.after');
+    }
+
+    /**
+     * Perform a sub-request from within an application route
+     *
+     * This method allows you to prepare and initiate a sub-request, run within
+     * the context of the current request. This WILL NOT issue a remote HTTP
+     * request. Instead, it will route the provided URL, method, headers,
+     * cookies, body, and server variables against the set of registered
+     * application routes. The result response object is returned.
+     *
+     * @param  string $url             The request URL
+     * @param  string $method          The request method
+     * @param  array  $headers         Associative array of request headers
+     * @param  array  $cookies         Associative array of request cookies
+     * @param  string $body            The request body
+     * @param  array  $serverVariables Custom $_SERVER variables
+     * @return \Slim\Http\Response
+     */
+    public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
+    {
+        // Build sub-request and sub-response
+        $environment = \Slim\Environment::mock(array_merge(array(
+            'REQUEST_METHOD' => $method,
+            'REQUEST_URI' => $url,
+            'SCRIPT_NAME' => '/index.php'
+        ), $serverVariables));
+        $headers = new \Slim\Http\Headers($headers);
+        $cookies = new \Slim\Collection($cookies);
+        $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
+        $subResponse = new \Slim\Http\Response();
+
+        // Cache original request and response
+        $oldRequest = $this['request'];
+        $oldResponse = $this['response'];
+
+        // Set sub-request and sub-response
+        $this['request'] = $subRequest;
+        $this['response'] = $subResponse;
+
+        // Dispatch sub-request through application router
+        $this->dispatchRequest($subRequest, $subResponse);
+
+        // Restore original request and response
+        $this['request'] = $oldRequest;
+        $this['response'] = $oldResponse;
+
+        return $subResponse;
+    }
+
+    /**
+     * Call
+     *
+     * This method finds and iterates all route objects that match the current request URI.
+     */
+    public function call()
+    {
+        $this->dispatchRequest($this['request'], $this['response']);
     }
 
     /**
