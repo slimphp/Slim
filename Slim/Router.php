@@ -124,7 +124,7 @@ class Router
      * @return array[\Slim\Route]
      * @api
      */
-    public function getMatchedRoutes($httpMethod, $resourceUri)
+    public function getMatchedRoutes($httpMethod, $resourceUri, $save = true)
     {
         $matchedRoutes = array();
         foreach ($this->routes as $route) {
@@ -135,6 +135,10 @@ class Router
             if ($route->matches($resourceUri)) {
                 $matchedRoutes[] = $route;
             }
+        }
+
+        if ($save === true) {
+            $this->matchedRoutes = $matchedRoutes;
         }
 
         return $matchedRoutes;
