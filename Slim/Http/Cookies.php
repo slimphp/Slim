@@ -33,8 +33,9 @@
 namespace Slim\Http;
 
 use \Slim\Collection;
-use \Slim\Crypt;
-use \Slim\Http\Headers;
+use \Slim\Interfaces\CryptInterface;
+use \Slim\Interfaces\Http\CookiesInterface;
+use \Slim\Interfaces\Http\HeadersInterface;
 
 /**
  * Cookies
@@ -55,7 +56,7 @@ use \Slim\Http\Headers;
  * @author  Josh Lockhart
  * @since   2.3.0
  */
-class Cookies extends Collection
+class Cookies extends Collection implements CookiesInterface
 {
     /**
      * Default cookie settings
@@ -74,7 +75,7 @@ class Cookies extends Collection
      * Constructor, will parse headers for cookie information if present
      * @param \Slim\Http\Headers $headers
      */
-    public function __construct(Headers $headers = null)
+    public function __construct(HeadersInterface $headers = null)
     {
         if (!is_null($headers)) {
             $this->values = $this->parseHeader($headers->get('Cookie', ''));
@@ -134,7 +135,7 @@ class Cookies extends Collection
      * @param \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(Crypt $crypt)
+    public function encrypt(CryptInterface $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);
@@ -147,7 +148,7 @@ class Cookies extends Collection
      * @param  Headers $headers
      * @return void
      */
-    public function setHeaders(Headers &$headers)
+    public function setHeaders(HeadersInterface &$headers)
     {
         foreach ($this->values as $name => $settings) {
             $this->setHeader($headers, $name, $settings);
@@ -171,7 +172,7 @@ class Cookies extends Collection
      * @param  string              $value
      * @return void
      */
-    public function setHeader(&$headers, $name, $value)
+    public function setHeader(HeadersInterface &$headers, $name, $value)
     {
         $values = array();
 
@@ -237,7 +238,7 @@ class Cookies extends Collection
      * @param  string              $name
      * @param  array               $value
      */
-    public function deleteHeader(Headers &$headers, $name, $value = array())
+    public function deleteHeader(HeadersInterface &$headers, $name, $value = array())
     {
         $crumbs = ($headers->has('Set-Cookie') ? explode("\n", $headers->get('Set-Cookie')) : array());
         $cookies = array();
