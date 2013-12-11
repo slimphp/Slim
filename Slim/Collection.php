@@ -125,7 +125,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this->values as $key => $value) {
             $this->set($key, $crypt->encrypt($value));
@@ -137,7 +137,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function decrypt(\Slim\Crypt $crypt)
+    public function decrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this->values as $key => $value) {
             $this->set($key, $crypt->decrypt($value));
