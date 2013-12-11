@@ -44,4 +44,15 @@ interface SessionInterface
     public function start();
 
     public function save();
+<<<<<<< HEAD
+=======
+
+    public function setHandler($handler);
+
+    public function setOptions(array $options);
+
+    public function encrypt(CryptInterface $crypt);
+
+    public function decrypt(CryptInterface $crypt);
+>>>>>>> Add Session Interface, require session handler to implement SessionHandlerInterface
 }
