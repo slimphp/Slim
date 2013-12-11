@@ -47,7 +47,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Response
+class Response implements \Slim\Interfaces\Http\ResponseInterface
 {
     /**
      * Response status code
@@ -165,7 +165,7 @@ class Response
      * @param \Slim\Http\Headers|array $headers The HTTP response headers
      * @api
      */
-    public function __construct($body = '', $status = 200, $headers = array())
+    public function __construct($body = '', $status = 200, array $headers = array())
     {
         $this->setStatus($status);
         $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
