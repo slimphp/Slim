@@ -114,7 +114,7 @@ class Request
      * Constructor
      * @api
      */
-    public function __construct(\Slim\Environment $env, \Slim\Http\Headers $headers, \Slim\Collection $cookies, $body = null)
+    public function __construct(\Slim\Environment $env, \Slim\Interfaces\Http\HeadersInterface $headers, \Slim\Interfaces\CollectionInterface $cookies, $body = null)
     {
         $this->env = $env;
         $this->headers = $headers;
