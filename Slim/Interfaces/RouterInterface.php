@@ -58,4 +58,9 @@ interface RouterInterface
     public function getNamedRoute($name);
 
     public function getNamedRoutes();
+<<<<<<< HEAD
+=======
+
+    public function getNamedRoutes();
+>>>>>>> Add Router interface
 }
