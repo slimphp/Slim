@@ -65,7 +65,11 @@ interface RouteInterface
 
     public function setParams(array $params);
 
+<<<<<<< HEAD
     public function getParam($index);
+=======
+    public function getParam();
+>>>>>>> Add Route interface
 
     public function setParam($index, $value);
 
