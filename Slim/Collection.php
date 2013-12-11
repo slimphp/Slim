@@ -144,7 +144,7 @@ class Collection implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $elementName => $elementValue) {
             $this->set($elementName, $crypt->encrypt($elementValue));
@@ -156,7 +156,7 @@ class Collection implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function decrypt(\Slim\Crypt $crypt)
+    public function decrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $elementName => $elementValue) {
             $this->set($elementName, $crypt->decrypt($elementValue));
