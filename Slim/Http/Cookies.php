@@ -127,7 +127,7 @@ class Cookies extends \Slim\Collection
      * @param \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(\Slim\Interfaces\CryptInterface $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);
