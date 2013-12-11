@@ -65,7 +65,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class View extends \Slim\Collection
+class View extends \Slim\Collection implements \Slim\Interfaces\ViewInterface
 {
     /**
      * Constructor
