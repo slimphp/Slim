@@ -308,7 +308,9 @@ class Slim
             'cookies.cipher' => MCRYPT_RIJNDAEL_256,
             'cookies.cipher_mode' => MCRYPT_MODE_CBC,
             // HTTP
-            'http.version' => '1.1'
+            'http.version' => '1.1',
+            // Routing
+            'routes.case_sensitive' => true
         );
     }
 
@@ -434,7 +436,7 @@ class Slim
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new \Slim\Route($pattern, $callable);
+        $route = new \Slim\Route($pattern, $callable, $this->settings['routes.case_sensitive']);
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
