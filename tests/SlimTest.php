@@ -495,6 +495,22 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Tests if route will match in case-insensitive manner if configured to do so
+     */
+    public function testRouteMatchesInCaseInsensitiveMannerIfConfigured()
+    {
+        \Slim\Environment::mock(array(
+            'PATH_INFO' => '/BaR', // Does not match route case
+        ));
+        $s = new \Slim\Slim(array('routes.case_sensitive' => false));
+        $route = $s->get('/bar', function () { echo "xyz"; });
+        $s->call();
+        $this->assertEquals(200, $s->response()->status());
+        $this->assertEquals('xyz', $s->response()->body());
+        $this->assertEquals('/bar', $route->getPattern());
+    }
+
+    /**
      * Test if route contains URL encoded characters
      */
     public function testRouteWithUrlEncodedCharacters()
