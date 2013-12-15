@@ -190,13 +190,14 @@ class Request
      * of the array key if requested; if the array key does not exist, NULL is returned.
      *
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function params($key = null)
+    public function params($key = null, $default = null)
     {
         $union = array_merge($this->get(), $this->post());
         if ($key) {
-            return isset($union[$key]) ? $union[$key] : null;
+            return isset($union[$key]) ? $union[$key] : $default;
         }
 
         return $union;
