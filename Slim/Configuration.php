@@ -132,21 +132,40 @@ class Configuration implements \ArrayAccess, \IteratorAggregate
         return call_user_func_array(array($this->handler, $method), $params);
     }
 
+    /**
+     * Get a value
+     * @param  string $key
+     * @return mixed
+     */
     public function offsetGet($key)
     {
         return $this->handler[$key];
     }
 
+    /**
+     * Set a value
+     * @param  string $key
+     * @param  mixed $value
+     */
     public function offsetSet($key, $value)
     {
         $this->handler[$key] = $value;
     }
 
+    /**
+     * Check a value exists
+     * @param  string $key
+     * @return boolean
+     */
     public function offsetExists($key)
     {
         return isset($this->handler[$key]);
     }
 
+    /**
+     * Remove a value
+     * @param  string $key
+     */
     public function offsetUnset($key)
     {
         unset($this->handler[$key]);

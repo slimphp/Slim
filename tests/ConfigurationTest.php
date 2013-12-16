@@ -74,68 +74,33 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($values['param'], $con['param']);
     }
 
-    public function testDefaultValues()
+    public function testSetDefaultValues()
     {
-        $con = new Configuration();
+        $con = new Configuration(new HandlerTest);
 
         foreach ($this->defaults as $key => $value) {
             $this->assertEquals($con[$key], $value);
         }
     }
 
-    public function testKeys()
+    public function testGetDefaultValues()
     {
-        $con = new Configuration();
+        $con = new Configuration(new HandlerTest);
+        $defaults = $con->getDefaults();
+
+        foreach ($this->defaults as $key => $value) {
+            $this->assertEquals($defaults[$key], $value);
+        }
+    }
+
+    public function testCallHandlerMethod()
+    {
+        $con = new Configuration(new HandlerTest);
         $defaultKeys = array_keys($this->defaults);
         $defaultKeys = ksort($defaultKeys);
-        $configKeys = $con->getKeys();
+        $configKeys = $con->callHandlerMethod('getKeys');
         $configKeys = ksort($configKeys);
 
         $this->assertEquals($defaultKeys, $configKeys);
-    }
-
-    public function  testWithNamespacedKey()
-    {
-        $con = new Configuration();
-        $con['my.namespaced.keyname'] = 'My Value';
-
-        $this->arrayHasKey($con, 'my');
-        $this->arrayHasKey($con['my'], 'namespaced');
-        $this->arrayHasKey($con['my.namespaced'], 'keyname');
-        $this->assertEquals('My Value', $con['my.namespaced.keyname']);
-    }
-
-    public function testWithString()
-    {
-        $con = new Configuration();
-        $con['keyname'] = 'My Value';
-
-        $this->assertEquals('My Value', $con['keyname']);
-    }
-
-    public function testIsset()
-    {
-        $con = new Configuration();
-        $con['param'] = 'value';
-        $con['service'] = function () {
-            return new Service();
-        };
-
-        $this->assertTrue(isset($con['param']));
-        $this->assertTrue(isset($con['service']));
-        $this->assertFalse(isset($con['non_existent']));
-    }
-
-    public function testUnset()
-    {
-        $con = new Configuration();
-        $con['param'] = 'value';
-        $con['service'] = function () {
-            return new Service();
-        };
-
-        unset($con['param'], $con['service']);
-        $this->assertFalse(isset($con['param']));
-        $this->assertFalse(isset($con['service']));
     }
 }

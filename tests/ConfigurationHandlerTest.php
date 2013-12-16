@@ -91,7 +91,6 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
         $con['param'] = 'value';
 
         $this->assertTrue(isset($con['param']));
-        $this->assertTrue(isset($con['service']));
         $this->assertFalse(isset($con['non_existent']));
     }
 

@@ -89,7 +89,6 @@ class App extends \Pimple
         // Settings
         $this['settings'] = $this->share(function ($c) use ($userSettings) {
             $config = new \Slim\Configuration(new \Slim\ConfigurationHandler);
-            $config->setDefaults();
             $config->setArray($userSettings);
 
             return $config;
