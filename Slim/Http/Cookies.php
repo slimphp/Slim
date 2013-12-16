@@ -50,7 +50,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   2.3.0
  */
-class Cookies extends \Slim\Collection
+class Cookies extends \Slim\Collection implements \Slim\Interfaces\Http\CookiesInterface
 {
     /**
      * Default cookie settings

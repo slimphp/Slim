@@ -50,7 +50,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Request
+class Request implements \Slim\Interfaces\Http\RequestInterface
 {
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
@@ -114,7 +114,7 @@ class Request
      * Constructor
      * @api
      */
-    public function __construct(\Slim\Environment $env, \Slim\Interfaces\Http\HeadersInterface $headers, \Slim\Interfaces\CollectionInterface $cookies, $body = null)
+    public function __construct(\Slim\Environment $env, \Slim\Interfaces\Http\HeadersInterface $headers, \Slim\Collection $cookies, $body = null)
     {
         $this->env = $env;
         $this->headers = $headers;
