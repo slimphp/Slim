@@ -41,13 +41,10 @@ namespace Slim\Interfaces;
  */
 interface FlashInterface
 {
-<<<<<<< HEAD
-=======
     public function setSession(\Slim\Interfaces\SessionInterface $session);
 
     public function setKey($key);
 
->>>>>>> Add Flash interface
     public function next($key, $value);
 
     public function now($key, $value);
