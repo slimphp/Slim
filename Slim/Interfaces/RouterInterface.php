@@ -58,6 +58,4 @@ interface RouterInterface
     public function getNamedRoute($name);
 
     public function getNamedRoutes();
-
-    public function getNamedRoutes();
 }
