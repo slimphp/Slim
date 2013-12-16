@@ -49,7 +49,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Headers extends \Slim\Collection
+class Headers extends \Slim\Collection implements \Slim\Interfaces\Http\HeadersInterface
 {
     /**
      * @var array
