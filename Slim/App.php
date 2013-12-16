@@ -126,7 +126,7 @@ class App extends \Pimple
         // View
         $this['view'] = $this->share(function ($c) {
             $view = $c['settings']['view'];
-            if ($view instanceof \Slim\View === false) {
+            if ($view instanceof \Slim\Interfaces\ViewInterface === false) {
                 throw new \Exception('View class must be instance of \Slim\View');
             }
 
