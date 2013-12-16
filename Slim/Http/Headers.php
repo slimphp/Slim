@@ -34,6 +34,7 @@ namespace Slim\Http;
 
 use \Slim\Collection;
 use \Slim\Interfaces\EnvironmentInterface;
+use \Slim\Interfaces\Http\HeadersInterface;
 
 /**
  * Headers
@@ -52,7 +53,7 @@ use \Slim\Interfaces\EnvironmentInterface;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Headers extends Collection
+class Headers extends Collection implements HeadersInterface
 {
     /**
      * Special header keys to treat like HTTP_ headers
