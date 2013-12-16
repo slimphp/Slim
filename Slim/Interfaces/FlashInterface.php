@@ -41,10 +41,6 @@ namespace Slim\Interfaces;
  */
 interface FlashInterface
 {
-    public function setSession(\Slim\Interfaces\SessionInterface $session);
-
-    public function setKey($key);
-
     public function next($key, $value);
 
     public function now($key, $value);
