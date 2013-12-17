@@ -78,7 +78,7 @@ class Session extends \Slim\Collection implements \Slim\Interfaces\SessionInterf
      * @param  mixed $handler The session save handler
      * @api
      */
-    public function __construct(array $options = array(), \SessionHandlerInterface $handler = null)
+    public function __construct(array $options = array(), \Slim\Interfaces\SessionHandlerInterface $handler = null)
     {
         // Apply session settings
         $this->setOptions($options);
