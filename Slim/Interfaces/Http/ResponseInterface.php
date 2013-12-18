@@ -58,4 +58,6 @@ interface ResponseInterface
     public function finalize();
 
     public function isStream();
+
+    public static function getMessageForCode($status);
 }
