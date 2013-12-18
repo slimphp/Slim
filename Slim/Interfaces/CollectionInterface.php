@@ -56,4 +56,6 @@ interface CollectionInterface
     public function encrypt(\Slim\Interfaces\CryptInterface $crypt);
 
     public function decrypt(\Slim\Interfaces\CryptInterface $crypt);
+
+    // implements \Countable, \IteratorAggregate
 }
