@@ -33,7 +33,7 @@
 namespace Slim\Interfaces;
 
 /**
- * Crypt Interface
+ * Collection Interface
  *
  * @package Slim
  * @author  John Porter
@@ -56,6 +56,4 @@ interface CollectionInterface
     public function encrypt(\Slim\Interfaces\CryptInterface $crypt);
 
     public function decrypt(\Slim\Interfaces\CryptInterface $crypt);
-
-    // implements \Countable, \IteratorAggregate
 }
