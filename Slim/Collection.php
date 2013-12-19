@@ -76,7 +76,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate, Coll
      * @param array $items Key-value array of data to append to this set
      * @api
      */
-    public function replace($items)
+    public function replace(array $items)
     {
         foreach ($items as $key => $value) {
             $this->set($key, $value);
