@@ -60,14 +60,14 @@ class Response
      * @var \Slim\Http\Headers
      * @api
      */
-    public $headers;
+    protected $headers;
 
     /**
      * Response cookies
      * @var \Slim\Http\Cookies
      * @api
      */
-    public $cookies;
+    protected $cookies;
 
     /**
      * Response body
@@ -168,7 +168,8 @@ class Response
     public function __construct($body = '', $status = 200, $headers = array())
     {
         $this->setStatus($status);
-        $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+        $this->headers = new \Slim\Http\Headers();
+        $headers = array_merge(array('Content-Type' => 'text/html'), $headers);
         $this->headers->replace($headers);
         $this->cookies = new \Slim\Http\Cookies();
         $this->isStream = false;
@@ -213,6 +214,24 @@ class Response
     public function setBody($content)
     {
         $this->write($content, true);
+    }
+
+    /**
+     * Get HTTP headers
+     * @return \Slim\Http\Headers
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Get HTTP cookies
+     * @return \Slim\Collection
+     */
+    public function getCookies()
+    {
+        return $this->cookies;
     }
 
     /**
@@ -306,7 +325,7 @@ class Response
      * @param int    $status The redirect HTTP status code
      * @api
      */
-    public function redirect ($url, $status = 302)
+    public function redirect($url, $status = 302)
     {
         $this->setStatus($status);
         $this->headers->set('Location', $url);

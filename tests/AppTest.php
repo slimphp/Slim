@@ -44,7 +44,7 @@ class CustomMiddleware extends \Slim\Middleware
         $env = $this->app['environment'];
         $res = $this->app['response'];
         $this->next->call();
-        $res->headers->set('X-Slim-Test', 'Hello');
+        $res->getHeaders()->set('X-Slim-Test', 'Hello');
         $res->write('Hello');
     }
 }
@@ -65,7 +65,12 @@ class AppTest extends PHPUnit_Framework_TestCase
         $appSettings = array_merge(array(), $appSettings);
 
         $app = new \Slim\App($appSettings);
-        $app['environment'] = \Slim\Environment::mock($envSettings);
+
+        $app['environment'] = function () use ($envSettings) {
+            $env = new \Slim\Environment();
+            $env->mock($envSettings);
+            return $env;
+        };
 
         return $app;
     }
@@ -712,10 +717,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->setCookie('foo1', 'bar1', '2 days');
         });
         $app->call();
-        $cookie1 = $app['response']->cookies->get('foo');
-        $cookie2 = $app['response']->cookies->get('foo1');
+        $cookie1 = $app['response']->getCookies()->get('foo');
+        $cookie2 = $app['response']->getCookies()->get('foo1');
 
-        $this->assertEquals(2, count($app['response']->cookies));
+        $this->assertEquals(2, count($app['response']->getCookies()));
         $this->assertEquals('bar', $cookie1['value']);
         $this->assertEquals('bar1', $cookie2['value']);
     }
@@ -754,9 +759,9 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->deleteCookie('foo');
         });
         $app->call();
-        $cookie = $app['response']->cookies->get('foo');
+        $cookie = $app['response']->getCookies()->get('foo');
 
-        $this->assertEquals(1, count($app['response']->cookies));
+        $this->assertEquals(1, count($app['response']->getCookies()));
         $this->assertEquals('', $cookie['value']);
         $this->assertLessThan(time(), $cookie['expires']);
     }
@@ -947,7 +952,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testContentType()
     {
         $this->app->contentType('application/json');
-        $this->assertEquals('application/json', $this->app['response']->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $this->app['response']->getHeaders()->get('Content-Type'));
     }
 
     /**
@@ -976,7 +981,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\Slim\Exception\Stop'); // <-- Thrown by redirect() method
         $this->app->redirect('/somewhere/else', 303);
         $this->assertEquals(303, $this->app['response']->getStatus());
-        $this->assertEquals('/somewhere/else', $this->app['response']->headers->get('Location'));
+        $this->assertEquals('/somewhere/else', $this->app['response']->getHeaders()->get('Location'));
         $this->assertEquals('', $this->app['response']->getBody());
     }
 
@@ -1046,7 +1051,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         });
         $this->app->run();
 
-        $this->assertEquals('Hello', $this->app['response']->headers->get('X-Slim-Test'));
+        $this->assertEquals('Hello', $this->app['response']->getHeaders()->get('X-Slim-Test'));
     }
 
     /************************************************
@@ -1137,7 +1142,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             $r = $app['response'];
             $r->setStatus(503);
             $r->write('Foo');
-            $r->headers->set('X-Powered-By', 'Slim');
+            $r->getHeaders()->set('X-Powered-By', 'Slim');
         });
         $app->get('/bar', function () {
             throw new \Exception('Foo');

@@ -93,14 +93,14 @@ class App extends \Pimple
 
         // Environment
         $this['environment'] = $this->share(function ($c) {
-            return \Slim\Environment::createFromGlobals();
+            return \Slim\Environment($_SERVER);
         });
 
         // Request
         $this['request'] = $this->share(function ($c) {
             $environment = $c['environment'];
-            $headers = \Slim\Http\Headers::createFromEnvironment($environment);
-            $cookies = new \Slim\Collection(\Slim\Http\Cookies::extractFromHeaders($headers));
+            $headers = new \Slim\Http\Headers($environment);
+            $cookies = new \Slim\Http\Cookies($headers);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $cookies->decrypt($c['crypt']);
             }
@@ -537,7 +537,7 @@ class App extends \Pimple
     public function lastModified($time)
     {
         if (is_integer($time)) {
-            $this['response']->headers->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
+            $this['response']->getHeaders()->set('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
             if ($time === strtotime($this['request']->getHeaders()->get('IF_MODIFIED_SINCE'))) {
                 $this->halt(304);
             }
@@ -575,7 +575,7 @@ class App extends \Pimple
         if ($type === 'weak') {
             $value = 'W/'.$value;
         }
-        $this['response']->headers->set('ETag', $value);
+        $this['response']->getHeaders()->set('ETag', $value);
 
         // Check conditional GET
         if ($etagsHeader = $this['request']->getHeaders()->get('IF_NONE_MATCH')) {
@@ -605,7 +605,7 @@ class App extends \Pimple
         if (is_string($time)) {
             $time = strtotime($time);
         }
-        $this['response']->headers->set('Expires', gmdate('D, d M Y H:i:s T', $time));
+        $this['response']->getHeaders()->set('Expires', gmdate('D, d M Y H:i:s T', $time));
     }
 
     /********************************************************************************
@@ -637,7 +637,7 @@ class App extends \Pimple
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this['response']->cookies->set($name, $settings);
+        $this['response']->getCookies()->set($name, $settings);
     }
 
     /**
@@ -681,7 +681,7 @@ class App extends \Pimple
             'secure' => is_null($secure) ? $this->config('cookies.secure') : $secure,
             'httponly' => is_null($httponly) ? $this->config('cookies.httponly') : $httponly
         );
-        $this['response']->cookies->remove($name, $settings);
+        $this['response']->getCookies()->remove($name, $settings);
     }
 
     /********************************************************************************
@@ -772,7 +772,7 @@ class App extends \Pimple
      */
     public function contentType($type)
     {
-        $this['response']->headers->set('Content-Type', $type);
+        $this['response']->getHeaders()->set('Content-Type', $type);
     }
 
     /**
@@ -928,20 +928,20 @@ class App extends \Pimple
             if (file_exists($file)) {
                 //Set Content-Type
                 if ($contentType) {
-                    $this['response']->headers->set("Content-Type", $contentType);
+                    $this['response']->getHeaders()->set("Content-Type", $contentType);
                 } else {
                     if (extension_loaded('fileinfo')) {
                         $finfo = new \finfo(FILEINFO_MIME_TYPE);
                         $type = $finfo->file($file);
-                        $this['response']->headers->set("Content-Type", $type);
+                        $this['response']->getHeaders()->set("Content-Type", $type);
                     } else {
-                        $this['response']->headers->set("Content-Type", "application/octet-stream");
+                        $this['response']->getHeaders()->set("Content-Type", "application/octet-stream");
                     }
                 }
 
                 //Set Content-Length
                 $stat = fstat($fp);
-                $this['response']->headers->set("Content-Length", $stat['size']);
+                $this['response']->getHeaders()->set("Content-Length", $stat['size']);
             } else {
                 //Set Content-Type and Content-Length
                 $data = stream_get_meta_data($fp);
@@ -951,12 +951,12 @@ class App extends \Pimple
 
                     if ($k === "Content-Type") {
                         if ($contentType) {
-                            $this['response']->headers->set("Content-Type", $contentType);
+                            $this['response']->getHeaders()->set("Content-Type", $contentType);
                         } else {
-                            $this['response']->headers->set("Content-Type", $v);
+                            $this['response']->getHeaders()->set("Content-Type", $v);
                         }
                     } else if ($k === "Content-Length") {
-                        $this['response']->headers->set("Content-Length", $v);
+                        $this['response']->getHeaders()->set("Content-Length", $v);
                     }
                 }
             }
@@ -976,7 +976,7 @@ class App extends \Pimple
     public function sendProcess($command, $contentType = "text/plain") {
         $ph = popen($command, 'r');
         $this['response']->stream($ph);
-        $this['response']->headers->set("Content-Type", $contentType);
+        $this['response']->getHeaders()->set("Content-Type", $contentType);
         $this->finalize();
     }
 
@@ -993,7 +993,7 @@ class App extends \Pimple
         if ($filename) {
             $h .= "filename='" . $filename . "'";
         }
-        $this['response']->headers->set("Content-Disposition", $h);
+        $this['response']->getHeaders()->set("Content-Disposition", $h);
     }
 
     /********************************************************************************
@@ -1111,9 +1111,9 @@ class App extends \Pimple
 
             // Encrypt and serialize cookies
             if ($this['settings']['cookies.encrypt']) {
-                $this['response']->cookies->encrypt($this['crypt']);
+                $this['response']->getCookies()->encrypt($this['crypt']);
             }
-            \Slim\Http\Cookies::serializeCookies($headers, $this['response']->cookies);
+            $this['response']->getCookies()->setHeaders($headers);
 
             //Send headers
             if (headers_sent() === false) {

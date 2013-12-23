@@ -32,24 +32,15 @@
  */
 namespace Slim;
 
-class Collection implements \Countable, \IteratorAggregate
+/**
+ * Collection
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   2.0.0
+ */
+class Collection extends \Pimple implements \Countable, \IteratorAggregate
 {
-    /**
-     * Key-value array of data
-     * @var array
-     */
-    protected $data = array();
-
-    /**
-     * Constructor
-     * @param array $items Pre-populate collection with this key-value array
-     * @api
-     */
-    public function __construct(array $items = array())
-    {
-        $this->replace($items);
-    }
-
     /**
      * Set data key to value
      * @param string $key   The data key
@@ -58,7 +49,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function set($key, $value)
     {
-        $this->data[$key] = $value;
+        $this->offsetSet($key, $value);
     }
 
     /**
@@ -70,8 +61,8 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
+        if ($this->offsetExists($key)) {
+            return $this->offsetGet($key);
         }
 
         return $default;
@@ -96,17 +87,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function all()
     {
-        return $this->data;
-    }
-
-    /**
-     * Fetch set data keys
-     * @return array This set's key-value data array keys
-     * @api
-     */
-    public function keys()
-    {
-        return array_keys($this->data);
+        return $this->values;
     }
 
     /**
@@ -117,7 +98,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function has($key)
     {
-        return array_key_exists($key, $this->data);
+        return $this->offsetExists($key);
     }
 
     /**
@@ -127,7 +108,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function remove($key)
     {
-        unset($this->data[$key]);
+        $this->offsetUnset($key);
     }
 
     /**
@@ -136,7 +117,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function clear()
     {
-        $this->data = array();
+        $this->values = array();
     }
 
     /**
@@ -146,8 +127,8 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function encrypt(\Slim\Crypt $crypt)
     {
-        foreach ($this as $elementName => $elementValue) {
-            $this->set($elementName, $crypt->encrypt($elementValue));
+        foreach ($this->values as $key => $value) {
+            $this->set($key, $crypt->encrypt($value));
         }
     }
 
@@ -158,8 +139,8 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function decrypt(\Slim\Crypt $crypt)
     {
-        foreach ($this as $elementName => $elementValue) {
-            $this->set($elementName, $crypt->decrypt($elementValue));
+        foreach ($this->values as $key => $value) {
+            $this->set($key, $crypt->decrypt($value));
         }
     }
 
@@ -170,7 +151,7 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function count()
     {
-        return count($this->data);
+        return count($this->values);
     }
 
     /**
@@ -180,6 +161,6 @@ class Collection implements \Countable, \IteratorAggregate
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->data);
+        return new \ArrayIterator($this->values);
     }
 }

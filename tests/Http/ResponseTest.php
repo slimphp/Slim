@@ -128,7 +128,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $pStatus->setAccessible(true);
 
         $this->assertEquals(302, $pStatus->getValue($res));
-        $this->assertEquals('/foo', $res->headers->get('Location'));
+        $this->assertEquals('/foo', $res->getHeaders()->get('Location'));
     }
 
     public function testIsEmpty()

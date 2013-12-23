@@ -32,29 +32,33 @@
  */
 namespace Slim\Http;
 
- /**
-  * Headers
-  *
-  * This class manages a collection of HTTP headers. Each \Slim\Http\Request
-  * and \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
-  *
-  * Because HTTP headers may be upper, lower, or mixed case, this class
-  * normalizes the user-requested header name into a canonical internal format
-  * so that it can adapt to and successfully handle any header name format.
-  *
-  * Otherwise, this class extends \Slim\Container and has access to a simple
-  * and common interface to manipulate HTTP header data.
-  *
-  * @package Slim
-  * @author  Josh Lockhart
-  * @since   1.6.0
-  */
-class Headers extends \Slim\Collection
+use \Slim\Collection;
+use \Slim\Environment;
+
+/**
+ * Headers
+ *
+ * This class manages a collection of HTTP headers. Each \Slim\Http\Request
+ * and \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ *
+ * Because HTTP headers may be upper, lower, or mixed case, this class
+ * normalizes the user-requested header name into a canonical internal format
+ * so that it can adapt to and successfully handle any header name format.
+ *
+ * Otherwise, this class extends \Slim\Container and has access to a simple
+ * and common interface to manipulate HTTP header data.
+ *
+ * @package Slim
+ * @author  Josh Lockhart
+ * @since   1.6.0
+ */
+class Headers extends Collection
 {
     /**
+     * Special header keys to treat like HTTP_ headers
      * @var array
      */
-    protected static $special = array(
+    protected $special = array(
         'CONTENT_TYPE',
         'CONTENT_LENGTH',
         'PHP_AUTH_USER',
@@ -64,24 +68,24 @@ class Headers extends \Slim\Collection
     );
 
     /**
-     * Extract HTTP headers from the application environment
-     * @param  \Slim\Environment  $env
-     * @return \Slim\Http\Headers
+     * Constructor, will parse an environment for headers if present
+     * @param \Slim\Environment $environment
      */
-    public static function createFromEnvironment(\Slim\Environment $env)
+    public function __construct(Environment $environment = null)
     {
-        $results = array();
-        foreach ($env as $key => $value) {
-            $key = strtoupper($key);
-            if (strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
-                if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
-                    continue;
+        if (!is_null($environment)) {
+            foreach ($environment as $key => $value) {
+                $key = strtoupper($key);
+
+                if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
+                    if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
+                        continue;
+                    }
+
+                    parent::set($this->normalizeKey($key), $value);
                 }
-                $results[$key] = $value;
             }
         }
-
-        return new static($results);
     }
 
     /**
@@ -92,7 +96,7 @@ class Headers extends \Slim\Collection
      */
     public function set($key, $value)
     {
-        parent::set(static::normalizeKey($key), $value);
+        parent::set($this->normalizeKey($key), $value);
     }
 
     /**
@@ -104,7 +108,7 @@ class Headers extends \Slim\Collection
      */
     public function get($key, $default = null)
     {
-        return parent::get(static::normalizeKey($key), $default);
+        return parent::get($this->normalizeKey($key), $default);
     }
 
     /**
@@ -115,7 +119,7 @@ class Headers extends \Slim\Collection
      */
     public function has($key)
     {
-        return parent::has(static::normalizeKey($key));
+        return parent::has($this->normalizeKey($key));
     }
 
     /**
@@ -125,7 +129,7 @@ class Headers extends \Slim\Collection
      */
     public function remove($key)
     {
-        parent::remove(static::normalizeKey($key));
+        parent::remove($this->normalizeKey($key));
     }
 
     /**
@@ -133,7 +137,7 @@ class Headers extends \Slim\Collection
      * @param  string $key
      * @return string
      */
-    protected static function normalizeKey($key)
+    public function normalizeKey($key)
     {
         $key = strtolower($key);
         $key = str_replace(array('-', '_'), ' ', $key);

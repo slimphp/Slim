@@ -83,14 +83,14 @@ class Request
      * @var \Slim\Http\Headers
      * @api
      */
-    public $headers;
+    protected $headers;
 
     /**
      * Request cookies
      * @var \Slim\Collection
      * @api
      */
-    public $cookies;
+    protected $cookies;
 
     /**
      * Request query parameters
