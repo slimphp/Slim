@@ -32,6 +32,10 @@
  */
 namespace Slim\Http;
 
+use \Slim\Environment;
+use \Slim\Http\Headers;
+use \Slim\Http\Cookies;
+
 /**
  * Slim HTTP Request
  *
@@ -114,7 +118,7 @@ class Request
      * Constructor
      * @api
      */
-    public function __construct(\Slim\Environment $env, \Slim\Http\Headers $headers, \Slim\Collection $cookies, $body = null)
+    public function __construct(Environment $env, Headers $headers, Cookies $cookies, $body = null)
     {
         $this->env = $env;
         $this->headers = $headers;

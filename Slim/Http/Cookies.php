@@ -33,21 +33,23 @@
 namespace Slim\Http;
 
 use \Slim\Collection;
+use \Slim\Crypt;
 use \Slim\Http\Headers;
 
 /**
  * Cookies
  *
- * This class manages a collection of HTTP response cookies. Each
- * \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ * This class manages a collection of HTTP cookies. Each
+ * \Slim\Http\Request and \Slim\Http\Response instance will contain a
+ * \Slim\Http\Cookies instance.
  *
- * This class also has several static helper methods used to parse
- * HTTP request `Cookie` headers and to serialize cookie data into
- * HTTP response headers.
+ * This class has several helper methods used to parse
+ * HTTP `Cookie` headers and to serialize cookie data into
+ * HTTP headers.
  *
  * Like many other Slim application objects, \Slim\Http\Cookies extends
  * \Slim\Container so you have access to a simple and common interface
- * to manipulate HTTP response cookies.
+ * to manipulate HTTP cookies.
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -132,7 +134,7 @@ class Cookies extends Collection
      * @param \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(Crypt $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);

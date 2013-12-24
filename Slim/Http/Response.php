@@ -32,6 +32,9 @@
  */
 namespace Slim\Http;
 
+use \Slim\Http\Headers;
+use \Slim\Http\Cookies;
+
 /**
  * Response
  *
@@ -160,20 +163,22 @@ class Response
 
     /**
      * Constructor
-     * @param string                   $body    The HTTP response body
-     * @param int                      $status  The HTTP response status
-     * @param \Slim\Http\Headers|array $headers The HTTP response headers
+     * @param \Slim\Http\Headers $headers The HTTP response headers
+     * @param \Slim\Http\Cookies $cookies The HTTP response cookies
+     * @param string             $body    The HTTP response body
+     * @param int                $status  The HTTP response status
      * @api
      */
-    public function __construct($body = '', $status = 200, $headers = array())
+    public function __construct(Headers $headers, Cookies $cookies, $body = '', $status = 200)
     {
-        $this->setStatus($status);
-        $this->headers = new \Slim\Http\Headers();
-        $headers = array_merge(array('Content-Type' => 'text/html'), $headers);
-        $this->headers->replace($headers);
-        $this->cookies = new \Slim\Http\Cookies();
+        $this->headers = $headers;
+        if (!$this->headers->has('Content-Type')) {
+            $this->headers->set('Content-Type', 'text/html');
+        }
+        $this->cookies = $cookies;
         $this->isStream = false;
         $this->write($body, true);
+        $this->setStatus($status);
     }
 
     /**
