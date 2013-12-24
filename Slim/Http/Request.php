@@ -578,6 +578,8 @@ class Request
     {
         if (isset($this->env['X_FORWARDED_FOR'])) {
             return $this->env['X_FORWARDED_FOR'];
+        } elseif (isset($this->env['HTTP_X_FORWARDED_FOR'])) {
+            return trim(end(explode(",", $_SERVER["HTTP_X_FORWARDED_FOR"])));
         } elseif (isset($this->env['CLIENT_IP'])) {
             return $this->env['CLIENT_IP'];
         }
