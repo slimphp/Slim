@@ -93,7 +93,7 @@ class App extends \Pimple
 
         // Environment
         $this['environment'] = $this->share(function ($c) {
-            return \Slim\Environment($_SERVER);
+            return new \Slim\Environment($_SERVER);
         });
 
         // Request
