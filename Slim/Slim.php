@@ -1291,6 +1291,8 @@ class Slim
             echo $body;
         }
 
+        $this->applyHook('slim.after');
+
         restore_error_handler();
     }
 
@@ -1329,7 +1331,6 @@ class Slim
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
-            $this->applyHook('slim.after');
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
