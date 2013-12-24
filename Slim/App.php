@@ -110,7 +110,9 @@ class App extends \Pimple
 
         // Response
         $this['response'] = $this->share(function ($c) {
-            return new \Slim\Http\Response();
+            $headers = new \Slim\Http\Headers();
+            $cookies = new \Slim\Http\Cookies();
+            return new \Slim\Http\Response($headers, $cookies);
         });
 
         // Router
