@@ -32,25 +32,30 @@
  */
 namespace Slim\Http;
 
+use \Slim\Collection;
+use \Slim\Crypt;
+use \Slim\Http\Headers;
+
 /**
  * Cookies
  *
- * This class manages a collection of HTTP response cookies. Each
- * \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ * This class manages a collection of HTTP cookies. Each
+ * \Slim\Http\Request and \Slim\Http\Response instance will contain a
+ * \Slim\Http\Cookies instance.
  *
- * This class also has several static helper methods used to parse
- * HTTP request `Cookie` headers and to serialize cookie data into
- * HTTP response headers.
+ * This class has several helper methods used to parse
+ * HTTP `Cookie` headers and to serialize cookie data into
+ * HTTP headers.
  *
  * Like many other Slim application objects, \Slim\Http\Cookies extends
  * \Slim\Container so you have access to a simple and common interface
- * to manipulate HTTP response cookies.
+ * to manipulate HTTP cookies.
  *
  * @package Slim
  * @author  Josh Lockhart
  * @since   2.3.0
  */
-class Cookies extends \Slim\Collection
+class Cookies extends Collection
 {
     /**
      * Default cookie settings
@@ -66,13 +71,14 @@ class Cookies extends \Slim\Collection
     );
 
     /**
-     * Extract cookies from HTTP headers
-     * @param  \Slim\Http\Headers $headers
-     * @return array
+     * Constructor, will parse headers for cookie information if present
+     * @param \Slim\Http\Headers $headers
      */
-    public static function extractFromHeaders(\Slim\Http\Headers $headers)
+    public function __construct(Headers $headers = null)
     {
-        return static::parseCookieHeader($headers->get('Cookie', ''));
+        if (!is_null($headers)) {
+            $this->values = $this->parseHeader($headers->get('Cookie', ''));
+        }
     }
 
     /**
@@ -93,11 +99,12 @@ class Cookies extends \Slim\Collection
     public function set($key, $value)
     {
         if (is_array($value)) {
-            $cookieSettings = array_replace($this->defaults, $value);
+            $settings = array_replace($this->defaults, $value);
         } else {
-            $cookieSettings = array_replace($this->defaults, array('value' => $value));
+            $settings = array_replace($this->defaults, array('value' => $value));
         }
-        parent::set($key, $cookieSettings);
+
+        parent::set($key, $settings);
     }
 
     /**
@@ -127,7 +134,7 @@ class Cookies extends \Slim\Collection
      * @param \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(Crypt $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);
@@ -135,25 +142,15 @@ class Cookies extends \Slim\Collection
         }
     }
 
-    /********************************************************************************
-     * Static Methods
-     *******************************************************************************/
-
     /**
-     * Serialize cookies into HTTP response header
-     * @param  \Slim\Http\Headers $headers The Response headers
-     * @param  \Slim\Http\Cookies $cookies The Response cookies
-     * @param  array              $config  The Slim app settings
+     * Serialize this collection of cookies into a Headers object
+     * @param  Headers $headers
+     * @return void
      */
-    public static function serializeCookies(&$headers, \Slim\Http\Cookies $cookies)
+    public function setHeaders(Headers &$headers)
     {
-        foreach ($cookies as $name => $settings) {
-            if (is_string($settings['expires'])) {
-                $expires = strtotime($settings['expires']);
-            } else {
-                $expires = (int)$settings['expires'];
-            }
-            static::setCookieHeader($headers, $name, $settings);
+        foreach ($this->values as $name => $settings) {
+            $this->setHeader($headers, $name, $settings);
         }
     }
 
@@ -174,47 +171,52 @@ class Cookies extends \Slim\Collection
      * @param  string              $value
      * @return void
      */
-    public static function setCookieHeader(&$header, $name, $value)
+    public function setHeader(&$headers, $name, $value)
     {
-        //Build cookie header
+        $values = array();
+
         if (is_array($value)) {
-            $domain = '';
-            $path = '';
-            $expires = '';
-            $secure = '';
-            $httponly = '';
             if (isset($value['domain']) && $value['domain']) {
-                $domain = '; domain=' . $value['domain'];
+                $values[] = '; domain=' . $value['domain'];
             }
+
             if (isset($value['path']) && $value['path']) {
-                $path = '; path=' . $value['path'];
+                $values[] = '; path=' . $value['path'];
             }
+
             if (isset($value['expires'])) {
                 if (is_string($value['expires'])) {
                     $timestamp = strtotime($value['expires']);
                 } else {
                     $timestamp = (int) $value['expires'];
                 }
+
                 if ($timestamp !== 0) {
-                    $expires = '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
+                    $values[] = '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
                 }
             }
+
             if (isset($value['secure']) && $value['secure']) {
-                $secure = '; secure';
+                $values[] = '; secure';
             }
+
             if (isset($value['httponly']) && $value['httponly']) {
-                $httponly = '; HttpOnly';
+                $values[] = '; HttpOnly';
             }
-            $cookie = sprintf('%s=%s%s', urlencode($name), urlencode((string) $value['value']), $domain . $path . $expires . $secure . $httponly);
-        } else {
-            $cookie = sprintf('%s=%s', urlencode($name), urlencode((string) $value));
+
+            $value = (string)$value['value'];
         }
 
-        //Set cookie header
-        if (!isset($header['Set-Cookie']) || $header['Set-Cookie'] === '') {
-            $header['Set-Cookie'] = $cookie;
+        $cookie = sprintf(
+            '%s=%s',
+            urlencode($name),
+            urlencode((string) $value) . implode('', $values)
+        );
+
+        if (!$headers->has('Set-Cookie') || $headers->get('Set-Cookie') === '') {
+            $headers->set('Set-Cookie', $cookie);
         } else {
-            $header['Set-Cookie'] = implode("\n", array($header['Set-Cookie'], $cookie));
+            $headers->set('Set-Cookie', implode("\n", array($headers->get('Set-Cookie'), $cookie)));
         }
     }
 
@@ -231,58 +233,58 @@ class Cookies extends \Slim\Collection
      * first argument; this method directly modifies this object instead of
      * returning a value.
      *
-     * @param  array  $header
-     * @param  string $name
-     * @param  array  $value
+     * @param  \Slim\Http\Headers  $headers
+     * @param  string              $name
+     * @param  array               $value
      */
-    public static function deleteCookieHeader(&$header, $name, $value = array())
+    public function deleteHeader(Headers &$headers, $name, $value = array())
     {
-        //Remove affected cookies from current response header
-        $cookiesOld = array();
-        $cookiesNew = array();
-        if (isset($header['Set-Cookie'])) {
-            $cookiesOld = explode("\n", $header['Set-Cookie']);
-        }
-        foreach ($cookiesOld as $c) {
+        $crumbs = ($headers->has('Set-Cookie') ? explode("\n", $headers->get('Set-Cookie')) : array());
+        $cookies = array();
+
+        foreach ($crumbs as $crumb) {
             if (isset($value['domain']) && $value['domain']) {
                 $regex = sprintf('@%s=.*domain=%s@', urlencode($name), preg_quote($value['domain']));
             } else {
                 $regex = sprintf('@%s=@', urlencode($name));
             }
-            if (preg_match($regex, $c) === 0) {
-                $cookiesNew[] = $c;
+
+            if (preg_match($regex, $crumb) === 0) {
+                $cookies[] = $crumb;
             }
         }
-        if ($cookiesNew) {
-            $header['Set-Cookie'] = implode("\n", $cookiesNew);
+
+        if (!empty($cookies)) {
+            $headers->set('Set-Cookie', implode("\n", $cookies));
         } else {
-            unset($header['Set-Cookie']);
+            $headers->remove('Set-Cookie');
         }
 
-        //Set invalidating cookie to clear client-side cookie
-        static::setCookieHeader($header, $name, array_merge(array('value' => '', 'path' => null, 'domain' => null, 'expires' => time() - 100), $value));
+        $this->setHeader($headers, $name, array_merge(array('value' => '', 'path' => null, 'domain' => null, 'expires' => time() - 100), $value));
     }
 
     /**
      * Parse cookie header
      *
      * This method will parse the HTTP request's `Cookie` header
-     * and extract cookies into an associative array.
+     * and extract cookies into this collection.
      *
-     * @param  string
-     * @return array
+     * @param  string $header
+     * @return void
      */
-    public static function parseCookieHeader($header)
+    public function parseHeader($header)
     {
-        $cookies = array();
         $header = rtrim($header, "\r\n");
-        $headerPieces = preg_split('@\s*[;,]\s*@', $header);
+        $pieces = preg_split('@\s*[;,]\s*@', $header);
+        $cookies = array();
 
-        foreach ($headerPieces as $c) {
-            $cParts = explode('=', $c);
-            if (count($cParts) === 2) {
-                $key = urldecode($cParts[0]);
-                $value = urldecode($cParts[1]);
+        foreach ($pieces as $cookie) {
+            $cookie = explode('=', $cookie);
+
+            if (count($cookie) === 2) {
+                $key = urldecode($cookie[0]);
+                $value = urldecode($cookie[1]);
+
                 if (!isset($cookies[$key])) {
                     $cookies[$key] = $value;
                 }
