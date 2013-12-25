@@ -1122,15 +1122,20 @@ class App extends \Pimple
     public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
     {
         // Build sub-request and sub-response
-        $environment = \Slim\Environment::mock(array_merge(array(
+        $environment = new \Slim\Environment(array_merge(array(
             'REQUEST_METHOD' => $method,
             'REQUEST_URI' => $url,
             'SCRIPT_NAME' => '/index.php'
         ), $serverVariables));
-        $headers = new \Slim\Http\Headers($headers);
-        $cookies = new \Slim\Collection($cookies);
+
+        $headers = new \Slim\Http\Headers($environment);
+        $headers->parseHeaders($headers);
+
+        $cookies = new \Slim\Http\Cookies($headers);
+        $cookies->replace($cookies);
+
         $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
-        $subResponse = new \Slim\Http\Response();
+        $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
 
         // Cache original request and response
         $oldRequest = $this['request'];
