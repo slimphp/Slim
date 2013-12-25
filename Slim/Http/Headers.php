@@ -74,16 +74,26 @@ class Headers extends Collection
     public function __construct(Environment $environment = null)
     {
         if (!is_null($environment)) {
-            foreach ($environment as $key => $value) {
-                $key = strtoupper($key);
+            $this->parseHeaders($environment);
+        }
+    }
 
-                if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
-                    if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
-                        continue;
-                    }
+    /**
+     * Parse provided headers into this collection
+     * @param  array  $headers
+     * @return void
+     */
+    public function parseHeaders(array $headers = array())
+    {
+        foreach ($environment as $key => $value) {
+            $key = strtoupper($key);
 
-                    parent::set($this->normalizeKey($key), $value);
+            if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
+                if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
+                    continue;
                 }
+
+                parent::set($this->normalizeKey($key), $value);
             }
         }
     }
