@@ -710,7 +710,7 @@ class App extends \Pimple
     public function root()
     {
         if ($this['environment']->has('SCRIPT_FILENAME') === false) {
-            throw new \RuntimeException('The `SCRIPT_FILENAME` server variable could not be found. It is required by `Slim::root()`.');
+            throw new \RuntimeException('The `SCRIPT_FILENAME` server variable could not be found. It is required by `\Slim\App::root()`.');
         }
 
         return dirname($this['environment']->get('SCRIPT_FILENAME'));
