@@ -34,7 +34,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 {
     public function testConstructWithoutArgs()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
 
         $this->assertAttributeEquals(200, 'status', $res);
         $this->assertAttributeEquals('', 'body', $res);
@@ -42,7 +44,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testConstructWithArgs()
     {
-        $res = new \Slim\Http\Response('Foo', 201);
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies, 'Foo', 201);
 
         $this->assertAttributeEquals(201, 'status', $res);
         $this->assertAttributeEquals('Foo', 'body', $res);
@@ -50,14 +54,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testGetStatus()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
 
         $this->assertEquals(200, $res->getStatus());
     }
 
     public function testSetStatus()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
         $res->setStatus(301);
 
         $this->assertAttributeEquals(301, 'status', $res);
@@ -65,7 +73,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testGetBody()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
         $property = new \ReflectionProperty($res, 'body');
         $property->setAccessible(true);
         $property->setValue($res, 'foo');
@@ -75,7 +85,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testSetBody()
     {
-        $res = new \Slim\Http\Response('bar');
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies, 'bar');
         $res->setBody('foo'); // <-- Should replace body
 
         $this->assertAttributeEquals('foo', 'body', $res);
@@ -83,7 +95,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testWrite()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
         $property = new \ReflectionProperty($res, 'body');
         $property->setAccessible(true);
         $property->setValue($res, 'foo');
@@ -94,14 +108,18 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testLength()
     {
-        $res = new \Slim\Http\Response('foo'); // <-- Sets body and length
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies, 'foo'); // <-- Sets body and length
 
         $this->assertEquals(3, $res->getLength());
     }
 
     public function testFinalize()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
         $resFinal = $res->finalize();
 
         $this->assertTrue(is_array($resFinal));
@@ -113,7 +131,9 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testFinalizeWithEmptyBody()
     {
-        $res = new \Slim\Http\Response('Foo', 304);
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies, 'Foo', 304);
         $resFinal = $res->finalize();
 
         $this->assertEquals('', $resFinal[2]);
@@ -121,20 +141,24 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testRedirect()
     {
-        $res = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $res = new \Slim\Http\Response($headers, $cookies);
         $res->redirect('/foo');
 
         $pStatus = new \ReflectionProperty($res, 'status');
         $pStatus->setAccessible(true);
 
         $this->assertEquals(302, $pStatus->getValue($res));
-        $this->assertEquals('/foo', $res->headers->get('Location'));
+        $this->assertEquals('/foo', $res->getHeaders()->get('Location'));
     }
 
     public function testIsEmpty()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers, $cookies);
+        $r2 = new \Slim\Http\Response($headers, $cookies);
         $r1->setStatus(404);
         $r2->setStatus(201);
         $this->assertFalse($r1->isEmpty());
@@ -143,8 +167,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsClientError()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(404);
         $r2->setStatus(500);
         $this->assertTrue($r1->isClientError());
@@ -153,8 +180,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsForbidden()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(403);
         $r2->setStatus(500);
         $this->assertTrue($r1->isForbidden());
@@ -163,8 +193,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsInformational()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(100);
         $r2->setStatus(200);
         $this->assertTrue($r1->isInformational());
@@ -173,8 +206,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsNotFound()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(404);
         $r2->setStatus(200);
         $this->assertTrue($r1->isNotFound());
@@ -183,8 +219,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsOk()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(200);
         $r2->setStatus(201);
         $this->assertTrue($r1->isOk());
@@ -193,9 +232,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsSuccessful()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
-        $r3 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $headers3 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
+        $r3 = new \Slim\Http\Response($headers3, $cookies);
         $r1->setStatus(200);
         $r2->setStatus(201);
         $r3->setStatus(302);
@@ -206,8 +249,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsRedirect()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(307);
         $r2->setStatus(304);
         $this->assertTrue($r1->isRedirect());
@@ -216,9 +262,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsRedirection()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
-        $r3 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $headers3 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
+        $r3 = new \Slim\Http\Response($headers3, $cookies);
         $r1->setStatus(307);
         $r2->setStatus(304);
         $r3->setStatus(200);
@@ -229,8 +279,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testIsServerError()
     {
-        $r1 = new \Slim\Http\Response();
-        $r2 = new \Slim\Http\Response();
+        $headers1 = new \Slim\Http\Headers();
+        $headers2 = new \Slim\Http\Headers();
+        $cookies = new \Slim\Http\Cookies();
+        $r1 = new \Slim\Http\Response($headers1, $cookies);
+        $r2 = new \Slim\Http\Response($headers2, $cookies);
         $r1->setStatus(500);
         $r2->setStatus(400);
         $this->assertTrue($r1->isServerError());

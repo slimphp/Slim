@@ -38,8 +38,21 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->headers = new \Slim\Http\Headers();
-        $this->property = new \ReflectionProperty($this->headers, 'data');
+        $this->property = new \ReflectionProperty($this->headers, 'values');
         $this->property->setAccessible(true);
+    }
+
+    public function testCreateFromEnvironment()
+    {
+        $env = new \Slim\Environment();
+        $env->mock(array(
+            'HTTP_ACCEPT' => 'application/json', // <-- Normal header with custom value
+            'PHP_AUTH_USER' => 'josh' // <-- Special header
+        ));
+        $headers = new \Slim\Http\Headers($env);
+        $this->assertInstanceOf('\Slim\Http\Headers', $headers);
+        $this->assertEquals('application/json', $headers->get('Accept'));
+        $this->assertEquals('josh', $headers->get('Php-Auth-User'));
     }
 
     public function testSet()
@@ -68,21 +81,10 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, count($this->property->getValue($this->headers)));
     }
 
-    public function testCreateFromEnvironment()
-    {
-        $env = \Slim\Environment::mock(array(
-            'HTTP_ACCEPT' => 'application/json', // <-- Normal header with custom value
-            'PHP_AUTH_USER' => 'josh' // <-- Special header
-        ));
-        $headers = \Slim\Http\Headers::createFromEnvironment($env);
-        $this->assertInstanceOf('\Slim\Http\Headers', $headers);
-        $this->assertEquals('application/json', $headers->get('Accept'));
-        $this->assertEquals('josh', $headers->get('Php-Auth-User'));
-    }
-
     public function testCapturesSpecialHeaders()
     {
-        $env = \Slim\Environment::mock(array(
+        $env = new \Slim\Environment();
+        $env->mock(array(
             'CONTENT_TYPE' => 'text/csv',
             'CONTENT_LENGTH' => 10,
             'PHP_AUTH_USER' => 'foo',
@@ -90,7 +92,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
             'PHP_AUTH_DIGEST' => 'Basic bXl1c2VyOm15cGFzcw==',
             'AUTH_TYPE' => 'basic'
         ));
-        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $headers = new \Slim\Http\Headers($env);
         $this->assertEquals('text/csv', $headers->get('Content-Type'));
         $this->assertEquals(10, $headers->get('Content-Length'));
         $this->assertEquals('foo', $headers->get('Php-Auth-User'));
@@ -101,13 +103,14 @@ class HeadersTest extends PHPUnit_Framework_TestCase
 
     public function testDoesNotUseCertainHeaders()
     {
-        $env = \Slim\Environment::mock(array(
+        $env = new \Slim\Environment();
+        $env->mock(array(
             'CONTENT_TYPE' => 'text/csv',
             'HTTP_CONTENT_TYPE' => 'text/plain',
             'CONTENT_LENGTH' => 10,
             'HTTP_CONTENT_LENGTH' => 20
         ));
-        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $headers = new \Slim\Http\Headers($env);
         $this->assertEquals('text/csv', $headers->get('HTTP_CONTENT_TYPE'));
         $this->assertEquals(10, $headers->get('HTTP_CONTENT_LENGTH'));
     }
