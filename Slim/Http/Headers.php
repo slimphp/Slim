@@ -83,9 +83,9 @@ class Headers extends Collection
      * @param  array  $headers
      * @return void
      */
-    public function parseHeaders(array $headers = array())
+    public function parseHeaders($headers)
     {
-        foreach ($environment as $key => $value) {
+        foreach ($headers as $key => $value) {
             $key = strtoupper($key);
 
             if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
