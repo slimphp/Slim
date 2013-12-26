@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\MiddlewareInterface;
+
 /**
  * Middleware
  *
@@ -49,7 +51,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-abstract class Middleware
+abstract class Middleware implements MiddlewareInterface
 {
     /**
      * Reference to the primary application instance

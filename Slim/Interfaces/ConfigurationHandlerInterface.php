@@ -30,56 +30,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Interfaces\Http;
+namespace Slim\Interfaces;
 
 /**
- * Response Interface
+ * Configuration Handler Interface
  *
  * @package Slim
  * @author  John Porter
  * @since   3.0.0
  */
-interface ResponseInterface
+interface ConfigurationHandlerInterface extends \ArrayAccess
 {
-    public function getStatus();
 
-    public function setStatus($status);
-
-    public function getBody();
-
-    public function setBody($content);
-
-    public function getHeaders();
-
-    public function getCookies();
-
-    public function getStream();
-
-    public function redirect($url, $status = 302);
-
-    public function stream($handle);
-
-    public function write($body, $replace = false);
-
-    public function finalize();
-
-    public function isStream();
-
-    public function isOk();
-
-    public function isSuccessful();
-
-    public function isRedirect();
-
-    public function isRedirection();
-
-    public function isForbidden();
-
-    public function isNotFound();
-
-    public function isClientError();
-
-    public function isServerError();
-
-    public static function getMessageForCode($status);
 }

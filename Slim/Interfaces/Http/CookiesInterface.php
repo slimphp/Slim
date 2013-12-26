@@ -32,6 +32,9 @@
  */
 namespace Slim\Interfaces\Http;
 
+use \Slim\Interfaces\CollectionInterface;
+use \Slim\Interfaces\Http\HeadersInterface;
+
 /**
  * Cookies Interface
  *
@@ -39,7 +42,13 @@ namespace Slim\Interfaces\Http;
  * @author  John Porter
  * @since   3.0.0
  */
-interface CookiesInterface
+interface CookiesInterface extends CollectionInterface
 {
+    public function setHeaders(HeadersInterface &$headers);
 
+    public function setHeader(HeadersInterface &$headers, $name, $value);
+
+    public function deleteHeader(HeadersInterface &$headers, $name, $value = array());
+
+    public function parseHeader($header);
 }

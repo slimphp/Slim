@@ -32,6 +32,8 @@
  */
 namespace Slim\Interfaces;
 
+use \Slim\Interfaces\RouteInterface;
+
 /**
  * Router Interface
  *
@@ -45,13 +47,15 @@ interface RouterInterface
 
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false);
 
-    public function map(\Slim\Interfaces\RouteInterface $route);
+    public function map(RouteInterface $route);
 
     public function pushGroup($group, $middleware = array());
 
     public function popGroup();
 
-    public function addNamedRoute($name, \Slim\Interfaces\RouteInterface $route);
+    public function urlFor($name, $params = array());
+
+    public function addNamedRoute($name, RouteInterface $route);
 
     public function hasNamedRoute($name);
 

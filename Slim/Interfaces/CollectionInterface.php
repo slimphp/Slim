@@ -32,6 +32,8 @@
  */
 namespace Slim\Interfaces;
 
+use \Slim\Interfaces\CryptInterface;
+
 /**
  * Collection Interface
  *
@@ -39,7 +41,7 @@ namespace Slim\Interfaces;
  * @author  John Porter
  * @since   3.0.0
  */
-interface CollectionInterface
+interface CollectionInterface extends \ArrayAccess
 {
     public function set($key, $value);
 
@@ -53,7 +55,20 @@ interface CollectionInterface
 
     public function remove($key);
 
-    public function encrypt(\Slim\Interfaces\CryptInterface $crypt);
+    public function clear();
 
-    public function decrypt(\Slim\Interfaces\CryptInterface $crypt);
+    public function encrypt(CryptInterface $crypt);
+
+    public function decrypt(CryptInterface $crypt);
+
+    /**
+     * As we can't extend multiple interfaces, we need to mimic \IteratorAggregate
+     * @return \ArrayIterator
+     */
+    public function getIterator();
+
+    /**
+     * Since we can't extend multiple interfaces, we need to mimic \Countable
+     */
+    public function count();
 }

@@ -53,5 +53,41 @@ interface RequestInterface
 
     public function getPathInfo();
 
+    public function getPath();
+
+    public function getBody();
+
+    public function getUrl();
+
+    public function getQueryString();
+
+    public function isGet();
+
+    public function get($key = null, $default = null);
+
+    public function isPost();
+
+    public function post($key = null, $default = null);
+
+    public function isPut();
+
+    public function put($key = null, $default = null);
+
+    public function isPatch();
+
+    public function patch($key = null, $default = null);
+
+    public function isDelete();
+
+    public function delete($key = null, $default = null);
+
     public function isHead();
+
+    public function isOptions();
+
+    public function isAjax();
+
+    public function isXhr();
+
+    public function isFormData();
 }

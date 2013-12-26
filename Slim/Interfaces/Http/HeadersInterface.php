@@ -32,6 +32,8 @@
  */
 namespace Slim\Interfaces\Http;
 
+use \Slim\Interfaces\CollectionInterface;
+
 /**
  * Headers Interface
  *
@@ -39,7 +41,7 @@ namespace Slim\Interfaces\Http;
  * @author  John Porter
  * @since   3.0.0
  */
-interface HeadersInterface
+interface HeadersInterface extends CollectionInterface
 {
-
+    public function normalizeKey($key);
 }

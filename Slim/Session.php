@@ -34,6 +34,7 @@ namespace Slim;
 
 use \Slim\Collection;
 use \Slim\Interfaces\SessionInterface;
+use \Slim\Interfaces\SessionHandlerInterface;
 
 /**
  * Session
@@ -81,7 +82,7 @@ class Session extends Collection implements SessionInterface
      * @param  mixed $handler The session save handler
      * @api
      */
-    public function __construct(array $options = array(), \Slim\Interfaces\SessionHandlerInterface $handler = null)
+    public function __construct(array $options = array(), SessionHandlerInterface $handler = null)
     {
         // Apply session settings
         $this->setOptions($options);

@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.0
+ * @version     2.3.5
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,56 +30,24 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-namespace Slim\Interfaces\Http;
+namespace Slim\Interfaces;
 
 /**
- * Response Interface
+ * Middleware Interface
  *
  * @package Slim
  * @author  John Porter
  * @since   3.0.0
  */
-interface ResponseInterface
+interface MiddlewareInterface
 {
-    public function getStatus();
+    public function setApplication($application);
 
-    public function setStatus($status);
+    public function getApplication();
 
-    public function getBody();
+    public function setNextMiddleware($nextMiddleware);
 
-    public function setBody($content);
+    public function getNextMiddleware();
 
-    public function getHeaders();
-
-    public function getCookies();
-
-    public function getStream();
-
-    public function redirect($url, $status = 302);
-
-    public function stream($handle);
-
-    public function write($body, $replace = false);
-
-    public function finalize();
-
-    public function isStream();
-
-    public function isOk();
-
-    public function isSuccessful();
-
-    public function isRedirect();
-
-    public function isRedirection();
-
-    public function isForbidden();
-
-    public function isNotFound();
-
-    public function isClientError();
-
-    public function isServerError();
-
-    public static function getMessageForCode($status);
+    public function call();
 }

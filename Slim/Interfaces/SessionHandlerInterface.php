@@ -35,6 +35,8 @@ namespace Slim\Interfaces
 /**
  * Session Handler Interface
  *
+ * because PHP v5.3 has no SessionHandlerInterface
+ *
  * @package Slim
  * @author  John Porter
  * @since   3.0.0
