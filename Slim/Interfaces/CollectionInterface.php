@@ -60,15 +60,4 @@ interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggrega
     public function encrypt(CryptInterface $crypt);
 
     public function decrypt(CryptInterface $crypt);
-
-    /**
-     * As we can't extend multiple interfaces, we need to mimic \IteratorAggregate
-     * @return \ArrayIterator
-     */
-    public function getIterator();
-
-    /**
-     * Since we can't extend multiple interfaces, we need to mimic \Countable
-     */
-    public function count();
 }

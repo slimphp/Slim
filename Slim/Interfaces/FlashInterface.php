@@ -50,15 +50,4 @@ interface FlashInterface extends \ArrayAccess, \Countable, \IteratorAggregate
     public function save();
 
     public function getMessages();
-
-    /**
-     * As we can't extend multiple interfaces, we need to mimic \IteratorAggregate
-     * @return \ArrayIterator
-     */
-    public function getIterator();
-
-    /**
-     * Since we can't extend multiple interfaces, we need to mimic \Countable
-     */
-    public function count();
 }
