@@ -39,7 +39,7 @@ namespace Slim\Interfaces;
  * @author  John Porter
  * @since   3.0.0
  */
-interface FlashInterface extends \ArrayAccess
+interface FlashInterface extends \ArrayAccess, \Countable, \IteratorAggregate
 {
     public function next($key, $value);
 

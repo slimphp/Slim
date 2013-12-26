@@ -42,7 +42,7 @@ use \Slim\Interfaces\ConfigurationHandlerInterface;
  * @author     John Porter
  * @since      3.0.0
  */
-class ConfigurationHandler implements ConfigurationHandlerInterface, \IteratorAggregate
+class ConfigurationHandler implements ConfigurationHandlerInterface
 {
     /**
      * Cache of previously parsed keys

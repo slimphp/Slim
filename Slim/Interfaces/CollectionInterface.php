@@ -41,7 +41,7 @@ use \Slim\Interfaces\CryptInterface;
  * @author  John Porter
  * @since   3.0.0
  */
-interface CollectionInterface extends \ArrayAccess
+interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggregate
 {
     public function set($key, $value);
 

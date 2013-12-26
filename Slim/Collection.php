@@ -42,7 +42,7 @@ use \Slim\Interfaces\CryptInterface;
  * @author  Josh Lockhart
  * @since   2.0.0
  */
-class Collection extends \Pimple implements \Countable, \IteratorAggregate, CollectionInterface
+class Collection extends \Pimple implements CollectionInterface
 {
     /**
      * Set data key to value

@@ -54,7 +54,7 @@ use \Slim\Interfaces\SessionInterface;
  * @author  Josh Lockhart
  * @since   3.0.0
  */
-class Flash implements FlashInterface, \Countable, \IteratorAggregate
+class Flash implements FlashInterface
 {
     /**
      * The flash session storage key

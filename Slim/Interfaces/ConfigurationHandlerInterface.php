@@ -39,7 +39,7 @@ namespace Slim\Interfaces;
  * @author  John Porter
  * @since   3.0.0
  */
-interface ConfigurationHandlerInterface extends \ArrayAccess
+interface ConfigurationHandlerInterface extends \ArrayAccess, \IteratorAggregate
 {
 
 }
