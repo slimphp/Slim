@@ -289,6 +289,7 @@ class Slim
             'mode' => 'development',
             // Debugging
             'debug' => true,
+            'debug.exceptions_printer' => '\Slim\Middleware\PrettyExceptions',
             // Logging
             'log.writer' => null,
             'log.level' => \Slim\Log::DEBUG,
@@ -1254,7 +1255,8 @@ class Slim
         //Apply final outer middleware layers
         if ($this->config('debug')) {
             //Apply pretty exceptions only in debug to avoid accidental information leakage in production
-            $this->add(new \Slim\Middleware\PrettyExceptions());
+            $prettyExceptionsClass = $this->settings['debug.exceptions_printer'];
+            $this->add($prettyExceptionsClass instanceof \Slim\Middleware ? $prettyExceptionsClass : new $prettyExceptionsClass);
         }
 
         //Invoke middleware and application stack
