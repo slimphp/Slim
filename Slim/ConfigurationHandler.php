@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\ConfigurationHandlerInterface;
+
 /**
  * ConfigurationHandler
  * A default Configuration class which provides app configuration values stored as nested arrays, which can be accessed and stored using dot separated keys.
@@ -40,7 +42,7 @@ namespace Slim;
  * @author     John Porter
  * @since      3.0.0
  */
-class ConfigurationHandler implements \ArrayAccess, \IteratorAggregate
+class ConfigurationHandler implements ConfigurationHandlerInterface
 {
     /**
      * Cache of previously parsed keys

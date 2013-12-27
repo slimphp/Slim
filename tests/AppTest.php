@@ -109,9 +109,9 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testDefaultInstanceProperties()
     {
-        $this->assertInstanceOf('\Slim\Http\Request', $this->app['request']);
-        $this->assertInstanceOf('\Slim\Http\Response', $this->app['response']);
-        $this->assertInstanceOf('\Slim\Router', $this->app['router']);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\RequestInterface', $this->app['request']);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $this->app['response']);
+        $this->assertInstanceOf('\Slim\Interfaces\RouterInterface', $this->app['router']);
         $this->assertInstanceOf('\Slim\Environment', $this->app['environment']);
     }
 

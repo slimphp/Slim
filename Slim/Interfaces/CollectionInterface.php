@@ -6,7 +6,8 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.5
+ * @version     2.3.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -29,51 +30,34 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Interfaces;
 
-class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
+use \Slim\Interfaces\CryptInterface;
+
+/**
+ * Collection Interface
+ *
+ * @package Slim
+ * @author  John Porter
+ * @since   3.0.0
+ */
+interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggregate
 {
-    public function call() {}
-}
+    public function set($key, $value);
 
-class MiddlewareTest extends PHPUnit_Framework_TestCase
-{
-    public function testSetApplication()
-    {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $mw->setApplication($app);
+    public function get($key, $default = null);
 
-        $this->assertAttributeSame($app, 'app', $mw);
-    }
+    public function replace(array $items);
 
-    public function testGetApplication()
-    {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $property = new \ReflectionProperty($mw, 'app');
-        $property->setAccessible(true);
-        $property->setValue($mw, $app);
+    public function all();
 
-        $this->assertSame($app, $mw->getApplication());
-    }
+    public function has($key);
 
-    public function testSetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $mw1->setNextMiddleware($mw2);
+    public function remove($key);
 
-        $this->assertAttributeSame($mw2, 'next', $mw1);
-    }
+    public function clear();
 
-    public function testGetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $property = new \ReflectionProperty($mw1, 'next');
-        $property->setAccessible(true);
-        $property->setValue($mw1, $mw2);
+    public function encrypt(CryptInterface $crypt);
 
-        $this->assertSame($mw2, $mw1->getNextMiddleware());
-    }
+    public function decrypt(CryptInterface $crypt);
 }

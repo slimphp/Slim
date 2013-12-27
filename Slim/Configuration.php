@@ -32,6 +32,9 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\ConfigurationInterface;
+use \Slim\Interfaces\ConfigurationHandlerInterface;
+
 /**
  * Configuration
  * Uses a ConfigurationHandler class to parse configuration data, accessed as an array.
@@ -40,7 +43,7 @@ namespace Slim;
  * @author     John Porter
  * @since      3.0.0
  */
-class Configuration implements \ArrayAccess, \IteratorAggregate
+class Configuration implements ConfigurationInterface, \IteratorAggregate
 {
     /**
      * Handler for Configuration values
@@ -85,12 +88,8 @@ class Configuration implements \ArrayAccess, \IteratorAggregate
      * Constructor
      * @param mixed $handler
      */
-    public function __construct(\Slim\ConfigurationHandler $handler)
+    public function __construct(ConfigurationHandlerInterface $handler)
     {
-        if (!$handler instanceof \ArrayAccess) {
-            throw new \InvalidArgumentException("ConfigurationHandler must implement \\ArrayAccess.");
-        }
-
         $this->handler = $handler;
 
         $this->setDefaults();

@@ -33,7 +33,8 @@
 namespace Slim\Http;
 
 use \Slim\Collection;
-use \Slim\Environment;
+use \Slim\Interfaces\EnvironmentInterface;
+use \Slim\Interfaces\Http\HeadersInterface;
 
 /**
  * Headers
@@ -52,7 +53,7 @@ use \Slim\Environment;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Headers extends Collection
+class Headers extends Collection implements HeadersInterface
 {
     /**
      * Special header keys to treat like HTTP_ headers
@@ -71,7 +72,7 @@ class Headers extends Collection
      * Constructor, will parse an environment for headers if present
      * @param \Slim\Environment $environment
      */
-    public function __construct(Environment $environment = null)
+    public function __construct(EnvironmentInterface $environment = null)
     {
         if (!is_null($environment)) {
             foreach ($environment as $key => $value) {

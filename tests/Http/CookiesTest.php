@@ -31,6 +31,12 @@
  */
 class CookiesTest extends PHPUnit_Framework_TestCase
 {
+    public function testInstanceOfInterface()
+    {
+        $env = new \Slim\Http\Cookies();
+        $this->assertInstanceOf('\Slim\Interfaces\Http\CookiesInterface', $env);
+    }
+
     public function testCreateFromHeaders()
     {
         $environment = new \Slim\Environment(array('HTTP_COOKIE' => 'foo=bar;abc=123'));

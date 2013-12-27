@@ -33,6 +33,7 @@
 namespace Slim;
 
 use \Slim\Collection;
+use \Slim\Interfaces\EnvironmentInterface;
 
 /**
  * Environment
@@ -46,7 +47,7 @@ use \Slim\Collection;
  * @author  Josh Lockhart
  * @since   1.6.0
  */
-class Environment extends Collection
+class Environment extends Collection implements EnvironmentInterface
 {
     /**
      * Mock data for an Environment

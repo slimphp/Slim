@@ -6,7 +6,8 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.5
+ * @version     2.3.0
+ * @package     Slim
  *
  * MIT LICENSE
  *
@@ -29,51 +30,56 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Interfaces\Http;
 
-class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
+/**
+ * Response Interface
+ *
+ * @package Slim
+ * @author  John Porter
+ * @since   3.0.0
+ */
+interface ResponseInterface
 {
-    public function call() {}
-}
+    public function getStatus();
 
-class MiddlewareTest extends PHPUnit_Framework_TestCase
-{
-    public function testSetApplication()
-    {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $mw->setApplication($app);
+    public function setStatus($status);
 
-        $this->assertAttributeSame($app, 'app', $mw);
-    }
+    public function getBody();
 
-    public function testGetApplication()
-    {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $property = new \ReflectionProperty($mw, 'app');
-        $property->setAccessible(true);
-        $property->setValue($mw, $app);
+    public function setBody($content);
 
-        $this->assertSame($app, $mw->getApplication());
-    }
+    public function getHeaders();
 
-    public function testSetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $mw1->setNextMiddleware($mw2);
+    public function getCookies();
 
-        $this->assertAttributeSame($mw2, 'next', $mw1);
-    }
+    public function getStream();
 
-    public function testGetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $property = new \ReflectionProperty($mw1, 'next');
-        $property->setAccessible(true);
-        $property->setValue($mw1, $mw2);
+    public function redirect($url, $status = 302);
 
-        $this->assertSame($mw2, $mw1->getNextMiddleware());
-    }
+    public function stream($handle);
+
+    public function write($body, $replace = false);
+
+    public function finalize();
+
+    public function isStream();
+
+    public function isOk();
+
+    public function isSuccessful();
+
+    public function isRedirect();
+
+    public function isRedirection();
+
+    public function isForbidden();
+
+    public function isNotFound();
+
+    public function isClientError();
+
+    public function isServerError();
+
+    public static function getMessageForCode($status);
 }

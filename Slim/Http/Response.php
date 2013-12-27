@@ -32,8 +32,9 @@
  */
 namespace Slim\Http;
 
-use \Slim\Http\Headers;
-use \Slim\Http\Cookies;
+use \Slim\Interfaces\Http\HeadersInterface;
+use \Slim\Interfaces\Http\CookiesInterface;
+use \Slim\Interfaces\Http\ResponseInterface;
 
 /**
  * Response
@@ -50,7 +51,7 @@ use \Slim\Http\Cookies;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Response
+class Response implements ResponseInterface
 {
     /**
      * Response status code
@@ -169,7 +170,7 @@ class Response
      * @param int                $status  The HTTP response status
      * @api
      */
-    public function __construct(Headers $headers, Cookies $cookies, $body = '', $status = 200)
+    public function __construct(HeadersInterface $headers, CookiesInterface $cookies, $body = '', $status = 200)
     {
         $this->headers = $headers;
         if (!$this->headers->has('Content-Type')) {

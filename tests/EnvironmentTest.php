@@ -57,7 +57,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
     {
         $env = new \Slim\Environment($_SERVER);
 
-        $this->assertInstanceOf('\Slim\Environment', $env);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
         $this->assertEquals($env->all(), $_SERVER);
     }
 
@@ -72,7 +72,7 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/foo/bar?abc=123'
         ));
 
-        $this->assertInstanceOf('\Slim\Environment', $env);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
         $this->assertEquals($env->get('SCRIPT_NAME'), '/foo/bar/index.php');
         $this->assertEquals($env->get('REQUEST_URI'), '/foo/bar?abc=123');
     }

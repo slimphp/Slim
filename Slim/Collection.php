@@ -32,6 +32,9 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\CollectionInterface;
+use \Slim\Interfaces\CryptInterface;
+
 /**
  * Collection
  *
@@ -39,7 +42,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   2.0.0
  */
-class Collection extends \Pimple implements \Countable, \IteratorAggregate
+class Collection extends \Pimple implements CollectionInterface
 {
     /**
      * Set data key to value
@@ -73,7 +76,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate
      * @param array $items Key-value array of data to append to this set
      * @api
      */
-    public function replace($items)
+    public function replace(array $items)
     {
         foreach ($items as $key => $value) {
             $this->set($key, $value);
@@ -125,7 +128,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function encrypt(\Slim\Crypt $crypt)
+    public function encrypt(CryptInterface $crypt)
     {
         foreach ($this->values as $key => $value) {
             $this->set($key, $crypt->encrypt($value));
@@ -137,7 +140,7 @@ class Collection extends \Pimple implements \Countable, \IteratorAggregate
      * @param  \Slim\Crypt $crypt
      * @api
      */
-    public function decrypt(\Slim\Crypt $crypt)
+    public function decrypt(CryptInterface $crypt)
     {
         foreach ($this->values as $key => $value) {
             $this->set($key, $crypt->decrypt($value));
