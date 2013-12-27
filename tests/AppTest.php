@@ -1063,6 +1063,25 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', $this->app['response']->getHeaders()->get('X-Slim-Test'));
     }
 
+    /**
+     * Test exception when adding circular middleware queues
+     *
+     * This asserts that the same middleware can NOT be queued twice (usually by accident).
+     * 
+     * Circular middleware stack causes a troublesome to debug PHP Fatal error,
+     * mostly due to a quite opaque error message:
+     * 
+     * > Fatal error: Maximum function nesting level of '100' reached. aborting!
+     */
+    public function testFailureWhenAddingCircularMiddleware()
+    {
+        $this->setExpectedException('\RuntimeException');
+        $middleware = new CustomMiddleware();
+        $this->app->add($middleware);
+        $this->app->add($middleware);
+        $this->app->run();
+    }
+
     /************************************************
      * NOT FOUND HANDLING
      ************************************************/

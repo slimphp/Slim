@@ -1026,9 +1026,13 @@ class App extends \Pimple
      */
     public function add(\Slim\Middleware $newMiddleware)
     {
+        $middleware = $this['middleware'];
+        if(in_array($newMiddleware, $middleware)) {
+            $middleware_class = get_class($newMiddleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
+        }
         $newMiddleware->setApplication($this);
         $newMiddleware->setNextMiddleware($this['middleware'][0]);
-        $middleware = $this['middleware'];
         array_unshift($middleware, $newMiddleware);
         $this['middleware'] = $middleware;
     }
