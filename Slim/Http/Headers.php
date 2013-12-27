@@ -84,7 +84,7 @@ class Headers extends Collection implements HeadersInterface
      * @param  array  $headers
      * @return void
      */
-    public function parseHeaders($headers)
+    public function parseHeaders(EnvironmentInterface $headers)
     {
         foreach ($headers as $key => $value) {
             $key = strtoupper($key);

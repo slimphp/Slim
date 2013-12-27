@@ -559,9 +559,17 @@ class Request implements RequestInterface
      */
     public function getScheme()
     {
-        $https = $this->env->get('HTTPS');
+        $isHttps = false;
 
-        return empty($https) || $https === 'off' ? 'http' : 'https';
+        if ($this->headers->has('X_FORWARDED_PROTO') === true) {
+            $headerValue = $this->headers->get('X_FORWARDED_PROTO');
+            $isHttps = (strtolower($headerValue) === 'https');
+        } else {
+            $headerValue = $this->env->get('HTTPS');
+            $isHttps = (empty($headerValue) === false && $headerValue !== 'off');
+        }
+
+        return $isHttps ? 'https' : 'http';
     }
 
     /**

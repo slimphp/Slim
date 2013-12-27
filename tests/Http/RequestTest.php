@@ -614,6 +614,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * test get scheme with X-Forwarded-Proto header
+     */
+    public function testGetSchemeWithCustomHeader()
+    {
+        $this->initializeRequest(array(
+            'HTTPS' => '',
+            'HTTP_X_FORWARDED_PROTO' => 'https'
+        ));
+        $this->assertEquals('https', $this->request->getScheme());
+    }
+
+    /**
      * Test get scheme when $_SERVER['HTTPS'] is empty value
      */
     public function testGetSchemeIfHttpWithEmptyServerVariable()
