@@ -196,7 +196,7 @@ class Route implements RouteInterface
     public function setCallable($callable)
     {
         $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
             $class = $matches[1];
             $method = $matches[2];
             $callable = function() use ($class, $method) {
