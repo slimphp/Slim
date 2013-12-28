@@ -96,43 +96,18 @@ class Session extends Collection implements SessionInterface
     }
 
     /**
-     * Set data source
-     *
-     * By default, this class will assume session data is loaded from and saved to the
-     * `$_SESSION` superglobal array. However, we can swap in an alternative data source,
-     * which is especially useful for unit testing.
-     *
-     * @param \ArrayAccess $dataSource An alternative data source for loading and persisting session data
-     * @return bool
-     */
-    public function setDataSource(\ArrayAccess $dataSource)
-    {
-        return $this->dataSource = $dataSource;
-    }
-
-    /**
      * Start the session
      * @return bool
-     * @throws \RuntimeException If `session_start()` fails
      * @api
      */
     public function start()
     {
-        $started = (session_id() !== '');
+        // Detect existing session
+        $started = (bool)$this->getId();
 
+        // Initialize new session if a session is not already started
         if ($started === false) {
-            // Disable PHP cache headers
-            session_cache_limiter(false);
-
-            // Ensure session ID uses valid characters when stored in HTTP cookie
-            if ((bool)ini_get('session.use_cookies') === true) {
-                ini_set('session.hash_bits_per_character', 5);
-            }
-
-            if (session_start() === false) {
-                throw new \RuntimeException('Cannot start session. Unknown error while invoking `session_start()`.');
-            }
-            $started = true;
+            $started = $this->initialize();
         }
 
         // Set data source
@@ -140,7 +115,7 @@ class Session extends Collection implements SessionInterface
             $this->dataSource = &$_SESSION;
         }
 
-        // Load existing session data if available
+        // Load existing data if available
         if (isset($this->dataSource['slim.session']) === true) {
             $this->replace($this->dataSource['slim.session']);
         }
@@ -156,5 +131,52 @@ class Session extends Collection implements SessionInterface
     public function save()
     {
         return $this->dataSource['slim.session'] = $this->all();
+    }
+
+    /**
+     * Initialize new session
+     * @return bool
+     * @throws \RuntimeException If `session_start()` fails
+     */
+    public function initialize()
+    {
+        // Disable PHP cache headers
+        session_cache_limiter(false);
+
+        // Ensure session ID uses valid characters when stored in HTTP cookie
+        if ((bool)ini_get('session.use_cookies') === true) {
+            ini_set('session.hash_bits_per_character', 5);
+        }
+
+        // Start session
+        if (session_start() === false) {
+            throw new \RuntimeException('Cannot start session. Unknown error while invoking `session_start()`.');
+        };
+
+        return true;
+    }
+
+    /**
+     * Get session ID
+     * @return string
+     */
+    public function getId()
+    {
+        return session_id();
+    }
+
+    /**
+     * Set data source
+     *
+     * By default, this class will assume session data is loaded from and saved to the
+     * `$_SESSION` superglobal array. However, we can swap in an alternative data source,
+     * which is especially useful for unit testing. This should be invoked before `start()`.
+     *
+     * @param \ArrayAccess $dataSource An alternative data source for loading and persisting session data
+     * @return bool
+     */
+    public function setDataSource(\ArrayAccess $dataSource)
+    {
+        return $this->dataSource = $dataSource;
     }
 }
