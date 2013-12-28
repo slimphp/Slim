@@ -74,40 +74,41 @@ class Session extends Collection implements SessionInterface
     /**
      * Constructor
      *
+     * By default, this class assumes the use of the native file system session handler
+     * for persisting session data. This method allows us to use a custom handler.
+     *
+     * @param  SessionHandlerInterface $handler A custom session handler
+     * @api
+     */
+    public function __construct(SessionHandlerInterface $handler = null)
+    {
+        if ($handler !== null) {
+            session_set_save_handler(
+                array($handler, 'open'),
+                array($handler, 'close'),
+                array($handler, 'read'),
+                array($handler, 'write'),
+                array($handler, 'destroy'),
+                array($handler, 'gc')
+            );
+            $this->handler = $handler;
+        }
+    }
+
+    /**
+     * Set data source
+     *
      * By default, this class will assume session data is loaded from and saved to the
      * `$_SESSION` superglobal array. However, we can swap in an alternative data source,
      * which is especially useful for unit testing.
      *
      * @param \ArrayAccess $dataSource An alternative data source for loading and persisting session data
-     * @api
-     */
-    public function __construct(\ArrayAccess $dataSource = null)
-    {
-        $this->dataSource = $dataSource;
-    }
-
-    /**
-     * Set session handler
-     *
-     * By default, this class assumes the use of the native file system session handler
-     * for persisting session data. This method allows us to use a custom handler.
-     *
-     * @param  SessionHandlerInterface $handler A custom session handler
      * @return bool
      * @api
      */
-    public function setHandler(SessionHandlerInterface $handler)
+    public function setDataSource(\ArrayAccess $dataSource)
     {
-        session_set_save_handler(
-            array($handler, 'open'),
-            array($handler, 'close'),
-            array($handler, 'read'),
-            array($handler, 'write'),
-            array($handler, 'destroy'),
-            array($handler, 'gc')
-        );
-
-        return $this->handler = $handler;
+        return $this->dataSource = $dataSource;
     }
 
     /**
