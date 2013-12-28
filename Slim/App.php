@@ -140,7 +140,11 @@ class App extends \Pimple
 
         // Session
         $this['session'] = $this->share(function ($c) {
-            $session = new \Slim\Session($c['settings']['session.options'], $c['settings']['session.handler']);
+            $session = new \Slim\Session();
+            $handler = $c['settings']['session.handler'];
+            if ($handler !== null) {
+                $session->setHandler($handler);
+            }
             $session->start();
 
             if ($c['settings']['session.encrypt'] === true) {

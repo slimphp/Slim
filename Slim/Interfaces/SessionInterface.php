@@ -44,4 +44,6 @@ interface SessionInterface
     public function start();
 
     public function save();
+
+    public function setHandler(SessionHandlerInterface $handler);
 }
