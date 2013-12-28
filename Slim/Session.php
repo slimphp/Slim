@@ -104,7 +104,6 @@ class Session extends Collection implements SessionInterface
      *
      * @param \ArrayAccess $dataSource An alternative data source for loading and persisting session data
      * @return bool
-     * @api
      */
     public function setDataSource(\ArrayAccess $dataSource)
     {
