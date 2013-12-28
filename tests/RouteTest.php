@@ -113,7 +113,6 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(LazyInitializeTestClass::$initialized);
     }
 
-
     public function testGetCallableAsStaticMethod()
     {
         $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
