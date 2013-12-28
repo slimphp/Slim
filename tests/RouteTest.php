@@ -76,12 +76,27 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('getCurrentRoute', $callable[1]);
     }
 
+
     public function testGetCallableAsStaticMethod()
     {
         $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
 
         $callable = $route->getCallable();
         $this->assertEquals('\Slim\Slim::getInstance', $callable);
+    }
+
+    public function example_càllâble_wïth_wéird_chars()
+    {
+
+    }
+
+    public function testGetCallableWithOddCharsAsClass()
+    {
+        $route = new \Slim\Route('/foo', '\RouteTest:example_càllâble_wïth_wéird_chars');
+
+        $callable = $route->getCallable();
+        $this->assertInstanceOf('\RouteTest', $callable[0]);
+        $this->assertEquals('example_càllâble_wïth_wéird_chars', $callable[1]);
     }
 
     public function testSetCallable()
