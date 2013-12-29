@@ -1185,14 +1185,17 @@ class App extends \Pimple
         if (!$this->responded) {
             $this->responded = true;
 
-            // Save flash messages to session
-            $this['flash']->save();
+            // Finalise session if it has been used
+            if (isset($_SESSION)) {
+                // Save flash messages to session
+                $this['flash']->save();
 
-            // Encrypt, save, close session
-            if ($this->config('session.encrypt') === true) {
-                $this['session']->encrypt($this['crypt']);
+                // Encrypt, save, close session
+                if ($this->config('session.encrypt') === true) {
+                    $this['session']->encrypt($this['crypt']);
+                }
+                $this['session']->save();
             }
-            $this['session']->save();
 
             //Fetch status, header, and body
             list($status, $headers, $body) = $this['response']->finalize();
