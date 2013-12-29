@@ -469,11 +469,11 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testStreamingAFile()
     {
-        $this->expectOutputString(file_get_contents("composer.json"));
+        $this->expectOutputString(file_get_contents(dirname(__DIR__) . "/composer.json"));
 
         $app = $this->createApp();
         $app->get('/bar', function() use ($app) {
-            $app->sendFile("composer.json");
+            $app->sendFile(dirname(__DIR__) . "/composer.json");
         });
         $app->run();
     }
@@ -1067,10 +1067,10 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Test exception when adding circular middleware queues
      *
      * This asserts that the same middleware can NOT be queued twice (usually by accident).
-     * 
+     *
      * Circular middleware stack causes a troublesome to debug PHP Fatal error,
      * mostly due to a quite opaque error message:
-     * 
+     *
      * > Fatal error: Maximum function nesting level of '100' reached. aborting!
      */
     public function testFailureWhenAddingCircularMiddleware()

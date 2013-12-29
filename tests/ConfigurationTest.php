@@ -57,7 +57,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         'crypt.cipher' => MCRYPT_RIJNDAEL_256,
         'crypt.mode' => MCRYPT_MODE_CBC,
         // Session
-        'session.options' => array(),
         'session.handler' => null,
         'session.flash_key' => 'slimflash',
         'session.encrypt' => false,

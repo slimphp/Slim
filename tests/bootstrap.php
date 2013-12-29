@@ -15,3 +15,6 @@ function customAutoLoader($class)
     }
 }
 spl_autoload_register('customAutoLoader');
+
+// Prevent session cookies
+ini_set('session.use_cookies', 0);
