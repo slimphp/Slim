@@ -29,6 +29,28 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+class LazyInitializeTestClass {
+    public static $initialized = false;
+
+    public function __construct() {
+        self::$initialized = true;
+    }
+
+    public function foo() {
+    }
+}
+
+class FooTestClass {
+    public static $foo_invoked = false;
+    public static $foo_invoked_args = array();
+
+    public function foo() {
+        self::$foo_invoked = true;
+        self::$foo_invoked_args = func_get_args();
+    }
+}
+
 class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testGetPattern()
@@ -69,11 +91,26 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function testGetCallableAsClass()
     {
-        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute');
+        FooTestClass::$foo_invoked = false;
+        FooTestClass::$foo_invoked_args = array();
+        $route = new \Slim\Route('/foo', '\FooTestClass:foo');
+        $route->setParams(array('bar' => '1234'));
 
-        $callable = $route->getCallable();
-        $this->assertInstanceOf('\Slim\Router', $callable[0]);
-        $this->assertEquals('getCurrentRoute', $callable[1]);
+        $this->assertFalse(FooTestClass::$foo_invoked);
+        $this->assertTrue($route->dispatch());
+        $this->assertTrue(FooTestClass::$foo_invoked);
+        $this->assertEquals(array('1234'), FooTestClass::$foo_invoked_args);
+    }
+
+    public function testGetCallableAsClassLazyInitialize()
+    {
+        LazyInitializeTestClass::$initialized = false;
+
+        $route = new \Slim\Route('/foo', '\LazyInitializeTestClass:foo');
+        $this->assertFalse(LazyInitializeTestClass::$initialized);
+
+        $route->dispatch();
+        $this->assertTrue(LazyInitializeTestClass::$initialized);
     }
 
 
