@@ -89,9 +89,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
      */
     public function __construct(ConfigurationHandlerInterface $handler)
     {
-        $this->handler = $handler;
-
-        $this->setDefaults();
+        $this->setHandler($handler);
     }
 
     /**
