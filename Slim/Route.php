@@ -195,7 +195,15 @@ class Route implements RouteInterface
     {
         $matches = array();
         if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
+            $class = $matches[1];
+            $method = $matches[2];
+            $callable = function() use ($class, $method) {
+                static $obj = null;
+                if ($obj === null) {
+                    $obj = new $class;
+                }
+                return $obj->$method();
+            };
         }
 
         if (!is_callable($callable)) {
