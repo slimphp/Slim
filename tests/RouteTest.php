@@ -41,6 +41,14 @@ class LazyInitializeTestClass {
     }
 }
 
+class FooTestClass {
+    public static $foo_invoked = false;
+
+    public function foo() {
+        self::$foo_invoked = true;
+    }
+}
+
 class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testGetPattern()
@@ -81,12 +89,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function testGetCallableAsClass()
     {
-        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute');
+        FooTestClass::$foo_invoked = false;
+        $route = new \Slim\Route('/foo', '\FooTestClass:foo');
 
-        $callable = $route->getCallable();
-        // FIXME: use a different method, dispatch route and check if it was called?
-        //$this->assertInstanceOf('\Slim\Router', $callable[0]);
-        //$this->assertEquals('getCurrentRoute', $callable[1]);
+        $this->assertFalse(FooTestClass::$foo_invoked);
+        $this->assertTrue($route->dispatch());
+        $this->assertTrue(FooTestClass::$foo_invoked);
     }
 
     public function testGetCallableAsClassLazyInitialize()
