@@ -32,6 +32,9 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\FlashInterface;
+use \Slim\Interfaces\SessionInterface;
+
 /**
  * Flash
  *
@@ -51,7 +54,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   3.0.0
  */
-class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
+class Flash implements FlashInterface
 {
     /**
      * The flash session storage key
@@ -77,7 +80,7 @@ class Flash implements \ArrayAccess, \Countable, \IteratorAggregate
      * @param  string        $key     The flash session storage key
      * @api
      */
-    public function __construct(\Slim\Session $session, $key = 'slimflash')
+    public function __construct(SessionInterface $session, $key = 'slimflash')
     {
         $this->session = $session;
         $this->key = $key;

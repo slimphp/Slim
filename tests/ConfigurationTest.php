@@ -31,37 +31,10 @@
  */
 
 use \Slim\Configuration;
+use \Slim\ConfigurationHandler;
 
-/**
- * Blank Service class
- */
-class Service
-{
-}
-
-/**
- * Simple Invokable class
- */
-class Invokable
-{
-    public function __invoke($value = null)
-    {
-        $service = new Service();
-        $service->value = $value;
-
-        return $service;
-    }
-}
-
-/**
- * Simple NonInvokable class
- */
-class NonInvokable
-{
-    public function __call($a, $b)
-    {
-    }
-}
+class HandlerTest extends ConfigurationHandler
+{}
 
 /**
  * Configuration Test
@@ -84,7 +57,6 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         'crypt.cipher' => MCRYPT_RIJNDAEL_256,
         'crypt.mode' => MCRYPT_MODE_CBC,
         // Session
-        'session.options' => array(),
         'session.handler' => null,
         'session.flash_key' => 'slimflash',
         'session.encrypt' => false,
@@ -95,73 +67,39 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public function testConstructorInjection()
     {
         $values = array("param" => "value");
-        $con = new Configuration($values);
+        $con = new Configuration(new HandlerTest);
+        $con->setArray($values);
 
         $this->assertSame($values['param'], $con['param']);
     }
 
-    public function testDefaultValues()
+    public function testSetDefaultValues()
     {
-        $con = new Configuration();
+        $con = new Configuration(new HandlerTest);
 
         foreach ($this->defaults as $key => $value) {
             $this->assertEquals($con[$key], $value);
         }
     }
 
-    public function testKeys()
+    public function testGetDefaultValues()
     {
-        $con = new Configuration();
+        $con = new Configuration(new HandlerTest);
+        $defaults = $con->getDefaults();
+
+        foreach ($this->defaults as $key => $value) {
+            $this->assertEquals($defaults[$key], $value);
+        }
+    }
+
+    public function testCallHandlerMethod()
+    {
+        $con = new Configuration(new HandlerTest);
         $defaultKeys = array_keys($this->defaults);
         $defaultKeys = ksort($defaultKeys);
-        $configKeys = $con->getKeys();
+        $configKeys = $con->callHandlerMethod('getKeys');
         $configKeys = ksort($configKeys);
 
         $this->assertEquals($defaultKeys, $configKeys);
-    }
-
-    public function  testWithNamespacedKey()
-    {
-        $con = new Configuration();
-        $con['my.namespaced.keyname'] = 'My Value';
-
-        $this->arrayHasKey($con, 'my');
-        $this->arrayHasKey($con['my'], 'namespaced');
-        $this->arrayHasKey($con['my.namespaced'], 'keyname');
-        $this->assertEquals('My Value', $con['my.namespaced.keyname']);
-    }
-
-    public function testWithString()
-    {
-        $con = new Configuration();
-        $con['keyname'] = 'My Value';
-
-        $this->assertEquals('My Value', $con['keyname']);
-    }
-
-    public function testIsset()
-    {
-        $con = new Configuration();
-        $con['param'] = 'value';
-        $con['service'] = function () {
-            return new Service();
-        };
-
-        $this->assertTrue(isset($con['param']));
-        $this->assertTrue(isset($con['service']));
-        $this->assertFalse(isset($con['non_existent']));
-    }
-
-    public function testUnset()
-    {
-        $con = new Configuration();
-        $con['param'] = 'value';
-        $con['service'] = function () {
-            return new Service();
-        };
-
-        unset($con['param'], $con['service']);
-        $this->assertFalse(isset($con['param']));
-        $this->assertFalse(isset($con['service']));
     }
 }

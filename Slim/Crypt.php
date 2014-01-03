@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use \Slim\Interfaces\CryptInterface;
+
 /**
  * Crypt
  *
@@ -53,7 +55,7 @@ namespace Slim;
  * @author     Josh Lockhart
  * @since      2.3.0
  */
-class Crypt
+class Crypt implements CryptInterface
 {
     /**
      * Encryption key (should be correct length for selected cipher)

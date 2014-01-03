@@ -55,9 +55,9 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testEnvironmentFromGlobals()
     {
-        $env = \Slim\Environment::createFromGlobals();
+        $env = new \Slim\Environment($_SERVER);
 
-        $this->assertInstanceOf('\Slim\Environment', $env);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
         $this->assertEquals($env->all(), $_SERVER);
     }
 
@@ -66,12 +66,13 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testEnvironmentFromMockData()
     {
-        $env = \Slim\Environment::mock(array(
+        $env = new \Slim\Environment();
+        $env->mock(array(
             'SCRIPT_NAME' => '/foo/bar/index.php',
             'REQUEST_URI' => '/foo/bar?abc=123'
         ));
 
-        $this->assertInstanceOf('\Slim\Environment', $env);
+        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
         $this->assertEquals($env->get('SCRIPT_NAME'), '/foo/bar/index.php');
         $this->assertEquals($env->get('REQUEST_URI'), '/foo/bar?abc=123');
     }

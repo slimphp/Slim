@@ -32,6 +32,10 @@
  */
 namespace Slim;
 
+use \Slim\Collection;
+use \Slim\Interfaces\SessionInterface;
+use \Slim\Interfaces\SessionHandlerInterface;
+
 /**
  * Session
  *
@@ -52,143 +56,124 @@ namespace Slim;
  * @author     Josh Lockhart
  * @since      2.3.0
  */
-class Session extends \Slim\Collection
+class Session extends Collection implements SessionInterface
 {
     /**
-     * The session save handler
-     * @var mixed
+     * Reference to array or object from which session data is loaded
+     * and to which session data is saved.
+     * @var array|\ArrayAccess
+     */
+    protected $dataSource;
+
+    /**
+     * Reference to custom session handler
+     * @var SessionHandlerInterface
      */
     protected $handler;
 
     /**
-     * Has the session started?
-     * @var bool
-     */
-    protected $started = false;
-
-    /**
-     * Has the session finished?
-     * @var bool
-     */
-    protected $finished = false;
-
-    /**
      * Constructor
-     * @param  array $options Session settings
-     * @param  mixed $handler The session save handler
+     *
+     * By default, this class assumes the use of the native file system session handler
+     * for persisting session data. This method allows us to use a custom handler.
+     *
+     * @param  SessionHandlerInterface $handler A custom session handler
      * @api
      */
-    public function __construct(array $options = array(), $handler = null)
+    public function __construct(SessionHandlerInterface $handler = null)
     {
-        // Apply session settings
-        $this->setOptions($options);
-
-        // Set custom session handler
         if ($handler !== null) {
-            $this->handler = $handler;
-
-            return session_set_save_handler(
-                array($this->handler, 'open'),
-                array($this->handler, 'close'),
-                array($this->handler, 'read'),
-                array($this->handler, 'write'),
-                array($this->handler, 'destroy'),
-                array($this->handler, 'gc')
+            session_set_save_handler(
+                array($handler, 'open'),
+                array($handler, 'close'),
+                array($handler, 'read'),
+                array($handler, 'write'),
+                array($handler, 'destroy'),
+                array($handler, 'gc')
             );
+            $this->handler = $handler;
         }
     }
 
     /**
      * Start the session
-     * @throws \RuntimeException If unable to start new PHP session
      * @api
      */
     public function start()
     {
-        if ($this->started === true && $this->finished === false) {
-            return;
+        // Initialize new session if a session is not already started
+        if ($this->isStarted() === false) {
+            $this->initialize();
         }
 
-        if (headers_sent() === false) {
-            if (isset($_SESSION) === false || session_id() === '') {
-                session_cache_limiter(''); // Disable cache headers from being sent by PHP
-                ini_set('session.use_cookies', 1);
-
-                if (session_start() === false) {
-                    throw new \RuntimeException('Unable to start session');
-                }
-            }
-
-            // If headers are already sent, this will act like a normal Set and will
-            // not interface with the $_SESSION superglobal.
-            $this->data = isset($_SESSION['slim.session']) ? $_SESSION['slim.session'] : array();
+        // Set data source from which session data is loaded, to which session data is saved
+        if (isset($this->dataSource) === false) {
+            $this->dataSource = &$_SESSION;
         }
 
-        $this->started = true;
+        // Load existing session data if available
+        if (isset($this->dataSource['slim.session']) === true) {
+            $this->replace($this->dataSource['slim.session']);
+        }
     }
 
     /**
-     * Save session data and close session
+     * Save session data to data source
      * @api
      */
     public function save()
     {
-        $_SESSION['slim.session'] = $this->all();
-        $this->finished = true;
-        session_write_close();
+        $this->dataSource['slim.session'] = $this->all();
     }
 
     /**
-     * Regenerate session ID
-     * @param  bool $destroy Destroy existing session data?
+     * Is session started?
      * @return bool
-     * @api
+     * @see    http://us2.php.net/manual/en/function.session-status.php#113468 Sourced from this comment from on php.net
      */
-    public function regenerate($destroy = false)
+    public function isStarted()
     {
-        return session_regenerate_id($destroy);
+        $started = false;
+        if (version_compare(phpversion(), '5.4.0', '>=')) {
+            $started = session_status() === PHP_SESSION_ACTIVE ? true : false;
+        } else {
+            $started = session_id() === '' ? false : true;
+        }
+
+        return $started;
     }
 
     /**
-     * Set session options
-     * @param  array $options
-     * @api
+     * Initialize new session
+     * @throws \RuntimeException If `session_start()` fails
      */
-    protected function setOptions(array $options)
+    public function initialize()
     {
-        $theOptions = array_flip(array(
-            'cache_limiter',
-            'cookie_domain',
-            'cookie_httponly',
-            'cookie_lifetime',
-            'cookie_path',
-            'cookie_secure',
-            'entropy_file',
-            'entropy_length',
-            'gc_divisor',
-            'gc_maxlifetime',
-            'gc_probability',
-            'hash_bits_per_character',
-            'hash_function',
-            'name',
-            'referer_check',
-            'serialize_handler',
-            'use_cookies',
-            'use_only_cookies',
-            'use_trans_sid',
-            'upload_progress.enabled',
-            'upload_progress.cleanup',
-            'upload_progress.prefix',
-            'upload_progress.name',
-            'upload_progress.freq',
-            'upload_progress.min-freq',
-            'url_rewriter.tags',
-        ));
+        // Disable PHP cache headers
+        session_cache_limiter('');
 
-        foreach ($options as $key => $value) {
-            if (isset($theOptions[$key])) {
-                ini_set('session.' . $key, $value);
-            }
+        // Ensure session ID uses valid characters when stored in HTTP cookie
+        if (ini_get('session.use_cookies') == true) {
+            ini_set('session.hash_bits_per_character', 5);
         }
+
+        // Start session
+        if (session_start() === false) {
+            throw new \RuntimeException('Cannot start session. Unknown error while invoking `session_start()`.');
+        };
+    }
+
+    /**
+     * Set data source
+     *
+     * By default, this class will assume session data is loaded from and saved to the
+     * `$_SESSION` superglobal array. However, we can swap in an alternative data source,
+     * which is especially useful for unit testing. This should be invoked before `start()`.
+     *
+     * @param \ArrayAccess $dataSource An alternative data source for loading and persisting session data
+     */
+    public function setDataSource(\ArrayAccess $dataSource)
+    {
+        $this->dataSource = $dataSource;
     }
 }

@@ -16,6 +16,9 @@
         "php": ">=5.3.0",
         "pimple/pimple": "1.*"
     },
+    "require-dev": {
+        "mockery/mockery": "dev-master@dev"
+    },
     "suggest": {
         "ext-mcrypt": "Required for HTTP cookie encryption"
     },

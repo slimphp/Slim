@@ -39,7 +39,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     protected function initializeRequest(array $serverData = array(), $body = 'abc=123&foo=bar')
     {
-        $this->environment = \Slim\Environment::mock(array_merge(array(
+        $this->environment = new \Slim\Environment();
+        $this->environment->mock(array_merge(array(
             'SERVER_PROTOCOL'      => 'HTTP/1.1',
             'REQUEST_METHOD'       => 'GET',
             'SCRIPT_NAME'          => '/foo/index.php',
@@ -55,8 +56,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR'          => '127.0.0.1',
             'REQUEST_TIME'         => time()
         ), $serverData));
-        $this->headers = \Slim\Http\Headers::createFromEnvironment($this->environment);
-        $this->cookies = new \Slim\Collection(\Slim\Http\Cookies::extractFromHeaders($this->headers));
+        $this->headers = new \Slim\Http\Headers($this->environment);
+        $this->cookies = new \Slim\Http\Cookies($this->headers);
         $this->request = new \Slim\Http\Request($this->environment, $this->headers, $this->cookies, $body);
     }
 
@@ -610,6 +611,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetSchemeIfHttp()
     {
         $this->assertEquals('http', $this->request->getScheme());
+    }
+
+    /**
+     * test get scheme with X-Forwarded-Proto header
+     */
+    public function testGetSchemeWithCustomHeader()
+    {
+        $this->initializeRequest(array(
+            'HTTPS' => '',
+            'HTTP_X_FORWARDED_PROTO' => 'https'
+        ));
+        $this->assertEquals('https', $this->request->getScheme());
     }
 
     /**

@@ -32,6 +32,10 @@
  */
 namespace Slim\Http;
 
+use \Slim\Interfaces\Http\HeadersInterface;
+use \Slim\Interfaces\Http\CookiesInterface;
+use \Slim\Interfaces\Http\ResponseInterface;
+
 /**
  * Response
  *
@@ -47,7 +51,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Response
+class Response implements ResponseInterface
 {
     /**
      * Response status code
@@ -60,14 +64,14 @@ class Response
      * @var \Slim\Http\Headers
      * @api
      */
-    public $headers;
+    protected $headers;
 
     /**
      * Response cookies
      * @var \Slim\Http\Cookies
      * @api
      */
-    public $cookies;
+    protected $cookies;
 
     /**
      * Response body
@@ -160,19 +164,22 @@ class Response
 
     /**
      * Constructor
-     * @param string                   $body    The HTTP response body
-     * @param int                      $status  The HTTP response status
-     * @param \Slim\Http\Headers|array $headers The HTTP response headers
+     * @param \Slim\Http\Headers $headers The HTTP response headers
+     * @param \Slim\Http\Cookies $cookies The HTTP response cookies
+     * @param string             $body    The HTTP response body
+     * @param int                $status  The HTTP response status
      * @api
      */
-    public function __construct($body = '', $status = 200, $headers = array())
+    public function __construct(HeadersInterface $headers, CookiesInterface $cookies, $body = '', $status = 200)
     {
-        $this->setStatus($status);
-        $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
-        $this->headers->replace($headers);
-        $this->cookies = new \Slim\Http\Cookies();
+        $this->headers = $headers;
+        if (!$this->headers->has('Content-Type')) {
+            $this->headers->set('Content-Type', 'text/html');
+        }
+        $this->cookies = $cookies;
         $this->isStream = false;
         $this->write($body, true);
+        $this->setStatus($status);
     }
 
     /**
@@ -213,6 +220,24 @@ class Response
     public function setBody($content)
     {
         $this->write($content, true);
+    }
+
+    /**
+     * Get HTTP headers
+     * @return \Slim\Http\Headers
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * Get HTTP cookies
+     * @return \Slim\Collection
+     */
+    public function getCookies()
+    {
+        return $this->cookies;
     }
 
     /**
@@ -306,7 +331,7 @@ class Response
      * @param int    $status The redirect HTTP status code
      * @api
      */
-    public function redirect ($url, $status = 302)
+    public function redirect($url, $status = 302)
     {
         $this->setStatus($status);
         $this->headers->set('Location', $url);

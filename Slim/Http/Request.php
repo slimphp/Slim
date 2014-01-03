@@ -32,6 +32,11 @@
  */
 namespace Slim\Http;
 
+use \Slim\Interfaces\EnvironmentInterface;
+use \Slim\Interfaces\Http\HeadersInterface;
+use \Slim\Interfaces\Http\CookiesInterface;
+use \Slim\Interfaces\Http\RequestInterface;
+
 /**
  * Slim HTTP Request
  *
@@ -50,7 +55,7 @@ namespace Slim\Http;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Request
+class Request implements RequestInterface
 {
     const METHOD_HEAD = 'HEAD';
     const METHOD_GET = 'GET';
@@ -83,14 +88,14 @@ class Request
      * @var \Slim\Http\Headers
      * @api
      */
-    public $headers;
+    protected $headers;
 
     /**
      * Request cookies
      * @var \Slim\Collection
      * @api
      */
-    public $cookies;
+    protected $cookies;
 
     /**
      * Request query parameters
@@ -114,7 +119,7 @@ class Request
      * Constructor
      * @api
      */
-    public function __construct(\Slim\Environment $env, \Slim\Http\Headers $headers, \Slim\Collection $cookies, $body = null)
+    public function __construct(EnvironmentInterface $env, HeadersInterface $headers, CookiesInterface $cookies, $body = null)
     {
         $this->env = $env;
         $this->headers = $headers;
@@ -554,9 +559,17 @@ class Request
      */
     public function getScheme()
     {
-        $https = $this->env->get('HTTPS');
+        $isHttps = false;
 
-        return empty($https) || $https === 'off' ? 'http' : 'https';
+        if ($this->headers->has('X_FORWARDED_PROTO') === true) {
+            $headerValue = $this->headers->get('X_FORWARDED_PROTO');
+            $isHttps = (strtolower($headerValue) === 'https');
+        } else {
+            $headerValue = $this->env->get('HTTPS');
+            $isHttps = (empty($headerValue) === false && $headerValue !== 'off');
+        }
+
+        return $isHttps ? 'https' : 'http';
     }
 
     /**
