@@ -53,6 +53,7 @@ class FlashTest extends PHPUnit_Framework_TestCase
     public function testLoadsFlashFromPreviousRequest()
     {
         $this->session->set($this->key, array('info' => 'foo'));
+
         $flash = new \Slim\Flash($this->session, $this->key);
 
         $this->assertEquals('foo', $flash['info']);
@@ -102,6 +103,7 @@ class FlashTest extends PHPUnit_Framework_TestCase
     public function testFlashMessagesFromPreviousRequestDoNotPersist()
     {
         $this->session->set($this->key, array('info' => 'foo'));
+
         $flash = new \Slim\Flash($this->session, $this->key);
         $flash->save();
 
@@ -114,6 +116,7 @@ class FlashTest extends PHPUnit_Framework_TestCase
     public function testFlashArrayAccess()
     {
         $this->session->set($this->key, array('info' => 'foo'));
+
         $flash = new \Slim\Flash($this->session, $this->key);
         $flash['info'] = 'bar';
         $flash->save();
@@ -132,6 +135,7 @@ class FlashTest extends PHPUnit_Framework_TestCase
     public function testIteration()
     {
         $this->session->set($this->key, array('info' => 'foo', 'error' => 'bar'));
+
         $flash = new \Slim\Flash($this->session, $this->key);
 
         $output = '';
