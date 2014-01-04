@@ -33,30 +33,9 @@
 class FlashTest extends PHPUnit_Framework_TestCase
 {
 
-    protected $session;
-    protected $key;
-
-    /**
-     * Setup.
-     */
-    public function setUp()
+    public function tearDown()
     {
-        $this->session = new \Slim\Session();
-        $this->session->start();
-
-        $this->key = 'slim.flash';
-    }
-
-    /**
-     * Test loads flash from previous request
-     */
-    public function testLoadsFlashFromPreviousRequest()
-    {
-        $this->session->set($this->key, array('info' => 'foo'));
-
-        $flash = new \Slim\Flash($this->session, $this->key);
-
-        $this->assertEquals('foo', $flash['info']);
+        \Mockery::close();
     }
 
     /**
@@ -64,8 +43,40 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testSetFlashForCurrentRequest()
     {
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $dataSource = new \ArrayObject();
+
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash->now('info', 'foo');
+
+        $this->assertEquals('foo', $flash['info']);
+    }
+
+    /**
+     * Test loads flash from previous request
+     */
+    public function testLoadsFlashFromPreviousRequest()
+    {
+        $dataSource = new \ArrayObject(array(
+            'slim.session' => array(
+                'slim.flash' => array(
+                    'info' => 'foo',
+                ),
+            ),
+        ));
+
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
 
         $this->assertEquals('foo', $flash['info']);
     }
@@ -75,13 +86,21 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testSetFlashForNextRequest()
     {
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $dataSource = new \ArrayObject();
+
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash->next('info', 'foo');
         $flash->save();
 
-        $this->session->save();
+        $session_flash = $session->get('slim.flash');
 
-        $this->assertEquals('foo', $_SESSION['slim.session'][$this->key]['info']);
+        $this->assertEquals('foo', $session_flash['info']);
     }
 
     /**
@@ -89,12 +108,29 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testKeepFlashForNextRequest()
     {
-        $flash = new \Slim\Flash($this->session, $this->key);
-        $flash->now('info', 'foo');
+        $dataSource = new \ArrayObject(array(
+            'slim.session' => array(
+                'slim.flash' => array(
+                    'info' => 'foo',
+                ),
+            ),
+        ));
+
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash->keep();
         $flash->save();
 
-        $this->assertEquals('foo', $_SESSION['slim.session'][$this->key]['info']);
+        $session->save();
+
+        $session_flash = $session->get('slim.flash');
+
+        $this->assertEquals('foo', $session_flash['info']);
     }
 
     /**
@@ -102,12 +138,26 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testFlashMessagesFromPreviousRequestDoNotPersist()
     {
-        $this->session->set($this->key, array('info' => 'foo'));
+        $dataSource = new \ArrayObject(array(
+            'slim.session' => array(
+                'slim.flash' => array(
+                    'info' => 'foo',
+                ),
+            ),
+        ));
 
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash->save();
 
-        $this->assertEmpty($this->session->get($this->key));
+        $session_flash = $session->get('slim.flash');
+
+        $this->assertEmpty($session_flash);
     }
 
     /**
@@ -115,11 +165,22 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testFlashArrayAccess()
     {
-        $this->session->set($this->key, array('info' => 'foo'));
+        $dataSource = new \ArrayObject(array(
+            'slim.session' => array(
+                'slim.flash' => array(
+                    'info' => 'foo',
+                ),
+            ),
+        ));
 
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash['info'] = 'bar';
-        $flash->save();
 
         $this->assertTrue(isset($flash['info']));
         $this->assertEquals('bar', $flash['info']);
@@ -134,9 +195,22 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testIteration()
     {
-        $this->session->set($this->key, array('info' => 'foo', 'error' => 'bar'));
+        $dataSource = new \ArrayObject(array(
+            'slim.session' => array(
+                'slim.flash' => array(
+                    'info' => 'foo',
+                    'error' => 'bar',
+                ),
+            ),
+        ));
 
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
 
         $output = '';
         foreach ($flash as $key => $value) {
@@ -151,7 +225,15 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testCountable()
     {
-        $flash = new \Slim\Flash($this->session, $this->key);
+        $dataSource = new \ArrayObject();
+
+        $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
+        $session->setDataSource($dataSource);
+        $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
+        $session->shouldReceive('initialize')->once()->withNoArgs()->andReturnNull();
+        $session->start();
+
+        $flash = new \Slim\Flash($session, 'slim.flash');
         $flash->now('info', 'foo');
         $flash->now('warning', 'bar');
         $flash->now('error', 'baz');
