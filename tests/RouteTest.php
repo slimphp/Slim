@@ -43,9 +43,11 @@ class LazyInitializeTestClass {
 
 class FooTestClass {
     public static $foo_invoked = false;
+    public static $foo_invoked_args = array();
 
     public function foo() {
         self::$foo_invoked = true;
+        self::$foo_invoked_args = func_get_args();
     }
 }
 
@@ -90,11 +92,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testGetCallableAsClass()
     {
         FooTestClass::$foo_invoked = false;
+        FooTestClass::$foo_invoked_args = array();
         $route = new \Slim\Route('/foo', '\FooTestClass:foo');
+        $route->setParams(array('bar' => '1234'));
 
         $this->assertFalse(FooTestClass::$foo_invoked);
         $this->assertTrue($route->dispatch());
         $this->assertTrue(FooTestClass::$foo_invoked);
+        $this->assertEquals(array('1234'), FooTestClass::$foo_invoked_args);
     }
 
     public function testGetCallableAsClassLazyInitialize()
