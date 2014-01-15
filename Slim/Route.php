@@ -202,7 +202,7 @@ class Route implements RouteInterface
                 if ($obj === null) {
                     $obj = new $class;
                 }
-                return $obj->$method();
+                return call_user_func_array(array($obj, $method), func_get_args());
             };
         }
 
