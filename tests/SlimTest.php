@@ -286,6 +286,19 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('production', $s->getMode());
     }
 
+    /**
+     * Test callable configuration option
+     */
+    public function testCallableConfigurationOption()
+    {
+        $s = new \Slim\Slim(array(
+            'callme' => function() {
+                return true;
+            }
+        ));
+        $this->assertTrue($s->config('callme'));
+    }
+
     /************************************************
      * ROUTING
      ************************************************/
