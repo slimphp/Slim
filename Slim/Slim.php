@@ -337,13 +337,13 @@ class Slim
             if (is_array($name)) {
                 $this->settings = array_merge($this->settings, $name);
             } else {
+                if ( ! isset($this->settings[$name])) {
+                    return null;
+                }
+
                 $value = $this->settings[$name];
 
-                if ( ! isset($value)) {
-                    return null;
-                } else {
-                    return is_callable($value) ? call_user_func($value) : $value;
-                }
+                return is_callable($value) ? call_user_func($value) : $value;
             }
         } else {
             $settings = $this->settings;
