@@ -576,10 +576,11 @@ class Request
      */
     public function getIp()
     {
-        if (isset($this->env['X_FORWARDED_FOR'])) {
-            return $this->env['X_FORWARDED_FOR'];
-        } elseif (isset($this->env['CLIENT_IP'])) {
-            return $this->env['CLIENT_IP'];
+        $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
+        foreach ($keys as $key) {
+            if (isset($this->env[$key])) {
+                return $this->env[$key];
+            }
         }
 
         return $this->env['REMOTE_ADDR'];
