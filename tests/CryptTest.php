@@ -34,6 +34,11 @@ class CryptTest extends PHPUnit_Framework_TestCase
 {
     public function testEncryptAndDecrypt()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->markTestSkipped('The mcrypt extension is not loaded');
+            return;
+        }
+
         $key = md5('this is my key');
         $crypt = new \Slim\Crypt($key);
         $data = 'secret';

@@ -41,28 +41,34 @@ class HandlerTest extends ConfigurationHandler
  */
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
-    public $defaults = array(
-        // Application
-        'mode' => 'development',
-        'view' => null,
-        // Cookies
-        'cookies.encrypt' => false,
-        'cookies.lifetime' => '20 minutes',
-        'cookies.path' => '/',
-        'cookies.domain' => null,
-        'cookies.secure' => false,
-        'cookies.httponly' => false,
-        // Encryption
-        'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-        'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-        'crypt.mode' => MCRYPT_MODE_CBC,
-        // Session
-        'session.handler' => null,
-        'session.flash_key' => 'slimflash',
-        'session.encrypt' => false,
-        // HTTP
-        'http.version' => '1.1'
-    );
+
+    public $defaults = array();
+
+    public function setUp()
+    {
+        $this->defaults = array(
+            // Application
+            'mode' => 'development',
+            'view' => null,
+            // Cookies
+            'cookies.encrypt' => false,
+            'cookies.lifetime' => '20 minutes',
+            'cookies.path' => '/',
+            'cookies.domain' => null,
+            'cookies.secure' => false,
+            'cookies.httponly' => false,
+            // Encryption
+            'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
+            'crypt.cipher' => (defined('MCRYPT_RIJNDAEL_256') ? MCRYPT_RIJNDAEL_256 : null),
+            'crypt.mode' => (defined('MCRYPT_MODE_CBC') ? MCRYPT_MODE_CBC : null),
+            // Session
+            'session.handler' => null,
+            'session.flash_key' => 'slimflash',
+            'session.encrypt' => false,
+            // HTTP
+            'http.version' => '1.1'
+        );
+    }
 
     public function testConstructorInjection()
     {
