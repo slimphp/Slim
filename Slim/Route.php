@@ -182,6 +182,11 @@ class Route implements RouteInterface
      */
     public function getCallable()
     {
+        //Instantiate class constructor
+        if(is_array($this->callable)) {
+            $this->callable = array(new $this->callable[0], $this->callable[1]);
+        }
+
         return $this->callable;
     }
 
@@ -195,7 +200,7 @@ class Route implements RouteInterface
     {
         $matches = array();
         if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
+            $callable = array($matches[1], $matches[2]);
         }
 
         if (!is_callable($callable)) {
