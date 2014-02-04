@@ -137,6 +137,21 @@ class Route
     {
         $this->pattern = $pattern;
     }
+    
+    /**
+     * Parses controller string to an almost callable array
+     * @param string $callable
+     * @return bool|array
+     */
+    public static stringToCallable($callable)
+    {
+        $matches = array();
+        if (preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
+            return array($matches[1], $matches[2]);
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Get route callable
@@ -154,12 +169,11 @@ class Route
      */
     public function setCallable($callable)
     {
-        $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
+        if (is_string($callable)) {
+            $callable = self::stringToCallable($callable);
         }
 
-        if (!is_callable($callable)) {
+        if (!is_callable($callable) || $callable === false) {
             throw new \InvalidArgumentException('Route callable must be callable');
         }
 
