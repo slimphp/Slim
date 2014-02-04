@@ -166,6 +166,10 @@ class Route
      */
     public function getCallable()
     {
+        if (is_array($this->callable)) {
+            return array(new $this->callable[0], $this->callable[1]);
+        }
+
         return $this->callable;
     }
 
