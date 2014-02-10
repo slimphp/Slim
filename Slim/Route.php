@@ -143,7 +143,7 @@ class Route
      * @param string $callable
      * @return bool|array
      */
-    public static stringToCallable($callable)
+    public static function stringToCallable($callable)
     {
         $matches = array();
         if (preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
