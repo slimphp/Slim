@@ -636,7 +636,7 @@ class Slim
             $this->error = Route::stringToCallable($argument);
         }
         
-        if (!is_callable($this->error) && !is_array($this->error) {
+        if (!is_callable($this->error) && !is_array($this->error)) {
             //Invoke error handler
             $this->response->status(500);
             $this->response->body('');
