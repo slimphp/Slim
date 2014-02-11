@@ -155,7 +155,7 @@ class Route
     public function setCallable($callable)
     {
         $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]_]+)$!', $callable, $matches)) {
             $callable = array(new $matches[1], $matches[2]);
         }
 
