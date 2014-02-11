@@ -184,7 +184,7 @@ class Route
             $callable = self::stringToCallable($callable);
         }
 
-        if (!is_callable($callable) || $callable === false) {
+        if (!is_callable($callable) && !is_array($callable) || $callable === false) {
             throw new \InvalidArgumentException('Route callable must be callable');
         }
 
