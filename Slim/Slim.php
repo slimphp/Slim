@@ -591,7 +591,9 @@ class Slim
             $this->notFound = $callable;
         } elseif (is_string($callable)) {
             $this->notFound = Route::stringToCallable($callable);
-        } else {
+        }
+        
+        if (!is_callable($this->notFound) && !is_array($this->notFound)) {
             ob_start();
             if (is_callable($this->notFound)) {
                 call_user_func($this->notFound);
