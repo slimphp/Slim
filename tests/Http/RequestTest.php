@@ -531,6 +531,19 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test get content type with built-in server
+     */
+    public function testGetContentTypeWithBuiltInServer()
+    {
+        $env = \Slim\Environment::mock(array(
+            'slim.input' => '',
+            'HTTP_CONTENT_TYPE' => 'application/json; charset=ISO-8859-4'
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals('application/json; charset=ISO-8859-4', $req->getContentType());
+    }
+
+    /**
      * Test get media type
      */
     public function testGetMediaTypeWhenExists()
