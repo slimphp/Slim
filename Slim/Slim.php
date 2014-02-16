@@ -591,7 +591,7 @@ class Slim
             $this->notFound = $callable;
         } elseif (is_string($callable)) {
             $this->notFound = Route::stringToCallable($callable);
-            
+
             if (!$this->error) {
                 throw new \Slim\Exception\Stop();
             }
@@ -638,7 +638,7 @@ class Slim
             $this->error = $argument;
         } elseif (is_string($argument)) {
             $this->error = Route::stringToCallable($argument);
-            
+
             if (!$this->error) {
                 throw new \Slim\Exception\Stop();
             }
