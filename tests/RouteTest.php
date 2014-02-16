@@ -81,7 +81,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
 
         $callable = $route->getCallable();
-        $this->assertEquals('\Slim\Slim::getInstance', $callable);
+        $this->assertInstanceOf('\Slim\Slim', $callable[0]);
+        $this->assertEquals('getInstance', $callable[1]);
     }
 
     public function testSetCallable()

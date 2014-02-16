@@ -571,7 +571,7 @@ class Slim
      *
      * 1. When declaring the handler:
      *
-     * If the $callable parameter is not null and is callable, this
+     * If the $callable parameter is not null and is callable or string, this
      * method will register the callable to be invoked when no
      * routes match the current HTTP request. It WILL NOT invoke the callable.
      *
@@ -583,15 +583,24 @@ class Slim
      * whose body is the output of the Not Found handler.
      *
      * @param  mixed $callable Anything that returns true for is_callable()
+     * @throws \InvalidArgumentException When string $callable is not a valid controller
      */
     public function notFound ($callable = null)
     {
         if (is_callable($callable)) {
             $this->notFound = $callable;
+        } elseif (is_string($callable)) {
+            $this->notFound = Route::stringToCallable($callable);
+
+            if (!$this->error) {
+                throw new \Slim\Exception\Stop();
+            }
         } else {
             ob_start();
             if (is_callable($this->notFound)) {
                 call_user_func($this->notFound);
+            } elseif (is_array($this->notFound)) {
+                call_user_func(array(new $this->notFound[0], $this->notFound[1]));
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -627,8 +636,13 @@ class Slim
         if (is_callable($argument)) {
             //Register error handler
             $this->error = $argument;
+        } elseif (is_string($argument)) {
+            $this->error = Route::stringToCallable($argument);
+
+            if (!$this->error) {
+                throw new \Slim\Exception\Stop();
+            }
         } else {
-            //Invoke error handler
             $this->response->status(500);
             $this->response->body('');
             $this->response->write($this->callErrorHandler($argument));
@@ -650,6 +664,8 @@ class Slim
         ob_start();
         if (is_callable($this->error)) {
             call_user_func_array($this->error, array($argument));
+        } elseif (is_array($this->error)) {
+            call_user_func(array(new $this->error[0], $this->error[1]));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
