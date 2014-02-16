@@ -1413,6 +1413,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $errCallback = function () { echo "404"; };
         $s->error($errCallback);
         $this->assertSame($errCallback, PHPUnit_Framework_Assert::readAttribute($s, 'error'));
+        
+        $s = new \Slim\Slim();
+        $s->error('\Slim\Slim:error');
+        $error = PHPUnit_Framework_Assert::readAttribute($s, 'error');
+
+        $this->assertEquals('\Slim\Slim', $error[0]);
+        $this->assertEquals('error', $error[1]);
     }
 
     /**
@@ -1433,6 +1440,13 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $notFoundCallback = function () { echo "404"; };
         $s->notFound($notFoundCallback);
         $this->assertSame($notFoundCallback, PHPUnit_Framework_Assert::readAttribute($s, 'notFound'));
+        
+        $s = new \Slim\Slim();
+        $s->notFound('\Slim\Slim:notFound');
+        $error = PHPUnit_Framework_Assert::readAttribute($s, 'notFound');
+
+        $this->assertEquals('\Slim\Slim', $error[0]);
+        $this->assertEquals('notFound', $error[1]);
     }
 
     /**
@@ -1443,6 +1457,15 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s = new \Slim\Slim();
         $notFoundCallback = 'foo';
         $s->notFound($notFoundCallback);
+    }
+    
+    public function testErrorHandlerWithController() {
+        $s = new \Slim\Slim();
+        $s->error('\Slim\Slim:error');
+        $error = PHPUnit_Framework_Assert::readAttribute($s, 'error');
+
+        $this->assertEquals('\Slim\Slim', $error[0]);
+        $this->assertEquals('error', $error[1]);
     }
 
     /************************************************

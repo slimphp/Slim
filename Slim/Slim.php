@@ -588,10 +588,20 @@ class Slim
     {
         if (is_callable($callable)) {
             $this->notFound = $callable;
+        } else if (is_string($callable)) {
+            $callable = Route::stringToCallable($callable);
+            
+            if (!$callable) {
+                throw new \Slim\Exception\Stop();
+            }
+            
+            $this->notFound = $callable;
         } else {
             ob_start();
             if (is_callable($this->notFound)) {
                 call_user_func($this->notFound);
+            } else if (is_array($this->notFound)) {
+                call_user_func(array(new $this->notFound[0], $this->notFound[1]));
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -627,6 +637,14 @@ class Slim
         if (is_callable($argument)) {
             //Register error handler
             $this->error = $argument;
+        } else if (is_string($argument)) {
+            $argument = Route::stringToCallable($argument);
+            
+            if (!$argument) {
+                throw new \Slim\Exception\Stop();
+            }
+            
+            $this->error = $argument;
         } else {
             //Invoke error handler
             $this->response->status(500);
@@ -650,6 +668,8 @@ class Slim
         ob_start();
         if (is_callable($this->error)) {
             call_user_func_array($this->error, array($argument));
+        } else if (is_array($this->error)) {
+            call_user_func_array(array(new $this->error[0], $this->error[1]), array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
