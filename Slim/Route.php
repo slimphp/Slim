@@ -153,11 +153,13 @@ class Route
     public static function stringToCallable($callable)
     {
         $matches = array();
-        if (preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            return array($matches[1], $matches[2]);
+        if (preg_match('!^([^\:]+)\:{1,2}([[:alnum:]]+)$!', $callable, $matches)) {
+            $callable = array($matches[1], $matches[2]);
         } else {
-            return false;
+            $callable = false;
         }
+        
+        return $callable;
     }
 
     /**
