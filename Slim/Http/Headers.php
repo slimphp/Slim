@@ -72,7 +72,7 @@ class Headers extends \Slim\Helper\Set
         foreach ($data as $key => $value) {
             $key = strtoupper($key);
             if (strpos($key, 'X_') === 0 || strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
-                if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
+                if ($key === 'HTTP_CONTENT_LENGTH') {
                     continue;
                 }
                 $results[$key] = $value;
