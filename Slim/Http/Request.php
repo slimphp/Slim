@@ -295,7 +295,7 @@ class Request implements RequestInterface
      * Fetch GET query parameter(s)
      *
      * Use this method to fetch a GET request query parameter. If the requested GET query parameter
-     * identified by the argument does not exist, NULL is returned. If the argument is omittec,
+     * identified by the argument does not exist, NULL is returned. If the argument is omitted,
      * all GET query parameters are returned as an array.
      *
      * @param  string           $key
