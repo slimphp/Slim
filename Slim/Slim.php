@@ -1293,6 +1293,64 @@ class Slim
     }
 
     /**
+     * ReRun
+     *
+     * This method is used to call a secondary URL after Slim has been executed in
+     * the normal way.
+     */
+
+    public function reRun($method, $uri)
+    {
+        set_error_handler(array('\Slim\Slim', 'handleErrors'));
+
+        //Apply final outer middleware layers
+        if ($this->config('debug')) {
+            //Apply pretty exceptions only in debug to avoid accidental information leakage in production
+            $this->add(new \Slim\Middleware\PrettyExceptions());
+        }
+
+        //Invoke middleware and application stack
+        try {
+            ob_start();
+            $dispatched = false;
+            $matchedRoutes = $this->router->getMatchedRoutes($method, $uri, true);
+            foreach ($matchedRoutes as $route) {
+                try {
+                    $dispatched = $route->dispatch();
+                    if ($dispatched) {
+                        break;
+                    }
+                } catch (\Slim\Exception\Pass $e) {
+                    continue;
+                }
+            }
+            if (!$dispatched) {
+                return false;
+            }
+            $this->stop();
+        } catch (\Slim\Exception\Stop $e) {
+            $this->response()->setBody(ob_get_clean());
+        } catch (\Exception $e) {
+            if ($this->config('debug')) {
+                throw $e;
+            } else {
+                try {
+                    $this->error($e);
+                } catch (\Slim\Exception\Stop $e) {
+                    // Do nothing
+                }
+            }
+        }
+
+        //Fetch status, header, and body
+        list($status, $headers, $body) = $this->response->finalize();
+
+        echo $body;
+    
+        restore_error_handler();
+    }
+
+    /**
      * Call
      *
      * This method finds and iterates all route objects that match the current request URI.
@@ -1340,6 +1398,7 @@ class Slim
             }
         }
     }
+
 
     /********************************************************************************
     * Error Handling and Debugging
