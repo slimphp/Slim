@@ -187,16 +187,18 @@ class Request
      * Fetch GET and POST data
      *
      * This method returns a union of GET and POST data as a key-value array, or the value
-     * of the array key if requested; if the array key does not exist, NULL is returned.
+     * of the array key if requested; if the array key does not exist, NULL is returned,
+     * unless there is a default value specified.
      *
      * @param  string           $key
+     * @param  mixed            $default
      * @return array|mixed|null
      */
-    public function params($key = null)
+    public function params($key = null, $default = null)
     {
         $union = array_merge($this->get(), $this->post());
         if ($key) {
-            return isset($union[$key]) ? $union[$key] : null;
+            return isset($union[$key]) ? $union[$key] : $default;
         }
 
         return $union;
