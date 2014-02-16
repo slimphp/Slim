@@ -187,7 +187,7 @@ class Crypt implements CryptInterface
      */
     protected function getHmac($data)
     {
-        return hash_hmac('sha256', $data, $this->key);
+        return hash_hmac('sha256', (string)$data, $this->key);
     }
 
     /**
