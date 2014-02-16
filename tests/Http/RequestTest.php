@@ -190,6 +190,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(3, count($req->params()));
         $this->assertEquals('1', $req->params('one'));
         $this->assertNull($req->params('foo'));
+        $this->assertEquals(1, $req->params('foo', 1));
     }
 
     /**
