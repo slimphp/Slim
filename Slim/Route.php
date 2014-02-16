@@ -126,13 +126,15 @@ class Route implements RouteInterface
      * Constructor
      * @param  string $pattern  The URL pattern
      * @param  mixed  $callable Anything that returns `true` for `is_callable()`
+     * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
      * @api
      */
-    public function __construct($pattern, $callable)
+    public function __construct($pattern, $callable, $caseSensitive = true)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
+        $this->caseSensitive = $caseSensitive;
     }
 
     /**
@@ -426,8 +428,14 @@ class Route implements RouteInterface
             $patternAsRegex .= '?';
         }
 
+        $regex = '#^' . $patternAsRegex . '$#';
+
+        if ($this->caseSensitive === false) {
+            $regex .= 'i';
+        }
+
         //Cache URL params' names and values if this route matches the current HTTP request
-        if (!preg_match('#^' . $patternAsRegex . '$#', $resourceUri, $paramValues)) {
+        if (!preg_match($regex, $resourceUri, $paramValues)) {
             return false;
         }
         foreach ($this->paramNames as $name) {
