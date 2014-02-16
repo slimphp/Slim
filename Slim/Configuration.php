@@ -80,7 +80,9 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
         'session.flash_key' => 'slimflash',
         'session.encrypt' => false,
         // HTTP
-        'http.version' => '1.1'
+        'http.version' => '1.1',
+        // Routing
+        'routes.case_sensitive' => true
     );
 
     /**

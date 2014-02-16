@@ -264,6 +264,20 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $route3->getParams());
     }
 
+    public function testMatchesIsCaseSensitiveByDefault()
+    {
+        $route = new \Slim\Route('/case/sensitive', function () {});
+        $this->assertTrue($route->matches('/case/sensitive'));
+        $this->assertFalse($route->matches('/CaSe/SensItiVe'));
+    }
+
+    public function testMatchesCanBeCaseInsensitive()
+    {
+        $route = new \Slim\Route('/Case/Insensitive', function () {}, false);
+        $this->assertTrue($route->matches('/Case/Insensitive'));
+        $this->assertTrue($route->matches('/CaSe/iNSensItiVe'));
+    }
+
     public function testGetConditions()
     {
         $route = new \Slim\Route('/foo', function () {});

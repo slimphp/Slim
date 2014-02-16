@@ -450,6 +450,27 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+      * Tests if route will match in case-insensitive manner if configured to do so
+      */
+     public function testRouteMatchesInCaseInsensitiveMannerIfConfigured()
+     {
+        $this->initializeApp(
+            array(
+                'REQUEST_URI' => '/foo/BaR' // Does not match route case
+            ),
+            array(
+                'routes.case_sensitive' => false
+            )
+        );
+
+         $route = $this->app->get('/bar', function () { echo "xyz"; });
+         $this->app->call();
+         $this->assertEquals(200, $this->app['response']->getStatus());
+         $this->assertEquals('xyz', $this->app['response']->getBody());
+         $this->assertEquals('/bar', $route->getPattern());
+     }
+
+    /**
      * Test if route contains URL encoded characters
      */
     public function testRouteWithUrlEncodedCharacters()
