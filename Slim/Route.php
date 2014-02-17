@@ -99,9 +99,9 @@ class Route
      * Constructor
      * @param string $pattern The URL pattern (e.g. "/books/:id")
      * @param mixed $callable Anything that returns TRUE for is_callable()
-     * @param \Slim\Slim $application
+     * @param \Slim\Slim|null $application The primary Slim application instance
      */
-    public function __construct($pattern, $callable, $application)
+    public function __construct($pattern, $callable, $application = null)
     {
         $this->setApplication($application);
         $this->setPattern($pattern);
@@ -140,13 +140,26 @@ class Route
      * Set application
      *
      * This method injects the primary Slim application instance into
-     * this middleware.
+     * this class.
      *
      * @param  \Slim\Slim $application
      */
     public function setApplication($application)
     {
         $this->app = $application;
+    }
+
+    /**
+     * Get application
+     *
+     * This method retrieves the application previously injected
+     * into this class.
+     *
+     * @return \Slim\Slim
+     */
+    public function getApplication()
+    {
+        return $this->app;
     }
 
     /**

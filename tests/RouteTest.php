@@ -76,6 +76,18 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('getCurrentRoute', $callable[1]);
     }
 
+    public function testGetCallableAsClassPassingApp()
+    {   
+        $app = new \Slim\Slim();
+        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute', $app);
+
+        $callable = $route->getCallable();
+        $application = $route->getApplication();
+        $this->assertInstanceOf('\Slim\Router', $callable[0]);
+        $this->assertEquals('getCurrentRoute', $callable[1]);
+        $this->assertInstanceOf('\Slim\Slim', $application);
+    }
+
     public function testGetCallableAsStaticMethod()
     {
         $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
