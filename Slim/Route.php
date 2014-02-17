@@ -51,6 +51,11 @@ class Route
     protected $callable;
 
     /**
+     * @var \Slim\Slim Reference to the primary application instance
+     */
+    protected $app;
+
+    /**
      * @var array Conditions for this route's URL parameters
      */
     protected $conditions = array();
@@ -94,9 +99,11 @@ class Route
      * Constructor
      * @param string $pattern The URL pattern (e.g. "/books/:id")
      * @param mixed $callable Anything that returns TRUE for is_callable()
+     * @param \Slim\Slim $application
      */
-    public function __construct($pattern, $callable)
+    public function __construct($pattern, $callable, $application)
     {
+        $this->setApplication($application);
         $this->setPattern($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
@@ -130,6 +137,19 @@ class Route
     }
 
     /**
+     * Set application
+     *
+     * This method injects the primary Slim application instance into
+     * this middleware.
+     *
+     * @param  \Slim\Slim $application
+     */
+    public function setApplication($application)
+    {
+        $this->app = $application;
+    }
+
+    /**
      * Set route pattern
      * @param  string $pattern
      */
@@ -156,7 +176,7 @@ class Route
     {
         $matches = array();
         if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
+            $callable = array(new $matches[1]($this->app), $matches[2]);
         }
 
         if (!is_callable($callable)) {
