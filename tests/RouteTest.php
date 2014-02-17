@@ -78,8 +78,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function testGetCallableAsClassPassingApp()
     {   
-        $app = new \Slim\Slim();
-        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute', $app);
+        $s = new \Slim\Slim();
+        $route = new \Slim\Route('/foo', '\Slim\Router:getCurrentRoute', $s);
 
         $callable = $route->getCallable();
         $application = $route->getApplication();
