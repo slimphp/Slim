@@ -335,16 +335,16 @@ class Slim
      */
     public function config($name, $value = null)
     {
-        if (func_num_args() === 1) {
-            if (is_array($name)) {
-                $this->settings = array_merge($this->settings, $name);
-            } else {
-                return isset($this->settings[$name]) ? $this->settings[$name] : null;
-            }
+        $c = $this->container;
+
+        if (is_array($name)) {
+            $c['settings'] = array_merge($c['settings'], $name);
+        } elseif (func_num_args() === 1) {
+            return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
         } else {
-            $settings = $this->settings;
+            $settings = $c['settings'];
             $settings[$name] = $value;
-            $this->settings = $settings;
+            $c['settings'] = $settings;
         }
     }
 
