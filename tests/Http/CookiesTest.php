@@ -63,7 +63,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
                     'httponly' => false
                 )
             ),
-            'values',
+            'data',
             $cookies
         );
     }
@@ -91,7 +91,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
                     'httponly' => true
                 )
             ),
-            'values',
+            'data',
             $cookies
         );
     }
@@ -100,7 +100,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
     {
         $cookies = new \Slim\Http\Cookies();
         $cookies->remove('foo');
-        $prop = new \ReflectionProperty($cookies, 'values');
+        $prop = new \ReflectionProperty($cookies, 'data');
         $prop->setAccessible(true);
         $cValue = $prop->getValue($cookies);
         $this->assertEquals('', $cValue['foo']['value']);

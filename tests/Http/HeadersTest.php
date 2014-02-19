@@ -38,7 +38,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->headers = new \Slim\Http\Headers();
-        $this->property = new \ReflectionProperty($this->headers, 'values');
+        $this->property = new \ReflectionProperty($this->headers, 'data');
         $this->property->setAccessible(true);
     }
 
