@@ -151,7 +151,11 @@ class Route
      */
     public function getCallable()
     {
-        return $this->callable;
+		if(is_array($this->callable) && is_string($this->callable[0]))
+		{
+			$this->callable[0] = new $this->callable[0];
+		}
+		return $this->callable;
     }
 
     /**
@@ -161,18 +165,41 @@ class Route
      */
     public function setCallable($callable)
     {
-        $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
-        }
-
-        if (!is_callable($callable)) {
-            throw new \InvalidArgumentException('Route callable must be callable');
-        }
-
-        $this->callable = $callable;
+		// test for class:method
+		if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]_]+)$!', $callable, $matches)) {
+			
+			// variables
+			list($match, $className, $methodName) = $matches;
+			$class = new \ReflectionClass($className);
+			
+			// check class exists
+			if($class !== NULL) {
+				// check method exists and is public
+				if($class->hasMethod($methodName)) {
+					$method = new \ReflectionMethod($className, $methodName);
+					if( ! $method->isPublic() ) {
+						throw new \InvalidArgumentException("Route method '$methodName' must be public");
+					} else {
+						$callable = array($className, $methodName);
+					}
+				} else {
+					throw new \InvalidArgumentException("Route method '$methodName' does not exist");
+				}
+			} else {
+				throw new \InvalidArgumentException("Route class '$className' does not exist");
+			}
+			
+		}
+	
+		// test for function
+		else if (!is_callable($callable)) {
+			throw new \InvalidArgumentException('Route callable must be callable');
+		}
+		
+		// return
+		$this->callable = $callable;
     }
-
+	
     /**
      * Get route conditions
      * @return array
