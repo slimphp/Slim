@@ -260,7 +260,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Is this an AJAX request?
+     * Is this an JSON request?
      * @return bool
      * @api
      */
@@ -355,7 +355,7 @@ class Request implements RequestInterface
      */
     public function json($key = null, $default = null)
     {
-        if (is_null($this->body) === true) {
+        if (empty($this->body)) {
             if ($this->isJson()) {
                 $this->body = json_decode($this->getBody(), true);
             }
