@@ -180,6 +180,15 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test is json with header
+     */
+    public function testIsJsonWithHeader()
+    {
+        $this->initializeRequest(array('CONTENT_TYPE' => 'application/json'));
+        $this->assertTrue($this->request->isJson());
+    }
+
+    /**
      * Test is ajax with header
      */
     public function testIsAjaxWithHeader()
@@ -243,6 +252,24 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('1', $this->request->get('one'));
         $this->assertNull($this->request->get('foo'));
         $this->assertFalse($this->request->get('foo', false));
+    }
+
+    /**
+     * Test fetch Json params
+     */
+    public function testJson()
+    {
+        $this->initializeRequest(array(
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json',
+            'CONTENT_LENGTH' => 15,
+            'REQUEST_URI' => '/foo/bar?one=1&two=2&three=3',
+            'QUERY_STRING' => 'one=1&two=2&three=3'
+        ), '{"foo": "bar", "abc": 123}');
+        $this->assertEquals(2, count($this->request->json()));
+        $this->assertEquals('bar', $this->request->json('foo'));
+        $this->assertNull($this->request->json('xyz'));
+        $this->assertFalse($this->request->json('xyz', false));
     }
 
     /**

@@ -110,7 +110,7 @@ class Request implements RequestInterface
     protected $bodyRaw;
 
     /**
-     * Request body (parsed; only available if body is form-urlencoded)
+     * Request body (parsed; only available if body is form-urlencoded or if request content type is application/json)
      * @var array
      */
     protected $body;
@@ -260,6 +260,16 @@ class Request implements RequestInterface
     }
 
     /**
+     * Is this an AJAX request?
+     * @return bool
+     * @api
+     */
+    public function isJson()
+    {
+        return strpos($this->getContentType(), '/json') !== false;
+    }
+
+    /**
      * Is this an XHR request? (alias of Slim_Http_Request::isAjax)
      * @return bool
      * @api
@@ -328,6 +338,30 @@ class Request implements RequestInterface
         }
 
         return $returnVal;
+    }
+
+    /**
+     * Fetch request body parameter(s)
+     *
+     * Use this method to fetch a json body parameter. If the requested json body parameter
+     * identified by the argument does not exist, NULL is returned. If the argument is omitted,
+     * all json body parameters are returned as an array.
+     *
+     * @param  string           $key
+     * @param  mixed            $default Default return value when key does not exist
+     * @return array|mixed|null
+     * @throws \RuntimeException If environment input is not available
+     * @api
+     */
+    public function json($key = null, $default = null)
+    {
+        if (is_null($this->body) === true) {
+            if ($this->isJson()) {
+                $this->body = json_decode($this->getBody(), true);
+            }
+        }
+
+        return $this->post($key, $default);
     }
 
     /**
