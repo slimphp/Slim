@@ -107,10 +107,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $route = new \Slim\Route('/hello/:first/:last', function () {});
         $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
-        $route->setParams(array(
+        $returned = $route->setParams(array(
             'first' => 'agent',
             'last' => 'smith'
         ));
+
+	$this->assertEquals($route,$returned);
 
         $this->assertAttributeEquals(array(
             'first' => 'agent',
@@ -118,18 +120,34 @@ class RouteTest extends PHPUnit_Framework_TestCase
         ), 'params', $route);
     }
 
-    public function testGetParam()
+    public function testSetConstructorParam()
     {
         $route = new \Slim\Route('/hello/:first/:last', function () {});
+	$returned = $route->setConstructorParams(array(
+	    'foo',
+	    'bar'
+	));
 
-        $property = new \ReflectionProperty($route, 'params');
-        $property->setAccessible(true);
-        $property->setValue($route, array(
-            'first' => 'foo',
-            'last' => 'bar'
-        ));
+	$this->assertEquals($route,$returned);
 
-        $this->assertEquals('foo', $route->getParam('first'));
+        $this->assertAttributeEquals(array(
+            'foo',
+            'bar'
+        ), 'constructorParams', $route);
+    }
+
+    public function testGetConstructorParam()
+    {
+    	$route = new \Slim\Route('/hello/:first/:last', function () {});
+	$route->setConstructorParams(array(
+	    'foo',
+	    'bar'
+	));
+
+        $this->assertEquals(array(
+            'foo',
+            'bar'
+        ), $route->getConstructorParams());
     }
 
     public function testGetParamThatDoesNotExist()

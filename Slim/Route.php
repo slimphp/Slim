@@ -191,11 +191,13 @@ class Route implements RouteInterface
         //Instantiate class constructor
         if(is_array($this->callable)) {
 
-            if(empty($this->getConstructorParams()){
+	    $constructorParams = $this->getConstructorParams();
+
+            if(empty($constructorParams)){
                 $controller = new $this->callable[0];
             } else {
                 $rclass = new \ReflectionClass($this->callable[0]);
-                $controller = $rclass->newInstanceArgs($this->getConstructorParams());
+                $controller = $rclass->newInstanceArgs($constructorParams);
             }
 
             $this->callable = array($controller, $this->callable[1]);
@@ -282,6 +284,8 @@ class Route implements RouteInterface
     public function setParams(array $params)
     {
         $this->params = $params;
+	
+	return $this;
     }
 
     public function getConstructorParams()
@@ -292,6 +296,8 @@ class Route implements RouteInterface
     public function setConstructorParams(array $constructorParams)
     {
         $this->constructorParams = $constructorParams;
+
+	return $this;
     }
 
     /**
