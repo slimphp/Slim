@@ -338,7 +338,11 @@ class Slim
         $c = $this->container;
 
         if (is_array($name)) {
-            $c['settings'] = array_merge($c['settings'], $name);
+            if (true === $value) {
+                $c['settings'] = array_merge_recursive($c['settings'], $name);
+            } else {
+                $c['settings'] = array_merge($c['settings'], $name);
+            }
         } elseif (func_num_args() === 1) {
             return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
         } else {
