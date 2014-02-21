@@ -99,6 +99,12 @@ class Route implements RouteInterface
     protected $params = array();
 
     /**
+     * Array of Controller Constructor Parameters
+     * @var array
+     */
+    protected $constructorParams = array();
+
+    /**
      * Array of URL parameter names
      * @var array
      */
@@ -184,7 +190,15 @@ class Route implements RouteInterface
     {
         //Instantiate class constructor
         if(is_array($this->callable)) {
-            $this->callable = array(new $this->callable[0], $this->callable[1]);
+
+            if(empty($this->getConstructorParams()){
+                $controller = new $this->callable[0];
+            } else {
+                $rclass = new \ReflectionClass($this->callable[0]);
+                $controller = $rclass->newInstanceArgs($this->getConstructorParams());
+            }
+
+            $this->callable = array($controller, $this->callable[1]);
         }
 
         return $this->callable;
@@ -268,6 +282,16 @@ class Route implements RouteInterface
     public function setParams(array $params)
     {
         $this->params = $params;
+    }
+
+    public function getConstructorParams()
+    {
+        return $this->constructorParams;
+    }
+
+    public function setConstructorParams(array $constructorParams)
+    {
+        $this->constructorParams = $constructorParams;
     }
 
     /**
