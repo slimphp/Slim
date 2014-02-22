@@ -598,10 +598,10 @@ class Slim
             $this->notFound = $callable;
         } else {
             ob_start();
-            if (is_callable($this->notFound)) {
-                call_user_func($this->notFound);
-            } else if (is_array($this->notFound)) {
+            if (is_array($this->notFound)) {
                 call_user_func(array(new $this->notFound[0], $this->notFound[1]));
+            } else if (is_callable($this->notFound)) {
+                call_user_func($this->notFound);
             } else {
                 call_user_func(array($this, 'defaultNotFound'));
             }
@@ -666,10 +666,11 @@ class Slim
     protected function callErrorHandler($argument = null)
     {
         ob_start();
-        if (is_callable($this->error)) {
-            call_user_func_array($this->error, array($argument));
-        } else if (is_array($this->error)) {
+        
+        if (is_array($this->error)) {
             call_user_func_array(array(new $this->error[0], $this->error[1]), array($argument));
+        } else if (is_callable($this->error)) {
+            call_user_func_array($this->error, array($argument));
         } else {
             call_user_func_array(array($this, 'defaultError'), array($argument));
         }
