@@ -1413,6 +1413,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $errCallback = function () { echo "404"; };
         $s->error($errCallback);
         $this->assertSame($errCallback, PHPUnit_Framework_Assert::readAttribute($s, 'error'));
+        
+        $s = new \Slim\Slim();
+        $s->error('\Slim\Slim:defaultError');
+        $error = PHPUnit_Framework_Assert::readAttribute($s, 'error');
+
+        $this->assertEquals('\Slim\Slim', $error[0]);
+        $this->assertEquals('defaultError', $error[1]);
+        $exceptionThrown = false;
+        try {
+            $s->error();
+        } catch (\Slim\Exception\Stop $e) {
+            $exceptionThrown = true;
+        }
+        
+        $this->assertEquals(true, $exceptionThrown);
+        $this->assertNotEquals(
+            false,
+            strpos($s->response->body(), '<title>Error</title>')
+        );
     }
 
     /**
@@ -1433,6 +1452,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $notFoundCallback = function () { echo "404"; };
         $s->notFound($notFoundCallback);
         $this->assertSame($notFoundCallback, PHPUnit_Framework_Assert::readAttribute($s, 'notFound'));
+        
+        $s = new \Slim\Slim();
+        $s->notFound('\Slim\Slim:defaultNotFound');
+        $error = PHPUnit_Framework_Assert::readAttribute($s, 'notFound');
+
+        $this->assertEquals('\Slim\Slim', $error[0]);
+        $this->assertEquals('defaultNotFound', $error[1]);
+        $exceptionThrown = false;
+        try {
+            $s->notFound();
+        } catch (\Slim\Exception\Stop $e) {
+            $exceptionThrown = true;
+        }
+        
+        $this->assertEquals(true, $exceptionThrown);
+        $this->assertNotEquals(
+            false,
+            strpos($s->response->body(), '<title>404 Page Not Found</title>')
+        );
     }
 
     /**
