@@ -534,12 +534,30 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals(array('GET', 'POST', 'PUT'), 'methods', $route);
     }
 
+    public function testAppendArrayOfHttpMethods()
+    {
+        $arrayOfMethods = array('GET','POST','PUT');
+        $route = new \Slim\Route('/foo', function () {});
+        $route->appendHttpMethods($arrayOfMethods);
+
+        $this->assertAttributeEquals($arrayOfMethods,'methods',$route);
+    }
+
     public function testAppendHttpMethodsWithVia()
     {
         $route = new \Slim\Route('/foo', function () {});
         $route->via('PUT');
 
         $this->assertAttributeContains('PUT', 'methods', $route);
+    }
+
+    public function testAppendArrayOfHttpMethodsWithVia()
+    {
+        $arrayOfMethods = array('GET','POST','PUT');
+        $route = new \Slim\Route('/foo', function () {});
+        $route->via($arrayOfMethods);
+
+        $this->assertAttributeEquals($arrayOfMethods,'methods',$route);
     }
 
     public function testSupportsHttpMethod()

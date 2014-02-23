@@ -288,6 +288,9 @@ class Route
     public function appendHttpMethods()
     {
         $args = func_get_args();
+        if(count($args) && is_array($args[0])){
+            $args = $args[0];
+        }
         $this->methods = array_merge($this->methods, $args);
     }
 
@@ -298,6 +301,9 @@ class Route
     public function via()
     {
         $args = func_get_args();
+        if(count($args) && is_array($args[0])){
+            $args = $args[0];
+        }
         $this->methods = array_merge($this->methods, $args);
 
         return $this;
