@@ -123,6 +123,11 @@ class App extends \Pimple
             return new \Slim\Router();
         });
 
+        // Route
+        $this['route'] = $this->share(function ($c) {
+            return new \Slim\Route();
+        });
+
         // View
         $this['view'] = $this->share(function ($c) {
             $view = $c['settings']['view'];
@@ -273,13 +278,15 @@ class App extends \Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = new \Slim\Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
-        $this['router']->map($route);
+        $this['route']->setPattern($pattern);
+        $this['route']->setCallable($callable);
+        $this['route']->setCaseSensitive($this['settings']['routes.case_sensitive']);
+        $this['router']->map($this['route']);
         if (count($args) > 0) {
-            $route->setMiddleware($args);
+            $this['route']->setMiddleware($args);
         }
 
-        return $route;
+        return $this['route'];
     }
 
     /**
