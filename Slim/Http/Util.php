@@ -88,10 +88,15 @@ class Util
      * @param  string $iv       The encryption initialization vector
      * @param  array  $settings Optional key-value array with custom algorithm and mode
      * @return string
+     * @throws \RuntimeException
      */
     public static function encrypt($data, $key, $iv, $settings = array())
     {
-        if ($data === '' || !extension_loaded('mcrypt')) {
+        if (!extension_loaded('mcrypt')) {
+            throw new \RuntimeException("The extension mcrypt is not loaded");
+        }
+
+        if ($data === '') {
             return $data;
         }
 
@@ -138,10 +143,15 @@ class Util
      * @param  string $iv       The encryption initialization vector
      * @param  array  $settings Optional key-value array with custom algorithm and mode
      * @return string
+     * @throws \RuntimeException
      */
     public static function decrypt($data, $key, $iv, $settings = array())
     {
-        if ($data === '' || !extension_loaded('mcrypt')) {
+        if (!extension_loaded('mcrypt')) {
+            throw new \RuntimeException("The extension mcrypt is not loaded");
+        }
+
+        if ($data === '') {
             return $data;
         }
 

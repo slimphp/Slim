@@ -77,6 +77,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testEncryptAndDecryptWithValidData()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $data = 'foo';
         $key = 'secret';
         $iv = md5('initializationVector');
@@ -91,6 +95,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testEncryptWhenDataIsEmptyString()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $data = '';
         $key = 'secret';
         $iv = md5('initializationVector');
@@ -103,6 +111,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testDecryptWhenDataIsEmptyString()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $data = '';
         $key = 'secret';
         $iv = md5('initializationVector');
@@ -115,6 +127,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testEncryptAndDecryptWhenKeyAndIvAreTooLong()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $data = 'foo';
         $key = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
         $iv = 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz';
@@ -126,6 +142,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
 
     public function testEncodeAndDecodeSecureCookieWithValidData()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         //Prepare cookie value
         $value = 'foo';
         $expires = time() + 86400;
@@ -151,6 +171,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testEncodeAndDecodeSecureCookieWithOldExpiration()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $value = 'foo';
         $expires = time() - 100;
         $secret = 'password';
@@ -170,6 +194,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testEncodeAndDecodeSecureCookieWithTamperedData()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $value = 'foo';
         $expires = time() + 86400;
         $secret = 'password';
@@ -334,6 +362,10 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
      */
     public function testSerializeCookiesAndDecryptWithStringExpires()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->setExpectedException('RuntimeException');
+        }
+
         $value = 'bar';
 
         $headers = new \Slim\Http\Headers();
