@@ -124,8 +124,12 @@ class App extends \Pimple
         });
 
         // Route
-        $this['route'] = function ($c) {
-            return new \Slim\Route();
+        $this['route_factory'] = function($app) {
+            return function($pattern, $callable) use ($app) {
+                $case = $app['settings']['routes.case_sensitive'];
+
+                return new \Slim\Route($pattern, $callable, $case);
+            };
         };
 
         // View
@@ -278,11 +282,7 @@ class App extends \Pimple
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $route = $this['route'];
-
-        $route->setPattern($pattern);
-        $route->setCallable($callable);
-        $route->setCaseSensitive($this['settings']['routes.case_sensitive']);
+        $route = $this['route_factory']($pattern, $callable);
         $this['router']->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);

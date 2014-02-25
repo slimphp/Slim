@@ -123,24 +123,18 @@ class Route implements RouteInterface
     protected $middleware = array();
 
     /**
-     * Whether or not this route should be matched in a case-sensitive manner
-     * @var bool
-     */
-    protected $caseSensitive = true;
-
-    /**
      * Constructor
      * @param  string $pattern  The URL pattern
      * @param  mixed  $callable Anything that returns `true` for `is_callable()`
      * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
      * @api
      */
-    public function __construct($pattern = null, $callable = null, $caseSensitive = true)
+    public function __construct($pattern, $callable, $caseSensitive = true)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
-        $this->setCaseSensitive($caseSensitive);
+        $this->caseSensitive = $caseSensitive;
     }
 
     /**
@@ -201,18 +195,16 @@ class Route implements RouteInterface
      */
     public function setCallable($callable)
     {
-        if (! is_null($callable)) {
-            $matches = array();
-            if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-                $callable = array(new $matches[1], $matches[2]);
-            }
-
-            if (!is_callable($callable)) {
-                throw new \InvalidArgumentException('Route callable must be callable');
-            }
-
-            $this->callable = $callable;
+        $matches = array();
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
+            $callable = array(new $matches[1], $matches[2]);
         }
+
+        if (!is_callable($callable)) {
+            throw new \InvalidArgumentException('Route callable must be callable');
+        }
+
+        $this->callable = $callable;
     }
 
     /**
@@ -305,15 +297,6 @@ class Route implements RouteInterface
             throw new \InvalidArgumentException('Route parameter does not exist at specified index');
         }
         $this->params[$index] = $value;
-    }
-
-    /**
-     * Whether or not this route should be matched in a case-sensitive manner
-     * @param $caseSensitive
-     */
-    public function setCaseSensitive($caseSensitive)
-    {
-        $this->caseSensitive = $caseSensitive;
     }
 
     /**
