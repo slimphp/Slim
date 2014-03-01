@@ -1301,7 +1301,7 @@ class App extends \Pimple
                 $message = $e->getMessage();
                 $file = $e->getFile();
                 $line = $e->getLine();
-                $trace = $e->getTraceAsString();
+                $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $e->getTraceAsString());
 
                 $html = '<p>The application could not run because of the following error:</p>';
                 $html .= '<h2>Details</h2>';
