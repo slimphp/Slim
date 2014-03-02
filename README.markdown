@@ -63,6 +63,10 @@ should contain this code:
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [QSA,L]
 
+Additionally, make sure your virtual host is configured with the AllowOverride option so that the .htaccess rewrite rules can be used:
+
+   AllowOverride All
+
 #### Nginx
 
 The nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
