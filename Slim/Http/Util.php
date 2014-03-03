@@ -402,9 +402,10 @@ class Util
         $headerPieces = preg_split('@\s*[;,]\s*@', $header);
         foreach ($headerPieces as $c) {
             $cParts = explode('=', $c);
-            if (count($cParts) === 2) {
+            if (count($cParts) >= 2) {
                 $key = urldecode($cParts[0]);
-                $value = urldecode($cParts[1]);
+                unset($cParts[0]);
+                $value = urldecode(implode($cParts, '='));
                 if (!isset($cookies[$key])) {
                     $cookies[$key] = $value;
                 }
