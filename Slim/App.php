@@ -1129,6 +1129,7 @@ class App extends \Pimple
      */
     public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
     {
+
         // Build sub-request and sub-response
         $environment = new \Slim\Environment(array_merge(array(
             'REQUEST_METHOD' => $method,
@@ -1137,10 +1138,10 @@ class App extends \Pimple
         ), $serverVariables));
 
         $headers = new \Slim\Http\Headers($environment);
-        $headers->parseHeaders($headers);
+        $headers->parseHeaders($environment);
 
         $cookies = new \Slim\Http\Cookies($headers);
-        $cookies->replace($cookies);
+        $cookies->replace((Array)$cookies);
 
         $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
         $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
