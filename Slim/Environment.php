@@ -128,6 +128,11 @@ class Environment implements \ArrayAccess, \IteratorAggregate
 
             // Server params
             $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
+			// REQUEST_URI might not be set on some Windows systems
+			if (!isset($_SERVER['REQUEST_URI'])) {
+				$_SERVER['REQUEST_URI'] = substr($_SERVER['PHP_SELF'],1 );
+				if (isset($_SERVER['QUERY_STRING'])) { $_SERVER['REQUEST_URI'] .= '?'.$_SERVER['QUERY_STRING']; }
+			}
             $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
 
