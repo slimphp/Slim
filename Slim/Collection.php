@@ -42,8 +42,23 @@ use \Slim\Interfaces\CryptInterface;
  * @author  Josh Lockhart
  * @since   2.0.0
  */
-class Collection extends \Pimple implements CollectionInterface
+class Collection implements CollectionInterface
 {
+    /**
+     * Key-value array of data
+     * @var array
+     */
+    protected $data = array();
+
+    /**
+     * Constructor
+     * @param array $items Pre-populate collection with this key-value array
+     */
+    public function __construct(array $items = array())
+    {
+        $this->replace($items);
+    }
+
     /**
      * Set data key to value
      * @param string $key   The data key
@@ -90,7 +105,16 @@ class Collection extends \Pimple implements CollectionInterface
      */
     public function all()
     {
-        return $this->values;
+        return $this->data;
+    }
+
+    /**
+     * Fetch set data keys
+     * @return array This set's key-value data array keys
+     */
+    public function keys()
+    {
+        return array_keys($this->data);
     }
 
     /**
@@ -120,31 +144,72 @@ class Collection extends \Pimple implements CollectionInterface
      */
     public function clear()
     {
-        $this->values = array();
+        $this->data = array();
     }
 
     /**
      * Encrypt set
-     * @param  \Slim\Crypt $crypt
+     * @param  \Slim\Interfaces\CryptInterface $crypt
+     * @return void
      * @api
      */
     public function encrypt(CryptInterface $crypt)
     {
-        foreach ($this->values as $key => $value) {
+        foreach ($this->data  as $key => $value) {
             $this->set($key, $crypt->encrypt($value));
         }
     }
 
     /**
      * Decrypt set
-     * @param  \Slim\Crypt $crypt
+     * @param  \Slim\Interfaces\CryptInterface $crypt
+     * @return void
      * @api
      */
     public function decrypt(CryptInterface $crypt)
     {
-        foreach ($this->values as $key => $value) {
+        foreach ($this->data  as $key => $value) {
             $this->set($key, $crypt->decrypt($value));
         }
+    }
+
+    /**
+     * Does this set contain a key?
+     * @param  string  $key The data key
+     * @return boolean
+     */
+    public function offsetExists($key)
+    {
+        return array_key_exists($key, $this->data);
+    }
+
+    /**
+     * Get data value with key
+     * @param  string $key     The data key
+     * @return mixed           The data value
+     */
+    public function offsetGet($key)
+    {
+        return $this->data[$key];
+    }
+
+    /**
+     * Set data key to value
+     * @param string $key   The data key
+     * @param mixed  $value The data value
+     */
+    public function offsetSet($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    /**
+     * Remove value with key from this set
+     * @param  string $key The data key
+     */
+    public function offsetUnset($key)
+    {
+        unset($this->data[$key]);
     }
 
     /**
@@ -154,7 +219,7 @@ class Collection extends \Pimple implements CollectionInterface
      */
     public function count()
     {
-        return count($this->values);
+        return count($this->data);
     }
 
     /**
@@ -164,6 +229,6 @@ class Collection extends \Pimple implements CollectionInterface
      */
     public function getIterator()
     {
-        return new \ArrayIterator($this->values);
+        return new \ArrayIterator($this->data);
     }
 }
