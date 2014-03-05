@@ -1135,10 +1135,7 @@ class App extends \Pimple
         ), $serverVariables));
 
         $headers = new \Slim\Http\Headers($environment);
-        $headers->parseHeaders($headers);
-
         $cookies = new \Slim\Http\Cookies($headers);
-        $cookies->replace($cookies);
 
         $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
         $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
