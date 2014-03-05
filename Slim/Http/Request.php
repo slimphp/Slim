@@ -182,6 +182,20 @@ class Request
     {
         return $this->isAjax();
     }
+    
+    
+    /**
+     * Is this an JSON request?
+     * @return bool
+     */
+    public function isJson() {
+        $accept = isset($this->headers['ACCEPT']) ? $this->headers['ACCEPT'] : '';
+        if (strpos($accept, 'application/json') === false) {
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * Fetch GET and POST data
