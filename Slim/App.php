@@ -86,21 +86,23 @@ class App extends \Pimple
      */
     public function __construct(array $userSettings = array())
     {
+        parent::__construct();
+
         // Settings
-        $this['settings'] = $this->share(function ($c) use ($userSettings) {
+        $this['settings'] = function ($c) use ($userSettings) {
             $config = new \Slim\Configuration(new \Slim\ConfigurationHandler);
             $config->setArray($userSettings);
 
             return $config;
-        });
+        };
 
         // Environment
-        $this['environment'] = $this->share(function ($c) {
+        $this['environment'] = function ($c) {
             return new \Slim\Environment($_SERVER);
-        });
+        };
 
         // Request
-        $this['request'] = $this->share(function ($c) {
+        $this['request'] = function ($c) {
             $environment = $c['environment'];
             $headers = new \Slim\Http\Headers($environment);
             $cookies = new \Slim\Http\Cookies($headers);
@@ -109,37 +111,37 @@ class App extends \Pimple
             }
 
             return new \Slim\Http\Request($environment, $headers, $cookies);
-        });
+        };
 
         // Response
-        $this['response'] = $this->share(function ($c) {
+        $this['response'] = function ($c) {
             $headers = new \Slim\Http\Headers();
             $cookies = new \Slim\Http\Cookies();
             return new \Slim\Http\Response($headers, $cookies);
-        });
+        };
 
         // Router
-        $this['router'] = $this->share(function ($c) {
+        $this['router'] = function ($c) {
             return new \Slim\Router();
-        });
+        };
 
         // View
-        $this['view'] = $this->share(function ($c) {
+        $this['view'] = function ($c) {
             $view = $c['settings']['view'];
             if ($view instanceof \Slim\Interfaces\ViewInterface === false) {
                 throw new \Exception('View class must be instance of \Slim\View');
             }
 
             return $view;
-        });
+        };
 
         // Crypt
-        $this['crypt'] = $this->share(function ($c) {
+        $this['crypt'] = function ($c) {
             return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
-        });
+        };
 
         // Session
-        $this['session'] = $this->share(function ($c) {
+        $this['session'] = function ($c) {
             $session = new \Slim\Session($c['settings']['session.handler']);
             $session->start();
             if ($c['settings']['session.encrypt'] === true) {
@@ -147,10 +149,10 @@ class App extends \Pimple
             }
 
             return $session;
-        });
+        };
 
         // Flash
-        $this['flash'] = $this->share(function ($c) {
+        $this['flash'] = function ($c) {
             $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
             // TODO: Build array-access to current request messages for easy view integration
             //
@@ -159,7 +161,7 @@ class App extends \Pimple
             // }
 
             return $flash;
-        });
+        };
 
         // Mode
         $this['mode'] = function ($c) {
@@ -426,9 +428,9 @@ class App extends \Pimple
     public function notFound ($callable = null)
     {
         if (is_callable($callable)) {
-            $this['notFound'] = $this->share(function () use ($callable) {
+            $this['notFound'] = function () use ($callable) {
                 return $callable;
-            });
+            };
         } else {
             ob_start();
             if (isset($this['notFound']) && is_callable($this['notFound'])) {
@@ -468,9 +470,9 @@ class App extends \Pimple
     {
         if (is_callable($argument)) {
             //Register error handler
-            $this['error'] = $this->share(function () use ($argument) {
+            $this['error'] = function () use ($argument) {
                 return $argument;
-            });
+            };
         } else {
             //Invoke error handler
             $this['response']->setBody($this->callErrorHandler($argument));
