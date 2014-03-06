@@ -280,7 +280,7 @@ class Cookies extends Collection implements CookiesInterface
         $cookies = array();
 
         foreach ($pieces as $cookie) {
-            $cookie = explode('=', $cookie);
+            $cookie = explode('=', $cookie, 2);
 
             if (count($cookie) === 2) {
                 $key = urldecode($cookie[0]);
