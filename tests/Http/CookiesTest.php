@@ -312,6 +312,20 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('blue', $result['colors']);
     }
 
+    /**
+     * Test parses Cookie: HTTP header with equal sign in value
+     */
+    public function testParsesCookieHeaderWithEqualSignInValue()
+    {
+        $header = 'foo=bar; one=two=; colors=blue';
+        $cookies = new \Slim\Http\Cookies();
+        $result = $cookies->parseHeader($header);
+        $this->assertEquals(3, count($result));
+        $this->assertEquals('bar', $result['foo']);
+        $this->assertEquals('two=', $result['one']);
+        $this->assertEquals('blue', $result['colors']);
+    }
+
     public function testParsesCookieHeaderWithCommaSeparator()
     {
         $header = 'foo=bar, one=two, colors=blue';
