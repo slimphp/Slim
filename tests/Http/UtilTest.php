@@ -413,6 +413,19 @@ class SlimHttpUtilTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('blue', $result['colors']);
     }
 
+    /**
+     * Test parses Cookie: HTTP header with `=` in the cookie value
+     */
+    public function testParsesCookieHeaderWithEqualSignInValue()
+    {
+        $header = 'foo=bar; one=two=; colors=blue';
+        $result = \Slim\Http\Util::parseCookieHeader($header);
+        $this->assertEquals(3, count($result));
+        $this->assertEquals('bar', $result['foo']);
+        $this->assertEquals('two=', $result['one']);
+        $this->assertEquals('blue', $result['colors']);
+    }
+
     public function testParsesCookieHeaderWithCommaSeparator()
     {
         $header = 'foo=bar, one=two, colors=blue';
