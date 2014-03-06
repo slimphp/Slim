@@ -115,6 +115,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function example_càllâble_wïth_wéird_chars()
     {
+        return "Foo";
     }
 
     public function testGetCallableWithOddCharsAsClass()
@@ -122,8 +123,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/foo', '\RouteTest:example_càllâble_wïth_wéird_chars');
 
         $callable = $route->getCallable();
-        $this->assertInstanceOf('\RouteTest', $callable[0]);
-        $this->assertEquals('example_càllâble_wïth_wéird_chars', $callable[1]);
+        $this->assertEquals('Foo', $callable());
     }
 
     public function testSetCallable()
