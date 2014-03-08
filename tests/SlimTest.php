@@ -222,7 +222,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
                 ),
             )
         );
-
+        
+        // Test recursive batch behaviour
         $s->config($override, true);
 
         $expected =  array(
@@ -234,6 +235,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
         );
 
         $this->assertEquals($expected, $s->config('my_module'));
+
+        // Test default batch behaviour
+        $s = new \Slim\Slim($config);
+        $s->config($override);
+
+        $this->assertNotEquals($expected, $s->config('my_module'));
     }
 
     /************************************************
