@@ -212,10 +212,10 @@ class Router implements RouterInterface
     {
         return array_push(
             $this->routeGroups, 
-            [$group => (object)[
+            array($group => (object)array(
                 'routes'        => $routes,
                 'middleware'    => $middleware
-            ]]
+            ))
         );
     }
 
