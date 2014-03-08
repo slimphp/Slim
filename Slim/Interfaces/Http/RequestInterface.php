@@ -65,6 +65,10 @@ interface RequestInterface
 
     public function get($key = null, $default = null);
 
+    public function isJson();
+
+    public function json($key = null, $default = null);
+
     public function isPost();
 
     public function post($key = null, $default = null);
