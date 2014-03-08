@@ -180,7 +180,11 @@ class Router implements RouterInterface
             }
         }
         
-        return $this->matchedRoutes;
+        if ($save === true) {
+            $this->matchedRoutes = $matchedRoutes;
+        }
+        
+        return $matchedRoutes;
     }
 
     /**
