@@ -199,6 +199,43 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($s->config('debug'));
     }
 
+    /**
+     * Test set settings recursively
+     */
+    public function testSetSettingsRecursively()
+    {
+        $config = array(
+            'my_module' => array(
+                'paths'  => array(
+                    './my_module/path/1',
+                ),
+            )
+        );
+
+        $s = new \Slim\Slim($config);
+
+        $override = array(
+            'my_module' => array(
+                'paths'  => array(
+                    './my_module/path/2',
+                    './my_module/path/3',
+                ),
+            )
+        );
+
+        $s->config($override, true);
+
+        $expected =  array(
+            'paths'  => array(
+                './my_module/path/1',
+                './my_module/path/2',
+                './my_module/path/3',
+            ),
+        );
+
+        $this->assertEquals($expected, $s->config('my_module'));
+    }
+
     /************************************************
      * MODES
      ************************************************/
