@@ -165,7 +165,7 @@ class Router implements RouterInterface
                         $routes($this->currentMiddleware);
                     }
                     
-                    return $this->getMatchedRoutes($httpMethod, $resourceUri, $reload);
+                    return $this->getMatchedRoutes($httpMethod, $resourceUri, $save);
                 }
             }
         }
