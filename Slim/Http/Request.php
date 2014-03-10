@@ -73,7 +73,7 @@ class Request implements RequestInterface
 
     /**
      * Application environment
-     * @var \Slim\Environment
+     * @var \Slim\Interfaces\EnvironmentInterface
      */
     protected $env;
 
@@ -85,21 +85,19 @@ class Request implements RequestInterface
 
     /**
      * Request headers
-     * @var \Slim\Http\Headers
-     * @api
+     * @var \Slim\Interfaces\Http\HeadersInterface
      */
     protected $headers;
 
     /**
      * Request cookies
-     * @var \Slim\Collection
-     * @api
+     * @var \Slim\Interfaces\Http\CookiesInterface
      */
     protected $cookies;
 
     /**
      * Request query parameters
-     * @var  array
+     * @var array
      */
     protected $queryParameters;
 
@@ -118,10 +116,10 @@ class Request implements RequestInterface
     /**
      * Constructor
      *
-     * @param \Slim\Interfaces\EnvironmentInterface $env
-     * @param \Slim\Interfaces\HeadersInterface     $headers
-     * @param \Slim\Interfaces\CookiesInterface     $cookies
-     * @param string                                $body
+     * @param \Slim\Interfaces\EnvironmentInterface  $env
+     * @param \Slim\Interfaces\Http\HeadersInterface $headers
+     * @param \Slim\Interfaces\Http\CookiesInterface $cookies
+     * @param string                                 $body
      * @api
      */
     public function __construct(EnvironmentInterface $env, HeadersInterface $headers, CookiesInterface $cookies, $body = null)
@@ -158,6 +156,7 @@ class Request implements RequestInterface
 
     /**
      * Get HTTP method
+     *
      * @return string
      * @api
      */
@@ -182,6 +181,7 @@ class Request implements RequestInterface
 
     /**
      * Get original HTTP method (before method override applied)
+     *
      * @return string
      * @api
      */
@@ -198,11 +198,12 @@ class Request implements RequestInterface
      */
     public function setMethod($method)
     {
-        $this->environment->set('REQUEST_METHOD', strtoupper($method));
+        $this->env->set('REQUEST_METHOD', strtoupper($method));
     }
 
     /**
      * Get URL (scheme + host [ + port if non-standard ])
+     *
      * @return string
      * @api
      */
@@ -217,8 +218,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Set URL (scheme + host [ + port if non-standard ])
-     * @return string
+     * Set URL
+     *
+     * @param string $url
      * @api
      */
     public function setUrl($url)
@@ -277,6 +279,7 @@ class Request implements RequestInterface
      * Set multiple header values
      *
      * @param array $headers
+     * @api
      */
     public function setHeaders(array $headers)
     {
@@ -379,6 +382,7 @@ class Request implements RequestInterface
 
     /**
      * Get Body
+     *
      * @return \Guzzle\Stream\StreamInterface
      * @api
      */
@@ -404,6 +408,7 @@ class Request implements RequestInterface
 
     /**
      * Does this request use a given method?
+     *
      * @param  string $method
      * @return bool
      * @api
@@ -415,6 +420,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a GET request?
+     *
      * @return bool
      * @api
      */
@@ -425,6 +431,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a POST request?
+     *
      * @return bool
      * @api
      */
@@ -435,6 +442,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a PUT request?
+     *
      * @return bool
      * @api
      */
@@ -445,6 +453,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a PATCH request?
+     *
      * @return bool
      * @api
      */
@@ -455,6 +464,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a DELETE request?
+     *
      * @return bool
      * @api
      */
@@ -465,6 +475,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a HEAD request?
+     *
      * @return bool
      * @api
      */
@@ -475,6 +486,7 @@ class Request implements RequestInterface
 
     /**
      * Is this a OPTIONS request?
+     *
      * @return bool
      * @api
      */
@@ -485,6 +497,7 @@ class Request implements RequestInterface
 
     /**
      * Is this an AJAX request?
+     *
      * @return bool
      * @api
      */
@@ -494,7 +507,8 @@ class Request implements RequestInterface
     }
 
     /**
-     * Is this an XHR request? (alias of Slim_Http_Request::isAjax)
+     * Is this an XHR request? (alias of \Slim\Http\Request::isAjax)
+     *
      * @return bool
      * @api
      */
@@ -574,7 +588,7 @@ class Request implements RequestInterface
      * @param  string           $key
      * @param  mixed            $default Default return value when key does not exist
      * @return array|mixed|null
-     * @throws \RuntimeException If environment input is not available
+     * @throws \RuntimeException         If environment input is not available
      * @api
      */
     public function post($key = null, $default = null)
@@ -610,6 +624,7 @@ class Request implements RequestInterface
 
     /**
      * Fetch PUT data (alias for \Slim\Http\Request::post)
+     *
      * @param  string           $key
      * @param  mixed            $default Default return value when key does not exist
      * @return array|mixed|null
@@ -622,6 +637,7 @@ class Request implements RequestInterface
 
     /**
      * Fetch PATCH data (alias for \Slim\Http\Request::post)
+     *
      * @param  string           $key
      * @param  mixed            $default Default return value when key does not exist
      * @return array|mixed|null
@@ -634,9 +650,11 @@ class Request implements RequestInterface
 
     /**
      * Fetch DELETE data (alias for \Slim\Http\Request::post)
+     *
      * @param  string           $key
      * @param  mixed            $default Default return value when key does not exist
      * @return array|mixed|null
+     * @api
      */
     public function delete($key = null, $default = null)
     {
@@ -645,6 +663,7 @@ class Request implements RequestInterface
 
     /**
      * Does the Request body contain parsed form data?
+     *
      * @return bool
      * @api
      */
@@ -655,6 +674,7 @@ class Request implements RequestInterface
 
     /**
      * Get Content Type
+     *
      * @return string|null
      * @api
      */
@@ -665,6 +685,7 @@ class Request implements RequestInterface
 
     /**
      * Get Media Type (type/subtype within Content Type header)
+     *
      * @return string|null
      * @api
      */
@@ -682,6 +703,7 @@ class Request implements RequestInterface
 
     /**
      * Get Media Type Params
+     *
      * @return array
      * @api
      */
@@ -703,6 +725,7 @@ class Request implements RequestInterface
 
     /**
      * Get Content Charset
+     *
      * @return string|null
      * @api
      */
@@ -718,6 +741,7 @@ class Request implements RequestInterface
 
     /**
      * Get Content-Length
+     *
      * @return int
      * @api
      */
@@ -728,6 +752,7 @@ class Request implements RequestInterface
 
     /**
      * Get Host
+     *
      * @return string
      * @api
      */
@@ -749,6 +774,7 @@ class Request implements RequestInterface
 
     /**
      * Get Host with Port
+     *
      * @return string
      * @api
      */
@@ -759,6 +785,7 @@ class Request implements RequestInterface
 
     /**
      * Get Port
+     *
      * @return int
      * @api
      */
@@ -769,6 +796,7 @@ class Request implements RequestInterface
 
     /**
      * Get Scheme (https or http)
+     *
      * @return string
      * @api
      */
@@ -789,6 +817,7 @@ class Request implements RequestInterface
 
     /**
      * Get query string
+     *
      * @return string
      * @api
      */
@@ -799,6 +828,7 @@ class Request implements RequestInterface
 
     /**
      * Get client IP address
+     *
      * @return string
      * @api
      */
@@ -816,6 +846,7 @@ class Request implements RequestInterface
 
     /**
      * Get Referrer
+     *
      * @return string|null
      * @api
      */
@@ -826,6 +857,7 @@ class Request implements RequestInterface
 
     /**
      * Get Referer (for those who can't spell)
+     *
      * @return string|null
      * @api
      */
@@ -836,6 +868,7 @@ class Request implements RequestInterface
 
     /**
      * Get User Agent
+     *
      * @return string|null
      * @api
      */
@@ -846,6 +879,7 @@ class Request implements RequestInterface
 
     /**
      * Get Script Name (physical path)
+     *
      * @return string
      * @api
      */
@@ -858,6 +892,7 @@ class Request implements RequestInterface
 
     /**
      * Get Path Info (virtual path)
+     *
      * @return string
      * @api
      */
@@ -870,6 +905,7 @@ class Request implements RequestInterface
 
     /**
      * Get Path (physical path + virtual path)
+     *
      * @return string
      * @api
      */
@@ -880,6 +916,7 @@ class Request implements RequestInterface
 
     /**
      * Parse the physical and virtual paths from the request URI
+     *
      * @return array
      */
     protected function parsePaths()
@@ -913,7 +950,9 @@ class Request implements RequestInterface
 
     /**
      * Convert HTTP request into a string
+     *
      * @return string
+     * @api
      */
     public function __toString()
     {
