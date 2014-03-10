@@ -1073,6 +1073,8 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testAddMiddleware()
     {
+        $this->expectOutputString('FooHello');
+
         $this->app->add(new CustomMiddleware()); //<-- See top of this file for class definition
         $this->app->get('/bar', function () {
             echo 'Foo';
@@ -1080,7 +1082,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->app->run();
 
         $this->assertEquals('Hello', $this->app['response']->getHeader('X-Slim-Test'));
-        $this->assertEquals('FooHello', (string)$this->app['response']->getBody());
     }
 
     /**
@@ -1160,6 +1161,8 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testTriggeredErrorsAreConvertedToErrorExceptions()
     {
+        $this->expectOutputString('Foo I say!');
+
         $this->initializeApp(array(), array('debug' => false));
         $this->app->error(function ($e) {
             if ($e instanceof \ErrorException) {
@@ -1173,7 +1176,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $this->app['response']->finalize();
 
         $this->assertEquals(500, $status);
-        $this->assertEquals('Foo I say!', (string)$body);
     }
 
     /**
@@ -1181,6 +1183,8 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerUsesCurrentResponseObject()
     {
+        $this->expectOutputString('Foo');
+
         $app = $this->createApp(array(), array('debug' => false));
         $app->error(function(\Exception $e) use ($app) {
             $r = $app['response'];
@@ -1197,7 +1201,6 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(503, $status);
         $this->assertEquals('Slim', $header->get('X-Powered-By'));
-        $this->assertEquals('Foo', (string)$body);
     }
 
     /**
