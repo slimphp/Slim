@@ -41,23 +41,47 @@ namespace Slim\Interfaces\Http;
  */
 interface RequestInterface
 {
+    /***** Header *****/
+
+    public function getProtocolVersion();
+
     public function getMethod();
 
-    public function getOriginalMethod();
+    public function setMethod($method);
+
+    public function getUrl();
+
+    public function setUrl($url);
 
     public function getHeaders();
 
-    public function getCookies();
+    public function hasHeader($name);
+
+    public function getHeader($name);
+
+    public function setHeader($name, $value);
+
+    public function setHeaders(array $headers);
+
+    public function addHeader($name, $value);
+
+    public function addHeaders(array $headers);
+
+    public function removeHeader($name);
+
+    /***** Body *****/
+
+    public function getBody();
+
+    public function setBody(\Guzzle\Stream\StreamInterface $body);
+
+    /***** Metadata *****/
 
     public function getScriptName();
 
     public function getPathInfo();
 
     public function getPath();
-
-    public function getBody();
-
-    public function getUrl();
 
     public function getQueryString();
 

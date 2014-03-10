@@ -83,7 +83,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $res->getBody());
     }
 
-    public function testSetBody()
+    /*public function testSetBody()
     {
         $headers = new \Slim\Http\Headers();
         $cookies = new \Slim\Http\Cookies();
@@ -91,28 +91,25 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $res->setBody('foo'); // <-- Should replace body
 
         $this->assertAttributeEquals('foo', 'body', $res);
-    }
+    }*/
 
     public function testWrite()
     {
         $headers = new \Slim\Http\Headers();
         $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
-        $property = new \ReflectionProperty($res, 'body');
-        $property->setAccessible(true);
-        $property->setValue($res, 'foo');
+        $res = new \Slim\Http\Response($headers, $cookies, 'Foo');
         $res->write('bar'); // <-- Should append to body
 
-        $this->assertAttributeEquals('foobar', 'body', $res);
+        $this->assertEquals('Foobar', (string)$res->getBody());
     }
 
-    public function testLength()
+    public function testSize()
     {
         $headers = new \Slim\Http\Headers();
         $cookies = new \Slim\Http\Cookies();
         $res = new \Slim\Http\Response($headers, $cookies, 'foo'); // <-- Sets body and length
 
-        $this->assertEquals(3, $res->getLength());
+        $this->assertEquals(3, $res->getSize());
     }
 
     public function testFinalize()
@@ -136,7 +133,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $res = new \Slim\Http\Response($headers, $cookies, 'Foo', 304);
         $resFinal = $res->finalize();
 
-        $this->assertEquals('', $resFinal[2]);
+        $this->assertEquals('', (string)$resFinal[2]);
     }
 
     public function testRedirect()
@@ -150,7 +147,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $pStatus->setAccessible(true);
 
         $this->assertEquals(302, $pStatus->getValue($res));
-        $this->assertEquals('/foo', $res->getHeaders()->get('Location'));
+        $this->assertEquals('/foo', $res->getHeader('Location'));
     }
 
     public function testIsEmpty()
@@ -288,15 +285,5 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $r2->setStatus(400);
         $this->assertTrue($r1->isServerError());
         $this->assertFalse($r2->isServerError());
-    }
-
-    public function testMessageForCode()
-    {
-        $this->assertEquals('200 OK', \Slim\Http\Response::getMessageForCode(200));
-    }
-
-    public function testMessageForCodeWithInvalidCode()
-    {
-        $this->assertNull(\Slim\Http\Response::getMessageForCode(600));
     }
 }

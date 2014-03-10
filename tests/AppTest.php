@@ -44,7 +44,7 @@ class CustomMiddleware extends \Slim\Middleware
         $env = $this->app['environment'];
         $res = $this->app['response'];
         $this->next->call();
-        $res->getHeaders()->set('X-Slim-Test', 'Hello');
+        $res->setHeader('X-Slim-Test', 'Hello');
         $res->write('Hello');
     }
 }
@@ -292,7 +292,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->get('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -311,7 +311,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->post('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -330,7 +330,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->put('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -349,7 +349,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->patch('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -368,7 +368,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->delete('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -387,7 +387,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $callable = function () { echo "xyz"; };
         $route = $this->app->options('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -410,7 +410,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->get('/baz', $mw2, $callable);
         });
         $app->call();
-        $this->assertEquals('foobarxyz', $app['response']->getBody());
+        $this->assertEquals('foobarxyz', (string)$app['response']->getBody());
     }
 
     /*
@@ -429,7 +429,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             ));
             $route = $this->app->any('/bar', $mw1, $mw2, $callable);
             $this->app->call();
-            $this->assertEquals('foobarxyz', $this->app['response']->getBody());
+            $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
             $this->assertEquals('/bar', $route->getPattern());
             $this->assertSame($callable, $route->getCallable());
         }
@@ -466,7 +466,7 @@ class AppTest extends PHPUnit_Framework_TestCase
          $route = $this->app->get('/bar', function () { echo "xyz"; });
          $this->app->call();
          $this->assertEquals(200, $this->app['response']->getStatus());
-         $this->assertEquals('xyz', $this->app['response']->getBody());
+         $this->assertEquals('xyz', (string)$this->app['response']->getBody());
          $this->assertEquals('/bar', $route->getPattern());
      }
 
@@ -481,7 +481,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->app->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
         $this->app->call();
-        $this->assertEquals('jo hnsmi th', $this->app['response']->getBody());
+        $this->assertEquals('jo hnsmi th', (string)$this->app['response']->getBody());
     }
 
     /************************************************
@@ -545,7 +545,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $app['response']->finalize();
 
         $this->assertEquals(200, $status);
-        $this->assertEquals('test output bar 123', $body);
+        $this->assertEquals('test output bar 123', (string)$body);
     }
 
     /**
@@ -563,7 +563,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $app['response']->finalize();
 
         $this->assertEquals(500, $status);
-        $this->assertEquals('test output bar 123', $body);
+        $this->assertEquals('test output bar 123', (string)$body);
     }
 
     /************************************************
@@ -738,8 +738,8 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->setCookie('foo1', 'bar1', '2 days');
         });
         $app->call();
-        $cookie1 = $app['response']->getCookies()->get('foo');
-        $cookie2 = $app['response']->getCookies()->get('foo1');
+        $cookie1 = $app['response']->getCookie('foo');
+        $cookie2 = $app['response']->getCookie('foo1');
 
         $this->assertEquals(2, count($app['response']->getCookies()));
         $this->assertEquals('bar', $cookie1['value']);
@@ -780,7 +780,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->deleteCookie('foo');
         });
         $app->call();
-        $cookie = $app['response']->getCookies()->get('foo');
+        $cookie = $app['response']->getCookie('foo');
 
         $this->assertEquals(1, count($app['response']->getCookies()));
         $this->assertEquals('', $cookie['value']);
@@ -834,7 +834,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         });
         $app->call();
 
-        $this->assertEquals('Foo', $app['response']->getBody());
+        $this->assertEquals('Foo', (string)$app['response']->getBody());
     }
 
     /**
@@ -885,7 +885,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $app['response']->finalize();
 
         $this->assertEquals(500, $status);
-        $this->assertEquals('Something broke', $body);
+        $this->assertEquals('Something broke', (string)$body);
     }
 
     /**
@@ -955,7 +955,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         });
         $app->call();
 
-        $this->assertEquals('Frank', $app['response']->getBody());
+        $this->assertEquals('Frank', (string)$app['response']->getBody());
     }
 
     /**
@@ -982,7 +982,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testContentType()
     {
         $this->app->contentType('application/json');
-        $this->assertEquals('application/json', $this->app['response']->getHeaders()->get('Content-Type'));
+        $this->assertEquals('application/json', $this->app['response']->getHeader('Content-Type'));
     }
 
     /**
@@ -1011,8 +1011,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\Slim\Exception\Stop'); // <-- Thrown by redirect() method
         $this->app->redirect('/somewhere/else', 303);
         $this->assertEquals(303, $this->app['response']->getStatus());
-        $this->assertEquals('/somewhere/else', $this->app['response']->getHeaders()->get('Location'));
-        $this->assertEquals('', $this->app['response']->getBody());
+        $this->assertEquals('/somewhere/else', $this->app['response']->getHeader('Location'));
+        $this->assertEquals('', (string)$this->app['response']->getBody());
     }
 
     /************************************************
@@ -1037,7 +1037,7 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testRunOutputWithOutputBufferingOnAndPreContent()
     {
-        $this->expectOutputString('1.2.Foo.3');  // <-- PHP unit uses OB here
+        $this->expectOutputString('1.2.Foo.3');
 
         echo "1.";
         $this->app->get('/bar', function () {
@@ -1073,15 +1073,14 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testAddMiddleware()
     {
-        $this->expectOutputString('FooHello');
-
         $this->app->add(new CustomMiddleware()); //<-- See top of this file for class definition
         $this->app->get('/bar', function () {
             echo 'Foo';
         });
         $this->app->run();
 
-        $this->assertEquals('Hello', $this->app['response']->getHeaders()->get('X-Slim-Test'));
+        $this->assertEquals('Hello', $this->app['response']->getHeader('X-Slim-Test'));
+        $this->assertEquals('FooHello', (string)$this->app['response']->getBody());
     }
 
     /**
@@ -1120,7 +1119,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $this->app['response']->finalize();
 
         $this->assertEquals(404, $status);
-        $this->assertEquals('Not Found', $body);
+        $this->assertEquals('Not Found', (string)$body);
     }
 
     /************************************************
@@ -1161,8 +1160,6 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testTriggeredErrorsAreConvertedToErrorExceptions()
     {
-        $this->expectOutputString('Foo I say!');
-
         $this->initializeApp(array(), array('debug' => false));
         $this->app->error(function ($e) {
             if ($e instanceof \ErrorException) {
@@ -1176,7 +1173,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         list($status, $header, $body) = $this->app['response']->finalize();
 
         $this->assertEquals(500, $status);
-        $this->assertEquals('Foo I say!', $body);
+        $this->assertEquals('Foo I say!', (string)$body);
     }
 
     /**
@@ -1184,14 +1181,13 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerUsesCurrentResponseObject()
     {
-        $this->expectOutputString('Foo');
-
         $app = $this->createApp(array(), array('debug' => false));
         $app->error(function(\Exception $e) use ($app) {
             $r = $app['response'];
             $r->setStatus(503);
-            $r->write('Foo');
-            $r->getHeaders()->set('X-Powered-By', 'Slim');
+            $r->setHeader('X-Powered-By', 'Slim');
+
+            echo "Foo";
         });
         $app->get('/bar', function () {
             throw new \Exception('Foo');
@@ -1201,6 +1197,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(503, $status);
         $this->assertEquals('Slim', $header->get('X-Powered-By'));
+        $this->assertEquals('Foo', (string)$body);
     }
 
     /**

@@ -725,7 +725,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
      */
     public function testGetProtocol()
     {
-        $this->assertEquals('HTTP/1.1', $this->request->getProtocol());
+        $this->assertEquals('HTTP/1.1', $this->request->getProtocolVersion());
     }
 
     /**
@@ -736,7 +736,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->initializeRequest(array(
             'REMOTE_ADDR' => '127.0.0.1'
         ), '');
-        $this->assertEquals('127.0.0.1', $this->request->getIp());
+        $this->assertEquals('127.0.0.1', $this->request->getClientIp());
     }
 
     /**
@@ -748,7 +748,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '127.0.0.1',
             'CLIENT_IP' => '127.0.0.2'
         ), '');
-        $this->assertEquals('127.0.0.2', $this->request->getIp());
+        $this->assertEquals('127.0.0.2', $this->request->getClientIp());
     }
 
     /**
@@ -761,7 +761,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'CLIENT_IP' => '127.0.0.2',
             'HTTP_X_FORWARDED_FOR' => '127.0.0.3'
         ));
-        $this->assertEquals('127.0.0.3', $this->request->getIp());
+        $this->assertEquals('127.0.0.3', $this->request->getClientIp());
     }
 
     /**

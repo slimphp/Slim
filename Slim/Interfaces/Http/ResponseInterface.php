@@ -41,7 +41,7 @@ namespace Slim\Interfaces\Http;
  */
 interface ResponseInterface
 {
-    public function getStatus();
+    /*public function getStatus();
 
     public function setStatus($status);
 
@@ -81,5 +81,5 @@ interface ResponseInterface
 
     public function isServerError();
 
-    public static function getMessageForCode($status);
+    public static function getMessageForCode($status);*/
 }

@@ -105,7 +105,7 @@ class Request implements RequestInterface
 
     /**
      * Request body (raw)
-     * @var string
+     * @var \Guzzle\Stream\StreamInterface
      */
     protected $bodyRaw;
 
@@ -117,6 +117,11 @@ class Request implements RequestInterface
 
     /**
      * Constructor
+     *
+     * @param \Slim\Interfaces\EnvironmentInterface $env
+     * @param \Slim\Interfaces\HeadersInterface     $headers
+     * @param \Slim\Interfaces\CookiesInterface     $cookies
+     * @param string                                $body
      * @api
      */
     public function __construct(EnvironmentInterface $env, HeadersInterface $headers, CookiesInterface $cookies, $body = null)
@@ -124,7 +129,31 @@ class Request implements RequestInterface
         $this->env = $env;
         $this->headers = $headers;
         $this->cookies = $cookies;
-        $this->bodyRaw = $body;
+        $this->bodyRaw = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+
+        if (is_string($body) === true) {
+            $this->bodyRaw->write($body);
+        } else {
+            $inputStream = fopen('php://input', 'r');
+            stream_copy_to_stream($inputStream, $this->bodyRaw->getStream());
+            fclose($inputStream);
+        }
+        $this->bodyRaw->rewind();
+    }
+
+    /*******************************************************************************
+     * Request Header
+     ******************************************************************************/
+
+    /**
+     * Get HTTP protocol version
+     *
+     * @return string
+     * @api
+     */
+    public function getProtocolVersion()
+    {
+        return $this->env->get('SERVER_PROTOCOL');
     }
 
     /**
@@ -162,21 +191,226 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get HTTP headers
-     * @return \Slim\Http\Headers
+     * Set HTTP method
+     *
+     * @param string $method
+     * @api
      */
-    public function getHeaders()
+    public function setMethod($method)
     {
-        return $this->headers;
+        $this->environment->set('REQUEST_METHOD', strtoupper($method));
     }
 
     /**
-     * Get HTTP cookies
-     * @return \Slim\Collection
+     * Get URL (scheme + host [ + port if non-standard ])
+     * @return string
+     * @api
+     */
+    public function getUrl()
+    {
+        $url = $this->getScheme() . '://' . $this->getHost();
+        if (($this->getScheme() === 'https' && $this->getPort() !== 443) || ($this->getScheme() === 'http' && $this->getPort() !== 80)) {
+            $url .= sprintf(':%s', $this->getPort());
+        }
+
+        return $url;
+    }
+
+    /**
+     * Set URL (scheme + host [ + port if non-standard ])
+     * @return string
+     * @api
+     */
+    public function setUrl($url)
+    {
+        // TODO
+    }
+
+    /**
+     * Get HTTP headers
+     *
+     * @return array
+     * @api
+     */
+    public function getHeaders()
+    {
+        return $this->headers->all();
+    }
+
+    /**
+     * Does this request have a given header?
+     *
+     * @param  string $name
+     * @return bool
+     * @api
+     */
+    public function hasHeader($name)
+    {
+        return $this->headers->has($name);
+    }
+
+    /**
+     * Get header value
+     *
+     * @param  string $name
+     * @return string
+     * @api
+     */
+    public function getHeader($name)
+    {
+        return $this->headers->get($name);
+    }
+
+    /**
+     * Set header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
+    public function setHeader($name, $value)
+    {
+        $this->headers->set($name, $value);
+    }
+
+    /**
+     * Set multiple header values
+     *
+     * @param array $headers
+     */
+    public function setHeaders(array $headers)
+    {
+        $this->headers->replace($headers);
+    }
+
+    public function addHeader($name, $value)
+    {
+        // TODO
+    }
+
+    public function addHeaders(array $headers)
+    {
+        // TODO
+    }
+
+    /**
+     * Remove header
+     *
+     * @param string $name
+     * @api
+     */
+    public function removeHeader($name)
+    {
+        $this->headers->remove($name);
+    }
+
+    /**
+     * Get cookies
+     *
+     * @return array
+     * @api
      */
     public function getCookies()
     {
-        return $this->cookies;
+        return $this->cookies->all();
+    }
+
+    /**
+     * Set multiple cookies
+     *
+     * @param array $cookies
+     * @api
+     */
+    public function setCookies(array $cookies)
+    {
+        $this->cookies->replace($cookies);
+    }
+
+    /**
+     * Does this request have a given cookie?
+     *
+     * @param  string $name
+     * @return bool
+     * @api
+     */
+    public function hasCookie($name)
+    {
+        return $this->cookies->has($name);
+    }
+
+    /**
+     * Get cookie value
+     *
+     * @param  string $name
+     * @return string
+     * @api
+     */
+    public function getCookie($name)
+    {
+        return $this->cookies->get($name);
+    }
+
+    /**
+     * Set cookie
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
+    public function setCookie($name, $value)
+    {
+        $this->cookies->set($name, $value);
+    }
+
+    /**
+     * Remove cookie
+     *
+     * @param string $name
+     * @api
+     */
+    public function removeCookie($name)
+    {
+        $this->cookies->remove($name);
+    }
+
+    /*******************************************************************************
+     * Request Body
+     ******************************************************************************/
+
+    /**
+     * Get Body
+     * @return \Guzzle\Stream\StreamInterface
+     * @api
+     */
+    public function getBody()
+    {
+        return $this->bodyRaw;
+    }
+
+    /**
+     * Set request body
+     *
+     * @param \Guzzle\Stream\StreamInterface $body
+     * @api
+     */
+    public function setBody(\Guzzle\Stream\StreamInterface $body)
+    {
+        $this->bodyRaw = $body;
+    }
+
+    /*******************************************************************************
+     * Request Metadata
+     ******************************************************************************/
+
+    /**
+     * Does this request use a given method?
+     * @param  string $method
+     * @return bool
+     * @api
+     */
+    public function isMethod($method)
+    {
+        return $this->getMethod() === $method;
     }
 
     /**
@@ -186,7 +420,7 @@ class Request implements RequestInterface
      */
     public function isGet()
     {
-        return $this->getMethod() === static::METHOD_GET;
+        return $this->isMethod(static::METHOD_GET);
     }
 
     /**
@@ -196,7 +430,7 @@ class Request implements RequestInterface
      */
     public function isPost()
     {
-        return $this->getMethod() === static::METHOD_POST;
+        return $this->isMethod(static::METHOD_POST);
     }
 
     /**
@@ -206,7 +440,7 @@ class Request implements RequestInterface
      */
     public function isPut()
     {
-        return $this->getMethod() === static::METHOD_PUT;
+        return $this->isMethod(static::METHOD_PUT);
     }
 
     /**
@@ -216,7 +450,7 @@ class Request implements RequestInterface
      */
     public function isPatch()
     {
-        return $this->getMethod() === static::METHOD_PATCH;
+        return $this->isMethod(static::METHOD_PATCH);
     }
 
     /**
@@ -226,7 +460,7 @@ class Request implements RequestInterface
      */
     public function isDelete()
     {
-        return $this->getMethod() === static::METHOD_DELETE;
+        return $this->isMethod(static::METHOD_DELETE);
     }
 
     /**
@@ -236,7 +470,7 @@ class Request implements RequestInterface
      */
     public function isHead()
     {
-        return $this->getMethod() === static::METHOD_HEAD;
+        return $this->isMethod(static::METHOD_HEAD);
     }
 
     /**
@@ -246,7 +480,7 @@ class Request implements RequestInterface
      */
     public function isOptions()
     {
-        return $this->getMethod() === static::METHOD_OPTIONS;
+        return $this->isMethod(static::METHOD_OPTIONS);
     }
 
     /**
@@ -351,8 +585,7 @@ class Request implements RequestInterface
 
             // Parse raw body if form-urlencoded
             if ($this->isFormData() === true) {
-                $rawBody = $this->getBody();
-
+                $rawBody = (string)$this->getBody();
                 if (function_exists('mb_parse_str') === true) {
                     mb_parse_str($rawBody, $this->body);
                 } else {
@@ -418,24 +651,6 @@ class Request implements RequestInterface
     public function isFormData()
     {
         return (is_null($this->getContentType()) && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
-    }
-
-    /**
-     * Get Body
-     * @return string
-     * @api
-     */
-    public function getBody()
-    {
-        if (is_null($this->bodyRaw) === true) {
-            $bodyRaw = file_get_contents('php://input');
-            if ($bodyRaw === false) {
-                $bodyRaw = '';
-            }
-            $this->bodyRaw = $bodyRaw;
-        }
-
-        return $this->bodyRaw;
     }
 
     /**
@@ -573,21 +788,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get URL (scheme + host [ + port if non-standard ])
-     * @return string
-     * @api
-     */
-    public function getUrl()
-    {
-        $url = $this->getScheme() . '://' . $this->getHost();
-        if (($this->getScheme() === 'https' && $this->getPort() !== 443) || ($this->getScheme() === 'http' && $this->getPort() !== 80)) {
-            $url .= sprintf(':%s', $this->getPort());
-        }
-
-        return $url;
-    }
-
-    /**
      * Get query string
      * @return string
      * @api
@@ -598,21 +798,11 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get protocol
+     * Get client IP address
      * @return string
      * @api
      */
-    public function getProtocol()
-    {
-        return $this->env->get('SERVER_PROTOCOL');
-    }
-
-    /**
-     * Get IP
-     * @return string
-     * @api
-     */
-    public function getIp()
+    public function getClientIp()
     {
         $keys = array('HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
         foreach ($keys as $key) {
@@ -741,7 +931,7 @@ class Request implements RequestInterface
         }
 
         // Build body
-        $body = $this->getBody();
+        $body = (string)$this->getBody();
         if ($body) {
             $output .= PHP_EOL . $body;
         }

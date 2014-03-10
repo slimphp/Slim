@@ -61,35 +61,21 @@ class Response implements ResponseInterface
 
     /**
      * Response headers
-     * @var \Slim\Http\Headers
-     * @api
+     * @var \Slim\Interfaces\Http\HeadersInterface
      */
     protected $headers;
 
     /**
      * Response cookies
-     * @var \Slim\Http\Cookies
-     * @api
+     * @var \Slim\Interfaces\Http\CookiesInterface
      */
     protected $cookies;
 
     /**
      * Response body
-     * @var string|resource
+     * @var \Guzzle\Stream\StreamInterface
      */
     protected $body;
-
-    /**
-     * Is this response a resource stream?
-     * @var bool
-     */
-    protected $isStream;
-
-    /**
-     * Response body length
-     * @var int
-     */
-    protected $length;
 
     /**
      * Response codes and associated messages
@@ -164,26 +150,42 @@ class Response implements ResponseInterface
 
     /**
      * Constructor
-     * @param \Slim\Http\Headers $headers The HTTP response headers
-     * @param \Slim\Http\Cookies $cookies The HTTP response cookies
-     * @param string             $body    The HTTP response body
-     * @param int                $status  The HTTP response status
+     * @param \Slim\Interfaces\Http\HeadersInterface $headers The HTTP response headers
+     * @param \Slim\Interfaces\Http\CookiesInterface $cookies The HTTP response cookies
+     * @param string                                 $body    The HTTP response body
+     * @param int                                    $status  The HTTP response status
      * @api
      */
     public function __construct(HeadersInterface $headers, CookiesInterface $cookies, $body = '', $status = 200)
     {
         $this->headers = $headers;
-        if (!$this->headers->has('Content-Type')) {
+        if ($this->headers->has('Content-Type') === false) {
             $this->headers->set('Content-Type', 'text/html');
         }
         $this->cookies = $cookies;
-        $this->isStream = false;
-        $this->write($body, true);
         $this->setStatus($status);
+        $this->body = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->body->write($body);
+    }
+
+    /*******************************************************************************
+     * Response Header
+     ******************************************************************************/
+
+    /**
+     * Get HTTP protocol version
+     *
+     * @return string
+     * @api
+     */
+    public function getProtocolVersion()
+    {
+        return 'HTTP/1.1';
     }
 
     /**
      * Get response status code
+     *
      * @return int
      * @api
      */
@@ -194,7 +196,8 @@ class Response implements ResponseInterface
 
     /**
      * Set response status code
-     * @param int $status The HTTP status code
+     *
+     * @param int $status
      * @api
      */
     public function setStatus($status)
@@ -203,8 +206,186 @@ class Response implements ResponseInterface
     }
 
     /**
+     * Get response reason phrase
+     *
+     * @return string
+     * @api
+     */
+    public function getReasonPhrase()
+    {
+        if (isset(static::$messages[$this->status]) === true) {
+            return static::$messages[$this->status];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get HTTP headers
+     *
+     * @return array
+     * @api
+     */
+    public function getHeaders()
+    {
+        return $this->headers->all();
+    }
+
+    /**
+     * Does this request have a given header?
+     *
+     * @param  string $name
+     * @return bool
+     * @api
+     */
+    public function hasHeader($name)
+    {
+        return $this->headers->has($name);
+    }
+
+    /**
+     * Get header value
+     *
+     * @param  string $name
+     * @return string
+     * @api
+     */
+    public function getHeader($name)
+    {
+        return $this->headers->get($name);
+    }
+
+    /**
+     * Set header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
+    public function setHeader($name, $value)
+    {
+        $this->headers->set($name, $value);
+    }
+
+    /**
+     * Set multiple header values
+     *
+     * @param array $headers
+     */
+    public function setHeaders(array $headers)
+    {
+        $this->headers->replace($headers);
+    }
+
+    public function addHeader($name, $value)
+    {
+        // TODO
+    }
+
+    public function addHeaders(array $headers)
+    {
+        // TODO
+    }
+
+    /**
+     * Remove header
+     *
+     * @param string $name
+     * @api
+     */
+    public function removeHeader($name)
+    {
+        $this->headers->remove($name);
+    }
+
+    /**
+     * Get cookies
+     *
+     * @return array
+     * @api
+     */
+    public function getCookies()
+    {
+        return $this->cookies->all();
+    }
+
+    /**
+     * Set multiple cookies
+     *
+     * @param array $cookies
+     * @api
+     */
+    public function setCookies(array $cookies)
+    {
+        $this->cookies->replace($cookies);
+    }
+
+    /**
+     * Does this request have a given cookie?
+     *
+     * @param  string $name
+     * @return bool
+     * @api
+     */
+    public function hasCookie($name)
+    {
+        return $this->cookies->has($name);
+    }
+
+    /**
+     * Get cookie value
+     *
+     * @param  string $name
+     * @return array
+     * @api
+     */
+    public function getCookie($name)
+    {
+        return $this->cookies->get($name);
+    }
+
+    /**
+     * Set cookie
+     *
+     * @param string       $name
+     * @param array|string $value
+     * @api
+     */
+    public function setCookie($name, $value)
+    {
+        $this->cookies->set($name, $value);
+    }
+
+    /**
+     * Remove cookie
+     *
+     * @param string $name
+     * @api
+     */
+    public function removeCookie($name, $settings)
+    {
+        $this->cookies->remove($name, $settings);
+    }
+
+    /**
+     * Encrypt cookies
+     *
+     * @param \Slim\Interfaces\CryptInterface $crypt
+     * @api
+     */
+    public function encryptCookies(\Slim\Interfaces\CryptInterface $crypt)
+    {
+        $this->cookies->encrypt($crypt);
+    }
+
+    /*******************************************************************************
+     * Response Body
+     ******************************************************************************/
+
+    /**
      * Get response body
-     * @return string|resource
+     *
+     * @return \Guzzle\Stream\StreamInterface
      * @api
      */
     public function getBody()
@@ -214,109 +395,64 @@ class Response implements ResponseInterface
 
     /**
      * Set response body
-     * @param string $content The new response body
+     *
+     * @param \Guzzle\Stream\StreamInterface $content The new response body
      * @api
      */
-    public function setBody($content)
+    public function setBody(\Guzzle\Stream\StreamInterface $body)
     {
-        $this->write($content, true);
-    }
-
-    /**
-     * Get HTTP headers
-     * @return \Slim\Http\Headers
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * Get HTTP cookies
-     * @return \Slim\Collection
-     */
-    public function getCookies()
-    {
-        return $this->cookies;
-    }
-
-    /**
-     * Is the response body a resource stream?
-     * @return bool
-     * @api
-     */
-    public function isStream()
-    {
-        return $this->isStream;
+        $this->body = $body;
     }
 
     /**
      * Append response body
-     * @param  string   $body       Content to append to the current HTTP response body
-     * @param  bool     $replace    Overwrite existing response body?
-     * @return string               The updated HTTP response body
+     *
+     * @param string $body      Content to append to the current HTTP response body
+     * @param bool   $overwrite Clear the existing body before writing new content?
      * @api
      */
-    public function write($body, $replace = false)
+    public function write($body, $overwrite = false)
     {
-        if ($replace) {
-            $this->body = $body;
-        } else {
-            $this->body .= (string)$body;
+        if ($overwrite === true) {
+            $this->body->setStream(fopen('php://temp', 'r+'));
         }
-        $this->length = strlen($this->body);
-
-        return $this->body;
-    }
-
-   /**
-    * Set the response body to a stream resource
-    * @param resource $handle Resource stream to send
-    * @api
-    */
-    public function stream($handle)
-    {
-        $this->isStream = true;
-        $this->body = $handle;
-    }
-
-    /**
-     * Get the response body stream resource
-     * @return resource|false
-     * @api
-     */
-    public function getStream()
-    {
-        return ($this->isStream) ? $this->body : false;
+        $this->body->write($body);
     }
 
     /**
      * Get the response body length
+     *
      * @return int
      * @api
      */
-    public function getLength()
+    public function getSize()
     {
-        return $this->length;
+        return $this->body->getSize();
     }
+
+    /*******************************************************************************
+     * Response Helpers
+     ******************************************************************************/
 
     /**
      * Finalize response for delivery to client
      *
-     * Apply finaly preparations to the resposne object
+     * Apply final preparations to the resposne object
      * so that it is suitable for delivery to the client. This
      * method returns an array of [status, headers, body].
      *
-     * @return array[int $status, array $headers, string|resource $body]
+     * @return array[int $status, array $headers, \Guzzle\Stream\StreamInterface $body]
      */
     public function finalize()
     {
-        // Prepare response
-        if (in_array($this->status, array(204, 304))) {
+        if (in_array($this->status, array(204, 304)) === true) {
             $this->headers->remove('Content-Type');
             $this->headers->remove('Content-Length');
-            $this->setBody('');
+            $this->body->setStream(fopen('php://temp', 'r+'));
         }
+
+        // Serialzie cookies into raw header
+        $this->cookies->setHeaders($this->headers);
 
         return array($this->status, $this->headers, $this->body);
     }
@@ -339,6 +475,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Empty?
+     *
      * @return bool
      * @api
      */
@@ -349,6 +486,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Informational?
+     *
      * @return bool
      * @api
      */
@@ -359,6 +497,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: OK?
+     *
      * @return bool
      * @api
      */
@@ -369,6 +508,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Successful?
+     *
      * @return bool
      * @api
      */
@@ -379,6 +519,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Redirect?
+     *
      * @return bool
      * @api
      */
@@ -389,6 +530,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Redirection?
+     *
      * @return bool
      * @api
      */
@@ -399,6 +541,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Forbidden?
+     *
      * @return bool
      * @api
      */
@@ -409,6 +552,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Not Found?
+     *
      * @return bool
      * @api
      */
@@ -419,6 +563,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Client error?
+     *
      * @return bool
      * @api
      */
@@ -429,6 +574,7 @@ class Response implements ResponseInterface
 
     /**
      * Helpers: Server Error?
+     *
      * @return bool
      * @api
      */
@@ -438,30 +584,17 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Get message for HTTP status code
-     * @param  int         $status
-     * @return string|null
-     */
-    public static function getMessageForCode($status)
-    {
-        if (isset(self::$messages[$status])) {
-            return self::$messages[$status];
-        }
-
-        return null;
-    }
-
-    /**
      * Convert response to string
+     *
      * @return string
      */
     public function __toString()
     {
-        $output = sprintf('HTTP/1.1 %s', static::getMessageForCode($this->getStatus())) . PHP_EOL;
+        $output = sprintf('%s %s', $this->getProtocolVersion(), $this->getReasonPhrase()) . PHP_EOL;
         foreach ($this->headers as $name => $value) {
             $output .= sprintf('%s: %s', $name, $value) . PHP_EOL;
         }
-        $body = $this->getBody();
+        $body = (string)$this->getBody();
         if ($body) {
             $output .= PHP_EOL . $body;
         }
