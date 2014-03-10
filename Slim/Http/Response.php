@@ -150,6 +150,7 @@ class Response implements ResponseInterface
 
     /**
      * Constructor
+     *
      * @param \Slim\Interfaces\Http\HeadersInterface $headers The HTTP response headers
      * @param \Slim\Interfaces\Http\CookiesInterface $cookies The HTTP response cookies
      * @param string                                 $body    The HTTP response body
@@ -271,6 +272,7 @@ class Response implements ResponseInterface
      * Set multiple header values
      *
      * @param array $headers
+     * @api
      */
     public function setHeaders(array $headers)
     {
@@ -360,6 +362,7 @@ class Response implements ResponseInterface
      * Remove cookie
      *
      * @param string $name
+     * @param array  $settings
      * @api
      */
     public function removeCookie($name, $settings)
@@ -396,7 +399,7 @@ class Response implements ResponseInterface
     /**
      * Set response body
      *
-     * @param \Guzzle\Stream\StreamInterface $content The new response body
+     * @param \Guzzle\Stream\StreamInterface $body
      * @api
      */
     public function setBody(\Guzzle\Stream\StreamInterface $body)
@@ -420,7 +423,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Get the response body length
+     * Get the response body size
      *
      * @return int
      * @api
@@ -442,6 +445,7 @@ class Response implements ResponseInterface
      * method returns an array of [status, headers, body].
      *
      * @return array[int $status, array $headers, \Guzzle\Stream\StreamInterface $body]
+     * @api
      */
     public function finalize()
     {
@@ -587,6 +591,7 @@ class Response implements ResponseInterface
      * Convert response to string
      *
      * @return string
+     * @api
      */
     public function __toString()
     {
