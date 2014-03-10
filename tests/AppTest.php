@@ -499,6 +499,18 @@ class AppTest extends PHPUnit_Framework_TestCase
         $app->run();
     }
 
+    public function testStreamingAFileWithContentType()
+    {
+        $this->expectOutputString(file_get_contents(dirname(__DIR__) . "/composer.json"));
+
+        $app = $this->createApp();
+        $app->get('/bar', function() use ($app) {
+            $app->sendFile(dirname(__DIR__) . "/composer.json", 'application/json');
+        });
+        $app->run();
+        $this->assertEquals('application/json', $app['response']->getHeader('Content-Type'));
+    }
+
     public function testStreamingAProc()
     {
         $this->expectOutputString("FooBar\n");

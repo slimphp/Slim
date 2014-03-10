@@ -942,16 +942,12 @@ class App extends \Pimple
         } else {
             if (file_exists($file)) {
                 //Set Content-Type
-                if ($contentType) {
-                    $this['response']->setHeader("Content-Type", $contentType);
+                if (extension_loaded('fileinfo')) {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $type = $finfo->file($file);
+                    $this['response']->setHeader("Content-Type", $type);
                 } else {
-                    if (extension_loaded('fileinfo')) {
-                        $finfo = new \finfo(FILEINFO_MIME_TYPE);
-                        $type = $finfo->file($file);
-                        $this['response']->setHeader("Content-Type", $type);
-                    } else {
-                        $this['response']->setHeader("Content-Type", "application/octet-stream");
-                    }
+                    $this['response']->setHeader("Content-Type", "application/octet-stream");
                 }
 
                 //Set Content-Length
@@ -965,11 +961,7 @@ class App extends \Pimple
                     list($k, $v) = explode(": ", $header, 2);
 
                     if ($k === "Content-Type") {
-                        if ($contentType) {
-                            $this['response']->setHeader("Content-Type", $contentType);
-                        } else {
-                            $this['response']->setHeader("Content-Type", $v);
-                        }
+                        $this['response']->setHeader("Content-Type", $v);
                     } else if ($k === "Content-Length") {
                         $this['response']->setHeader("Content-Length", $v);
                     }
