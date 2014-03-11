@@ -117,7 +117,10 @@ class App extends \Pimple
         $this['response'] = function ($c) {
             $headers = new \Slim\Http\Headers();
             $cookies = new \Slim\Http\Cookies();
-            return new \Slim\Http\Response($headers, $cookies);
+            $response = new \Slim\Http\Response($headers, $cookies);
+            $response->setProtocolVersion('HTTP/' . $c['settings']['http.version']);
+
+            return $response;
         };
 
         // Router
@@ -1184,37 +1187,8 @@ class App extends \Pimple
                 $this['response']->encryptCookies($this['crypt']);
             }
 
-            //Fetch status, header, and body
-            list($status, $headers, $body) = $this['response']->finalize();
-
-            //Send headers
-            if (headers_sent() === false) {
-                //Send status
-                if (strpos(PHP_SAPI, 'cgi') === 0) {
-                    header(sprintf('Status: %s', $this['response']->getReasonPhrase()));
-                } else {
-                    header(sprintf('HTTP/%s %s', $this->config('http.version'), $this['response']->getReasonPhrase()));
-                }
-
-                //Send headers
-                foreach ($headers as $name => $value) {
-                    $hValues = explode("\n", $value);
-                    foreach ($hValues as $hVal) {
-                        header("$name: $hVal", false);
-                    }
-                }
-            }
-
-            //Send body, but only if it isn't a HEAD request
-            if ($this['request']->isHead() === false) {
-                $body->rewind();
-                while ($body->feof() === false) {
-                    ob_start();
-                    echo $body->read(1024);
-                    echo ob_get_clean();
-                    // ob_flush();
-                }
-            }
+            // Send response
+            $this['response']->finalize($this['request'])->send();
         }
     }
 

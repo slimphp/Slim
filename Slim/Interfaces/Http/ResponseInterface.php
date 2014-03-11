@@ -99,7 +99,9 @@ interface ResponseInterface
      * Response Helpers
      ******************************************************************************/
 
-    public function finalize();
+    public function finalize(\Slim\Interfaces\Http\RequestInterface $request);
+
+    public function send();
 
     public function redirect($url, $status = 302);
 

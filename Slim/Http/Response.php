@@ -54,10 +54,16 @@ use \Slim\Interfaces\Http\ResponseInterface;
 class Response implements ResponseInterface
 {
     /**
+     * Response protocol version
+     * @var string
+     */
+    protected $protocolVersion = 'HTTP/1.1';
+
+    /**
      * Response status code
      * @var int
      */
-    protected $status;
+    protected $status = 200;
 
     /**
      * Response headers
@@ -181,7 +187,18 @@ class Response implements ResponseInterface
      */
     public function getProtocolVersion()
     {
-        return 'HTTP/1.1';
+        return $this->protocolVersion;
+    }
+
+    /**
+     * Set HTTP protocol version
+     *
+     * @param string $version Either "HTTP/1.1" or "HTTP/1.0"
+     * @api
+     */
+    public function setProtocolVersion($version)
+    {
+        $this->protocolVersion = $version;
     }
 
     /**
@@ -417,6 +434,7 @@ class Response implements ResponseInterface
     public function write($body, $overwrite = false)
     {
         if ($overwrite === true) {
+            $this->body->close();
             $this->body->setStream(fopen('php://temp', 'r+'));
         }
         $this->body->write($body);
@@ -441,18 +459,20 @@ class Response implements ResponseInterface
      * Finalize response for delivery to client
      *
      * Apply final preparations to the resposne object
-     * so that it is suitable for delivery to the client. This
-     * method returns an array of [status, headers, body].
+     * so that it is suitable for delivery to the client.
      *
-     * @return array[int $status, array $headers, \Guzzle\Stream\StreamInterface $body]
+     * @param  \Slim\Interfaces\Http\RequestInterface $request
+     * @return \Slim\Interfaces\Http\Response Self
      * @api
      */
-    public function finalize()
+    public function finalize(\Slim\Interfaces\Http\RequestInterface $request)
     {
+        $sendBody = true;
+
         if (in_array($this->status, array(204, 304)) === true) {
             $this->headers->remove('Content-Type');
             $this->headers->remove('Content-Length');
-            $this->body->setStream(fopen('php://temp', 'r+'));
+            $sendBody = false;
         } else {
             $size = @$this->getSize();
             if ($size) {
@@ -460,10 +480,56 @@ class Response implements ResponseInterface
             }
         }
 
-        // Serialzie cookies into raw header
+        // Serialize cookies into HTTP header
         $this->cookies->setHeaders($this->headers);
 
-        return array($this->status, $this->headers, $this->body);
+        // Remove body if HEAD request
+        if ($request->isHead() === true) {
+            $sendBody = false;
+        }
+
+        // Truncate body if it should not be sent with response
+        if ($sendBody === false) {
+            $this->body->close();
+            $this->body->setStream(fopen('php://temp', 'r+'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Send HTTP response headers and body
+     *
+     * @return \Slim\Interfaces\Http\Response Self
+     * @api
+     */
+    public function send()
+    {
+        // Send headers
+        if (headers_sent() === false) {
+            if (strpos(PHP_SAPI, 'cgi') === 0) {
+                header(sprintf('Status: %s', $this->getReasonPhrase()));
+            } else {
+                header(sprintf('%s %s', $this->getProtocolVersion(), $this->getReasonPhrase()));
+            }
+
+            foreach ($this->headers as $name => $value) {
+                $hValues = explode("\n", $value);
+                foreach ($hValues as $hVal) {
+                    header("$name: $hVal", false);
+                }
+            }
+        }
+
+        // Send body
+        $this->body->rewind();
+        while ($this->body->feof() === false) {
+            ob_start();
+            echo $this->body->read(1024);
+            echo ob_get_clean();
+        }
+
+        return $this;
     }
 
     /**

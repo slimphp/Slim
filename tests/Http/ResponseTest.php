@@ -32,7 +32,10 @@
 
 class ResponseTest extends PHPUnit_Framework_TestCase
 {
+    protected $environment;
+    protected $request;
     protected $response;
+    protected $protocolVersionProperty;
     protected $statusProperty;
     protected $headersProperty;
     protected $cookiesProperty;
@@ -55,7 +58,19 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        $this->environment = new \Slim\Environment();
+        $this->environment->mock();
+
+        $this->request = new \Slim\Http\Request(
+            $this->environment,
+            new \Slim\Http\Headers(),
+            new \Slim\Http\Cookies()
+        );
+
         $this->response = $this->createResponse();
+
+        $this->protocolVersionProperty = new \ReflectionProperty($this->response, 'protocolVersion');
+        $this->protocolVersionProperty->setAccessible(true);
 
         $this->statusProperty = new \ReflectionProperty($this->response, 'status');
         $this->statusProperty->setAccessible(true);
@@ -92,6 +107,20 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     /*******************************************************************************
      * Response Header
      ******************************************************************************/
+
+    public function testGetProtocolVersion()
+    {
+        $this->protocolVersionProperty->setValue($this->response, 'HTTP/1.0');
+
+        $this->assertEquals('HTTP/1.0', $this->response->getProtocolVersion());
+    }
+
+    public function testSetProtocolVersion()
+    {
+        $this->response->setProtocolVersion('HTTP/1.0');
+
+        $this->assertAttributeEquals('HTTP/1.0', 'protocolVersion', $this->response);
+    }
 
     public function testGetStatus()
     {
@@ -276,13 +305,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testFinalize()
     {
-        $result = $this->response->finalize();
+        $this->response->finalize($this->request);
 
-        $this->assertTrue(is_array($result));
-        $this->assertCount(3, $result);
-        $this->assertEquals(200, $result[0]);
-        $this->assertInstanceOf('\Slim\Http\Headers', $result[1]);
-        $this->assertEquals('', (string)$result[2]);
+        $this->assertEquals(200, $this->statusProperty->getValue($this->response));
+        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
     }
 
     public function testFinalizeWithEmptyBody()
@@ -290,11 +316,11 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->statusProperty->setValue($this->response, 304);
         $this->headersProperty->getValue($this->response)->set('Content-Type', 'text/csv');
         $this->bodyProperty->getValue($this->response)->write('Foo');
-        $result = $this->response->finalize();
+        $this->response->finalize($this->request);
 
-        $this->assertFalse($result[1]->has('Content-Type'));
-        $this->assertFalse($result[1]->has('Content-Length'));
-        $this->assertEquals('', (string)$result[2]);
+        $this->assertFalse($this->headersProperty->getValue($this->response)->has('Content-Type'));
+        $this->assertFalse($this->headersProperty->getValue($this->response)->has('Content-Length'));
+        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
     }
 
     public function testRedirect()

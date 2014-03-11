@@ -554,10 +554,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->render('test.php', array('foo' => 'bar', 'abc' => '123'));
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertEquals(200, $status);
-        $this->assertEquals('test output bar 123', (string)$body);
+        $this->assertEquals(200, $app['response']->getStatus());
+        $this->assertEquals('test output bar 123', (string)$app['response']->getBody());
     }
 
     /**
@@ -572,10 +572,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->render('test.php', array('foo' => 'bar', 'abc' => '123'), 500);
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertEquals(500, $status);
-        $this->assertEquals('test output bar 123', (string)$body);
+        $this->assertEquals(500, $app['response']->getStatus());
+        $this->assertEquals('test output bar 123', (string)$app['response']->getBody());
     }
 
     /************************************************
@@ -638,10 +638,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->lastModified(1286139652);
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertFalse(is_null($header->get('Last-Modified')));
-        $this->assertEquals('Sun, 03 Oct 2010 21:00:52 GMT', $header->get('Last-Modified'));
+        $this->assertNotNull($app['response']->getHeader('Last-Modified'));
+        $this->assertEquals('Sun, 03 Oct 2010 21:00:52 GMT', $app['response']->getHeader('Last-Modified'));
     }
 
     /**
@@ -705,10 +705,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->expires($now);
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertFalse(is_null($header->get('Expires')));
-        $this->assertEquals($header->get('Expires'), $expectedDate);
+        $this->assertNotNull($app['response']->getHeader('Expires'));
+        $this->assertEquals($expectedDate, $app['response']->getHeader('Expires'));
     }
 
     /**
@@ -724,10 +724,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->expires($fiveDaysFromNow);
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertFalse(is_null($header->get('Expires')));
-        $this->assertEquals($header->get('Expires'), $expectedDate);
+        $this->assertNotNull($app['response']->getHeader('Expires'));
+        $this->assertEquals($expectedDate, $app['response']->getHeader('Expires'));
     }
 
     /************************************************
@@ -894,10 +894,10 @@ class AppTest extends PHPUnit_Framework_TestCase
             $app->halt(500, 'Something broke');
         });
         $app->call();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app['response']->finalize($app['request']);
 
-        $this->assertEquals(500, $status);
-        $this->assertEquals('Something broke', (string)$body);
+        $this->assertEquals(500, $app['response']->getStatus());
+        $this->assertEquals('Something broke', (string)$app['response']->getBody());
     }
 
     /**
@@ -1129,10 +1129,10 @@ class AppTest extends PHPUnit_Framework_TestCase
         });
         $this->app->get('/foo', function () {});
         $this->app->call();
-        list($status, $header, $body) = $this->app['response']->finalize();
+        $this->app['response']->finalize($this->app['request']);
 
-        $this->assertEquals(404, $status);
-        $this->assertEquals('Not Found', (string)$body);
+        $this->assertEquals(404, $this->app['response']->getStatus());
+        $this->assertEquals('Not Found', (string)$this->app['response']->getBody());
     }
 
     /************************************************
@@ -1173,7 +1173,7 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testTriggeredErrorsAreConvertedToErrorExceptions()
     {
-        $this->expectOutputString('Foo I say!');
+        $this->expectOutputString('Foo');
 
         $this->initializeApp(array(), array('debug' => false));
         $this->app->error(function ($e) {
@@ -1182,12 +1182,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             }
         });
         $this->app->get('/bar', function () {
-            trigger_error('Foo I say!');
+            trigger_error('Foo');
         });
         $this->app->run();
-        list($status, $header, $body) = $this->app['response']->finalize();
 
-        $this->assertEquals(500, $status);
+        $this->assertEquals(500, $this->app['response']->getStatus());
+        $this->assertEquals('Foo', (string)$this->app['response']->getBody());
     }
 
     /**
@@ -1195,7 +1195,7 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testErrorHandlerUsesCurrentResponseObject()
     {
-        $this->expectOutputString('Foo');
+        $this->setExpectedException('\Exception');
 
         $app = $this->createApp(array(), array('debug' => false));
         $app->error(function(\Exception $e) use ($app) {
@@ -1208,11 +1208,11 @@ class AppTest extends PHPUnit_Framework_TestCase
         $app->get('/bar', function () {
             throw new \Exception('Foo');
         });
-        $app->run();
-        list($status, $header, $body) = $app['response']->finalize();
+        $app->call();
 
-        $this->assertEquals(503, $status);
-        $this->assertEquals('Slim', $header->get('X-Powered-By'));
+        $this->assertEquals(503, $app['response']->getStatus());
+        $this->assertEquals('Slim', $app['response']->getHeader('X-Powered-By'));
+        $this->assertEquals('Foo', (string)$app['response']->getBody());
     }
 
     /**
