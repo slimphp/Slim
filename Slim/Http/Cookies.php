@@ -73,7 +73,9 @@ class Cookies extends Collection implements CookiesInterface
 
     /**
      * Constructor, will parse headers for cookie information if present
-     * @param \Slim\Http\Headers $headers
+     *
+     * @param \Slim\Interfaces\Http\HeadersInterface $headers
+     * @api
      */
     public function __construct(HeadersInterface $headers = null)
     {
@@ -111,7 +113,7 @@ class Cookies extends Collection implements CookiesInterface
     /**
      * Remove cookie
      *
-     * Unlike \Slim\Container, this will actually *set* a cookie with
+     * Unlike \Slim\Collection, this will actually *set* a cookie with
      * an expiration date in the past. This expiration date will force
      * the client-side cache to remove its cookie with the given name
      * and settings.
@@ -132,7 +134,7 @@ class Cookies extends Collection implements CookiesInterface
      *
      * This method iterates and encrypts data values.
      *
-     * @param \Slim\Crypt $crypt
+     * @param \Slim\Interfaces\CryptInterface $crypt
      * @api
      */
     public function encrypt(CryptInterface $crypt)
@@ -144,9 +146,10 @@ class Cookies extends Collection implements CookiesInterface
     }
 
     /**
-     * Serialize this collection of cookies into a Headers object
-     * @param  Headers $headers
-     * @return void
+     * Serialize this collection of cookies into a raw HTTP header
+     *
+     * @param \Slim\Interfaces\Http\HeadersInterface $headers
+     * @api
      */
     public function setHeaders(HeadersInterface &$headers)
     {
@@ -163,14 +166,14 @@ class Cookies extends Collection implements CookiesInterface
      * more control of the HTTP header irrespective of the native implementation's
      * dependency on PHP versions.
      *
-     * This method accepts the Slim_Http_Headers object by reference as its
+     * This method accepts the \Slim\Http\Headers object by reference as its
      * first argument; this method directly modifies this object instead of
      * returning a value.
      *
-     * @param  \Slim\Http\Headers  $header
-     * @param  string              $name
-     * @param  string              $value
-     * @return void
+     * @param \Slim\Interfaces\Http\HeadersInterface $header
+     * @param string                                 $name
+     * @param string                                 $value
+     * @api
      */
     public function setHeader(HeadersInterface &$headers, $name, $value)
     {
@@ -234,9 +237,10 @@ class Cookies extends Collection implements CookiesInterface
      * first argument; this method directly modifies this object instead of
      * returning a value.
      *
-     * @param  \Slim\Http\Headers  $headers
-     * @param  string              $name
-     * @param  array               $value
+     * @param \Slim\Interfaces\Http\HeadersInterface $headers
+     * @param string                                 $name
+     * @param array                                  $value
+     * @api
      */
     public function deleteHeader(HeadersInterface &$headers, $name, $value = array())
     {
@@ -268,10 +272,11 @@ class Cookies extends Collection implements CookiesInterface
      * Parse cookie header
      *
      * This method will parse the HTTP request's `Cookie` header
-     * and extract cookies into this collection.
+     * and extract an associative array of cookie names and values.
      *
      * @param  string $header
-     * @return void
+     * @return array
+     * @api
      */
     public function parseHeader($header)
     {
