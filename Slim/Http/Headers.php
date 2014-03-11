@@ -70,7 +70,9 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Constructor, will parse an environment for headers if present
-     * @param \Slim\Environment $environment
+     *
+     * @param \Slim\Interfaces\EnvironmentInterface $environment
+     * @api
      */
     public function __construct(EnvironmentInterface $environment = null)
     {
@@ -81,12 +83,14 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Parse provided headers into this collection
-     * @param  array  $headers
+     *
+     * @param  \Slim\Interfaces\EnvironmentInterface $environment
      * @return void
+     * @api
      */
-    public function parseHeaders(EnvironmentInterface $headers)
+    public function parseHeaders(EnvironmentInterface $environment)
     {
-        foreach ($headers as $key => $value) {
+        foreach ($environment as $key => $value) {
             $key = strtoupper($key);
 
             if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
@@ -101,6 +105,7 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Set data key to value
+     *
      * @param string $key   The data key
      * @param mixed  $value The data value
      * @api
@@ -112,6 +117,7 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Get data value with key
+     *
      * @param  string $key     The data key
      * @param  mixed  $default The value to return if data key does not exist
      * @return mixed           The data value, or the default value
@@ -124,6 +130,7 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Does this set contain a key?
+     *
      * @param  string  $key The data key
      * @return boolean
      * @api
@@ -135,7 +142,8 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Remove value with key from this set
-     * @param  string $key The data key
+     *
+     * @param string $key The data key
      * @api
      */
     public function remove($key)
@@ -145,6 +153,7 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Transform header name into canonical form
+     *
      * @param  string $key
      * @return string
      */
