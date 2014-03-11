@@ -41,29 +41,67 @@ namespace Slim\Interfaces\Http;
  */
 interface ResponseInterface
 {
-    /*public function getStatus();
+    /*******************************************************************************
+     * Response Header
+     ******************************************************************************/
+
+    public function getProtocolVersion();
+
+    public function getStatus();
 
     public function setStatus($status);
 
-    public function getBody();
-
-    public function setBody($content);
+    public function getReasonPhrase();
 
     public function getHeaders();
 
+    public function hasHeader($name);
+
+    public function getHeader($name);
+
+    public function setHeader($name, $value);
+
+    public function setHeaders(array $headers);
+
+    public function addHeader($name, $value);
+
+    public function addHeaders(array $headers);
+
+    public function removeHeader($name);
+
     public function getCookies();
 
-    public function getStream();
+    public function setCookies(array $cookies);
 
-    public function redirect($url, $status = 302);
+    public function hasCookie($name);
 
-    public function stream($handle);
+    public function getCookie($name);
+
+    public function setCookie($name, $value);
+
+    public function removeCookie($name, $settings);
+
+    public function encryptCookies(\Slim\Interfaces\CryptInterface $crypt);
+
+    /*******************************************************************************
+     * Response Body
+     ******************************************************************************/
+
+    public function getBody();
+
+    public function setBody(\Guzzle\Stream\StreamInterface $body);
 
     public function write($body, $replace = false);
 
+    public function getSize();
+
+    /*******************************************************************************
+     * Response Helpers
+     ******************************************************************************/
+
     public function finalize();
 
-    public function isStream();
+    public function redirect($url, $status = 302);
 
     public function isOk();
 
@@ -80,6 +118,4 @@ interface ResponseInterface
     public function isClientError();
 
     public function isServerError();
-
-    public static function getMessageForCode($status);*/
 }

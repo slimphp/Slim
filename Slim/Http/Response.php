@@ -365,7 +365,7 @@ class Response implements ResponseInterface
      * @param array  $settings
      * @api
      */
-    public function removeCookie($name, $settings)
+    public function removeCookie($name, $settings = array())
     {
         $this->cookies->remove($name, $settings);
     }
@@ -423,9 +423,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Get the response body size
+     * Get the response body size if known
      *
-     * @return int
+     * @return int|false
      * @api
      */
     public function getSize()
@@ -453,6 +453,11 @@ class Response implements ResponseInterface
             $this->headers->remove('Content-Type');
             $this->headers->remove('Content-Length');
             $this->body->setStream(fopen('php://temp', 'r+'));
+        } else {
+            $size = @$this->getSize();
+            if ($size) {
+                $this->headers->set('Content-Length', $size);
+            }
         }
 
         // Serialzie cookies into raw header

@@ -32,258 +32,409 @@
 
 class ResponseTest extends PHPUnit_Framework_TestCase
 {
-    public function testConstructWithoutArgs()
+    protected $response;
+    protected $statusProperty;
+    protected $headersProperty;
+    protected $cookiesProperty;
+    protected $bodyProperty;
+
+    /*******************************************************************************
+     * Setup
+     ******************************************************************************/
+
+    protected function createResponse(array $headerData = array(), array $cookieData = array(), $body = '', $status = 200)
     {
         $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
+        $headers->replace($headerData);
 
-        $this->assertAttributeEquals(200, 'status', $res);
-        $this->assertAttributeEquals('', 'body', $res);
+        $cookies = new \Slim\Http\Cookies();
+        $cookies->replace($cookieData);
+
+        return new \Slim\Http\Response($headers, $cookies, $body, $status);
     }
 
-    public function testConstructWithArgs()
+    public function setUp()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies, 'Foo', 201);
+        $this->response = $this->createResponse();
 
-        $this->assertAttributeEquals(201, 'status', $res);
-        $this->assertAttributeEquals('Foo', 'body', $res);
+        $this->statusProperty = new \ReflectionProperty($this->response, 'status');
+        $this->statusProperty->setAccessible(true);
+
+        $this->headersProperty = new \ReflectionProperty($this->response, 'headers');
+        $this->headersProperty->setAccessible(true);
+
+        $this->cookiesProperty = new \ReflectionProperty($this->response, 'cookies');
+        $this->cookiesProperty->setAccessible(true);
+
+        $this->bodyProperty = new \ReflectionProperty($this->response, 'body');
+        $this->bodyProperty->setAccessible(true);
     }
+
+    /*******************************************************************************
+     * Response Defaults
+     ******************************************************************************/
+
+    public function testDefaultStatus()
+    {
+        $this->assertAttributeEquals(200, 'status', $this->response);
+    }
+
+    public function testDefaultContentType()
+    {
+        $this->assertEquals('text/html', $this->response->getHeader('Content-Type'));
+    }
+
+    public function testDefaultBody()
+    {
+        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
+    }
+
+    /*******************************************************************************
+     * Response Header
+     ******************************************************************************/
 
     public function testGetStatus()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
+        $this->statusProperty->setValue($this->response, 201);
 
-        $this->assertEquals(200, $res->getStatus());
+        $this->assertEquals(201, $this->response->getStatus());
     }
 
     public function testSetStatus()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
-        $res->setStatus(301);
+        $this->response->setStatus(301);
 
-        $this->assertAttributeEquals(301, 'status', $res);
+        $this->assertAttributeEquals(301, 'status', $this->response);
     }
+
+    public function testGetReasonPhrase()
+    {
+        $this->assertEquals('200 OK', $this->response->getReasonPhrase());
+    }
+
+    public function testGetHeaders()
+    {
+        $headers = array(
+            'Content-Type' => 'application/json',
+            'X-Foo' => 'Bar'
+        );
+        $this->headersProperty->getValue($this->response)->replace($headers);
+
+        $this->assertSame($headers, $this->response->getHeaders());
+    }
+
+    public function testHasHeader()
+    {
+        $headers = array(
+            'X-Foo' => 'Bar'
+        );
+        $this->headersProperty->getValue($this->response)->replace($headers);
+
+        $this->assertTrue($this->response->hasHeader('X-Foo'));
+    }
+
+    public function testGetHeader()
+    {
+        $headers = array(
+            'X-Foo' => 'Bar'
+        );
+        $this->headersProperty->getValue($this->response)->replace($headers);
+
+        $this->assertEquals('Bar', $this->response->getHeader('X-Foo'));
+    }
+
+    public function testSetHeader()
+    {
+        $this->response->setHeader('X-Foo', 'Bar');
+
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+    }
+
+    public function testSetHeaders()
+    {
+        $this->response->setHeaders(array(
+            'X-Foo' => 'Bar',
+            'X-Test' => '123'
+        ));
+
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+        $this->assertArrayHasKey('X-Test', $this->headersProperty->getValue($this->response)->all());
+    }
+
+    public function testRemoveHeader()
+    {
+        $headers = array(
+            'X-Foo' => 'Bar'
+        );
+        $this->headersProperty->getValue($this->response)->replace($headers);
+        $this->response->removeHeader('X-Foo');
+
+        $this->assertArrayNotHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+    }
+
+    public function testGetCookies()
+    {
+        $this->cookiesProperty->getValue($this->response)->replace(array('foo' => 'bar'));
+        $cookies = $this->response->getCookies();
+
+        $this->assertEquals('bar', $cookies['foo']['value']);
+    }
+
+    public function testSetCookies()
+    {
+        $this->response->setCookies(array('foo' => 'bar'));
+        $cookies = $this->cookiesProperty->getValue($this->response);
+
+        $this->assertEquals('bar', $cookies['foo']['value']);
+    }
+
+    public function testHasCookie()
+    {
+        $this->cookiesProperty->getValue($this->response)->replace(array('foo' => 'bar'));
+
+        $this->assertTrue($this->response->hasCookie('foo'));
+    }
+
+    public function testGetCookie()
+    {
+        $this->cookiesProperty->getValue($this->response)->replace(array('foo' => 'bar'));
+        $cookie = $this->response->getCookie('foo');
+
+        $this->assertEquals('bar', $cookie['value']);
+    }
+
+    public function testSetCookie()
+    {
+        $this->response->setCookie('foo', 'bar');
+        $cookies = $this->cookiesProperty->getValue($this->response);
+
+        $this->assertEquals('bar', $cookies['foo']['value']);
+    }
+
+    public function testRemoveCookie()
+    {
+        $this->cookiesProperty->getValue($this->response)->replace(array('foo' => 'bar'));
+        $this->response->removeCookie('foo');
+        $cookie = $this->cookiesProperty->getValue($this->response)->get('foo');
+
+        $this->assertEquals('', $cookie['value']);
+        $this->assertTrue($cookie['expires'] < time());
+    }
+
+    /*public function testEncryptCookies()
+    {
+
+    }*/
+
+    /*******************************************************************************
+     * Response Body
+     ******************************************************************************/
 
     public function testGetBody()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
-        $property = new \ReflectionProperty($res, 'body');
-        $property->setAccessible(true);
-        $property->setValue($res, 'foo');
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $body = $this->response->getBody();
 
-        $this->assertEquals('foo', $res->getBody());
+        $this->assertInstanceOf('\Guzzle\Stream\StreamInterface', $body);
+        $this->assertEquals('Foo', (string)$this->response->getBody());
     }
 
-    /*public function testSetBody()
+    public function testSetBody()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies, 'bar');
-        $res->setBody('foo'); // <-- Should replace body
+        $newStream = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->response->setBody($newStream);
 
-        $this->assertAttributeEquals('foo', 'body', $res);
-    }*/
+        $this->assertSame($newStream, $this->bodyProperty->getValue($this->response));
+    }
 
     public function testWrite()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies, 'Foo');
-        $res->write('bar'); // <-- Should append to body
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $this->response->write('Bar');
 
-        $this->assertEquals('Foobar', (string)$res->getBody());
+        $this->assertEquals('FooBar', (string)$this->bodyProperty->getValue($this->response));
     }
 
-    public function testSize()
+    public function testWriteReplace()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies, 'foo'); // <-- Sets body and length
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $this->response->write('Bar', true);
 
-        $this->assertEquals(3, $res->getSize());
+        $this->assertEquals('Bar', (string)$this->bodyProperty->getValue($this->response));
     }
+
+    public function testGetSize()
+    {
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+
+        $this->assertEquals(3, $this->response->getSize());
+    }
+
+    /*******************************************************************************
+     * Response Helpers
+     ******************************************************************************/
 
     public function testFinalize()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
-        $resFinal = $res->finalize();
+        $result = $this->response->finalize();
 
-        $this->assertTrue(is_array($resFinal));
-        $this->assertEquals(3, count($resFinal));
-        $this->assertEquals(200, $resFinal[0]);
-        $this->assertInstanceOf('\Slim\Http\Headers', $resFinal[1]);
-        $this->assertEquals('', $resFinal[2]);
+        $this->assertTrue(is_array($result));
+        $this->assertCount(3, $result);
+        $this->assertEquals(200, $result[0]);
+        $this->assertInstanceOf('\Slim\Http\Headers', $result[1]);
+        $this->assertEquals('', (string)$result[2]);
     }
 
     public function testFinalizeWithEmptyBody()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies, 'Foo', 304);
-        $resFinal = $res->finalize();
+        $this->statusProperty->setValue($this->response, 304);
+        $this->headersProperty->getValue($this->response)->set('Content-Type', 'text/csv');
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $result = $this->response->finalize();
 
-        $this->assertEquals('', (string)$resFinal[2]);
+        $this->assertFalse($result[1]->has('Content-Type'));
+        $this->assertFalse($result[1]->has('Content-Length'));
+        $this->assertEquals('', (string)$result[2]);
     }
 
     public function testRedirect()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $res = new \Slim\Http\Response($headers, $cookies);
-        $res->redirect('/foo');
+        $this->response->redirect('/foo');
 
-        $pStatus = new \ReflectionProperty($res, 'status');
-        $pStatus->setAccessible(true);
-
-        $this->assertEquals(302, $pStatus->getValue($res));
-        $this->assertEquals('/foo', $res->getHeader('Location'));
+        $this->assertEquals(302, $this->statusProperty->getValue($this->response));
+        $this->assertEquals('/foo', $this->headersProperty->getValue($this->response)->get('Location'));
     }
 
-    public function testIsEmpty()
+    public function testIsEmptyWhenTrue()
     {
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers, $cookies);
-        $r2 = new \Slim\Http\Response($headers, $cookies);
-        $r1->setStatus(404);
-        $r2->setStatus(201);
-        $this->assertFalse($r1->isEmpty());
-        $this->assertTrue($r2->isEmpty());
+        $this->statusProperty->setValue($this->response, 201);
+
+        $this->assertTrue($this->response->isEmpty());
     }
 
-    public function testIsClientError()
+    public function testIsEmptyWhenFalse()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(404);
-        $r2->setStatus(500);
-        $this->assertTrue($r1->isClientError());
-        $this->assertFalse($r2->isClientError());
+        $this->statusProperty->setValue($this->response, 400);
+
+        $this->assertFalse($this->response->isEmpty());
     }
 
-    public function testIsForbidden()
+    public function testIsInformationalWhenTrue()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(403);
-        $r2->setStatus(500);
-        $this->assertTrue($r1->isForbidden());
-        $this->assertFalse($r2->isForbidden());
+        $this->statusProperty->setValue($this->response, 100);
+
+        $this->assertTrue($this->response->isInformational());
     }
 
-    public function testIsInformational()
+    public function testIsInformationalWhenFalse()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(100);
-        $r2->setStatus(200);
-        $this->assertTrue($r1->isInformational());
-        $this->assertFalse($r2->isInformational());
+        $this->statusProperty->setValue($this->response, 200);
+
+        $this->assertFalse($this->response->isInformational());
     }
 
-    public function testIsNotFound()
+    public function testIsOkWhenTrue()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(404);
-        $r2->setStatus(200);
-        $this->assertTrue($r1->isNotFound());
-        $this->assertFalse($r2->isNotFound());
+        $this->statusProperty->setValue($this->response, 200);
+
+        $this->assertTrue($this->response->isOk());
     }
 
-    public function testIsOk()
+    public function testIsOkWhenFalse()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(200);
-        $r2->setStatus(201);
-        $this->assertTrue($r1->isOk());
-        $this->assertFalse($r2->isOk());
+        $this->statusProperty->setValue($this->response, 300);
+
+        $this->assertFalse($this->response->isOk());
     }
 
-    public function testIsSuccessful()
+    public function testIsSuccessfulWhenTrue()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $headers3 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r3 = new \Slim\Http\Response($headers3, $cookies);
-        $r1->setStatus(200);
-        $r2->setStatus(201);
-        $r3->setStatus(302);
-        $this->assertTrue($r1->isSuccessful());
-        $this->assertTrue($r2->isSuccessful());
-        $this->assertFalse($r3->isSuccessful());
+        $this->statusProperty->setValue($this->response, 201);
+
+        $this->assertTrue($this->response->isSuccessful());
     }
 
-    public function testIsRedirect()
+    public function testIsSuccessfulWhenFalse()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(307);
-        $r2->setStatus(304);
-        $this->assertTrue($r1->isRedirect());
-        $this->assertFalse($r2->isRedirect());
+        $this->statusProperty->setValue($this->response, 301);
+
+        $this->assertFalse($this->response->isSuccessful());
+    }
+
+    public function testIsRedirectWhenTrue()
+    {
+        $this->statusProperty->setValue($this->response, 303);
+
+        $this->assertTrue($this->response->isRedirect());
+    }
+
+    public function testIsRedirectWhenFalse()
+    {
+        $this->statusProperty->setValue($this->response, 308);
+
+        $this->assertFalse($this->response->isRedirect());
     }
 
     public function testIsRedirection()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $headers3 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r3 = new \Slim\Http\Response($headers3, $cookies);
-        $r1->setStatus(307);
-        $r2->setStatus(304);
-        $r3->setStatus(200);
-        $this->assertTrue($r1->isRedirection());
-        $this->assertTrue($r2->isRedirection());
-        $this->assertFalse($r3->isRedirection());
+        $this->statusProperty->setValue($this->response, 308);
+
+        $this->assertTrue($this->response->isRedirection());
     }
 
-    public function testIsServerError()
+    public function testIsForbiddenWhenTrue()
     {
-        $headers1 = new \Slim\Http\Headers();
-        $headers2 = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $r1 = new \Slim\Http\Response($headers1, $cookies);
-        $r2 = new \Slim\Http\Response($headers2, $cookies);
-        $r1->setStatus(500);
-        $r2->setStatus(400);
-        $this->assertTrue($r1->isServerError());
-        $this->assertFalse($r2->isServerError());
+        $this->statusProperty->setValue($this->response, 403);
+
+        $this->assertTrue($this->response->isForbidden());
+    }
+
+    public function testIsForbiddenWhenFalse()
+    {
+        $this->statusProperty->setValue($this->response, 404);
+
+        $this->assertFalse($this->response->isForbidden());
+    }
+
+    public function testIsNotFoundWhenTrue()
+    {
+        $this->statusProperty->setValue($this->response, 404);
+
+        $this->assertTrue($this->response->isNotFound());
+    }
+
+    public function testIsNotFoundWhenFalse()
+    {
+        $this->statusProperty->setValue($this->response, 403);
+
+        $this->assertFalse($this->response->isNotFound());
+    }
+
+    public function testIsClientErrorWhenTrue()
+    {
+        $this->statusProperty->setValue($this->response, 404);
+
+        $this->assertTrue($this->response->isClientError());
+    }
+
+    public function testIsClientErrorWhenFalse()
+    {
+        $this->statusProperty->setValue($this->response, 503);
+
+        $this->assertFalse($this->response->isClientError());
+    }
+
+    public function testIsServerErrorWhenTrue()
+    {
+        $this->statusProperty->setValue($this->response, 503);
+
+        $this->assertTrue($this->response->isServerError());
+    }
+
+    public function testIsServerErrorWhenFalse()
+    {
+        $this->statusProperty->setValue($this->response, 403);
+
+        $this->assertFalse($this->response->isServerError());
     }
 }
