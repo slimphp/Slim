@@ -201,6 +201,9 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function setBody($content)
     {
+        if($this->headers->get('Content-Type') == 'application/json'){
+	        $content = (is_string($content)) ?: json_encode($content); 
+    	} 
         $this->write($content, true);
     }
 
