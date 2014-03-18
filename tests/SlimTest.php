@@ -761,7 +761,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
-        $expectedDate = gmdate('D, d M Y H:i:s T', strtotime('5 days'));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
             $s->expires('5 days');
@@ -769,7 +768,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals($header['Expires'], $expectedDate);
+
+        $this->assertEquals(
+          strtotime('5 days'),
+          strtotime($header['Expires']),
+          1 // delta
+        );
     }
 
     /**
