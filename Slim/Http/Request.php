@@ -684,7 +684,7 @@ class Request implements RequestInterface
      */
     public function isFormData()
     {
-        return (empty($this->getContentType()) && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        return ($this->getContentType() == '' && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
