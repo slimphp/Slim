@@ -149,7 +149,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         );
         $this->headersProperty->getValue($this->response)->replace($headers);
 
-        $this->assertSame($headers, $this->response->getHeaders());
+        $this->assertSame(array(
+            'Content-Type' => array('application/json'),
+            'X-Foo' => array('Bar')
+        ), $this->response->getHeaders());
     }
 
     public function testHasHeader()
@@ -188,6 +191,22 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
         $this->assertArrayHasKey('X-Test', $this->headersProperty->getValue($this->response)->all());
+    }
+
+    public function testAddHeader()
+    {
+        $this->response->setHeader('X-Foo', 'Bar');
+        $this->response->addHeader('X-Foo', 'Foo');
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+        $this->assertEquals('Bar, Foo', $this->headersProperty->getValue($this->response)->get('X-Foo'));
+    }
+
+    public function testAddHeaders()
+    {
+        $this->response->setHeader('X-Foo', 'Bar');
+        $this->response->addHeaders(array('X-Foo' => array('Foo', '123')));
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+        $this->assertEquals('Bar, Foo, 123', $this->headersProperty->getValue($this->response)->get('X-Foo'));
     }
 
     public function testRemoveHeader()

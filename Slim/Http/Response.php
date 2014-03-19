@@ -296,14 +296,29 @@ class Response implements ResponseInterface
         $this->headers->replace($headers);
     }
 
+    /**
+     * Add a header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
     public function addHeader($name, $value)
     {
-        // TODO
+        $this->headers->add($name, $value);
     }
 
+    /**
+     * Add multiple header values
+     *
+     * @param array $headers
+     * @api
+     */
     public function addHeaders(array $headers)
     {
-        // TODO
+        foreach ($headers as $name => $value) {
+            $this->headers->add($name, $value);
+        }
     }
 
     /**
