@@ -1228,6 +1228,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', $s->response()->header('X-Slim-Test'));
     }
 
+    /**
+     * Test exception when adding circular middleware queues
+     *
+     * This asserts that the same middleware can NOT be queued twice (usually by accident).
+     * Circular middleware stack causes a troublesome to debug PHP Fatal error:
+     * 
+     * > Fatal error: Maximum function nesting level of '100' reached. aborting!
+     */
+    public function testFailureWhenAddingCircularMiddleware()
+    {
+        $this->setExpectedException('\RuntimeException');
+        $middleware = new CustomMiddleware;
+        $s = new \Slim\Slim;
+        $s->add($middleware);
+        $s->add(new CustomMiddleware);
+        $s->add($middleware);
+        $s->run();
+    }
+
     /************************************************
      * FLASH MESSAGING
      ************************************************/
