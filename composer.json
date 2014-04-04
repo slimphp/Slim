@@ -14,7 +14,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "pimple/pimple": "2.*"
+        "pimple/pimple": "2.*",
+        "guzzle/stream": "3.*"
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",
@@ -26,8 +27,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Slim": ".",
-            "Guzzle": "."
+            "Slim": "."
         }
     }
 }
