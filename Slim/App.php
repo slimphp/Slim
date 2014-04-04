@@ -157,11 +157,9 @@ class App extends \Pimple
         // Flash
         $this['flash'] = function ($c) {
             $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
-            // TODO: Build array-access to current request messages for easy view integration
-            //
-            // if ($c['settings']['view'] instanceof \Slim\View) {
-            //     $c['view']->set('flash', $flash->getMessages());
-            // }
+            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface) {
+                $c['view']->set('flash', $flash);
+            }
 
             return $flash;
         };

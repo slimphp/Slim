@@ -539,6 +539,22 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
+     * FLASH
+     ************************************************/
+
+    /**
+     * Test set flash in the view
+     */
+    public function testSetFlashInView()
+    {
+        $this->initializeApp(array(), array(
+            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+        ));
+        $this->app['flash'];
+        $this->assertInstanceOf('\Slim\Flash', $this->app['view']->get('flash'));
+    }
+
+    /************************************************
      * RENDERING
      ************************************************/
 
