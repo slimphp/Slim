@@ -413,7 +413,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'POST',
             'CONTENT_LENGTH' => 0
         ), '');
-        $this->assertNull($this->request->getContentType());
+        $this->assertEquals('', $this->request->getContentType());
     }
 
     /**
@@ -530,7 +530,33 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json',
         ), '');
-        $this->assertEquals(0, $this->request->getContentLength());
+        $this->assertEquals('', $this->request->getContentLength());
+    }
+
+    /**
+     * Test add header
+     */
+    public function testAddHeader()
+    {
+        $this->initializeRequest(array(
+            'HTTP_HOST' => 'slimframework.com',
+            'SERVER_NAME' => 'example.com'
+        ));
+        $this->request->addHeader('Foo', 'Bar');
+        $this->assertEquals('Bar', $this->request->getHeader('Foo'));
+    }
+
+    /**
+     * Test add header
+     */
+    public function testAddHeaders()
+    {
+        $this->initializeRequest(array(
+            'HTTP_HOST' => 'slimframework.com',
+            'SERVER_NAME' => 'example.com'
+        ));
+        $this->request->addHeaders(array('Foo' => array('Foo', 'Bar')));
+        $this->assertEquals('Foo, Bar', $this->request->getHeader('Foo'));
     }
 
     /**
@@ -781,8 +807,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
      */
     public function testGetReferrerWhenNotExists()
     {
-        $this->assertNull($this->request->getReferrer());
-        $this->assertNull($this->request->getReferer());
+        $this->assertEquals('', $this->request->getReferrer());
+        $this->assertEquals('', $this->request->getReferer());
     }
 
     /**
@@ -805,7 +831,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_USER_AGENT' => 'ua-string'
         ));
         $this->headers->remove('HTTP_USER_AGENT');
-        $this->assertNull($this->request->getUserAgent());
+        $this->assertEquals('', $this->request->getUserAgent());
     }
 
     /**

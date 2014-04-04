@@ -164,10 +164,10 @@ class Request implements RequestInterface
     {
         // Get actual request method
         $method = $this->env->get('REQUEST_METHOD');
-        $methodOverride = $this->headers->get('HTTP_X_HTTP_METHOD_OVERRIDE', false);
+        $methodOverride = $this->headers->get('HTTP_X_HTTP_METHOD_OVERRIDE');
 
         // Detect method override (by HTTP header or POST parameter)
-        if ($methodOverride !== false) {
+        if (!empty($methodOverride)) {
             $method = strtoupper($methodOverride);
         } else if ($method === static::METHOD_POST) {
             $customMethod = $this->post(static::METHOD_OVERRIDE, false);
@@ -286,14 +286,29 @@ class Request implements RequestInterface
         $this->headers->replace($headers);
     }
 
+    /**
+     * Add a header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
     public function addHeader($name, $value)
     {
-        // TODO
+        $this->headers->add($name, $value);
     }
 
+    /**
+     * Add multiple header values
+     *
+     * @param array $headers
+     * @api
+     */
     public function addHeaders(array $headers)
     {
-        // TODO
+        foreach ($headers as $name => $value) {
+            $this->headers->add($name, $value);
+        }
     }
 
     /**
@@ -669,7 +684,7 @@ class Request implements RequestInterface
      */
     public function isFormData()
     {
-        return (is_null($this->getContentType()) && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        return ($this->getContentType() == '' && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**
