@@ -113,18 +113,6 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(LazyInitializeTestClass::$initialized);
     }
 
-    public function testGetCallableAsClassLazyInitialize()
-    {
-        LazyInitializeTestClass::$initialized = false;
-
-        $route = new \Slim\Route('/foo', '\LazyInitializeTestClass:foo');
-        $this->assertFalse(LazyInitializeTestClass::$initialized);
-
-        $route->dispatch();
-        $this->assertTrue(LazyInitializeTestClass::$initialized);
-    }
-
-
     public function testGetCallableAsStaticMethod()
     {
         $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
