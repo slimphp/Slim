@@ -805,7 +805,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/foo', //<-- Physical
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
-        $expectedDate = gmdate('D, d M Y H:i:s T', strtotime('5 days'));
         $s = new \Slim\Slim();
         $s->get('/bar', function () use ($s) {
             $s->expires('5 days');
@@ -813,7 +812,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $s->call();
         list($status, $header, $body) = $s->response()->finalize();
         $this->assertTrue(isset($header['Expires']));
-        $this->assertEquals($header['Expires'], $expectedDate);
+
+        $this->assertEquals(
+          strtotime('5 days'),
+          strtotime($header['Expires']),
+          1 // delta
+        );
     }
 
     /**
@@ -1226,6 +1230,25 @@ class SlimTest extends PHPUnit_Framework_TestCase
         });
         $s->run();
         $this->assertEquals('Hello', $s->response()->header('X-Slim-Test'));
+    }
+
+    /**
+     * Test exception when adding circular middleware queues
+     *
+     * This asserts that the same middleware can NOT be queued twice (usually by accident).
+     * Circular middleware stack causes a troublesome to debug PHP Fatal error:
+     * 
+     * > Fatal error: Maximum function nesting level of '100' reached. aborting!
+     */
+    public function testFailureWhenAddingCircularMiddleware()
+    {
+        $this->setExpectedException('\RuntimeException');
+        $middleware = new CustomMiddleware;
+        $s = new \Slim\Slim;
+        $s->add($middleware);
+        $s->add(new CustomMiddleware);
+        $s->add($middleware);
+        $s->run();
     }
 
     /************************************************

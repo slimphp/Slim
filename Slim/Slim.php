@@ -1237,6 +1237,10 @@ class Slim
      */
     public function add(\Slim\Middleware $newMiddleware)
     {
+        if(in_array($newMiddleware, $this->middleware)) {
+            $middleware_class = get_class($newMiddleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
+        }
         $newMiddleware->setApplication($this);
         $newMiddleware->setNextMiddleware($this->middleware[0]);
         array_unshift($this->middleware, $newMiddleware);
@@ -1295,6 +1299,8 @@ class Slim
             echo $body;
         }
 
+        $this->applyHook('slim.after');
+
         restore_error_handler();
     }
 
@@ -1333,7 +1339,6 @@ class Slim
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
-            $this->applyHook('slim.after');
         } catch (\Exception $e) {
             if ($this->config('debug')) {
                 throw $e;
