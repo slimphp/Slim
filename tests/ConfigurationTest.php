@@ -92,12 +92,12 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testCallHandlerMethod()
+    public function testGetHandlerMethod()
     {
         $con = new Configuration(new HandlerTest);
         $defaultKeys = array_keys($this->defaults);
         $defaultKeys = ksort($defaultKeys);
-        $configKeys = $con->callHandlerMethod('getKeys');
+        $configKeys = $con->getHandler()->getKeys();
         $configKeys = ksort($configKeys);
 
         $this->assertEquals($defaultKeys, $configKeys);
