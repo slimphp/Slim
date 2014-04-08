@@ -529,8 +529,7 @@ class Response implements ResponseInterface
             }
 
             foreach ($this->headers as $name => $value) {
-                $hValues = explode("\n", $value);
-                foreach ($hValues as $hVal) {
+                foreach ($value as $hVal) {
                     header("$name: $hVal", false);
                 }
             }
