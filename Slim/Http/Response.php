@@ -538,9 +538,7 @@ class Response implements ResponseInterface
         // Send body
         $this->body->rewind();
         while ($this->body->feof() === false) {
-            ob_start();
             echo $this->body->read(1024);
-            echo ob_get_clean();
         }
 
         return $this;
