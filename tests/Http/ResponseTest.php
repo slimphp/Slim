@@ -482,4 +482,15 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse($this->response->isServerError());
     }
+
+    public function testResponseSend()
+    {
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $this->assertTrue(headers_sent());
+        $this->assertEquals('Foo', $output);
+    }
 }
