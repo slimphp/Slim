@@ -79,7 +79,7 @@ class Response implements ResponseInterface
 
     /**
      * Response body
-     * @var \Guzzle\Stream\StreamInterface
+     * @var \GuzzleHttp\Stream\StreamInterface
      */
     protected $body;
 
@@ -171,7 +171,7 @@ class Response implements ResponseInterface
         }
         $this->cookies = $cookies;
         $this->setStatus($status);
-        $this->body = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         $this->body->write($body);
     }
 
@@ -420,7 +420,7 @@ class Response implements ResponseInterface
     /**
      * Get response body
      *
-     * @return \Guzzle\Stream\StreamInterface
+     * @return \GuzzleHttp\Stream\StreamInterface
      * @api
      */
     public function getBody()
@@ -431,10 +431,10 @@ class Response implements ResponseInterface
     /**
      * Set response body
      *
-     * @param \Guzzle\Stream\StreamInterface $body
+     * @param \GuzzleHttp\Stream\StreamInterface $body
      * @api
      */
-    public function setBody(\Guzzle\Stream\StreamInterface $body)
+    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
     {
         $this->body = $body;
     }
@@ -450,7 +450,7 @@ class Response implements ResponseInterface
     {
         if ($overwrite === true) {
             $this->body->close();
-            $this->body->setStream(fopen('php://temp', 'r+'));
+            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         }
         $this->body->write($body);
     }
@@ -506,7 +506,7 @@ class Response implements ResponseInterface
         // Truncate body if it should not be sent with response
         if ($sendBody === false) {
             $this->body->close();
-            $this->body->setStream(fopen('php://temp', 'r+'));
+            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         }
 
         return $this;
@@ -536,8 +536,8 @@ class Response implements ResponseInterface
         }
 
         // Send body
-        $this->body->rewind();
-        while ($this->body->feof() === false) {
+        $this->body->seek(0);
+        while ($this->body->eof() === false) {
             echo $this->body->read(1024);
         }
 

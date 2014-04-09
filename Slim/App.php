@@ -937,7 +937,7 @@ class App extends \Pimple
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
-        $this['response']->getBody()->setStream($fp);
+        $this['response']->setBody(new \GuzzleHttp\Stream\Stream($fp));
         if ($contentType) {
             $this['response']->setHeader("Content-Type", $contentType);
         } else {
@@ -981,7 +981,7 @@ class App extends \Pimple
      * @api
      */
     public function sendProcess($command, $contentType = "text/plain") {
-        $this['response']->getBody()->setStream(popen($command, 'r'));
+        $this['response']->setBody(new \GuzzleHttp\Stream\Stream(popen($command, 'r')));
         $this['response']->setHeader("Content-Type", $contentType);
     }
 

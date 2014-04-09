@@ -283,13 +283,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->bodyProperty->getValue($this->response)->write('Foo');
         $body = $this->response->getBody();
 
-        $this->assertInstanceOf('\Guzzle\Stream\StreamInterface', $body);
+        $this->assertInstanceOf('\GuzzleHttp\Stream\StreamInterface', $body);
         $this->assertEquals('Foo', (string)$this->response->getBody());
     }
 
     public function testSetBody()
     {
-        $newStream = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $newStream = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         $this->response->setBody($newStream);
 
         $this->assertSame($newStream, $this->bodyProperty->getValue($this->response));

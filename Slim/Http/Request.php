@@ -103,7 +103,7 @@ class Request implements RequestInterface
 
     /**
      * Request body (raw)
-     * @var \Guzzle\Stream\StreamInterface
+     * @var \GuzzleHttp\Stream\StreamInterface
      */
     protected $bodyRaw;
 
@@ -127,16 +127,12 @@ class Request implements RequestInterface
         $this->env = $env;
         $this->headers = $headers;
         $this->cookies = $cookies;
-        $this->bodyRaw = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
 
         if (is_string($body) === true) {
             $this->bodyRaw->write($body);
-        } else {
-            $inputStream = fopen('php://input', 'r');
-            stream_copy_to_stream($inputStream, $this->bodyRaw->getStream());
-            fclose($inputStream);
         }
-        $this->bodyRaw->rewind();
+        $this->bodyRaw->seek(0);
     }
 
     /*******************************************************************************
@@ -398,7 +394,7 @@ class Request implements RequestInterface
     /**
      * Get Body
      *
-     * @return \Guzzle\Stream\StreamInterface
+     * @return \GuzzleHttp\Stream\StreamInterface
      * @api
      */
     public function getBody()
@@ -409,10 +405,10 @@ class Request implements RequestInterface
     /**
      * Set request body
      *
-     * @param \Guzzle\Stream\StreamInterface $body
+     * @param \GuzzleHttp\Stream\StreamInterface $body
      * @api
      */
-    public function setBody(\Guzzle\Stream\StreamInterface $body)
+    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
     {
         $this->bodyRaw = $body;
     }
