@@ -101,7 +101,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             'REMOTE_ADDR' => '127.0.0.1',
             'slim.url_scheme' => 'http',
             'slim.input' => '',
-            'slim.errors' => @fopen('php://stderr', 'w')
+            'slim.errors' => @fopen('php://stderr', 'w'),
+            'slim.files' => array()
         );
         self::$environment = new self(array_merge($defaults, $userSettings));
 
@@ -171,6 +172,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
 
             //Error stream
             $env['slim.errors'] = @fopen('php://stderr', 'w');
+
+            $env['slim.files'] = $_FILES;
 
             $this->properties = $env;
         }
