@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.4.2
  *
  * MIT LICENSE
  *
@@ -113,6 +113,21 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view->appendData(array('foo' => 'bar'));
 
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
+    }
+
+    public function testLocalData()
+    {
+        $view = new \Slim\View();
+        $prop1 = new \ReflectionProperty($view, 'data');
+        $prop1->setAccessible(true);
+        $prop1->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
+
+        $prop2 = new \ReflectionProperty($view, 'templatesDirectory');
+        $prop2->setAccessible(true);
+        $prop2->setValue($view, dirname(__FILE__) . '/templates');
+
+        $output = $view->fetch('test.php', array('foo' => 'baz'));
+        $this->assertEquals('test output baz', $output);
     }
 
     public function testAppendDataOverwrite()

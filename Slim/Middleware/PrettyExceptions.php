@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.4.2
  * @package     Slim
  *
  * MIT LICENSE
@@ -89,7 +89,7 @@ class PrettyExceptions extends \Slim\Middleware
         $message = $exception->getMessage();
         $file = $exception->getFile();
         $line = $exception->getLine();
-        $trace = $exception->getTraceAsString();
+        $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $exception->getTraceAsString());
         $html = sprintf('<h1>%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';

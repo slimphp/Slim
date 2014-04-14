@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.4.2
  *
  * MIT LICENSE
  *
@@ -277,10 +277,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testUnsetsContentTypeAndContentLength()
     {
-        $_SERVER['HTTP_CONTENT_TYPE'] = 'text/csv';
         $_SERVER['HTTP_CONTENT_LENGTH'] = 150;
         $env = \Slim\Environment::getInstance(true);
-        $this->assertFalse(isset($env['HTTP_CONTENT_TYPE']));
         $this->assertFalse(isset($env['HTTP_CONTENT_LENGTH']));
     }
 

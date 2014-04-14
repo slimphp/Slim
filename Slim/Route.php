@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.3.3
+ * @version     2.4.2
  * @package     Slim
  *
  * MIT LICENSE
@@ -91,15 +91,22 @@ class Route
     protected $middleware = array();
 
     /**
+     * @var bool Whether or not this route should be matched in a case-sensitive manner
+     */
+    protected $caseSensitive;
+
+    /**
      * Constructor
      * @param string $pattern The URL pattern (e.g. "/books/:id")
      * @param mixed $callable Anything that returns TRUE for is_callable()
+     * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
      */
-    public function __construct($pattern, $callable)
+    public function __construct($pattern, $callable, $caseSensitive = true)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
+        $this->caseSensitive = $caseSensitive;
     }
 
     /**
@@ -155,8 +162,16 @@ class Route
     public function setCallable($callable)
     {
         $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([[:alnum:]]+)$!', $callable, $matches)) {
-            $callable = array(new $matches[1], $matches[2]);
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
+            $class = $matches[1];
+            $method = $matches[2];
+            $callable = function() use ($class, $method) {
+                static $obj = null;
+                if ($obj === null) {
+                    $obj = new $class;
+                }
+                return call_user_func_array(array($obj, $method), func_get_args());
+            };
         }
 
         if (!is_callable($callable)) {
@@ -362,8 +377,14 @@ class Route
             $patternAsRegex .= '?';
         }
 
+        $regex = '#^' . $patternAsRegex . '$#';
+
+        if ($this->caseSensitive === false) {
+            $regex .= 'i';
+        }
+
         //Cache URL params' names and values if this route matches the current HTTP request
-        if (!preg_match('#^' . $patternAsRegex . '$#', $resourceUri, $paramValues)) {
+        if (!preg_match($regex, $resourceUri, $paramValues)) {
             return false;
         }
         foreach ($this->paramNames as $name) {
