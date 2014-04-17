@@ -49,9 +49,7 @@ interface RouterInterface
 
     public function map(RouteInterface $route);
 
-    public function pushGroup($group, $middleware = array());
-
-    public function popGroup();
+    public function addGroup($group, $callable, $middleware = array());
 
     public function urlFor($name, $params = array());
 

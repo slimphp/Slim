@@ -385,11 +385,7 @@ class App extends \Pimple
         $args = func_get_args();
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $this['router']->pushGroup($pattern, $args);
-        if (is_callable($callable)) {
-            call_user_func($callable);
-        }
-        $this['router']->popGroup();
+        $this['router']->addGroup($pattern, $callable, $args);
     }
 
     /**

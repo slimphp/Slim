@@ -78,7 +78,17 @@ class Router implements RouterInterface
      * @var array
      */
     protected $routeGroups;
-
+    
+    /**
+     * @var string Current Base URI
+     */
+    protected $currentBaseUri = '';
+    
+    /**
+     * @var array Current stack of middleware
+     */
+    protected $currentMiddleware;
+    
     /**
      * Constructor
      * @api
@@ -87,6 +97,7 @@ class Router implements RouterInterface
     {
         $this->routes = array();
         $this->routeGroups = array();
+        $this->currentMiddleware = array();
     }
 
     /**
@@ -130,20 +141,49 @@ class Router implements RouterInterface
     public function getMatchedRoutes($httpMethod, $resourceUri, $save = true)
     {
         $matchedRoutes = array();
+        
+        foreach ($this->routeGroups as $index => $grouproutes) {
+            foreach ($grouproutes as $uri => $group) {
+                
+                $groupSlashes = substr_count($uri, '/');
+                $resourceUriParts = explode('/', $resourceUri);
+                $resourceMatchUri = implode('/', array_slice($resourceUriParts, 0, $groupSlashes+1));
+                
+                if ($uri == $resourceMatchUri) {
+                    unset($this->routeGroups[$index]);
+                    
+                    $this->currentBaseUri = $uri;
+                    $routes = $group->routes;
+                    
+                    
+                    $this->currentMiddleware = array_merge(
+                        $this->currentMiddleware, 
+                        $group->middleware
+                    );
+                    
+                    if (is_callable($routes)) {
+                        $routes($this->currentMiddleware);
+                    }
+                    
+                    return $this->getMatchedRoutes($httpMethod, $resourceUri, $save);
+                }
+            }
+        }
+        
         foreach ($this->routes as $route) {
             if (!$route->supportsHttpMethod($httpMethod) && !$route->supportsHttpMethod("ANY")) {
                 continue;
             }
-
+            
             if ($route->matches($resourceUri)) {
                 $matchedRoutes[] = $route;
             }
         }
-
+        
         if ($save === true) {
             $this->matchedRoutes = $matchedRoutes;
         }
-
+        
         return $matchedRoutes;
     }
 
@@ -157,33 +197,12 @@ class Router implements RouterInterface
      */
     public function map(RouteInterface $route)
     {
-        list($groupPattern, $groupMiddleware) = $this->processGroups();
-        $route->setPattern($groupPattern . $route->getPattern());
+        $route->setPattern($this->currentBaseUri . $route->getPattern());
         $this->routes[] = $route;
-        foreach ($groupMiddleware as $middleware) {
+
+        foreach ($this->currentMiddleware as $middleware) {
             $route->setMiddleware($middleware);
         }
-    }
-
-    /**
-     * Process route groups
-     *
-     * A helper method for processing the group's pattern and middleware.
-     *
-     * @return array An array with the elements: pattern, middlewareArr
-     */
-    protected function processGroups()
-    {
-        $pattern = "";
-        $middleware = array();
-        foreach ($this->routeGroups as $group) {
-            $k = key($group);
-            $pattern .= $k;
-            if (is_array($group[$k])) {
-                $middleware = array_merge($middleware, $group[$k]);
-            }
-        }
-        return array($pattern, $middleware);
     }
 
     /**
@@ -193,19 +212,19 @@ class Router implements RouterInterface
      * @return int                    The index of the new group
      * @api
      */
-    public function pushGroup($group, $middleware = array())
+    public function addGroup($group, $routes, $middleware = array())
     {
-        return array_push($this->routeGroups, array($group => $middleware));
-    }
-
-    /**
-     * Removes the last route group from the array
-     * @return bool True if successful, else False
-     * @api
-     */
-    public function popGroup()
-    {
-        return (array_pop($this->routeGroups) !== null);
+        if (strlen($this->currentBaseUri) > 0)
+        {
+            $group = $this->currentBaseUri.$group;
+        }
+        return array_push(
+            $this->routeGroups, 
+            array($group => (object)array(
+                'routes'        => $routes,
+                'middleware'    => $middleware
+            ))
+        );
     }
 
     /**
