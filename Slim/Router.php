@@ -214,6 +214,10 @@ class Router implements RouterInterface
      */
     public function addGroup($group, $routes, $middleware = array())
     {
+        if (strlen($this->currentBaseUri) > 0)
+        {
+            $group = $this->currentBaseUri.$group;
+        }
         return array_push(
             $this->routeGroups, 
             array($group => (object)array(
