@@ -921,4 +921,23 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $this->assertEquals('/foo/%23bar', $this->request->getPathInfo());
     }
+
+    /**
+     * Test request with body uses the php://temp writable stream
+     */
+    public function testRequestWithBodyUsesWritableStream()
+    {
+        $this->initializeRequest();
+        $this->assertTrue($this->request->getBody()->isWritable());
+    }
+
+    /**
+     * Test request without body uses the php://input read-only stream
+     */
+    public function testRequestWithoutBodyUsesReadOnlyStream()
+    {
+        $this->initializeRequest(array(), null);
+        $this->assertFalse($this->request->getBody()->isWritable());
+    }
+
 }

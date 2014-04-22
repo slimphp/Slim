@@ -127,10 +127,12 @@ class Request implements RequestInterface
         $this->env = $env;
         $this->headers = $headers;
         $this->cookies = $cookies;
-        $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
 
         if (is_string($body) === true) {
+            $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
             $this->bodyRaw->write($body);
+        } else {
+            $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://input', 'r'));
         }
         $this->bodyRaw->seek(0);
     }
