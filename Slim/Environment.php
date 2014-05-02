@@ -121,15 +121,15 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env = array();
 
             //The HTTP request method
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
+            $env['REQUEST_METHOD'] = getenv('REQUEST_METHOD');
 
             //The IP
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+            $env['REMOTE_ADDR'] = getenv('REMOTE_ADDR');
 
             // Server params
-            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
-            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
+            $scriptName = getenv('SCRIPT_NAME'); // <-- "/foo/index.php"
+            $requestUri = getenv('REQUEST_URI'); // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+            $queryString = (getenv('QUERY_STRING') === null) ? getenv('QUERY_STRING') : ''; // <-- "test=abc" or ""
 
             // Physical path
             if (strpos($requestUri, $scriptName) !== false) {
@@ -148,10 +148,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['QUERY_STRING'] = $queryString;
 
             //Name of server host that is running the script
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+            $env['SERVER_NAME'] = getenv('SERVER_NAME');
 
             //Number of server port that is running the script
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+            $env['SERVER_PORT'] = getenv('SERVER_PORT');
 
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Slim\Http\Headers::extract($_SERVER);
