@@ -754,7 +754,17 @@ class Slim
             $this->response->status($status);
         }
         $this->view->appendData($data);
-        $this->view->display($template);
+        
+        
+        if (is_array($template)) {
+		    foreach ($template as $key=>$val) {
+                $this->view->display($template[$key]);
+		    }
+		}
+		else {
+		    $this->view->display($template);
+        }		
+        
     }
 
     /********************************************************************************
