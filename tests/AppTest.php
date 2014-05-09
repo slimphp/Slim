@@ -49,6 +49,15 @@ class CustomMiddleware extends \Slim\Middleware
     }
 }
 
+// Mock custom app that doesn't throw ErrorExceptions on warnings
+class NoErrorExceptionsApp extends \Slim\App
+{
+    public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
+    {
+        return true;
+    }
+}
+
 class AppTest extends PHPUnit_Framework_TestCase
 {
     protected $app;
@@ -1374,5 +1383,42 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(count($hookOne[10]) === 1);
         $this->app->clearHooks();
         $this->assertEquals(array(array()), $this->app->getHooks('test.hook.one'));
+    }
+
+    /**
+     * Test to see if the error handler is overridable in a class
+     * that extends \Slim\App
+     */
+    public function testOverrideErrorHandler()
+    {
+        $envSettings = array(
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/bar?one=foo&two=bar',
+            'QUERY_STRING' => 'one=foo&two=bar',
+            'SERVER_NAME' => 'slimframework.com'
+        );
+
+        $app = new NoErrorExceptionsApp;
+
+        $app['environment'] = function () use ($envSettings) {
+            $env = new \Slim\Environment();
+            $env->mock($envSettings);
+            return $env;
+        };
+
+        $app->get('/bar', function () {
+            $de = ini_get('display_errors');
+            ini_set('display_errors', false);
+            // triggers a warning
+            foreach ($notAnArray as $value) {
+            }
+            ini_set('display_errors', $de);
+        });
+
+        ob_start();
+        $app->run();
+        $clean = ob_get_clean();
+
+        $this->assertEquals(200, $app['response']->getStatus());
     }
 }
