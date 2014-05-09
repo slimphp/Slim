@@ -51,6 +51,11 @@ class Route
     protected $callable;
 
     /**
+     * @var object The routes context
+     */
+    protected $context;
+
+    /**
      * @var array Conditions for this route's URL parameters
      */
     protected $conditions = array();
@@ -179,6 +184,24 @@ class Route
         }
 
         $this->callable = $callable;
+    }
+
+    /**
+     * Get route context
+     * @return object
+     */
+    public function getContext()
+    {
+        return $this->context;
+    }
+
+    /**
+     * Set route context
+     * @param object $context
+     */
+    public function setContext(object $context)
+    {
+        $this->context = $context;
     }
 
     /**
