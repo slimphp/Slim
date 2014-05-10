@@ -576,6 +576,16 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($s, $route->getContext());
     }
 
+    public function testAppContextSetting()
+    {
+      $context = new StdClass;
+      $s = new \Slim\Slim(array(
+        "routes.context" => $context
+      ));
+      $route = $s->get('/foo', function(){});
+      $this->assertEquals($context, $route->getContext());
+    }
+
     /************************************************
      * VIEW
      ************************************************/
