@@ -150,6 +150,16 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/foo', 'doesNotExist'); // <-- Called inside __construct()
     }
 
+    public function testGetAndSetContext()
+    {
+      $context = array("foo" => "bar");
+      $route = new \Slim\Route('/foo', function(){});
+
+      $this->assertNull($route->getContext());
+      $route->setContext($context);
+      $this->assertEquals($context, $route->getContext());
+    }
+
     public function testGetParams()
     {
         $route = new \Slim\Route('/hello/:first/:last', function () {});

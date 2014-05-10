@@ -310,7 +310,8 @@ class Slim
             // HTTP
             'http.version' => '1.1',
             // Routing
-            'routes.case_sensitive' => true
+            'routes.case_sensitive' => true,
+            'routes.context' => null
         );
     }
 
@@ -441,6 +442,11 @@ class Slim
         $pattern = array_shift($args);
         $callable = array_pop($args);
         $route = new \Slim\Route($pattern, $callable, $this->settings['routes.case_sensitive']);
+
+        $obj = $this->settings['routes.context'];
+        $context = (is_null($obj)) ? $this : $obj;
+        $route->setContext($context); 
+
         $this->router->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
