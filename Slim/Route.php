@@ -51,7 +51,7 @@ class Route
     protected $callable;
 
     /**
-     * @var object The routes context
+     * @var mixed The routes context
      */
     protected $context;
 
@@ -188,7 +188,7 @@ class Route
 
     /**
      * Get route context
-     * @return object
+     * @return mixed
      */
     public function getContext()
     {
@@ -197,9 +197,9 @@ class Route
 
     /**
      * Set route context
-     * @param object $context
+     * @param mixed $context
      */
-    public function setContext(object $context)
+    public function setContext($context)
     {
         $this->context = $context;
     }
@@ -482,7 +482,14 @@ class Route
             call_user_func_array($mw, array($this));
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
+        $callable = $this->getCallable();
+        $context = $this->getContext();
+
+        if (method_exists('Closure','bindTo') && is_object($context)) {
+          $callable = \Closure::bind($callable, $context);
+        }
+
+        $return = call_user_func_array($callable, array_values($this->getParams()));
         return ($return === false) ? false : true;
     }
 }
