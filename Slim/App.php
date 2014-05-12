@@ -1042,7 +1042,7 @@ class App extends \Pimple
      */
     public function run()
     {
-        set_error_handler(array('\Slim\App', 'handleErrors'));
+        set_error_handler(array(get_called_class(), 'handleErrors'));
 
         // Invoke middleware and application stack
         try {
