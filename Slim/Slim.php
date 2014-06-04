@@ -231,22 +231,22 @@ class Slim
 
     public function __get($name)
     {
-        return $this->container[$name];
+        return $this->container->get($name);
     }
 
     public function __set($name, $value)
     {
-        $this->container[$name] = $value;
+        $this->container->set($name, $value);
     }
 
     public function __isset($name)
     {
-        return isset($this->container[$name]);
+        return $this->container->has($name);
     }
 
     public function __unset($name)
     {
-        unset($this->container[$name]);
+        $this->container->remove($name);
     }
 
     /**
