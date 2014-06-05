@@ -484,6 +484,32 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('jo hnsmi th', (string)$this->app['response']->getBody());
     }
 
+    /**
+     * Test that the app will set itself as a default context on routes
+     */
+
+    public function testAppDefaultContext()
+    {
+        $s = new \Slim\App();
+        $route = $s->get('/foo', function(){});
+        $this->assertEquals($s, $route->getContext());
+    }
+
+    /**
+     * Test Setting an alternate context in the apps settings
+     */
+
+    public function testAppContextSetting()
+    {
+        $context = new StdClass;
+        $s = new \Slim\App(array(
+            "routes.context" => $context
+        ));
+
+        $route = $s->get('/foo', function(){});
+        $this->assertEquals($context, $route->getContext());
+    }
+
     /************************************************
      * File Streaming
      ************************************************/
