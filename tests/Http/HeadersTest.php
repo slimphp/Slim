@@ -63,8 +63,16 @@ class HeadersTest extends PHPUnit_Framework_TestCase
 
     public function testGet()
     {
-        $this->property->setValue($this->headers, array('Content-Length' => 100));
+        $this->property->setValue($this->headers, array('Content-Length' => array(100)));
         $this->assertEquals(100, $this->headers->get('CONTENT_LENGTH'));
+    }
+
+    public function testAdd()
+    {
+        $this->headers->set('foo', 'foo');
+        $this->headers->add('foo', 'bar');
+        $this->assertEquals(array('Foo'=>array('foo', 'bar')), $this->property->getValue($this->headers));
+        $this->assertEquals('foo, bar', $this->headers->get('foo'));
     }
 
     public function testHas()

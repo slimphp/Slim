@@ -79,7 +79,7 @@ class Response implements ResponseInterface
 
     /**
      * Response body
-     * @var \Guzzle\Stream\StreamInterface
+     * @var \GuzzleHttp\Stream\StreamInterface
      */
     protected $body;
 
@@ -171,7 +171,7 @@ class Response implements ResponseInterface
         }
         $this->cookies = $cookies;
         $this->setStatus($status);
-        $this->body = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         $this->body->write($body);
     }
 
@@ -296,14 +296,29 @@ class Response implements ResponseInterface
         $this->headers->replace($headers);
     }
 
+    /**
+     * Add a header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
     public function addHeader($name, $value)
     {
-        // TODO
+        $this->headers->add($name, $value);
     }
 
+    /**
+     * Add multiple header values
+     *
+     * @param array $headers
+     * @api
+     */
     public function addHeaders(array $headers)
     {
-        // TODO
+        foreach ($headers as $name => $value) {
+            $this->headers->add($name, $value);
+        }
     }
 
     /**
@@ -405,7 +420,7 @@ class Response implements ResponseInterface
     /**
      * Get response body
      *
-     * @return \Guzzle\Stream\StreamInterface
+     * @return \GuzzleHttp\Stream\StreamInterface
      * @api
      */
     public function getBody()
@@ -416,10 +431,10 @@ class Response implements ResponseInterface
     /**
      * Set response body
      *
-     * @param \Guzzle\Stream\StreamInterface $body
+     * @param \GuzzleHttp\Stream\StreamInterface $body
      * @api
      */
-    public function setBody(\Guzzle\Stream\StreamInterface $body)
+    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
     {
         $this->body = $body;
     }
@@ -435,7 +450,7 @@ class Response implements ResponseInterface
     {
         if ($overwrite === true) {
             $this->body->close();
-            $this->body->setStream(fopen('php://temp', 'r+'));
+            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         }
         $this->body->write($body);
     }
@@ -491,7 +506,7 @@ class Response implements ResponseInterface
         // Truncate body if it should not be sent with response
         if ($sendBody === false) {
             $this->body->close();
-            $this->body->setStream(fopen('php://temp', 'r+'));
+            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         }
 
         return $this;
@@ -514,19 +529,16 @@ class Response implements ResponseInterface
             }
 
             foreach ($this->headers as $name => $value) {
-                $hValues = explode("\n", $value);
-                foreach ($hValues as $hVal) {
+                foreach ($value as $hVal) {
                     header("$name: $hVal", false);
                 }
             }
         }
 
         // Send body
-        $this->body->rewind();
-        while ($this->body->feof() === false) {
-            ob_start();
+        $this->body->seek(0);
+        while ($this->body->eof() === false) {
             echo $this->body->read(1024);
-            echo ob_get_clean();
         }
 
         return $this;

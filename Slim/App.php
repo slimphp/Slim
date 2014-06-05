@@ -157,11 +157,9 @@ class App extends \Pimple
         // Flash
         $this['flash'] = function ($c) {
             $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
-            // TODO: Build array-access to current request messages for easy view integration
-            //
-            // if ($c['settings']['view'] instanceof \Slim\View) {
-            //     $c['view']->set('flash', $flash->getMessages());
-            // }
+            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface) {
+                $c['view']->set('flash', $flash);
+            }
 
             return $flash;
         };
@@ -939,7 +937,7 @@ class App extends \Pimple
      */
     public function sendFile($file, $contentType = false) {
         $fp = fopen($file, "r");
-        $this['response']->getBody()->setStream($fp);
+        $this['response']->setBody(new \GuzzleHttp\Stream\Stream($fp));
         if ($contentType) {
             $this['response']->setHeader("Content-Type", $contentType);
         } else {
@@ -983,7 +981,7 @@ class App extends \Pimple
      * @api
      */
     public function sendProcess($command, $contentType = "text/plain") {
-        $this['response']->getBody()->setStream(popen($command, 'r'));
+        $this['response']->setBody(new \GuzzleHttp\Stream\Stream(popen($command, 'r')));
         $this['response']->setHeader("Content-Type", $contentType);
     }
 

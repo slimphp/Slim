@@ -103,7 +103,7 @@ class Request implements RequestInterface
 
     /**
      * Request body (raw)
-     * @var \Guzzle\Stream\StreamInterface
+     * @var \GuzzleHttp\Stream\StreamInterface
      */
     protected $bodyRaw;
 
@@ -127,16 +127,12 @@ class Request implements RequestInterface
         $this->env = $env;
         $this->headers = $headers;
         $this->cookies = $cookies;
-        $this->bodyRaw = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
 
         if (is_string($body) === true) {
             $this->bodyRaw->write($body);
-        } else {
-            $inputStream = fopen('php://input', 'r');
-            stream_copy_to_stream($inputStream, $this->bodyRaw->getStream());
-            fclose($inputStream);
         }
-        $this->bodyRaw->rewind();
+        $this->bodyRaw->seek(0);
     }
 
     /*******************************************************************************
@@ -164,10 +160,10 @@ class Request implements RequestInterface
     {
         // Get actual request method
         $method = $this->env->get('REQUEST_METHOD');
-        $methodOverride = $this->headers->get('HTTP_X_HTTP_METHOD_OVERRIDE', false);
+        $methodOverride = $this->headers->get('HTTP_X_HTTP_METHOD_OVERRIDE');
 
         // Detect method override (by HTTP header or POST parameter)
-        if ($methodOverride !== false) {
+        if (!empty($methodOverride)) {
             $method = strtoupper($methodOverride);
         } else if ($method === static::METHOD_POST) {
             $customMethod = $this->post(static::METHOD_OVERRIDE, false);
@@ -286,14 +282,29 @@ class Request implements RequestInterface
         $this->headers->replace($headers);
     }
 
+    /**
+     * Add a header value
+     *
+     * @param string $name
+     * @param string $value
+     * @api
+     */
     public function addHeader($name, $value)
     {
-        // TODO
+        $this->headers->add($name, $value);
     }
 
+    /**
+     * Add multiple header values
+     *
+     * @param array $headers
+     * @api
+     */
     public function addHeaders(array $headers)
     {
-        // TODO
+        foreach ($headers as $name => $value) {
+            $this->headers->add($name, $value);
+        }
     }
 
     /**
@@ -383,7 +394,7 @@ class Request implements RequestInterface
     /**
      * Get Body
      *
-     * @return \Guzzle\Stream\StreamInterface
+     * @return \GuzzleHttp\Stream\StreamInterface
      * @api
      */
     public function getBody()
@@ -394,10 +405,10 @@ class Request implements RequestInterface
     /**
      * Set request body
      *
-     * @param \Guzzle\Stream\StreamInterface $body
+     * @param \GuzzleHttp\Stream\StreamInterface $body
      * @api
      */
-    public function setBody(\Guzzle\Stream\StreamInterface $body)
+    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
     {
         $this->bodyRaw = $body;
     }
@@ -669,7 +680,7 @@ class Request implements RequestInterface
      */
     public function isFormData()
     {
-        return (is_null($this->getContentType()) && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
+        return ($this->getContentType() == '' && $this->getOriginalMethod() === static::METHOD_POST) || in_array($this->getMediaType(), self::$formDataMediaTypes);
     }
 
     /**

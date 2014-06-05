@@ -149,7 +149,10 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         );
         $this->headersProperty->getValue($this->response)->replace($headers);
 
-        $this->assertSame($headers, $this->response->getHeaders());
+        $this->assertSame(array(
+            'Content-Type' => array('application/json'),
+            'X-Foo' => array('Bar')
+        ), $this->response->getHeaders());
     }
 
     public function testHasHeader()
@@ -188,6 +191,22 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
         $this->assertArrayHasKey('X-Test', $this->headersProperty->getValue($this->response)->all());
+    }
+
+    public function testAddHeader()
+    {
+        $this->response->setHeader('X-Foo', 'Bar');
+        $this->response->addHeader('X-Foo', 'Foo');
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+        $this->assertEquals('Bar, Foo', $this->headersProperty->getValue($this->response)->get('X-Foo'));
+    }
+
+    public function testAddHeaders()
+    {
+        $this->response->setHeader('X-Foo', 'Bar');
+        $this->response->addHeaders(array('X-Foo' => array('Foo', '123')));
+        $this->assertArrayHasKey('X-Foo', $this->headersProperty->getValue($this->response)->all());
+        $this->assertEquals('Bar, Foo, 123', $this->headersProperty->getValue($this->response)->get('X-Foo'));
     }
 
     public function testRemoveHeader()
@@ -264,13 +283,13 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->bodyProperty->getValue($this->response)->write('Foo');
         $body = $this->response->getBody();
 
-        $this->assertInstanceOf('\Guzzle\Stream\StreamInterface', $body);
+        $this->assertInstanceOf('\GuzzleHttp\Stream\StreamInterface', $body);
         $this->assertEquals('Foo', (string)$this->response->getBody());
     }
 
     public function testSetBody()
     {
-        $newStream = new \Guzzle\Stream\Stream(fopen('php://temp', 'r+'));
+        $newStream = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
         $this->response->setBody($newStream);
 
         $this->assertSame($newStream, $this->bodyProperty->getValue($this->response));
@@ -462,5 +481,16 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->statusProperty->setValue($this->response, 403);
 
         $this->assertFalse($this->response->isServerError());
+    }
+
+    public function testResponseSend()
+    {
+        $this->bodyProperty->getValue($this->response)->write('Foo');
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $this->assertTrue(headers_sent());
+        $this->assertEquals('Foo', $output);
     }
 }
