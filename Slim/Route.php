@@ -107,6 +107,7 @@ class Route
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
         $this->caseSensitive = $caseSensitive;
+        $this->middleware = array($this);
     }
 
     /**
@@ -338,18 +339,39 @@ class Route
      */
     public function setMiddleware($middleware)
     {
-        if (is_callable($middleware)) {
-            $this->middleware[] = $middleware;
-        } elseif (is_array($middleware)) {
-            foreach ($middleware as $callable) {
-                if (!is_callable($callable)) {
-                    throw new \InvalidArgumentException('All Route middleware must be callable');
-                }
+        if (is_array( $middleware )){
+            $index = count($middleware);
+            while($index) {
+                $this->add( $middleware[--$index] );
             }
-            $this->middleware = array_merge($this->middleware, $middleware);
-        } else {
-            throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
         }
+        else {
+            $this->add( $middleware );
+        }
+
+        return $this;
+    }
+
+    /**
+     * Add middleware
+     *
+     * This method prepends new middleware to the route middleware stack.
+     * The argument must be an instance that subclasses Slim_Middleware.
+     *
+     * @param \Slim\Middleware
+     * @throws  \RuntimeException
+     * @return \Slim\Route
+     */
+    public function add(\Slim\Middleware $newMiddleware)
+    {
+        if(in_array($newMiddleware, $this->middleware)) {
+            $middleware_class = get_class($newMiddleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
+        }
+
+        $newMiddleware->setApplication(\Slim\Slim::getInstance());
+        $newMiddleware->setNextMiddleware($this->middleware[0]);
+        array_unshift($this->middleware, $newMiddleware);
 
         return $this;
     }
@@ -455,10 +477,20 @@ class Route
      */
     public function dispatch()
     {
-        foreach ($this->middleware as $mw) {
-            call_user_func_array($mw, array($this));
-        }
+        //Invoke middleware and route stack
+        $this->middleware[0]->call();
+        return true;
+    }
 
+    /**
+     * Call
+     *
+     * This method implements the \Middleware 'call' method
+     *
+     * @return bool
+     */
+    public function call()
+    {
         $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
         return ($return === false) ? false : true;
     }

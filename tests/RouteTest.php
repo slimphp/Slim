@@ -51,6 +51,24 @@ class FooTestClass {
     }
 }
 
+//Mock middleware
+class RouteMiddleware1 extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "First! ";
+        $this->next->call();
+    }
+}
+class RouteMiddleware2 extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "Second! ";
+        $this->next->call();
+    }
+}
+
 class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testGetPattern()
@@ -433,73 +451,46 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($route->matches('/hello/world/foo/bar'));
     }
 
-    public function testSetMiddleware()
+    /************************************************
+     * MIDDLEWARE
+     ************************************************/
+
+    /**
+     * Test add middleware
+     *
+     * This asserts that middleware are queued and called
+     * in sequence. This also asserts that the environment
+     * variables are passed by reference.
+     */
+    public function testAddMiddleware()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $mw = function () {
-            echo 'Foo';
-        };
-        $route->setMiddleware($mw);
+        $mw = new RouteMiddleware1();
+        $route->add($mw);
 
         $this->assertAttributeContains($mw, 'middleware', $route);
     }
 
-    public function testSetMiddlewareMultipleTimes()
+    /**
+     * Test exception when adding circular middleware queues
+     *
+     * This asserts that the same middleware can NOT be queued twice (usually by accident).
+     * Circular middleware stack causes a troublesome to debug PHP Fatal error:
+     *
+     * > Fatal error: Maximum function nesting level of '100' reached. aborting!
+     */
+    public function testFailureWhenAddingCircularMiddleware()
     {
-        $route = new \Slim\Route('/foo', function () {});
-        $mw1 = function () {
+        $this->setExpectedException('\RuntimeException');
+        $middleware = new RouteMiddleware1();
+        $s = new \Slim\Slim;
+        $route = $s->get('/bar', function () {
             echo 'Foo';
-        };
-        $mw2 = function () {
-            echo 'Bar';
-        };
-        $route->setMiddleware($mw1);
-        $route->setMiddleware($mw2);
-
-        $this->assertAttributeContains($mw1, 'middleware', $route);
-        $this->assertAttributeContains($mw2, 'middleware', $route);
-    }
-
-    public function testSetMiddlewareWithArray()
-    {
-        $route = new \Slim\Route('/foo', function () {});
-        $mw1 = function () {
-            echo 'Foo';
-        };
-        $mw2 = function () {
-            echo 'Bar';
-        };
-        $route->setMiddleware(array($mw1, $mw2));
-
-        $this->assertAttributeContains($mw1, 'middleware', $route);
-        $this->assertAttributeContains($mw2, 'middleware', $route);
-    }
-
-    public function testSetMiddlewareWithInvalidArgument()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $route = new \Slim\Route('/foo', function () {});
-        $route->setMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
-    }
-
-    public function testSetMiddlewareWithArrayWithInvalidArgument()
-    {
-        $this->setExpectedException('InvalidArgumentException');
-
-        $route = new \Slim\Route('/foo', function () {});
-        $route->setMiddleware(array('doesNotExist'));
-    }
-
-    public function testGetMiddleware()
-    {
-        $route = new \Slim\Route('/foo', function () {});
-
-        $property = new \ReflectionProperty($route, 'middleware');
-        $property->setAccessible(true);
-        $property->setValue($route, array('foo' => 'bar'));
-
-        $this->assertEquals(array('foo' => 'bar'), $route->getMiddleware());
+        });
+        $route->add($middleware);
+        $route->add(new RouteMiddleware1);
+        $route->add($middleware);
+        $s->run();
     }
 
     public function testSetHttpMethods()
@@ -572,12 +563,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('First! Second! Hello josh');
         $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setMiddleware(function () {
-            echo "First! ";
-        });
-        $route->setMiddleware(function () {
-            echo "Second! ";
-        });
+        $route->add( new RouteMiddleware2() );
+        $route->add( new RouteMiddleware1() );
+
         $route->matches('/hello/josh'); //<-- Extracts params from resource URI
         $route->dispatch();
     }
@@ -585,15 +573,13 @@ class RouteTest extends PHPUnit_Framework_TestCase
     /**
      * Test middleware with arguments
      */
-    public function testRouteMiddlwareArguments()
+    /*public function testRouteMiddlwareArguments()
     {
         $this->expectOutputString('foobar');
         $route = new \Slim\Route('/foo', function () { echo "bar"; });
         $route->setName('foo');
-        $route->setMiddleware(function ($route) {
-            echo $route->getName();
-        });
+        $route->add( new RouteMiddlewar4($route) );
         $route->matches('/foo'); //<-- Extracts params from resource URI
         $route->dispatch();
-    }
+    }*/
 }

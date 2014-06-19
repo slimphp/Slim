@@ -66,6 +66,32 @@ class CustomMiddleware extends \Slim\Middleware
         $res->write('Hello');
     }
 }
+//Mock middleware
+class CustomMiddlewarePre extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "foo";
+        $this->next->call();
+    }
+}
+class CustomMiddlewarePost extends \Slim\Middleware
+{
+    public function call()
+    {
+        $this->next->call();
+        echo "bar";
+    }
+}
+class CustomMiddlewarePrePost extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "Xfoo";
+        $this->next->call();
+        echo "Xbar";
+    }
+}
 
 class SlimTest extends PHPUnit_Framework_TestCase
 {
@@ -363,12 +389,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
     public function testGetRoute()
     {
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $route = $s->get('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -384,12 +410,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePrePost();
         $callable = function () { echo "xyz"; };
         $route = $s->post('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('XfooxyzXbarbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -405,12 +431,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $route = $s->put('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -426,12 +452,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw2 = new CustomMiddlewarePost();
+        $mw1 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $route = $s->patch('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -447,12 +473,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $route = $s->delete('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -468,12 +494,12 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar', //<-- Virtual
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $route = $s->options('/bar', $mw1, $mw2, $callable);
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -489,14 +515,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
             'PATH_INFO' => '/bar/baz', //<-- Virtual'
         ));
         $s = new \Slim\Slim();
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $s->group('/bar', $mw1, function () use ($s, $mw2, $callable) {
             $s->get('/baz', $mw2, $callable);
         });
         $s->call();
-        $this->assertEquals('foobarxyz', $s->response()->body());
+        $this->assertEquals('fooxyzbar', $s->response()->body());
     }
 
     /*
@@ -504,8 +530,8 @@ class SlimTest extends PHPUnit_Framework_TestCase
      */
     public function testAnyRoute()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePost();
+        $mw2 = new CustomMiddlewarePre();
         $callable = function () { echo "xyz"; };
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
         foreach ($methods as $i => $method) {
@@ -517,7 +543,7 @@ class SlimTest extends PHPUnit_Framework_TestCase
             $s = new \Slim\Slim();
             $route = $s->any('/bar', $mw1, $mw2, $callable);
             $s->call();
-            $this->assertEquals('foobarxyz', $s->response()->body());
+            $this->assertEquals('fooxyzbar', $s->response()->body());
             $this->assertEquals('/bar', $route->getPattern());
             $this->assertSame($callable, $route->getCallable());
         }
