@@ -135,6 +135,7 @@ class Route implements RouteInterface
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
         $this->caseSensitive = $caseSensitive;
+		$this->middleware = array($this);
     }
 
     /**
@@ -375,6 +376,67 @@ class Route implements RouteInterface
     public function getMiddleware()
     {
         return $this->middleware;
+    }
+	
+	/**
+     * Set middleware
+     *
+     * This method allows middleware to be assigned to a specific Route.
+     * If the method argument `\Slim\Middleware` (including \Slim\Middleware arrays!),
+     * we directly append the argument to `$this->middleware`. Else, we
+     * assume the argument is an array of Middleware and merge the array
+     * with `$this->middleware`.  Each middleware is checked for instance of \Slim\Middleware
+     * and an InvalidArgumentException is thrown immediately if it isn't.
+     *
+     * @param  Callable|array[Callable]
+     * @return \Slim\Route
+     * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
+     */
+    public function setMiddleware($middleware)
+    {
+        if (is_array( $middleware )){
+			foreach ($middlware as $m) {
+				if (! $m instanceof \Slim\Middleware ) {
+                    throw new \InvalidArgumentException('All Route middleware must be an instace of \Slim\Middleware');
+                }
+			}
+			$index = count($middleware); // reverse loop (Rack protocol)
+            while($index) {
+                $this->add( $middleware[--$index] );
+            }
+        }
+        else {
+			if (! $middleware instanceof \Slim\Middleware ) {
+				throw new \InvalidArgumentException('All Route middleware must be an instace of \Slim\Middleware');
+			}
+            $this->add( $middleware );
+        }
+
+        return $this;
+    }
+	
+	/**
+     * Add middleware
+     *
+     * This method prepends new middleware to the route middleware stack.
+     * The argument must be an instance that subclasses Slim_Middleware.
+     *
+     * @param \Slim\Middleware
+     * @throws  \RuntimeException
+     * @return \Slim\Route
+     */
+    private function add(\Slim\Middleware $newMiddleware)
+    {
+        if(in_array($newMiddleware, $this->middleware)) {
+            $middleware_class = get_class($newMiddleware);
+            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
+        }
+
+        $newMiddleware->setApplication(\Slim\Slim::getInstance());
+        $newMiddleware->setNextMiddleware($this->middleware[0]);
+        array_unshift($this->middleware, $newMiddleware);
+
+        return $this;
     }
 
     /**
