@@ -593,7 +593,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 		$mw1 = new RouteMiddleware1();
         $mw2 = new RouteMiddleware2();
         $route->setMiddleware($mw2);
-        $route->setMiddleware($mw1)
+        $route->setMiddleware($mw1);
         $route->matches('/hello/josh'); //<-- Extracts params from resource URI
         $route->dispatch();
     }

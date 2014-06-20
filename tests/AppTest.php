@@ -315,7 +315,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testGetRoute()
     {
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->get('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -334,7 +334,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->post('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -353,7 +353,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->put('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -372,7 +372,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->patch('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -391,7 +391,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->delete('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -410,7 +410,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->options('/bar', $mw1, $mw2, $callable);
         $this->app->call();
@@ -431,7 +431,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
 
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $app->group('/bar', $mw1, function () use ($app, $mw2, $callable) {
             $app->get('/baz', $mw2, $callable);
@@ -446,7 +446,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testAnyRoute()
     {
         $mw1 = new CustomMiddlewarePre();
-        $mw2 = new RouteMiddlewarePost();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
 
