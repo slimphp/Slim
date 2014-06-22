@@ -85,7 +85,7 @@ class Log
     );
 
     /**
-     * @var mixed
+     * @var mixed|\Slim\LogWriter
      */
     protected $writer;
 
@@ -101,7 +101,7 @@ class Log
 
     /**
      * Constructor
-     * @param  mixed $writer
+     * @param  mixed|\Slim\LogWriter $writer
      */
     public function __construct($writer)
     {
