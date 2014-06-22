@@ -136,20 +136,6 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertSame($s, \Slim\Slim::getInstance('foo'));
     }
 
-    /**
-     * Test Slim autoloader ignores non-Slim classes
-     *
-     * Pre-conditions:
-     * Instantiate a non-Slim class;
-     *
-     * Post-conditions:
-     * Slim autoloader returns without requiring a class file;
-     */
-    public function testSlimAutoloaderIgnoresNonSlimClass()
-    {
-        $foo = new Foo();
-    }
-
     /************************************************
      * SETTINGS
      ************************************************/
