@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use Psr\Log\LoggerInterface;
+
 /**
  * Log
  *
@@ -58,7 +60,7 @@ namespace Slim;
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Log
+class Log implements LoggerInterface
 {
     const EMERGENCY = 1;
     const ALERT     = 2;
