@@ -35,8 +35,10 @@ namespace Slim;
 /**
  * Log Writer
  *
- * This class is used by Slim_Log to write log messages to a valid, writable
+ * This class is used by \Slim\Log to write log messages to a valid, writable
  * resource handle (e.g. a file or STDERR).
+ *
+ * @see \Slim\Log
  *
  * @package Slim
  * @author  Josh Lockhart
@@ -66,10 +68,11 @@ class LogWriter
      * Write message
      * @param  mixed     $message
      * @param  int       $level
-     * @return int|bool
+     * @return int|bool  number of bytes written, or FALSE on error
+     * @see fwrite
      */
     public function write($message, $level = null)
     {
-        return fwrite($this->resource, (string) $message . PHP_EOL);
+        return fwrite($this->resource, (isset($level) ? "[$level]: " : '') . $message . PHP_EOL);
     }
 }
