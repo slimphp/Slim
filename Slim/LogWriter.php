@@ -35,8 +35,10 @@ namespace Slim;
 /**
  * Log Writer
  *
- * This class is used by Slim_Log to write log messages to a valid, writable
+ * This class is used by \Slim\Log to write log messages to a valid, writable
  * resource handle (e.g. a file or STDERR).
+ *
+ * @see \Slim\Log
  *
  * @package Slim
  * @author  Josh Lockhart
