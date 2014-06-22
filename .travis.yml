@@ -6,4 +6,6 @@ php:
   - 5.5
   - hhvm
 
+before_script: composer install
+
 script: phpunit --coverage-text
