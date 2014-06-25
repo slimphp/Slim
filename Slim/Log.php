@@ -306,7 +306,7 @@ class Log
         if (!isset(self::$levels[$level])) {
             throw new \InvalidArgumentException('Invalid log level supplied to function');
         } else if ($this->enabled && $this->writer && $level <= $this->level) {
-            $message = (string)$object;
+            $message = ( is_array($object) || is_object($object) ) ? print_r($object, 1) : (string)$object;
             if (count($context) > 0) {
                 if (isset($context['exception']) && $context['exception'] instanceof \Exception) {
                     $message .= ' - ' . $context['exception'];
