@@ -307,7 +307,7 @@ class Log
             throw new \InvalidArgumentException('Invalid log level supplied to function');
         } else if ($this->enabled && $this->writer && $level <= $this->level) {
             if (is_array($object) || (is_object($object) && !method_exists($object, "__toString"))) {
-                $message = print_r($object,1);
+                $message = print_r($object, true);
             } else {
                 $message = (string) $object;
             }   
