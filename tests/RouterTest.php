@@ -217,6 +217,42 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route1, $matchedRoutes[0]);
     }
 
+    public function testRouteContainingSpecialChars()
+    {
+        $route1 = new \Slim\Route('/a.b', function () {});
+        $route1 = $route1->via('GET');
+
+        $route2 = new \Slim\Route('/a*b', function () {});
+        $route2 = $route2->via('GET');
+
+        $route3 = new \Slim\Route('/a+b', function () {});
+        $route3 = $route3->via('GET');
+
+        $router = new \Slim\Router();
+        $routes = new \ReflectionProperty($router, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array($route1, $route2, $route3));
+
+        $matchedRoutes = $router->getMatchedRoutes('GET', '/a.b');
+        $this->assertSame(array($route1), $matchedRoutes);
+
+        $router = new \Slim\Router();
+        $routes = new \ReflectionProperty($router, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array($route1, $route2, $route3));
+
+        $matchedRoutes = $router->getMatchedRoutes('GET', '/a*b');
+        $this->assertSame(array($route2), $matchedRoutes);
+
+        $router = new \Slim\Router();
+        $routes = new \ReflectionProperty($router, 'routes');
+        $routes->setAccessible(true);
+        $routes->setValue($router, array($route1, $route2, $route3));
+
+        $matchedRoutes = $router->getMatchedRoutes('GET', '/a+b');
+        $this->assertSame(array($route3), $matchedRoutes);
+    }
+
     // Test url for named route
 
     public function testUrlFor()

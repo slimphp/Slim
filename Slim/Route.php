@@ -425,10 +425,28 @@ class Route implements RouteInterface
     public function matches($resourceUri)
     {
         //Convert URL params into regex patterns, construct a regex for this route, init params
+
+        /*  These chars are valid URI chars but at the same time are reserved regex chars.
+            See: http://en.wikipedia.org/wiki/Percent-encoding#Types_of_URI_characters
+            PS: ( and ) are used to describe optional parameters so are not allowed
+            as URI chars using Slim.
+            That's the reason why `preg_quote` can't be used.
+        */
+
+        $escapedPattern = (string)$this->pattern;
+
+        $charsToEscape = array(
+            "!", "*", "'", "+", "$", ",", "/", "?", "#", "[ ", "]", "."
+        );
+
+        foreach($charsToEscape as $toEscape) {
+            $escapedPattern = str_replace($toEscape, "\\$toEscape", $escapedPattern);
+        }
+
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string)$this->pattern)
+            str_replace(')', ')?', $escapedPattern)
         );
         if (substr($this->pattern, -1) === '/') {
             $patternAsRegex .= '?';
