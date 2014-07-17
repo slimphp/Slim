@@ -217,15 +217,23 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route1, $matchedRoutes[0]);
     }
 
+    public function testRouteShouldNotEscapeSpecialCharsByDefault()
+    {
+        $route = new \Slim\Route('/a.b', function () {});
+
+        $this->assertFalse($route->getEscapePattern());
+
+    }
+
     public function testRouteContainingSpecialChars()
     {
-        $route1 = new \Slim\Route('/a.b', function () {});
+        $route1 = new \Slim\Route('/a.b', function () {}, true, true);
         $route1 = $route1->via('GET');
 
-        $route2 = new \Slim\Route('/a*b', function () {});
+        $route2 = new \Slim\Route('/a*b', function () {}, true, true);
         $route2 = $route2->via('GET');
 
-        $route3 = new \Slim\Route('/a+b', function () {});
+        $route3 = new \Slim\Route('/azb', function () {}, true, true);
         $route3 = $route3->via('GET');
 
         $router = new \Slim\Router();
@@ -249,7 +257,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $routes->setAccessible(true);
         $routes->setValue($router, array($route1, $route2, $route3));
 
-        $matchedRoutes = $router->getMatchedRoutes('GET', '/a+b');
+        $matchedRoutes = $router->getMatchedRoutes('GET', '/azb');
         $this->assertSame(array($route3), $matchedRoutes);
     }
 
