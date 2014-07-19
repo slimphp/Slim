@@ -151,7 +151,7 @@ class Cookies extends Collection implements CookiesInterface
      * @param \Slim\Interfaces\Http\HeadersInterface $headers
      * @api
      */
-    public function setHeaders(HeadersInterface &$headers)
+    public function setHeaders(HeadersInterface $headers)
     {
         foreach ($this->data as $name => $settings) {
             $this->setHeader($headers, $name, $settings);
@@ -175,7 +175,7 @@ class Cookies extends Collection implements CookiesInterface
      * @param string                                 $value
      * @api
      */
-    public function setHeader(HeadersInterface &$headers, $name, $value)
+    public function setHeader(HeadersInterface $headers, $name, $value)
     {
         $values = array();
 
@@ -242,7 +242,7 @@ class Cookies extends Collection implements CookiesInterface
      * @param array                                  $value
      * @api
      */
-    public function deleteHeader(HeadersInterface &$headers, $name, $value = array())
+    public function deleteHeader(HeadersInterface $headers, $name, $value = array())
     {
         $crumbs = ($headers->has('Set-Cookie') ? explode("\n", $headers->get('Set-Cookie')) : array());
         $cookies = array();
