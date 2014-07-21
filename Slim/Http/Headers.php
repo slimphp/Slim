@@ -142,11 +142,8 @@ class Headers extends Collection implements HeadersInterface
     public function add($key, $value)
     {
         $header = $this->get($key, true);
-        if (is_array($value)) {
-            $header = array_merge($header, $value);
-        } else {
-            $header[] = $value;
-        }
+        $header = array_merge($header, $value);
+            
         parent::set($this->normalizeKey($key), $header);
     }
 
