@@ -80,6 +80,12 @@ class Router implements RouterInterface
     protected $routeGroups;
 
     /**
+     * Cached URLs: store and reuse already built urls
+     * @var array
+     */
+    protected $cachedUrls;
+
+    /**
      * Constructor
      * @api
      */
@@ -218,6 +224,12 @@ class Router implements RouterInterface
      */
     public function urlFor($name, $params = array())
     {
+        $cacheKey = md5($name . serialize($params));
+
+        if (isset($this->cachedUrls[$cacheKey])) {
+            return $this->cachedUrls[$cacheKey];
+        }
+
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
@@ -228,7 +240,11 @@ class Router implements RouterInterface
         $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments, escaped special characters
-        return preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
+        $url = preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
+        
+        $this->cachedUrls[$cacheKey] = $url;
+        
+        return $url;
     }
 
     /**
