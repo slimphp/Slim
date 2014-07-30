@@ -736,6 +736,7 @@ class App extends \Pimple
      * The thrown exception will be caught in application's `call()` method
      * and the response will be sent as is to the HTTP client.
      *
+     * @return \Exception
      * @throws \Slim\Exception\Stop
      * @api
      */
@@ -755,6 +756,7 @@ class App extends \Pimple
      *
      * @param  int    $status  The HTTP response status
      * @param  string $message The HTTP response body
+     * @throws \Exception
      * @api
      */
     public function halt($status, $message = '')
@@ -762,7 +764,7 @@ class App extends \Pimple
         $this->cleanBuffer();
         $this['response']->setStatus($status);
         $this['response']->write($message, true);
-        $this->stop();
+        throw $this->stop();
     }
 
     /**
@@ -772,6 +774,7 @@ class App extends \Pimple
      * the router's current iteration to stop and continue to the subsequent route if available.
      * If no subsequent matching routes are found, a 404 response will be sent to the client.
      *
+     * @return \Exception
      * @throws \Slim\Exception\Pass
      * @api
      */
