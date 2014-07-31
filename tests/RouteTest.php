@@ -51,6 +51,24 @@ class FooTestClass {
     }
 }
 
+//Mock middleware
+class RouteMiddleware1 extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "First! ";
+        $this->next->call();
+    }
+}
+class RouteMiddleware2 extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "Second! ";
+        $this->next->call();
+    }
+}
+
 class RouteTest extends PHPUnit_Framework_TestCase
 {
     public function testGetPattern()
@@ -428,9 +446,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetMiddleware()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $mw = function () {
-            echo 'Foo';
-        };
+        $mw = new RouteMiddleware1();
         $route->setMiddleware($mw);
 
         $this->assertAttributeContains($mw, 'middleware', $route);
@@ -439,12 +455,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetMiddlewareMultipleTimes()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $mw1 = function () {
-            echo 'Foo';
-        };
-        $mw2 = function () {
-            echo 'Bar';
-        };
+        $mw1 = new RouteMiddleware1();
+        $mw2 = new RouteMiddleware2();
         $route->setMiddleware($mw1);
         $route->setMiddleware($mw2);
 
@@ -455,12 +467,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetMiddlewareWithArray()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $mw1 = function () {
-            echo 'Foo';
-        };
-        $mw2 = function () {
-            echo 'Bar';
-        };
+        $mw1 = new RouteMiddleware1();
+        $mw2 = new RouteMiddleware2();
         $route->setMiddleware(array($mw1, $mw2));
 
         $this->assertAttributeContains($mw1, 'middleware', $route);
@@ -582,28 +590,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('First! Second! Hello josh');
         $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setMiddleware(function () {
-            echo "First! ";
-        });
-        $route->setMiddleware(function () {
-            echo "Second! ";
-        });
+		$mw1 = new RouteMiddleware1();
+        $mw2 = new RouteMiddleware2();
+        $route->setMiddleware($mw2);
+        $route->setMiddleware($mw1);
         $route->matches('/hello/josh'); //<-- Extracts params from resource URI
-        $route->dispatch();
-    }
-
-    /**
-     * Test middleware with arguments
-     */
-    public function testRouteMiddlwareArguments()
-    {
-        $this->expectOutputString('foobar');
-        $route = new \Slim\Route('/foo', function () { echo "bar"; });
-        $route->setName('foo');
-        $route->setMiddleware(function ($route) {
-            echo $route->getName();
-        });
-        $route->matches('/foo'); //<-- Extracts params from resource URI
         $route->dispatch();
     }
 }

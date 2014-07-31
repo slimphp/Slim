@@ -49,6 +49,33 @@ class CustomMiddleware extends \Slim\Middleware
     }
 }
 
+//Mock middleware
+class CustomMiddlewarePre extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "foo";
+        $this->next->call();
+    }
+}
+class CustomMiddlewarePost extends \Slim\Middleware
+{
+    public function call()
+    {
+        $this->next->call();
+        echo "bar";
+    }
+}
+class CustomMiddlewarePrePost extends \Slim\Middleware
+{
+    public function call()
+    {
+        echo "Xfoo";
+        $this->next->call();
+        echo "Xbar";
+    }
+}
+
 class AppTest extends PHPUnit_Framework_TestCase
 {
     protected $app;
@@ -287,12 +314,12 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testGetRoute()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->get('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -306,12 +333,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'POST',
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->post('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -325,12 +352,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'PUT'
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->put('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -344,12 +371,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'PATCH'
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->patch('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -363,12 +390,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'DELETE'
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->delete('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -382,12 +409,12 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_METHOD' => 'OPTIONS'
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $route = $this->app->options('/bar', $mw1, $mw2, $callable);
         $this->app->call();
-        $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
         $this->assertEquals('/bar', $route->getPattern());
         $this->assertSame($callable, $route->getCallable());
     }
@@ -403,14 +430,14 @@ class AppTest extends PHPUnit_Framework_TestCase
             'REQUEST_URI' => '/foo/bar/baz'
         ));
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $app->group('/bar', $mw1, function () use ($app, $mw2, $callable) {
             $app->get('/baz', $mw2, $callable);
         });
         $app->call();
-        $this->assertEquals('foobarxyz', (string)$app['response']->getBody());
+        $this->assertEquals('fooxyzbar', (string)$app['response']->getBody());
     }
 
     /*
@@ -418,8 +445,8 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testAnyRoute()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
+        $mw1 = new CustomMiddlewarePre();
+        $mw2 = new CustomMiddlewarePost();
         $callable = function () { echo "xyz"; };
         $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
 
@@ -429,7 +456,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             ));
             $route = $this->app->any('/bar', $mw1, $mw2, $callable);
             $this->app->call();
-            $this->assertEquals('foobarxyz', (string)$this->app['response']->getBody());
+            $this->assertEquals('fooxyzbar', (string)$this->app['response']->getBody());
             $this->assertEquals('/bar', $route->getPattern());
             $this->assertSame($callable, $route->getCallable());
         }
