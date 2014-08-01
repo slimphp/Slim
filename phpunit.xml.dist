@@ -9,8 +9,13 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="vendor/autoload.php"
 >
+    <php>
+        <!-- do not use session cookies (required by AppTest::testStreamingAFile due to session_start()) -->
+        <ini name="session.use_cookies" value="0"/>
+    </php>
+
     <testsuites>
         <testsuite name="Slim Test Suite">
             <directory>./tests/</directory>

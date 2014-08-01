@@ -115,20 +115,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Environment', $this->app['environment']);
     }
 
-    /**
-     * Test Slim autoloader ignores non-Slim classes
-     *
-     * Pre-conditions:
-     * Instantiate a non-Slim class;
-     *
-     * Post-conditions:
-     * Slim autoloader returns without requiring a class file;
-     */
-    public function testSlimAutoloaderIgnoresNonSlimClass()
-    {
-        $foo = new Foo();
-    }
-
     /************************************************
      * SETTINGS
      ************************************************/
