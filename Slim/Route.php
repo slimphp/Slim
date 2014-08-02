@@ -69,6 +69,12 @@ class Route implements RouteInterface
     protected $pattern;
 
     /**
+     * Determine is the route pattern should be escaped or not
+     * @var bool
+     */
+    protected $escapePattern;
+
+    /**
      * The route callable
      * @var mixed
      */
@@ -124,17 +130,20 @@ class Route implements RouteInterface
 
     /**
      * Constructor
-     * @param  string $pattern  The URL pattern
-     * @param  mixed  $callable Anything that returns `true` for `is_callable()`
-     * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
+     * @param string $pattern       The URL pattern
+     * @param mixed  $callable      Anything that returns `true` for `is_callable()`
+     * @param bool   $caseSensitive Whether or not this route should be matched in a case-sensitive manner
+     * @param bool   $escapePattern If false, the route pattern is considered as a RegExp pattern,
+     *                              otherwise the pattern will be escaped and used 'literally' as is.
      * @api
      */
-    public function __construct($pattern, $callable, $caseSensitive = true)
+    public function __construct($pattern, $callable, $caseSensitive = true, $escapePattern = false)
     {
         $this->setPattern($pattern);
         $this->setCallable($callable);
         $this->setConditions(self::getDefaultConditions());
         $this->caseSensitive = $caseSensitive;
+        $this->setEscapePattern($escapePattern);
     }
 
     /**
@@ -233,6 +242,26 @@ class Route implements RouteInterface
     public function setConditions(array $conditions)
     {
         $this->conditions = $conditions;
+    }
+
+    /**
+     * Get escapePattern
+     * @return bool
+     * @api
+     */
+    public function getEscapePattern()
+    {
+        return $this->escapePattern;
+    }
+
+    /**
+     * Set escapePattern
+     * @param bool $escapePattern
+     * @api
+     */
+    public function setEscapePattern($escapePattern)
+    {
+        $this->escapePattern = (bool)$escapePattern;
     }
 
     /**
@@ -425,10 +454,31 @@ class Route implements RouteInterface
     public function matches($resourceUri)
     {
         //Convert URL params into regex patterns, construct a regex for this route, init params
+
+        $pattern = (string)$this->pattern;
+
+        /*
+            These chars are valid URI chars but at the same time are reserved regex chars.
+            See: http://en.wikipedia.org/wiki/Percent-encoding#Types_of_URI_characters.
+            Do not use `preg_quote` because there are a few exceptions:
+                ( and ) are used to describe optional parameters
+                + determines a wildcard parameter
+        */
+        if($this->getEscapePattern()) {
+
+            $charsToEscape = array(
+                "!", "*", "'", "$", ",", "/", "?", "#", "[ ", "]", "."
+            );
+
+            foreach($charsToEscape as $toEscape) {
+                $pattern = str_replace($toEscape, "\\$toEscape", $pattern);
+            }
+        }
+
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
-            str_replace(')', ')?', (string)$this->pattern)
+            str_replace(')', ')?', $pattern)
         );
         if (substr($this->pattern, -1) === '/') {
             $patternAsRegex .= '?';
