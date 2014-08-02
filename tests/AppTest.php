@@ -517,7 +517,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app = $this->createApp();
         $app->get('/bar', function() use ($app) {
-            $app->sendProcess("echo 'FooBar'");
+            $app->sendProcess("echo FooBar");
         });
         $app->run();
     }
