@@ -519,7 +519,7 @@ class Route implements RouteInterface
             call_user_func_array($mw, array($this));
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
+        $return = call_user_func_array($this->getCallable(), array(0=>$this->getParams()));
         return ($return === false) ? false : true;
     }
 }
