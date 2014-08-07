@@ -132,7 +132,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
 
             // Physical path
-            if (strpos($requestUri, $scriptName) !== false) {
+            if ($scriptName != '' && strpos($requestUri, $scriptName) !== false) {
                 $physicalPath = $scriptName; // <-- Without rewriting
             } else {
                 $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
