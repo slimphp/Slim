@@ -496,9 +496,9 @@ class App extends \Pimple
 
         ob_start();
         if (isset($this['error']) && is_callable($this['error'])) {
-            call_user_func_array($this['error'], array($argument));
+            call_user_func($this['error'], $argument);
         } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
+            $this->defaultError($argument);
         }
 
         return ob_get_clean();
