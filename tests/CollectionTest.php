@@ -135,6 +135,11 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function testEncryptAndDecrypt()
     {
+        if (!extension_loaded('mcrypt')) {
+            $this->markTestSkipped('The mcrypt extension is not loaded');
+            return;
+        }
+
         // Prepare bag
         $data = array(
             'abc' => '123',
