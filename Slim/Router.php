@@ -80,6 +80,12 @@ class Router implements RouterInterface
     protected $routeGroups;
 
     /**
+     * Cached URLs: store and reuse already generated urls
+     * @var array
+     */
+    protected $urls;
+
+    /**
      * Constructor
      * @api
      */
@@ -218,17 +224,37 @@ class Router implements RouterInterface
      */
     public function urlFor($name, $params = array())
     {
+        $key = md5($name . serialize($params));
+
+        if (isset($this->urls[$key])) {
+            return $this->urls[$key];
+        }
+
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
-        $search = array();
+
+        $url = $this->getNamedRoute($name)->getPattern();
+
         foreach ($params as $key => $value) {
-            $search[] = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
+            $search = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
+            if (preg_match($search, $url)) {
+                $url = preg_replace($search, $value, $url);
+                unset($params[$key]);
+            }
         }
-        $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments, escaped special characters
-        return preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
+        $url = preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $url);
+
+        // Leftovers are added as url query string 
+        if ($params) {
+            $url .= '?' . http_build_query($params);
+        }
+        
+        $this->urls[$key] = $url;
+
+        return $url;
     }
 
     /**
