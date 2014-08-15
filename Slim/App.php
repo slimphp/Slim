@@ -959,6 +959,10 @@ class App extends \Pimple
                 $data = stream_get_meta_data($fp);
 
                 foreach ($data['wrapper_data'] as $header) {
+                    if (strpos($header, ':') === false) {
+                        continue;
+                    }
+
                     list($k, $v) = explode(": ", $header, 2);
 
                     if ($k === "Content-Type") {
