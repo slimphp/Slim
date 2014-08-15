@@ -89,7 +89,7 @@ class PrettyExceptions extends \Slim\Middleware
         $message = $exception->getMessage();
         $file = $exception->getFile();
         $line = $exception->getLine();
-        $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $exception->getTraceAsString());
+        $trace = str_replace(array('#', "\n"), array('<div>#', '</div>'), $exception->getTraceAsString());
         $html = sprintf('<h1>%s</h1>', $title);
         $html .= '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
