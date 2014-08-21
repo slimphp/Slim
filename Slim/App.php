@@ -1044,6 +1044,8 @@ class App extends \Pimple
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
+        $this->applyHook('slim.before');
+
         // Invoke middleware and application stack
         try {
             $this['middleware'][0]->call();
@@ -1053,6 +1055,8 @@ class App extends \Pimple
 
         // Finalize and send response
         $this->finalize();
+
+        $this->applyHook('slim.after');
 
         restore_error_handler();
     }
@@ -1073,7 +1077,6 @@ class App extends \Pimple
     protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
     {
         try {
-            $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
@@ -1096,7 +1099,6 @@ class App extends \Pimple
             $this->applyHook('slim.after.router');
         } catch (\Slim\Exception\Stop $e) {}
         $response->write(ob_get_clean());
-        $this->applyHook('slim.after');
     }
 
     /**
