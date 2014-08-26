@@ -724,7 +724,12 @@ class AppTest extends PHPUnit_Framework_TestCase
         $app['response']->finalize($app['request']);
 
         $this->assertNotNull($app['response']->getHeader('Expires'));
-        $this->assertEquals($expectedDate, $app['response']->getHeader('Expires'));
+        $this->assertEquals(
+          strtotime($expectedDate),
+          strtotime($app['response']->getHeader('Expires')),
+          '', // custom message
+          1 // delta
+        );
     }
 
     /**
