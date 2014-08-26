@@ -273,7 +273,7 @@ class View
         }
 
         $data = array_merge($this->data->all(), (array) $data);
-        extract($data);
+        extract($data, EXTR_SKIP);
         ob_start();
         require $templatePathname;
 
