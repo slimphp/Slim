@@ -127,16 +127,18 @@ class View extends Collection implements ViewInterface
     protected function render($template, array $data = array())
     {
         // Resolve and verify template file
-        $templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
-        if (!is_file($templatePathname)) {
-            throw new \RuntimeException("Cannot render template `$templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
+        $this->templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
+        unset($template);
+        if (!is_file($this->templatePathname)) {
+            throw new \RuntimeException("Cannot render template `$this->templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
         }
 
         // Render template with view variables into a temporary output buffer
         $this->replace($data);
+        unset($data);
         extract($this->all());
         ob_start();
-        require $templatePathname;
+        require $this->templatePathname;
 
         // Return temporary output buffer content, destroy output buffer
         return ob_get_clean();
