@@ -142,17 +142,22 @@ class View extends Collection implements ViewInterface
 
         // Resolve and verify template file
         $this->templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
-        unset($template);
         if (!is_file($this->templatePathname)) {
             throw new \RuntimeException("Cannot render template `$this->templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
         }
 
-        // Render template with view variables into a temporary output buffer
+        // Clear the $template variable from the local scope
+        unset($template);
+
+        // Replace the view data and clear the $data variable from the local scope
         $this->replace($data);
         unset($data);
 
-        $this->rendering = true;
+        // Extract the template variables so they are available in the template
         extract($this->all());
+
+        // Render the template
+        $this->rendering = true;
         ob_start();
         require $this->templatePathname;
         $buffer = ob_get_clean();

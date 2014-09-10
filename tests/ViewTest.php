@@ -39,6 +39,9 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->property->setAccessible(true);
     }
 
+    /**
+     * Test template is rendered
+     */
     public function testDisplay()
     {
         $this->expectOutputString('test output bar 123');
@@ -46,6 +49,9 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->view->display('test.php', array('abc' => '123'));
     }
 
+    /**
+     * Test throws \RuntimeException if the template does not exist
+     */
     public function testDisplayTemplateThatDoesNotExist()
     {
         $this->setExpectedException('\RuntimeException');
