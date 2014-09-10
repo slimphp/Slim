@@ -51,4 +51,13 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException');
         $this->view->display('foo.php');
     }
+
+    /**
+     * Test throws \LogicException page is rendered from within a template
+     */
+    public function testRenderWithinTemplate()
+    {
+        $this->setExpectedException('\LogicException');
+        $this->view->display('testRenderException.php', array('abc' => '123'));
+    }
 }

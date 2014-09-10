@@ -70,6 +70,13 @@ use \Slim\Interfaces\ViewInterface;
  */
 class View extends Collection implements ViewInterface
 {
+
+    /**
+     * The template is rendering
+     * @var bool
+     */
+    protected $rendering = false;
+
     /**
      * Constructor
      * @param  string $templateDirectory Path to template directory
@@ -122,10 +129,17 @@ class View extends Collection implements ViewInterface
      *
      * @var    string            $template Pathname of template file relative to templates directory
      * @return string                      The rendered template
+     * @throws \LogicException             If it is called from within a template
      * @throws \RuntimeException           If resolved template pathname is not a valid file
      */
     protected function render($template, array $data = array())
     {
+
+        // Check if this template is already being rendered
+        if ($this->rendering === true) {
+            throw new \LogicException('Calling the render() method is not possible within templates.');
+        }
+
         // Resolve and verify template file
         $this->templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
         unset($template);
@@ -136,11 +150,15 @@ class View extends Collection implements ViewInterface
         // Render template with view variables into a temporary output buffer
         $this->replace($data);
         unset($data);
+
+        $this->rendering = true;
         extract($this->all());
         ob_start();
         require $this->templatePathname;
+        $buffer = ob_get_clean();
+        $this->rendering = false;
 
         // Return temporary output buffer content, destroy output buffer
-        return ob_get_clean();
+        return $buffer;
     }
 }
