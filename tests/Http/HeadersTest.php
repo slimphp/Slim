@@ -122,4 +122,16 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('text/csv', $headers->get('HTTP_CONTENT_TYPE'));
         $this->assertEquals(10, $headers->get('HTTP_CONTENT_LENGTH'));
     }
+
+    public function testCapturesRedirectedHeaders()
+    {
+        $env = new \Slim\Environment();
+        $env->mock(array(
+            'REDIRECT_HTTP_AUTHORIZATION' => 'Basic cm9vdDp0MDBy',
+            'REDIRECT_HTTP_FOO' => "bar"
+        ));
+        $headers = new \Slim\Http\Headers($env);
+        $this->assertEquals('Basic cm9vdDp0MDBy', $headers->get('Redirect-Http-Authorization'));
+        $this->assertEquals('bar', $headers->get('Redirect-Http-Foo'));
+    }
 }
