@@ -80,12 +80,6 @@ class Router implements RouterInterface
     protected $routeGroups;
 
     /**
-     * Cached URLs: store and reuse already generated urls
-     * @var array
-     */
-    protected $urls;
-
-    /**
      * Constructor
      * @api
      */
@@ -217,7 +211,7 @@ class Router implements RouterInterface
     /**
      * Get URL for named route
      * @param  string            $name   The name of the route
-     * @param  array             $params Associative array of URL parameter names and replacement values
+     * @param  array             $params Associative array of URL parameter names and replacement values. Unmatched parameters will be used to build the query string.
      * @return string                    The URL for the given route populated with provided replacement values
      * @throws \RuntimeException         If named route not found
      * @api
