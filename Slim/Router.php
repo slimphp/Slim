@@ -224,12 +224,6 @@ class Router implements RouterInterface
      */
     public function urlFor($name, $params = array())
     {
-        $key = md5($name . serialize($params));
-
-        if (isset($this->urls[$key])) {
-            return $this->urls[$key];
-        }
-
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
         }
@@ -252,8 +246,6 @@ class Router implements RouterInterface
             $url .= '?' . http_build_query($params);
         }
         
-        $this->urls[$key] = $url;
-
         return $url;
     }
 
