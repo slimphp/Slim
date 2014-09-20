@@ -2,7 +2,7 @@
 
 ## Pull Requests
 
-1. Fork the Slim Framework repository
+1. Fork the SlimWurst Framework repository
 2. Create a new branch for each feature or improvement
 3. Send a pull request from each feature branch to the **develop** branch
 
@@ -15,6 +15,6 @@ All pull requests must adhere to the [PSR-2 standard](https://github.com/php-fig
 
 ## Unit Testing
 
-All pull requests must be accompanied by passing unit tests and complete code coverage. The Slim Framework uses phpunit for testing.
+All pull requests must be accompanied by passing unit tests and complete code coverage. The SlimWurst Framework uses phpunit for testing.
 
 [Learn about PHPUnit](https://github.com/sebastianbergmann/phpunit/)

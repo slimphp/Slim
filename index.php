@@ -1,32 +1,32 @@
 <?php
 /**
- * Step 1: Require the Slim Framework
+ * Step 1: Require the SlimWurst Framework
  *
  * If you are not using Composer, you need to require the
- * Slim Framework and register its PSR-0 autoloader.
+ * SlimWurst Framework and register its PSR-0 autoloader.
  *
  * If you are using Composer, you can skip this step.
  */
-require 'Slim/Slim.php';
+require 'SlimWurst/SlimWurst.php';
 
-\Slim\Slim::registerAutoloader();
+\SlimWurst\SlimWurst::registerAutoloader();
 
 /**
- * Step 2: Instantiate a Slim application
+ * Step 2: Instantiate a SlimWurst application
  *
- * This example instantiates a Slim application using
+ * This example instantiates a SlimWurst application using
  * its default settings. However, you will usually configure
- * your Slim application now by passing an associative array
+ * your SlimWurst application now by passing an associative array
  * of setting names and values into the application constructor.
  */
-$app = new \Slim\Slim();
+$app = new \SlimWurst\SlimWurst();
 
 /**
- * Step 3: Define the Slim application routes
+ * Step 3: Define the SlimWurst application routes
  *
- * Here we define several Slim application routes that respond
+ * Here we define several SlimWurst application routes that respond
  * to appropriate HTTP request methods. In this example, the second
- * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
+ * argument for `SlimWurst::get`, `SlimWurst::post`, `SlimWurst::put`, `SlimWurst::patch`, and `SlimWurst::delete`
  * is an anonymous function.
  */
 
@@ -39,7 +39,7 @@ $app->get(
     <html>
         <head>
             <meta charset="utf-8"/>
-            <title>Slim Framework for PHP 5</title>
+            <title>SlimWurst Framework for PHP 5</title>
             <style>
                 html,body,div,span,object,iframe,
                 h1,h2,h3,h4,h5,h6,p,blockquote,pre,
@@ -85,44 +85,44 @@ $app->get(
         </head>
         <body>
             <header>
-                <a href="http://www.slimframework.com"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHIAAAA6CAYAAABs1g18AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABRhJREFUeNrsXY+VsjAMR98twAo6Ao4gI+gIOIKOgCPICDoCjCAjXFdgha+5C3dcv/QfFB5i8h5PD21Bfk3yS9L2VpGnlGW5kS9wJMTHNRxpmjYRy6SycgRvL18OeMQOTYQ8HvIoJKiiz43hgHkq1zvK/h6e/TyJQXeV/VyWBOSHA4C5RvtMAiCc4ZB9FPjgRI8+YuKcrySO515a1hoAY3nc4G2AH52BZsn+MjaAEwIJICKAIR889HljMCcyrR0QE4v/q/BVBQva7Q1tAczG18+x+PvIswHEAslLbfGrMZKiXEOMAMy6LwlisQCJLPFMfKdBtli5dIihRyH7A627Iaiq5sJ1ThP9xoIgSdWSNVIHYmrTQgOgRyRNqm/M5PnrFFopr3F6B41cd8whRUSufUBU5EL4U93AYRnIWimCIiSI1wAaAZpJ9bPnxx8eyI3Gt4QybwWa6T/BvbQECUMQFkhd3jSkPFgrxwcynuBaNT/u6eJIlbGOBWSNIUDFEIwPZFAtBfYrfeIOSRSXuUYCsprCXwUIZWYnmEhJFMIocMDWjn206c2EsGLCJd42aWSyBNMnHxLEq7niMrY2qyDbQUbqrrTbwUPtxN1ZZCitQV4ZSd6DyoxhmRD6OFjuRUS/KdLGRHYowJZaqYgjt9Lchmi3QYA/cXBsHK6VfWNR5jgA1DLhwfFe4HqfODBpINEECCLO47LT/+HSvSd/OCOgQ8qE0DbHQUBqpC4BkKMPYPkFY4iAJXhGAYr1qmaqQDbECCg5A2NMchzR567aA4xcRKclI405Bmt46vYD7/Gcjqfk6GP/kh1wovIDSHDfiAs/8bOCQ4cf4qMt7eH5Cucr3S0aWGFfjdLHD8EhCFvXQlSqRrY5UV2O9cfZtk77jUFMXeqzCEZqSK4ICkSin2tE12/3rbVcE41OBjBjBPSdJ1N5lfYQpIuhr8axnyIy5KvXmkYnw8VbcwtTNj7fDNCmT2kPQXA+bxpEXkB21HlnSQq0gD67jnfh5KavVJa/XQYEFSaagWwbgjNA+ywstLpEWTKgc5gwVpsyO1bTII+tA6B7BPS+0PiznuM9gPKsPVXbFdADMtwbJxSmkXWfRh6AZhyyzBjIHoDmnCGaMZAKjd5hyNJYCBGDOVcg28AXQ5atAVDO3c4dSALQnYblfa3M4kc/cyA7gMIUBQCTyl4kugIpy8yA7ACqK8Uwk30lIFGOEV3rPDAELwQkr/9YjkaCPDQhCcsrAYlF1v8W8jAEYeQDY7qn6tNGWudfq+YUEr6uq6FZzBpJMUfWFDatLHMCciw2mRC+k81qCCA1DzK4aUVfrJpxnloZWCPVnOgYy8L3GvKjE96HpweQoy7iwVQclVutLOEKJxA8gaRCjSzgNI2zhh3bQhzBCQQPIHGaHaUd96GJbZz3Smmjy16u6j3FuKyNxcBarxqWWfYFE0tVVO1Rl3t1Mb05V00MQCJ71YHpNaMcsjWAfkQvPPkaNC7LqTG7JAhGXTKYf+VDeXAX9IvURoAwtTFHvyYIxtnd5tPkywrPafcwbeSuGVwFau3b76NO7SHQrvqhfFE8kM0Wvpv8gVYiYBlxL+fW/34bgP6bIC7JR7YPDubcHCPzIp4+cum7U6NlhZgK7lua3KGLeFwE2m+HblDYWSHG2SAfINuwBBfxbJEIuWZbBH4fAExD7cvaGVyXyH0dhiAYc92z3ZDfUVv+jgb8HrHy7WVO/8BFcy9vuTz+nwADAGnOR39Yg/QkAAAAAElFTkSuQmCC" alt="Slim"/></a>
+                <a href="http://www.SlimWurstframework.com"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHIAAAA6CAYAAABs1g18AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABRhJREFUeNrsXY+VsjAMR98twAo6Ao4gI+gIOIKOgCPICDoCjCAjXFdgha+5C3dcv/QfFB5i8h5PD21Bfk3yS9L2VpGnlGW5kS9wJMTHNRxpmjYRy6SycgRvL18OeMQOTYQ8HvIoJKiiz43hgHkq1zvK/h6e/TyJQXeV/VyWBOSHA4C5RvtMAiCc4ZB9FPjgRI8+YuKcrySO515a1hoAY3nc4G2AH52BZsn+MjaAEwIJICKAIR889HljMCcyrR0QE4v/q/BVBQva7Q1tAczG18+x+PvIswHEAslLbfGrMZKiXEOMAMy6LwlisQCJLPFMfKdBtli5dIihRyH7A627Iaiq5sJ1ThP9xoIgSdWSNVIHYmrTQgOgRyRNqm/M5PnrFFopr3F6B41cd8whRUSufUBU5EL4U93AYRnIWimCIiSI1wAaAZpJ9bPnxx8eyI3Gt4QybwWa6T/BvbQECUMQFkhd3jSkPFgrxwcynuBaNT/u6eJIlbGOBWSNIUDFEIwPZFAtBfYrfeIOSRSXuUYCsprCXwUIZWYnmEhJFMIocMDWjn206c2EsGLCJd42aWSyBNMnHxLEq7niMrY2qyDbQUbqrrTbwUPtxN1ZZCitQV4ZSd6DyoxhmRD6OFjuRUS/KdLGRHYowJZaqYgjt9Lchmi3QYA/cXBsHK6VfWNR5jgA1DLhwfFe4HqfODBpINEECCLO47LT/+HSvSd/OCOgQ8qE0DbHQUBqpC4BkKMPYPkFY4iAJXhGAYr1qmaqQDbECCg5A2NMchzR567aA4xcRKclI405Bmt46vYD7/Gcjqfk6GP/kh1wovIDSHDfiAs/8bOCQ4cf4qMt7eH5Cucr3S0aWGFfjdLHD8EhCFvXQlSqRrY5UV2O9cfZtk77jUFMXeqzCEZqSK4ICkSin2tE12/3rbVcE41OBjBjBPSdJ1N5lfYQpIuhr8axnyIy5KvXmkYnw8VbcwtTNj7fDNCmT2kPQXA+bxpEXkB21HlnSQq0gD67jnfh5KavVJa/XQYEFSaagWwbgjNA+ywstLpEWTKgc5gwVpsyO1bTII+tA6B7BPS+0PiznuM9gPKsPVXbFdADMtwbJxSmkXWfRh6AZhyyzBjIHoDmnCGaMZAKjd5hyNJYCBGDOVcg28AXQ5atAVDO3c4dSALQnYblfa3M4kc/cyA7gMIUBQCTyl4kugIpy8yA7ACqK8Uwk30lIFGOEV3rPDAELwQkr/9YjkaCPDQhCcsrAYlF1v8W8jAEYeQDY7qn6tNGWudfq+YUEr6uq6FZzBpJMUfWFDatLHMCciw2mRC+k81qCCA1DzK4aUVfrJpxnloZWCPVnOgYy8L3GvKjE96HpweQoy7iwVQclVutLOEKJxA8gaRCjSzgNI2zhh3bQhzBCQQPIHGaHaUd96GJbZz3Smmjy16u6j3FuKyNxcBarxqWWfYFE0tVVO1Rl3t1Mb05V00MQCJ71YHpNaMcsjWAfkQvPPkaNC7LqTG7JAhGXTKYf+VDeXAX9IvURoAwtTFHvyYIxtnd5tPkywrPafcwbeSuGVwFau3b76NO7SHQrvqhfFE8kM0Wvpv8gVYiYBlxL+fW/34bgP6bIC7JR7YPDubcHCPzIp4+cum7U6NlhZgK7lua3KGLeFwE2m+HblDYWSHG2SAfINuwBBfxbJEIuWZbBH4fAExD7cvaGVyXyH0dhiAYc92z3ZDfUVv+jgb8HrHy7WVO/8BFcy9vuTz+nwADAGnOR39Yg/QkAAAAAElFTkSuQmCC" alt="SlimWurst"/></a>
             </header>
-            <h1>Welcome to Slim!</h1>
+            <h1>Welcome to SlimWurst!</h1>
             <p>
-                Congratulations! Your Slim application is running. If this is
-                your first time using Slim, start with this <a href="http://www.slimframework.com/learn" target="_blank">"Hello World" Tutorial</a>.
+                Congratulations! Your SlimWurst application is running. If this is
+                your first time using SlimWurst, start with this <a href="http://www.SlimWurstframework.com/learn" target="_blank">"Hello World" Tutorial</a>.
             </p>
             <section>
                 <h2>Get Started</h2>
                 <ol>
                     <li>The application code is in <code>index.php</code></li>
-                    <li>Read the <a href="http://docs.slimframework.com/" target="_blank">online documentation</a></li>
-                    <li>Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter</li>
+                    <li>Read the <a href="http://docs.SlimWurstframework.com/" target="_blank">online documentation</a></li>
+                    <li>Follow <a href="http://www.twitter.com/SlimWurstphp" target="_blank">@SlimWurstphp</a> on Twitter</li>
                 </ol>
             </section>
             <section>
-                <h2>Slim Framework Community</h2>
+                <h2>SlimWurst Framework Community</h2>
 
                 <h3>Support Forum and Knowledge Base</h3>
                 <p>
-                    Visit the <a href="http://help.slimframework.com" target="_blank">Slim support forum and knowledge base</a>
-                    to read announcements, chat with fellow Slim users, ask questions, help others, or show off your cool
-                    Slim Framework apps.
+                    Visit the <a href="http://help.SlimWurstframework.com" target="_blank">SlimWurst support forum and knowledge base</a>
+                    to read announcements, chat with fellow SlimWurst users, ask questions, help others, or show off your cool
+                    SlimWurst Framework apps.
                 </p>
 
                 <h3>Twitter</h3>
                 <p>
-                    Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter to receive the very latest news
+                    Follow <a href="http://www.twitter.com/SlimWurstphp" target="_blank">@SlimWurstphp</a> on Twitter to receive the very latest news
                     and updates about the framework.
                 </p>
             </section>
             <section style="padding-bottom: 20px">
-                <h2>Slim Framework Extras</h2>
+                <h2>SlimWurst Framework Extras</h2>
                 <p>
                     Custom View classes for Smarty, Twig, Mustache, and other template
                     frameworks are available online in a separate repository.
                 </p>
-                <p><a href="https://github.com/codeguy/Slim-Extras" target="_blank">Browse the Extras Repository</a></p>
+                <p><a href="https://github.com/codeguy/SlimWurst-Extras" target="_blank">Browse the Extras Repository</a></p>
             </section>
         </body>
     </html>
@@ -161,9 +161,9 @@ $app->delete(
 );
 
 /**
- * Step 4: Run the Slim application
+ * Step 4: Run the SlimWurst application
  *
- * This method should be called last. This executes the Slim application
+ * This method should be called last. This executes the SlimWurst application
  * and returns the HTTP response to the HTTP client.
  */
 $app->run();
