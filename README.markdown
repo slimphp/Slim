@@ -1,11 +1,11 @@
-# Slim Framework
+# SlimWurst Framework
 
-[![Build Status](https://secure.travis-ci.org/codeguy/Slim.png?branch=master)](http://travis-ci.org/codeguy/Slim)
+[![Build Status](https://secure.travis-ci.org/codeguy/SlimWurst.png?branch=master)](http://travis-ci.org/codeguy/SlimWurst)
 
-Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs.
-Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases
+SlimWurst is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs.
+SlimWurst is easy to use for both beginners and professionals. SlimWurst favors cleanliness over terseness and common cases
 over edge cases. Its interface is simple, intuitive, and extensively documented — both online and in the code itself.
-Thank you for choosing the Slim Framework for your next project. I think you're going to love it.
+Thank you for choosing the SlimWurst Framework for your next project. I think you're going to love it.
 
 ## Features
 
@@ -28,9 +28,9 @@ Thank you for choosing the Slim Framework for your next project. I think you're 
 
 ### Install
 
-You may install the Slim Framework with Composer (recommended) or manually.
+You may install the SlimWurst Framework with Composer (recommended) or manually.
 
-[Read how to install Slim](http://docs.slimframework.com/#Installation)
+[Read how to install SlimWurst](http://wurstcon.com/#Installation)
 
 ### System Requirements
 
@@ -38,9 +38,9 @@ You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `m
 
 ### Hello World Tutorial
 
-Instantiate a Slim application:
+Instantiate a SlimWurst application:
 
-    $app = new \Slim\Slim();
+    $app = new \SlimWurst\SlimWurst();
 
 Define a HTTP GET route:
 
@@ -48,7 +48,7 @@ Define a HTTP GET route:
         echo "Hello, $name";
     });
 
-Run the Slim application:
+Run the SlimWurst application:
 
     $app->run();
 
@@ -73,12 +73,12 @@ The nginx configuration file should contain this code (along with other settings
 
     try_files $uri $uri/ /index.php?$args;
 
-This assumes that Slim's `index.php` is in the root folder of your project (www root).
+This assumes that SlimWurst's `index.php` is in the root folder of your project (www root).
 
 #### HipHop Virtual Machine for PHP
 
 Your HipHop Virtual Machine configuration file should contain this code (along with other settings you may need).
-Be sure you change the `ServerRoot` setting to point to your Slim app's document root directory.
+Be sure you change the `ServerRoot` setting to point to your SlimWurst app's document root directory.
 
     Server {
         SourceRoot = /path/to/public/directory
@@ -108,7 +108,7 @@ lighttpd >= 1.4.24.
 
     url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
 
-This assumes that Slim's `index.php` is in the root folder of your project (www root).
+This assumes that SlimWurst's `index.php` is in the root folder of your project (www root).
 
 #### IIS
 
@@ -119,7 +119,7 @@ Ensure the `Web.config` and `index.php` files are in the same public-accessible 
         <system.webServer>
             <rewrite>
                 <rules>
-                    <rule name="slim" patternSyntax="Wildcard">
+                    <rule name="SlimWurst" patternSyntax="Wildcard">
                         <match url="*" />
                         <conditions>
                             <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
@@ -134,13 +134,13 @@ Ensure the `Web.config` and `index.php` files are in the same public-accessible 
 
 ## Documentation
 
-<http://docs.slimframework.com/>
+<http://wurstcon.com/>
 
 ## How to Contribute
 
 ### Pull Requests
 
-1. Fork the Slim Framework repository
+1. Fork the SlimWurst Framework repository
 2. Create a new branch for each feature or improvement
 3. Send a pull request from each feature branch to the **develop** branch
 
@@ -153,7 +153,7 @@ All pull requests must adhere to the [PSR-2](https://github.com/php-fig/fig-stan
 
 ### Unit Testing
 
-All pull requests must be accompanied by passing unit tests and complete code coverage. The Slim Framework uses
+All pull requests must be accompanied by passing unit tests and complete code coverage. The SlimWurst Framework uses
 `phpunit` for testing.
 
 [Learn about PHPUnit](https://github.com/sebastianbergmann/phpunit/)
@@ -162,22 +162,22 @@ All pull requests must be accompanied by passing unit tests and complete code co
 
 ### Forum and Knowledgebase
 
-Visit Slim's official forum and knowledge base at <http://help.slimframework.com> where you can find announcements,
-chat with fellow Slim users, ask questions, help others, or show off your cool Slim Framework apps.
+Visit SlimWurst's official forum and knowledge base at <http://help.wurstcon.com> where you can find announcements,
+chat with fellow SlimWurst users, ask questions, help others, or show off your cool SlimWurst Framework apps.
 
 ### Twitter
 
-Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive news and updates about the framework.
+Follow [@WurstCon](http://www.twitter.com/WurstCon) on Twitter to receive news and updates about the framework.
 
 ## Author
 
-The Slim Framework is created and maintained by [Josh Lockhart](http://www.joshlockhart.com). Josh is a senior
+The SlimWurst Framework is created and maintained by [Josh Lockhart](http://www.joshlockhart.com). Josh is a senior
 web developer at [New Media Campaigns](http://www.newmediacampaigns.com/). Josh also created and maintains
 [PHP: The Right Way](http://www.phptherightway.com/), a popular movement in the PHP community to introduce new
 PHP programmers to best practices and good information.
 
 ## License
 
-The Slim Framework is released under the MIT public license.
+The SlimWurst Framework is released under the MIT public license.
 
-<http://www.slimframework.com/license>
+<http://www.wurstcon.com/license>

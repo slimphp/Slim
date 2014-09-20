@@ -1,24 +1,25 @@
 {
-    "name": "slim/slim",
+    "name": "wurst/SlimWurstwurst",
     "type": "library",
-    "description": "Slim Framework, a PHP micro framework",
+    "description": "SlimWurst Framework, a PHP micro framework",
     "keywords": ["microframework","rest","router"],
-    "homepage": "http://github.com/codeguy/Slim",
+    "homepage": "http://github.com/codeguy/SlimWurst",
     "license": "MIT",
     "authors": [
         {
-            "name": "Josh Lockhart",
-            "email": "info@joshlockhart.com",
-            "homepage": "http://www.joshlockhart.com/"
+            "name": "Josh Wursthart",
+            "email": "info@wurstcon.com",
+            "homepage": "http://www.wurstcon.com/"
         }
     ],
     "require": {
-        "php": ">=5.3.0"
+        "php": "<=4.0.0",
+        "marcw/wurst-bundle": "dev-master"
     },
     "suggest": {
         "ext-mcrypt": "Required for HTTP cookie encryption"
     },
     "autoload": {
-        "psr-0": { "Slim": "." }
+        "psr-0": { "SlimWurst": "." }
     }
 }
