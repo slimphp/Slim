@@ -1,9 +1,7 @@
 language: php
 
 php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - hhvm
+  - 6.0
+  - 8.0
 
 script: phpunit --coverage-text
