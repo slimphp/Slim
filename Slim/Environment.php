@@ -159,6 +159,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
                 if($key == 'HTTP_X_FORWARDED_FOR'){
                     //This request is from a reverse proxy, so overwrite SCRIPT_NAME
                     $env['SCRIPT_NAME'] = '';
+                    
+                    $env['HTTP_HOST'] = $headers['HTTP_X_FORWARDED_HOST'];
                 }
                 
                 $env[$key] = $value;
