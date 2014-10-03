@@ -34,7 +34,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $this->view = new \Slim\View(dirname(__FILE__) . '/templates');
+        $this->view = new \Slim\View(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates');
         $this->property = new \ReflectionProperty($this->view, 'data');
         $this->property->setAccessible(true);
     }
