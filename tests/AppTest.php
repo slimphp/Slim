@@ -168,7 +168,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertNull($this->app->config('view'));
         $this->app->config(array(
             'mode' => 'staging',
-            'view' => new \Slim\View(__DIR__ . '/templates')
+            'view' => new \Slim\View(__DIR__ . DIRECTORY_SEPARATOR . 'templates')
         ));
         $this->assertEquals('staging', $this->app->config('mode'));
         $this->assertInstanceOf('\Slim\View', $this->app->config('view'));
@@ -532,7 +532,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testSetSlimViewFromInstance()
     {
         $this->initializeApp(array(), array(
-            'view' => new CustomView(dirname(__FILE__) . '/templates')
+            'view' => new CustomView(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates')
         ));
 
         $this->assertInstanceOf('CustomView', $this->app['view']);
@@ -548,7 +548,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testSetFlashInView()
     {
         $this->initializeApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+            'view' => new \Slim\View(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates')
         ));
         $this->app['flash'];
         $this->assertInstanceOf('\Slim\Flash', $this->app['view']->get('flash'));
@@ -564,7 +564,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testRenderTemplateWithData()
     {
         $app = $this->createApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+            'view' => new \Slim\View(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates')
         ));
         $app->get('/bar', function () use ($app) {
             $app->render('test.php', array('foo' => 'bar', 'abc' => '123'));
@@ -582,7 +582,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testRenderTemplateWithDataAndStatus()
     {
         $app = $this->createApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
+            'view' => new \Slim\View(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'templates')
         ));
         $app->get('/bar', function () use ($app) {
             $app->render('test.php', array('foo' => 'bar', 'abc' => '123'), 500);
