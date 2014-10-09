@@ -202,7 +202,13 @@ class Route implements RouteInterface
             $callable = function() use ($class, $method) {
                 static $obj = null;
                 if ($obj === null) {
+                    if(!class_exists($class)) {
+                        throw new \InvalidArgumentException('Route callable class does not exist');
+                    }
                     $obj = new $class;
+                }
+                if(!method_exists($obj, $method)) {
+                    throw new \InvalidArgumentException('Route callable method does not exist');
                 }
                 return call_user_func_array(array($obj, $method), func_get_args());
             };
