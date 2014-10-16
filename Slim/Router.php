@@ -69,12 +69,37 @@ class Router
     protected $routeGroups;
 
     /**
+     * @var array Lookup hash of all params route get
+     */
+    protected $routeParams;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->routes = array();
         $this->routeGroups = array();
+        $this->routeParams = array();
+    }
+
+    /**
+     * Get any matched route params
+     *
+     * @param   string|null     $name   the param name in the route pattern, if null, return all the matched route param as array, return null if the $key doesn't exist
+     * @return  string|array
+     */
+    public function getRouteParam($key = false)
+    {
+        if ($key === false) {
+            return $this->routeParams;
+        }
+
+        if (array_key_exists($key, $this->routeParams)) {
+            return $this->routeParams["$key"];
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -112,6 +137,7 @@ class Router
 
                 if ($route->matches($resourceUri)) {
                     $this->matchedRoutes[] = $route;
+                    $this->routeParams = array_merge($this->routeParams, $route->getParams());
                 }
             }
         }
