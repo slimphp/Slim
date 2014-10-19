@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<config>
+    <test_key>test_value</test_key>
+    <test_bool>true</test_bool>
+</config>
