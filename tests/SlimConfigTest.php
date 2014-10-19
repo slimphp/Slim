@@ -21,11 +21,16 @@ class SlimConfigTest extends
     {
         $file = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'test-config.xml';
         $results = $this->slim->configFile($file);
+        $errors = libxml_get_errors();
+        if(empty($errors)){
         $this->assertTrue($results);
         $test_key = $this->slim->config('test_key');
         $test_bool = $this->slim->config('test_bool');
         $this->assertEquals('test_value', $test_key);
         $this->assertTrue($test_bool);
+        } else{
+            print_r($errors);
+        }
     }
 
     public function testJsonConfig()
