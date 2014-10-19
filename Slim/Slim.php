@@ -67,6 +67,17 @@ class Slim
     protected static $apps = array();
 
     /**
+     * @var array
+     * @since 1.0
+     */
+    protected static $configFileTypes = array(
+        'php',
+        'json',
+        'xml',
+        'ini',
+    );
+
+    /**
      * @var string
      */
     protected $name;
@@ -1408,5 +1419,131 @@ class Slim
     {
         $this->getLog()->error($e);
         echo self::generateTemplateMarkup('Error', '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry for the temporary inconvenience.</p>');
+    }
+
+    /**
+     * this function adds the batch app configurations via XML/JSON/INI/PHP files
+     *
+     * @todo  add yaml support
+     *
+     * @param string $file the file path for the config file to parse
+     * @param string $type the parsing type
+     *
+     * @return bool wer'e we able to parse the file
+     * @since 1.0
+     */
+    public function configFile($file, $type = null)
+    {
+        if ($type === null) {
+            $type = pathinfo($file, PATHINFO_EXTENSION);
+        }
+        if (!in_array($type, self::$configFileTypes)) {
+            return false;
+        }
+        if (!file_exists($file)) {
+            return false;
+        }
+        $func = 'parse' . ucfirst($type);
+        return call_user_func(array($this, $func), $file);
+    }
+
+    /**
+     * <b>please note that the file provided must return array else there's</b>
+     * <p>this function sets app configurations from a php file</p>
+     *
+     * @param string $file the file to parse
+     *
+     * @return bool was the file parsed?
+     */
+    protected function parsePhp($file)
+    {
+        $data = require $file;
+        if (!is_array($data)) {
+            return false;
+        }
+        foreach ($data as $key => $value) {
+            if ($value === 'true' || $value === 'false') {
+                $value = ($value === 'true') ? true : false;
+            }
+            $this->config($key, $value);
+        }
+        return true;
+    }
+
+    /**
+     * <p>this function sets app configurations from a ini file</p>
+     *
+     * @param string $file the file to parse
+     *
+     * @return bool was the file parsed ?
+     */
+    protected function parseIni($file)
+    {
+        $data = parse_ini_file($file);
+        if (!is_array($data)) {
+            return false;
+        }
+        foreach ($data as $key => $value) {
+            if ($value === 'true' || $value === 'false') {
+                $value = ($value === 'true') ? true : false;
+            }
+            $this->config($key, $value);
+        }
+        return true;
+    }
+
+    /**
+     * <p>this function sets app configurations from a json file</p>
+     *
+     * @param string $file the file to parse
+     *
+     * @return bool was the file parsed ?
+     */
+    protected function parseJson($file)
+    {
+        $fileContents = file_get_contents($file);
+        if (empty($fileContents)) {
+            return false;
+        }
+        $data = json_decode($fileContents,true);
+        if($data instanceof \stdClass){
+            $data = (array) $data;
+        }
+        if (!is_array($data)) {
+            return false;
+        }
+        foreach ($data as $key => $value) {
+            $this->config($key, $value);
+        }
+        return true;
+    }
+
+    /**
+     * <p>this function sets app configurations from a xml file</p>
+     *
+     * @param string $file the file to parse
+     *
+     * @return bool was the file parsed ?
+     */
+    protected function parseXml($file)
+    {
+        /**
+         * @var \SimpleXMLElement $child
+         */
+        $data = simplexml_load_file($file);
+        if (!$data instanceof \SimpleXMLElement) {
+            return false;
+        }
+
+        foreach ($data->children() as $child) {
+            $key = $child->getName();
+
+            $value = (string)$child;
+            if ($value === 'true' || $value === 'false') {
+                $value = ($value === 'true') ? true : false;
+            }
+            $this->config($key, $value);
+        }
+        return true;
     }
 }
