@@ -91,7 +91,7 @@ class ContentTypes extends \Slim\Middleware
      * @param  string $contentType
      * @return mixed
      */
-    protected function parse ($input, $contentType)
+    protected function parse($input, $contentType)
     {
         if (isset($this->contentTypes[$contentType]) && is_callable($this->contentTypes[$contentType])) {
             $result = call_user_func($this->contentTypes[$contentType], $input);
