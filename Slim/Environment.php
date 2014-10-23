@@ -158,6 +158,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             foreach ($headers as $key => $value) {
                 $env[$key] = $value;
             }
+            $headers = \Slim\Http\Headers::extract(getallheaders());
+            $env['AUTHORIZATION'] = isset($headers['AUTHORIZATION']) ? $headers['AUTHORIZATION'] : '';
 
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';

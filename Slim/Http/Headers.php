@@ -53,6 +53,7 @@ class Headers extends \Slim\Helper\Set
      * @var array
      */
     protected static $special = array(
+        'AUTHORIZATION',
         'CONTENT_TYPE',
         'CONTENT_LENGTH',
         'PHP_AUTH_USER',
