@@ -511,13 +511,13 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $app['response']->getHeader('Content-Type'));
     }
 
-    public function testStreamingAProc()
+    public function testStreamingAProcess()
     {
         $this->expectOutputString("FooBar\n");
 
         $app = $this->createApp();
         $app->get('/bar', function() use ($app) {
-            $app->sendProcess("echo 'FooBar'");
+            $app->sendProcess("echo FooBar");
         });
         $app->run();
     }
