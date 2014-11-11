@@ -108,7 +108,7 @@ class View
      * @param string $key
      * @param mixed $value
      */
-    public function keep($key, Closure $value)
+    public function keep($key, \Closure $value)
     {
         $this->data->keep($key, $value);
     }
