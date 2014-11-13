@@ -175,6 +175,10 @@ class Route
         }
 
         if (!is_callable($callable)) {
+            if (is_readable($callable)) {
+                $this->callable = $callable;
+                return true;
+            }
             throw new \InvalidArgumentException('Route callable must be callable');
         }
 
@@ -459,7 +463,13 @@ class Route
             call_user_func_array($mw, array($this));
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false) ? false : true;
+        if (is_callable($this->getCallable())) {
+            $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
+            return ($return === false) ? false : true;
+        } elseif (is_readable($this->getCallable())) {
+            $route_params = $this->getParams();
+            require $this->getCallable();
+            return true;
+        }
     }
 }
