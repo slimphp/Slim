@@ -132,6 +132,31 @@ Ensure the `Web.config` and `index.php` files are in the same public-accessible 
         </system.webServer>
     </configuration>
 
+#### Google App Engine
+
+Two steps are required to successfully run your Slim application on Google App Engine. First, ensure the `app.yaml` file includes a default handler to `index.php`:
+
+    application: your-app-name
+    version: 1
+    runtime: php
+    api_version: 1
+    
+    handlers:
+    # ...
+    - url: /.*
+      script: public_html/index.php
+
+Next, edit your `index.php` file so Slim knows about the incoming URI:
+
+    $app = new Slim();
+    
+    // Google App Engine doesn't set $_SERVER['PATH_INFO']
+    $app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
+    
+    // ...
+    $app->run();
+
+   
 ## Documentation
 
 <http://docs.slimframework.com/>
