@@ -567,10 +567,10 @@ class Request implements RequestInterface
     public function get($key = null, $default = null)
     {
         // Parse and cache query parameters
-        if (is_null($this->queryParameters) === true) {
+        if (is_null($this->queryParameters)) {
             $qs = $this->env->get('QUERY_STRING');
 
-            if (function_exists('mb_parse_str') === true) {
+            if (function_exists('mb_parse_str')) {
                 mb_parse_str($qs, $this->queryParameters); // <-- Url decodes too
             } else {
                 parse_str($qs, $this->queryParameters); // <-- Url decodes too
@@ -579,7 +579,7 @@ class Request implements RequestInterface
 
         // Fetch requested query parameter(s)
         if ($key) {
-            if (array_key_exists($key, $this->queryParameters) === true) {
+            if (array_key_exists($key, $this->queryParameters)) {
                 $returnVal = $this->queryParameters[$key];
             } else {
                 $returnVal = $default;
@@ -607,13 +607,13 @@ class Request implements RequestInterface
     public function post($key = null, $default = null)
     {
         // Parse and cache request body
-        if (is_null($this->body) === true) {
+        if (is_null($this->body)) {
             $this->body = $_POST;
 
             // Parse raw body if form-urlencoded
             if ($this->isFormData() === true) {
                 $rawBody = (string)$this->getBody();
-                if (function_exists('mb_parse_str') === true) {
+                if (function_exists('mb_parse_str')) {
                     mb_parse_str($rawBody, $this->body);
                 } else {
                     parse_str($rawBody, $this->body);
@@ -623,7 +623,7 @@ class Request implements RequestInterface
 
         // Fetch POST parameter(s)
         if ($key) {
-            if (array_key_exists($key, $this->body) === true) {
+            if (array_key_exists($key, $this->body)) {
                 $returnVal = $this->body[$key];
             } else {
                 $returnVal = $default;
@@ -849,7 +849,7 @@ class Request implements RequestInterface
     {
         $keys = array('HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
         foreach ($keys as $key) {
-            if ($this->env->has($key) === true) {
+            if ($this->env->has($key)) {
                 return $this->env->get($key);
             }
         }
@@ -934,7 +934,7 @@ class Request implements RequestInterface
      */
     protected function parsePaths()
     {
-        if (is_null($this->paths) === true) {
+        if (is_null($this->paths)) {
             // Server params
             $scriptName = $this->env->get('SCRIPT_NAME'); // <-- "/foo/index.php"
             $requestUri = $this->env->get('REQUEST_URI'); // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
