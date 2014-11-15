@@ -69,7 +69,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testStatusGetOld()
     {
         $res = new \Slim\Http\Response('', 201);
-        $this->assertEquals(201, $res->status());
+        $this->assertEquals(201, $res->getStatus());
     }
 
     /**
@@ -80,7 +80,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $res = new \Slim\Http\Response();
         $prop = new \ReflectionProperty($res, 'status');
         $prop->setAccessible(true);
-        $res->status(301);
+        $res->setStatus(301);
 
         $this->assertEquals(301, $prop->getValue($res));
     }

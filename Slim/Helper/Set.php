@@ -140,6 +140,16 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * Add value as Closure with key
+     * @param string $key
+     * @param mixed $value
+     */
+    public function keep($key, \Closure $value)
+    {
+        $this->set($key, $this->protect($value));
+    }
+    
+    /**
      * Property Overloading
      */
 
