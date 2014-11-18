@@ -49,7 +49,7 @@ if (!extension_loaded('mcrypt')) {
  * @property \Slim\Http\Request  $request
  * @property \Slim\Router        $router
  */
-class App extends \Pimple
+class App extends \Pimple\Container
 {
     /**
      * @const string
