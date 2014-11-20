@@ -70,10 +70,10 @@ class Environment implements \ArrayAccess, \IteratorAggregate
      * @param  bool             $refresh Refresh properties using global server variables?
      * @return \Slim\Environment
      */
-    public static function getInstance($refresh = false)
+    public static function getInstance($refresh = false, $userSettings = array())
     {
         if (is_null(self::$environment) || $refresh) {
-            self::$environment = new self();
+            self::$environment = new self($userSettings);
         }
 
         return self::$environment;
@@ -111,70 +111,78 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     /**
      * Constructor (private access)
      *
-     * @param  array|null $settings If present, these are used instead of global server variables
+     * @param  array $settings If present, these are merged with the global server variables
      */
-    private function __construct($settings = null)
-    {
-        if ($settings) {
-            $this->properties = $settings;
-        } else {
-            $env = array();
+    private function __construct($settings = array())
+	{
+		$env = array();
 
-            //The HTTP request method
-            $env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
+		//The HTTP request method
+		$env['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'];
 
-            //The IP
-            $env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
+		//The IP
+		$env['REMOTE_ADDR'] = $_SERVER['REMOTE_ADDR'];
 
-            // Server params
-            $scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
-            $requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
-            $queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
+		// Server params
+		$scriptName = $_SERVER['SCRIPT_NAME']; // <-- "/foo/index.php"
+		$requestUri = $_SERVER['REQUEST_URI']; // <-- "/foo/bar?test=abc" or "/foo/index.php/bar?test=abc"
+		$queryString = isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : ''; // <-- "test=abc" or ""
 
-            // Physical path
-            if (strpos($requestUri, $scriptName) !== false) {
-                $physicalPath = $scriptName; // <-- Without rewriting
-            } else {
-                $physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
-            }
-            $env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
+		// Physical path
+		if (strpos($requestUri, $scriptName) !== false) {
+			$physicalPath = $scriptName; // <-- Without rewriting
+		} else {
+			$physicalPath = str_replace('\\', '', dirname($scriptName)); // <-- With rewriting
+		}
+		$env['SCRIPT_NAME'] = rtrim($physicalPath, '/'); // <-- Remove trailing slashes
 
-            // Virtual path
-            $env['PATH_INFO'] = substr_replace($requestUri, '', 0, strlen($physicalPath)); // <-- Remove physical path
-            $env['PATH_INFO'] = str_replace('?' . $queryString, '', $env['PATH_INFO']); // <-- Remove query string
-            $env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/'); // <-- Ensure leading slash
+		// Virtual path
+		if (isset($settings['route.base']))
+			$env['PATH_INFO'] = substr($requestUri, strlen($settings['route.base'])); // <-- remove route base from requestUri
+		else
+		{
+			if (strpos($requestUri, $physicalPath) === 0) {
+				$env['PATH_INFO'] = substr($requestUri, strlen($physicalPath)); // <-- Remove physical path
+			} else {
+				$env['PATH_INFO'] = $requestUri; // <-- Physical path is not a part of request uri
+			}
+			$env['PATH_INFO'] = str_replace('?' . $queryString, '', $env['PATH_INFO']); // <-- Remove query string
+			$env['PATH_INFO'] = '/' . ltrim($env['PATH_INFO'], '/'); // <-- Ensure leading slash
+		}
 
-            // Query string (without leading "?")
-            $env['QUERY_STRING'] = $queryString;
+		// Query string (without leading "?")
+		$env['QUERY_STRING'] = $queryString;
 
-            //Name of server host that is running the script
-            $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
+		//Name of server host that is running the script
+		$env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
-            //Number of server port that is running the script
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+		//Number of server port that is running the script
+		$env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
 
-            //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
-            $headers = \Slim\Http\Headers::extract($_SERVER);
-            foreach ($headers as $key => $value) {
-                $env[$key] = $value;
-            }
+		//HTTP request headers (retains HTTP_ prefix to match $_SERVER)
+		$headers = \Slim\Http\Headers::extract($_SERVER);
+		foreach ($headers as $key => $value) {
+			$env[$key] = $value;
+		}
 
-            //Is the application running under HTTPS or HTTP protocol?
-            $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
+		//Is the application running under HTTPS or HTTP protocol?
+		$env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
-            //Input stream (readable one time only; not available for multipart/form-data requests)
-            $rawInput = @file_get_contents('php://input');
-            if (!$rawInput) {
-                $rawInput = '';
-            }
-            $env['slim.input'] = $rawInput;
+		//Input stream (readable one time only; not available for multipart/form-data requests)
+		$rawInput = @file_get_contents('php://input');
+		if (!$rawInput) {
+			$rawInput = '';
+		}
+		$env['slim.input'] = $rawInput;
 
-            //Error stream
-            $env['slim.errors'] = @fopen('php://stderr', 'w');
+		//Error stream
+		$env['slim.errors'] = @fopen('php://stderr', 'w');
 
-            $this->properties = $env;
-        }
-    }
+		// Merge in settings overwriting any default server variables
+		$env = array_merge($env, $settings);
+
+		$this->properties = $env;
+	}
 
     /**
      * Array Access: Offset Exists
