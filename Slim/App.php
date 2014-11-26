@@ -1116,7 +1116,7 @@ class App extends \Pimple
      * @param  array  $serverVariables Custom $_SERVER variables
      * @return \Slim\Http\Response
      */
-    public function subRequest($url, $method = 'GET', array $headersArr = array(), array $cookies = array(), $body = '', array $serverVariables = array())
+    public function subRequest($url, $method = 'GET', array $headersArr = array(), array $cookiesArr = array(), $body = '', array $serverVariables = array())
     {
         // Build sub-request and sub-response
         $environment = new \Slim\Environment(array_merge(array(
@@ -1127,13 +1127,19 @@ class App extends \Pimple
 
         $headers = new \Slim\Http\Headers($environment);
         
-        if (isset($headersArray)) {
+        if (isset($headersArr)) {
             foreach ($headersArr as $key => $value) {
                 $headers->set($key, $value);
             }
         }
         
         $cookies = new \Slim\Http\Cookies($headers);
+        
+        if (isset($cookiesArr)) {
+            foreach ($cookiesArr as $key => $value) {
+                $cookies->set($key, $value);
+            }
+        }
 
         $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
         $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
