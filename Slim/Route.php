@@ -298,8 +298,15 @@ class Route
     public function via()
     {
         $args = func_get_args();
+        
+        //allow to have an array to configure supported methods
+        if(is_array($args[0]))
+        {
+            $this->methods = $args[0];
+            return $this;
+        }
+        
         $this->methods = array_merge($this->methods, $args);
-
         return $this;
     }
 
