@@ -138,7 +138,7 @@ class Environment implements \ArrayAccess, \IteratorAggregate
 
 		// Virtual path
 		if (isset($settings['route.base']))
-			$env['PATH_INFO'] = substr($requestUri, strlen($settings['route.base'])); // <-- remove route base from requestUri
+			$env['PATH_INFO'] = substr($requestUri, strlen($settings['route.base'])-1); // <-- remove route base from requestUri
 		else
 		{
 			if (strpos($requestUri, $physicalPath) === 0) {
