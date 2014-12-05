@@ -1070,14 +1070,14 @@ class App extends \Pimple
      * @param  \Slim\Http\Request  The request instance
      * @param  \Slim\Http\Response The response instance
      */
-    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
+    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response, $noPass)
     {
         try {
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
+            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false, $noPass);
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -1156,7 +1156,10 @@ class App extends \Pimple
      */
     public function call()
     {
-        $this->dispatchRequest($this['request'], $this['response']);
+        /** @var \Slim\Interfaces\ConfigurationInterface $settings */
+        $settings = $this['settings'];
+        $noPass = $settings['routes.no_pass'];
+        $this->dispatchRequest($this['request'], $this['response'], $noPass);
     }
 
     /**
