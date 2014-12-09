@@ -111,6 +111,6 @@ class PrettyExceptions extends \Slim\Middleware
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
 
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body>%s</body></html>", $title, $html);
+        return sprintf("<!DOCTYPE html><html>\n<head>\n<title>%s</title>\n<style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style>\n</head>\n<body>\n\n%s\n\n</body>\n</html>", $title, $html);
     }
 }
