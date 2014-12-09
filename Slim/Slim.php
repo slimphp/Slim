@@ -1099,6 +1099,18 @@ class Slim
         $this->response->redirect($url, $status);
         $this->halt($status);
     }
+    
+    /**
+     * RedirectTo
+     * 
+     * Redirects to a specific named route
+     * 
+     * @param string    $route      The route name
+     * @param array     $params     Associative array of URL parameters and replacement values
+     */
+    public function redirectTo($route, $params = array(), $status = 302){
+        $this->redirect($this->urlFor($route, $params), $status);
+    }
 
     /********************************************************************************
     * Flash Messages
