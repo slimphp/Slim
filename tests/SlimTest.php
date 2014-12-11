@@ -1288,6 +1288,14 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Foo', $_SESSION['slim.flash']['info']);
     }
 
+    public function testGetFlashValue()
+    {
+        $_SESSION['slim.flash'] = array('info' => 'Foo');
+        $s = new \Slim\Slim();
+        $s->run();
+        $this->assertEquals('Foo', $s->flash('info'));
+    }
+
     /************************************************
      * NOT FOUND HANDLING
      ************************************************/
