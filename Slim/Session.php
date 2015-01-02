@@ -32,7 +32,6 @@
  */
 namespace Slim;
 
-use \Slim\Collection;
 use \Slim\Interfaces\SessionInterface;
 use \Slim\Interfaces\SessionHandlerInterface;
 
@@ -133,14 +132,10 @@ class Session extends Collection implements SessionInterface
      */
     public function isStarted()
     {
-        $started = false;
-        if (version_compare(phpversion(), '5.4.0', '>=')) {
-            $started = session_status() === PHP_SESSION_ACTIVE ? true : false;
-        } else {
-            $started = session_id() === '' ? false : true;
-        }
+        if (version_compare(phpversion(), '5.4.0', '>='))
+            return session_status() === PHP_SESSION_ACTIVE;
 
-        return $started;
+        return session_id() === '' ? false : true;
     }
 
     /**

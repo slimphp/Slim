@@ -123,7 +123,7 @@ class Router implements RouterInterface
      *
      * @param  string             $httpMethod  The HTTP request method
      * @param  string             $resourceUri The resource URI
-     * @param  bool               $reload      Should matching routes be re-parsed?
+     * @param  bool               $save      Should matching routes be re-parsed?
      * @return array[\Slim\Interfaces\RouteInterface]
      * @api
      */

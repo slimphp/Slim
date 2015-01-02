@@ -32,7 +32,6 @@
  */
 namespace Slim;
 
-use \Slim\Collection;
 use \Slim\Interfaces\ViewInterface;
 
 /**
@@ -88,7 +87,7 @@ class View extends Collection implements ViewInterface
      * This method echoes the rendered template to the current output buffer
      *
      * @param  string $template Pathname of template file relative to templates directory
-     * @param  array  $items    Expose these array items to the rendered template
+     * @param  array  $data    Expose these array items to the rendered template
      * @api
      */
     public function display($template, array $data = array())
@@ -103,7 +102,7 @@ class View extends Collection implements ViewInterface
      * a rendered template into a variable for futher processing.
      *
      * @var    string $template Pathname of template file relative to templates directory
-     * @param  array  $items    Expose these array items to the rendered template
+     * @param  array  $data    Expose these array items to the rendered template
      * @return string           The rendered template
      * @api
      */
@@ -120,7 +119,8 @@ class View extends Collection implements ViewInterface
      * own custom view class that implements \Slim\ViewInterface instead of using this default
      * view class. This default implementation is largely intended as an example.
      *
-     * @var    string            $template Pathname of template file relative to templates directory
+     * @param  string            $template Pathname of template file relative to templates directory
+     * @param  array             $data
      * @return string                      The rendered template
      * @throws \RuntimeException           If resolved template pathname is not a valid file
      */

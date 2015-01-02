@@ -170,7 +170,7 @@ class Cookies extends Collection implements CookiesInterface
      * first argument; this method directly modifies this object instead of
      * returning a value.
      *
-     * @param \Slim\Interfaces\Http\HeadersInterface $header
+     * @param HeadersInterface $headers
      * @param string                                 $name
      * @param string                                 $value
      * @api

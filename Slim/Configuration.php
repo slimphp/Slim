@@ -98,6 +98,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Set Slim's defaults using the handler
+     * @param array $values
      */
     public function setArray(array $values)
     {
@@ -174,7 +175,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
     /**
      * Get an ArrayIterator for the stored items
      *
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {
