@@ -906,7 +906,12 @@ class Slim
             }
         }
 
-        return $value;
+        /*
+         * transform $value to @return doc requirement.
+         * \Slim\Http\Util::decodeSecureCookie -  is able
+         * to return false and we have to cast it to null.
+         */
+        return $value === false ? null : $value;
     }
 
     /**
