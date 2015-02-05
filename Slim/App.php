@@ -88,7 +88,6 @@ class App extends \Pimple
     {
         parent::__construct();
 
-        // Settings
         $this['settings'] = function ($c) use ($userSettings) {
             $config = new \Slim\Configuration(new \Slim\ConfigurationHandler);
             $config->setArray($userSettings);
@@ -96,12 +95,10 @@ class App extends \Pimple
             return $config;
         };
 
-        // Environment
         $this['environment'] = function ($c) {
             return new \Slim\Environment($_SERVER);
         };
 
-        // Request
         $this['request'] = function ($c) {
             $environment = $c['environment'];
             $headers = new \Slim\Http\Headers($environment);
@@ -113,7 +110,6 @@ class App extends \Pimple
             return new \Slim\Http\Request($environment, $headers, $cookies);
         };
 
-        // Response
         $this['response'] = function ($c) {
             $headers = new \Slim\Http\Headers();
             $cookies = new \Slim\Http\Cookies();
@@ -130,22 +126,18 @@ class App extends \Pimple
             return $response;
         };
 
-        // Router
         $this['router'] = function ($c) {
             return new \Slim\Router();
         };
 
-        // View
         $this['view'] = function ($c) {
             return new \Slim\View();
         };
 
-        // Crypt
         $this['crypt'] = function ($c) {
             return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         };
 
-        // Session
         $this['session'] = function ($c) {
             $session = new \Slim\Session($c['settings']['session.handler']);
             $session->start();
@@ -156,7 +148,6 @@ class App extends \Pimple
             return $session;
         };
 
-        // Flash
         $this['flash'] = function ($c) {
             $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
             if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface) {
@@ -166,7 +157,6 @@ class App extends \Pimple
             return $flash;
         };
 
-        // Mode
         $this['mode'] = function ($c) {
             $mode = $c['settings']['mode'];
 
@@ -182,7 +172,6 @@ class App extends \Pimple
             return $mode;
         };
 
-        // Middleware stack
         $this['middleware'] = array($this);
     }
 
