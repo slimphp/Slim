@@ -493,4 +493,82 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(headers_sent());
         $this->assertEquals('Foo', $output);
     }
+
+    public function testWriteJsonAsArray()
+    {
+        $data = [
+            'people' => [
+                (object)[
+                    'name' => 'Josh'
+                ],
+                (object)[
+                    'name' => 'Fred'
+                ]
+            ]
+        ];
+        $this->response->writeJson($data);
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $this->assertTrue(strpos($this->response->getHeader('Content-Type'), 'application/json') === 0);
+        $this->assertEquals('{"people":[{"name":"Josh"},{"name":"Fred"}]}', $output);
+    }
+
+    public function testWriteJsonAsString()
+    {
+        $data = '{"people":[{"name":"Josh"},{"name":"Fred"}]}';
+        $this->response->writeJson($data);
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $this->assertTrue(strpos($this->response->getHeader('Content-Type'), 'application/json') === 0);
+        $this->assertEquals('{"people":[{"name":"Josh"},{"name":"Fred"}]}', $output);
+    }
+
+    public function testWriteXmlAsArray()
+    {
+        $data = [
+            'people' => [
+                'josh' => [
+                    'name' => 'Josh',
+                    'handle' => 'codeguy'
+                ],
+                'cal' => [
+                    'name' => 'Cal',
+                    'handle' => 'calevans'
+                ]
+            ]
+        ];
+        $this->response->writeXml($data);
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $shouldBe = <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<response><people><josh name="Josh" handle="codeguy"/><cal name="Cal" handle="calevans"/></people></response>
+
+EOL;
+
+        $this->assertTrue(strpos($this->response->getHeader('Content-Type'), 'application/xml') === 0);
+        $this->assertEquals($shouldBe, $output);
+    }
+
+    public function testWriteXmlAsString()
+    {
+        $data = '<people><josh name="Josh" handle="codeguy"/><cal name="Cal" handle="calevans"/></people>';
+        $this->response->writeXml($data);
+        ob_start();
+        $this->response->send();
+        $output = ob_get_clean();
+
+        $shouldBe = <<<EOL
+<?xml version="1.0" encoding="UTF-8"?>
+<people><josh name="Josh" handle="codeguy"/><cal name="Cal" handle="calevans"/></people>
+EOL;
+        $this->assertTrue(strpos($this->response->getHeader('Content-Type'), 'application/xml') === 0);
+        $this->assertEquals($shouldBe, $output);
+    }
 }

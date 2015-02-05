@@ -474,6 +474,75 @@ class Response implements ResponseInterface
     }
 
     /**
+     * Write JSON data to response body
+     *
+     * @param array|object|string $data Array, JSON string, or object that implements public `toJson()` or `asJson()` method
+     * @throws \InvalidArgumentException
+     */
+    public function writeJson($data)
+    {
+        if (is_array($data) === true) {
+            $json = json_encode($data);
+        } else if (is_object($data) && method_exists($data, 'toJson') === true) {
+            $json = $data->toJson();
+        } else if (is_object($data) && method_exists($data, 'asJson') === true) {
+            $json = $data->asJson();
+        } else if (is_string($data) === true) {
+            $json = $data;
+        } else {
+            throw new \InvalidArgumentException('Argument must be array, JSON string, or object with `toJson()` or `asJson()` method');
+        }
+
+        $this->write($json, true);
+        $this->setHeader('Content-Type', 'application/json;charset=utf-8');
+    }
+
+    /**
+     * Write XML data to response body
+     *
+     * @param array|object|string $data Array, XML string, or object that implements public `toXml()` or `asXml()` method
+     * @throws \InvalidArgumentException
+     */
+    public function writeXml($data)
+    {
+        if (is_array($data) === true) {
+            $dom = new \DOMDocument('1.0', 'UTF-8');
+            $dom->formatOutput = false;
+            $root = $dom->createElement('response');
+            $dom->appendChild($root);
+            $array2xml = function ($node, $array) use ($dom, &$array2xml) {
+                foreach ($array as $key => $value){
+                    if (is_array($value) === true) {
+                        $n = $dom->createElement($key);
+                        $node->appendChild($n);
+                        $array2xml($n, $value);
+                    } else {
+                        $attr = $dom->createAttribute($key);
+                        $attr->value = $value;
+                        $node->appendChild($attr);
+                    }
+                }
+            };
+            $array2xml($root, $data);
+            $xml = $dom->saveXML();
+        } else if (is_object($data) && method_exists($data, 'toXml') === true) {
+            $xml = $data->toXml();
+        } else if (is_object($data) && method_exists($data, 'asXml') === true) {
+            $xml = $data->asXml();
+        } else if (is_string($data) === true) {
+            $xml = $data;
+            if (strpos($data, '<?xml') !== 0) {
+                $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL . $xml;
+            }
+        } else {
+            throw new \InvalidArgumentException('Argument must be array, string, or object with `toXml()` or `asXml()` method');
+        }
+
+        $this->write($xml, true);
+        $this->setHeader('Content-Type', 'application/xml;charset=utf-8');
+    }
+
+    /**
      * Get the response body size if known
      *
      * @return int|false
@@ -483,6 +552,8 @@ class Response implements ResponseInterface
     {
         return $this->length;
     }
+
+
 
     /*******************************************************************************
      * Response Helpers
