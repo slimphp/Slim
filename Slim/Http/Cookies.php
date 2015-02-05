@@ -85,6 +85,16 @@ class Cookies extends Collection implements CookiesInterface
     }
 
     /**
+     * Set default cookie properties
+     *
+     * @param array
+     */
+    public function setDefaults(array $settings)
+    {
+        $this->defaults = array_merge($this->defaults, $settings);
+    }
+
+    /**
      * Set cookie
      *
      * The second argument may be a single scalar value, in which case
