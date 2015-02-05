@@ -553,7 +553,62 @@ class Response implements ResponseInterface
         return $this->length;
     }
 
+    /**
+     * Prepare download
+     *
+     * This method streams a resource to the HTTP client
+     *
+     * @param string $path        The PHP resource URI
+     * @param string $name        The downloaded file name
+     * @param bool   $inline      Use inline download disposition?
+     * @param string $contentType The downloaded file content type
+     * @api
+     */
+    public function setDownload($path, $name = false, $inline = false, $contentType = false) {
+        // Replace response body
+        $fp = fopen($path, 'r');
+        $this->setBody($fp);
 
+        // Designate as attachment
+        if ($inline === false) {
+            $this->setHeader('Content-Disposition', sprintf(
+                'attachment;filename=%s',
+                $name ? $name : basename($path)
+            ));
+        }
+
+        // Set content type
+        if ($contentType) {
+            $this->setHeader('Content-Type', $contentType);
+        } else {
+            if (file_exists($path)) {
+                // Set Content-Type
+                if (extension_loaded('fileinfo')) {
+                    $finfo = new \finfo(FILEINFO_MIME_TYPE);
+                    $type = $finfo->file($path);
+                    $this->setHeader('Content-Type', $type);
+                } else {
+                    $this->setHeader('Content-Type', 'application/octet-stream');
+                }
+
+                // Set Content-Length
+                $stat = fstat($fp);
+                $this->setHeader('Content-Length', $stat['size']);
+            } else {
+                // Set Content-Type and Content-Length
+                $data = stream_get_meta_data($fp);
+                foreach ($data['wrapper_data'] as $header) {
+                    list($k, $v) = explode(': ', $header, 2);
+
+                    if ($k === 'Content-Type') {
+                        $this->setHeader('Content-Type', $v);
+                    } else if ($k === 'Content-Length') {
+                        $this->setHeader('Content-Length', $v);
+                    }
+                }
+            }
+        }
+    }
 
     /*******************************************************************************
      * Response Helpers

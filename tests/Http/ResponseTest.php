@@ -322,6 +322,44 @@ class ResponseTest extends PHPUnit_Framework_TestCase
      * Response Helpers
      ******************************************************************************/
 
+    // public function testStreamingAFile()
+    // {
+    //     $this->expectOutputString(file_get_contents(dirname(__DIR__) . "/composer.json"));
+
+    //     $app = $this->createApp();
+    //     $app->get('/bar', function() use ($app) {
+    //         $app->sendFile(dirname(__DIR__) . "/composer.json");
+    //     });
+    //     $app->run();
+    // }
+
+    // public function testStreamingAFileWithContentType()
+    // {
+    //     $this->expectOutputString(file_get_contents(dirname(__DIR__) . "/composer.json"));
+
+    //     $app = $this->createApp();
+    //     $app->get('/bar', function() use ($app) {
+    //         $app->sendFile(dirname(__DIR__) . "/composer.json", 'application/json');
+    //     });
+    //     $app->run();
+    //     $this->assertEquals('application/json', $app['response']->getHeader('Content-Type'));
+    // }
+
+    // public function testStreamingAProc()
+    // {
+    //     $this->expectOutputString("FooBar\n");
+
+    //     $app = $this->createApp();
+    //     $app->get('/bar', function() use ($app) {
+    //         $app->sendProcess("echo 'FooBar'");
+    //     });
+    //     $app->run();
+    // }
+
+    /*******************************************************************************
+     * Response Helpers
+     ******************************************************************************/
+
     public function testFinalize()
     {
         $this->response->finalize($this->request);
