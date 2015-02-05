@@ -931,8 +931,8 @@ class App extends \Pimple
      *
      * This method streams a local or remote file to the client
      *
-     * @param  string $file        The URI of the file, can be local or remote
-     * @param  string $contentType Optional content type of the stream, if not specified Slim will attempt to get this
+     * @param  string      $file        The URI of the file, can be local or remote
+     * @param  bool|string $contentType Optional content type of the stream, if not specified Slim will attempt to get this
      * @api
      */
     public function sendFile($file, $contentType = false) {
@@ -990,7 +990,7 @@ class App extends \Pimple
      *
      * This method triggers a download in the browser
      *
-     * @param  string $filename Optional filename for the download
+     * @param bool|string $filename Optional filename for the download
      * @api
      */
     public function setDownload($filename = false) {
@@ -1204,7 +1204,7 @@ class App extends \Pimple
      * @param  int            $errno   The numeric type of the Error
      * @param  string         $errstr  The error message
      * @param  string         $errfile The absolute path to the affected file
-     * @param  int            $errline The line number of the error in the affected file
+     * @param  int|string     $errline The line number of the error in the affected file
      * @return bool
      * @throws \ErrorException
      */
@@ -1241,6 +1241,7 @@ class App extends \Pimple
 
     /**
      * Default Error handler
+     * @param $e
      */
     protected function defaultError($e)
     {

@@ -257,7 +257,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
     /**
      * Get an ArrayIterator for the stored items
      *
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {

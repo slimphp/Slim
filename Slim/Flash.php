@@ -76,8 +76,8 @@ class Flash implements FlashInterface
 
     /**
      * Constructor
-     * @param  \Slim\Session $session
-     * @param  string        $key     The flash session storage key
+     * @param  SessionInterface $session
+     * @param  string           $key     The flash session storage key
      * @api
      */
     public function __construct(SessionInterface $session, $key = 'slimflash')

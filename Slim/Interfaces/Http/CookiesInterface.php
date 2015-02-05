@@ -33,7 +33,6 @@
 namespace Slim\Interfaces\Http;
 
 use \Slim\Interfaces\CollectionInterface;
-use \Slim\Interfaces\Http\HeadersInterface;
 
 /**
  * Cookies Interface

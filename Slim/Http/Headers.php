@@ -119,17 +119,15 @@ class Headers extends Collection implements HeadersInterface
      * Get data value with key
      *
      * @param  string $key     The data key
-     * @param  mixed  $default The value to return if data key does not exist
+     * @param  mixed  $asArray The value to return if data key does not exist
      * @return mixed           The data value, or the default value
      * @api
      */
     public function get($key, $asArray = false)
     {
-        if ($asArray) {
-            return parent::get($this->normalizeKey($key), array());
-        } else {
-            return implode(', ', parent::get($this->normalizeKey($key), array()));
-        }
+        return $asArray ?
+            parent::get($this->normalizeKey($key), array()) :
+            implode(', ', parent::get($this->normalizeKey($key), array()));
     }
 
     /**

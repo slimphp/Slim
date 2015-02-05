@@ -718,10 +718,10 @@ class Request implements RequestInterface
 
         if ($this->headers->has('X_FORWARDED_PROTO') === true) {
             $headerValue = $this->headers->get('X_FORWARDED_PROTO');
-            $isHttps = (strtolower($headerValue) === 'https');
+            $isHttps = strtolower($headerValue) === 'https';
         } else {
             $headerValue = $this->env->get('HTTPS');
-            $isHttps = (empty($headerValue) === false && $headerValue !== 'off');
+            $isHttps = empty($headerValue) === false && $headerValue !== 'off';
         }
 
         return $isHttps ? 'https' : 'http';

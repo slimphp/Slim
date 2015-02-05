@@ -32,8 +32,6 @@
  */
 namespace Slim\Interfaces;
 
-use \Slim\Interfaces\RouteInterface;
-
 /**
  * Router Interface
  *

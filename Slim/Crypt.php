@@ -79,9 +79,9 @@ class Crypt implements CryptInterface
 
     /**
      * Constructor
-     * @param  string $key    Encryption key
-     * @param  int    $cipher Encryption algorithm
-     * @param  int    $mode   Encryption mode
+     * @param  string       $key    Encryption key
+     * @param  int|string   $cipher Encryption algorithm
+     * @param  int|string   $mode   Encryption mode
      * @api
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
