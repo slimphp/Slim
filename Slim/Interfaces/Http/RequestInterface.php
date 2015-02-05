@@ -47,25 +47,13 @@ interface RequestInterface
 
     public function getMethod();
 
-    public function setMethod($method);
-
     public function getUrl();
-
-    public function setUrl($url);
 
     public function getHeaders();
 
     public function hasHeader($name);
 
     public function getHeader($name);
-
-    public function setHeader($name, $value);
-
-    public function setHeaders(array $headers);
-
-    public function addHeader($name, $value);
-
-    public function addHeaders(array $headers);
 
     public function removeHeader($name);
 

@@ -189,17 +189,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * Set HTTP method
-     *
-     * @param string $method
-     * @api
-     */
-    public function setMethod($method)
-    {
-        $this->env->set('REQUEST_METHOD', strtoupper($method));
-    }
-
-    /**
      * Get URL (scheme + host [ + port if non-standard ])
      *
      * @return string
@@ -213,17 +202,6 @@ class Request implements RequestInterface
         }
 
         return $url;
-    }
-
-    /**
-     * Set URL
-     *
-     * @param string $url
-     * @api
-     */
-    public function setUrl($url)
-    {
-        // TODO
     }
 
     /**
@@ -262,54 +240,6 @@ class Request implements RequestInterface
     }
 
     /**
-     * Set header value
-     *
-     * @param string $name
-     * @param string $value
-     * @api
-     */
-    public function setHeader($name, $value)
-    {
-        $this->headers->set($name, $value);
-    }
-
-    /**
-     * Set multiple header values
-     *
-     * @param array $headers
-     * @api
-     */
-    public function setHeaders(array $headers)
-    {
-        $this->headers->replace($headers);
-    }
-
-    /**
-     * Add a header value
-     *
-     * @param string $name
-     * @param string $value
-     * @api
-     */
-    public function addHeader($name, $value)
-    {
-        $this->headers->add($name, $value);
-    }
-
-    /**
-     * Add multiple header values
-     *
-     * @param array $headers
-     * @api
-     */
-    public function addHeaders(array $headers)
-    {
-        foreach ($headers as $name => $value) {
-            $this->headers->add($name, $value);
-        }
-    }
-
-    /**
      * Remove header
      *
      * @param string $name
@@ -329,17 +259,6 @@ class Request implements RequestInterface
     public function getCookies()
     {
         return $this->cookies->all();
-    }
-
-    /**
-     * Set multiple cookies
-     *
-     * @param array $cookies
-     * @api
-     */
-    public function setCookies(array $cookies)
-    {
-        $this->cookies->replace($cookies);
     }
 
     /**
@@ -364,18 +283,6 @@ class Request implements RequestInterface
     public function getCookie($name)
     {
         return $this->cookies->get($name);
-    }
-
-    /**
-     * Set cookie
-     *
-     * @param string $name
-     * @param string $value
-     * @api
-     */
-    public function setCookie($name, $value)
-    {
-        $this->cookies->set($name, $value);
     }
 
     /**

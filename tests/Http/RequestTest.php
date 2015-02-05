@@ -535,32 +535,6 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test add header
-     */
-    public function testAddHeader()
-    {
-        $this->initializeRequest(array(
-            'HTTP_HOST' => 'slimframework.com',
-            'SERVER_NAME' => 'example.com'
-        ));
-        $this->request->addHeader('Foo', 'Bar');
-        $this->assertEquals('Bar', $this->request->getHeader('Foo'));
-    }
-
-    /**
-     * Test add header
-     */
-    public function testAddHeaders()
-    {
-        $this->initializeRequest(array(
-            'HTTP_HOST' => 'slimframework.com',
-            'SERVER_NAME' => 'example.com'
-        ));
-        $this->request->addHeaders(array('Foo' => array('Foo', 'Bar')));
-        $this->assertEquals('Foo, Bar', $this->request->getHeader('Foo'));
-    }
-
-    /**
      * Test get host from Host header
      */
     public function testGetHost()
