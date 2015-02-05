@@ -137,12 +137,7 @@ class App extends \Pimple
 
         // View
         $this['view'] = function ($c) {
-            $view = $c['settings']['view'];
-            if ($view instanceof \Slim\Interfaces\ViewInterface === false) {
-                throw new \Exception('View class must be instance of \Slim\View');
-            }
-
-            return $view;
+            return new \Slim\View();
         };
 
         // Crypt
