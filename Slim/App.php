@@ -186,60 +186,6 @@ class App extends \Pimple
         $this['middleware'] = array($this);
     }
 
-    /**
-     * Configure Slim Settings
-     *
-     * This method defines application settings and acts as a setter and a getter.
-     *
-     * If only one argument is specified and that argument is a string, the value
-     * of the setting identified by the first argument will be returned, or NULL if
-     * that setting does not exist.
-     *
-     * If only one argument is specified and that argument is an associative array,
-     * the array will be merged into the existing application settings.
-     *
-     * If two arguments are provided, the first argument is the name of the setting
-     * to be created or updated, and the second argument is the setting value.
-     *
-     * @param  string|array $name   If a string, the name of the setting to set or retrieve. Else an associated array of setting names and values
-     * @param  mixed        $value  If name is a string, the value of the setting identified by $name
-     * @return mixed                The value of a setting if only one argument is a string
-     * @api
-     */
-    public function config($name, $value = null)
-    {
-        if (func_num_args() === 1) {
-            if (is_array($name)) {
-                foreach ($name as $key => $value) {
-                    $this['settings'][$key] = $value;
-                }
-            } else {
-                return isset($this['settings'][$name]) ? $this['settings'][$name] : null;
-            }
-        } else {
-            $this['settings'][$name] = $value;
-        }
-    }
-
-    /**
-     * Configure Slim for a given mode
-     *
-     * This method will immediately invoke the callable if
-     * the specified mode matches the current application mode.
-     * Otherwise, the callable is ignored. This should be called
-     * only _after_ you initialize your Slim app.
-     *
-     * @param  string $mode
-     * @param  mixed  $callable
-     * @api
-     */
-    public function configureMode($mode, $callable)
-    {
-        if ($mode === $this['mode'] && is_callable($callable)) {
-            call_user_func($callable);
-        }
-    }
-
     /********************************************************************************
     * Routing
     *******************************************************************************/
