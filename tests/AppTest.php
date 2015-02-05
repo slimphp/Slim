@@ -896,24 +896,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test content type
-     */
-    public function testContentType()
-    {
-        $this->app->contentType('application/json');
-        $this->assertEquals('application/json', $this->app['response']->getHeader('Content-Type'));
-    }
-
-    /**
-     * Test status
-     */
-    public function testStatus()
-    {
-        $this->app->status(403);
-        $this->assertEquals(403, $this->app['response']->getStatus());
-    }
-
-    /**
      * Test URL for
      */
     public function testUrlFor()

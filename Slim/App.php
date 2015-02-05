@@ -688,26 +688,6 @@ class App extends \Pimple
     }
 
     /**
-     * Set the HTTP response Content-Type
-     * @param  string $type The Content-Type for the Response (ie. text/html)
-     * @api
-     */
-    public function contentType($type)
-    {
-        $this['response']->setHeader('Content-Type', $type);
-    }
-
-    /**
-     * Set the HTTP response status code
-     * @param  int $code The HTTP response status code
-     * @api
-     */
-    public function status($code)
-    {
-        $this['response']->setStatus($code);
-    }
-
-    /**
      * Get the URL for a named route
      * @param  string            $name   The route name
      * @param  array             $params Associative array of URL parameters and replacement values
@@ -1150,7 +1130,7 @@ class App extends \Pimple
      */
     protected function defaultError($e)
     {
-        $this->contentType('text/html');
+        $this['response']->setHeader('Content-type', 'text/html');
 
         if ($this['mode'] === 'development') {
             $title = 'Slim Application Error';
