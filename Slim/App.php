@@ -851,9 +851,11 @@ class App extends \Pimple
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
-        // Invoke middleware and application stack
+        // Traverse middleware stack
         try {
             $this['middleware'][0]->call();
+        } catch (\Slim\Exception\Stop $e) {
+            // Exit middleware stack immediately, from any layer, and without error
         } catch (\Exception $e) {
             $this['response']->write($this->callErrorHandler($e), true);
         }
