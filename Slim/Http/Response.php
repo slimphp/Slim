@@ -78,10 +78,16 @@ class Response implements ResponseInterface
     protected $cookies;
 
     /**
-     * Response body
-     * @var \GuzzleHttp\Stream\StreamInterface
+     * Response body (readable, writable, seekable stream)
+     * @var resource
      */
     protected $body;
+
+    /**
+     * Response body length (`false` if unknown)
+     * @var int|false
+     */
+    protected $length = false;
 
     /**
      * Response codes and associated messages
@@ -171,8 +177,8 @@ class Response implements ResponseInterface
         }
         $this->cookies = $cookies;
         $this->setStatus($status);
-        $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
-        $this->body->write($body);
+        $this->body = fopen('php://temp', 'r+');
+        $this->write($body);
     }
 
     /*******************************************************************************
@@ -420,7 +426,7 @@ class Response implements ResponseInterface
     /**
      * Get response body
      *
-     * @return \GuzzleHttp\Stream\StreamInterface
+     * @return resource
      * @api
      */
     public function getBody()
@@ -429,13 +435,23 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Set response body
+     * Set response body (must be readable, writable, seekable )
      *
-     * @param \GuzzleHttp\Stream\StreamInterface $body
+     * @param resource $body
      * @api
      */
-    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
+    public function setBody($body)
     {
+        // Validate new body
+        if (is_resource($body) === false) {
+            throw new \InvalidArgumentException('New response body must be a valid stream resource');
+        }
+
+        // Close existinb body
+        if (is_resource($this->body) === true) {
+            fclose($this->body);
+        }
+
         $this->body = $body;
     }
 
@@ -449,10 +465,12 @@ class Response implements ResponseInterface
     public function write($body, $overwrite = false)
     {
         if ($overwrite === true) {
-            $this->body->close();
-            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
+            fclose($this->body);
+            $this->body = fopen('php://temp', 'r+');
+            $this->length = 0;
         }
-        $this->body->write($body);
+        fwrite($this->body, $body);
+        $this->length += function_exists('mb_strlen') ? mb_strlen($body) : strlen($body);
     }
 
     /**
@@ -463,7 +481,7 @@ class Response implements ResponseInterface
      */
     public function getSize()
     {
-        return $this->body->getSize();
+        return $this->length;
     }
 
     /*******************************************************************************
@@ -505,8 +523,7 @@ class Response implements ResponseInterface
 
         // Truncate body if it should not be sent with response
         if ($sendBody === false) {
-            $this->body->close();
-            $this->body = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
+            $this->write('', true);
         }
 
         return $this;
@@ -536,9 +553,12 @@ class Response implements ResponseInterface
         }
 
         // Send body
-        $this->body->seek(0);
-        while ($this->body->eof() === false) {
-            echo $this->body->read(1024);
+        $meta = stream_get_meta_data($this->body);
+        if ($meta['seekable'] === true) {
+            fseek($this->body, 0);
+        }
+        while (feof($this->body) === false) {
+            echo fread($this->body, 1024);
         }
 
         return $this;

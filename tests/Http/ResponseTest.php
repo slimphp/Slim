@@ -101,7 +101,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testDefaultBody()
     {
-        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
+        $this->assertTrue(is_resource($this->bodyProperty->getValue($this->response)));
     }
 
     /*******************************************************************************
@@ -280,16 +280,16 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testGetBody()
     {
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        fwrite($this->bodyProperty->getValue($this->response), 'Foo');
         $body = $this->response->getBody();
 
-        $this->assertInstanceOf('\GuzzleHttp\Stream\StreamInterface', $body);
-        $this->assertEquals('Foo', (string)$this->response->getBody());
+        $this->assertTrue(is_resource($body));
+        $this->assertEquals('Foo', stream_get_contents($body, -1, 0));
     }
 
     public function testSetBody()
     {
-        $newStream = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
+        $newStream = fopen('php://temp', 'r+');
         $this->response->setBody($newStream);
 
         $this->assertSame($newStream, $this->bodyProperty->getValue($this->response));
@@ -297,23 +297,23 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testWrite()
     {
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        fwrite($this->bodyProperty->getValue($this->response), 'Foo');
         $this->response->write('Bar');
 
-        $this->assertEquals('FooBar', (string)$this->bodyProperty->getValue($this->response));
+        $this->assertEquals('FooBar', stream_get_contents($this->bodyProperty->getValue($this->response), -1, 0));
     }
 
     public function testWriteReplace()
     {
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        fwrite($this->bodyProperty->getValue($this->response), 'Foo');
         $this->response->write('Bar', true);
 
-        $this->assertEquals('Bar', (string)$this->bodyProperty->getValue($this->response));
+        $this->assertEquals('Bar', stream_get_contents($this->bodyProperty->getValue($this->response), -1, 0));
     }
 
     public function testGetSize()
     {
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $this->response->write('Foo');
 
         $this->assertEquals(3, $this->response->getSize());
     }
@@ -327,19 +327,19 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->response->finalize($this->request);
 
         $this->assertEquals(200, $this->statusProperty->getValue($this->response));
-        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
+        $this->assertEquals('', stream_get_contents($this->bodyProperty->getValue($this->response), -1, 0));
     }
 
     public function testFinalizeWithEmptyBody()
     {
         $this->statusProperty->setValue($this->response, 304);
         $this->headersProperty->getValue($this->response)->set('Content-Type', 'text/csv');
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        fwrite($this->bodyProperty->getValue($this->response), 'Foo');
         $this->response->finalize($this->request);
 
         $this->assertFalse($this->headersProperty->getValue($this->response)->has('Content-Type'));
         $this->assertFalse($this->headersProperty->getValue($this->response)->has('Content-Length'));
-        $this->assertEquals('', (string)$this->bodyProperty->getValue($this->response));
+        $this->assertEquals('', stream_get_contents($this->bodyProperty->getValue($this->response), -1, 0));
     }
 
     public function testRedirect()
@@ -485,7 +485,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
     public function testResponseSend()
     {
-        $this->bodyProperty->getValue($this->response)->write('Foo');
+        $this->response->write('Foo');
         ob_start();
         $this->response->send();
         $output = ob_get_clean();

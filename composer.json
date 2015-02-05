@@ -14,8 +14,7 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "pimple/pimple": "2.*",
-        "guzzlehttp/streams": "1.*"
+        "pimple/pimple": "2.*"
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",

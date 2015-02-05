@@ -89,7 +89,7 @@ interface ResponseInterface
 
     public function getBody();
 
-    public function setBody(\GuzzleHttp\Stream\StreamInterface $body);
+    public function setBody($body);
 
     public function write($body, $replace = false);
 
