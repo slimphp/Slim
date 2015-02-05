@@ -870,14 +870,16 @@ class AppTest extends PHPUnit_Framework_TestCase
      */
     public function testNotFound()
     {
-        $this->app->notFound(function () {
-            echo "Not Found";
-        });
+        $this->app['notFoundHandler'] = function () {
+            return function () {
+                return 'Not Found';
+            };
+        };
+
         $this->app->get('/foo', function () {});
         $this->app->call();
         $this->app['response']->finalize($this->app['request']);
 
-        $this->assertEquals(404, $this->app['response']->getStatus());
         $this->assertEquals('Not Found', stream_get_contents($this->app['response']->getBody(), -1, 0));
     }
 
@@ -898,7 +900,7 @@ class AppTest extends PHPUnit_Framework_TestCase
     {
         $app = $this->createApp();
         $app->get('/bar', function () use ($app) {
-            $app->error();
+            $app['errorHandler']();
         });
         $app->call();
 
@@ -922,17 +924,18 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('Foo');
 
         $this->initializeApp(array(), array('debug' => false));
-        $this->app->error(function ($e) {
-            if ($e instanceof \ErrorException) {
-                echo $e->getMessage();
-            }
-        });
+        $this->app['errorHandler'] = function () {
+            return function ($e) {
+                if ($e instanceof \ErrorException) {
+                    return $e->getMessage();
+                }
+            };
+        };
         $this->app->get('/bar', function () {
             trigger_error('Foo');
         });
         $this->app->run();
 
-        $this->assertEquals(500, $this->app['response']->getStatus());
         $this->assertEquals('Foo', stream_get_contents($this->app['response']->getBody(), -1, 0));
     }
 
@@ -944,13 +947,15 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\Exception');
 
         $app = $this->createApp(array(), array('debug' => false));
-        $app->error(function(\Exception $e) use ($app) {
-            $r = $app['response'];
-            $r->setStatus(503);
-            $r->setHeader('X-Powered-By', 'Slim');
+        $app['errorHandler'] = function () use ($app) {
+            return function(\Exception $e) use ($app) {
+                $r = $app['response'];
+                $r->setStatus(503);
+                $r->setHeader('X-Powered-By', 'Slim');
 
-            echo "Foo";
-        });
+                return "Foo";
+            };
+        };
         $app->get('/bar', function () {
             throw new \Exception('Foo');
         });
@@ -984,40 +989,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         } catch (\ErrorException $e) {}
 
         error_reporting($defaultErrorReporting);
-    }
-
-    /**
-     * Slim should keep reference to a callable error callback
-     */
-    public function testErrorHandler() {
-        $errCallback = function () { echo "404"; };
-        $this->app->error($errCallback);
-        $this->assertSame($errCallback, $this->app['error']);
-    }
-
-    /**
-     * Slim should throw a Slim_Exception_Stop if error callback is not callable
-     */
-    public function testErrorHandlerIfNotCallable() {
-        $this->setExpectedException('\Slim\Exception\Stop');
-        $this->app->error('foo');
-    }
-
-    /**
-     * Slim should keep reference to a callable NotFound callback
-     */
-    public function testNotFoundHandler() {
-        $notFoundCallback = function () { echo "404"; };
-        $this->app->notFound($notFoundCallback);
-        $this->assertSame($notFoundCallback, $this->app['notFound']);
-    }
-
-    /**
-     * Slim should throw a Slim_Exception_Stop if NotFound callback is not callable
-     */
-    public function testNotFoundHandlerIfNotCallable() {
-        $this->setExpectedException('\Slim\Exception\Stop');
-        $this->app->notFound('foo');
     }
 
     /************************************************

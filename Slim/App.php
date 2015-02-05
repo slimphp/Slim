@@ -172,6 +172,14 @@ class App extends \Pimple
             return $mode;
         };
 
+        $this['errorHandler'] = function ($c) {
+            return new \Slim\ErrorHandler($c);
+        };
+
+        $this['notFoundHandler'] = function ($c) {
+            return new \Slim\NotFoundHandler($c);
+        };
+
         $this['middleware'] = array($this);
     }
 
@@ -339,106 +347,6 @@ class App extends \Pimple
         $args = func_get_args();
 
         return $this->mapRoute($args)->via("ANY");
-    }
-
-    /**
-     * Not Found Handler
-     *
-     * This method defines or invokes the application-wide Not Found handler.
-     * There are two contexts in which this method may be invoked:
-     *
-     * 1. When declaring the handler:
-     *
-     * If the $callable parameter is not null and is callable, this
-     * method will register the callable to be invoked when no
-     * routes match the current HTTP request. It WILL NOT invoke the callable.
-     *
-     * 2. When invoking the handler:
-     *
-     * If the $callable parameter is null, Slim assumes you want
-     * to invoke an already-registered handler. If the handler has been
-     * registered and is callable, it is invoked and sends a 404 HTTP Response
-     * whose body is the output of the Not Found handler.
-     *
-     * @param  mixed $callable Anything that returns true for is_callable()
-     * @api
-     */
-    public function notFound ($callable = null)
-    {
-        if (is_callable($callable)) {
-            $this['notFound'] = function () use ($callable) {
-                return $callable;
-            };
-        } else {
-            ob_start();
-            if (isset($this['notFound']) && is_callable($this['notFound'])) {
-                call_user_func($this['notFound']);
-            } else {
-                call_user_func(array($this, 'defaultNotFound'));
-            }
-            $this->halt(404, ob_get_clean());
-        }
-    }
-
-    /**
-     * Error Handler
-     *
-     * This method defines or invokes the application-wide Error handler.
-     * There are two contexts in which this method may be invoked:
-     *
-     * 1. When declaring the handler:
-     *
-     * If the $argument parameter is callable, this
-     * method will register the callable to be invoked when an uncaught
-     * Exception is detected, or when otherwise explicitly invoked.
-     * The handler WILL NOT be invoked in this context.
-     *
-     * 2. When invoking the handler:
-     *
-     * If the $argument parameter is not callable, Slim assumes you want
-     * to invoke an already-registered handler. If the handler has been
-     * registered and is callable, it is invoked and passed the caught Exception
-     * as its one and only argument. The error handler's output is captured
-     * into an output buffer and sent as the body of a 500 HTTP Response.
-     *
-     * @param  mixed $argument A callable or an exception
-     * @api
-     */
-    public function error($argument = null)
-    {
-        if (is_callable($argument)) {
-            //Register error handler
-            $this['error'] = function () use ($argument) {
-                return $argument;
-            };
-        } else {
-            //Invoke error handler
-            $this['response']->write($this->callErrorHandler($argument), true);
-            $this->stop();
-        }
-    }
-
-    /**
-     * Call error handler
-     *
-     * This will invoke the custom or default error handler
-     * and RETURN its output.
-     *
-     * @param  \Exception|null $argument
-     * @return string
-     */
-    protected function callErrorHandler($argument = null)
-    {
-        $this['response']->setStatus(500);
-
-        ob_start();
-        if (isset($this['error']) && is_callable($this['error'])) {
-            call_user_func_array($this['error'], array($argument));
-        } else {
-            call_user_func_array(array($this, 'defaultError'), array($argument));
-        }
-
-        return ob_get_clean();
     }
 
     /********************************************************************************
@@ -785,9 +693,9 @@ class App extends \Pimple
         try {
             $this['middleware'][0]->call();
         } catch (\Slim\Exception\Stop $e) {
-            // Exit middleware stack immediately, from any layer, and without error
+            // Exit middleware stack immediately, from any layer, without error
         } catch (\Exception $e) {
-            $this['response']->write($this->callErrorHandler($e), true);
+            $this['response']->write($this['errorHandler']($e), true);
         }
 
         // Finalize and send response
@@ -830,10 +738,12 @@ class App extends \Pimple
                 }
             }
             if (!$dispatched) {
-                $this->notFound();
+                $response->write($this['notFoundHandler']());
             }
             $this->applyHook('slim.after.router');
-        } catch (\Slim\Exception\Stop $e) {}
+        } catch (\Slim\Exception\Stop $e) {
+            // Exit route dispatch loop immediately without error
+        }
         $response->write(ob_get_clean());
         $this->applyHook('slim.after');
     }
@@ -929,10 +839,6 @@ class App extends \Pimple
         }
     }
 
-    /********************************************************************************
-    * Error Handling and Debugging
-    *******************************************************************************/
-
     /**
      * Convert errors into ErrorException objects
      *
@@ -954,78 +860,5 @@ class App extends \Pimple
         }
 
         throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
-    }
-
-    /**
-     * Generate diagnostic template markup
-     *
-     * This method accepts a title and body content to generate an HTML document layout.
-     *
-     * @param  string $title The title of the HTML template
-     * @param  string $body  The body content of the HTML template
-     * @return string
-     */
-    protected static function generateTemplateMarkup($title, $body)
-    {
-        return sprintf("<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>", $title, $title, $body);
-    }
-
-    /**
-     * Default Not Found handler
-     */
-    protected function defaultNotFound()
-    {
-        echo static::generateTemplateMarkup('404 Page Not Found', '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled correctly. If all else fails, you can visit our home page at the link below.</p><a href="' . $this['request']->getScriptName() . '/">Visit the Home Page</a>');
-    }
-
-    /**
-     * Default Error handler
-     */
-    protected function defaultError($e)
-    {
-        $this['response']->setHeader('Content-type', 'text/html');
-
-        if ($this['mode'] === 'development') {
-            $title = 'Slim Application Error';
-            $html = '';
-
-            if ($e instanceof \Exception) {
-                $code = $e->getCode();
-                $message = $e->getMessage();
-                $file = $e->getFile();
-                $line = $e->getLine();
-                $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $e->getTraceAsString());
-
-                $html = '<p>The application could not run because of the following error:</p>';
-                $html .= '<h2>Details</h2>';
-                $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($e));
-                if ($code) {
-                    $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
-                }
-                if ($message) {
-                    $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
-                }
-                if ($file) {
-                    $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
-                }
-                if ($line) {
-                    $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
-                }
-                if ($trace) {
-                    $html .= '<h2>Trace</h2>';
-                    $html .= sprintf('<pre>%s</pre>', $trace);
-                }
-            } else {
-                $html = sprintf('<p>%s</p>', $e);
-            }
-
-            echo self::generateTemplateMarkup($title, $html);
-        } else {
-            echo self::generateTemplateMarkup(
-                'Error',
-                '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry'
-                . 'for the temporary inconvenience.</p>'
-            );
-        }
     }
 }
