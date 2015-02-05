@@ -512,31 +512,6 @@ class App extends \Pimple
     }
 
     /********************************************************************************
-    * Rendering
-    *******************************************************************************/
-
-    /**
-     * Render a template
-     *
-     * Call this method within a GET, POST, PUT, PATCH, DELETE, NOT FOUND, or ERROR
-     * callable to render a template whose output is appended to the
-     * current HTTP response body. How the template is rendered is
-     * delegated to the current View.
-     *
-     * @param  string $template The name of the template passed into the view's render() method
-     * @param  array  $data     Associative array of data made available to the view
-     * @param  int    $status   The HTTP response status code to use (optional)
-     * @api
-     */
-    public function render($template, $data = array(), $status = null)
-    {
-        if (!is_null($status)) {
-            $this['response']->setStatus($status);
-        }
-        $this['view']->display($template, $data);
-    }
-
-    /********************************************************************************
     * HTTP Caching
     *******************************************************************************/
 

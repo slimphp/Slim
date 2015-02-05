@@ -555,46 +555,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
-     * RENDERING
-     ************************************************/
-
-    /**
-     * Test render with template and data
-     */
-    public function testRenderTemplateWithData()
-    {
-        $app = $this->createApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->render('test.php', array('foo' => 'bar', 'abc' => '123'));
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertEquals(200, $app['response']->getStatus());
-        $this->assertEquals('test output bar 123', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /**
-     * Test render with template and data and status
-     */
-    public function testRenderTemplateWithDataAndStatus()
-    {
-        $app = $this->createApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->render('test.php', array('foo' => 'bar', 'abc' => '123'), 500);
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertEquals(500, $app['response']->getStatus());
-        $this->assertEquals('test output bar 123', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /************************************************
      * HTTP CACHING
      ************************************************/
 
