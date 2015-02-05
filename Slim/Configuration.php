@@ -63,7 +63,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
     protected $defaults = array(
         // Application
         'mode' => 'development',
-        'view' => null,
+        'view.templates' => '../templates',
         // Cookies
         'cookies.encrypt' => false,
         'cookies.lifetime' => '20 minutes',

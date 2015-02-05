@@ -130,51 +130,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /************************************************
-     * SETTINGS
-     ************************************************/
-
-    /**
-     * Test get setting that exists
-     */
-    public function testGetSettingThatExists()
-    {
-        $this->assertEquals('development', $this->app->config('mode'));
-    }
-
-    /**
-     * Test get setting that does not exist
-     */
-    public function testGetSettingThatDoesNotExist()
-    {
-        $this->assertNull($this->app->config('foo'));
-    }
-
-    /**
-     * Test set setting
-     */
-    public function testSetSetting()
-    {
-        $this->assertEquals('development', $this->app->config('mode'));
-        $this->app->config('mode', 'staging');
-        $this->assertEquals('staging', $this->app->config('mode'));
-    }
-
-    /**
-     * Test batch set settings
-     */
-    public function testBatchSetSettings()
-    {
-        $this->assertEquals('development', $this->app->config('mode'));
-        $this->assertNull($this->app->config('view'));
-        $this->app->config(array(
-            'mode' => 'staging',
-            'view' => new \Slim\View(__DIR__ . '/templates')
-        ));
-        $this->assertEquals('staging', $this->app->config('mode'));
-        $this->assertInstanceOf('\Slim\View', $this->app->config('view'));
-    }
-
-    /************************************************
      * MODES
      ************************************************/
 
@@ -202,50 +157,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     {
         $this->initializeApp(array(), array('mode' => 'test'));
         $this->assertEquals('test', $this->app['mode']);
-    }
-
-    /**
-     * Test mode configuration
-     */
-    public function testModeConfiguration()
-    {
-        $flag = 0;
-        $configureTest = function () use (&$flag) {
-            $flag = 'test';
-        };
-        $configureProduction = function () use (&$flag) {
-            $flag = 'production';
-        };
-
-        $this->initializeApp(array(), array('mode' => 'test'));
-        $this->app->configureMode('test', $configureTest);
-        $this->app->configureMode('production', $configureProduction);
-        $this->assertEquals('test', $flag);
-    }
-
-    /**
-     * Test mode configuration when mode does not match
-     */
-    public function testModeConfigurationWhenModeDoesNotMatch()
-    {
-        $flag = 0;
-        $configureTest = function () use (&$flag) {
-            $flag = 'test';
-        };
-        $this->initializeApp(array(), array('mode' => 'production'));
-        $this->app->configureMode('test', $configureTest);
-        $this->assertEquals(0, $flag);
-    }
-
-    /**
-     * Test mode configuration when not callable
-     */
-    public function testModeConfigurationWhenNotCallable()
-    {
-        $flag = 0;
-        $this->initializeApp(array(), array('mode' => 'production'));
-        $this->app->configureMode('production', 'foo');
-        $this->assertEquals(0, $flag);
     }
 
     /**
@@ -482,22 +393,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->app->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
         $this->app->call();
         $this->assertEquals('jo hnsmi th', stream_get_contents($this->app['response']->getBody(), -1, 0));
-    }
-
-    /************************************************
-     * VIEW
-     ************************************************/
-
-    /**
-     * Test set view with object instance
-     */
-    public function testSetSlimViewFromInstance()
-    {
-        $this->initializeApp(array(), array(
-            'view' => new CustomView(dirname(__FILE__) . '/templates')
-        ));
-
-        $this->assertInstanceOf('CustomView', $this->app['view']);
     }
 
     /************************************************

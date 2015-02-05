@@ -131,7 +131,7 @@ class App extends \Pimple
         };
 
         $this['view'] = function ($c) {
-            return new \Slim\View();
+            return new \Slim\View($c['settings']['view.templates']);
         };
 
         $this['crypt'] = function ($c) {
@@ -913,7 +913,7 @@ class App extends \Pimple
                 $this['flash']->save();
 
                 // Encrypt, save, close session
-                if ($this->config('session.encrypt') === true) {
+                if ($this['settings']['session.encrypt'] === true) {
                     $this['session']->encrypt($this['crypt']);
                 }
                 $this['session']->save();
