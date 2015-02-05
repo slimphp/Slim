@@ -73,8 +73,6 @@ interface RequestInterface
 
     public function getBody();
 
-    public function setBody(\GuzzleHttp\Stream\StreamInterface $body);
-
     /***** Metadata *****/
 
     public function getScriptName();

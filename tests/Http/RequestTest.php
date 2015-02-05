@@ -54,7 +54,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
             'HTTP_USER_AGENT'      => 'Slim Framework',
             'REMOTE_ADDR'          => '127.0.0.1',
-            'REQUEST_TIME'         => time()
+            'REQUEST_TIME'         => time(),
+            'slim.input' => $body
         ), $serverData));
         $this->headers = new \Slim\Http\Headers($this->environment);
         $this->cookies = new \Slim\Http\Cookies($this->headers);
@@ -921,23 +922,4 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ));
         $this->assertEquals('/foo/%23bar', $this->request->getPathInfo());
     }
-
-    /**
-     * Test request with body uses the php://temp writable stream
-     */
-    public function testRequestWithBodyUsesWritableStream()
-    {
-        $this->initializeRequest();
-        $this->assertTrue($this->request->getBody()->isWritable());
-    }
-
-    /**
-     * Test request without body uses the php://input read-only stream
-     */
-    public function testRequestWithoutBodyUsesReadOnlyStream()
-    {
-        $this->initializeRequest(array(), null);
-        $this->assertFalse($this->request->getBody()->isWritable());
-    }
-
 }

@@ -103,7 +103,7 @@ class Request implements RequestInterface
 
     /**
      * Request body (raw)
-     * @var \GuzzleHttp\Stream\StreamInterface
+     * @var resource
      */
     protected $bodyRaw;
 
@@ -129,12 +129,12 @@ class Request implements RequestInterface
         $this->cookies = $cookies;
 
         if (is_string($body) === true) {
-            $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://temp', 'r+'));
-            $this->bodyRaw->write($body);
+            $this->bodyRaw = fopen('php://temp', 'r+');
+            fwrite($this->bodyRaw, $body);
         } else {
-            $this->bodyRaw = new \GuzzleHttp\Stream\Stream(fopen('php://input', 'r'));
+            $this->bodyRaw = fopen('php://input', 'r');
         }
-        $this->bodyRaw->seek(0);
+        fseek($this->bodyRaw, 0);
     }
 
     /*******************************************************************************
@@ -396,23 +396,12 @@ class Request implements RequestInterface
     /**
      * Get Body
      *
-     * @return \GuzzleHttp\Stream\StreamInterface
+     * @return resource
      * @api
      */
     public function getBody()
     {
-        return $this->bodyRaw;
-    }
-
-    /**
-     * Set request body
-     *
-     * @param \GuzzleHttp\Stream\StreamInterface $body
-     * @api
-     */
-    public function setBody(\GuzzleHttp\Stream\StreamInterface $body)
-    {
-        $this->bodyRaw = $body;
+        return stream_get_contents($this->bodyRaw, -1, 0);
     }
 
     /*******************************************************************************
@@ -612,7 +601,7 @@ class Request implements RequestInterface
 
             // Parse raw body if form-urlencoded
             if ($this->isFormData() === true) {
-                $rawBody = (string)$this->getBody();
+                $rawBody = $this->getBody();
                 if (function_exists('mb_parse_str') === true) {
                     mb_parse_str($rawBody, $this->body);
                 } else {
@@ -983,7 +972,7 @@ class Request implements RequestInterface
         }
 
         // Build body
-        $body = (string)$this->getBody();
+        $body = stream_get_contents($this->getBody(), -1, 0);
         if ($body) {
             $output .= PHP_EOL . $body;
         }
