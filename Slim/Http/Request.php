@@ -134,7 +134,10 @@ class Request implements RequestInterface
         } else {
             $this->bodyRaw = fopen('php://input', 'r');
         }
-        fseek($this->bodyRaw, 0);
+        $meta = stream_get_meta_data($this->bodyRaw);
+        if ($meta['seekable'] === true) {
+            fseek($this->bodyRaw, 0);
+        }
     }
 
     /*******************************************************************************
