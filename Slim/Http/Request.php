@@ -169,9 +169,9 @@ class Request
             return true;
         } elseif (isset($this->headers['X_REQUESTED_WITH']) && $this->headers['X_REQUESTED_WITH'] === 'XMLHttpRequest') {
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**
