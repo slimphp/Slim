@@ -876,7 +876,7 @@ class Request implements RequestInterface
         }
 
         // Build headers
-        $output = sprintf('%s %s %s', $this->getMethod(), $path, $this->getProtocol()) . PHP_EOL;
+        $output = sprintf('%s %s %s', $this->getMethod(), $path, $this->getProtocolVersion()) . PHP_EOL;
         foreach ($this->headers as $name => $value) {
             $output .= sprintf("%s: %s", $name, $value) . PHP_EOL;
         }
