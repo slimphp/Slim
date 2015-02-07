@@ -627,15 +627,14 @@ class App extends \Pimple
      * Add middleware
      *
      * This method prepends new middleware to the application middleware stack.
-     * The argument must be an instance that subclasses Slim_Middleware.
      *
-     * @param  \Slim\Middleware
+     * @param Interfaces\MiddlewareInterface $newMiddleware
      * @api
      */
-    public function add(\Slim\Middleware $newMiddleware)
+    public function add(Interfaces\MiddlewareInterface $newMiddleware)
     {
         $middleware = $this['middleware'];
-        if(in_array($newMiddleware, $middleware)) {
+        if (in_array($newMiddleware, $middleware) === true) {
             $middleware_class = get_class($newMiddleware);
             throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
         }
