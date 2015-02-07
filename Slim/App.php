@@ -477,7 +477,6 @@ class App extends \Pimple
         $response = $this['response'];
         $response->setStatus($status);
         $response->write($message);
-
         $this->stop($response);
     }
 
@@ -518,8 +517,8 @@ class App extends \Pimple
      * 3xx status code if you want. This method will automatically set the
      * HTTP Location header for you using the URL parameter.
      *
-     * @param  string $url    The destination URL
-     * @param  int    $status The HTTP redirect status code (optional)
+     * @param string $url    The destination URL
+     * @param int    $status The HTTP redirect status code (optional)
      * @api
      */
     public function redirect($url, $status = 302)
