@@ -218,12 +218,15 @@ class App extends \Pimple
      * Slim::get('/foo'[, middleware, middleware, ...], callable);
      *
      * @param  array
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      */
     protected function mapRoute($args)
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
+        if ($callable instanceof \Closure) {
+            $callable = $callable->bindTo($this);
+        }
         $route = new \Slim\Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
         $this['router']->map($route);
         if (count($args) > 0) {
