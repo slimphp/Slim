@@ -95,24 +95,24 @@ class App extends \Pimple
             return $config;
         };
 
-        $this['environment'] = function ($c) {
-            return new \Slim\Environment($_SERVER);
-        };
+        $this['environment'] = $this->factory(function ($c) {
+            return new Environment($_SERVER);
+        });
 
-        $this['request'] = function ($c) {
+        $this['request'] = $this->factory(function ($c) {
             $environment = $c['environment'];
-            $headers = new \Slim\Http\Headers($environment);
-            $cookies = new \Slim\Http\Cookies($headers);
+            $headers = new Http\Headers($environment);
+            $cookies = new Http\Cookies($headers);
             if ($c['settings']['cookies.encrypt'] ===  true) {
                 $cookies->decrypt($c['crypt']);
             }
 
-            return new \Slim\Http\Request($environment, $headers, $cookies);
-        };
+            return new Http\Request($environment, $headers, $cookies);
+        });
 
-        $this['response'] = function ($c) {
-            $headers = new \Slim\Http\Headers();
-            $cookies = new \Slim\Http\Cookies();
+        $this['response'] = $this->factory(function ($c) {
+            $headers = new Http\Headers();
+            $cookies = new Http\Cookies();
             $cookies->setDefaults([
                 'expires' => $c['settings']['cookies.lifetime'],
                 'path' => $c['settings']['cookies.path'],
@@ -120,26 +120,26 @@ class App extends \Pimple
                 'secure' => $c['settings']['cookies.secure'],
                 'httponly' => $c['settings']['cookies.httponly']
             ]);
-            $response = new \Slim\Http\Response($headers, $cookies);
+            $response = new Http\Response($headers, $cookies);
             $response->setProtocolVersion('HTTP/' . $c['settings']['http.version']);
 
             return $response;
-        };
+        });
 
         $this['router'] = function ($c) {
-            return new \Slim\Router();
+            return new Router();
         };
 
         $this['view'] = function ($c) {
-            return new \Slim\View($c['settings']['view.templates']);
+            return new View($c['settings']['view.templates']);
         };
 
         $this['crypt'] = function ($c) {
-            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+            return new Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         };
 
         $this['session'] = function ($c) {
-            $session = new \Slim\Session($c['settings']['session.handler']);
+            $session = new Session($c['settings']['session.handler']);
             $session->start();
             if ($c['settings']['session.encrypt'] === true) {
                 $session->decrypt($c['crypt']);
@@ -149,8 +149,8 @@ class App extends \Pimple
         };
 
         $this['flash'] = function ($c) {
-            $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
-            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface) {
+            $flash = new Flash($c['session'], $c['settings']['session.flash_key']);
+            if ($c['settings']['view'] instanceof Interfaces\ViewInterface) {
                 $c['view']->set('flash', $flash);
             }
 
@@ -173,11 +173,11 @@ class App extends \Pimple
         };
 
         $this['errorHandler'] = function ($c) {
-            return new \Slim\ErrorHandler($c);
+            return new ErrorHandler($c);
         };
 
         $this['notFoundHandler'] = function ($c) {
-            return new \Slim\NotFoundHandler($c);
+            return new NotFoundHandler($c);
         };
 
         $this['middleware'] = array($this);
@@ -689,63 +689,77 @@ class App extends \Pimple
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
-        // Traverse middleware stack
+        // Get initial request and response objects from container factory
+        $request = $this['request'];
+        $response = $this['response'];
+
+        // Traverse middleware stack and fetch updated response
         try {
-            $this['middleware'][0]->call();
+            $newResponse = $this['middleware'][0]->call($request, $response);
+            if ($newResponse instanceof Http\Response) {
+                $response = $newResponse;
+            }
         } catch (\Slim\Exception\Stop $e) {
+            // TODO: Attach desired response to Stop exception object... `stop($finalresponse)`?
             // Exit middleware stack immediately, from any layer, without error
         } catch (\Exception $e) {
-            $this['response']->write($this['errorHandler']($e), true);
+            // TODO: Pass $request, $response, $exception into error handler
+            // $response->write($this['errorHandler']($e), true);
+            // $response->setStatus(500);
+            // $response->write('Temp error handler', true);
         }
 
-        // Finalize and send response
-        $this->finalize();
+        $this->finalize($request, $response);
 
         restore_error_handler();
     }
 
     /**
-     * Dispatch request and build response
+     * Call
      *
-     * This method will route the provided Request object against all available
-     * application routes. The provided response will reflect the status, header, and body
-     * set by the invoked matching route.
+     * This method implements the \Slim\Middlware interface. It receives
+     * Http\Request and Http\Response objects, and it must return
+     * a Http\Response object. The returned object can be the same object
+     * that it received, or a new Response object.
      *
-     * The provided Request and Response objects are updated by reference. There is no
-     * value returned by this method.
+     * This method dispatches the provided Request object to the appropriate
+     * Route object(s).
      *
-     * @param  \Slim\Http\Request  The request instance
-     * @param  \Slim\Http\Response The response instance
+     * @param  Http\Request  The request object
+     * @param  Http\Response The response object
+     * @return Http\Response A Response object
      */
-    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
+    public function call(Http\Request $request, Http\Response $response)
     {
+        // TODO: Inject request and response objects into hooks?
         try {
             $this->applyHook('slim.before');
-            ob_start();
-            $this->applyHook('slim.before.router');
+            $this->applyHook('slim.before.router'); // Legacy
             $dispatched = false;
             $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $route->dispatch();
+                    $response = $route->dispatch($request, $response);
                     $this->applyHook('slim.after.dispatch');
-                    if ($dispatched) {
+                    if ($response) {
+                        $dispatched = true;
                         break;
                     }
-                } catch (\Slim\Exception\Pass $e) {
+                } catch (Exception\Pass $e) {
                     continue;
                 }
             }
             if (!$dispatched) {
-                $response->write($this['notFoundHandler']());
+                $response->write($this['notFoundHandler'](), true);
             }
-            $this->applyHook('slim.after.router');
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (Exception\Stop $e) {
             // Exit route dispatch loop immediately without error
         }
-        $response->write(ob_get_clean());
+        $this->applyHook('slim.after.router'); // Legacy
         $this->applyHook('slim.after');
+
+        return $response;
     }
 
     /**
@@ -799,21 +813,12 @@ class App extends \Pimple
     }
 
     /**
-     * Call
-     *
-     * This method finds and iterates all route objects that match the current request URI.
-     */
-    public function call()
-    {
-        $this->dispatchRequest($this['request'], $this['response']);
-    }
-
-    /**
      * Finalize send response
      *
-     * This method sends the response object
+     * @param Http\Request $request
+     * @param Http\Response $response
      */
-    public function finalize() {
+    public function finalize(Http\Request $request, Http\Response $response) {
         if (!$this->responded) {
             $this->responded = true;
 
@@ -831,11 +836,11 @@ class App extends \Pimple
 
             // Encrypt cookies
             if ($this['settings']['cookies.encrypt']) {
-                $this['response']->encryptCookies($this['crypt']);
+                $response->encryptCookies($this['crypt']);
             }
 
             // Send response
-            $this['response']->finalize($this['request'])->send();
+            $response->finalize($request)->send();
         }
     }
 

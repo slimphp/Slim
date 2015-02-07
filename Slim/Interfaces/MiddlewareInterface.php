@@ -49,5 +49,10 @@ interface MiddlewareInterface
 
     public function getNextMiddleware();
 
-    public function call();
+    /**
+     * @param  \Slim\Http\Request $request
+     * @param  \Slim\Http\Response $response
+     * @return \Slim\Http\Response
+     */
+    public function call(\Slim\Http\Request $request, \Slim\Http\Response $response);
 }

@@ -89,5 +89,5 @@ interface RouteInterface
 
     public function conditions(array $conditions);
 
-    public function dispatch();
+    public function dispatch(\Slim\Http\Request $request, \Slim\Http\Response $response);
 }

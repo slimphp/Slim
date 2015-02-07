@@ -513,13 +513,33 @@ class Route implements RouteInterface
      * @return bool
      * @api
      */
-    public function dispatch()
+    public function dispatch(Http\Request $request, Http\Response $response)
     {
         foreach ($this->middleware as $mw) {
+            // TODO: Send Request and Response objects into route middleware
             call_user_func_array($mw, array($this));
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false) ? false : true;
+        // TODO: Inject route params `$this->getParams()` into Request object
+        ob_start();
+        $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
+        $output = ob_get_clean();
+
+        // If route returns Response instance...
+        if ($newResponse instanceof Http\Response) {
+            return $newResponse;
+        }
+
+        // Abort if route callback returns `false`
+        if ($newResponse === false) {
+            return false;
+        }
+
+        // Capture and append output buffer content
+        if ($output) {
+            $response->write($output);
+        }
+
+        return $response;
     }
 }
