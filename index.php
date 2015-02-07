@@ -38,7 +38,7 @@ $app->get(
     <html>
         <head>
             <meta charset="utf-8"/>
-            <title>Slim Framework for PHP 5</title>
+            <title>Slim Framework for PHP</title>
             <style>
                 html,body,div,span,object,iframe,
                 h1,h2,h3,h4,h5,h6,p,blockquote,pre,
