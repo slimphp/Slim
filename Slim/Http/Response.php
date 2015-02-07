@@ -447,7 +447,7 @@ class Response implements ResponseInterface
             throw new \InvalidArgumentException('New response body must be a valid stream resource');
         }
 
-        // Close existinb body
+        // Close existing body
         if (is_resource($this->body) === true) {
             fclose($this->body);
         }
