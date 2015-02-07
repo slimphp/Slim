@@ -511,11 +511,8 @@ class App extends \Pimple
     /**
      * Redirect
      *
-     * This method immediately redirects to a new URL. By default,
-     * this issues a 302 Found response; this is considered the default
-     * generic redirect response. You may also specify another valid
-     * 3xx status code if you want. This method will automatically set the
-     * HTTP Location header for you using the URL parameter.
+     * This method immediately redirects to a new URL by preparing
+     * and sending a new 3XX HTTP response object.
      *
      * @param string $url    The destination URL
      * @param int    $status The HTTP redirect status code (optional)
@@ -526,7 +523,6 @@ class App extends \Pimple
         $response = $this['response'];
         $response->setStatus($status);
         $response->setHeader('Location', $url);
-
         $this->stop($response);
     }
 
