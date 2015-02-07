@@ -3,60 +3,42 @@ namespace Slim;
 
 class ErrorHandler
 {
-    protected $app;
-
-    public function __construct(\Slim\App $app)
+    public function __invoke(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response, \Exception $exception)
     {
-        $this->app = $app;
-    }
+        $title = 'Slim Application Error';
+        $html = '';
 
-    public function __invoke($arg = null)
-    {
-        $this->app['response']->setStatus(500);
-        $this->app['response']->setHeader('Content-type', 'text/html');
+        $code = $exception->getCode();
+        $message = $exception->getMessage();
+        $file = $exception->getFile();
+        $line = $exception->getLine();
+        $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $exception->getTraceAsString());
 
-        if ($this->app['mode'] === 'development') {
-            $title = 'Slim Application Error';
-            $html = '';
-
-            if ($arg instanceof \Exception) {
-                $code = $arg->getCode();
-                $message = $arg->getMessage();
-                $file = $arg->getFile();
-                $line = $arg->getLine();
-                $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $arg->getTraceAsString());
-
-                $html = '<p>The application could not run because of the following error:</p>';
-                $html .= '<h2>Details</h2>';
-                $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($arg));
-                if ($code) {
-                    $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
-                }
-                if ($message) {
-                    $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
-                }
-                if ($file) {
-                    $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
-                }
-                if ($line) {
-                    $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
-                }
-                if ($trace) {
-                    $html .= '<h2>Trace</h2>';
-                    $html .= sprintf('<pre>%s</pre>', $trace);
-                }
-            } else {
-                $html = sprintf('<p>%s</p>', (string)$arg);
-            }
-
-            return $this->generateTemplateMarkup($title, $html);
-        } else {
-            return $this->generateTemplateMarkup(
-                'Error',
-                '<p>A website error has occurred. The website administrator has been notified of the issue. Sorry'
-                . 'for the temporary inconvenience.</p>'
-            );
+        $html = '<p>The application could not run because of the following error:</p>';
+        $html .= '<h2>Details</h2>';
+        $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
+        if ($code) {
+            $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
+        if ($message) {
+            $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
+        }
+        if ($file) {
+            $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
+        }
+        if ($line) {
+            $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
+        }
+        if ($trace) {
+            $html .= '<h2>Trace</h2>';
+            $html .= sprintf('<pre>%s</pre>', $trace);
+        }
+
+        $response->setStatus(500);
+        $response->setHeader('Content-type', 'text/html');
+        $response->write($this->generateTemplateMarkup($title, $html), true);
+
+        return $response;
     }
 
     /**

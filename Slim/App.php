@@ -95,15 +95,15 @@ class App extends \Pimple
             return $config;
         };
 
-        $this['environment'] = $this->factory(function ($c) {
+        $this['environment'] = function ($c) {
             return new Environment($_SERVER);
-        });
+        };
 
         $this['request'] = $this->factory(function ($c) {
             $environment = $c['environment'];
             $headers = new Http\Headers($environment);
             $cookies = new Http\Cookies($headers);
-            if ($c['settings']['cookies.encrypt'] ===  true) {
+            if ($c['settings']['cookies.encrypt'] === true) {
                 $cookies->decrypt($c['crypt']);
             }
 
@@ -173,11 +173,11 @@ class App extends \Pimple
         };
 
         $this['errorHandler'] = function ($c) {
-            return new ErrorHandler($c);
+            return new ErrorHandler();
         };
 
         $this['notFoundHandler'] = function ($c) {
-            return new NotFoundHandler($c);
+            return new NotFoundHandler();
         };
 
         $this['middleware'] = array($this);
@@ -465,48 +465,39 @@ class App extends \Pimple
     }
 
     /**
-     * Clean current output buffer
-     */
-    protected function cleanBuffer()
-    {
-        if (ob_get_level() !== 0) {
-            ob_clean();
-        }
-    }
-
-    /**
      * Stop
      *
-     * The thrown exception will be caught in application's `call()` method
-     * and the response will be sent as is to the HTTP client.
+     * This method stops the application and sends the provided
+     * Response object to the HTTP client.
      *
+     * @param  \Slim\Interfaces\Http\ResponseInterface $response
      * @throws \Slim\Exception\Stop
      * @api
      */
-    public function stop()
+    public function stop(Interfaces\Http\ResponseInterface $response)
     {
-        throw new \Slim\Exception\Stop();
+        throw new Exception\Stop($response);
     }
 
     /**
      * Halt
      *
-     * Stop the application and immediately send the response with a
-     * specific status and body to the HTTP client. This may send any
-     * type of response: info, success, redirect, client error, or server error.
-     * If you need to render a template AND customize the response status,
-     * use the application's `render()` method instead.
+     * This method prepares a new HTTP response with a specific
+     * status and message. The method immediately halts the
+     * application and returns a new response with a specific
+     * status and message.
      *
-     * @param  int    $status  The HTTP response status
-     * @param  string $message The HTTP response body
+     * @param int    $status  The desired HTTP status
+     * @param string $message The desired HTTP message
      * @api
      */
     public function halt($status, $message = '')
     {
-        $this->cleanBuffer();
-        $this['response']->setStatus($status);
-        $this['response']->write($message, true);
-        $this->stop();
+        $response = $this['response'];
+        $response->setStatus($status);
+        $response->write($message);
+
+        $this->stop($response);
     }
 
     /**
@@ -521,8 +512,7 @@ class App extends \Pimple
      */
     public function pass()
     {
-        $this->cleanBuffer();
-        throw new \Slim\Exception\Pass();
+        throw new Exception\Pass();
     }
 
     /**
@@ -553,8 +543,11 @@ class App extends \Pimple
      */
     public function redirect($url, $status = 302)
     {
-        $this['response']->redirect($url, $status);
-        $this->halt($status);
+        $response = $this['response'];
+        $response->setStatus($status);
+        $response->setHeader('Location', $url);
+
+        $this->stop($response);
     }
 
     /********************************************************************************
@@ -689,26 +682,20 @@ class App extends \Pimple
     {
         set_error_handler(array('\Slim\App', 'handleErrors'));
 
-        // Get initial request and response objects from container factory
+        // Get new request and response objects from container factory
         $request = $this['request'];
         $response = $this['response'];
 
         // Traverse middleware stack and fetch updated response
         try {
-            $newResponse = $this['middleware'][0]->call($request, $response);
-            if ($newResponse instanceof Http\Response) {
-                $response = $newResponse;
-            }
-        } catch (\Slim\Exception\Stop $e) {
-            // TODO: Attach desired response to Stop exception object... `stop($finalresponse)`?
-            // Exit middleware stack immediately, from any layer, without error
+            $response = $this['middleware'][0]->call($request, $response);
+        } catch (Exception\Stop $e) {
+            $response = $e->getResponse();
         } catch (\Exception $e) {
-            // TODO: Pass $request, $response, $exception into error handler
-            // $response->write($this['errorHandler']($e), true);
-            // $response->setStatus(500);
-            // $response->write('Temp error handler', true);
+            $response = $this['errorHandler']($request, $response, $e);
         }
 
+        // Finalize and send HTTP response
         $this->finalize($request, $response);
 
         restore_error_handler();
@@ -725,11 +712,11 @@ class App extends \Pimple
      * This method dispatches the provided Request object to the appropriate
      * Route object(s).
      *
-     * @param  Http\Request  The request object
-     * @param  Http\Response The response object
-     * @return Http\Response A Response object
+     * @param  Interfaces\Http\RequestInterface  $request  The request object
+     * @param  Interfaces\Http\ResponseInterface $response The response object
+     * @return Interfaces\Http\ResponseInterface
      */
-    public function call(Http\Request $request, Http\Response $response)
+    public function call(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
     {
         // TODO: Inject request and response objects into hooks?
         try {
@@ -742,19 +729,17 @@ class App extends \Pimple
                     $this->applyHook('slim.before.dispatch');
                     $response = $route->dispatch($request, $response);
                     $this->applyHook('slim.after.dispatch');
-                    if ($response) {
-                        $dispatched = true;
-                        break;
-                    }
+                    $dispatched = true;
+                    break;
                 } catch (Exception\Pass $e) {
                     continue;
                 }
             }
             if (!$dispatched) {
-                $response->write($this['notFoundHandler'](), true);
+                $response = $this['notFoundHandler']($request, $response);
             }
         } catch (Exception\Stop $e) {
-            // Exit route dispatch loop immediately without error
+            $response = $e->getResponse();
         }
         $this->applyHook('slim.after.router'); // Legacy
         $this->applyHook('slim.after');
@@ -777,48 +762,30 @@ class App extends \Pimple
      * @param  array  $cookies         Associative array of request cookies
      * @param  string $body            The request body
      * @param  array  $serverVariables Custom $_SERVER variables
-     * @return \Slim\Http\Response
+     * @return Interfaces\Http\ResponseInterface
      */
     public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
     {
-        // Build sub-request and sub-response
-        $environment = new \Slim\Environment(array_merge(array(
+        $environment = new Environment(array_merge(array(
             'REQUEST_METHOD' => $method,
             'REQUEST_URI' => $url,
             'SCRIPT_NAME' => '/index.php'
         ), $serverVariables));
+        $headers = new Http\Headers($environment);
+        $cookies = new Http\Cookies($headers);
+        $subRequest = new Http\Request($environment, $headers, $cookies, $body);
+        $subResponse = new Http\Response(new Http\Headers(), new Http\Cookies());
 
-        $headers = new \Slim\Http\Headers($environment);
-        $cookies = new \Slim\Http\Cookies($headers);
-
-        $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
-        $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
-
-        // Cache original request and response
-        $oldRequest = $this['request'];
-        $oldResponse = $this['response'];
-
-        // Set sub-request and sub-response
-        $this['request'] = $subRequest;
-        $this['response'] = $subResponse;
-
-        // Dispatch sub-request through application router
-        $this->dispatchRequest($subRequest, $subResponse);
-
-        // Restore original request and response
-        $this['request'] = $oldRequest;
-        $this['response'] = $oldResponse;
-
-        return $subResponse;
+        return $this->call($subRequest, $subResponse);
     }
 
     /**
-     * Finalize send response
+     * Finalize and send the HTTP response
      *
-     * @param Http\Request $request
-     * @param Http\Response $response
+     * @param Interfaces\Http\RequestInterface  $request
+     * @param Interfaces\Http\ResponseInterface $response
      */
-    public function finalize(Http\Request $request, Http\Response $response) {
+    public function finalize(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response) {
         if (!$this->responded) {
             $this->responded = true;
 

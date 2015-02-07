@@ -44,4 +44,29 @@ namespace Slim\Exception;
  */
 class Stop extends \Exception
 {
+    /**
+     * @var \Slim\Interfaces\Http\ResponseInterface
+     */
+    protected $response;
+
+    /**
+     * Constructor
+     *
+     * @param \Slim\Interfaces\Http\ResponseInterface $response
+     */
+    public function __construct(\Slim\Interfaces\Http\ResponseInterface $response)
+    {
+        parent::__construct();
+        $this->response = $response;
+    }
+
+    /**
+     * Get response
+     *
+     * @return \Slim\Interfaces\Http\ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }

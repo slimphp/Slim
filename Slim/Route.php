@@ -510,32 +510,32 @@ class Route implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @return bool
+     * @param  Interfaces\Http\RequestInterface  $request  The current Request object
+     * @param  Interfaces\Http\ResponseInterface $response The current Response object
+     * @return Interfaces\Http\ResponseInterface
      * @api
      */
-    public function dispatch(Http\Request $request, Http\Response $response)
+    public function dispatch(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
     {
+        // Invoke route middleware
         foreach ($this->middleware as $mw) {
-            // TODO: Send Request and Response objects into route middleware
-            call_user_func_array($mw, array($this));
+            $newResponse = call_user_func_array($mw, [$request, $response, $this]);
+            if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
+                $response = $newResponse;
+            }
         }
 
-        // TODO: Inject route params `$this->getParams()` into Request object
+        // Invoke route callable
         ob_start();
         $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
         $output = ob_get_clean();
 
-        // If route returns Response instance...
-        if ($newResponse instanceof Http\Response) {
+        // End if route callback returns Interfaces\Http\ResponseInterface object
+        if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
             return $newResponse;
         }
 
-        // Abort if route callback returns `false`
-        if ($newResponse === false) {
-            return false;
-        }
-
-        // Capture and append output buffer content
+        // Else append output buffer content
         if ($output) {
             $response->write($output);
         }

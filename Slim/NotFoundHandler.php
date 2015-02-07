@@ -3,24 +3,19 @@ namespace Slim;
 
 class NotFoundHandler
 {
-    protected $app;
-
-    public function __construct(\Slim\App $app)
+    public function __invoke(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
     {
-        $this->app = $app;
-    }
+        $response->setStatus(404);
+        $response->setHeader('Content-type', 'text/html');
 
-    public function __invoke()
-    {
-        $this->app['response']->setStatus(404);
-        $this->app['response']->setHeader('Content-type', 'text/html');
-
-        return $this->generateTemplateMarkup(
+        $response->write($this->generateTemplateMarkup(
             '404 Page Not Found',
             '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled ' .
             'correctly. If all else fails, you can visit our home page at the link below.</p><a href="' .
             $this->app['request']->getScriptName() . '/">Visit the Home Page</a>'
-        );
+        ), true);
+
+        return $response;
     }
 
     /**
