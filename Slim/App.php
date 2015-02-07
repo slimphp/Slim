@@ -670,17 +670,23 @@ class App extends \Pimple
     *******************************************************************************/
 
     /**
-     * Run
+     * Run application
      *
-     * This method invokes the middleware stack, including the core Slim application;
-     * the result is an array of HTTP status, header, and body. These three items
-     * are returned to the HTTP client.
+     * This method traverses the middleware stack, including the core Slim application,
+     * and captures the resultant HTTP response object. It then sends the response
+     * back to the HTTP client.
      *
      * @api
      */
     public function run()
     {
-        set_error_handler(array('\Slim\App', 'handleErrors'));
+        // Define application error handler
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+            if (!($errno & error_reporting())) {
+                return;
+            }
+            throw new \ErrorException($errstr, $errno, 1, $errfile, $errline);
+        });
 
         // Get new request and response objects from container factory
         $request = $this['request'];
@@ -704,13 +710,10 @@ class App extends \Pimple
     /**
      * Call
      *
-     * This method implements the \Slim\Middlware interface. It receives
-     * Http\Request and Http\Response objects, and it must return
-     * a Http\Response object. The returned object can be the same object
-     * that it received, or a new Response object.
-     *
-     * This method dispatches the provided Request object to the appropriate
-     * Route object(s).
+     * This method implements the middleware interface. It receives
+     * Request and Response objects, and it returns a Response object
+     * after dispatching the Request object to the appropriate Route
+     * callback routine.
      *
      * @param  Interfaces\Http\RequestInterface  $request  The request object
      * @param  Interfaces\Http\ResponseInterface $response The response object
@@ -809,28 +812,5 @@ class App extends \Pimple
             // Send response
             $response->finalize($request)->send();
         }
-    }
-
-    /**
-     * Convert errors into ErrorException objects
-     *
-     * This method catches PHP errors and converts them into \ErrorException objects;
-     * these \ErrorException objects are then thrown and caught by Slim's
-     * built-in or custom error handlers.
-     *
-     * @param  int            $errno   The numeric type of the Error
-     * @param  string         $errstr  The error message
-     * @param  string         $errfile The absolute path to the affected file
-     * @param  int            $errline The line number of the error in the affected file
-     * @return bool
-     * @throws \ErrorException
-     */
-    public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
-    {
-        if (!($errno & error_reporting())) {
-            return;
-        }
-
-        throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
     }
 }
