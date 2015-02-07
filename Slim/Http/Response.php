@@ -611,6 +611,129 @@ class Response implements ResponseInterface
     }
 
     /*******************************************************************************
+     * HTTP caching
+     ******************************************************************************/
+
+    protected $onLastModified;
+    protected $onEtag;
+
+    /**
+     * Set expires header
+     *
+     * The `Expires` header tells the HTTP client the time at which
+     * the current resource should be considered stale. At that time the HTTP
+     * client will send a conditional GET request to the server; the server
+     * may return a 200 OK if the resource has changed, else a 304 Not Modified
+     * if the resource has not changed. The `Expires` header should be used in
+     * conjunction with the `etag()` or `lastModified()` methods above.
+     *
+     * @param string|int $time If string, a time to be parsed by `strtotime()`;
+     *                         If int, a UNIX timestamp;
+     * @api
+     */
+    public function expires($time)
+    {
+        if (is_string($time) === true) {
+            $time = strtotime($time);
+        }
+        $this->setHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
+    }
+
+    /**
+     * Set Last Modified callback
+     *
+     * This method sets the callback to be invoked when a Last-Modified
+     * header is set on this Response object. This is useful to halt the
+     * application if the Last Modified time matches the Request object's
+     * `If-Modified-Since` header.
+     *
+     * @param callable $callback
+     */
+    public function onLastModified(callable $callback)
+    {
+        $this->onLastModified = $callback;
+    }
+
+    /**
+     * Set Last Modified header
+     *
+     * This method sets the Last-Modified header and invokes callbacks if available.
+     * The callbacks are responsible for halting the application, if necessary, and
+     * returning an appropriate response to the HTTP client.
+     *
+     * @param int|string $time     The last modification date
+     * @param callable   $callback Optional callback to invoke
+     * @api
+     */
+    public function lastModified($time, callable $callback = null)
+    {
+        // Convert time to integer value
+        if (is_integer($time) === false) {
+            $time = strtotime((string)$time);
+        }
+
+        // Set header
+        $this->setHeader('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
+
+        // Invoke callbacks if necessary
+        if ($callback) {
+            $callback($this, $time);
+        } else if ($this->onLastModified) {
+            call_user_func_array($this->onLastModified, [$this, $time]);
+        }
+    }
+
+    /**
+     * Set ETag callback
+     *
+     * This method sets the callback to be invoked
+     * when a ETag header is set on this Response object.
+     * This is useful to halt the application if the ETag
+     * time matches the Request object's `If-None-Match` header.
+     *
+     * @param callable $callback
+     */
+    public function onEtag(callable $callback)
+    {
+        $this->onEtag = $callback;
+    }
+
+    /**
+     * Set ETag header
+     *
+     * This method sets the ETag header and invokes callbacks if available.
+     * The callbacks are responsible for halting the application, if necessary,
+     * and returning an appropriate response to the HTTP client.
+     *
+     * @param  string                    $value    The etag value
+     * @param  string                    $type     The etag type (either "strong" or "weak")
+     * @param  callable                  $callable Optional callback invoked when etag set
+     * @throws \InvalidArgumentException           If invalid etag type
+     * @api
+     */
+    public function etag($value, $type = 'strong', callable $callback = null)
+    {
+        // Ensure type is correct
+        if (!in_array($type, array('strong', 'weak'))) {
+            throw new \InvalidArgumentException('Invalid etag type. Must be "strong" or "weak".');
+        }
+
+        // Set etag value
+        $value = '"' . $value . '"';
+        if ($type === 'weak') {
+            $value = 'W/'.$value;
+        }
+        $this->setHeader('ETag', $value);
+
+        // Invoke callbacks
+        if ($callback) {
+            $callback($this, $value);
+        } else if ($this->onEtag) {
+            call_user_func_array($this->onEtag, [$this, $value]);
+        }
+    }
+
+    /*******************************************************************************
      * Response Helpers
      ******************************************************************************/
 

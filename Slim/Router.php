@@ -80,6 +80,12 @@ class Router implements RouterInterface
     protected $routeGroups;
 
     /**
+     * Request base URL (script name)
+     * @var string
+     */
+    protected $baseUrl;
+
+    /**
      * Constructor
      * @api
      */
@@ -87,6 +93,16 @@ class Router implements RouterInterface
     {
         $this->routes = array();
         $this->routeGroups = array();
+    }
+
+    /**
+     * Set base URL
+     *
+     * @param string $url
+     */
+    public function setBaseUrl($url)
+    {
+        $this->basUrl = $url;
     }
 
     /**
@@ -228,7 +244,7 @@ class Router implements RouterInterface
         $pattern = preg_replace($search, $params, $this->getNamedRoute($name)->getPattern());
 
         //Remove remnants of unpopulated, trailing optional pattern segments, escaped special characters
-        return preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
+        return $this->baseUrl . preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $pattern);
     }
 
     /**

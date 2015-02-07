@@ -127,7 +127,10 @@ class App extends \Pimple
         });
 
         $this['router'] = function ($c) {
-            return new Router();
+            $router = new Router();
+            $router->setBaseUrl($c['request']->getScriptName());
+
+            return $router;
         };
 
         $this['view'] = function ($c) {
@@ -184,7 +187,7 @@ class App extends \Pimple
     }
 
     /********************************************************************************
-    * Routing
+    * Router proxy methods
     *******************************************************************************/
 
     /**
@@ -232,7 +235,7 @@ class App extends \Pimple
 
     /**
      * Add route without HTTP method
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      */
     public function map()
     {
@@ -243,7 +246,7 @@ class App extends \Pimple
 
     /**
      * Add GET route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function get()
@@ -255,7 +258,7 @@ class App extends \Pimple
 
     /**
      * Add POST route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function post()
@@ -267,7 +270,7 @@ class App extends \Pimple
 
     /**
      * Add PUT route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function put()
@@ -279,7 +282,7 @@ class App extends \Pimple
 
     /**
      * Add PATCH route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function patch()
@@ -291,7 +294,7 @@ class App extends \Pimple
 
     /**
      * Add DELETE route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function delete()
@@ -303,7 +306,7 @@ class App extends \Pimple
 
     /**
      * Add OPTIONS route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function options()
@@ -339,7 +342,7 @@ class App extends \Pimple
 
     /**
      * Add route for any HTTP method
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function any()
@@ -350,99 +353,7 @@ class App extends \Pimple
     }
 
     /********************************************************************************
-    * HTTP Caching
-    *******************************************************************************/
-
-    /**
-     * Set Last-Modified HTTP Response Header
-     *
-     * Set the HTTP 'Last-Modified' header and stop if a conditional
-     * GET request's `If-Modified-Since` header matches the last modified time
-     * of the resource. The `time` argument is a UNIX timestamp integer value.
-     * When the current request includes an 'If-Modified-Since' header that
-     * matches the specified last modified time, the application will stop
-     * and send a '304 Not Modified' response to the client.
-     *
-     * @param  int                       $time  The last modified UNIX timestamp
-     * @throws \InvalidArgumentException        If provided timestamp is not an integer
-     * @api
-     */
-    public function lastModified($time)
-    {
-        if (is_integer($time)) {
-            $this['response']->setHeader('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
-            if ($time === strtotime($this['request']->getHeader('IF_MODIFIED_SINCE'))) {
-                $this->halt(304);
-            }
-        } else {
-            throw new \InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
-        }
-    }
-
-    /**
-     * Set ETag HTTP Response Header
-     *
-     * Set the etag header and stop if the conditional GET request matches.
-     * The `value` argument is a unique identifier for the current resource.
-     * The `type` argument indicates whether the etag should be used as a strong or
-     * weak cache validator.
-     *
-     * When the current request includes an 'If-None-Match' header with
-     * a matching etag, execution is immediately stopped. If the request
-     * method is GET or HEAD, a '304 Not Modified' response is sent.
-     *
-     * @param  string                    $value The etag value
-     * @param  string                    $type  The type of etag to create; either "strong" or "weak"
-     * @throws \InvalidArgumentException        If provided type is invalid
-     * @api
-     */
-    public function etag($value, $type = 'strong')
-    {
-        // Ensure type is correct
-        if (!in_array($type, array('strong', 'weak'))) {
-            throw new \InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
-        }
-
-        // Set etag value
-        $value = '"' . $value . '"';
-        if ($type === 'weak') {
-            $value = 'W/'.$value;
-        }
-        $this['response']->setHeader('ETag', $value);
-
-        // Check conditional GET
-        if ($etagsHeader = $this['request']->getHeader('IF_NONE_MATCH')) {
-            $etags = preg_split('@\s*,\s*@', $etagsHeader);
-            if (in_array($value, $etags) || in_array('*', $etags)) {
-                $this->halt(304);
-            }
-        }
-    }
-
-    /**
-     * Set Expires HTTP response header
-     *
-     * The `Expires` header tells the HTTP client the time at which
-     * the current resource should be considered stale. At that time the HTTP
-     * client will send a conditional GET request to the server; the server
-     * may return a 200 OK if the resource has changed, else a 304 Not Modified
-     * if the resource has not changed. The `Expires` header should be used in
-     * conjunction with the `etag()` or `lastModified()` methods above.
-     *
-     * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
-     *                              If int, a UNIX timestamp;
-     * @api
-     */
-    public function expires($time)
-    {
-        if (is_string($time)) {
-            $time = strtotime($time);
-        }
-        $this['response']->setHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
-    }
-
-    /********************************************************************************
-    * Helper Methods
+    * Application Behavior Methods
     *******************************************************************************/
 
     /**
@@ -483,9 +394,9 @@ class App extends \Pimple
     /**
      * Pass
      *
-     * The thrown exception is caught in the application's `call()` method causing
-     * the router's current iteration to stop and continue to the subsequent route if available.
-     * If no subsequent matching routes are found, a 404 response will be sent to the client.
+     * Use this method to skip the current route iteration in the App::call() method.
+     * The router iteration will skip to the next matching route, else invoke
+     * the application Not Found handler.
      *
      * @throws \Slim\Exception\Pass
      * @api
@@ -493,19 +404,6 @@ class App extends \Pimple
     public function pass()
     {
         throw new Exception\Pass();
-    }
-
-    /**
-     * Get the URL for a named route
-     * @param  string            $name   The route name
-     * @param  array             $params Associative array of URL parameters and replacement values
-     * @throws \RuntimeException         If named route does not exist
-     * @return string
-     * @api
-     */
-    public function urlFor($name, $params = array())
-    {
-        return $this['request']->getScriptName() . $this['router']->urlFor($name, $params);
     }
 
     /**
@@ -664,8 +562,34 @@ class App extends \Pimple
         });
 
         // Get new request and response objects from container factory
+        $app = $this;
         $request = $this['request'];
         $response = $this['response'];
+
+        /**
+         * When the current request is a GET request and includes a `If-Modified-Since`
+         * header that matches the response object's Last-Modified header, app
+         * execution is stopped with a 304 response.
+         */
+        $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
+            if ($time === strtotime($request->getHeader('IF_MODIFIED_SINCE'))) {
+                $app->halt(304);
+            }
+        });
+
+        /**
+         * When the current request includes an 'If-None-Match' header with
+         * a matching etag value, app execution is stopped. If the request
+         * method is GET or HEAD, app execution is stopped with a 304 response.
+         */
+        $response->onEtag(function ($latestResponse, $etag) use ($app, $request) {
+            if ($etagHeader = $request->getHeader('IF_NONE_MATCH')) {
+                $etagList = preg_split('@\s*,\s*@', $etagHeader);
+                if (in_array($etag, $etagList) || in_array('*', $etagList)) {
+                    $app->halt(304);
+                }
+            }
+        });
 
         // Traverse middleware stack and fetch updated response
         try {
