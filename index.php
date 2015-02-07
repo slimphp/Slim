@@ -33,7 +33,7 @@ $app = new \Slim\App();
 $app->get(
     '/',
     function () {
-        $template = <<<EOT
+        echo <<<EOT
 <!DOCTYPE html>
     <html>
         <head>
@@ -126,7 +126,6 @@ $app->get(
         </body>
     </html>
 EOT;
-        echo $template;
     }
 );
 
