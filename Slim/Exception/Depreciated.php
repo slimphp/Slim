@@ -32,18 +32,18 @@
  */
 namespace Slim\Exception;
 
+
 /**
- * Pass Exception
+ * Depreciated Exception
  *
- * This Exception will cause the Router::dispatch method
- * to skip the current matching route and continue to the next
- * matching route. If no subsequent routes are found, a
- * HTTP 404 Not Found response will be sent to the client.
+ * This Exception is thrown when user calls a depreciated or removed Slim
+ * method. It should eventually be removed, but might ease the transition
+ * process.
  *
  * @package Slim
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Pass extends \Exception
-{
-}
+class Depreciated extends \Exception {
+
+} 

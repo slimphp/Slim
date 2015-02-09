@@ -522,7 +522,7 @@ class App extends \Pimple
     public function pass()
     {
         $this->cleanBuffer();
-        throw new \Slim\Exception\Pass();
+        throw new \Slim\Exception\Depreciated();
     }
 
     /**
@@ -726,15 +726,15 @@ class App extends \Pimple
             $dispatched = false;
             $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
             foreach ($matchedRoutes as $route) {
-                try {
-                    $this->applyHook('slim.before.dispatch');
-                    $dispatched = $route->dispatch();
-                    $this->applyHook('slim.after.dispatch');
-                    if ($dispatched) {
-                        break;
-                    }
-                } catch (\Slim\Exception\Pass $e) {
+                $this->applyHook('slim.before.dispatch');
+                $dispatched = $route->dispatch();
+                $this->applyHook('slim.after.dispatch');
+                if(false === $dispatched){
+                    // Clear the buffer and move on
+                    $this->cleanBuffer();
                     continue;
+                } else {
+                    break;
                 }
             }
             if (!$dispatched) {

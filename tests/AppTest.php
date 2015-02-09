@@ -699,18 +699,20 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test pass cleans buffer and throws exception
+     * Test pass throws depreciated exception
      */
     public function testPass()
     {
-        ob_start();
-        echo "Foo";
-        try {
-            $this->app->pass();
-            $this->fail('Did not catch Slim_Exception_Pass');
-        } catch (\Slim\Exception\Pass $e) {}
-        $output = ob_get_clean();
-        $this->assertEquals('', $output);
+        $this->setExpectedException('\\Slim\\Exception\\Depreciated');
+        $this->app->pass();
+//        ob_start();
+//        echo "Foo";
+//        try {
+//            $this->app->pass();
+//            $this->fail('Did not catch Slim_Exception_Pass');
+//        } catch (\Slim\Exception\Pass $e) {}
+//        $output = ob_get_clean();
+//        $this->assertEquals('', $output);
     }
 
     /**
@@ -724,7 +726,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
         $app->get('/name/Frank', function () use ($app) {
             echo "Fail"; // <-- Should not be in response body!
-            $app->pass();
+            return false;
         });
         $app->get('/name/:name', function ($name) {
             echo $name; // <-- Should be in response body!
@@ -745,7 +747,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         ));
         $app->get('/name/Frank', function () use ($app) {
             echo "Fail"; // <-- Should not be in response body!
-            $app->pass();
+            return false;
         });
         $app->call();
 
