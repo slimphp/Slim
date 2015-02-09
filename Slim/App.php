@@ -714,17 +714,18 @@ class App extends \Pimple
      * The provided Request and Response objects are updated by reference. There is no
      * value returned by this method.
      *
-     * @param  \Slim\Http\Request  The request instance
-     * @param  \Slim\Http\Response The response instance
+     * @param  \Slim\Http\Request  $request   The request instance
+     * @param  \Slim\Http\Response $response  The response instance
+     * @param  bool                $passable  Allow multiple route matches and Pass() exceptions
      */
-    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
+    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response, $passable = true)
     {
         try {
             $this->applyHook('slim.before');
             ob_start();
             $this->applyHook('slim.before.router');
             $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
+            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false, $passable);
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -805,7 +806,10 @@ class App extends \Pimple
      */
     public function call()
     {
-        $this->dispatchRequest($this['request'], $this['response']);
+        /** @var \Slim\Interfaces\ConfigurationInterface $settings */
+        $settings = $this['settings'];
+        $passable = $settings['routes.passable'];
+        $this->dispatchRequest($this['request'], $this['response'], $passable);
     }
 
     /**

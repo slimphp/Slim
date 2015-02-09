@@ -124,10 +124,11 @@ class Router implements RouterInterface
      * @param  string             $httpMethod  The HTTP request method
      * @param  string             $resourceUri The resource URI
      * @param  bool               $reload      Should matching routes be re-parsed?
+     * @param  bool               $allowPass   If false, will return the first match it finds
      * @return array[\Slim\Interfaces\RouteInterface]
      * @api
      */
-    public function getMatchedRoutes($httpMethod, $resourceUri, $save = true)
+    public function getMatchedRoutes($httpMethod, $resourceUri, $save = true, $allowPass = true)
     {
         $matchedRoutes = array();
         foreach ($this->routes as $route) {
@@ -137,6 +138,9 @@ class Router implements RouterInterface
 
             if ($route->matches($resourceUri)) {
                 $matchedRoutes[] = $route;
+                if(!$allowPass){
+                    return $matchedRoutes;
+                }
             }
         }
 

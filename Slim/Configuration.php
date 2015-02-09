@@ -82,7 +82,8 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
         // HTTP
         'http.version' => '1.1',
         // Routing
-        'routes.case_sensitive' => true
+        'routes.case_sensitive' => true,
+        'routes.passable' => true
     );
 
     /**
