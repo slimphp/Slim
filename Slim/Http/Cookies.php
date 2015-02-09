@@ -132,7 +132,7 @@ class Cookies extends Collection implements CookiesInterface
      * @param array  $settings Optional cookie settings
      * @api
      */
-    public function remove($key, $settings = array())
+    public function remove($key, array $settings = array())
     {
         $settings['value'] = '';
         $settings['expires'] = time() - 86400;
