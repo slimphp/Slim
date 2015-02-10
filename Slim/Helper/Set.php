@@ -215,8 +215,8 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Ensure a value or object will remain globally unique
-     * @param  string  $key   The value or object name
-     * @param  Closure        The closure that defines the object
+     * @param  string   $key   The value or object name
+     * @param  \Closure $value The closure that defines the object
      * @return mixed
      */
     public function singleton($key, $value)
@@ -234,8 +234,8 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
     /**
      * Protect closure from being directly invoked
-     * @param  Closure $callable A closure to keep from being invoked and evaluated
-     * @return Closure
+     * @param  \Closure $callable A closure to keep from being invoked and evaluated
+     * @return \Closure
      */
     public function protect(\Closure $callable)
     {
