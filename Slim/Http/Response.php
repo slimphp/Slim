@@ -208,6 +208,27 @@ class Response implements ResponseInterface
     }
 
     /**
+     * Create a new instance with the specified HTTP protocol version.
+     *
+     * The version string MUST contain only the HTTP version number (e.g.,
+     * "1.1", "1.0").
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that has the
+     * new protocol version.
+     *
+     * @param string $version HTTP protocol version
+     * @return self
+     */
+    public function withProtocolVersion($version)
+    {
+        $newResponse = clone $this;
+        $newResponse->setProtocolVersion($version);
+
+        return $newResponse;
+    }
+
+    /**
      * Get response status code
      *
      * @return int
@@ -339,6 +360,75 @@ class Response implements ResponseInterface
     }
 
     /**
+     * Create a new instance with the provided header, replacing any existing
+     * values of any headers with the same case-insensitive name.
+     *
+     * While header names are case-insensitive, the casing of the header will
+     * be preserved by this function, and returned from getHeaders().
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that has the
+     * new and/or updated header and value.
+     *
+     * @param string $header Header name
+     * @param string|string[] $value Header value(s).
+     * @return self
+     * @throws \InvalidArgumentException for invalid header names or values.
+     */
+    public function withHeader($header, $value)
+    {
+        $newResponse = clone $this;
+        $newResponse->setHeader($header, $value);
+
+        return $newResponse;
+    }
+
+    /**
+     * Creates a new instance, with the specified header appended with the
+     * given value.
+     *
+     * Existing values for the specified header will be maintained. The new
+     * value(s) will be appended to the existing list. If the header did not
+     * exist previously, it will be added.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that has the
+     * new header and/or value.
+     *
+     * @param string $header Header name to add
+     * @param string|string[] $value Header value(s).
+     * @return self
+     * @throws \InvalidArgumentException for invalid header names or values.
+     */
+    public function withAddedHeader($header, $value)
+    {
+        $newResponse = clone $this;
+        $newResponse->addHeader($header, $value);
+
+        return $newResponse;
+    }
+
+    /**
+     * Creates a new instance, without the specified header.
+     *
+     * Header resolution MUST be done without case-sensitivity.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that removes
+     * the named header.
+     *
+     * @param string $header HTTP header to remove
+     * @return self
+     */
+    public function withoutHeader($header)
+    {
+        $newResponse = clone $this;
+        $newResponse->removeHeader($header);
+
+        return $newResponse;
+    }
+
+    /**
      * Get cookies
      *
      * @return array
@@ -453,6 +543,28 @@ class Response implements ResponseInterface
         }
 
         $this->body = $body;
+    }
+
+    /**
+     * Create a new instance, with the specified message body.
+     *
+     * The body MUST be a StreamableInterface object.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that has the
+     * new body stream.
+     *
+     * @param StreamableInterface $body Body.
+     * @return self
+     * @throws \InvalidArgumentException When the body is not valid.
+     */
+    public function withBody(resource $body)
+    {
+        // TODO: Implement StreamableInterface object for HTTP body
+        $newResource = clone $this;
+        $newResource->setBody($body);
+
+        return $newResource;
     }
 
     /**
@@ -957,5 +1069,16 @@ class Response implements ResponseInterface
         }
 
         return $output;
+    }
+
+    /**
+     * After PHP performs a shallow copy, we create new references
+     * that point to new copies of the `headers` and `cookies` collections.
+     * We are OK keeping the existing body resource.
+     */
+    public function __clone()
+    {
+        $this->headers = clone $this->headers;
+        $this->cookies = clone $this->cookies;
     }
 }

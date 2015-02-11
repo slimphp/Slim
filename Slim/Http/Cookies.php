@@ -95,6 +95,16 @@ class Cookies extends Collection implements CookiesInterface
     }
 
     /**
+     * Get default values
+     *
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
+    }
+
+    /**
      * Set cookie
      *
      * The second argument may be a single scalar value, in which case
