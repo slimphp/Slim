@@ -44,11 +44,11 @@ use \Slim\Interfaces\Http\HeadersInterface;
  */
 interface CookiesInterface extends CollectionInterface
 {
-    public function setHeaders(HeadersInterface &$headers);
+    public function setHeaders(HeadersInterface $headers);
 
-    public function setHeader(HeadersInterface &$headers, $name, $value);
+    public function setHeader(HeadersInterface $headers, $name, $value);
 
-    public function deleteHeader(HeadersInterface &$headers, $name, $value = array());
+    public function deleteHeader(HeadersInterface $headers, $name, $value = array());
 
     public function parseHeader($header);
 }
