@@ -752,6 +752,7 @@ class Response implements ResponseInterface
      *
      * @param int|string $time     The last modification date
      * @param callable   $callback Optional callback to invoke
+     * @return self
      * @api
      */
     public function withLastModified($time, callable $callback = null)
@@ -784,10 +785,10 @@ class Response implements ResponseInterface
      *
      * @param callable $callback
      */
-    // public function onEtag(callable $callback)
-    // {
-    //     $this->onEtag = $callback;
-    // }
+    public function onEtag(callable $callback)
+    {
+        $this->onEtag = $callback;
+    }
 
     /**
      * Set ETag header
@@ -799,30 +800,33 @@ class Response implements ResponseInterface
      * @param  string                    $value    The etag value
      * @param  string                    $type     The etag type (either "strong" or "weak")
      * @param  callable                  $callable Optional callback invoked when etag set
+     * @return self
      * @throws \InvalidArgumentException           If invalid etag type
      * @api
      */
-    // public function etag($value, $type = 'strong', callable $callback = null)
-    // {
-    //     // Ensure type is correct
-    //     if (!in_array($type, array('strong', 'weak'))) {
-    //         throw new \InvalidArgumentException('Invalid etag type. Must be "strong" or "weak".');
-    //     }
+    public function withEtag($value, $type = 'strong', callable $callback = null)
+    {
+        // Ensure type is correct
+        if (!in_array($type, array('strong', 'weak'))) {
+            throw new \InvalidArgumentException('Invalid etag type. Must be "strong" or "weak".');
+        }
 
-    //     // Set etag value
-    //     $value = '"' . $value . '"';
-    //     if ($type === 'weak') {
-    //         $value = 'W/'.$value;
-    //     }
-    //     $this->setHeader('ETag', $value);
+        // Set etag value
+        $value = '"' . $value . '"';
+        if ($type === 'weak') {
+            $value = 'W/' . $value;
+        }
+        $clone = $this->withHeader('ETag', $value);
 
-    //     // Invoke callbacks
-    //     if ($callback) {
-    //         $callback($this, $value);
-    //     } else if ($this->onEtag) {
-    //         call_user_func_array($this->onEtag, [$this, $value]);
-    //     }
-    // }
+        // Invoke callback
+        if ($callback) {
+            $callback($clone, $value);
+        } else if ($this->onEtag) {
+            call_user_func_array($this->onEtag, [$clone, $value]);
+        }
+
+        return $clone;
+    }
 
     /*******************************************************************************
      * Response Helpers
@@ -831,78 +835,89 @@ class Response implements ResponseInterface
     /**
      * Finalize response for delivery to client
      *
-     * Apply final preparations to the resposne object
-     * so that it is suitable for delivery to the client.
-     *
-     * @param  \Slim\Interfaces\Http\RequestInterface $request
-     * @return \Slim\Interfaces\Http\Response Self
+     * @return self
      * @api
      */
-    // public function finalize(\Slim\Interfaces\Http\RequestInterface $request)
-    // {
-    //     $sendBody = true;
+    public function finalize()
+    {
+        $response = $this;
 
-    //     if (in_array($this->status, array(204, 304)) === true) {
-    //         $this->headers->remove('Content-Type');
-    //         $this->headers->remove('Content-Length');
-    //         $sendBody = false;
-    //     } else {
-    //         $size = @$this->getSize();
-    //         if ($size) {
-    //             $this->headers->set('Content-Length', $size);
-    //         }
-    //     }
+        // Serialize cookies
+        $cookies = $response->getCookies();
+        if ($cookies) {
+            $cookieHeaders = [];
+            foreach ($cookies as $name => $properties) {
+                $cookieHeaders[] = $response->getCookie($name);
+            }
+            $response = $response->withHeader('Set-Cookie', implode("\n", $cookieHeaders));
+        }
 
-    //     // Serialize cookies into HTTP header
-    //     $this->cookies->setHeaders($this->headers);
+        // Finalize headers
+        if (in_array($response->getStatusCode(), array(204, 304)) === true) {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        } else {
+            $size = $response->getBody()->getSize();
+            if ($size) {
+                $response = $response->withHeader('Content-Length', $size);
+            }
+        }
 
-    //     // Remove body if HEAD request
-    //     if ($request->isHead() === true) {
-    //         $sendBody = false;
-    //     }
-
-    //     // Truncate body if it should not be sent with response
-    //     if ($sendBody === false) {
-    //         $this->write('', true);
-    //     }
-
-    //     return $this;
-    // }
+        return $response;
+    }
 
     /**
-     * Send HTTP response headers and body
+     * Send HTTP body to client
      *
-     * @return \Slim\Interfaces\Http\Response Self
-     * @api
+     * @return self
      */
-    // public function send()
-    // {
-    //     // Send headers
-    //     if (headers_sent() === false) {
-    //         if (strpos(PHP_SAPI, 'cgi') === 0) {
-    //             header(sprintf('Status: %s', $this->getReasonPhrase()));
-    //         } else {
-    //             header(sprintf('%s %s', $this->getProtocolVersion(), $this->getReasonPhrase()));
-    //         }
+    public function sendHeaders()
+    {
+        if (headers_sent() === false) {
+            if (strpos(PHP_SAPI, 'cgi') === 0) {
+                header(sprintf(
+                    'Status: %s %s',
+                    $this->getStatusCode(),
+                    $this->getReasonPhrase()
+                ));
+            } else {
+                header(sprintf(
+                    'HTTP/%s %s %s',
+                    $this->getProtocolVersion(),
+                    $this->getStatusCode(),
+                    $this->getReasonPhrase()
+                ));
+            }
 
-    //         foreach ($this->headers as $name => $value) {
-    //             foreach ($value as $hVal) {
-    //                 header("$name: $hVal", false);
-    //             }
-    //         }
-    //     }
+            foreach ($this->getHeaders() as $name => $values) {
+                header($name, $this->getHeader($name));
+            }
+        }
 
-    //     // Send body
-    //     $meta = stream_get_meta_data($this->body);
-    //     if ($meta['seekable'] === true) {
-    //         fseek($this->body, 0);
-    //     }
-    //     while (feof($this->body) === false) {
-    //         echo fread($this->body, 1024);
-    //     }
+        return $this;
+    }
 
-    //     return $this;
-    // }
+    /**
+     * Send HTTP body to client
+     *
+     * @param int $bufferSize
+     * @return self
+     */
+    public function sendBody($bufferSize = 1024)
+    {
+        if (in_array($this->getStatusCode(), array(204, 304)) === true) {
+            return;
+        }
+
+        $body = $this->getBody();
+        if ($body->isAttached() === true) {
+            $body->rewind();
+            while ($body->eof() === false) {
+                echo $body->read($bufferSize);
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Redirect

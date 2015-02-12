@@ -1,9 +1,11 @@
 <?php
 namespace Slim;
 
+use \Psr\Http\Message\ResponseInterface;
+
 class ErrorHandler
 {
-    public function __invoke(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response, \Exception $exception)
+    public function __invoke(Interfaces\Http\RequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
         $title = 'Slim Application Error';
         $html = '';
@@ -34,11 +36,11 @@ class ErrorHandler
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
 
-        $response->setStatus(500);
-        $response->setHeader('Content-type', 'text/html');
-        $response->write($this->generateTemplateMarkup($title, $html), true);
-
-        return $response;
+        return $response
+                ->withStatus(500)
+                ->withHeader('Content-type', 'text/html')
+                ->withBody(new Http\Body(fopen('php://temp', 'r+')))
+                ->write($this->generateTemplateMarkup($title, $html));
     }
 
     /**

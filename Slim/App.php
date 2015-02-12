@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use \Psr\Http\Message\ResponseInterface;
+
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
     define('MCRYPT_MODE_CBC', 0);
@@ -111,7 +113,6 @@ class App extends \Pimple
         });
 
         $this['response'] = $this->factory(function ($c) {
-            $headers = new Http\Headers();
             $cookies = new Http\Cookies();
             $cookies->setDefaults([
                 'expires' => $c['settings']['cookies.lifetime'],
@@ -120,10 +121,9 @@ class App extends \Pimple
                 'secure' => $c['settings']['cookies.secure'],
                 'httponly' => $c['settings']['cookies.httponly']
             ]);
-            $response = new Http\Response($headers, $cookies);
-            $response->setProtocolVersion('HTTP/' . $c['settings']['http.version']);
+            $response = new Http\Response(200, null, $cookies);
 
-            return $response;
+            return $response->withProtocolVersion($c['settings']['http.version']);
         });
 
         $this['router'] = function ($c) {
@@ -365,11 +365,11 @@ class App extends \Pimple
      * This method stops the application and sends the provided
      * Response object to the HTTP client.
      *
-     * @param  \Slim\Interfaces\Http\ResponseInterface $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @throws \Slim\Exception\Stop
      * @api
      */
-    public function stop(Interfaces\Http\ResponseInterface $response)
+    public function stop(ResponseInterface $response)
     {
         throw new Exception\Stop($response);
     }
@@ -388,10 +388,7 @@ class App extends \Pimple
      */
     public function halt($status, $message = '')
     {
-        $response = $this['response'];
-        $response->setStatus($status);
-        $response->write($message);
-        $this->stop($response);
+        $this->stop($this['response']->withStatus($status)->write($message));
     }
 
     /**
@@ -421,10 +418,7 @@ class App extends \Pimple
      */
     public function redirect($url, $status = 302)
     {
-        $response = $this['response'];
-        $response->setStatus($status);
-        $response->setHeader('Location', $url);
-        $this->stop($response);
+        $this->stop($this['response']->withStatus($status)->withHeader('Location', $url));
     }
 
     /********************************************************************************
@@ -617,11 +611,11 @@ class App extends \Pimple
      * after dispatching the Request object to the appropriate Route
      * callback routine.
      *
-     * @param  Interfaces\Http\RequestInterface  $request  The request object
-     * @param  Interfaces\Http\ResponseInterface $response The response object
-     * @return Interfaces\Http\ResponseInterface
+     * @param  Interfaces\Http\RequestInterface    $request  The request object
+     * @param  \Psr\Http\Message\ResponseInterface $response The response object
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function call(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
+    public function call(Interfaces\Http\RequestInterface $request, ResponseInterface $response)
     {
         // TODO: Inject request and response objects into hooks?
         try {
@@ -687,10 +681,10 @@ class App extends \Pimple
     /**
      * Finalize and send the HTTP response
      *
-     * @param Interfaces\Http\RequestInterface  $request
-     * @param Interfaces\Http\ResponseInterface $response
+     * @param Interfaces\Http\RequestInterface    $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function finalize(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response) {
+    public function finalize(Interfaces\Http\RequestInterface $request, ResponseInterface $response) {
         if (!$this->responded) {
             $this->responded = true;
 
@@ -708,11 +702,15 @@ class App extends \Pimple
 
             // Encrypt cookies
             if ($this['settings']['cookies.encrypt']) {
-                $response->encryptCookies($this['crypt']);
+                $response = $response->withEncryptedCookies($this['crypt']);
             }
 
             // Send response
-            $response->finalize($request)->send();
+            $response = $response->finalize();
+            $response->sendHeaders();
+            if ($request->isHead() === false) {
+                $response->sendBody();
+            }
         }
     }
 }

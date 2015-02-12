@@ -448,6 +448,81 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         });
     }
 
+    public function testWithEtag()
+    {
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withEtag('abc', 'weak');
+
+        $this->assertEquals('W/"abc"', $clone->getHeader('Etag'));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithEtagCallbackProperty()
+    {
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $response->onEtag(function ($res, $value) {
+            throw new \RuntimeException();
+        });
+        $clone = $response->withEtag('abc', 'weak');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithEtagCallbackArgument()
+    {
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withEtag('abc', 'weak', function ($res, $value) {
+            throw new \RuntimeException();
+        });
+    }
+
+    public function testFinalizeSerializesCookies()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '2 days',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('test', 'foo');
+        $response = new Response(200, null, $cookies);
+        $response = $response->finalize();
+
+        $this->assertArrayHasKey('Set-Cookie', $response->getHeaders());
+    }
+
+    public function testFinalizeRemovesHeaders()
+    {
+        $response = new Response(204);
+        $response = $response->withHeader('Content-Type', 'text/plain');
+        $response->write('Hello world');
+        $response = $response->finalize();
+        $headers = $response->getHeaders();
+
+        $this->assertArrayNotHasKey('Content-Type', $headers);
+        $this->assertArrayNotHasKey('Content-Length', $headers);
+    }
+
+    public function testFinalizeAddsHeaders()
+    {
+        $response = new Response(200);
+        $response = $response->withHeader('Content-Type', 'text/plain');
+        $response->write('Hello world');
+        $response = $response->finalize();
+        $headers = $response->getHeaders();
+
+        $this->assertArrayHasKey('Content-Type', $headers);
+        $this->assertArrayHasKey('Content-Length', $headers);
+    }
+
     // >>>>>>>> OLD STUFF BELOW HERE! <<<<<<<<<
 
     // protected $environment;

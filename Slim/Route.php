@@ -32,6 +32,7 @@
  */
 namespace Slim;
 
+use \Psr\Http\Message\ResponseInterface;
 use \Slim\Interfaces\RouteInterface;
 
 /**
@@ -515,7 +516,7 @@ class Route implements RouteInterface
      * @return Interfaces\Http\ResponseInterface
      * @api
      */
-    public function dispatch(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
+    public function dispatch(Interfaces\Http\RequestInterface $request, ResponseInterface $response)
     {
         // Invoke route middleware
         foreach ($this->middleware as $mw) {

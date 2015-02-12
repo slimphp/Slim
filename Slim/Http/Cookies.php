@@ -79,8 +79,11 @@ class Cookies extends Collection implements CookiesInterface
      */
     public function __construct(HeadersInterface $headers = null)
     {
-        if (!is_null($headers)) {
-            $this->data = $this->parseHeader($headers->get('Cookie', ''));
+        if (is_null($headers) === false) {
+            $headers = $headers->get('Cookie');
+            if ($headers) {
+                $this->data = $this->parseHeader($headers[0]);
+            }
         }
     }
 
