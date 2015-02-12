@@ -927,13 +927,13 @@ class Response implements ResponseInterface
      *
      * @param string $url    The redirect destination
      * @param int    $status The redirect HTTP status code
+     * @return self
      * @api
      */
-    // public function redirect($url, $status = 302)
-    // {
-    //     $this->setStatus($status);
-    //     $this->headers->set('Location', $url);
-    // }
+    public function withRedirect($url, $status = 302)
+    {
+        return $this->withStatusCode($status)->withHeader('Location', $url);
+    }
 
     /**
      * Helpers: Empty?
@@ -943,7 +943,7 @@ class Response implements ResponseInterface
      */
     public function isEmpty()
     {
-        return in_array($this->status, array(201, 204, 304));
+        return in_array($this->getStatusCode(), array(201, 204, 304));
     }
 
     /**
@@ -954,7 +954,7 @@ class Response implements ResponseInterface
      */
     public function isInformational()
     {
-        return $this->status >= 100 && $this->status < 200;
+        return $this->getStatusCode() >= 100 && $this->getStatusCode() < 200;
     }
 
     /**
@@ -965,7 +965,7 @@ class Response implements ResponseInterface
      */
     public function isOk()
     {
-        return $this->status === 200;
+        return $this->getStatusCode() === 200;
     }
 
     /**
@@ -976,7 +976,7 @@ class Response implements ResponseInterface
      */
     public function isSuccessful()
     {
-        return $this->status >= 200 && $this->status < 300;
+        return $this->getStatusCode() >= 200 && $this->getStatusCode() < 300;
     }
 
     /**
@@ -987,7 +987,7 @@ class Response implements ResponseInterface
      */
     public function isRedirect()
     {
-        return in_array($this->status, array(301, 302, 303, 307));
+        return in_array($this->getStatusCode(), array(301, 302, 303, 307));
     }
 
     /**
@@ -998,7 +998,7 @@ class Response implements ResponseInterface
      */
     public function isRedirection()
     {
-        return $this->status >= 300 && $this->status < 400;
+        return $this->getStatusCode() >= 300 && $this->getStatusCode() < 400;
     }
 
     /**
@@ -1009,7 +1009,7 @@ class Response implements ResponseInterface
      */
     public function isForbidden()
     {
-        return $this->status === 403;
+        return $this->getStatusCode() === 403;
     }
 
     /**
@@ -1020,7 +1020,7 @@ class Response implements ResponseInterface
      */
     public function isNotFound()
     {
-        return $this->status === 404;
+        return $this->getStatusCode() === 404;
     }
 
     /**
@@ -1031,7 +1031,7 @@ class Response implements ResponseInterface
      */
     public function isClientError()
     {
-        return $this->status >= 400 && $this->status < 500;
+        return $this->getStatusCode() >= 400 && $this->getStatusCode() < 500;
     }
 
     /**
@@ -1042,7 +1042,7 @@ class Response implements ResponseInterface
      */
     public function isServerError()
     {
-        return $this->status >= 500 && $this->status < 600;
+        return $this->getStatusCode() >= 500 && $this->getStatusCode() < 600;
     }
 
     /**
@@ -1053,14 +1053,18 @@ class Response implements ResponseInterface
      */
     public function __toString()
     {
-        $output = sprintf('%s %s', $this->getProtocolVersion(), $this->getReasonPhrase()) . PHP_EOL;
-        foreach ($this->headers as $name => $value) {
-            $output .= sprintf('%s: %s', $name, $value) . PHP_EOL;
+        $output = sprintf(
+            'HTTP/%s %s %s',
+            $this->getProtocolVersion(),
+            $this->getStatusCode(),
+            $this->getReasonPhrase()
+        );
+        $output .= PHP_EOL;
+        foreach ($this->getHeaders() as $name => $values) {
+            $output .= sprintf('%s: %s', $name, $this->getHeader($name)) . PHP_EOL;
         }
-        $body = (string)$this->getBody();
-        if ($body) {
-            $output .= PHP_EOL . $body;
-        }
+        $output .= PHP_EOL;
+        $output .= (string)$this->getBody();
 
         return $output;
     }
