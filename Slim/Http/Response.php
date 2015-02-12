@@ -85,6 +85,18 @@ class Response implements ResponseInterface
     protected $body;
 
     /**
+     * On set Last-Modified callback
+     * @var Closure|null
+     */
+    protected $onLastModified;
+
+    /**
+     * On set ETag callback
+     * @var Closure|null
+     */
+    protected $onEtag;
+
+    /**
      * Response codes and associated messages
      * @var array
      */
@@ -455,17 +467,146 @@ class Response implements ResponseInterface
     }
 
     /*******************************************************************************
+     * Cookies
+     ******************************************************************************/
+
+    /**
+     * Retrieves all cookies.
+     *
+     * The keys represent the cookie name as it will be sent over the wire, and
+     * each value is an array of properties associated with the cookie.
+     *
+     *     // Represent the headers as a string
+     *     foreach ($message->getCookies() as $name => $values) {
+     *         echo $values['value'];
+     *         echo $values['expires'];
+     *         echo $values['path'];
+     *         echo $values['domain'];
+     *         echo $values['secure'];
+     *         echo $values['httponly'];
+     *     }
+     *
+     * @return array Returns an associative array of the cookie's properties. Each
+     *               key MUST be a cookie name, and each value MUST be an array of properties.
+     */
+    public function getCookies()
+    {
+        return $this->cookies->all();
+    }
+
+    /**
+     * Checks if a cookie exists by the given case-insensitive name.
+     *
+     * @param  string $name Case-insensitive header name.
+     * @return bool   Returns true if any cookie names match the given cookie
+     *                name using a case-insensitive string comparison. Returns false if
+     *                no matching cookie name is found in the message.
+     */
+    public function hasCookie($name)
+    {
+        return $this->cookies->has($name);
+    }
+
+    /**
+     * Retrieve a cookie by the given case-insensitive name, as a string.
+     *
+     * This method returns all of the cookie values of the given
+     * case-insensitive cookie name as a string as it will
+     * appear in the HTTP response's `Set-Cookie` header.
+     *
+     * @param  string $name Case-insensitive cookie name.
+     * @return string|null
+     */
+    public function getCookie($name)
+    {
+        return $this->cookies->getAsString($name);
+    }
+
+    /**
+     * Retrieves a cookie by the given case-insensitive name as an array of properties.
+     *
+     * @param string $name Case-insensitive cookie name.
+     * @return string[]|null
+     */
+    public function getCookieProperties($name)
+    {
+        return $this->cookies->get($name);
+    }
+
+    /**
+     * Create a new instance with the provided cookie, replacing any existing
+     * values of any cookies with the same case-insensitive name.
+     *
+     * While cookie names are case-insensitive, the casing of the cookie will
+     * be preserved by this function, and returned from getCookies().
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that has the
+     * new and/or updated cookie and value.
+     *
+     * @param string $name Cookie name
+     * @param string|string[] $value Cookie value(s).
+     * @return self
+     */
+    public function withCookie($name, $value)
+    {
+        $clone = clone $this;
+        $clone->cookies->set($name, $value);
+
+        return $clone;
+    }
+
+    /**
+     * Creates a new instance, without the specified cookie.
+     *
+     * Cookie resolution MUST be done without case-sensitivity.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return a new instance that removes
+     * the named cookie.
+     *
+     * @param string $name HTTP cookie to remove
+     * @return self
+     */
+    public function withoutCookie($name)
+    {
+        $clone = clone $this;
+        $clone->cookies->remove($name);
+
+        return $clone;
+    }
+
+    /**
+     * Encrypt cookies
+     *
+     * @param \Slim\Interfaces\CryptInterface $crypt
+     * @return self
+     * @api
+     */
+    public function withEncryptedCookies(\Slim\Interfaces\CryptInterface $crypt)
+    {
+        $clone = clone $this;
+        $clone->cookies->encrypt($crypt);
+
+        return $clone;
+    }
+
+    /*******************************************************************************
      * Body
      ******************************************************************************/
 
-    public function getBody()
+    /**
+     * Write data to the response body
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     */
+    public function write($data)
     {
+        $this->getBody()->write($data);
 
-    }
-
-    public function withBody(StreamableInterface $body)
-    {
-
+        return $this;
     }
 
     /**
@@ -473,10 +614,10 @@ class Response implements ResponseInterface
      *
      * @return StreamableInterface Returns the body as a stream.
      */
-    // public function getBody()
-    // {
-    //     return $this->body;
-    // }
+    public function getBody()
+    {
+        return $this->body;
+    }
 
     /**
      * Create a new instance, with the specified message body.
@@ -491,113 +632,14 @@ class Response implements ResponseInterface
      * @return self
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    // public function withBody(StreamableInterface $body)
-    // {
-    //     $headers = new Headers($this->getHeaders());
-    //     $cookies = new Cookies($this->getCookies());
-    //     $status = $this->getStatus();
+    public function withBody(StreamableInterface $body)
+    {
+        // TODO: Test for invalid body?
+        $clone = clone $this;
+        $clone->body = $body;
 
-    //     return new self($headers, $cookies, $body, $status);
-    // }
-
-    /*******************************************************************************
-     * Cookies
-     ******************************************************************************/
-
-    /**
-     * Get cookies
-     *
-     * @return array
-     * @api
-     */
-    // public function getCookies()
-    // {
-    //     return $this->cookies->all();
-    // }
-
-    /**
-     * Set multiple cookies
-     *
-     * @param array $cookies
-     * @api
-     */
-    // public function setCookies(array $cookies)
-    // {
-    //     $this->cookies->replace($cookies);
-    // }
-
-    /**
-     * Does this request have a given cookie?
-     *
-     * @param  string $name
-     * @return bool
-     * @api
-     */
-    // public function hasCookie($name)
-    // {
-    //     return $this->cookies->has($name);
-    // }
-
-    /**
-     * Get cookie value
-     *
-     * @param  string $name
-     * @return array
-     * @api
-     */
-    // public function getCookie($name)
-    // {
-    //     return $this->cookies->get($name);
-    // }
-
-    /**
-     * Set cookie
-     *
-     * @param string       $name
-     * @param array|string $value
-     * @api
-     */
-    // public function setCookie($name, $value)
-    // {
-    //     $this->cookies->set($name, $value);
-    // }
-
-    /**
-     * Remove cookie
-     *
-     * @param string $name
-     * @param array  $settings
-     * @api
-     */
-    // public function removeCookie($name, $settings = array())
-    // {
-    //     $this->cookies->remove($name, $settings);
-    // }
-
-    /**
-     * Encrypt cookies
-     *
-     * @param \Slim\Interfaces\CryptInterface $crypt
-     * @api
-     */
-    // public function encryptCookies(\Slim\Interfaces\CryptInterface $crypt)
-    // {
-    //     $this->cookies->encrypt($crypt);
-    // }
-
-    /**
-     * Write data to the response body
-     *
-     * Proxies to the underlying stream and writes the provided data to it.
-     *
-     * @param string $data
-     */
-    // public function write($data)
-    // {
-    //     $this->getBody()->write($data);
-
-    //     return $this;
-    // }
+        return $clone;
+    }
 
     /**
      * Prepare download
@@ -662,9 +704,6 @@ class Response implements ResponseInterface
      * HTTP caching
      ******************************************************************************/
 
-    // protected $onLastModified;
-    // protected $onEtag;
-
     /**
      * Set expires header
      *
@@ -677,15 +716,17 @@ class Response implements ResponseInterface
      *
      * @param string|int $time If string, a time to be parsed by `strtotime()`;
      *                         If int, a UNIX timestamp;
+     * @return self
      * @api
      */
-    // public function expires($time)
-    // {
-    //     if (is_string($time) === true) {
-    //         $time = strtotime($time);
-    //     }
-    //     $this->setHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
-    // }
+    public function withExpires($time)
+    {
+        if (is_integer($time) === false) {
+            $time = strtotime($time);
+        }
+
+        return $this->withHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
+    }
 
     /**
      * Set Last Modified callback
@@ -697,10 +738,10 @@ class Response implements ResponseInterface
      *
      * @param callable $callback
      */
-    // public function onLastModified(callable $callback)
-    // {
-    //     $this->onLastModified = $callback;
-    // }
+    public function onLastModified(callable $callback)
+    {
+        $this->onLastModified = $callback;
+    }
 
     /**
      * Set Last Modified header
@@ -713,23 +754,25 @@ class Response implements ResponseInterface
      * @param callable   $callback Optional callback to invoke
      * @api
      */
-    // public function lastModified($time, callable $callback = null)
-    // {
-    //     // Convert time to integer value
-    //     if (is_integer($time) === false) {
-    //         $time = strtotime((string)$time);
-    //     }
+    public function withLastModified($time, callable $callback = null)
+    {
+        // Convert time to integer value
+        if (is_integer($time) === false) {
+            $time = strtotime((string)$time);
+        }
 
-    //     // Set header
-    //     $this->setHeader('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
+        // Set header
+        $clone = $this->withHeader('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
 
-    //     // Invoke callbacks if necessary
-    //     if ($callback) {
-    //         $callback($this, $time);
-    //     } else if ($this->onLastModified) {
-    //         call_user_func_array($this->onLastModified, [$this, $time]);
-    //     }
-    // }
+        // Invoke callback if necessary
+        if ($callback) {
+            $callback($clone, $time);
+        } else if ($this->onLastModified) {
+            call_user_func_array($this->onLastModified, [$clone, $time]);
+        }
+
+        return $clone;
+    }
 
     /**
      * Set ETag callback

@@ -34,6 +34,7 @@ use \Slim\Http\Response;
 use \Slim\Http\Headers;
 use \Slim\Http\Cookies;
 use \Slim\Http\Body;
+use \Slim\Crypt;
 
 class ResponseTest extends PHPUnit_Framework_TestCase
 {
@@ -211,6 +212,240 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($shouldBe, $clone->getHeaders());
+    }
+
+    public function testGetCookies()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '20 minutes',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => false,
+            'httponly' => false
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+        $shouldBe = [
+            'foo' => [
+                'value' => 'bar',
+                'expires' => '20 minutes',
+                'path' => '/',
+                'domain' => 'example.com',
+                'secure' => false,
+                'httponly' => false
+            ]
+        ];
+
+        $this->assertEquals($shouldBe, $response->getCookies());
+    }
+
+    public function testHasCookie()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '20 minutes',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => false,
+            'httponly' => false
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+
+        $this->assertTrue($response->hasCookie('foo'));
+        $this->assertFalse($response->hasCookie('bar'));
+    }
+
+    public function testGetCookie()
+    {
+        $expiresAt = time();
+        $expresAtString = gmdate('D, d-M-Y H:i:s e', $expiresAt);
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => $expiresAt,
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+
+        $this->assertEquals('foo=bar; domain=example.com; path=/; expires=' . $expresAtString . '; secure; HttpOnly', $response->getCookie('foo'));
+    }
+
+    public function testGetCookieProperties()
+    {
+        $expiresAt = time();
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => $expiresAt,
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+        $props = $response->getCookieProperties('foo');
+        $props2 = $response->getCookieProperties('bar');
+
+        $this->assertEquals($expiresAt, $props['expires']);
+        $this->assertEquals('/', $props['path']);
+        $this->assertEquals('example.com', $props['domain']);
+        $this->assertTrue($props['secure']);
+        $this->assertTrue($props['httponly']);
+        $this->assertNull($props2);
+    }
+
+    public function testWithCookie()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '2 days',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+        $clone = $response->withCookie('foo', 'xyz');
+
+        $this->assertEquals('xyz', $clone->getCookieProperties('foo')['value']);
+    }
+
+    public function testWithoutCookie()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '2 days',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+        $now = time();
+        $clone = $response->withoutCookie('foo');
+
+        $this->assertEquals('', $clone->getCookieProperties('foo')['value']);
+        $this->assertLessThan($now, $clone->getCookieProperties('foo')['expires']);
+    }
+
+    public function testWithEncryptedCookies()
+    {
+        $cookies = new Cookies();
+        $cookies->setDefaults([
+            'expires' => '2 days',
+            'path' => '/',
+            'domain' => 'example.com',
+            'secure' => true,
+            'httponly' => true
+        ]);
+        $cookies->set('foo', 'bar');
+        $response = new Response(200, null, $cookies);
+        $crypt = new Crypt('sekritsdfsadt7u5', MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+        $clone = $response->withEncryptedCookies($crypt);
+
+        $this->assertNotEquals('bar', $clone->getCookieProperties('foo')['value']);
+    }
+
+    public function testGetBody()
+    {
+        $headers = new Headers();
+        $cookies = new Cookies();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $response = new Response(404, $headers, $cookies, $body);
+
+        $this->assertSame($body, $response->getBody());
+    }
+
+    public function testWithBody()
+    {
+        $headers = new Headers();
+        $cookies = new Cookies();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body2 = new Body(fopen('php://temp', 'r+'));
+        $response = new Response(404, $headers, $cookies, $body);
+        $clone = $response->withBody($body2);
+
+        $this->assertAttributeSame($body2, 'body', $clone);
+    }
+
+    public function testWithExpiresAsTimestamp()
+    {
+        $expiresAt = time() + 86400;
+        $expiresAtString = gmdate('D, d M Y H:i:s T', $expiresAt);
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withExpires($expiresAt);
+
+        $this->assertEquals($expiresAtString, $clone->getHeader('Expires'));
+    }
+
+    public function testWithExpiresAsString()
+    {
+        $expiresAt = 'next Tuesday';
+        $expiresAtString = gmdate('D, d M Y H:i:s T', strtotime($expiresAt));
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withExpires($expiresAt);
+
+        $this->assertEquals($expiresAtString, $clone->getHeader('Expires'));
+    }
+
+    public function testWithLastModifiedAsTimestamp()
+    {
+        $lastModifiedAt = time() + 86400;
+        $lastModifiedAtString = gmdate('D, d M Y H:i:s T', $lastModifiedAt);
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withLastModified($lastModifiedAt);
+
+        $this->assertEquals($lastModifiedAtString, $clone->getHeader('Last-Modified'));
+    }
+
+    public function testWithLastModifiedAsString()
+    {
+        $lastModifiedAt = 'next Tuesday';
+        $lastModifiedAtString = gmdate('D, d M Y H:i:s T', strtotime($lastModifiedAt));
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withLastModified($lastModifiedAt);
+
+        $this->assertEquals($lastModifiedAtString, $clone->getHeader('Last-Modified'));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithLastModifiedCallbackProperty()
+    {
+        $lastModifiedAt = 'next Tuesday';
+        $lastModifiedAtString = gmdate('D, d M Y H:i:s T', strtotime($lastModifiedAt));
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $response->onLastModified(function ($res, $time) {
+            throw new \RuntimeException();
+        });
+        $clone = $response->withLastModified($lastModifiedAt);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithLastModifiedCallbackArgument()
+    {
+        $lastModifiedAt = 'next Tuesday';
+        $lastModifiedAtString = gmdate('D, d M Y H:i:s T', strtotime($lastModifiedAt));
+        $headers = new Headers();
+        $response = new Response(200, $headers);
+        $clone = $response->withLastModified($lastModifiedAt, function ($res, $time) {
+            throw new \RuntimeException();
+        });
     }
 
     // >>>>>>>> OLD STUFF BELOW HERE! <<<<<<<<<

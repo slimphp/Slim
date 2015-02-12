@@ -149,6 +149,52 @@ class Cookies extends Collection implements CookiesInterface
         $this->set($key, array_replace($this->defaults, $settings));
     }
 
+    public function getAsString($name)
+    {
+        $output = null;
+        $cookie = $this->get($name);
+        if ($cookie) {
+            $value = (string)$cookie['value'];
+            $parts = [];
+
+            if (isset($cookie['domain']) && $cookie['domain']) {
+                $parts[] = '; domain=' . $cookie['domain'];
+            }
+
+            if (isset($cookie['path']) && $cookie['path']) {
+                $parts[] = '; path=' . $cookie['path'];
+            }
+
+            if (isset($cookie['expires'])) {
+                if (is_string($cookie['expires'])) {
+                    $timestamp = strtotime($cookie['expires']);
+                } else {
+                    $timestamp = (int)$cookie['expires'];
+                }
+
+                if ($timestamp !== 0) {
+                    $parts[] = '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
+                }
+            }
+
+            if (isset($cookie['secure']) && $cookie['secure']) {
+                $parts[] = '; secure';
+            }
+
+            if (isset($cookie['httponly']) && $cookie['httponly']) {
+                $parts[] = '; HttpOnly';
+            }
+
+            $output = sprintf(
+                '%s=%s',
+                urlencode($name),
+                urlencode($value) . implode('', $parts)
+            );
+        }
+
+        return $output;
+    }
+
     /**
      * Encrypt cookies
      *
