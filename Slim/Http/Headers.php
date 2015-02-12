@@ -76,8 +76,14 @@ class Headers extends Collection implements HeadersInterface
      */
     public function __construct(EnvironmentInterface $environment = null)
     {
-        if (!is_null($environment)) {
+        // Parse environment properties
+        if ($environment) {
             $this->parseHeaders($environment);
+        }
+
+        // Set default content type
+        if ($this->has('Content-Type') === false) {
+            $this->set('Content-Type', 'text/html');
         }
     }
 
@@ -119,17 +125,11 @@ class Headers extends Collection implements HeadersInterface
      * Get data value with key
      *
      * @param  string $key     The data key
-     * @param  mixed  $default The value to return if data key does not exist
-     * @return mixed           The data value, or the default value
      * @api
      */
-    public function get($key, $asArray = false)
+    public function get($key, $default = null)
     {
-        if ($asArray) {
-            return parent::get($this->normalizeKey($key), array());
-        } else {
-            return implode(', ', parent::get($this->normalizeKey($key), array()));
-        }
+        return parent::get($this->normalizeKey($key), array());
     }
 
     /**
