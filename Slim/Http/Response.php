@@ -904,15 +904,13 @@ class Response implements ResponseInterface
      */
     public function sendBody($bufferSize = 1024)
     {
-        if (in_array($this->getStatusCode(), array(204, 304)) === true) {
-            return;
-        }
-
-        $body = $this->getBody();
-        if ($body->isAttached() === true) {
-            $body->rewind();
-            while ($body->eof() === false) {
-                echo $body->read($bufferSize);
+        if (in_array($this->getStatusCode(), array(204, 304)) === false) {
+            $body = $this->getBody();
+            if ($body->isAttached() === true) {
+                $body->rewind();
+                while ($body->eof() === false) {
+                    echo $body->read($bufferSize);
+                }
             }
         }
 
