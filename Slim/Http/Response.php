@@ -930,7 +930,7 @@ class Response implements ResponseInterface
      */
     public function withRedirect($url, $status = 302)
     {
-        return $this->withStatusCode($status)->withHeader('Location', $url);
+        return $this->withStatus($status)->withHeader('Location', $url);
     }
 
     /**
