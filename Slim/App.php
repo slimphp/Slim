@@ -77,6 +77,12 @@ class App extends \Pimple
         'slim.after' => array(array())
     );
 
+    /**
+     * Middleware stack
+     * @var array
+     */
+    protected $middleware;
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -183,7 +189,7 @@ class App extends \Pimple
             return new NotFoundHandler();
         };
 
-        $this['middleware'] = array($this);
+        $this->middleware = array($this);
     }
 
     /********************************************************************************
@@ -522,17 +528,9 @@ class App extends \Pimple
      * @param Interfaces\MiddlewareInterface $newMiddleware
      * @api
      */
-    public function add(Interfaces\MiddlewareInterface $newMiddleware)
+    public function add(callable $newMiddlewareCallable)
     {
-        $middleware = $this['middleware'];
-        if (in_array($newMiddleware, $middleware) === true) {
-            $middleware_class = get_class($newMiddleware);
-            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
-        }
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this['middleware'][0]);
-        array_unshift($middleware, $newMiddleware);
-        $this['middleware'] = $middleware;
+        array_unshift($this->middleware, new Middleware($newMiddlewareCallable, $this->middleware[0]));
     }
 
     /********************************************************************************
@@ -590,7 +588,7 @@ class App extends \Pimple
 
         // Traverse middleware stack and fetch updated response
         try {
-            $response = $this['middleware'][0]->call($request, $response);
+            $response = $this->middleware[0]($request, $response);
         } catch (Exception\Stop $e) {
             $response = $e->getResponse();
         } catch (\Exception $e) {
@@ -615,7 +613,7 @@ class App extends \Pimple
      * @param  \Psr\Http\Message\ResponseInterface $response The response object
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function call(Interfaces\Http\RequestInterface $request, ResponseInterface $response)
+    public function __invoke(Interfaces\Http\RequestInterface $request, ResponseInterface $response)
     {
         // TODO: Inject request and response objects into hooks?
         try {
