@@ -133,9 +133,9 @@ class Uri implements Psr\Http\Message\UriInterface
         $queryString = $env->get('QUERY_STRING', '');
 
         // Build Uri
-        $uri = new static($scheme, $user, $password, $host, $port, $virtualPath, $queryString);
+        $uri = new static($scheme, $user, $password, $host, $port, rawurldecode($virtualPath), rawurldecode($queryString));
 
-        return $uri->withBasePath($theBasePath);
+        return $uri->withBasePath(rawurldecode($theBasePath));
     }
 
     /**
