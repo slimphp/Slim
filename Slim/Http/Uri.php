@@ -135,7 +135,7 @@ class Uri implements Psr\Http\Message\UriInterface
         // Build Uri
         $uri = new static($scheme, $user, $password, $host, $port, $virtualPath, $queryString);
 
-        return $uri->withBasePath($basePath);
+        return $uri->withBasePath($theBasePath);
     }
 
     /**
@@ -446,7 +446,7 @@ class Uri implements Psr\Http\Message\UriInterface
     public function withQuery($query)
     {
         $clone = clone $this;
-        $clone->queryString = ltrim($query, '?');
+        $clone->query = ltrim($query, '?');
 
         return $clone;
     }
