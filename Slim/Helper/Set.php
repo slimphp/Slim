@@ -160,7 +160,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
 
     public function __unset($key)
     {
-        return $this->remove($key);
+        $this->remove($key);
     }
 
     /**
