@@ -1120,11 +1120,23 @@ class Slim
      * Set flash message for subsequent request
      * @param  string   $key
      * @param  mixed    $value
+     * @return mixed
      */
-    public function flash($key, $value)
+    public function flash()
     {
-        if (isset($this->environment['slim.flash'])) {
-            $this->environment['slim.flash']->set($key, $value);
+        $n = func_num_args();
+        if ($n < 1 || $n > 2) {
+            throw new \BadMethodCallException('flash() expects 1 or 2 parameters, '.$n.' given');
+        }
+
+        if (!isset($this->environment['slim.flash'])) {
+            return null; 
+        }
+
+        if ($n === 2) {
+            return $this->environment['slim.flash']->set(func_get_arg(0), func_get_arg(1));
+        } else {
+            return $this->environment['slim.flash'][func_get_arg(0)];
         }
     }
 
