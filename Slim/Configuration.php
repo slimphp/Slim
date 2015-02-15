@@ -91,9 +91,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
      */
     public function __construct(ConfigurationHandlerInterface $handler)
     {
-        $this->handler = $handler;
-
-        $this->setDefaults();
+        $this->setHandler($handler);
     }
 
     /**
@@ -122,14 +120,22 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
     }
 
     /**
-     * Call a method from the handler
-     * @param  string $method
-     * @param  array $params
-     * @return mixed
+     * Set a configuration handler and provide it some defaults
+     * @param \Slim\Interfaces\ConfigurationHandlerInterface $handler
      */
-    public function callHandlerMethod($method, array $params = array())
+    public function setHandler(ConfigurationHandlerInterface $handler)
     {
-        return call_user_func_array(array($this->handler, $method), $params);
+        $this->handler = $handler;
+        $this->setDefaults();
+    }
+
+    /**
+     * Get the configuration handler for access
+     * @return \Slim\Interfaces\ConfigurationHandlerInterface
+     */
+    public function getHandler()
+    {
+        return $this->handler;
     }
 
     /**
