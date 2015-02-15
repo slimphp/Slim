@@ -18,7 +18,7 @@ namespace Slim\Http;
  *
  * @link http://tools.ietf.org/html/rfc3986 (the URI specification)
  */
-class Uri implements Psr\Http\Message\UriInterface
+class Uri implements \Psr\Http\Message\UriInterface
 {
     /**
      * @var string
@@ -102,30 +102,24 @@ class Uri implements Psr\Http\Message\UriInterface
         }
 
         // Authority
+        // TODO: Respect trusted proxy X-Forwarded-* headers
         $user = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
-        if ($env->has('HTTP_X_FORWARDED_HOST') === true) {
-            $host = $env->get('HTTP_X_FORWARDED_HOST');
-        } else if ($env->has('HTTP_HOST') === true) {
-            $host = $env->get('HTTP_HOST');
-        } else {
-            $host = $env->get('SERVER_NAME');
-        }
+        $host = $env->get('HTTP_HOST', $env->get('SERVER_NAME'));
         $port = $env->get('SERVER_PORT');
 
         // Path
-        $basePath = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
-        $basePathDir = rtrim(dirname($basePath), '/');
-        $path = parse_url($env->get('REQUEST_URI'), PHP_URL_PATH);
-        if (strpos($path, $basePath) === 0) {
-            $theBasePath = $basePath;
-            $virtualPath = substr($path, strlen($basePath));
-        } else if (strpos($path, $basePathDir) === 0) {
-            $theBasePath = $basePathDir;
-            $virtualPath = substr($path, strlen($basePathDir));
-        } else {
-            $theBasePath = '';
-            $virtualPath = $path;
+        $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
+        $requestScriptDir = dirname($requestScriptName);
+        $requestUri = parse_url($env->get('REQUEST_URI'), PHP_URL_PATH);
+        $basePath = '';
+        $virtualPath = $requestUri;
+        if (strpos($requestUri, $requestScriptName) === 0) {
+            $basePath = $requestScriptName;
+            $virtualPath = substr($requestUri, strlen($requestScriptName));
+        } else if (strpos($requestUri, $requestScriptDir) === 0) {
+            $basePath = $requestScriptDir;
+            $virtualPath = substr($requestUri, strlen($requestScriptDir));
         }
         $virtualPath = '/' . ltrim($virtualPath, '/');
 
@@ -135,7 +129,7 @@ class Uri implements Psr\Http\Message\UriInterface
         // Build Uri
         $uri = new static($scheme, $user, $password, $host, $port, rawurldecode($virtualPath), rawurldecode($queryString));
 
-        return $uri->withBasePath(rawurldecode($theBasePath));
+        return $uri->withBasePath(rawurldecode($basePath));
     }
 
     /**
@@ -152,7 +146,7 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getScheme()
     {
-        return $this->scheme;
+        return $this->scheme ? str_replace('://', '', $this->scheme) : '';
     }
 
     /**
@@ -175,6 +169,7 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getAuthority()
     {
+        $scheme = $this->getScheme();
         $userInfo = $this->getUserInfo();
         $host = $this->getHost();
         $port = $this->getPort();
@@ -197,10 +192,12 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getUserInfo()
     {
-        if ($this->username && $this->password) {
-            $info = $this->username . ':' . $this->password;
+        if ($this->user && $this->password) {
+            $info = $this->user . ':' . $this->password;
+        } else if ($this->user) {
+            $info = $this->user;
         } else {
-            $info = $this->username;
+            $info = '';
         }
 
         return $info;
@@ -216,7 +213,7 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getHost()
     {
-        return $this->host;
+        return $this->host ? $this->host : '';
     }
 
     /**
@@ -236,6 +233,10 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getPort()
     {
+        if (!$this->scheme && !$this->port) {
+            return null;
+        }
+
         return $this->port;
     }
 
@@ -249,7 +250,7 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getBasePath()
     {
-        return $this->basePath;
+        return $this->basePath ? $this->basePath : '';
     }
 
     /**
@@ -262,7 +263,7 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getPath()
     {
-        return $this->path;
+        return $this->path ? $this->path : '';
     }
 
     /**
@@ -277,7 +278,11 @@ class Uri implements Psr\Http\Message\UriInterface
      */
     public function getQuery()
     {
-        return $this->query;
+        if ($this->query) {
+            return strpos($this->query, '?') === 0 ? substr($this->query, 1) : $this->query;
+        }
+
+        return '';
     }
 
     /**
@@ -336,7 +341,7 @@ class Uri implements Psr\Http\Message\UriInterface
     public function withUserInfo($user, $password = null)
     {
         $clone = clone $this;
-        $clone->username = $user;
+        $clone->user = $user;
         $clone->password = $password ? $password : '';
 
         return $clone;
