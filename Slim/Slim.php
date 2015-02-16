@@ -1334,9 +1334,9 @@ class Slim
             $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
             foreach ($matchedRoutes as $route) {
                 try {
-                    $this->applyHook('slim.before.dispatch');
+                    $this->applyHook('slim.before.dispatch', ['route' => $route]);
                     $dispatched = $route->dispatch();
-                    $this->applyHook('slim.after.dispatch');
+                    $this->applyHook('slim.after.dispatch', ['route' => $route]);
                     if ($dispatched) {
                         break;
                     }
