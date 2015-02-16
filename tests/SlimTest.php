@@ -1618,4 +1618,46 @@ class SlimTest extends PHPUnit_Framework_TestCase
         $app = new Derived();
         $this->assertEquals($app->config("late-static-binding"), true);
     }
+
+
+    /**
+     * Test dispatch hook passes argument
+     */
+    public function testDispatchHookPassesArgument()
+    {
+        \Slim\Environment::mock(
+            array(
+                'SCRIPT_NAME' => '/foo', //<-- Physical
+                'PATH_INFO'   => '/bar', //<-- Virtual
+            )
+        );
+        $s = new \Slim\Slim();
+        $s->get('/bar',function () {})->name('test_route');
+
+        $beforeDispatchReceivedRoute = false;
+        $afterDispatchReceivedRoute = false;
+
+        $s->hook('slim.before.dispatch', function($args) use (&$beforeDispatchReceivedRoute) {
+            if (is_array($args) && !empty($args['route'])) {
+                $route = $args['route'];
+                if ($route instanceof \Slim\Route && 'test_route' === $route->getName()) {
+                    $beforeDispatchReceivedRoute = true;
+                }
+            }
+        });
+
+        $s->hook('slim.after.dispatch', function($args) use (&$afterDispatchReceivedRoute) {
+            if (is_array($args) && !empty($args['route'])) {
+                $route = $args['route'];
+                if ($route instanceof \Slim\Route && 'test_route' === $route->getName()) {
+                    $afterDispatchReceivedRoute = true;
+                }
+            }
+        });
+
+        $s->call();
+
+        $this->assertTrue($beforeDispatchReceivedRoute);
+        $this->assertTrue($afterDispatchReceivedRoute);
+    }
 }
