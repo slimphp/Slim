@@ -47,10 +47,6 @@ if (!extension_loaded('mcrypt')) {
  * @package  Slim
  * @author   Josh Lockhart
  * @since    1.0.0
- * @property \Slim\Environment                   $environment
- * @property \Psr\Http\Message\ResponseInterface $response
- * @property \Psr\Http\Message\RequestInterface  $request
- * @property \Slim\Interfaces\RouterInterface    $router
  */
 class App extends \Pimple
 {
