@@ -82,6 +82,24 @@ class Uri implements \Psr\Http\Message\UriInterface
         $this->query = $query;
     }
 
+    public static function createFromString($uri)
+    {
+        if (is_string($uri) === false) {
+            throw new \InvalidArgumentException('URI must be a string');
+        }
+
+        $parts = parse_url($uri);
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
+        $user = isset($parts['user']) ? $parts['user'] : '';
+        $pass = isset($parts['pass']) ? $parts['pass'] : '';
+        $host = isset($parts['host']) ? $parts['host'] : '';
+        $port = isset($parts['port']) ? $parts['port'] : '';
+        $path = isset($parts['path']) ? $parts['path'] : '';
+        $query = isset($parts['query']) ? $parts['query'] : '';
+
+        return new static($scheme, $user, $pass, $host, $port, $path, $query);
+    }
+
     /**
      * Create from environment data
      *
@@ -91,7 +109,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @param  \Slim\Environment $env
      * @return self
      */
-    public function createFromEnvironment(\Slim\Environment $env)
+    public static function createFromEnvironment(Environment $env)
     {
         // Scheme
         if ($env->has('HTTP_X_FORWARDED_PROTO') === true) {
@@ -127,9 +145,9 @@ class Uri implements \Psr\Http\Message\UriInterface
         $queryString = $env->get('QUERY_STRING', '');
 
         // Build Uri
-        $uri = new static($scheme, $user, $password, $host, $port, rawurldecode($virtualPath), rawurldecode($queryString));
+        $uri = new static($scheme, $user, $password, $host, $port, $virtualPath, $queryString);
 
-        return $uri->withBasePath(rawurldecode($basePath));
+        return $uri->withBasePath($basePath);
     }
 
     /**
