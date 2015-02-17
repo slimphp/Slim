@@ -1,9 +1,12 @@
 <?php
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
+
 class NotFoundHandler
 {
-    public function __invoke(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response)
+    public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
         $response->setStatus(404);
         $response->setHeader('Content-type', 'text/html');

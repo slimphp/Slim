@@ -32,6 +32,7 @@
  */
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
@@ -42,14 +43,14 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ *
  * @package  Slim
  * @author   Josh Lockhart
  * @since    1.0.0
- *
- * @property \Slim\Environment   $environment
- * @property \Slim\Http\Response $response
- * @property \Slim\Http\Request  $request
- * @property \Slim\Router        $router
+ * @property \Slim\Environment                   $environment
+ * @property \Psr\Http\Message\ResponseInterface $response
+ * @property \Psr\Http\Message\RequestInterface  $request
+ * @property \Slim\Interfaces\RouterInterface    $router
  */
 class App extends \Pimple
 {
@@ -104,18 +105,21 @@ class App extends \Pimple
         };
 
         $this['environment'] = function ($c) {
-            return new Environment($_SERVER);
+            return new Http\Environment($_SERVER);
         };
 
         $this['request'] = $this->factory(function ($c) {
-            $environment = $c['environment'];
-            $headers = new Http\Headers($environment);
-            $cookies = new Http\Cookies($headers);
+            $env = $c['environment'];
+            $method = $env['REQUEST_METHOD'];
+            $uri = Http\Uri::createFromEnvironment($env);
+            $headers = Http\Headers::createFromEnvironment($env);
+            $cookies = new Collection(); // TODO: Extract from headers
             if ($c['settings']['cookies.encrypt'] === true) {
                 $cookies->decrypt($c['crypt']);
             }
+            $body = new Http\Body(fopen('php://input', 'r'));
 
-            return new Http\Request($environment, $headers, $cookies);
+            return new Http\Request($method, $uri, $headers, $cookies, $body);
         });
 
         $this['response'] = $this->factory(function ($c) {
@@ -133,10 +137,7 @@ class App extends \Pimple
         });
 
         $this['router'] = function ($c) {
-            $router = new Router();
-            $router->setBaseUrl($c['request']->getScriptName());
-
-            return $router;
+            return new Router();
         };
 
         $this['view'] = function ($c) {
@@ -262,7 +263,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_GET, \Slim\Http\Request::METHOD_HEAD);
+        return $this->mapRoute($args)->via('GET', 'HEAD');
     }
 
     /**
@@ -274,7 +275,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_POST);
+        return $this->mapRoute($args)->via('POST');
     }
 
     /**
@@ -286,7 +287,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PUT);
+        return $this->mapRoute($args)->via('PUT');
     }
 
     /**
@@ -298,7 +299,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PATCH);
+        return $this->mapRoute($args)->via('PATCH');
     }
 
     /**
@@ -310,7 +311,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_DELETE);
+        return $this->mapRoute($args)->via('DELETE');
     }
 
     /**
@@ -322,7 +323,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_OPTIONS);
+        return $this->mapRoute($args)->via('OPTIONS');
     }
 
     /**
@@ -358,7 +359,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via("ANY");
+        return $this->mapRoute($args)->via('ANY');
     }
 
     /********************************************************************************
@@ -560,6 +561,7 @@ class App extends \Pimple
         $app = $this;
         $request = $this['request'];
         $response = $this['response'];
+        $this['router']->setBaseUrl($request->getUri()->getBasePath());
 
         /**
          * When the current request is a GET request and includes a `If-Modified-Since`
@@ -609,18 +611,18 @@ class App extends \Pimple
      * after dispatching the Request object to the appropriate Route
      * callback routine.
      *
-     * @param  Interfaces\Http\RequestInterface    $request  The request object
+     * @param  \Psr\Http\Message\RequestInterface  $request  The request object
      * @param  \Psr\Http\Message\ResponseInterface $response The response object
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function __invoke(Interfaces\Http\RequestInterface $request, ResponseInterface $response)
+    public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
         // TODO: Inject request and response objects into hooks?
         try {
             $this->applyHook('slim.before');
             $this->applyHook('slim.before.router'); // Legacy
             $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
+            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getUri()->getPath(), false);
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
@@ -679,10 +681,10 @@ class App extends \Pimple
     /**
      * Finalize and send the HTTP response
      *
-     * @param Interfaces\Http\RequestInterface    $request
+     * @param \Psr\Http\Message\RequestInterface  $request
      * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function finalize(Interfaces\Http\RequestInterface $request, ResponseInterface $response) {
+    public function finalize(RequestInterface $request, ResponseInterface $response) {
         if (!$this->responded) {
             $this->responded = true;
 

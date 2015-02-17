@@ -1,11 +1,12 @@
 <?php
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
 class ErrorHandler
 {
-    public function __invoke(Interfaces\Http\RequestInterface $request, ResponseInterface $response, \Exception $exception)
+    public function __invoke(RequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
         $title = 'Slim Application Error';
         $html = '';
