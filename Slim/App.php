@@ -632,28 +632,26 @@ class App extends \Pimple
      * cookies, body, and server variables against the set of registered
      * application routes. The result response object is returned.
      *
-     * @param  string $url             The request URL
-     * @param  string $method          The request method
-     * @param  array  $headers         Associative array of request headers
-     * @param  array  $cookies         Associative array of request cookies
-     * @param  string $body            The request body
-     * @param  array  $serverVariables Custom $_SERVER variables
-     * @return Interfaces\Http\ResponseInterface
+     * @param string $method  The request method (e.g., GET, POST, PUT, etc.)
+     * @param string $uri     The request URI path
+     * @param array  $headers The request headers (key-value array)
+     * @param array  $cookies The request cookies (key-value array)
+     * @param string $body    The request body
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
+    public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $body = '')
     {
-        // TODO: Refactor subRequest method
-        $environment = new Environment(array_merge(array(
-            'REQUEST_METHOD' => $method,
-            'REQUEST_URI' => $url,
-            'SCRIPT_NAME' => '/index.php'
-        ), $serverVariables));
-        $headers = new Http\Headers($environment);
-        $cookies = new Http\Cookies($headers);
-        $subRequest = new Http\Request($environment, $headers, $cookies, $body);
-        $subResponse = new Http\Response(new Http\Headers(), new Http\Cookies());
+        $env = $this['environment'];
+        $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
+        $headers = new Http\Headers($headers);
+        $cookies = new Collection($cookies);
+        $body = new Http\Body(fopen('php://temp', 'r+'));
+        $body->write($body);
+        $body->rewind();
+        $request = new Http\Request($method, $uri, $headers, $cookies, $body);
+        $response = $this['response'];
 
-        return $this->call($subRequest, $subResponse);
+        return $this($request, $response);
     }
 
     /**
