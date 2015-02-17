@@ -71,10 +71,8 @@ class App extends \Pimple
      */
     protected $hooks = array(
         'slim.before' => array(array()),
-        'slim.before.router' => array(array()),
         'slim.before.dispatch' => array(array()),
         'slim.after.dispatch' => array(array()),
-        'slim.after.router' => array(array()),
         'slim.after' => array(array())
     );
 
@@ -620,7 +618,6 @@ class App extends \Pimple
         // TODO: Inject request and response objects into hooks?
         try {
             $this->applyHook('slim.before');
-            $this->applyHook('slim.before.router'); // Legacy
             $dispatched = false;
             $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getUri()->getPath(), false);
             foreach ($matchedRoutes as $route) {
@@ -640,7 +637,6 @@ class App extends \Pimple
         } catch (Exception\Stop $e) {
             $response = $e->getResponse();
         }
-        $this->applyHook('slim.after.router'); // Legacy
         $this->applyHook('slim.after');
 
         return $response;
