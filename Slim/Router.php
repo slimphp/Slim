@@ -210,14 +210,14 @@ class Router implements RouterInterface
 
     /**
      * Get URL for named route
-     * @param  string            $name    The name of the route
-     * @param  array             $params  Associative array of URL parameter names and replacement values.
-     * @param  array             $options Associative array of query string parameters.
-     * @return string                     The URL for the given route populated with provided replacement values
-     * @throws \RuntimeException          If named route not found
+     * @param  string            $name        The name of the route
+     * @param  array             $params      Associative array of URL parameter names and replacement values.
+     * @param  array             $queryParams Associative array of query string parameters.
+     * @return string                         The URL for the given route populated with provided replacement values
+     * @throws \RuntimeException              If named route not found
      * @api
      */
-    public function urlFor($name, $params = array(), $options = array())
+    public function urlFor($name, array $params = array(), array $queryParams = array())
     {
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
@@ -238,8 +238,8 @@ class Router implements RouterInterface
         $url = preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $url);
 
         // Addon query string parameters
-        if ($options) {
-            $url .= '?' . http_build_query($options);
+        if ($queryParams) {
+            $url .= '?' . http_build_query($queryParams);
         }
         
         return $url;
