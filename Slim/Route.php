@@ -527,6 +527,9 @@ class Route implements RouteInterface
             }
         }
 
+        // Inject route parameters into Request object as attributes
+        $request = $request->withAttributes($this->getParams());
+
         // Invoke route callable
         ob_start();
         $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
