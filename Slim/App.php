@@ -123,6 +123,7 @@ class App extends \Pimple
         });
 
         $this['response'] = $this->factory(function ($c) {
+            $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $cookies = new Http\Cookies([], [
                 'expires' => $c['settings']['cookies.lifetime'],
                 'path' => $c['settings']['cookies.path'],
@@ -130,7 +131,7 @@ class App extends \Pimple
                 'secure' => $c['settings']['cookies.secure'],
                 'httponly' => $c['settings']['cookies.httponly']
             ]);
-            $response = new Http\Response(200, null, $cookies);
+            $response = new Http\Response(200, $headers, $cookies);
 
             return $response->withProtocolVersion($c['settings']['http.version']);
         });
