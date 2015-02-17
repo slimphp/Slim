@@ -32,6 +32,8 @@
  */
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
 use \Slim\Interfaces\RouteInterface;
 
 /**
@@ -510,16 +512,39 @@ class Route implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @return bool
+     * @param  \Psr\Http\Message\RequestInterface  $request  The current Request object
+     * @param  \Psr\Http\Message\ResponseInterface $response The current Response object
+     * @return \Psr\Http\Message\ResponseInterface
      * @api
      */
-    public function dispatch()
+    public function dispatch(RequestInterface $request, ResponseInterface $response)
     {
+        // Invoke route middleware
         foreach ($this->middleware as $mw) {
-            call_user_func_array($mw, array($this));
+            $newResponse = call_user_func_array($mw, [$request, $response, $this]);
+            if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
+                $response = $newResponse;
+            }
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false) ? false : true;
+        // Inject route parameters into Request object as attributes
+        $request = $request->withAttributes($this->getParams());
+
+        // Invoke route callable
+        ob_start();
+        $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
+        $output = ob_get_clean();
+
+        // End if route callback returns Interfaces\Http\ResponseInterface object
+        if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
+            return $newResponse;
+        }
+
+        // Else append output buffer content
+        if ($output) {
+            $response->write($output);
+        }
+
+        return $response;
     }
 }

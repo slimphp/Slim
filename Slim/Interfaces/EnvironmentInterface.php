@@ -41,7 +41,5 @@ namespace Slim\Interfaces;
  */
 interface EnvironmentInterface
 {
-    public function parse(array $environment);
-
-    public function mock(array $settings = array());
+    public static function mock(array $settings = array());
 }

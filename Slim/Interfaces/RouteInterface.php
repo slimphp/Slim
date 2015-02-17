@@ -32,6 +32,9 @@
  */
 namespace Slim\Interfaces;
 
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
+
 /**
  * Route Interface
  *
@@ -89,5 +92,5 @@ interface RouteInterface
 
     public function conditions(array $conditions);
 
-    public function dispatch();
+    public function dispatch(RequestInterface $request, ResponseInterface $response);
 }

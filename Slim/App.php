@@ -32,6 +32,9 @@
  */
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
+
 // Ensure mcrypt constants are defined even if mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
     define('MCRYPT_MODE_CBC', 0);
@@ -40,14 +43,14 @@ if (!extension_loaded('mcrypt')) {
 
 /**
  * App
+ *
  * @package  Slim
  * @author   Josh Lockhart
  * @since    1.0.0
- *
- * @property \Slim\Environment   $environment
- * @property \Slim\Http\Response $response
- * @property \Slim\Http\Request  $request
- * @property \Slim\Router        $router
+ * @property \Slim\Environment                   $environment
+ * @property \Psr\Http\Message\ResponseInterface $response
+ * @property \Psr\Http\Message\RequestInterface  $request
+ * @property \Slim\Interfaces\RouterInterface    $router
  */
 class App extends \Pimple
 {
@@ -75,6 +78,12 @@ class App extends \Pimple
         'slim.after' => array(array())
     );
 
+    /**
+     * Middleware stack
+     * @var array
+     */
+    protected $middleware;
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -96,50 +105,50 @@ class App extends \Pimple
         };
 
         $this['environment'] = function ($c) {
-            return new \Slim\Environment($_SERVER);
+            return new Http\Environment($_SERVER);
         };
 
-        $this['request'] = function ($c) {
-            $environment = $c['environment'];
-            $headers = new \Slim\Http\Headers($environment);
-            $cookies = new \Slim\Http\Cookies($headers);
-            if ($c['settings']['cookies.encrypt'] ===  true) {
+        $this['request'] = $this->factory(function ($c) {
+            $env = $c['environment'];
+            $method = $env['REQUEST_METHOD'];
+            $uri = Http\Uri::createFromEnvironment($env);
+            $headers = Http\Headers::createFromEnvironment($env);
+            $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
+            if ($c['settings']['cookies.encrypt'] === true) {
                 $cookies->decrypt($c['crypt']);
             }
+            $body = new Http\Body(fopen('php://input', 'r'));
 
-            return new \Slim\Http\Request($environment, $headers, $cookies);
-        };
+            return new Http\Request($method, $uri, $headers, $cookies, $body);
+        });
 
-        $this['response'] = function ($c) {
-            $headers = new \Slim\Http\Headers();
-            $cookies = new \Slim\Http\Cookies();
-            $cookies->setDefaults([
+        $this['response'] = $this->factory(function ($c) {
+            $cookies = new Http\Cookies([], [
                 'expires' => $c['settings']['cookies.lifetime'],
                 'path' => $c['settings']['cookies.path'],
                 'domain' => $c['settings']['cookies.domain'],
                 'secure' => $c['settings']['cookies.secure'],
                 'httponly' => $c['settings']['cookies.httponly']
             ]);
-            $response = new \Slim\Http\Response($headers, $cookies);
-            $response->setProtocolVersion('HTTP/' . $c['settings']['http.version']);
+            $response = new Http\Response(200, null, $cookies);
 
-            return $response;
-        };
+            return $response->withProtocolVersion($c['settings']['http.version']);
+        });
 
         $this['router'] = function ($c) {
-            return new \Slim\Router();
+            return new Router();
         };
 
         $this['view'] = function ($c) {
-            return new \Slim\View($c['settings']['view.templates']);
+            return new View($c['settings']['view.templates']);
         };
 
         $this['crypt'] = function ($c) {
-            return new \Slim\Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+            return new Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         };
 
         $this['session'] = function ($c) {
-            $session = new \Slim\Session($c['settings']['session.handler']);
+            $session = new Session($c['settings']['session.handler']);
             $session->start();
             if ($c['settings']['session.encrypt'] === true) {
                 $session->decrypt($c['crypt']);
@@ -149,8 +158,8 @@ class App extends \Pimple
         };
 
         $this['flash'] = function ($c) {
-            $flash = new \Slim\Flash($c['session'], $c['settings']['session.flash_key']);
-            if ($c['settings']['view'] instanceof \Slim\Interfaces\ViewInterface) {
+            $flash = new Flash($c['session'], $c['settings']['session.flash_key']);
+            if ($c['settings']['view'] instanceof Interfaces\ViewInterface) {
                 $c['view']->set('flash', $flash);
             }
 
@@ -173,18 +182,18 @@ class App extends \Pimple
         };
 
         $this['errorHandler'] = function ($c) {
-            return new \Slim\ErrorHandler($c);
+            return new ErrorHandler();
         };
 
         $this['notFoundHandler'] = function ($c) {
-            return new \Slim\NotFoundHandler($c);
+            return new NotFoundHandler();
         };
 
-        $this['middleware'] = array($this);
+        $this->middleware = array($this);
     }
 
     /********************************************************************************
-    * Routing
+    * Router proxy methods
     *******************************************************************************/
 
     /**
@@ -215,12 +224,15 @@ class App extends \Pimple
      * Slim::get('/foo'[, middleware, middleware, ...], callable);
      *
      * @param  array
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      */
     protected function mapRoute($args)
     {
         $pattern = array_shift($args);
         $callable = array_pop($args);
+        if ($callable instanceof \Closure) {
+            $callable = $callable->bindTo($this);
+        }
         $route = new \Slim\Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
         $this['router']->map($route);
         if (count($args) > 0) {
@@ -232,7 +244,7 @@ class App extends \Pimple
 
     /**
      * Add route without HTTP method
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      */
     public function map()
     {
@@ -243,74 +255,74 @@ class App extends \Pimple
 
     /**
      * Add GET route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function get()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_GET, \Slim\Http\Request::METHOD_HEAD);
+        return $this->mapRoute($args)->via('GET', 'HEAD');
     }
 
     /**
      * Add POST route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function post()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_POST);
+        return $this->mapRoute($args)->via('POST');
     }
 
     /**
      * Add PUT route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function put()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PUT);
+        return $this->mapRoute($args)->via('PUT');
     }
 
     /**
      * Add PATCH route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function patch()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_PATCH);
+        return $this->mapRoute($args)->via('PATCH');
     }
 
     /**
      * Add DELETE route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function delete()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_DELETE);
+        return $this->mapRoute($args)->via('DELETE');
     }
 
     /**
      * Add OPTIONS route
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function options()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(\Slim\Http\Request::METHOD_OPTIONS);
+        return $this->mapRoute($args)->via('OPTIONS');
     }
 
     /**
@@ -339,222 +351,80 @@ class App extends \Pimple
 
     /**
      * Add route for any HTTP method
-     * @return \Slim\Route
+     * @return \Slim\Interfaces\RouteInterface
      * @api
      */
     public function any()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via("ANY");
+        return $this->mapRoute($args)->via('ANY');
     }
 
     /********************************************************************************
-    * HTTP Caching
+    * Application Behavior Methods
     *******************************************************************************/
-
-    /**
-     * Set Last-Modified HTTP Response Header
-     *
-     * Set the HTTP 'Last-Modified' header and stop if a conditional
-     * GET request's `If-Modified-Since` header matches the last modified time
-     * of the resource. The `time` argument is a UNIX timestamp integer value.
-     * When the current request includes an 'If-Modified-Since' header that
-     * matches the specified last modified time, the application will stop
-     * and send a '304 Not Modified' response to the client.
-     *
-     * @param  int                       $time  The last modified UNIX timestamp
-     * @throws \InvalidArgumentException        If provided timestamp is not an integer
-     * @api
-     */
-    public function lastModified($time)
-    {
-        if (is_integer($time)) {
-            $this['response']->setHeader('Last-Modified', gmdate('D, d M Y H:i:s T', $time));
-            if ($time === strtotime($this['request']->getHeader('IF_MODIFIED_SINCE'))) {
-                $this->halt(304);
-            }
-        } else {
-            throw new \InvalidArgumentException('Slim::lastModified only accepts an integer UNIX timestamp value.');
-        }
-    }
-
-    /**
-     * Set ETag HTTP Response Header
-     *
-     * Set the etag header and stop if the conditional GET request matches.
-     * The `value` argument is a unique identifier for the current resource.
-     * The `type` argument indicates whether the etag should be used as a strong or
-     * weak cache validator.
-     *
-     * When the current request includes an 'If-None-Match' header with
-     * a matching etag, execution is immediately stopped. If the request
-     * method is GET or HEAD, a '304 Not Modified' response is sent.
-     *
-     * @param  string                    $value The etag value
-     * @param  string                    $type  The type of etag to create; either "strong" or "weak"
-     * @throws \InvalidArgumentException        If provided type is invalid
-     * @api
-     */
-    public function etag($value, $type = 'strong')
-    {
-        // Ensure type is correct
-        if (!in_array($type, array('strong', 'weak'))) {
-            throw new \InvalidArgumentException('Invalid Slim::etag type. Expected "strong" or "weak".');
-        }
-
-        // Set etag value
-        $value = '"' . $value . '"';
-        if ($type === 'weak') {
-            $value = 'W/'.$value;
-        }
-        $this['response']->setHeader('ETag', $value);
-
-        // Check conditional GET
-        if ($etagsHeader = $this['request']->getHeader('IF_NONE_MATCH')) {
-            $etags = preg_split('@\s*,\s*@', $etagsHeader);
-            if (in_array($value, $etags) || in_array('*', $etags)) {
-                $this->halt(304);
-            }
-        }
-    }
-
-    /**
-     * Set Expires HTTP response header
-     *
-     * The `Expires` header tells the HTTP client the time at which
-     * the current resource should be considered stale. At that time the HTTP
-     * client will send a conditional GET request to the server; the server
-     * may return a 200 OK if the resource has changed, else a 304 Not Modified
-     * if the resource has not changed. The `Expires` header should be used in
-     * conjunction with the `etag()` or `lastModified()` methods above.
-     *
-     * @param string|int    $time   If string, a time to be parsed by `strtotime()`;
-     *                              If int, a UNIX timestamp;
-     * @api
-     */
-    public function expires($time)
-    {
-        if (is_string($time)) {
-            $time = strtotime($time);
-        }
-        $this['response']->setHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
-    }
-
-    /********************************************************************************
-    * Helper Methods
-    *******************************************************************************/
-
-    /**
-     * Get the absolute path to this Slim application's root directory
-     *
-     * This method returns the absolute path to the filesystem directory in which
-     * the Slim app is instantiated. The return value WILL NOT have a trailing slash.
-     *
-     * @return string
-     * @throws \RuntimeException If $_SERVER[SCRIPT_FILENAME] is not available
-     * @api
-     */
-    public function root()
-    {
-        if ($this['environment']->has('SCRIPT_FILENAME') === false) {
-            throw new \RuntimeException('The `SCRIPT_FILENAME` server variable could not be found. It is required by `\Slim\App::root()`.');
-        }
-
-        return dirname($this['environment']->get('SCRIPT_FILENAME'));
-    }
-
-    /**
-     * Clean current output buffer
-     */
-    protected function cleanBuffer()
-    {
-        if (ob_get_level() !== 0) {
-            ob_clean();
-        }
-    }
 
     /**
      * Stop
      *
-     * The thrown exception will be caught in application's `call()` method
-     * and the response will be sent as is to the HTTP client.
+     * This method stops the application and sends the provided
+     * Response object to the HTTP client.
      *
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @throws \Slim\Exception\Stop
      * @api
      */
-    public function stop()
+    public function stop(ResponseInterface $response)
     {
-        throw new \Slim\Exception\Stop();
+        throw new Exception\Stop($response);
     }
 
     /**
      * Halt
      *
-     * Stop the application and immediately send the response with a
-     * specific status and body to the HTTP client. This may send any
-     * type of response: info, success, redirect, client error, or server error.
-     * If you need to render a template AND customize the response status,
-     * use the application's `render()` method instead.
+     * This method prepares a new HTTP response with a specific
+     * status and message. The method immediately halts the
+     * application and returns a new response with a specific
+     * status and message.
      *
-     * @param  int    $status  The HTTP response status
-     * @param  string $message The HTTP response body
+     * @param int    $status  The desired HTTP status
+     * @param string $message The desired HTTP message
      * @api
      */
     public function halt($status, $message = '')
     {
-        $this->cleanBuffer();
-        $this['response']->setStatus($status);
-        $this['response']->write($message, true);
-        $this->stop();
+        $this->stop($this['response']->withStatus($status)->write($message));
     }
 
     /**
      * Pass
      *
-     * The thrown exception is caught in the application's `call()` method causing
-     * the router's current iteration to stop and continue to the subsequent route if available.
-     * If no subsequent matching routes are found, a 404 response will be sent to the client.
+     * Use this method to skip the current route iteration in the App::call() method.
+     * The router iteration will skip to the next matching route, else invoke
+     * the application Not Found handler.
      *
      * @throws \Slim\Exception\Pass
      * @api
      */
     public function pass()
     {
-        $this->cleanBuffer();
-        throw new \Slim\Exception\Pass();
-    }
-
-    /**
-     * Get the URL for a named route
-     * @param  string            $name   The route name
-     * @param  array             $params Associative array of URL parameters and replacement values
-     * @throws \RuntimeException         If named route does not exist
-     * @return string
-     * @api
-     */
-    public function urlFor($name, $params = array())
-    {
-        return $this['request']->getScriptName() . $this['router']->urlFor($name, $params);
+        throw new Exception\Pass();
     }
 
     /**
      * Redirect
      *
-     * This method immediately redirects to a new URL. By default,
-     * this issues a 302 Found response; this is considered the default
-     * generic redirect response. You may also specify another valid
-     * 3xx status code if you want. This method will automatically set the
-     * HTTP Location header for you using the URL parameter.
+     * This method immediately redirects to a new URL by preparing
+     * and sending a new 3XX HTTP response object.
      *
-     * @param  string $url    The destination URL
-     * @param  int    $status The HTTP redirect status code (optional)
+     * @param string $url    The destination URL
+     * @param int    $status The HTTP redirect status code (optional)
      * @api
      */
     public function redirect($url, $status = 302)
     {
-        $this['response']->redirect($url, $status);
-        $this->halt($status);
+        $this->stop($this['response']->withStatus($status)->withHeader('Location', $url));
     }
 
     /********************************************************************************
@@ -654,22 +524,13 @@ class App extends \Pimple
      * Add middleware
      *
      * This method prepends new middleware to the application middleware stack.
-     * The argument must be an instance that subclasses Slim_Middleware.
      *
-     * @param  \Slim\Middleware
+     * @param Interfaces\MiddlewareInterface $newMiddleware
      * @api
      */
-    public function add(\Slim\Middleware $newMiddleware)
+    public function add(callable $newMiddlewareCallable)
     {
-        $middleware = $this['middleware'];
-        if(in_array($newMiddleware, $middleware)) {
-            $middleware_class = get_class($newMiddleware);
-            throw new \RuntimeException("Circular Middleware setup detected. Tried to queue the same Middleware instance ({$middleware_class}) twice.");
-        }
-        $newMiddleware->setApplication($this);
-        $newMiddleware->setNextMiddleware($this['middleware'][0]);
-        array_unshift($middleware, $newMiddleware);
-        $this['middleware'] = $middleware;
+        array_unshift($this->middleware, new Middleware($newMiddlewareCallable, $this->middleware[0]));
     }
 
     /********************************************************************************
@@ -677,75 +538,111 @@ class App extends \Pimple
     *******************************************************************************/
 
     /**
-     * Run
+     * Run application
      *
-     * This method invokes the middleware stack, including the core Slim application;
-     * the result is an array of HTTP status, header, and body. These three items
-     * are returned to the HTTP client.
+     * This method traverses the middleware stack, including the core Slim application,
+     * and captures the resultant HTTP response object. It then sends the response
+     * back to the HTTP client.
      *
      * @api
      */
     public function run()
     {
-        set_error_handler(array('\Slim\App', 'handleErrors'));
+        // Define application error handler
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+            if (!($errno & error_reporting())) {
+                return;
+            }
+            throw new \ErrorException($errstr, $errno, 1, $errfile, $errline);
+        });
 
-        // Traverse middleware stack
+        // Get new request and response objects from container factory
+        $app = $this;
+        $request = $this['request'];
+        $response = $this['response'];
+        $this['router']->setBaseUrl($request->getUri()->getBasePath());
+
+        /**
+         * When the current request is a GET request and includes a `If-Modified-Since`
+         * header that matches the response object's Last-Modified header, app
+         * execution is stopped with a 304 response.
+         */
+        $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
+            if ($time === strtotime($request->getHeader('IF_MODIFIED_SINCE'))) {
+                $app->halt(304);
+            }
+        });
+
+        /**
+         * When the current request includes an 'If-None-Match' header with
+         * a matching etag value, app execution is stopped. If the request
+         * method is GET or HEAD, app execution is stopped with a 304 response.
+         */
+        $response->onEtag(function ($latestResponse, $etag) use ($app, $request) {
+            if ($etagHeader = $request->getHeader('IF_NONE_MATCH')) {
+                $etagList = preg_split('@\s*,\s*@', $etagHeader);
+                if (in_array($etag, $etagList) || in_array('*', $etagList)) {
+                    $app->halt(304);
+                }
+            }
+        });
+
+        // Traverse middleware stack and fetch updated response
         try {
-            $this['middleware'][0]->call();
-        } catch (\Slim\Exception\Stop $e) {
-            // Exit middleware stack immediately, from any layer, without error
+            $response = $this->middleware[0]($request, $response);
+        } catch (Exception\Stop $e) {
+            $response = $e->getResponse();
         } catch (\Exception $e) {
-            $this['response']->write($this['errorHandler']($e), true);
+            $response = $this['errorHandler']($request, $response, $e);
         }
 
-        // Finalize and send response
-        $this->finalize();
+        // Finalize and send HTTP response
+        $this->finalize($request, $response);
 
         restore_error_handler();
     }
 
     /**
-     * Dispatch request and build response
+     * Call
      *
-     * This method will route the provided Request object against all available
-     * application routes. The provided response will reflect the status, header, and body
-     * set by the invoked matching route.
+     * This method implements the middleware interface. It receives
+     * Request and Response objects, and it returns a Response object
+     * after dispatching the Request object to the appropriate Route
+     * callback routine.
      *
-     * The provided Request and Response objects are updated by reference. There is no
-     * value returned by this method.
-     *
-     * @param  \Slim\Http\Request  The request instance
-     * @param  \Slim\Http\Response The response instance
+     * @param  \Psr\Http\Message\RequestInterface  $request  The request object
+     * @param  \Psr\Http\Message\ResponseInterface $response The response object
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function dispatchRequest(\Slim\Http\Request $request, \Slim\Http\Response $response)
+    public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
+        // TODO: Inject request and response objects into hooks?
         try {
             $this->applyHook('slim.before');
-            ob_start();
-            $this->applyHook('slim.before.router');
+            $this->applyHook('slim.before.router'); // Legacy
             $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getPathInfo(), false);
+            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getUri()->getPath(), false);
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
-                    $dispatched = $route->dispatch();
+                    $response = $route->dispatch($request, $response);
                     $this->applyHook('slim.after.dispatch');
-                    if ($dispatched) {
-                        break;
-                    }
-                } catch (\Slim\Exception\Pass $e) {
+                    $dispatched = true;
+                    break;
+                } catch (Exception\Pass $e) {
                     continue;
                 }
             }
             if (!$dispatched) {
-                $response->write($this['notFoundHandler']());
+                $response = $this['notFoundHandler']($request, $response);
             }
-            $this->applyHook('slim.after.router');
-        } catch (\Slim\Exception\Stop $e) {
-            // Exit route dispatch loop immediately without error
+        } catch (Exception\Stop $e) {
+            $response = $e->getResponse();
         }
-        $response->write(ob_get_clean());
+        $this->applyHook('slim.after.router'); // Legacy
         $this->applyHook('slim.after');
+
+        return $response;
     }
 
     /**
@@ -763,57 +660,30 @@ class App extends \Pimple
      * @param  array  $cookies         Associative array of request cookies
      * @param  string $body            The request body
      * @param  array  $serverVariables Custom $_SERVER variables
-     * @return \Slim\Http\Response
+     * @return Interfaces\Http\ResponseInterface
      */
     public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
     {
-        // Build sub-request and sub-response
-        $environment = new \Slim\Environment(array_merge(array(
+        $environment = new Environment(array_merge(array(
             'REQUEST_METHOD' => $method,
             'REQUEST_URI' => $url,
             'SCRIPT_NAME' => '/index.php'
         ), $serverVariables));
+        $headers = new Http\Headers($environment);
+        $cookies = new Http\Cookies($headers);
+        $subRequest = new Http\Request($environment, $headers, $cookies, $body);
+        $subResponse = new Http\Response(new Http\Headers(), new Http\Cookies());
 
-        $headers = new \Slim\Http\Headers($environment);
-        $cookies = new \Slim\Http\Cookies($headers);
-
-        $subRequest = new \Slim\Http\Request($environment, $headers, $cookies, $body);
-        $subResponse = new \Slim\Http\Response(new \Slim\Http\Headers(), new \Slim\Http\Cookies());
-
-        // Cache original request and response
-        $oldRequest = $this['request'];
-        $oldResponse = $this['response'];
-
-        // Set sub-request and sub-response
-        $this['request'] = $subRequest;
-        $this['response'] = $subResponse;
-
-        // Dispatch sub-request through application router
-        $this->dispatchRequest($subRequest, $subResponse);
-
-        // Restore original request and response
-        $this['request'] = $oldRequest;
-        $this['response'] = $oldResponse;
-
-        return $subResponse;
+        return $this->call($subRequest, $subResponse);
     }
 
     /**
-     * Call
+     * Finalize and send the HTTP response
      *
-     * This method finds and iterates all route objects that match the current request URI.
+     * @param \Psr\Http\Message\RequestInterface  $request
+     * @param \Psr\Http\Message\ResponseInterface $response
      */
-    public function call()
-    {
-        $this->dispatchRequest($this['request'], $this['response']);
-    }
-
-    /**
-     * Finalize send response
-     *
-     * This method sends the response object
-     */
-    public function finalize() {
+    public function finalize(RequestInterface $request, ResponseInterface $response) {
         if (!$this->responded) {
             $this->responded = true;
 
@@ -831,34 +701,15 @@ class App extends \Pimple
 
             // Encrypt cookies
             if ($this['settings']['cookies.encrypt']) {
-                $this['response']->encryptCookies($this['crypt']);
+                $response = $response->withEncryptedCookies($this['crypt']);
             }
 
             // Send response
-            $this['response']->finalize($this['request'])->send();
+            $response = $response->finalize();
+            $response->sendHeaders();
+            if ($request->isHead() === false) {
+                $response->sendBody();
+            }
         }
-    }
-
-    /**
-     * Convert errors into ErrorException objects
-     *
-     * This method catches PHP errors and converts them into \ErrorException objects;
-     * these \ErrorException objects are then thrown and caught by Slim's
-     * built-in or custom error handlers.
-     *
-     * @param  int            $errno   The numeric type of the Error
-     * @param  string         $errstr  The error message
-     * @param  string         $errfile The absolute path to the affected file
-     * @param  int            $errline The line number of the error in the affected file
-     * @return bool
-     * @throws \ErrorException
-     */
-    public static function handleErrors($errno, $errstr = '', $errfile = '', $errline = '')
-    {
-        if (!($errno & error_reporting())) {
-            return;
-        }
-
-        throw new \ErrorException($errstr, $errno, 0, $errfile, $errline);
     }
 }

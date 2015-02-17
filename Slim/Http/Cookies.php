@@ -72,15 +72,18 @@ class Cookies extends Collection implements CookiesInterface
     );
 
     /**
-     * Constructor, will parse headers for cookie information if present
+     * Constructor
      *
-     * @param \Slim\Interfaces\Http\HeadersInterface $headers
-     * @api
+     * @param array $data
      */
-    public function __construct(HeadersInterface $headers = null)
+    public function __construct(array $data = null, array $defaults = null)
     {
-        if (!is_null($headers)) {
-            $this->data = $this->parseHeader($headers->get('Cookie', ''));
+        if ($defaults) {
+            $this->setDefaults($defaults);
+        }
+
+        if ($data) {
+            $this->replace($data);
         }
     }
 
@@ -92,6 +95,16 @@ class Cookies extends Collection implements CookiesInterface
     public function setDefaults(array $settings)
     {
         $this->defaults = array_merge($this->defaults, $settings);
+    }
+
+    /**
+     * Get default values
+     *
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return $this->defaults;
     }
 
     /**
@@ -137,6 +150,52 @@ class Cookies extends Collection implements CookiesInterface
         $settings['value'] = '';
         $settings['expires'] = time() - 86400;
         $this->set($key, array_replace($this->defaults, $settings));
+    }
+
+    public function getAsString($name)
+    {
+        $output = null;
+        $cookie = $this->get($name);
+        if ($cookie) {
+            $value = (string)$cookie['value'];
+            $parts = [];
+
+            if (isset($cookie['domain']) && $cookie['domain']) {
+                $parts[] = '; domain=' . $cookie['domain'];
+            }
+
+            if (isset($cookie['path']) && $cookie['path']) {
+                $parts[] = '; path=' . $cookie['path'];
+            }
+
+            if (isset($cookie['expires'])) {
+                if (is_string($cookie['expires'])) {
+                    $timestamp = strtotime($cookie['expires']);
+                } else {
+                    $timestamp = (int)$cookie['expires'];
+                }
+
+                if ($timestamp !== 0) {
+                    $parts[] = '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
+                }
+            }
+
+            if (isset($cookie['secure']) && $cookie['secure']) {
+                $parts[] = '; secure';
+            }
+
+            if (isset($cookie['httponly']) && $cookie['httponly']) {
+                $parts[] = '; HttpOnly';
+            }
+
+            $output = sprintf(
+                '%s=%s',
+                urlencode($name),
+                urlencode($value) . implode('', $parts)
+            );
+        }
+
+        return $output;
     }
 
     /**
@@ -288,8 +347,16 @@ class Cookies extends Collection implements CookiesInterface
      * @return array
      * @api
      */
-    public function parseHeader($header)
+    public static function parseHeader($header)
     {
+        if (is_array($header) === true) {
+            $header = $header[0];
+        }
+
+        if (is_string($header) === false) {
+            throw new \InvalidArgumentException('Cannot parse Cookie data. Header value must be a string.');
+        }
+
         $header = rtrim($header, "\r\n");
         $pieces = preg_split('@\s*[;,]\s*@', $header);
         $cookies = array();

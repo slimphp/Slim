@@ -30,6 +30,8 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+use \Slim\Http\Environment;
+
 class EnvironmentTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -55,25 +57,24 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testEnvironmentFromGlobals()
     {
-        $env = new \Slim\Environment($_SERVER);
+        $env = new Environment($_SERVER);
 
-        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
-        $this->assertEquals($env->all(), $_SERVER);
+        $this->assertEquals($_SERVER, $env->all());
     }
 
     /**
      * Test environment from mock data
      */
-    public function testEnvironmentFromMockData()
+    public function testMock()
     {
-        $env = new \Slim\Environment();
-        $env->mock(array(
+        $env = Environment::mock(array(
             'SCRIPT_NAME' => '/foo/bar/index.php',
             'REQUEST_URI' => '/foo/bar?abc=123'
         ));
 
-        $this->assertInstanceOf('\Slim\Interfaces\EnvironmentInterface', $env);
-        $this->assertEquals($env->get('SCRIPT_NAME'), '/foo/bar/index.php');
-        $this->assertEquals($env->get('REQUEST_URI'), '/foo/bar?abc=123');
+        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
+        $this->assertEquals('/foo/bar/index.php', $env->get('SCRIPT_NAME'));
+        $this->assertEquals('/foo/bar?abc=123', $env->get('REQUEST_URI'));
+        $this->assertEquals('localhost', $env->get('HTTP_HOST'));
     }
 }

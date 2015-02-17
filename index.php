@@ -28,6 +28,12 @@ $app = new \Slim\App();
  * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
  * is an anonymous function.
  */
+$app->get('/hello/:first/:last', function ($req, $res) {
+    $first = $req->getAttribute('first');
+    $last = $req->getAttribute('last');
+
+    echo "Hello, $first $last";
+});
 
 // GET route
 $app->get(
@@ -38,7 +44,7 @@ $app->get(
     <html>
         <head>
             <meta charset="utf-8"/>
-            <title>Slim Framework for PHP 5</title>
+            <title>Slim Framework for PHP</title>
             <style>
                 html,body,div,span,object,iframe,
                 h1,h2,h3,h4,h5,h6,p,blockquote,pre,

@@ -56,51 +56,53 @@ use \Slim\Interfaces\Http\HeadersInterface;
 class Headers extends Collection implements HeadersInterface
 {
     /**
-     * Special header keys to treat like HTTP_ headers
+     * Special header keys to extract from environment that
+     * DO NOT begin with `HTTP_` prefix
      * @var array
      */
-    protected $special = array(
+    protected static $special = [
         'CONTENT_TYPE',
         'CONTENT_LENGTH',
         'PHP_AUTH_USER',
         'PHP_AUTH_PW',
         'PHP_AUTH_DIGEST',
         'AUTH_TYPE'
-    );
+    ];
 
     /**
-     * Constructor, will parse an environment for headers if present
+     * Constructor
      *
-     * @param \Slim\Interfaces\EnvironmentInterface $environment
+     * @param null|array $headers
      * @api
      */
-    public function __construct(EnvironmentInterface $environment = null)
+    public function __construct(array $headers = null)
     {
-        if (!is_null($environment)) {
-            $this->parseHeaders($environment);
+        if ($headers) {
+            $this->replace($headers);
         }
     }
 
     /**
      * Parse provided headers into this collection
      *
-     * @param  \Slim\Interfaces\EnvironmentInterface $environment
-     * @return void
+     * @param  \Slim\Environment $environment
+     * @return self
      * @api
      */
-    public function parseHeaders(EnvironmentInterface $environment)
+    public static function createFromEnvironment(Environment $environment)
     {
+        $headers = new static();
         foreach ($environment as $key => $value) {
             $key = strtoupper($key);
-
-            if (strpos($key, 'HTTP_') === 0 || in_array($key, $this->special)) {
+            if (strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
                 if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
                     continue;
                 }
-
-                parent::set($this->normalizeKey($key), array($value));
+                $headers->set($key, $value);
             }
         }
+
+        return $headers;
     }
 
     /**
@@ -112,24 +114,21 @@ class Headers extends Collection implements HeadersInterface
      */
     public function set($key, $value)
     {
-        parent::set($this->normalizeKey($key), array($value));
+        if (is_array($value) === false) {
+            $value = array($value);
+        }
+        parent::set($this->normalizeKey($key), $value);
     }
 
     /**
      * Get data value with key
      *
      * @param  string $key     The data key
-     * @param  mixed  $default The value to return if data key does not exist
-     * @return mixed           The data value, or the default value
      * @api
      */
-    public function get($key, $asArray = false)
+    public function get($key, $default = null)
     {
-        if ($asArray) {
-            return parent::get($this->normalizeKey($key), array());
-        } else {
-            return implode(', ', parent::get($this->normalizeKey($key), array()));
-        }
+        return parent::get($this->normalizeKey($key), array());
     }
 
     /**
