@@ -50,5 +50,5 @@ interface CookiesInterface extends CollectionInterface
 
     public function deleteHeader(HeadersInterface &$headers, $name, $value = array());
 
-    public function parseHeader($header);
+    public static function parseHeader($header);
 }

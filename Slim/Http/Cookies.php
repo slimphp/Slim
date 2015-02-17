@@ -72,18 +72,18 @@ class Cookies extends Collection implements CookiesInterface
     );
 
     /**
-     * Constructor, will parse headers for cookie information if present
+     * Constructor
      *
-     * @param \Slim\Interfaces\Http\HeadersInterface $headers
-     * @api
+     * @param array $data
      */
-    public function __construct(HeadersInterface $headers = null)
+    public function __construct(array $data = null, array $defaults = null)
     {
-        if (is_null($headers) === false) {
-            $headers = $headers->get('Cookie');
-            if ($headers) {
-                $this->data = $this->parseHeader($headers[0]);
-            }
+        if ($defaults) {
+            $this->setDefaults($defaults);
+        }
+
+        if ($data) {
+            $this->replace($data);
         }
     }
 
@@ -347,8 +347,16 @@ class Cookies extends Collection implements CookiesInterface
      * @return array
      * @api
      */
-    public function parseHeader($header)
+    public static function parseHeader($header)
     {
+        if (is_array($header) === true) {
+            $header = $header[0];
+        }
+
+        if (is_string($header) === false) {
+            throw new \InvalidArgumentException('Cannot parse Cookie data. Header value must be a string.');
+        }
+
         $header = rtrim($header, "\r\n");
         $pieces = preg_split('@\s*[;,]\s*@', $header);
         $cookies = array();

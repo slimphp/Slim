@@ -113,7 +113,7 @@ class App extends \Pimple
             $method = $env['REQUEST_METHOD'];
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = new Collection(); // TODO: Extract from headers
+            $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
             if ($c['settings']['cookies.encrypt'] === true) {
                 $cookies->decrypt($c['crypt']);
             }
@@ -123,8 +123,7 @@ class App extends \Pimple
         });
 
         $this['response'] = $this->factory(function ($c) {
-            $cookies = new Http\Cookies();
-            $cookies->setDefaults([
+            $cookies = new Http\Cookies([], [
                 'expires' => $c['settings']['cookies.lifetime'],
                 'path' => $c['settings']['cookies.path'],
                 'domain' => $c['settings']['cookies.domain'],
