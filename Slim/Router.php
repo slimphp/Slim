@@ -210,13 +210,14 @@ class Router implements RouterInterface
 
     /**
      * Get URL for named route
-     * @param  string            $name   The name of the route
-     * @param  array             $params Associative array of URL parameter names and replacement values. Unmatched parameters will be used to build the query string.
-     * @return string                    The URL for the given route populated with provided replacement values
-     * @throws \RuntimeException         If named route not found
+     * @param  string            $name    The name of the route
+     * @param  array             $params  Associative array of URL parameter names and replacement values.
+     * @param  array             $options Associative array of query string parameters.
+     * @return string                     The URL for the given route populated with provided replacement values
+     * @throws \RuntimeException          If named route not found
      * @api
      */
-    public function urlFor($name, $params = array())
+    public function urlFor($name, $params = array(), $options = array())
     {
         if (!$this->hasNamedRoute($name)) {
             throw new \RuntimeException('Named route not found for name: ' . $name);
@@ -224,20 +225,21 @@ class Router implements RouterInterface
 
         $url = $this->getNamedRoute($name)->getPattern();
 
-        foreach ($params as $key => $value) {
-            $search = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
-            if (preg_match($search, $url)) {
-                $url = preg_replace($search, $value, $url);
-                unset($params[$key]);
+        if ($params) {
+            $search = array();
+            foreach ($params as $key => $value) {
+                $search[] = '#:' . preg_quote($key, '#') . '\+?(?!\w)#';
             }
+
+            $url = preg_replace($search, $params, $url);
         }
 
         //Remove remnants of unpopulated, trailing optional pattern segments, escaped special characters
         $url = preg_replace('#\(/?:.+\)|\(|\)|\\\\#', '', $url);
 
-        // Leftovers are added as url query string 
-        if ($params) {
-            $url .= '?' . http_build_query($params);
+        // Addon query string parameters
+        if ($options) {
+            $url .= '?' . http_build_query($options);
         }
         
         return $url;
