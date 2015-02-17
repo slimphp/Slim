@@ -50,67 +50,42 @@ use \Slim\Interfaces\EnvironmentInterface;
 class Environment extends Collection implements EnvironmentInterface
 {
     /**
-     * Mock data for an Environment
-     * @var array
-     */
-    public $mocked = array(
-        'SERVER_PROTOCOL'      => 'HTTP/1.1',
-        'REQUEST_METHOD'       => 'GET',
-        'SCRIPT_NAME'          => '',
-        'REQUEST_URI'          => '',
-        'QUERY_STRING'         => '',
-        'SERVER_NAME'          => 'localhost',
-        'SERVER_PORT'          => 80,
-        'HTTP_HOST'            => 'localhost',
-        'HTTP_ACCEPT'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
-        'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-        'HTTP_USER_AGENT'      => 'Slim Framework',
-        'REMOTE_ADDR'          => '127.0.0.1',
-        'REQUEST_TIME'         => ''
-    );
-
-    /**
      * Constructor, will parse an array for environment information if present
-     * @param array $environment
+     *
+     * @param null|array $environment
      */
-    public function __construct($environment = null)
+    public function __construct(array $environment = null)
     {
-        if (!is_null($environment)) {
-            $this->parse($environment);
+        if ($environment) {
+            $this->replace($environment);
         }
     }
 
     /**
-     * Parse environment array
+     * Create a mock environment
      *
-     * This method will parse an environment array and add the data to
-     * this collection
-     *
-     * @param  array  $environment
-     * @return void
+     * @param  array $userData
+     * @return self
      */
-    public function parse(array $environment)
+    public static function mock(array $userData = array())
     {
-        foreach ($environment as $key => $value) {
-            $this->set($key, $value);
-        }
-    }
+        $data = array_merge([
+            'SERVER_PROTOCOL'      => 'HTTP/1.1',
+            'REQUEST_METHOD'       => 'GET',
+            'SCRIPT_NAME'          => '',
+            'REQUEST_URI'          => '',
+            'QUERY_STRING'         => '',
+            'SERVER_NAME'          => 'localhost',
+            'SERVER_PORT'          => 80,
+            'HTTP_HOST'            => 'localhost',
+            'HTTP_ACCEPT'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
+            'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+            'HTTP_USER_AGENT'      => 'Slim Framework',
+            'REMOTE_ADDR'          => '127.0.0.1',
+            'REQUEST_TIME'         => time()
+        ], $userData);
 
-    /**
-     * Mock environment
-     *
-     * This method will parse a mock environment array and add the data to
-     * this collection
-     *
-     * @param  array  $environment
-     * @return void
-     */
-    public function mock(array $settings = array())
-    {
-        $this->mocked['REQUEST_TIME'] = time();
-        $settings = array_merge($this->mocked, $settings);
-
-        $this->parse($settings);
+        return new static($data);
     }
 }
