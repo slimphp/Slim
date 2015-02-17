@@ -165,21 +165,6 @@ class App extends \Pimple
             return $flash;
         };
 
-        $this['mode'] = function ($c) {
-            $mode = $c['settings']['mode'];
-
-            if (isset($_ENV['SLIM_MODE'])) {
-                $mode = $_ENV['SLIM_MODE'];
-            } else {
-                $envMode = getenv('SLIM_MODE');
-                if ($envMode !== false) {
-                    $mode = $envMode;
-                }
-            }
-
-            return $mode;
-        };
-
         $this['errorHandler'] = function ($c) {
             return new ErrorHandler();
         };
@@ -661,6 +646,7 @@ class App extends \Pimple
      */
     public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
     {
+        // TODO: Refactor subRequest method
         $environment = new Environment(array_merge(array(
             'REQUEST_METHOD' => $method,
             'REQUEST_URI' => $url,
@@ -684,12 +670,9 @@ class App extends \Pimple
         if (!$this->responded) {
             $this->responded = true;
 
-            // Finalise session if it has been used
+            // Ecrypt flash and session data
             if (isset($_SESSION)) {
-                // Save flash messages to session
                 $this['flash']->save();
-
-                // Encrypt, save, close session
                 if ($this['settings']['session.encrypt'] === true) {
                     $this['session']->encrypt($this['crypt']);
                 }
