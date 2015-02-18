@@ -26,6 +26,22 @@ class Middleware
     }
 
     /**
+     * @return callable
+     */
+    public function getCallable()
+    {
+        return $this->callable;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
      * Invoke middleware
      *
      * @param \Slim\Interfaces\Http\RequestInterface $req

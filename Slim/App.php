@@ -50,6 +50,8 @@ if (!extension_loaded('mcrypt')) {
  */
 class App extends \Pimple
 {
+    use Middlewared;
+
     /**
      * @const string
      */
@@ -71,12 +73,6 @@ class App extends \Pimple
         'slim.after.dispatch' => array(array()),
         'slim.after' => array(array())
     );
-
-    /**
-     * Middleware stack
-     * @var array
-     */
-    protected $middleware;
 
     /********************************************************************************
     * Instantiation and Configuration
@@ -168,8 +164,6 @@ class App extends \Pimple
         $this['notFoundHandler'] = function ($c) {
             return new NotFoundHandler();
         };
-
-        $this->middleware = array($this);
     }
 
     /********************************************************************************
@@ -498,22 +492,6 @@ class App extends \Pimple
         }
     }
 
-    /********************************************************************************
-    * Middleware
-    *******************************************************************************/
-
-    /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the application middleware stack.
-     *
-     * @param Interfaces\MiddlewareInterface $newMiddleware
-     * @api
-     */
-    public function add(callable $newMiddlewareCallable)
-    {
-        array_unshift($this->middleware, new Middleware($newMiddlewareCallable, $this->middleware[0]));
-    }
 
     /********************************************************************************
     * Runner
@@ -571,7 +549,7 @@ class App extends \Pimple
 
         // Traverse middleware stack and fetch updated response
         try {
-            $response = $this->middleware[0]($request, $response);
+            $response = $this->execMiddlewareStack($request, $response);
         } catch (Exception\Stop $e) {
             $response = $e->getResponse();
         } catch (\Exception $e) {
