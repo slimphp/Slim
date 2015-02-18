@@ -374,7 +374,9 @@ class App extends \Pimple
      */
     public function halt($status, $message = '')
     {
-        $this->stop($this['response']->withStatus($status)->write($message));
+        $response = $this['response']->withStatus($status);
+        $response->write($message);
+        $this->stop($response);
     }
 
     /**
