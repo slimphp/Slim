@@ -35,7 +35,7 @@ use Slim\Interfaces\Interfaces\Http\ResponseInterface;
 
 class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
 {
-    public function call(RequestInterface $request, ResponseInterface $response)) {}
+    public function call(RequestInterface $request, ResponseInterface $response) {}
 }
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
