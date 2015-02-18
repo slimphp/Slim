@@ -8,17 +8,16 @@ class NotFoundHandler
 {
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        $response->setStatus(404);
-        $response->setHeader('Content-type', 'text/html');
-
-        $response->write($this->generateTemplateMarkup(
-            '404 Page Not Found',
-            '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled ' .
-            'correctly. If all else fails, you can visit our home page at the link below.</p><a href="' .
-            $this->app['request']->getScriptName() . '/">Visit the Home Page</a>'
-        ), true);
-
-        return $response;
+        return $response
+            ->withStatus(404)
+            ->withHeader('Content-Type', 'text/html')
+            ->withBody(new Http\Body(fopen('php://temp', 'r+')))
+            ->write($this->generateTemplateMarkup(
+                '404 Page Not Found',
+                '<p>The page you are looking for could not be found. Check the address bar to ensure your URL is spelled ' .
+                'correctly. If all else fails, you can visit our home page at the link below.</p><a href="' .
+                $request->getUri()->getBasePath() . '">Visit the Home Page</a>'
+            ));
     }
 
     /**

@@ -133,9 +133,6 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $headers->add('X-Foo', 'three');
         $response = new Response(200, $headers);
         $shouldBe = [
-            'Content-Type' => [
-                'text/html'
-            ],
             'X-Foo' => [
                 'one',
                 'two',
@@ -207,7 +204,6 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $response = new Response(200, $headers);
         $clone = $response->withoutHeader('X-Foo');
         $shouldBe = [
-            'Content-Type' => ['text/html'],
             'X-Bar' => ['two']
         ];
 

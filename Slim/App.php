@@ -47,10 +47,6 @@ if (!extension_loaded('mcrypt')) {
  * @package  Slim
  * @author   Josh Lockhart
  * @since    1.0.0
- * @property \Slim\Environment                   $environment
- * @property \Psr\Http\Message\ResponseInterface $response
- * @property \Psr\Http\Message\RequestInterface  $request
- * @property \Slim\Interfaces\RouterInterface    $router
  */
 class App extends \Pimple
 {
@@ -71,10 +67,8 @@ class App extends \Pimple
      */
     protected $hooks = array(
         'slim.before' => array(array()),
-        'slim.before.router' => array(array()),
         'slim.before.dispatch' => array(array()),
         'slim.after.dispatch' => array(array()),
-        'slim.after.router' => array(array()),
         'slim.after' => array(array())
     );
 
@@ -123,6 +117,7 @@ class App extends \Pimple
         });
 
         $this['response'] = $this->factory(function ($c) {
+            $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $cookies = new Http\Cookies([], [
                 'expires' => $c['settings']['cookies.lifetime'],
                 'path' => $c['settings']['cookies.path'],
@@ -130,7 +125,7 @@ class App extends \Pimple
                 'secure' => $c['settings']['cookies.secure'],
                 'httponly' => $c['settings']['cookies.httponly']
             ]);
-            $response = new Http\Response(200, null, $cookies);
+            $response = new Http\Response(200, $headers, $cookies);
 
             return $response->withProtocolVersion($c['settings']['http.version']);
         });
@@ -164,21 +159,6 @@ class App extends \Pimple
             }
 
             return $flash;
-        };
-
-        $this['mode'] = function ($c) {
-            $mode = $c['settings']['mode'];
-
-            if (isset($_ENV['SLIM_MODE'])) {
-                $mode = $_ENV['SLIM_MODE'];
-            } else {
-                $envMode = getenv('SLIM_MODE');
-                if ($envMode !== false) {
-                    $mode = $envMode;
-                }
-            }
-
-            return $mode;
         };
 
         $this['errorHandler'] = function ($c) {
@@ -394,7 +374,9 @@ class App extends \Pimple
      */
     public function halt($status, $message = '')
     {
-        $this->stop($this['response']->withStatus($status)->write($message));
+        $response = $this['response']->withStatus($status);
+        $response->write($message);
+        $this->stop($response);
     }
 
     /**
@@ -619,7 +601,6 @@ class App extends \Pimple
         // TODO: Inject request and response objects into hooks?
         try {
             $this->applyHook('slim.before');
-            $this->applyHook('slim.before.router'); // Legacy
             $dispatched = false;
             $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getUri()->getPath(), false);
             foreach ($matchedRoutes as $route) {
@@ -639,7 +620,6 @@ class App extends \Pimple
         } catch (Exception\Stop $e) {
             $response = $e->getResponse();
         }
-        $this->applyHook('slim.after.router'); // Legacy
         $this->applyHook('slim.after');
 
         return $response;
@@ -654,27 +634,26 @@ class App extends \Pimple
      * cookies, body, and server variables against the set of registered
      * application routes. The result response object is returned.
      *
-     * @param  string $url             The request URL
-     * @param  string $method          The request method
-     * @param  array  $headers         Associative array of request headers
-     * @param  array  $cookies         Associative array of request cookies
-     * @param  string $body            The request body
-     * @param  array  $serverVariables Custom $_SERVER variables
-     * @return Interfaces\Http\ResponseInterface
+     * @param string $method  The request method (e.g., GET, POST, PUT, etc.)
+     * @param string $uri     The request URI path
+     * @param array  $headers The request headers (key-value array)
+     * @param array  $cookies The request cookies (key-value array)
+     * @param string $body    The request body
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function subRequest($url, $method = 'GET', array $headers = array(), array $cookies = array(), $body = '', array $serverVariables = array())
+    public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $body = '')
     {
-        $environment = new Environment(array_merge(array(
-            'REQUEST_METHOD' => $method,
-            'REQUEST_URI' => $url,
-            'SCRIPT_NAME' => '/index.php'
-        ), $serverVariables));
-        $headers = new Http\Headers($environment);
-        $cookies = new Http\Cookies($headers);
-        $subRequest = new Http\Request($environment, $headers, $cookies, $body);
-        $subResponse = new Http\Response(new Http\Headers(), new Http\Cookies());
+        $env = $this['environment'];
+        $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
+        $headers = new Http\Headers($headers);
+        $cookies = new Collection($cookies);
+        $body = new Http\Body(fopen('php://temp', 'r+'));
+        $body->write($body);
+        $body->rewind();
+        $request = new Http\Request($method, $uri, $headers, $cookies, $body);
+        $response = $this['response'];
 
-        return $this->call($subRequest, $subResponse);
+        return $this($request, $response);
     }
 
     /**
@@ -687,12 +666,9 @@ class App extends \Pimple
         if (!$this->responded) {
             $this->responded = true;
 
-            // Finalise session if it has been used
+            // Ecrypt flash and session data
             if (isset($_SESSION)) {
-                // Save flash messages to session
                 $this['flash']->save();
-
-                // Encrypt, save, close session
                 if ($this['settings']['session.encrypt'] === true) {
                     $this['session']->encrypt($this['crypt']);
                 }
