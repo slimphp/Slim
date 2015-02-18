@@ -35,6 +35,10 @@ use Slim\Interfaces\Interfaces\Http\ResponseInterface;
 
 class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
 {
+    public function setApplication($application) {}
+    public function getApplication() {}
+    public function setNextMiddleware($nextMiddleware) {}
+    public function getNextMiddleware() {}
     public function call(RequestInterface $request, ResponseInterface $response) {}
 }
 
