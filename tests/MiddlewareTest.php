@@ -30,9 +30,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+use Slim\Interfaces\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Interfaces\Http\ResponseInterface;
+
 class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
 {
-    public function call() {}
+    public function call(RequestInterface $request, ResponseInterface $response)) {}
 }
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
