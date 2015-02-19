@@ -16,6 +16,12 @@ class MiddlewaredTest extends PHPUnit_Framework_TestCase
         $this->app = new MiddlewaredStackTest();
     }
 
+    public function testWithoutNudeApp()
+    {
+        $this->expectOutputString('Hello');
+        $this->app->execMiddlewareStack(null, null);
+    }
+
     public function testExecMiddlewares()
     {
         $this->expectOutputString('FooHello');
