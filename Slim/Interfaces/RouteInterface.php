@@ -82,10 +82,6 @@ interface RouteInterface
 
     public function supportsHttpMethod($method);
 
-    public function getMiddleware();
-
-    public function setMiddleware($middleware);
-
     public function matches($resourceUri);
 
     public function name($name);

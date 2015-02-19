@@ -19,9 +19,7 @@ trait Middlewared {
      */
     public function addMiddleware(callable $newMiddleware)
     {
-        if(!isset($this->topLevel)) {
-            $this->topLevel = $this;
-        }
+        $this->assumeIsBooted();
         $this->topLevel = new Middleware($newMiddleware, $this->topLevel);
     }
 
@@ -47,22 +45,36 @@ trait Middlewared {
      * alias for addMiddleware or addMiddlewares
      * @param callable|array $newMiddleware
      */
-    public function add(callable $newMiddleware)
+    public function add($newMiddleware)
     {
-        $this->addMiddleware($newMiddleware);
+        if(is_array($newMiddleware)) {
+            $this->addMiddlewares($newMiddleware);
+        } else {
+            $this->addMiddleware($newMiddleware);
+        }
     }
 
 
+    /**
+     * check if the middleware chain is set
+     * if not put himself in it center
+     */
+    private function assumeIsBooted()
+    {
+        if(!isset($this->topLevel)) {
+            $this->topLevel = $this;
+        }
+    }
 
     public function __invoke()
     {
         throw new \Exception();
     }
 
-    public function execMiddlewareStack($req, $resp)
+    public function execMiddlewareStack($req, $res)
     {
-        $topLevel = $this->topLevel;
-        return $topLevel($req, $resp);
+        $this->assumeIsBooted();
+        return call_user_func_array($this->topLevel, [$req, $res]);
     }
 
 }
