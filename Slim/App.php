@@ -523,22 +523,12 @@ class App extends \Pimple
         $response = $this['response'];
         $this['router']->setBaseUrl($request->getUri()->getBasePath());
 
-        /**
-         * When the current request is a GET request and includes a `If-Modified-Since`
-         * header that matches the response object's Last-Modified header, app
-         * execution is stopped with a 304 response.
-         */
+        // Set response HTTP caching callbacks to short-circuit app if necessary
         $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
             if ($time === strtotime($request->getHeader('IF_MODIFIED_SINCE'))) {
                 $app->halt(304);
             }
         });
-
-        /**
-         * When the current request includes an 'If-None-Match' header with
-         * a matching etag value, app execution is stopped. If the request
-         * method is GET or HEAD, app execution is stopped with a 304 response.
-         */
         $response->onEtag(function ($latestResponse, $etag) use ($app, $request) {
             if ($etagHeader = $request->getHeader('IF_NONE_MATCH')) {
                 $etagList = preg_split('@\s*,\s*@', $etagHeader);
@@ -613,21 +603,21 @@ class App extends \Pimple
      * cookies, body, and server variables against the set of registered
      * application routes. The result response object is returned.
      *
-     * @param string $method  The request method (e.g., GET, POST, PUT, etc.)
-     * @param string $uri     The request URI path
-     * @param array  $headers The request headers (key-value array)
-     * @param array  $cookies The request cookies (key-value array)
-     * @param string $body    The request body
+     * @param string $method      The request method (e.g., GET, POST, PUT, etc.)
+     * @param string $uri         The request URI path
+     * @param array  $headers     The request headers (key-value array)
+     * @param array  $cookies     The request cookies (key-value array)
+     * @param string $bodyContent The request body
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $body = '')
+    public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $bodyContent = '')
     {
         $env = $this['environment'];
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
         $cookies = new Collection($cookies);
         $body = new Http\Body(fopen('php://temp', 'r+'));
-        $body->write($body);
+        $body->write($bodyContent);
         $body->rewind();
         $request = new Http\Request($method, $uri, $headers, $cookies, $body);
         $response = $this['response'];
