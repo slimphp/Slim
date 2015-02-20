@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim\Http;
 
@@ -38,21 +14,16 @@ use \Slim\Interfaces\EnvironmentInterface;
 /**
  * Environment
  *
- * This class determines the environment variables used by
- * the Slim application and lets the Slim application
- * depend on a controlled set of environmental variables that may be
- * mocked, if necessary.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.6.0
+ * This class decouples the Slim application from the global PHP environment.
+ * This is particularly useful for unit testing, but it also lets us create
+ * custom sub-requests.
  */
 class Environment extends Collection implements EnvironmentInterface
 {
     /**
-     * Constructor, will parse an array for environment information if present
+     * Create new environment
      *
-     * @param null|array $environment
+     * @param array|null $environment Array of custom environment keys and values
      */
     public function __construct(array $environment = null)
     {
@@ -62,9 +33,9 @@ class Environment extends Collection implements EnvironmentInterface
     }
 
     /**
-     * Create a mock environment
+     * Create mock environment
      *
-     * @param  array $userData
+     * @param  array $userData Array of custom environment keys and values
      * @return self
      */
     public static function mock(array $userData = array())
