@@ -221,19 +221,6 @@ class Cookies extends Collection implements CookiesInterface
     }
 
     /**
-     * Serialize this collection of cookies into a raw HTTP header
-     *
-     * @param \Slim\Interfaces\Http\HeadersInterface $headers
-     * @api
-     */
-    public function setHeaders(HeadersInterface &$headers)
-    {
-        foreach ($this->data as $name => $settings) {
-            $this->setHeader($headers, $name, $settings);
-        }
-    }
-
-    /**
      * Parse cookie header
      *
      * This method will parse the HTTP request's `Cookie` header
