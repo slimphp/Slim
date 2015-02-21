@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -42,52 +18,53 @@ use \Slim\Interfaces\RouteInterface;
  * for registering route objects, assigning names to route objects,
  * finding routes that match the current HTTP request, and creating
  * URLs for a named route.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
  */
 class Router implements RouterInterface
 {
     /**
      * The current (most recently dispatched) route
-     * @var \Slim\Route
+     *
+     * @var RouteInterface
      */
     protected $currentRoute;
 
     /**
      * All route objects, numerically indexed
-     * @var array[\Slim\Interfaces\RouteInterface]
+     *
+     * @var RouteInterface[]
      */
     protected $routes;
 
     /**
      * Named route objects, indexed by route name
-     * @var array[\Slim\Interfaces\RouteInterface]
+     *
+     * @var RouteInterface[]
      */
     protected $namedRoutes;
 
     /**
      * Route objects that match the request URI
-     * @var array[\Slim\Interfaces\RouteInterface]
+     *
+     * @var RouteInterface[]
      */
     protected $matchedRoutes;
 
     /**
      * Route groups
+     *
      * @var array
      */
     protected $routeGroups;
 
     /**
      * Request base URL (script name)
+     *
      * @var string
      */
     protected $baseUrl;
 
     /**
-     * Constructor
-     * @api
+     * Create new Router
      */
     public function __construct()
     {
@@ -113,8 +90,7 @@ class Router implements RouterInterface
      * first matching \Slim\Route object will be returned. If route matching
      * has not completed, null will be returned.
      *
-     * @return \Slim\Interfaces\RouteInterface|null
-     * @api
+     * @return RouteInterface|null
      */
     public function getCurrentRoute()
     {
@@ -137,11 +113,10 @@ class Router implements RouterInterface
      * determine which \Slim\Interfaces\RouteInterface objects are candidates to be
      * dispatched for the current HTTP request.
      *
-     * @param  string             $httpMethod  The HTTP request method
-     * @param  string             $resourceUri The resource URI
-     * @param  bool               $reload      Should matching routes be re-parsed?
-     * @return array[\Slim\Interfaces\RouteInterface]
-     * @api
+     * @param  string           $httpMethod  The HTTP request method
+     * @param  string           $resourceUri The resource URI
+     * @param  bool             $reload      Should matching routes be re-parsed?
+     * @return RouteInterface[]
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $save = true)
     {
@@ -164,12 +139,9 @@ class Router implements RouterInterface
     }
 
     /**
-     * Add a route
+     * Register a route with the router
      *
-     * This method registers a \Slim\Interfaces\RouteInterface object with the router.
-     *
-     * @param  \Slim\Interfaces\RouteInterface $route The route object
-     * @api
+     * @param RouteInterface $route The route object
      */
     public function map(RouteInterface $route)
     {
@@ -183,8 +155,6 @@ class Router implements RouterInterface
 
     /**
      * Process route groups
-     *
-     * A helper method for processing the group's pattern and middleware.
      *
      * @return array An array with the elements: pattern, middlewareArr
      */
@@ -204,10 +174,10 @@ class Router implements RouterInterface
 
     /**
      * Add a route group to the array
+     *
      * @param  string     $group      The group pattern (ie. "/books/:id")
      * @param  array|null $middleware Optional parameter array of middleware
      * @return int                    The index of the new group
-     * @api
      */
     public function pushGroup($group, $middleware = array())
     {
@@ -216,8 +186,8 @@ class Router implements RouterInterface
 
     /**
      * Removes the last route group from the array
+     *
      * @return bool True if successful, else False
-     * @api
      */
     public function popGroup()
     {
@@ -226,11 +196,11 @@ class Router implements RouterInterface
 
     /**
      * Get URL for named route
+     *
      * @param  string            $name   The name of the route
      * @param  array             $params Associative array of URL parameter names and replacement values
      * @return string                    The URL for the given route populated with provided replacement values
      * @throws \RuntimeException         If named route not found
-     * @api
      */
     public function urlFor($name, $params = array())
     {
@@ -249,10 +219,10 @@ class Router implements RouterInterface
 
     /**
      * Add named route
-     * @param  string                                $name   The route name
-     * @param  \Slim\Interfaces\RouteInterface       $route  The route object
-     * @throws \RuntimeException                             If a named route already exists with the same name
-     * @api
+     *
+     * @param  string                          $name   The route name
+     * @param  \Slim\Interfaces\RouteInterface $route  The route object
+     * @throws \RuntimeException                       If a named route already exists with the same name
      */
     public function addNamedRoute($name, RouteInterface $route)
     {
@@ -263,10 +233,10 @@ class Router implements RouterInterface
     }
 
     /**
-     * Has named route
+     * Does this router have a given named route?
+     *
      * @param  string $name The route name
      * @return bool
-     * @api
      */
     public function hasNamedRoute($name)
     {
@@ -277,9 +247,9 @@ class Router implements RouterInterface
 
     /**
      * Get named route
-     * @param  string                               $name
-     * @return \Slim\Interfaces\RouteInterface|null
-     * @api
+     *
+     * @param  string              $name
+     * @return RouteInterface|null
      */
     public function getNamedRoute($name)
     {
@@ -293,8 +263,8 @@ class Router implements RouterInterface
 
     /**
      * Get external iterator for named routes
+     *
      * @return \ArrayIterator
-     * @api
      */
     public function getNamedRoutes()
     {
