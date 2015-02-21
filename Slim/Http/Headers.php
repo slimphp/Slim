@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim\Http;
 
@@ -39,25 +15,21 @@ use \Slim\Interfaces\Http\HeadersInterface;
 /**
  * Headers
  *
- * This class manages a collection of HTTP headers. Each \Slim\Http\Request
- * and \Slim\Http\Response instance will contain a \Slim\Http\Cookies instance.
+ * This class represents a collection of HTTP headers
+ * that is used in both the HTTP request and response objects.
+ * It also enables header name case-insensitivity when
+ * getting or setting a header value.
  *
- * Because HTTP headers may be upper, lower, or mixed case, this class
- * normalizes the user-requested header name into a canonical internal format
- * so that it can adapt to and successfully handle any header name format.
- *
- * Otherwise, this class extends \Slim\Container and has access to a simple
- * and common interface to manipulate HTTP header data.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.6.0
+ * Each HTTP header can have multiple values. This class
+ * stores values into an array for each header name. When
+ * you request a header value, you receive an array of values
+ * for that header.
  */
 class Headers extends Collection implements HeadersInterface
 {
     /**
-     * Special header keys to extract from environment that
-     * DO NOT begin with `HTTP_` prefix
+     * Special HTTP headers that do not have the "HTTP_" prefix
+     *
      * @var array
      */
     protected static $special = [
@@ -70,10 +42,9 @@ class Headers extends Collection implements HeadersInterface
     ];
 
     /**
-     * Constructor
+     * Create new headers collection
      *
-     * @param null|array $headers
-     * @api
+     * @param array|null $headers Initial header names and values
      */
     public function __construct(array $headers = null)
     {
@@ -83,11 +54,11 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Parse provided headers into this collection
+     * Create new headers collection with data extracted from
+     * the application Environment object
      *
-     * @param  \Slim\Environment $environment
+     * @param  Environment $environment The Slim application Environment
      * @return self
-     * @api
      */
     public static function createFromEnvironment(Environment $environment)
     {
@@ -106,11 +77,13 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Set data key to value
+     * Set HTTP header value
      *
-     * @param string $key   The data key
-     * @param mixed  $value The data value
-     * @api
+     * This method sets a header value. It replaces
+     * any values that may already exist for the header name.
+     *
+     * @param string $key   The case-insensitive header name
+     * @param string $value The header value
      */
     public function set($key, $value)
     {
@@ -121,10 +94,11 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Get data value with key
+     * Get HTTP header value
      *
-     * @param  string $key     The data key
-     * @api
+     * @param  string     $key     The case-insensitive header name
+     * @param  null|mixed $default This argument is unused
+     * @return string[]            The header values
      */
     public function get($key, $default = null)
     {
@@ -132,11 +106,14 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Add data to key
+     * Add HTTP header value
      *
-     * @param string $key   The data key
-     * @param mixed  $value The data value
-     * @api
+     * This method appends a header value. Unlike the set() method,
+     * this method _appends_ this new value to any values
+     * that already exist for this header name.
+     *
+     * @param string       $key   The case-insensitive header name
+     * @param array|string $value The new header value(s)
      */
     public function add($key, $value)
     {
@@ -150,11 +127,10 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Does this set contain a key?
+     * Does this collection have a given header?
      *
-     * @param  string  $key The data key
-     * @return boolean
-     * @api
+     * @param  string $key The case-insensitive header name
+     * @return bool
      */
     public function has($key)
     {
@@ -162,10 +138,9 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Remove value with key from this set
+     * Remove header from collection
      *
-     * @param string $key The data key
-     * @api
+     * @param  string $key The case-insensitive header name
      */
     public function remove($key)
     {
@@ -173,10 +148,14 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Transform header name into canonical form
+     * Normalize header name
      *
-     * @param  string $key
-     * @return string
+     * This method transforms header names into a
+     * normalized form. This is how we enable case-insensitive
+     * header names in the other methods in this class.
+     *
+     * @param  string $key The case-insensitive header name
+     * @return string      Normalized header name
      */
     public function normalizeKey($key)
     {
