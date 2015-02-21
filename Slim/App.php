@@ -74,7 +74,7 @@ class App extends \Pimple
         parent::__construct();
 
         $this['settings'] = function ($c) use ($userSettings) {
-            $config = new \Slim\Configuration(new \Slim\ConfigurationHandler);
+            $config = new Configuration(new ConfigurationHandler);
             $config->setArray($userSettings);
 
             return $config;
@@ -195,7 +195,7 @@ class App extends \Pimple
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $route = new \Slim\Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
+        $route = new Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
         $this['router']->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
