@@ -551,7 +551,7 @@ class App extends \Pimple
     }
 
     /**
-     * Call
+     * Invoke the app as the inner-most middleware
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
