@@ -67,7 +67,7 @@ class App extends \Pimple
     /**
      * Create new application
      *
-     * @param  array $userSettings Associative array of application settings
+     * @param array $userSettings Associative array of application settings
      */
     public function __construct(array $userSettings = array())
     {
