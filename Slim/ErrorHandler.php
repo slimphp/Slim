@@ -1,11 +1,32 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ */
 namespace Slim;
 
 use \Psr\Http\Message\RequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
+/**
+ * Default error handler
+ *
+ * This is the default Slim application error handler. All it does is output
+ * a clean and simple HTML page with diagnostic information.
+ */
 class ErrorHandler
 {
+    /**
+     * Invoke error handler
+     *
+     * @param  RequestInterface  $request   The most recent Request object
+     * @param  ResponseInterface $response  The most recent REsposne object
+     * @param  \Exception        $exception The caught Exception object
+     * @return ResponseInterface            The final Response object
+     */
     public function __invoke(RequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
         $title = 'Slim Application Error';
@@ -46,8 +67,6 @@ class ErrorHandler
 
     /**
      * Generate diagnostic template markup
-     *
-     * This method accepts a title and body content to generate an HTML document layout.
      *
      * @param  string $title The title of the HTML template
      * @param  string $body  The body content of the HTML template
