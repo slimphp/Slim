@@ -1,11 +1,31 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ */
 namespace Slim;
 
 use \Psr\Http\Message\RequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
+/**
+ * Default not found handler
+ *
+ * This is the default Slim application not found handler. All it does is output
+ * a clean and simple HTML page with diagnostic information.
+ */
 class NotFoundHandler
 {
+    /**
+     * Invoke not found handler
+     *
+     * @param  RequestInterface  $request   The most recent Request object
+     * @param  ResponseInterface $response  The most recent REsposne object
+     * @return ResponseInterface            The final Response object
+     */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
         return $response
