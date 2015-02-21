@@ -32,7 +32,7 @@ class App extends \Pimple
      *
      * @var string
      */
-    const VERSION = '2.3.5';
+    const VERSION = '3.0.0';
 
     /**
      * Has the app responsed to the HTTP client?
