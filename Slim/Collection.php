@@ -18,7 +18,7 @@ use \Slim\Interfaces\CryptInterface;
  * classes in a Slim application that manage "collections"
  * of data that must be inspected and/or manipulated
  */
-class Collection implements CollectionInterface, \ArrayAccess, \IteratorAggregate
+class Collection implements CollectionInterface
 {
     /**
      * The source data
