@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -37,27 +13,29 @@ use \Slim\Interfaces\ConfigurationHandlerInterface;
 
 /**
  * Configuration
- * Uses a ConfigurationHandler class to parse configuration data, accessed as an array.
  *
- * @package    Slim
- * @author     John Porter
- * @since      3.0.0
+ * This class uses a ConfigurationHandler class to parse
+ * configuration data, accessed as an array.
  */
 class Configuration implements ConfigurationInterface, \IteratorAggregate
 {
     /**
      * Handler for Configuration values
+     *
      * @var mixed
      */
     protected $handler;
+
     /**
      * Storage array of values
+     *
      * @var array
      */
     protected $values = array();
 
     /**
      * Default values
+     *
      * @var array
      */
     protected $defaults = array(
@@ -86,18 +64,20 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
     );
 
     /**
-     * Constructor
-     * @param mixed $handler
+     * Create new configuration
+     *
+     * @param ConfigurationHandlerInterface $handler
      */
     public function __construct(ConfigurationHandlerInterface $handler)
     {
         $this->handler = $handler;
-
         $this->setDefaults();
     }
 
     /**
      * Set Slim's defaults using the handler
+     *
+     * @param  array $values
      */
     public function setArray(array $values)
     {
@@ -114,6 +94,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Get the default settings
+     *
      * @return array
      */
     public function getDefaults()
@@ -123,6 +104,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Call a method from the handler
+     *
      * @param  string $method
      * @param  array $params
      * @return mixed
@@ -134,6 +116,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Get a value
+     *
      * @param  string $key
      * @return mixed
      */
@@ -144,8 +127,9 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Set a value
-     * @param  string $key
-     * @param  mixed $value
+     *
+     * @param string $key
+     * @param mixed $value
      */
     public function offsetSet($key, $value)
     {
@@ -154,6 +138,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Check a value exists
+     *
      * @param  string $key
      * @return boolean
      */
@@ -164,7 +149,8 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
 
     /**
      * Remove a value
-     * @param  string $key
+     *
+     * @param string $key
      */
     public function offsetUnset($key)
     {
@@ -174,7 +160,7 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
     /**
      * Get an ArrayIterator for the stored items
      *
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {
