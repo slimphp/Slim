@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -49,36 +25,35 @@ use \Slim\Interfaces\SessionInterface;
  * the `keep` method.
  *
  * Flash messages are stored in the PHP session in the `slimflash` namespace.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   3.0.0
  */
 class Flash implements FlashInterface
 {
     /**
      * The flash session storage key
+     *
      * @var string
      */
     protected $key;
 
     /**
      * The session object
+     *
      * @var \Slim\Session
      */
     protected $session;
 
     /**
-     * The flash messages
+     * Flash messages
+     *
      * @var array
      */
     protected $messages;
 
     /**
-     * Constructor
-     * @param  \Slim\Session $session
-     * @param  string        $key     The flash session storage key
-     * @api
+     * Create new Flash object
+     *
+     * @param \Slim\Session $session
+     * @param string        $key     The flash session storage key
      */
     public function __construct(SessionInterface $session, $key = 'slimflash')
     {
@@ -93,9 +68,9 @@ class Flash implements FlashInterface
 
     /**
      * Set flash message for next request
-     * @param  string $key   The flash message key
-     * @param  mixed  $value The flash message value
-     * @api
+     *
+     * @param string $key   The flash message key
+     * @param mixed  $value The flash message value
      */
     public function next($key, $value)
     {
@@ -104,9 +79,9 @@ class Flash implements FlashInterface
 
     /**
      * Set flash message for current request
-     * @param  string $key   The flash message key
-     * @param  mixed  $value The flash message value
-     * @api
+     *
+     * @param string $key   The flash message key
+     * @param mixed  $value The flash message value
      */
     public function now($key, $value)
     {
@@ -115,7 +90,6 @@ class Flash implements FlashInterface
 
     /**
      * Persist flash messages from previous request to the next request
-     * @api
      */
     public function keep()
     {
@@ -134,16 +108,21 @@ class Flash implements FlashInterface
 
     /**
      * Return flash messages to be shown for the current request
+     *
      * @return array
-     * @api
      */
     public function getMessages()
     {
         return array_merge($this->messages['prev'], $this->messages['now']);
     }
 
+    /********************************************************************************
+     * ArrayAccess interface
+     *******************************************************************************/
+
     /**
      * Offset exists
+     *
      * @param  mixed $offset
      * @return bool
      */
@@ -156,6 +135,7 @@ class Flash implements FlashInterface
 
     /**
      * Offset get
+     *
      * @param  mixed      $offset
      * @return mixed|null The value at specified offset, or null
      */
@@ -168,6 +148,7 @@ class Flash implements FlashInterface
 
     /**
      * Offset set
+     *
      * @param mixed $offset
      * @param mixed $value
      */
@@ -178,6 +159,7 @@ class Flash implements FlashInterface
 
     /**
      * Offset unset
+     *
      * @param mixed $offset
      */
     public function offsetUnset($offset)
@@ -185,8 +167,13 @@ class Flash implements FlashInterface
         unset($this->messages['prev'][$offset], $this->messages['now'][$offset]);
     }
 
+    /********************************************************************************
+     * IteratorAggregate interface
+     *******************************************************************************/
+
     /**
      * Get iterator
+     *
      * @return \ArrayIterator
      */
     public function getIterator()
@@ -194,8 +181,13 @@ class Flash implements FlashInterface
         return new \ArrayIterator($this->getMessages());
     }
 
+    /********************************************************************************
+     * Countable interface
+     *******************************************************************************/
+
     /**
      * Count
+     *
      * @return int
      */
     public function count()
