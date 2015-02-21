@@ -196,7 +196,7 @@ class Cookies extends Collection implements CookiesInterface
     public static function parseHeader($header)
     {
         if (is_array($header) === true) {
-            $header = $header[0];
+            $header = isset($header[0]) ? $header[0] : '';
         }
 
         if (is_string($header) === false) {

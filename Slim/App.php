@@ -225,7 +225,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('GET', 'HEAD');
+        return $this->mapRoute($args)->via(['GET', 'HEAD']);
     }
 
     /**
@@ -237,7 +237,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('POST');
+        return $this->mapRoute($args)->via(['POST']);
     }
 
     /**
@@ -249,7 +249,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('PUT');
+        return $this->mapRoute($args)->via(['PUT']);
     }
 
     /**
@@ -261,7 +261,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('PATCH');
+        return $this->mapRoute($args)->via(['PATCH']);
     }
 
     /**
@@ -273,7 +273,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('DELETE');
+        return $this->mapRoute($args)->via(['DELETE']);
     }
 
     /**
@@ -285,7 +285,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('OPTIONS');
+        return $this->mapRoute($args)->via(['OPTIONS']);
     }
 
     /**
@@ -319,7 +319,7 @@ class App extends \Pimple
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('ANY');
+        return $this->mapRoute($args)->via(['ANY']);
     }
 
     /********************************************************************************

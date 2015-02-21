@@ -72,13 +72,13 @@ interface RouteInterface
 
     public function setParam($index, $value);
 
-    public function setHttpMethods();
+    public function setHttpMethods(array $methods);
 
     public function getHttpMethods();
 
-    public function appendHttpMethods();
+    public function appendHttpMethods(array $methods);
 
-    public function via();
+    public function via(array $methods);
 
     public function supportsHttpMethod($method);
 
