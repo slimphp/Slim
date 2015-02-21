@@ -1,103 +1,83 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim\Http;
 
 use \Slim\Interfaces\Http\HeadersInterface;
 use \Slim\Interfaces\Http\CookiesInterface;
+use \Slim\Interfaces\CryptInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Message\StreamableInterface;
 
 /**
  * Response
  *
- * This class provides a simple interface around the HTTP response. Use this class
- * to build and inspect the current HTTP response before it is returned to the client:
+ * This class represents an HTTP response. It manages
+ * the response status, headers, cookies, and body
+ * according to the PSR-7 standard.
  *
- * - The response status
- * - The response headers
- * - The response cookies
- * - The response body
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
+ * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
+ * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
  */
 class Response implements ResponseInterface
 {
     /**
-     * Response protocol version
+     * Protocol version
+     *
      * @var string
      */
     protected $protocolVersion = '1.1';
 
     /**
-     * Response status code
+     * Status code
+     *
      * @var int
      */
     protected $status = 200;
 
     /**
-     * Response headers
+     * Headers
+     *
      * @var \Slim\Interfaces\Http\HeadersInterface
      */
     protected $headers;
 
     /**
-     * Response cookies
+     * Cookies
+     *
      * @var \Slim\Interfaces\Http\CookiesInterface
      */
     protected $cookies;
 
     /**
-     * Response body
+     * Body object
+     *
      * @var \Psr\Http\Message\StreamableInterface
      */
     protected $body;
 
     /**
-     * On set Last-Modified callback
+     * Last-Modified callback
+     *
      * @var Closure|null
      */
     protected $onLastModified;
 
     /**
-     * On set ETag callback
+     * ETag callback
+     *
      * @var Closure|null
      */
     protected $onEtag;
 
     /**
-     * Response codes and associated messages
+     * Status codes and reason phrases
+     *
      * @var array
      */
     protected static $messages = array(
@@ -168,13 +148,12 @@ class Response implements ResponseInterface
     );
 
     /**
-     * Constructor
+     * Create new HTTP response
      *
-     * @param int                                    $status  The response status code
-     * @param \Slim\Interfaces\Http\HeadersInterface $headers The response headers
-     * @param \Slim\Interfaces\Http\CookiesInterface $cookies The response cookies
-     * @param \Psr\Http\Message\StreamableInterface  $body    The response body
-     * @api
+     * @param int                      $status  The response status code
+     * @param HeadersInterface|null    $headers The response headers
+     * @param CookiesInterface|null    $cookies The response cookies
+     * @param StreamableInterface|null $body    The response body
      */
     public function __construct($status = 200, HeadersInterface $headers = null, CookiesInterface $cookies = null, StreamableInterface $body = null)
     {
@@ -195,8 +174,6 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Clone
-     *
      * This method is applied to the cloned object
      * after PHP performs an initial shallow-copy. This
      * method completes a deep-copy by creating new objects
@@ -225,7 +202,6 @@ class Response implements ResponseInterface
      * Get HTTP protocol version
      *
      * @return string
-     * @api
      */
     public function getProtocolVersion()
     {
@@ -242,7 +218,7 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new protocol version.
      *
-     * @param string $version HTTP protocol version
+     * @param  string $version HTTP protocol version
      * @return self
      */
     public function withProtocolVersion($version)
@@ -282,12 +258,12 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * updated status and reason phrase.
      *
-     * @link http://tools.ietf.org/html/rfc7231#section-6
-     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @param integer $code The 3-digit integer result code to set.
+     * @link  http://tools.ietf.org/html/rfc7231#section-6
+     * @link  http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     * @param integer     $code         The 3-digit integer result code to set.
      * @param null|string $reasonPhrase The reason phrase to use with the
-     *     provided status code; if none is provided, implementations MAY
-     *     use the defaults as suggested in the HTTP specification.
+     *                                  provided status code; if none is provided, implementations MAY
+     *                                  use the defaults as suggested in the HTTP specification.
      * @return self
      * @throws \InvalidArgumentException For invalid status code arguments.
      */
@@ -313,8 +289,8 @@ class Response implements ResponseInterface
      * listed in the IANA HTTP Status Code Registry) for the response's
      * Status-Code.
      *
-     * @link http://tools.ietf.org/html/rfc7231#section-6
-     * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     * @link   http://tools.ietf.org/html/rfc7231#section-6
+     * @link   http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
      * @return string|null Reason phrase, or null if unknown.
      */
     public function getReasonPhrase()
@@ -359,9 +335,9 @@ class Response implements ResponseInterface
      * Checks if a header exists by the given case-insensitive name.
      *
      * @param  string $header Case-insensitive header name.
-     * @return bool   Returns true if any header names match the given header
-     *                name using a case-insensitive string comparison. Returns false if
-     *                no matching header name is found in the message.
+     * @return bool           Returns true if any header names match the given header
+     *                        name using a case-insensitive string comparison. Returns false if
+     *                        no matching header name is found in the message.
      */
     public function hasHeader($name)
     {
@@ -390,7 +366,7 @@ class Response implements ResponseInterface
     /**
      * Retrieves a header by the given case-insensitive name as an array of strings.
      *
-     * @param string $header Case-insensitive header name.
+     * @param  string   $header Case-insensitive header name.
      * @return string[]
      */
     public function getHeaderLines($name)
@@ -409,8 +385,8 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new and/or updated header and value.
      *
-     * @param string $header Header name
-     * @param string|string[] $value Header value(s).
+     * @param  string          $header Header name
+     * @param  string|string[] $value  Header value(s).
      * @return self
      */
     public function withHeader($header, $value)
@@ -433,8 +409,8 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new header and/or value.
      *
-     * @param string $header Header name to add
-     * @param string|string[] $value Header value(s).
+     * @param  string          $header Header name to add
+     * @param  string|string[] $value  Header value(s).
      * @return self
      * @throws \InvalidArgumentException for invalid header names or values.
      */
@@ -455,7 +431,7 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that removes
      * the named header.
      *
-     * @param string $header HTTP header to remove
+     * @param  string $header HTTP header to remove
      * @return self
      */
     public function withoutHeader($header)
@@ -498,9 +474,9 @@ class Response implements ResponseInterface
      * Checks if a cookie exists by the given case-insensitive name.
      *
      * @param  string $name Case-insensitive header name.
-     * @return bool   Returns true if any cookie names match the given cookie
-     *                name using a case-insensitive string comparison. Returns false if
-     *                no matching cookie name is found in the message.
+     * @return bool         Returns true if any cookie names match the given cookie
+     *                      name using a case-insensitive string comparison. Returns false if
+     *                      no matching cookie name is found in the message.
      */
     public function hasCookie($name)
     {
@@ -514,7 +490,7 @@ class Response implements ResponseInterface
      * case-insensitive cookie name as a string as it will
      * appear in the HTTP response's `Set-Cookie` header.
      *
-     * @param  string $name Case-insensitive cookie name.
+     * @param  string      $name Case-insensitive cookie name.
      * @return string|null
      */
     public function getCookie($name)
@@ -525,7 +501,7 @@ class Response implements ResponseInterface
     /**
      * Retrieves a cookie by the given case-insensitive name as an array of properties.
      *
-     * @param string $name Case-insensitive cookie name.
+     * @param  string        $name Case-insensitive cookie name.
      * @return string[]|null
      */
     public function getCookieProperties($name)
@@ -544,8 +520,8 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new and/or updated cookie and value.
      *
-     * @param string $name Cookie name
-     * @param string|string[] $value Cookie value(s).
+     * @param  string          $name  Cookie name
+     * @param  string|string[] $value Cookie value(s).
      * @return self
      */
     public function withCookie($name, $value)
@@ -565,7 +541,7 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that removes
      * the named cookie.
      *
-     * @param string $name HTTP cookie to remove
+     * @param  string $name HTTP cookie to remove
      * @return self
      */
     public function withoutCookie($name)
@@ -577,13 +553,12 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Encrypt cookies
+     * Return a copy of this response with encrypted cookies
      *
-     * @param \Slim\Interfaces\CryptInterface $crypt
+     * @param  CryptInterface $crypt
      * @return self
-     * @api
      */
-    public function withEncryptedCookies(\Slim\Interfaces\CryptInterface $crypt)
+    public function withEncryptedCookies(CryptInterface $crypt)
     {
         $clone = clone $this;
         $clone->cookies->encrypt($crypt);
@@ -628,7 +603,7 @@ class Response implements ResponseInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param StreamableInterface $body Body.
+     * @param  StreamableInterface $body Body.
      * @return self
      * @throws \InvalidArgumentException When the body is not valid.
      */
@@ -640,65 +615,6 @@ class Response implements ResponseInterface
 
         return $clone;
     }
-
-    /**
-     * Prepare download
-     *
-     * This method streams a resource to the HTTP client
-     *
-     * @param  resource $path        A PHP resource
-     * @param  string   $name        The download name
-     * @param  string   $contentType The download content type
-     * @return self
-     * @api
-     */
-    // public function withDownload($resource, $name = false, $contentType = false) {
-    //     if (is_resource($resource) === false) {
-    //         throw new \InvalidArgumentException('\Slim\Http\Response::withDownload() argument must be a valid PHP resource');
-    //     }
-
-    //     // Prepare new response
-    //     $headers = new Headers($this->getHeaders());
-    //     $cookies = new Cookies($this->getCookies());
-    //     $body = new Body($resource);
-    //     $status = $this->getStatus();
-
-    //     // Prompt download
-    //     $headers->set('Content-Disposition', sprintf(
-    //         'attachment;filename=%s',
-    //         $name ? $name : basename($path)
-    //     ));
-
-    //     // Set content type and length
-    //     $contentLength = false;
-    //     if (!$contentType) {
-    //         $contentType = 'application/octet-stream';
-    //         if (file_exists($path)) {
-    //             if (extension_loaded('fileinfo')) {
-    //                 $finfo = new \finfo(FILEINFO_MIME_TYPE);
-    //                 $contentType = $finfo->file($path);
-    //             }
-    //             $stat = fstat($fp);
-    //             $contentLength = $stat['size'];
-    //         } else {
-    //             $data = stream_get_meta_data($stream);
-    //             foreach ($data['wrapper_data'] as $header) {
-    //                 list($k, $v) = explode(': ', $header, 2);
-    //                 if ($k === 'Content-Type') {
-    //                     $contentType = $v;
-    //                 } else if ($k === 'Content-Length') {
-    //                     $contentLength = $v;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     $headers->set('Content-Type', $contentType);
-    //     if ($contentLength) {
-    //         $headers->set('Content-Length', $contentLength);
-    //     }
-
-    //     return new self($headers, $cookies, $body, $code);
-    // }
 
     /*******************************************************************************
      * HTTP caching
@@ -714,10 +630,9 @@ class Response implements ResponseInterface
      * if the resource has not changed. The `Expires` header should be used in
      * conjunction with the `etag()` or `lastModified()` methods above.
      *
-     * @param string|int $time If string, a time to be parsed by `strtotime()`;
-     *                         If int, a UNIX timestamp;
+     * @param  string|int $time If string, a time to be parsed by `strtotime()`;
+     *                          If int, a UNIX timestamp;
      * @return self
-     * @api
      */
     public function withExpires($time)
     {
@@ -750,10 +665,9 @@ class Response implements ResponseInterface
      * The callbacks are responsible for halting the application, if necessary, and
      * returning an appropriate response to the HTTP client.
      *
-     * @param int|string $time     The last modification date
-     * @param callable   $callback Optional callback to invoke
+     * @param  int|string $time     The last modification date
+     * @param  callable   $callback Optional callback to invoke
      * @return self
-     * @api
      */
     public function withLastModified($time, callable $callback = null)
     {
@@ -801,8 +715,7 @@ class Response implements ResponseInterface
      * @param  string                    $type     The etag type (either "strong" or "weak")
      * @param  callable                  $callable Optional callback invoked when etag set
      * @return self
-     * @throws \InvalidArgumentException           If invalid etag type
-     * @api
+     * @throws \InvalidArgumentException if invalid etag type
      */
     public function withEtag($value, $type = 'strong', callable $callback = null)
     {
@@ -836,7 +749,6 @@ class Response implements ResponseInterface
      * Finalize response for delivery to client
      *
      * @return self
-     * @api
      */
     public function finalize()
     {
@@ -866,7 +778,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Send HTTP body to client
+     * Send HTTP headers to client
      *
      * @return self
      */
@@ -899,7 +811,7 @@ class Response implements ResponseInterface
     /**
      * Send HTTP body to client
      *
-     * @param int $bufferSize
+     * @param  int $bufferSize
      * @return self
      */
     public function sendBody($bufferSize = 1024)
@@ -923,10 +835,9 @@ class Response implements ResponseInterface
      * This method prepares the response object to return an HTTP Redirect response
      * to the client.
      *
-     * @param string $url    The redirect destination
-     * @param int    $status The redirect HTTP status code
+     * @param  string $url    The redirect destination
+     * @param  int    $status The redirect HTTP status code
      * @return self
-     * @api
      */
     public function withRedirect($url, $status = 302)
     {
@@ -934,10 +845,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Empty?
+     * Is this response empty?
      *
      * @return bool
-     * @api
      */
     public function isEmpty()
     {
@@ -945,10 +855,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Informational?
+     * Is this response informational?
      *
      * @return bool
-     * @api
      */
     public function isInformational()
     {
@@ -956,10 +865,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: OK?
+     * Is this response OK?
      *
      * @return bool
-     * @api
      */
     public function isOk()
     {
@@ -967,10 +875,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Successful?
+     * Is this response successful?
      *
      * @return bool
-     * @api
      */
     public function isSuccessful()
     {
@@ -978,10 +885,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Redirect?
+     * Is this response a redirect?
      *
      * @return bool
-     * @api
      */
     public function isRedirect()
     {
@@ -989,10 +895,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Redirection?
+     * Is this response a redirection?
      *
      * @return bool
-     * @api
      */
     public function isRedirection()
     {
@@ -1000,7 +905,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Forbidden?
+     * Is this response forbidden?
      *
      * @return bool
      * @api
@@ -1011,10 +916,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Not Found?
+     * Is this response not Found?
      *
      * @return bool
-     * @api
      */
     public function isNotFound()
     {
@@ -1022,10 +926,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Client error?
+     * Is this response a client error?
      *
      * @return bool
-     * @api
      */
     public function isClientError()
     {
@@ -1033,10 +936,9 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Helpers: Server Error?
+     * Is this response a server error?
      *
      * @return bool
-     * @api
      */
     public function isServerError()
     {
@@ -1047,7 +949,6 @@ class Response implements ResponseInterface
      * Convert response to string
      *
      * @return string
-     * @api
      */
     public function __toString()
     {
