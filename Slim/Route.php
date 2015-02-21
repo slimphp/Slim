@@ -504,9 +504,14 @@ class Route implements RouteInterface
         $request = $request->withAttributes($this->getParams());
 
         // Invoke route callable
-        ob_start();
-        $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
-        $output = ob_get_clean();
+        try {
+            ob_start();
+            $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
+            $output = ob_get_clean();
+        } catch (\Exception $e) {
+            ob_clean();
+            throw $e;
+        }
 
         // End if route callback returns Interfaces\Http\ResponseInterface object
         if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
