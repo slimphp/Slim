@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -37,10 +13,8 @@ use \Slim\Interfaces\CryptInterface;
 /**
  * Crypt
  *
- * This class enables secure Slim application data encryption and decryption.
- * Specifically, it is used to encrypt session and HTTP cookie data.
- *
- * This uses the PHP `mcrypt` cryptography library with the MCRYPT_RIJNDAEL_256
+ * This class enables Slim application data encryption and decryption with
+ * the PHP `mcrypt` cryptography library with the MCRYPT_RIJNDAEL_256
  * cipher in cipher block chaining mode. This also uses a random initialization
  * vector with entropy derived from `/dev/urandom`. A unique initialzation vector
  * is created each time you invoke the `encrypt` method. Encrypted data
@@ -49,45 +23,43 @@ use \Slim\Interfaces\CryptInterface;
  *
  * Even though this class is used by the Slim application behind the scenes,
  * you may also use this class to encrypt your own arbitrary application data.
- * Just invoke `$app->crypt->encrypt()` and `$app->crypt->decrypt($data)`.
- *
- * @package    Slim
- * @author     Josh Lockhart
- * @since      2.3.0
+ * Just invoke `$app['crypt']->encrypt()` or `$app['crypt']->decrypt($data)`.
  */
 class Crypt implements CryptInterface
 {
     /**
      * Encryption key (should be correct length for selected cipher)
+     *
      * @var string
      */
     protected $key;
 
     /**
      * Encryption cipher
-     * @var int
-     * @see http://www.php.net/manual/mcrypt.ciphers.php
+     *
+     * @var  int
+     * @link http://www.php.net/manual/mcrypt.ciphers.php
      */
     protected $cipher;
 
     /**
      * Encryption mode
-     * @var int
-     * @see http://www.php.net/manual/mcrypt.constants.php
+     *
+     * @var  int
+     * @link http://www.php.net/manual/mcrypt.constants.php
      */
     protected $mode;
 
     /**
      * Constructor
-     * @param  string $key    Encryption key
-     * @param  int    $cipher Encryption algorithm
-     * @param  int    $mode   Encryption mode
-     * @api
+     *
+     * @param string $key    Encryption key
+     * @param int    $cipher Encryption algorithm
+     * @param int    $mode   Encryption mode
      */
     public function __construct($key, $cipher = MCRYPT_RIJNDAEL_256, $mode = MCRYPT_MODE_CBC)
     {
         $this->checkRequirements();
-
         $this->key = $key;
         $this->cipher = $cipher;
         $this->mode = $mode;
@@ -95,11 +67,11 @@ class Crypt implements CryptInterface
 
     /**
      * Encrypt data
+     *
      * @param  string            $data Unencrypted data
      * @return string                  Encrypted data
      * @throws \RuntimeException       If mcrypt extension not loaded
      * @throws \RuntimeException       If encryption module initialization failed
-     * @api
      */
     public function encrypt($data)
     {
@@ -133,12 +105,12 @@ class Crypt implements CryptInterface
 
     /**
      * Decrypt data
+     *
      * @param  string            $data Encrypted string
      * @return string                  Decrypted data
      * @throws \RuntimeException       If mcrypt extension not loaded
      * @throws \RuntimeException       If decryption module initialization failed
      * @throws \RuntimeException       If HMAC integrity verification fails
-     * @api
      */
     public function decrypt($data)
     {
@@ -182,6 +154,7 @@ class Crypt implements CryptInterface
 
     /**
      * Generate HMAC message authentication hash to verify and authenticate message integrity
+     *
      * @param  string $data Unencrypted data
      * @return string       HMAC hash
      */
@@ -192,6 +165,7 @@ class Crypt implements CryptInterface
 
     /**
      * Validate encryption key based on valid key sizes for selected cipher and cipher mode
+     *
      * @param  string                    $key    Encryption key
      * @param  resource                  $module Encryption module
      * @return void
@@ -220,6 +194,7 @@ class Crypt implements CryptInterface
 
     /**
      * Check the mcrypt PHP extension is loaded
+     *
      * @throws \RuntimeException If the mcrypt PHP extension is missing
      */
     protected function checkRequirements()
@@ -234,8 +209,9 @@ class Crypt implements CryptInterface
 
     /**
      * Throw an exception based on a provided exit code
-     * @param  mixed  $code
-     * @param  string $function
+     *
+     * @param  mixed             $code
+     * @param  string            $function
      * @throws \RuntimeException If there was a memory allocation problem
      * @throws \RuntimeException If there was an incorrect key length specified
      * @throws \RuntimeException If an unknown error occured
