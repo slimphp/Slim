@@ -252,7 +252,7 @@ class Route implements RouteInterface
     /**
      * Set route parameters
      *
-     * @param  array $params
+     * @param array $params
      */
     public function setParams(array $params)
     {
