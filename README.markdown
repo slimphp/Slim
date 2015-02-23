@@ -178,6 +178,6 @@ PHP programmers to best practices and good information.
 
 ## License
 
-The Slim Framework is released under the MIT public license.
+The Slim Framework is released under the MIT license.
 
 <http://www.slimframework.com/license>
