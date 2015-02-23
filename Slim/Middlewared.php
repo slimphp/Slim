@@ -2,6 +2,17 @@
 
 namespace Slim;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
+
+/**
+ * Middlewared
+ *
+ * This trait define a common behaviour for middlewares management
+ * in App and Route
+ */
+
 trait Middlewared {
 
     /**
@@ -66,12 +77,21 @@ trait Middlewared {
         }
     }
 
-    public function __invoke()
-    {
-        throw new \Exception();
-    }
 
-    public function execMiddlewareStack($req, $res)
+    /**
+     * A middlewared Object is the kernel of an Middleware stack,
+     * It should be callbable,
+     * Middlewared::ExecMiddlewareStack will call it
+     * It should take a request and a response and return a response
+     *
+     * @param RequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    abstract public function __invoke(RequestInterface $request, ResponseInterface $response);
+
+
+    protected function execMiddlewareStack($req, $res)
     {
         $this->assumeIsBooted();
         return call_user_func_array($this->topLevel, [$req, $res]);
