@@ -1,41 +1,18 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
 use \Psr\Http\Message\RequestInterface;
 use \Psr\Http\Message\ResponseInterface;
 
-// Ensure mcrypt constants are defined even if mcrypt extension is not loaded
+// Ensure mcrypt constants are defined even if
+// mcrypt extension is not loaded
 if (!extension_loaded('mcrypt')) {
     define('MCRYPT_MODE_CBC', 0);
     define('MCRYPT_RIJNDAEL_256', 0);
@@ -44,27 +21,31 @@ if (!extension_loaded('mcrypt')) {
 /**
  * App
  *
- * @package  Slim
- * @author   Josh Lockhart
- * @since    1.0.0
+ * This is the "application". It lets you define routes. It runs
+ * your application. And it returns the serialized HTTP response
+ * back to the HTTP client.
  */
 class App extends \Pimple
 {
     use Middlewared;
 
     /**
-     * @const string
+     * The current Slim Framework version
+     *
+     * @var string
      */
-    const VERSION = '2.3.5';
+    const VERSION = '3.0.0';
 
     /**
-     * Has the app response been sent to the client?
+     * Has the app responsed to the HTTP client?
+     *
      * @var bool
      */
     protected $responded = false;
 
     /**
      * Application hooks
+     *
      * @var array
      */
     protected $hooks = array(
@@ -74,21 +55,22 @@ class App extends \Pimple
         'slim.after' => array(array())
     );
 
+
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
 
     /**
-     * Constructor
-     * @param  array $userSettings Associative array of application settings
-     * @api
+     * Create new application
+     *
+     * @param array $userSettings Associative array of application settings
      */
     public function __construct(array $userSettings = array())
     {
         parent::__construct();
 
         $this['settings'] = function ($c) use ($userSettings) {
-            $config = new \Slim\Configuration(new \Slim\ConfigurationHandler);
+            $config = new Configuration(new ConfigurationHandler);
             $config->setArray($userSettings);
 
             return $config;
@@ -197,7 +179,7 @@ class App extends \Pimple
      *
      * Slim::get('/foo'[, middleware, middleware, ...], callable);
      *
-     * @param  array
+     * @param  array $args Route path, optional middleware, and callback
      * @return \Slim\Interfaces\RouteInterface
      */
     protected function mapRoute($args)
@@ -207,7 +189,7 @@ class App extends \Pimple
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $route = new \Slim\Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
+        $route = new Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
         $this['router']->map($route);
         if (count($args) > 0) {
             //add Middleware
@@ -219,6 +201,7 @@ class App extends \Pimple
 
     /**
      * Add route without HTTP method
+     *
      * @return \Slim\Interfaces\RouteInterface
      */
     public function map()
@@ -230,74 +213,74 @@ class App extends \Pimple
 
     /**
      * Add GET route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function get()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('GET', 'HEAD');
+        return $this->mapRoute($args)->via(['GET', 'HEAD']);
     }
 
     /**
      * Add POST route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function post()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('POST');
+        return $this->mapRoute($args)->via(['POST']);
     }
 
     /**
      * Add PUT route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function put()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('PUT');
+        return $this->mapRoute($args)->via(['PUT']);
     }
 
     /**
      * Add PATCH route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function patch()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('PATCH');
+        return $this->mapRoute($args)->via(['PATCH']);
     }
 
     /**
      * Add DELETE route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function delete()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('DELETE');
+        return $this->mapRoute($args)->via(['DELETE']);
     }
 
     /**
      * Add OPTIONS route
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function options()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('OPTIONS');
+        return $this->mapRoute($args)->via(['OPTIONS']);
     }
 
     /**
@@ -309,8 +292,6 @@ class App extends \Pimple
      *
      * Accepts the same parameters as a standard route so:
      * (pattern, middleware1, middleware2, ..., $callback)
-     *
-     * @api
      */
     public function group()
     {
@@ -326,14 +307,14 @@ class App extends \Pimple
 
     /**
      * Add route for any HTTP method
+     *
      * @return \Slim\Interfaces\RouteInterface
-     * @api
      */
     public function any()
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via('ANY');
+        return $this->mapRoute($args)->via(['ANY']);
     }
 
     /********************************************************************************
@@ -346,9 +327,8 @@ class App extends \Pimple
      * This method stops the application and sends the provided
      * Response object to the HTTP client.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
+     * @param  ResponseInterface    $response
      * @throws \Slim\Exception\Stop
-     * @api
      */
     public function stop(ResponseInterface $response)
     {
@@ -363,9 +343,9 @@ class App extends \Pimple
      * application and returns a new response with a specific
      * status and message.
      *
-     * @param int    $status  The desired HTTP status
-     * @param string $message The desired HTTP message
-     * @api
+     * @param  int    $status  The desired HTTP status
+     * @param  string $message The desired HTTP message
+     * @throws \Slim\Exception\Stop
      */
     public function halt($status, $message = '')
     {
@@ -382,7 +362,6 @@ class App extends \Pimple
      * the application Not Found handler.
      *
      * @throws \Slim\Exception\Pass
-     * @api
      */
     public function pass()
     {
@@ -397,7 +376,6 @@ class App extends \Pimple
      *
      * @param string $url    The destination URL
      * @param int    $status The HTTP redirect status code (optional)
-     * @api
      */
     public function redirect($url, $status = 302)
     {
@@ -410,10 +388,10 @@ class App extends \Pimple
 
     /**
      * Assign hook
-     * @param  string $name     The hook name
-     * @param  mixed  $callable A callable object
-     * @param  int    $priority The hook priority; 0 = high, 10 = low
-     * @api
+     *
+     * @param string $name     The hook name
+     * @param mixed  $callable A callable object
+     * @param int    $priority The hook priority; 0 = high, 10 = low
      */
     public function hook($name, $callable, $priority = 10)
     {
@@ -427,9 +405,9 @@ class App extends \Pimple
 
     /**
      * Invoke hook
-     * @param  string $name    The hook name
-     * @param  mixed  $hookArg (Optional) Argument for hooked functions
-     * @api
+     *
+     * @param string $name    The hook name
+     * @param mixed  $hookArg (Optional) Argument for hooked functions
      */
     public function applyHook($name, $hookArg = null)
     {
@@ -461,7 +439,6 @@ class App extends \Pimple
      *
      * @param  string     $name A hook name (Optional)
      * @return array|null
-     * @api
      */
     public function getHooks($name = null)
     {
@@ -479,8 +456,7 @@ class App extends \Pimple
      * a valid hook name, only the listeners attached
      * to that hook will be cleared.
      *
-     * @param  string $name A hook name (Optional)
-     * @api
+     * @param string $name A hook name (Optional)
      */
     public function clearHooks($name = null)
     {
@@ -504,8 +480,6 @@ class App extends \Pimple
      * This method traverses the middleware stack, including the core Slim application,
      * and captures the resultant HTTP response object. It then sends the response
      * back to the HTTP client.
-     *
-     * @api
      */
     public function run()
     {
@@ -554,16 +528,16 @@ class App extends \Pimple
     }
 
     /**
-     * Call
+     * Invoke the app as the inner-most middleware
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
      * after dispatching the Request object to the appropriate Route
      * callback routine.
      *
-     * @param  \Psr\Http\Message\RequestInterface  $request  The request object
-     * @param  \Psr\Http\Message\ResponseInterface $response The response object
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param  RequestInterface  $request  The most recent Request object
+     * @param  ResponseInterface $response The most recent Response object
+     * @return ResponseInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
@@ -603,12 +577,12 @@ class App extends \Pimple
      * cookies, body, and server variables against the set of registered
      * application routes. The result response object is returned.
      *
-     * @param string $method      The request method (e.g., GET, POST, PUT, etc.)
-     * @param string $uri         The request URI path
-     * @param array  $headers     The request headers (key-value array)
-     * @param array  $cookies     The request cookies (key-value array)
-     * @param string $bodyContent The request body
-     * @return \Psr\Http\Message\ResponseInterface
+     * @param  string            $method      The request method (e.g., GET, POST, PUT, etc.)
+     * @param  string            $uri         The request URI path
+     * @param  array             $headers     The request headers (key-value array)
+     * @param  array             $cookies     The request cookies (key-value array)
+     * @param  string            $bodyContent The request body
+     * @return ResponseInterface
      */
     public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $bodyContent = '')
     {
@@ -628,10 +602,11 @@ class App extends \Pimple
     /**
      * Finalize and send the HTTP response
      *
-     * @param \Psr\Http\Message\RequestInterface  $request
-     * @param \Psr\Http\Message\ResponseInterface $response
+     * @param RequestInterface  $Request  The most recent Request object
+     * @param ResponseInterface $response The most recent Response object
      */
-    public function finalize(RequestInterface $request, ResponseInterface $response) {
+    public function finalize(RequestInterface $request, ResponseInterface $response)
+    {
         if (!$this->responded) {
             $this->responded = true;
 

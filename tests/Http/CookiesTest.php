@@ -29,319 +29,115 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+use \Slim\Http\Cookies;
+
 class CookiesTest extends PHPUnit_Framework_TestCase
 {
-    public function testInstanceOfInterface()
+    public function testConstructorSetsDefaults()
     {
-        $env = new \Slim\Http\Cookies();
-        $this->assertInstanceOf('\Slim\Interfaces\Http\CookiesInterface', $env);
+        $c = new Cookies([], [
+            'path' => '/foo'
+        ]);
+        $prop = new \ReflectionProperty($c, 'defaults');
+        $prop->setAccessible(true);
+
+        $this->assertEquals('/foo', $prop->getValue($c)['path']);
     }
 
-    public function testCreateFromHeaders()
+    public function testConstructorSetsValues()
     {
-        $environment = new \Slim\Environment(array('HTTP_COOKIE' => 'foo=bar;abc=123'));
-        $headers = new \Slim\Http\Headers($environment);
-        $cookies = new \Slim\Http\Cookies($headers);
+        $c = new Cookies(['foo' => 'bar']);
+        $prop = new \ReflectionProperty($c, 'data');
+        $prop->setAccessible(true);
 
-        $this->assertEquals('bar', $cookies->get('foo'));
-        $this->assertEquals('123', $cookies->get('abc'));
+        $this->assertEquals('bar', $prop->getValue($c)['foo']['value']);
     }
 
-    public function testSetWithStringValue()
+    public function testSetWithSingleValue()
     {
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->set('foo', 'bar');
+        $c = new Cookies();
+        $c->set('foo', 'bar');
+        $prop = new \ReflectionProperty($c, 'data');
+        $prop->setAccessible(true);
 
-        $this->assertAttributeEquals(
-            array(
-                'foo' => array(
-                    'value' => 'bar',
-                    'expires' => null,
-                    'domain' => null,
-                    'path' => null,
-                    'secure' => false,
-                    'httponly' => false
-                )
-            ),
-            'data',
-            $cookies
-        );
+        $this->assertEquals('bar', $prop->getValue($c)['foo']['value']);
     }
 
     public function testSetWithArrayValue()
     {
-        $now = time();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->set('foo', array(
+        $c = new Cookies();
+        $c->set('foo', [
             'value' => 'bar',
-            'expires' => $now + 86400,
-            'domain' => '.example.com',
-            'path' => '/',
-            'secure' => true,
-            'httponly' => true
-        ));
-        $this->assertAttributeEquals(
-            array(
-                'foo' => array(
-                    'value' => 'bar',
-                    'expires' => $now + 86400,
-                    'domain' => '.example.com',
-                    'path' => '/',
-                    'secure' => true,
-                    'httponly' => true
-                )
-            ),
-            'data',
-            $cookies
-        );
+            'path' => '/foo'
+        ]);
+        $prop = new \ReflectionProperty($c, 'data');
+        $prop->setAccessible(true);
+
+        $this->assertEquals('bar', $prop->getValue($c)['foo']['value']);
+        $this->assertEquals('/foo', $prop->getValue($c)['foo']['path']);
     }
 
     public function testRemove()
     {
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->remove('foo');
-        $prop = new \ReflectionProperty($cookies, 'data');
+        $c = new Cookies();
+        $prop = new \ReflectionProperty($c, 'data');
         $prop->setAccessible(true);
-        $cValue = $prop->getValue($cookies);
-        $this->assertEquals('', $cValue['foo']['value']);
-        $this->assertLessThan(time(), $cValue['foo']['expires']);
+        $prop->setValue($c, [
+            'foo' => [
+                'value' => 'bar',
+                'domain' => null,
+                'path' => '/path',
+                'expires' => null,
+                'secure' => false,
+                'httponly' => false
+            ]
+        ]);
+        $c->remove('foo');
+
+        $this->assertEquals('', $prop->getValue($c)['foo']['value']);
+        $this->assertTrue($prop->getValue($c)['foo']['value'] < time());
     }
 
-    public function testSetCookieHeaderWithNameAndValue()
+    public function testToString()
     {
-        $name = 'foo';
-        $value = 'bar';
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, $value);
-        $this->assertEquals('foo=bar', $headers->get('Set-Cookie'));
+        $expiresAt = time();
+        $c = new Cookies([
+            'foo' => [
+                'value' => 'bar',
+                'expires' => $expiresAt,
+                'path' => '/foo',
+                'domain' => 'example.com',
+                'secure' => true,
+                'httponly' => true
+            ]
+        ]);
+
+        $this->assertEquals('foo=bar; domain=example.com; path=/foo; expires=' . gmdate('D, d-M-Y H:i:s e', $expiresAt) . '; secure; HttpOnly', $c->getAsString('foo'));
     }
 
-    public function testSetCookieHeaderWithNameAndValueWhenCookieAlreadySet()
+    public function testParseHeader()
     {
-        $name = 'foo';
-        $value = 'bar';
-        $headers = new \Slim\Http\Headers();
-        $headers->set('Set-Cookie', 'one=two');
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, $value);
-        $this->assertEquals("one=two\nfoo=bar", $headers->get('Set-Cookie'));
+        $value = 'Abc=One;Def=Two;Ghi=Three';
+        $shouldBe = [
+            'Abc' => 'One',
+            'Def' => 'Two',
+            'Ghi' => 'Three'
+        ];
+
+        $this->assertEquals($shouldBe, Cookies::parseHeader($value));
     }
 
-    public function testSetCookieHeaderWithNameAndValueAndDomain()
+    public function testParseHeaderWithOneValue()
     {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com', $headers->get('Set-Cookie'));
+        $value = 'Abc=One';
+
+        $this->assertEquals(['Abc' => 'One'], Cookies::parseHeader($value));
     }
 
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPath()
+    public function testParseEmptyHeader()
     {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => $path
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo', $headers->get('Set-Cookie'));
-    }
+        $value = '';
 
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPathAndExpiresAsString()
-    {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $expires = '2 days';
-        $expiresFormat = gmdate('D, d-M-Y H:i:s e', strtotime($expires));
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => '/foo',
-            'expires' => $expires
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo; expires=' . $expiresFormat, $headers->get('Set-Cookie'));
-    }
-
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPathAndExpiresAsInteger()
-    {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $expires = strtotime('2 days');
-        $expiresFormat = gmdate('D, d-M-Y H:i:s e', $expires);
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => '/foo',
-            'expires' => $expires
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo; expires=' . $expiresFormat, $headers->get('Set-Cookie'));
-    }
-
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPathAndExpiresAsZero()
-    {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $expires = 0;
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => '/foo',
-            'expires' => $expires
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo', $headers->get('Set-Cookie'));
-    }
-
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPathAndExpiresAndSecure()
-    {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $expires = strtotime('2 days');
-        $expiresFormat = gmdate('D, d-M-Y H:i:s e', $expires);
-        $secure = true;
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => '/foo',
-            'expires' => $expires,
-            'secure' => $secure
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo; expires=' . $expiresFormat . '; secure', $headers->get('Set-Cookie'));
-    }
-
-    public function testSetCookieHeaderWithNameAndValueAndDomainAndPathAndExpiresAndSecureAndHttpOnly()
-    {
-        $name = 'foo';
-        $value = 'bar';
-        $domain = 'foo.com';
-        $path = '/foo';
-        $expires = strtotime('2 days');
-        $expiresFormat = gmdate('D, d-M-Y H:i:s e', $expires);
-        $secure = true;
-        $httpOnly = true;
-        $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->setHeader($headers, $name, array(
-            'value' => $value,
-            'domain' => $domain,
-            'path' => '/foo',
-            'expires' => $expires,
-            'secure' => $secure,
-            'httponly' => $httpOnly
-        ));
-        $this->assertEquals('foo=bar; domain=foo.com; path=/foo; expires=' . $expiresFormat . '; secure; HttpOnly', $headers->get('Set-Cookie'));
-    }
-
-    public function testDeleteCookieHeaderWithSurvivingCookie()
-    {
-        $headers = new \Slim\Http\Headers();
-        $headers->replace(array('Set-Cookie' => "foo=bar\none=two"));
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->deleteHeader($headers, 'foo');
-        $this->assertEquals(1, preg_match("@^one=two\nfoo=; expires=@", $headers->get('Set-Cookie')));
-    }
-
-    public function testDeleteCookieHeaderWithoutSurvivingCookie()
-    {
-        $headers = new \Slim\Http\Headers();
-        $headers->replace(array('Set-Cookie' => "foo=bar"));
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->deleteHeader($headers, 'foo');
-        $this->assertEquals(1, preg_match("@foo=; expires=@", $headers->get('Set-Cookie')));
-    }
-
-    public function testDeleteCookieHeaderWithMatchingDomain()
-    {
-        $headers = new \Slim\Http\Headers();
-        $headers->replace(array('Set-Cookie' => "foo=bar; domain=foo.com"));
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->deleteHeader($headers, 'foo', array(
-            'domain' => 'foo.com'
-        ));
-        $this->assertEquals(1, preg_match("@foo=; domain=foo.com; expires=@", $headers->get('Set-Cookie')));
-    }
-
-    public function testDeleteCookieHeaderWithoutMatchingDomain()
-    {
-        $headers = new \Slim\Http\Headers();
-        $headers->replace(array('Set-Cookie' => "foo=bar; domain=foo.com"));
-        $cookies = new \Slim\Http\Cookies();
-        $cookies->deleteHeader($headers, 'foo', array(
-            'domain' => 'bar.com'
-        ));
-        $this->assertEquals(1, preg_match("@foo=bar; domain=foo\.com\nfoo=; domain=bar\.com@", $headers->get('Set-Cookie')));
-    }
-
-    /**
-     * Test parses Cookie: HTTP header
-     */
-    public function testParsesCookieHeader()
-    {
-        $header = 'foo=bar; one=two; colors=blue';
-        $cookies = new \Slim\Http\Cookies();
-        $result = $cookies->parseHeader($header);
-        $this->assertEquals(3, count($result));
-        $this->assertEquals('bar', $result['foo']);
-        $this->assertEquals('two', $result['one']);
-        $this->assertEquals('blue', $result['colors']);
-    }
-
-    /**
-     * Test parses Cookie: HTTP header with equal sign in value
-     */
-    public function testParsesCookieHeaderWithEqualSignInValue()
-    {
-        $header = 'foo=bar; one=two=; colors=blue';
-        $cookies = new \Slim\Http\Cookies();
-        $result = $cookies->parseHeader($header);
-        $this->assertEquals(3, count($result));
-        $this->assertEquals('bar', $result['foo']);
-        $this->assertEquals('two=', $result['one']);
-        $this->assertEquals('blue', $result['colors']);
-    }
-
-    public function testParsesCookieHeaderWithCommaSeparator()
-    {
-        $header = 'foo=bar, one=two, colors=blue';
-        $cookies = new \Slim\Http\Cookies();
-        $result = $cookies->parseHeader($header);
-        $this->assertEquals(3, count($result));
-        $this->assertEquals('bar', $result['foo']);
-        $this->assertEquals('two', $result['one']);
-        $this->assertEquals('blue', $result['colors']);
-    }
-
-    public function testPrefersLeftmostCookieWhenManyCookiesWithSameName()
-    {
-        $header = 'foo=bar; foo=beer';
-        $cookies = new \Slim\Http\Cookies();
-        $result = $cookies->parseHeader($header);
-        $this->assertEquals('bar', $result['foo']);
+        $this->assertEquals([], Cookies::parseHeader($value));
     }
 }

@@ -1,4 +1,11 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ */
 namespace Slim\Http;
 
 /**
@@ -21,55 +28,71 @@ namespace Slim\Http;
 class Uri implements \Psr\Http\Message\UriInterface
 {
     /**
+     * Uri scheme (without "://" suffix)
+     *
      * @var string
      */
     protected $scheme;
 
     /**
+     * Uri user
+     *
      * @var string
      */
     protected $user;
 
     /**
+     * Uri password
+     *
      * @var string
      */
     protected $password;
 
     /**
+     * Uri host
+     *
      * @var string
      */
     protected $host;
 
     /**
-     * @var string
+     * Uri port number
+     *
+     * @var int
      */
     protected $port;
 
     /**
+     * Uri base path
+     *
      * @var string
      */
     protected $basePath;
 
     /**
+     * Uri path
+     *
      * @var string
      */
     protected $path;
 
     /**
+     * Uri query string (without "?" prefix)
+     *
      * @var string
      */
     protected $query;
 
     /**
-     * Constructor
+     * Create new Uri
      *
-     * @param string $scheme
-     * @param string $user
-     * @param string $password
-     * @param string $host
-     * @param string $port
-     * @param string $path
-     * @param string $query
+     * @param string $scheme   Uri scheme
+     * @param string $user     Uri user
+     * @param string $password Uri password
+     * @param string $host     Uri host
+     * @param int    $port     Uri port number
+     * @param string $path     Uri path
+     * @param string $query    Uri query string
      */
     public function __construct($scheme, $user, $password, $host, $port, $path, $query = '')
     {
@@ -82,6 +105,12 @@ class Uri implements \Psr\Http\Message\UriInterface
         $this->query = $query;
     }
 
+    /**
+     * Create new Uri from string
+     *
+     * @param  string $uri Complete Uri string (i.e., https://user:pass@host:443/path?query)
+     * @return self
+     */
     public static function createFromString($uri)
     {
         if (is_string($uri) === false) {
@@ -101,12 +130,9 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create from environment data
+     * Create new Uri from environment
      *
-     * This method returns a new Uri instance based on data
-     * from the application's environment.
-     *
-     * @param  \Slim\Environment $env
+     * @param  Environment $env
      * @return self
      */
     public static function createFromEnvironment(Environment $env)
@@ -182,8 +208,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * This method MUST return an empty string if no authority information is
      * present.
      *
-     * @return string Authority portion of the URI, in "[user-info@]host[:port]"
-     *     format.
+     * @return string Authority portion of the URI, in "[user-info@]host[:port]" format.
      */
     public function getAuthority()
     {
@@ -205,8 +230,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * Implementations MUST NOT return the "@" suffix when returning this value.
      *
-     * @return string User information portion of the URI, if present, in
-     *     "username[:password]" format.
+     * @return string User information portion of the URI, if present, in "username[:password]" format.
      */
     public function getUserInfo()
     {
@@ -330,8 +354,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * An empty scheme is equivalent to removing the scheme.
      *
-     * @param string $scheme The scheme to use with the new instance.
-     * @return self A new instance with the specified scheme.
+     * @param  string $scheme The scheme to use with the new instance.
+     * @return self           A new instance with the specified scheme.
      * @throws \InvalidArgumentException for invalid or unsupported schemes.
      */
     public function withScheme($scheme)
@@ -352,8 +376,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      * user; an empty string for the user is equivalent to removing user
      * information.
      *
-     * @param string $user User name to use for authority.
-     * @param null|string $password Password associated with $user.
+     * @param  string      $user     User name to use for authority.
+     * @param  null|string $password Password associated with $user.
      * @return self A new instance with the specified user information.
      */
     public function withUserInfo($user, $password = null)
@@ -373,8 +397,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * An empty host value is equivalent to removing the host.
      *
-     * @param string $host Hostname to use with the new instance.
-     * @return self A new instance with the specified host.
+     * @param  string $host Hostname to use with the new instance.
+     * @return self         A new instance with the specified host.
      * @throws \InvalidArgumentException for invalid hostnames.
      */
     public function withHost($host)
@@ -397,9 +421,9 @@ class Uri implements \Psr\Http\Message\UriInterface
      * A null value provided for the port is equivalent to removing the port
      * information.
      *
-     * @param null|int $port Port to use with the new instance; a null value
-     *     removes the port information.
-     * @return self A new instance with the specified port.
+     * @param  null|int $port Port to use with the new instance; a null value
+     *                        removes the port information.
+     * @return self           A new instance with the specified port.
      * @throws \InvalidArgumentException for invalid ports.
      */
     public function withPort($port)
@@ -438,8 +462,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * An empty path value is equivalent to removing the path.
      *
-     * @param string $path The path to use with the new instance.
-     * @return self A new instance with the specified path.
+     * @param  string $path The path to use with the new instance.
+     * @return self         A new instance with the specified path.
      * @throws \InvalidArgumentException for invalid paths.
      */
     public function withPath($path)
@@ -462,8 +486,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * An empty query string value is equivalent to removing the query string.
      *
-     * @param string $query The query string to use with the new instance.
-     * @return self A new instance with the specified query string.
+     * @param  string $query The query string to use with the new instance.
+     * @return self          A new instance with the specified query string.
      * @throws \InvalidArgumentException for invalid query strings.
      */
     public function withQuery($query)
@@ -484,8 +508,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * An empty fragment value is equivalent to removing the fragment.
      *
-     * @param string $fragment The URI fragment to use with the new instance.
-     * @return self A new instance with the specified URI fragment.
+     * @param  string $fragment The URI fragment to use with the new instance.
+     * @return self             A new instance with the specified URI fragment.
      */
     public function withFragment($fragment)
     {

@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -51,34 +27,32 @@ use \Slim\Interfaces\SessionHandlerInterface;
  * Session data is serialized and placed in the `slim.session` namespace
  * to avoid polluting the global session namespace potentially used
  * by third-party code.
- *
- * @package    Slim
- * @author     Josh Lockhart
- * @since      2.3.0
  */
 class Session extends Collection implements SessionInterface
 {
     /**
      * Reference to array or object from which session data is loaded
      * and to which session data is saved.
+     *
      * @var array|\ArrayAccess
      */
     protected $dataSource;
 
     /**
      * Reference to custom session handler
+     *
      * @var SessionHandlerInterface
      */
     protected $handler;
 
     /**
-     * Constructor
+     * Create new session
      *
      * By default, this class assumes the use of the native file system session handler
-     * for persisting session data. This method allows us to use a custom handler.
+     * for persisting session data. You can, however, inject a custom session handler
+     * with this constructor method.
      *
-     * @param  SessionHandlerInterface $handler A custom session handler
-     * @api
+     * @param null|SessionHandlerInterface $handler
      */
     public function __construct(SessionHandlerInterface $handler = null)
     {
@@ -97,7 +71,6 @@ class Session extends Collection implements SessionInterface
 
     /**
      * Start the session
-     * @api
      */
     public function start()
     {
@@ -119,7 +92,6 @@ class Session extends Collection implements SessionInterface
 
     /**
      * Save session data to data source
-     * @api
      */
     public function save()
     {
@@ -128,8 +100,9 @@ class Session extends Collection implements SessionInterface
 
     /**
      * Is session started?
+     *
      * @return bool
-     * @see    http://us2.php.net/manual/en/function.session-status.php#113468 Sourced from this comment from on php.net
+     * @link   http://us2.php.net/manual/function.session-status.php#113468
      */
     public function isStarted()
     {
@@ -145,7 +118,8 @@ class Session extends Collection implements SessionInterface
 
     /**
      * Initialize new session
-     * @throws \RuntimeException If `session_start()` fails
+     *
+     * @throws \RuntimeException If session cannot start
      */
     public function initialize()
     {

@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -63,18 +39,14 @@ use \Slim\Interfaces\ViewInterface;
  * that you may use the convenient `\Slim\Container` interface just
  * as you do with other Slim application data sets (e.g. HTTP headers,
  * HTTP cookies, etc.)
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
  */
 class View extends Collection implements ViewInterface
 {
     /**
-     * Constructor
-     * @param  string $templateDirectory Path to template directory
-     * @param  array  $items             Initialize set with these items
-     * @api
+     * Create new view
+     *
+     * @param string $templateDirectory Path to template directory
+     * @param array  $items             Initialize view with this data
      */
     public function __construct($templateDirectory, array $items = array())
     {
@@ -87,9 +59,8 @@ class View extends Collection implements ViewInterface
      *
      * This method echoes the rendered template to the current output buffer
      *
-     * @param  string $template Pathname of template file relative to templates directory
-     * @param  array  $items    Expose these array items to the rendered template
-     * @api
+     * @param string $template Pathname of template file relative to templates directory
+     * @param array  $items    Expose these array items to the rendered template
      */
     public function display($template, array $data = array())
     {
@@ -105,7 +76,6 @@ class View extends Collection implements ViewInterface
      * @var    string $template Pathname of template file relative to templates directory
      * @param  array  $items    Expose these array items to the rendered template
      * @return string           The rendered template
-     * @api
      */
     public function fetch($template, array $data = array())
     {
@@ -115,12 +85,12 @@ class View extends Collection implements ViewInterface
     /**
      * Render template
      *
-     * This method will render the specified template file using the current application view.
-     * Although this method will work perfectly fine, it is recommended that you create your
-     * own custom view class that implements \Slim\ViewInterface instead of using this default
-     * view class. This default implementation is largely intended as an example.
+     * This method renders the specified template file using the current application view.
+     * Although this method works fine, we recommend that you create a custom
+     * view class that implements \Slim\ViewInterface. This default implementation
+     * is largely an example implementation and nothing more.
      *
-     * @var    string            $template Pathname of template file relative to templates directory
+     * @param  string            $template Pathname of template file relative to templates directory
      * @return string                      The rendered template
      * @throws \RuntimeException           If resolved template pathname is not a valid file
      */

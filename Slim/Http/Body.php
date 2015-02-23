@@ -1,12 +1,28 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ */
 namespace Slim\Http;
 
+/**
+ * Body
+ *
+ * This class represents an HTTP message body and encapsulates a
+ * streamable resource according to the PSR-7 standard.
+ *
+ * @link https://github.com/php-fig/http-message/blob/master/src/StreamableInterface.php
+ */
 class Body implements \Psr\Http\Message\StreamableInterface
 {
     /**
-     * Readable and writable resource modes
-     * @var array
-     * @see http://php.net/manual/function.fopen.php
+     * Resource modes
+     *
+     * @var  array
+     * @link http://php.net/manual/function.fopen.php
      */
     protected static $modes = [
         'readable' => ['r', 'r+', 'w+', 'a+', 'x+', 'c+'],
@@ -15,44 +31,51 @@ class Body implements \Psr\Http\Message\StreamableInterface
 
     /**
      * The underlying stream resource
-     * @var stream
+     *
+     * @var resource
      */
     protected $stream;
 
     /**
      * Stream metadata
+     *
      * @var array
      */
     protected $meta;
 
     /**
      * Is this stream readable?
+     *
      * @var bool
      */
     protected $readable;
 
     /**
      * Is this stream writable?
+     *
      * @var bool
      */
     protected $writable;
 
     /**
      * Is this stream seekable?
+     *
      * @var bool
      */
     protected $seekable;
 
     /**
-     * The size of the stream, if known
-     * @var int
+     * The size of the stream if known
+     *
+     * @var null|int
      */
     protected $size;
 
     /**
-     * Constructor
+     * Create a new HTTP message body
      *
-     * @param resource $stream
+     * @param  resource                  $stream A PHP resource handle
+     * @throws \InvalidArgumentException If argument is not a resource
      */
     public function __construct($stream)
     {
@@ -64,9 +87,10 @@ class Body implements \Psr\Http\Message\StreamableInterface
     }
 
     /**
-     * Set meta data
+     * Set HTTP message metadata
      *
-     * @param resource $stream
+     * @param  resource                  $stream
+     * @throws \InvalidArgumentException If argument is not a resource
      */
     protected function setMetadata($stream)
     {
@@ -105,11 +129,11 @@ class Body implements \Psr\Http\Message\StreamableInterface
      * The keys returned are identical to the keys returned from PHP's
      * stream_get_meta_data() function.
      *
-     * @link http://php.net/manual/en/function.stream-get-meta-data.php
-     * @param string $key Specific metadata to retrieve.
-     * @return array|mixed|null Returns an associative array if no key is
-     *     provided. Returns a specific key value if a key is provided and the
-     *     value is found, or null if the key is not found.
+     * @param  string           $key The metadata property name
+     * @return array|null|mixed Returns array if key not provided;
+     *                          Returns mixed if valid key provided;
+     *                          Returns null if invalid key provided;
+     * @link   http://php.net/manual/function.stream-get-meta-data.php
      */
     public function getMetadata($key = null)
     {
@@ -121,7 +145,7 @@ class Body implements \Psr\Http\Message\StreamableInterface
     }
 
     /**
-     * Is a resource attached to this HTTP body?
+     * Is a resource attached to this HTTP message body?
      *
      * @return bool
      */
@@ -131,9 +155,10 @@ class Body implements \Psr\Http\Message\StreamableInterface
     }
 
     /**
-     * Attach new stream to this HTTP body
+     * Attach new resource to this HTTP message body
      *
-     * @param resource $newStream
+     * @param  resource                  $newStream A PHP resource handle
+     * @throws \InvalidArgumentException If argument is not a valid PHP resource
      */
     public function attach($newStream)
     {
@@ -265,13 +290,14 @@ class Body implements \Psr\Http\Message\StreamableInterface
     /**
      * Seek to a position in the stream.
      *
-     * @link http://www.php.net/manual/en/function.fseek.php
+     * @link  http://www.php.net/manual/function.fseek.php
      * @param int $offset Stream offset
      * @param int $whence Specifies how the cursor position will be calculated
-     *     based on the seek offset. Valid values are identical to the built-in
-     *     PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
-     *     offset bytes SEEK_CUR: Set position to current location plus offset
-     *     SEEK_END: Set position to end-of-stream plus offset.
+     *                    based on the seek offset. Valid values are identical
+     *                    to the built-in PHP $whence values for `fseek()`.
+     *                    - SEEK_SET: Set position equal to offset bytes;
+     *                    - SEEK_CUR: Set position to current location plus offset;
+     *                    - SEEK_END: Set position to end-of-stream plus offset.
      * @return bool Returns TRUE on success or FALSE on failure.
      */
     public function seek($offset, $whence = SEEK_SET)
@@ -286,8 +312,8 @@ class Body implements \Psr\Http\Message\StreamableInterface
      * failure; otherwise, it will perform a seek(0), and return the status of
      * that operation.
      *
-     * @see seek()
-     * @link http://www.php.net/manual/en/function.fseek.php
+     * @see    seek()
+     * @link   http://www.php.net/manual/function.fseek.php
      * @return bool Returns TRUE on success or FALSE on failure.
      */
     public function rewind()
@@ -298,11 +324,11 @@ class Body implements \Psr\Http\Message\StreamableInterface
     /**
      * Read data from the stream.
      *
-     * @param int $length Read up to $length bytes from the object and return
-     *     them. Fewer than $length bytes may be returned if underlying stream
-     *     call returns fewer bytes.
-     * @return string|false Returns the data read from the stream, false if
-     *     unable to read or if an error occurs.
+     * @param int           $length Read up to $length bytes from the object and return
+     *                              them. Fewer than $length bytes may be returned if underlying
+     *                              stream call returns fewer bytes.
+     * @return string|false         Returns the data read from the stream, false if
+     *                              unable to read or if an error occurs.
      */
     public function read($length)
     {
@@ -312,9 +338,9 @@ class Body implements \Psr\Http\Message\StreamableInterface
     /**
      * Write data to the stream.
      *
-     * @param string $string The string that is to be written.
-     * @return int|bool Returns the number of bytes written to the stream on
-     *     success or FALSE on failure.
+     * @param  string   $string The string that is to be written.
+     * @return int|bool         Returns the number of bytes written to the stream on
+     *                          success or FALSE on failure.
      */
     public function write($string)
     {

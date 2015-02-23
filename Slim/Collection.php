@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -38,20 +14,22 @@ use \Slim\Interfaces\CryptInterface;
 /**
  * Collection
  *
- * @package Slim
- * @author  Josh Lockhart
- * @since   2.0.0
+ * This class provides a common interface used by many other
+ * classes in a Slim application that manage "collections"
+ * of data that must be inspected and/or manipulated
  */
 class Collection implements CollectionInterface
 {
     /**
-     * Key-value array of data
+     * The source data
+     *
      * @var array
      */
     protected $data = array();
 
     /**
-     * Constructor
+     * Create new collection
+     *
      * @param array $items Pre-populate collection with this key-value array
      */
     public function __construct(array $items = array())
@@ -59,11 +37,15 @@ class Collection implements CollectionInterface
         $this->replace($items);
     }
 
+    /********************************************************************************
+     * Collection interface
+     *******************************************************************************/
+
     /**
-     * Set data key to value
+     * Set collection item
+     *
      * @param string $key   The data key
      * @param mixed  $value The data value
-     * @api
      */
     public function set($key, $value)
     {
@@ -71,11 +53,11 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Get data value with key
+     * Get collection item for key
+     *
      * @param  string $key     The data key
-     * @param  mixed  $default The value to return if data key does not exist
-     * @return mixed           The data value, or the default value
-     * @api
+     * @param  mixed  $default The default value to return if data key does not exist
+     * @return mixed           The key's value, or the default value
      */
     public function get($key, $default = null)
     {
@@ -87,9 +69,9 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Add data to set
-     * @param array $items Key-value array of data to append to this set
-     * @api
+     * Add item to collection
+     *
+     * @param array $items Key-value array of data to append to this collection
      */
     public function replace(array $items)
     {
@@ -99,9 +81,9 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Fetch set data
-     * @return array This set's key-value data array
-     * @api
+     * Get all items in collection
+     *
+     * @return array The collection's source data
      */
     public function all()
     {
@@ -109,8 +91,9 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Fetch set data keys
-     * @return array This set's key-value data array keys
+     * Get collection keys
+     *
+     * @return array The collection's source data keys
      */
     public function keys()
     {
@@ -118,10 +101,10 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Does this set contain a key?
-     * @param  string  $key The data key
-     * @return boolean
-     * @api
+     * Does this collection have a given key?
+     *
+     * @param  string $key The data key
+     * @return bool
      */
     public function has($key)
     {
@@ -129,9 +112,9 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Remove value with key from this set
-     * @param  string $key The data key
-     * @api
+     * Remove item from collection
+     *
+     * @param string $key The data key
      */
     public function remove($key)
     {
@@ -139,8 +122,7 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Clear all values
-     * @api
+     * Remove all items from collection
      */
     public function clear()
     {
@@ -148,35 +130,38 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Encrypt set
-     * @param  \Slim\Interfaces\CryptInterface $crypt
-     * @return void
-     * @api
+     * Encrypt collection values
+     *
+     * @param CryptInterface $crypt
      */
     public function encrypt(CryptInterface $crypt)
     {
-        foreach ($this->data  as $key => $value) {
+        foreach ($this->data as $key => $value) {
             $this->set($key, $crypt->encrypt($value));
         }
     }
 
     /**
-     * Decrypt set
-     * @param  \Slim\Interfaces\CryptInterface $crypt
-     * @return void
-     * @api
+     * Decrypt collection values
+     *
+     * @param CryptInterface $crypt
      */
     public function decrypt(CryptInterface $crypt)
     {
-        foreach ($this->data  as $key => $value) {
+        foreach ($this->data as $key => $value) {
             $this->set($key, $crypt->decrypt($value));
         }
     }
 
+    /********************************************************************************
+     * ArrayAccess interface
+     *******************************************************************************/
+
     /**
-     * Does this set contain a key?
-     * @param  string  $key The data key
-     * @return boolean
+     * Does this collection have a given key?
+     *
+     * @param  string $key The data key
+     * @return bool
      */
     public function offsetExists($key)
     {
@@ -184,9 +169,10 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Get data value with key
-     * @param  string $key     The data key
-     * @return mixed           The data value
+     * Get collection item for key
+     *
+     * @param  string $key The data key
+     * @return mixed       The key's value, or the default value
      */
     public function offsetGet($key)
     {
@@ -194,7 +180,8 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Set data key to value
+     * Set collection item
+     *
      * @param string $key   The data key
      * @param mixed  $value The data value
      */
@@ -204,8 +191,9 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Remove value with key from this set
-     * @param  string $key The data key
+     * Remove item from collection
+     *
+     * @param string $key The data key
      */
     public function offsetUnset($key)
     {
@@ -214,18 +202,22 @@ class Collection implements CollectionInterface
 
     /**
      * Get number of items in collection
+     *
      * @return int
-     * @api
      */
     public function count()
     {
         return count($this->data);
     }
 
+    /********************************************************************************
+     * IteratorAggregate interface
+     *******************************************************************************/
+
     /**
      * Get collection iterator
+     *
      * @return \ArrayIterator
-     * @api
      */
     public function getIterator()
     {
