@@ -71,6 +71,15 @@ class Middleware
      */
     public function __invoke(RequestInterface $req, ResponseInterface $res)
     {
-        return call_user_func_array($this->callable, [$req, $res, $this->next]);
+        $resp = call_user_func_array($this->callable, [$req, $res, $this->next]);
+
+        // check if the call function is a valid psr7 response instance
+        if(!$resp instanceof ResponseInterface) {
+            $resp_type = get_class($resp);
+            $message = "A midlleware should return an instance of Psr\\Http\\Message\\ResponseInterface, {$resp_type} given";
+            throw new \UnexpectedValueException($message);
+        }
+
+        return $resp;
     }
 }
