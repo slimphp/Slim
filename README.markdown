@@ -171,7 +171,7 @@ Follow [@slimphp](http://www.twitter.com/slimphp) on Twitter to receive news and
 
 ## Author
 
-The Slim Framework is created and maintained by [Josh Lockhart](http://www.joshlockhart.com). Josh is a senior
+The Slim Framework is created and maintained by [Josh Lockhart](http://joshlockhart.com). Josh is a senior
 web developer at [New Media Campaigns](http://www.newmediacampaigns.com/). Josh also created and maintains
 [PHP: The Right Way](http://www.phptherightway.com/), a popular movement in the PHP community to introduce new
 PHP programmers to best practices and good information.
