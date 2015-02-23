@@ -30,50 +30,27 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
-{
-    public function call() {}
-}
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
 {
-    public function testSetApplication()
+    public function testConstructor()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $mw->setApplication($app);
-
-        $this->assertAttributeSame($app, 'app', $mw);
+        $callback = function(){};
+        $next = function(){};
+        $mw = new \Slim\Middleware($callback, $next);
+        $this->assertEquals($callback, $mw->getCallable());
+        $this->assertEquals($next, $mw->getNext());
     }
 
-    public function testGetApplication()
+    public function testInvokeExceptionIfBadReturnedValue()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $property = new \ReflectionProperty($mw, 'app');
-        $property->setAccessible(true);
-        $property->setValue($mw, $app);
-
-        $this->assertSame($app, $mw->getApplication());
-    }
-
-    public function testSetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $mw1->setNextMiddleware($mw2);
-
-        $this->assertAttributeSame($mw2, 'next', $mw1);
-    }
-
-    public function testGetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $property = new \ReflectionProperty($mw1, 'next');
-        $property->setAccessible(true);
-        $property->setValue($mw1, $mw2);
-
-        $this->assertSame($mw2, $mw1->getNextMiddleware());
+        $callback = function(){return new stdClass(); };
+        $next = function(){};
+        $mw = new \Slim\Middleware($callback, $next);
+        $error_message = "A midlleware should return an instance of Psr\\Http\\Message\\ResponseInterface, stdClass given";
+        $this->setExpectedException('UnexpectedValueException', $error_message);
+        $req = $this->getMock('Psr\Http\Message\RequestInterface');
+        $resp = $this->getMock('Psr\Http\Message\ResponseInterface');
+        call_user_func_array($mw, [$req, $resp]);
     }
 }
