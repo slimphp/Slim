@@ -495,7 +495,7 @@ class Route implements RouteInterface
         // Invoke route middleware
         foreach ($this->middleware as $mw) {
             $newResponse = call_user_func_array($mw, [$request, $response, $this]);
-            if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
+            if ($newResponse instanceof ResponseInterface) {
                 $response = $newResponse;
             }
         }
@@ -514,7 +514,7 @@ class Route implements RouteInterface
         }
 
         // End if route callback returns Interfaces\Http\ResponseInterface object
-        if ($newResponse instanceof Interfaces\Http\ResponseInterface) {
+        if ($newResponse instanceof ResponseInterface) {
             return $newResponse;
         }
 
