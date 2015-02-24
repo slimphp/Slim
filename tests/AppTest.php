@@ -219,6 +219,8 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Hooks
      *******************************************************************************/
 
+    // TODO: Test hook methods... pending improvements
+
     /********************************************************************************
      * Middleware
      *******************************************************************************/
@@ -368,4 +370,10 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertAttributeEquals(400, 'status', $resOut);
     }
+
+    // TODO: Test subRequest()
+
+    // TODO: Test finalize()
+
+    // TODO: Test run()
 }
