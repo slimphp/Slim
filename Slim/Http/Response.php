@@ -801,7 +801,7 @@ class Response implements ResponseInterface
             }
 
             foreach ($this->getHeaders() as $name => $values) {
-                header($name, $this->getHeader($name));
+                header($name .': ' .$this->getHeader($name));
             }
         }
 
