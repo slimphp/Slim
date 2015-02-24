@@ -509,7 +509,7 @@ class Route implements RouteInterface
             $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
             $output = ob_get_clean();
         } catch (\Exception $e) {
-            ob_clean();
+            ob_end_clean();
             throw $e;
         }
 

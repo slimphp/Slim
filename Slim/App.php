@@ -572,7 +572,7 @@ class App extends \Pimple
             foreach ($matchedRoutes as $route) {
                 try {
                     $this->applyHook('slim.before.dispatch');
-                    $response = $route->dispatch($request, $response);
+                    $newResponse = $route->dispatch($request, $response);
                     $this->applyHook('slim.after.dispatch');
                     $dispatched = true;
                     break;
@@ -581,14 +581,14 @@ class App extends \Pimple
                 }
             }
             if (!$dispatched) {
-                $response = $this['notFoundHandler']($request, $response);
+                $newResponse = $this['notFoundHandler']($request, $response);
             }
         } catch (Exception\Stop $e) {
-            $response = $e->getResponse();
+            $newResponse = $e->getResponse();
         }
         $this->applyHook('slim.after');
 
-        return $response;
+        return $newResponse;
     }
 
     /**
