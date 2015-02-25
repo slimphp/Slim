@@ -1297,9 +1297,9 @@ class Slim
         if (headers_sent() === false) {
             //Send status
             if (strpos(PHP_SAPI, 'cgi') === 0) {
-                header(sprintf('Status: %s', \Slim\Http\Response::getMessageForCode($status)));
+                header(sprintf('Status: %s', $this->container->get('response')->getMessageForCode($status)));
             } else {
-                header(sprintf('HTTP/%s %s', $this->config('http.version'), \Slim\Http\Response::getMessageForCode($status)));
+                header(sprintf('HTTP/%s %s', $this->config('http.version'), $this->container->get('response')->getMessageForCode($status)));
             }
 
             //Send headers
