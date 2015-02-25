@@ -6,7 +6,7 @@
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.4.2
+ * @version     2.4.3
  * @package     Slim
  *
  * MIT LICENSE
@@ -156,7 +156,11 @@ class Slim
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
-            return \Slim\Environment::getInstance();
+			$environmentSettings =
+				isset($this->settings['environment.settings']) ?
+					$this->settings['environment.settings'] :
+					array();
+            return \Slim\Environment::getInstance(false, $environmentSettings);
         });
 
         // Default request
