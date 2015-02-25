@@ -104,7 +104,7 @@ class View extends Collection implements ViewInterface
 
         // Render template with view variables into a temporary output buffer
         $this->replace($data);
-        extract($this->all());
+        extract($this->all(), EXTR_SKIP);
         ob_start();
         require $templatePathname;
 
