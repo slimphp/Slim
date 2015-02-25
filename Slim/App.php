@@ -195,13 +195,26 @@ class App extends \Pimple
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $route = new Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
+        $route = $this->createRoute($pattern, $callable, $this['settings']['routes.case_sensitive']);
         $this['router']->map($route);
         if (count($args) > 0) {
             $route->setMiddleware($args);
         }
 
         return $route;
+    }
+    
+    /**
+     * Create new route.
+     * 
+     * @param string $pattern
+     * @param callable $callable
+     * @param boolean
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    protected function createRoute($pattern, $callable, $caseSensitive)
+    {
+        return new Route($pattern, $callable, $caseSensitive);
     }
 
     /**
