@@ -232,9 +232,9 @@ class Router
         $this->getNamedRoutes();
         if ($this->hasNamedRoute($name)) {
             return $this->namedRoutes[(string) $name];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**

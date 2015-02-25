@@ -152,9 +152,9 @@ class View
     {
         if (!is_null($key)) {
             return isset($this->data[$key]) ? $this->data[$key] : null;
-        } else {
-            return $this->data->all();
         }
+
+        return $this->data->all();
     }
 
     /**

@@ -191,9 +191,9 @@ class Environment implements \ArrayAccess, \IteratorAggregate
     {
         if (isset($this->properties[$offset])) {
             return $this->properties[$offset];
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /**
