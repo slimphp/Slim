@@ -116,7 +116,7 @@ class ContentTypes extends \Slim\Middleware
     {
         if (function_exists('json_decode')) {
             $result = json_decode($input, true);
-            if ($result) {
+            if(json_last_error() === JSON_ERROR_NONE) {
                 return $result;
             }
         }
