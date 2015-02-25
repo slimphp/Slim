@@ -373,4 +373,17 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Environment::getInstance(true);
         $this->assertTrue(is_resource($env['slim.errors']));
     }
+
+    public function testFilesEmptyArray()
+    {
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals(array(), $env['slim.files']);
+    }
+
+    public function testFillFiles()
+    {
+        $_FILES = array('file' => 'value');
+        $env = \Slim\Environment::getInstance(true);
+        $this->assertEquals($_FILES, $env['slim.files']);
+    }
 }

@@ -946,4 +946,31 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $req = new \Slim\Http\Request($env);
         $this->assertNull($req->getUserAgent());
     }
+
+    /**
+     * Test get files
+     */
+    public function testFiles()
+    {
+        $files = array('file' => 'value');
+        $env = \Slim\Environment::mock(array(
+                'slim.files' => $files
+            ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals($files, $req->files());
+        $this->assertEquals('value', $req->files('file'));
+        $this->assertNull($req->files('file_null'));
+    }
+
+    /**
+     * Test get not transmitted file
+     */
+    public function testFilesNotTransmitted()
+    {
+        $env = \Slim\Environment::mock();
+        $req = new \Slim\Http\Request($env);
+        $this->assertNull($req->files());
+        $this->assertNull($req->files('file'));
+    }
+
 }

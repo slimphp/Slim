@@ -311,6 +311,21 @@ class Request
     }
 
     /**
+     * Fetch data from superglobal variable $_FILES
+     * @param string            $key
+     * @return array|null
+     */
+    public function files($key = null)
+    {
+        if(isset($key)) {
+            return (!empty($this->env['slim.files'][$key]) ? $this->env['slim.files'][$key] : null);
+        }
+        else {
+            return (!empty($this->env['slim.files']) ? $this->env['slim.files'] : null);
+        }
+    }
+
+    /**
      * Fetch COOKIE data
      *
      * This method returns a key-value array of Cookie data sent in the HTTP request, or
