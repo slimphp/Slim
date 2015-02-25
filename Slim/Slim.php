@@ -1155,6 +1155,16 @@ class Slim
         }
     }
 
+    /**
+     * Get all flash messages
+     */
+    public function flashData()
+    {
+        if (isset($this->environment['slim.flash'])) {
+            return $this->environment['slim.flash']->getMessages();
+        }
+    }
+
     /********************************************************************************
     * Hooks
     *******************************************************************************/
