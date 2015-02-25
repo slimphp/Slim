@@ -250,6 +250,33 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeSame($app, 'next', $prop->getValue($app)[0]);
     }
 
+    public function testHaltInMiddleware()
+    {
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET'
+            ]);
+        };
+        $app->add(function ($req, $res, $next) use ($app) {
+            $app->halt(500, 'Halt');
+            $res->write('Foo');
+            return $res;
+        });
+        $app->get('/foo', function ($req, $res) {
+            return $res->withStatus(302);
+        });
+
+        // Invoke app
+        ob_start();
+        $app->run();
+        $output = ob_get_clean();
+
+        $this->assertEquals('Halt', $output);
+    }
+
     /********************************************************************************
      * Runner
      *******************************************************************************/
