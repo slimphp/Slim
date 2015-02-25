@@ -42,6 +42,13 @@ use \Slim\Interfaces\ViewInterface;
  */
 class View extends Collection implements ViewInterface
 {
+
+    /**
+     * The template is rendering
+     * @var bool
+     */
+    protected $rendering = false;
+
     /**
      * Create new view
      *
@@ -92,23 +99,41 @@ class View extends Collection implements ViewInterface
      *
      * @param  string            $template Pathname of template file relative to templates directory
      * @return string                      The rendered template
+     * @throws \LogicException             If it is called from within a template
      * @throws \RuntimeException           If resolved template pathname is not a valid file
      */
     protected function render($template, array $data = array())
     {
-        // Resolve and verify template file
-        $templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
-        if (!is_file($templatePathname)) {
-            throw new \RuntimeException("Cannot render template `$templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
+
+        // Check if this template is already being rendered
+        if ($this->rendering === true) {
+            throw new \LogicException('Calling the render() method is not possible within templates.');
         }
 
-        // Render template with view variables into a temporary output buffer
+        // Resolve and verify template file
+        $this->templatePathname = $this->templateDirectory . DIRECTORY_SEPARATOR . ltrim($template, DIRECTORY_SEPARATOR);
+        if (!is_file($this->templatePathname)) {
+            throw new \RuntimeException("Cannot render template `$this->templatePathname` because the template does not exist. Make sure your view's template directory is correct.");
+        }
+
+        // Clear the $template variable from the local scope
+        unset($template);
+
+        // Replace the view data and clear the $data variable from the local scope
         $this->replace($data);
+        unset($data);
+
+        // Extract the template variables so they are available in the template
         extract($this->all());
+
+        // Render the template
+        $this->rendering = true;
         ob_start();
-        require $templatePathname;
+        require $this->templatePathname;
+        $buffer = ob_get_clean();
+        $this->rendering = false;
 
         // Return temporary output buffer content, destroy output buffer
-        return ob_get_clean();
+        return $buffer;
     }
 }
