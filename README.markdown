@@ -40,17 +40,23 @@ You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `m
 
 Instantiate a Slim application:
 
-    $app = new \Slim\Slim();
+```php
+$app = new \Slim\Slim();
+```
 
 Define a HTTP GET route:
 
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name";
-    });
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name";
+});
+```
 
 Run the Slim application:
 
-    $app->run();
+```php
+$app->run();
+```
 
 ### Setup your web server
 
@@ -114,23 +120,25 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 
 Ensure the `Web.config` and `index.php` files are in the same public-accessible directory. The `Web.config` file should contain this code:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <configuration>
-        <system.webServer>
-            <rewrite>
-                <rules>
-                    <rule name="slim" patternSyntax="Wildcard">
-                        <match url="*" />
-                        <conditions>
-                            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-                            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-                        </conditions>
-                        <action type="Rewrite" url="index.php" />
-                    </rule>
-                </rules>
-            </rewrite>
-        </system.webServer>
-    </configuration>
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <rule name="slim" patternSyntax="Wildcard">
+                    <match url="*" />
+                    <conditions>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="index.php" />
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+```
 
 ## Documentation
 
