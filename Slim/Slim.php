@@ -1371,6 +1371,7 @@ class Slim
                 throw $e;
             } else {
                 try {
+                    $this->response()->write(ob_get_clean());
                     $this->error($e);
                 } catch (\Slim\Exception\Stop $e) {
                     // Do nothing
