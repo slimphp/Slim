@@ -633,8 +633,8 @@ class Slim
             $this->error = $argument;
         } else {
             //Invoke error handler
-            $this->response->status(500);
-            $this->response->body('');
+            $this->response->setStatus(500);
+            $this->response->setBody('');
             $this->response->write($this->callErrorHandler($argument));
             $this->stop();
         }
@@ -719,13 +719,13 @@ class Slim
     public function view($viewClass = null)
     {
         if (!is_null($viewClass)) {
-            $existingData = is_null($this->view) ? array() : $this->view->getData();
+            $existingData = is_null($this->view) ? array() : $this->view->all();
             if ($viewClass instanceOf \Slim\View) {
                 $this->view = $viewClass;
             } else {
                 $this->view = new $viewClass();
             }
-            $this->view->appendData($existingData);
+            $this->view->replace($existingData);
             $this->view->setTemplatesDirectory($this->config('templates.path'));
         }
 
@@ -751,9 +751,9 @@ class Slim
     public function render($template, $data = array(), $status = null)
     {
         if (!is_null($status)) {
-            $this->response->status($status);
+            $this->response->setStatus($status);
         }
-        $this->view->appendData($data);
+        $this->view->replace($data);
         $this->view->display($template);
     }
 
@@ -1037,8 +1037,8 @@ class Slim
     public function halt($status, $message = '')
     {
         $this->cleanBuffer();
-        $this->response->status($status);
-        $this->response->body($message);
+        $this->response->setStatus($status);
+        $this->response->setBody($message);
         $this->stop();
     }
 
@@ -1340,7 +1340,7 @@ class Slim
     {
         try {
             if (isset($this->environment['slim.flash'])) {
-                $this->view()->setData('flash', $this->environment['slim.flash']);
+                $this->view()->set('flash', $this->environment['slim.flash']);
             }
             $this->applyHook('slim.before');
             ob_start();

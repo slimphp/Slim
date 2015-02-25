@@ -71,8 +71,8 @@ class PrettyExceptions extends \Slim\Middleware
             $env['slim.log'] = $log;
             $env['slim.log']->error($e);
             $this->app->contentType('text/html');
-            $this->app->response()->status(500);
-            $this->app->response()->body($this->renderBody($env, $e));
+            $this->app->response()->setStatus(500);
+            $this->app->response()->setBody($this->renderBody($env, $e));
         }
     }
 

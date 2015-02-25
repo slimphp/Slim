@@ -39,7 +39,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $prop->setAccessible(true);
         $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
 
-        $this->assertSame(array('foo' => 'bar'), $view->getData());
+        $this->assertSame(array('foo' => 'bar'), $view->all());
     }
 
     public function testGetDataKeyExists()
@@ -49,7 +49,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $prop->setAccessible(true);
         $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
 
-        $this->assertEquals('bar', $view->getData('foo'));
+        $this->assertEquals('bar', $view->get('foo'));
     }
 
     public function testGetDataKeyNotExists()
@@ -59,7 +59,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $prop->setAccessible(true);
         $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
 
-        $this->assertNull($view->getData('abc'));
+        $this->assertNull($view->get('abc'));
     }
 
     public function testSetDataKeyValue()
@@ -67,7 +67,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $view->setData('foo', 'bar');
+        $view->set('foo', 'bar');
 
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
@@ -78,7 +78,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
 
-        $view->setData('fooClosure', function () {
+        $view->keep('fooClosure', function () {
             return 'foo';
         });
 
@@ -92,7 +92,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $view->setData(array('foo' => 'bar'));
+        $view->replace(array('foo' => 'bar'));
 
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
@@ -110,7 +110,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $view = new \Slim\View();
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
-        $view->appendData(array('foo' => 'bar'));
+        $view->replace(array('foo' => 'bar'));
 
         $this->assertEquals(array('foo' => 'bar'), $prop->getValue($view)->all());
     }
@@ -136,7 +136,7 @@ class ViewTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($view, 'data');
         $prop->setAccessible(true);
         $prop->setValue($view, new \Slim\Helper\Set(array('foo' => 'bar')));
-        $view->appendData(array('foo' => '123'));
+        $view->replace(array('foo' => '123'));
 
         $this->assertEquals(array('foo' => '123'), $prop->getValue($view)->all());
     }
