@@ -25,7 +25,7 @@ if (!extension_loaded('mcrypt')) {
  * your application. And it returns the serialized HTTP response
  * back to the HTTP client.
  */
-class App extends \Pimple
+class App extends \Pimple\Container
 {
     /**
      * The current Slim Framework version
