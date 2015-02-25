@@ -116,6 +116,10 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         418 => '418 I\'m a teapot',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
+        426 => '426 Upgrade Required',
+        428 => '428 Precondition Required',
+        429 => '429 Too Many Requests',
+        431 => '431 Request Header Fields Too Large',
         //Server Error 5xx
         500 => '500 Internal Server Error',
         501 => '501 Not Implemented',
