@@ -85,6 +85,7 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         204 => '204 No Content',
         205 => '205 Reset Content',
         206 => '206 Partial Content',
+        226 => '226 IM Used',
         //Redirection 3xx
         300 => '300 Multiple Choices',
         301 => '301 Moved Permanently',
@@ -126,7 +127,10 @@ class Response implements \ArrayAccess, \Countable, \IteratorAggregate
         502 => '502 Bad Gateway',
         503 => '503 Service Unavailable',
         504 => '504 Gateway Timeout',
-        505 => '505 HTTP Version Not Supported'
+        505 => '505 HTTP Version Not Supported',
+        506 => '506 Variant Also Negotiates',
+        510 => '510 Not Extended',
+        511 => '511 Network Authentication Required'
     );
 
     /**
