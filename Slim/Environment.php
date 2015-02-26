@@ -154,7 +154,8 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             $env['SERVER_NAME'] = $_SERVER['SERVER_NAME'];
 
             //Number of server port that is running the script
-            $env['SERVER_PORT'] = $_SERVER['SERVER_PORT'];
+            //Fixes: https://github.com/slimphp/Slim/issues/962
+            $env['SERVER_PORT'] = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : 80;
 
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Slim\Http\Headers::extract($_SERVER);
