@@ -37,6 +37,22 @@ use \Slim\ConfigurationHandler;
  */
 class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
 {
+    public function testFlattenArray()
+    {
+        $array = array(
+            '123' => array(
+                '456' => array(
+                    '789' => 1
+                ),
+            ),
+        );
+
+        $con = new ConfigurationHandler;
+        $con->setArray($array);
+
+        $this->assertArrayHasKey('123.456.789', $con->getAllFlat());
+    }
+
     public function testSetArray()
     {
         $con = new ConfigurationHandler;
