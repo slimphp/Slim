@@ -44,7 +44,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
     public $defaults = array(
         // Application
         'mode' => 'development',
-        'view' => null,
+        'view.templates' => '../templates',
         // Cookies
         'cookies.encrypt' => false,
         'cookies.lifetime' => '20 minutes',

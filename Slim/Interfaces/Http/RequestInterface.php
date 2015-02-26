@@ -47,11 +47,7 @@ interface RequestInterface
 
     public function getMethod();
 
-    public function setMethod($method);
-
     public function getUrl();
-
-    public function setUrl($url);
 
     public function getHeaders();
 
@@ -59,21 +55,11 @@ interface RequestInterface
 
     public function getHeader($name);
 
-    public function setHeader($name, $value);
-
-    public function setHeaders(array $headers);
-
-    public function addHeader($name, $value);
-
-    public function addHeaders(array $headers);
-
     public function removeHeader($name);
 
     /***** Body *****/
 
     public function getBody();
-
-    public function setBody(\GuzzleHttp\Stream\StreamInterface $body);
 
     /***** Metadata *****/
 

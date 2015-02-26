@@ -1,37 +1,15 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
 use \Slim\Interfaces\RouteInterface;
 
 /**
@@ -55,79 +33,85 @@ use \Slim\Interfaces\RouteInterface;
  * to be invoked before the route's callable is invoked. Route middleware (not
  * to be confused with Slim application middleware) are useful for applying route
  * specific logic such as authentication.
- *
- * @package Slim
- * @author  Josh Lockhart, Thomas Bley
- * @since   1.0.0
  */
 class Route implements RouteInterface
 {
     /**
      * The route pattern (e.g. "/hello/:first/:name")
+     *
      * @var string
      */
     protected $pattern;
 
     /**
      * The route callable
-     * @var mixed
+     *
+     * @var callable
      */
     protected $callable;
 
     /**
      * Conditions for this route's URL parameters
+     *
      * @var array
      */
     protected $conditions = array();
 
     /**
      * Default conditions applied to all route instances
+     *
      * @var array
      */
     protected static $defaultConditions = array();
 
     /**
      * The name of this route (optional)
-     * @var string
+     *
+     * @var null|string
      */
     protected $name;
 
     /**
      * Array of URL parameters
+     *
      * @var array
      */
     protected $params = array();
 
     /**
      * Array of URL parameter names
+     *
      * @var array
      */
     protected $paramNames = array();
 
     /**
      * Array of URL parameter names with + at the end
+     *
      * @var array
      */
     protected $paramNamesPath = array();
 
     /**
      * HTTP methods supported by this route
-     * @var array
+     *
+     * @var string[]
      */
     protected $methods = array();
 
     /**
      * Middleware to be invoked before immediately before this route is dispatched
-     * @var array[Callable]
+     *
+     * @var callable[]
      */
     protected $middleware = array();
 
     /**
-     * Constructor
-     * @param  string $pattern  The URL pattern
-     * @param  mixed  $callable Anything that returns `true` for `is_callable()`
-     * @param bool $caseSensitive Whether or not this route should be matched in a case-sensitive manner
-     * @api
+     * Create new route
+     *
+     * @param string   $pattern       The Route pattern
+     * @param callable $callable      The Route callable
+     * @param bool     $caseSensitive Is the Route path case-sensitive?
      */
     public function __construct($pattern, $callable, $caseSensitive = true)
     {
@@ -138,9 +122,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * Set default route conditions for all routes
-     * @param  array $defaultConditions
-     * @api
+     * Set default Route conditions (applies to _all_ Route objects)
+     *
+     * @param array $defaultConditions
      */
     public static function setDefaultConditions(array $defaultConditions)
     {
@@ -148,9 +132,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * Get default route conditions for all instances
+     * Get default route conditions
+     *
      * @return array
-     * @api
      */
     public static function getDefaultConditions()
     {
@@ -159,8 +143,8 @@ class Route implements RouteInterface
 
     /**
      * Get route pattern
+     *
      * @return string
-     * @api
      */
     public function getPattern()
     {
@@ -169,8 +153,8 @@ class Route implements RouteInterface
 
     /**
      * Set route pattern
-     * @param  string $pattern
-     * @api
+     *
+     * @param string $pattern
      */
     public function setPattern($pattern)
     {
@@ -179,8 +163,8 @@ class Route implements RouteInterface
 
     /**
      * Get route callable
-     * @return mixed
-     * @api
+     *
+     * @return callable
      */
     public function getCallable()
     {
@@ -189,9 +173,9 @@ class Route implements RouteInterface
 
     /**
      * Set route callable
-     * @param  mixed                     $callable
+     *
+     * @param  string|callable           $callable
      * @throws \InvalidArgumentException If argument is not callable
-     * @api
      */
     public function setCallable($callable)
     {
@@ -202,7 +186,13 @@ class Route implements RouteInterface
             $callable = function() use ($class, $method) {
                 static $obj = null;
                 if ($obj === null) {
+                    if(!class_exists($class)) {
+                        throw new \InvalidArgumentException('Route callable class does not exist');
+                    }
                     $obj = new $class;
+                }
+                if(!method_exists($obj, $method)) {
+                    throw new \InvalidArgumentException('Route callable method does not exist');
                 }
                 return call_user_func_array(array($obj, $method), func_get_args());
             };
@@ -217,8 +207,8 @@ class Route implements RouteInterface
 
     /**
      * Get route conditions
+     *
      * @return array
-     * @api
      */
     public function getConditions()
     {
@@ -227,8 +217,8 @@ class Route implements RouteInterface
 
     /**
      * Set route conditions
-     * @param  array $conditions
-     * @api
+     *
+     * @param array $conditions
      */
     public function setConditions(array $conditions)
     {
@@ -237,8 +227,8 @@ class Route implements RouteInterface
 
     /**
      * Get route name (this may be null if not set)
+     *
      * @return string|null
-     * @api
      */
     public function getName()
     {
@@ -247,8 +237,8 @@ class Route implements RouteInterface
 
     /**
      * Set route name
+     *
      * @param string $name
-     * @api
      */
     public function setName($name)
     {
@@ -257,8 +247,8 @@ class Route implements RouteInterface
 
     /**
      * Get route parameters
+     *
      * @return array
-     * @api
      */
     public function getParams()
     {
@@ -267,8 +257,8 @@ class Route implements RouteInterface
 
     /**
      * Set route parameters
-     * @param  array $params
-     * @api
+     *
+     * @param array $params
      */
     public function setParams(array $params)
     {
@@ -277,10 +267,10 @@ class Route implements RouteInterface
 
     /**
      * Get route parameter value
+     *
      * @param  string                    $index Name of URL parameter
      * @return string
      * @throws \InvalidArgumentException        If route parameter does not exist at index
-     * @api
      */
     public function getParam($index)
     {
@@ -293,11 +283,11 @@ class Route implements RouteInterface
 
     /**
      * Set route parameter value
-     * @param  string                    $index     Name of URL parameter
-     * @param  mixed                     $value     The new parameter value
+     *
+     * @param  string                    $index Name of URL parameter
+     * @param  mixed                     $value The new parameter value
      * @return void
-     * @throws \InvalidArgumentException            If route parameter does not exist at index
-     * @api
+     * @throws \InvalidArgumentException If route parameter does not exist at index
      */
     public function setParam($index, $value)
     {
@@ -308,19 +298,19 @@ class Route implements RouteInterface
     }
 
     /**
-     * Add supported HTTP methods (this method accepts an unlimited number of string arguments)
-     * @api
+     * Set supported HTTP methods
+     *
+     * @param array $methods
      */
-    public function setHttpMethods()
+    public function setHttpMethods(array $methods)
     {
-        $args = func_get_args();
-        $this->methods = $args;
+        $this->methods = $methods;
     }
 
     /**
      * Get supported HTTP methods
+     *
      * @return array
-     * @api
      */
     public function getHttpMethods()
     {
@@ -328,39 +318,34 @@ class Route implements RouteInterface
     }
 
     /**
-     * Append supported HTTP methods (this method accepts an unlimited number of string arguments)
-     * @api
+     * Append supported HTTP methods
+     *
+     * @param array $methods
      */
-    public function appendHttpMethods()
+    public function appendHttpMethods(array $methods)
     {
-        $args = func_get_args();
-        if(count($args) && is_array($args[0])){
-            $args = $args[0];
-        }
-        $this->methods = array_merge($this->methods, $args);
+        $this->methods = array_merge($this->methods, $methods);
     }
 
     /**
-     * Append supported HTTP methods (alias for Route::appendHttpMethods)
-     * @return \Slim\Route
-     * @api
+     * Append supported HTTP methods
+     *
+     * @param  array $methods
+     * @return self
+     * @see    appendHttpMethods()
      */
-    public function via()
+    public function via(array $methods)
     {
-        $args = func_get_args();
-        if(count($args) && is_array($args[0])){
-            $args = $args[0];
-        }
-        $this->methods = array_merge($this->methods, $args);
+        $this->appendHttpMethods($methods);
 
         return $this;
     }
 
     /**
-     * Detect support for an HTTP method
+     * Does this route answer for a given HTTP method?
+     *
      * @param  string $method
      * @return bool
-     * @api
      */
     public function supportsHttpMethod($method)
     {
@@ -368,9 +353,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * Get middleware
-     * @return array[Callable]
-     * @api
+     * Get Route middleware
+     *
+     * @return callable[]
      */
     public function getMiddleware()
     {
@@ -378,7 +363,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * Set middleware
+     * Set Route middleware
      *
      * This method allows middleware to be assigned to a specific Route.
      * If the method argument `is_callable` (including callable arrays!),
@@ -387,10 +372,9 @@ class Route implements RouteInterface
      * with `$this->middleware`.  Each middleware is checked for is_callable()
      * and an InvalidArgumentException is thrown immediately if it isn't.
      *
-     * @param  Callable|array[Callable]
-     * @return \Slim\Route
+     * @param  callable|callable[]
+     * @return self
      * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
-     * @api
      */
     public function setMiddleware($middleware)
     {
@@ -411,20 +395,17 @@ class Route implements RouteInterface
     }
 
     /**
-     * Matches URI?
+     * Does this Route's pattern match a given request Uri path?
      *
      * Parse this route's pattern, and then compare it to an HTTP resource URI
      * This method was modeled after the techniques demonstrated by Dan Sosedoff at:
      *
-     * http://blog.sosedoff.com/2009/09/20/rails-like-php-url-router/
-     *
-     * @param  string $resourceUri A Request URI
+     * @param  string $uriPath A Request Uri path
      * @return bool
-     * @api
      */
-    public function matches($resourceUri)
+    public function matches($uriPath)
     {
-        //Convert URL params into regex patterns, construct a regex for this route, init params
+        // Convert URL params into regex patterns, construct a regex for this route, init params
         $patternAsRegex = preg_replace_callback(
             '#:([\w]+)\+?#',
             array($this, 'matchesCallback'),
@@ -441,7 +422,7 @@ class Route implements RouteInterface
         }
 
         //Cache URL params' names and values if this route matches the current HTTP request
-        if (!preg_match($regex, $resourceUri, $paramValues)) {
+        if (!preg_match($regex, $uriPath, $paramValues)) {
             return false;
         }
         foreach ($this->paramNames as $name) {
@@ -458,9 +439,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * Convert a URL parameter (e.g. ":id", ":id+") into a regular expression
-     * @param  array  $m URL parameters
-     * @return string    Regular expression for URL parameter
+     * Convert a URL parameter (e.g., ":id" or ":id+") into a regular expression
+     *
+     * @param  array  $matches URL parameter match
+     * @return string          Regular expression string for URL parameter
      */
     protected function matchesCallback($m)
     {
@@ -479,9 +461,9 @@ class Route implements RouteInterface
 
     /**
      * Set route name
-     * @param  string      $name The name of the route
-     * @return \Slim\Route
-     * @api
+     *
+     * @param  string $name The name of the route
+     * @return self
      */
     public function name($name)
     {
@@ -492,9 +474,9 @@ class Route implements RouteInterface
 
     /**
      * Merge route conditions
-     * @param  array       $conditions Key-value array of URL parameter conditions
-     * @return \Slim\Route
-     * @api
+     *
+     * @param  array $conditions Key-value array of URL parameter conditions
+     * @return self
      */
     public function conditions(array $conditions)
     {
@@ -504,22 +486,49 @@ class Route implements RouteInterface
     }
 
     /**
-     * Dispatch route
+     * Dispatch route callable against current Request and Response objects
      *
      * This method invokes the route object's callable. If middleware is
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @return bool
-     * @api
+     * @param  RequestInterface  $request  The current Request object
+     * @param  ResponseInterface $response The current Response object
+     * @return ResponseInterface
      */
-    public function dispatch()
+    public function dispatch(RequestInterface $request, ResponseInterface $response)
     {
+        // Invoke route middleware
         foreach ($this->middleware as $mw) {
-            call_user_func_array($mw, array($this));
+            $newResponse = call_user_func_array($mw, [$request, $response, $this]);
+            if ($newResponse instanceof ResponseInterface) {
+                $response = $newResponse;
+            }
         }
 
-        $return = call_user_func_array($this->getCallable(), array_values($this->getParams()));
-        return ($return === false) ? false : true;
+        // Inject route parameters into Request object as attributes
+        $request = $request->withAttributes($this->getParams());
+
+        // Invoke route callable
+        try {
+            ob_start();
+            $newResponse = call_user_func_array($this->getCallable(), [$request, $response, $this]);
+            $output = ob_get_clean();
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
+
+        // End if route callback returns Interfaces\Http\ResponseInterface object
+        if ($newResponse instanceof ResponseInterface) {
+            return $newResponse;
+        }
+
+        // Else append output buffer content
+        if ($output) {
+            $response->write($output);
+        }
+
+        return $response;
     }
 }

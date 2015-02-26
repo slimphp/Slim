@@ -8,20 +8,19 @@
     "authors": [
         {
             "name": "Josh Lockhart",
-            "email": "info@joshlockhart.com",
-            "homepage": "http://www.joshlockhart.com/"
+            "email": "hello@joshlockhart.com",
+            "homepage": "https://joshlockhart.com"
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "pimple/pimple": "2.*",
-        "guzzlehttp/streams": "1.*"
+        "php": ">=5.4.0",
+        "pimple/pimple": "3.*",
+        "psr/http-message": "~0.8"
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",
         "phpunit/phpunit": "*"
     },
-
     "suggest": {
         "ext-mcrypt": "Required for HTTP cookie encryption"
     },

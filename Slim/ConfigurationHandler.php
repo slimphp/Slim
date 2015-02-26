@@ -1,34 +1,10 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim;
 
@@ -36,28 +12,30 @@ use \Slim\Interfaces\ConfigurationHandlerInterface;
 
 /**
  * ConfigurationHandler
- * A default Configuration class which provides app configuration values stored as nested arrays, which can be accessed and stored using dot separated keys.
  *
- * @package    Slim
- * @author     John Porter
- * @since      3.0.0
+ * This is a default Configuration class which provides app configuration
+ * values stored as nested arrays, which can be accessed and stored using
+ * dot separated keys.
  */
 class ConfigurationHandler implements ConfigurationHandlerInterface
 {
     /**
      * Cache of previously parsed keys
+     *
      * @var array
      */
     protected $keys = array();
 
     /**
      * Storage array of values
+     *
      * @var array
      */
     protected $values = array();
 
     /**
      * Expected nested key separator
+     *
      * @var string
      */
     protected $separator = '.';
@@ -65,8 +43,8 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
     /**
      * Set an array of configuration options
      * Merge provided values with the defaults to ensure all required values are set
+     *
      * @param array $values
-     * @required
      */
     public function setArray(array $values = array())
     {
@@ -75,6 +53,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Get all values as nested array
+     *
      * @return array
      */
     public function getAllNested()
@@ -84,6 +63,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Get all values as flattened key array
+     *
      * @return array
      */
     public function getAllFlat()
@@ -93,6 +73,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Get all flattened array keys
+     *
      * @return array
      */
     public function getKeys()
@@ -103,6 +84,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Get a value from a nested array based on a separated key
+     *
      * @param  string $key
      * @return mixed
      */
@@ -113,8 +95,9 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Set nested array values based on a separated key
-     * @param  string  $key
-     * @param  mixed   $value
+     *
+     * @param  string $key
+     * @param  mixed  $value
      * @return array
      */
     public function offsetSet($key, $value)
@@ -124,8 +107,8 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Check an array has a value based on a separated key
-     * @param  string  $key
-     * @return boolean
+     * @param  string $key
+     * @return bool
      */
     public function offsetExists($key)
     {
@@ -134,7 +117,8 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Remove nested array value based on a separated key
-     * @param  string  $key
+     *
+     * @param string $key
      */
     public function offsetUnset($key)
     {
@@ -156,6 +140,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Parse a separated key and cache the result
+     *
      * @param  string $key
      * @return array
      */
@@ -170,6 +155,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Get a value from a nested array based on a separated key
+     *
      * @param  string $key
      * @param  array  $array
      * @return mixed
@@ -189,9 +175,9 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
     /**
      * Set nested array values based on a separated key
      *
-     * @param  string  $key
-     * @param  mixed   $value
-     * @param  array   $array
+     * @param  string $key
+     * @param  mixed  $value
+     * @param  array  $array
      * @return array
      */
     protected function setValue($key, $value, array &$array = array())
@@ -211,7 +197,9 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
     /**
      * Merge arrays with nested keys into the values store
+     *
      * Usage: $this->mergeArrays(array $array [, array $...])
+     *
      * @return array
      */
     protected function mergeArrays()
@@ -257,7 +245,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
     /**
      * Get an ArrayIterator for the stored items
      *
-     * @return ArrayIterator
+     * @return \ArrayIterator
      */
     public function getIterator()
     {
