@@ -412,9 +412,9 @@ class App extends \Pimple\Container
      * Invoke hook
      *
      * @param string $name    The hook name
-     * @param mixed  $hookArg (Optional) Argument for hooked functions
+     * @param  mixed  ...   (Optional) Argument(s) for hooked functions, can specify multiple arguments
      */
-    public function applyHook($name, $hookArg = null)
+    public function applyHook($name)
     {
         if (!isset($this->hooks[$name])) {
             $this->hooks[$name] = array(array());
@@ -424,10 +424,12 @@ class App extends \Pimple\Container
             if (count($this->hooks[$name]) > 1) {
                 ksort($this->hooks[$name]);
             }
+            $args = func_get_args();
+            array_shift($args);
             foreach ($this->hooks[$name] as $priority) {
                 if (!empty($priority)) {
                     foreach ($priority as $callable) {
-                        call_user_func($callable, $hookArg);
+                        call_user_func_array($callable, $args);
                     }
                 }
             }
