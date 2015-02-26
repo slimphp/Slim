@@ -1613,6 +1613,32 @@ class SlimTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test hooks accept multiple arguments
+     *
+     * Pre-conditions:
+     * Slim app instantiated;
+     * Hook name does not exist;
+     * Listener is a callable object;
+     *
+     * Post-conditions:
+     * Callable invoked with 2 arguments
+     */
+    public function testHooksMultipleArguments()
+    {
+        $testArgA = 'argumentA';
+        $testArgB = 'argumentB';
+
+        $this->expectOutputString($testArgA . $testArgB);
+
+	$app = new \Slim\Slim();
+
+        $app->hook('test.hook.one', function ($argA, $argB) {
+                echo $argA . $argB;
+        });
+        $app->applyHook('test.hook.one', $testArgA, $testArgB);
+    }
+
+    /**
      * Test late static binding
      *
      * Pre-conditions:
