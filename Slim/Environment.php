@@ -162,6 +162,12 @@ class Environment implements \ArrayAccess, \IteratorAggregate
                 $env[$key] = $value;
             }
 
+            //Workaround for Nginx or HAProxy
+            if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+                $_SERVER['HTTPS']='on';
+                $env['SERVER_PORT'] = 443;
+            }
+
             //Is the application running under HTTPS or HTTP protocol?
             $env['slim.url_scheme'] = empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] === 'off' ? 'http' : 'https';
 
