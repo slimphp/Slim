@@ -159,6 +159,13 @@ class Environment implements \ArrayAccess, \IteratorAggregate
             //HTTP request headers (retains HTTP_ prefix to match $_SERVER)
             $headers = \Slim\Http\Headers::extract($_SERVER);
             foreach ($headers as $key => $value) {
+                if($key == 'HTTP_X_FORWARDED_FOR'){
+                    //This request is from a reverse proxy, so overwrite SCRIPT_NAME
+                    $env['SCRIPT_NAME'] = '';
+                    
+                    $env['HTTP_HOST'] = $headers['HTTP_X_FORWARDED_HOST'];
+                }
+                
                 $env[$key] = $value;
             }
 
