@@ -16,10 +16,15 @@ use Psr\Http\Message\ResponseInterface;
 trait Middlewared {
 
     /**
+     * Top level middleware that will be pass to the next middleware pushed on the stack
      * @var Middleware
      */
     protected $topLevel;
 
+    /**
+     * @var bool
+     */
+    private $processingRequest = false;
 
     /**
      * Add middleware
@@ -31,6 +36,12 @@ trait Middlewared {
     public function addMiddleware(callable $newMiddleware)
     {
         $this->assumeIsBooted();
+
+        if($this->processingRequest) {
+            // the request is entered in the stack so this middleware will not be call
+            throw new \RuntimeException('New middleware can’t be pushed on a stacked processing a Request');
+        }
+
         $this->topLevel = new Middleware($newMiddleware, $this->topLevel);
     }
 
@@ -89,14 +100,18 @@ trait Middlewared {
      * @param RequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
+     * @todo unhttpify
      */
     abstract public function __invoke(RequestInterface $request, ResponseInterface $response);
 
 
-    protected function execMiddlewareStack($req, $res)
+    public function execMiddlewareStack($req, $res)
     {
         $this->assumeIsBooted();
-        return call_user_func_array($this->topLevel, [$req, $res]);
+        $this->processingRequest = true;
+        $res = call_user_func_array($this->topLevel, [$req, $res]);
+        $this->processingRequest = false;
+        return $res;
     }
 
 }

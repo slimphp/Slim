@@ -1,11 +1,17 @@
 <?php
 
+
 class MiddlewaredStackTest {
     use \Slim\Middlewared;
 
     public function __invoke()
     {
         echo 'Hello';
+    }
+
+    public function run()
+    {
+        $this->assumeIsBooted();
     }
 }
 
@@ -19,7 +25,10 @@ class MiddlewaredTest extends PHPUnit_Framework_TestCase
     public function testWithoutNudeApp()
     {
         $this->expectOutputString('Hello');
-        $this->app->execMiddlewareStack(null, null);
+        $this->app->execMiddlewareStack(
+            $this->getMock('Psr\Http\Message\RequestInterface'),
+            $this->getMock('Psr\Http\Message\ResponseInterface')
+        );
     }
 
     public function testExecMiddlewares()
@@ -28,8 +37,12 @@ class MiddlewaredTest extends PHPUnit_Framework_TestCase
         $this->app->add(function($req, $resp, $next){
             echo 'Foo';
             $next();
+            return $resp;
         });
-        $this->app->execMiddlewareStack(null, null);
+        $this->app->execMiddlewareStack(
+            $this->getMock('Psr\Http\Message\RequestInterface'),
+            $this->getMock('Psr\Http\Message\ResponseInterface')
+        );
     }
 
     public function testStackOrder()
@@ -46,6 +59,20 @@ class MiddlewaredTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($mw3, $third_layer->getCallable());
         $app = $third_layer->getNext();
         $this->assertEquals($this->app, $app);
+    }
 
+    public function testAddMiddlewareWillStackIsRunningThrowException()
+    {
+        $this->app->addMiddleware(function($req, $resp) {
+            $this->app->add(function($req, $resp){
+                return $resp;
+            });
+            return $resp;
+        });
+        $this->setExpectedException('RuntimeException');
+        $this->app->execMiddlewareStack(
+            $this->getMock('Psr\Http\Message\RequestInterface'),
+            $this->getMock('Psr\Http\Message\ResponseInterface')
+        );
     }
 }
