@@ -346,11 +346,49 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getPort()
     {
-        if (!$this->scheme && !$this->port) {
-            return null;
+        if ($this->port && !$this->hasStandardPort()) {
+            return $this->port;
         }
 
-        return $this->port;
+        return null;
+    }
+
+    /**
+     * Create a new instance with the specified port.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified port.
+     *
+     * Implementations MUST raise an exception for ports outside the
+     * established TCP and UDP port ranges.
+     *
+     * A null value provided for the port is equivalent to removing the port
+     * information.
+     *
+     * @param  null|int $port Port to use with the new instance; a null value
+     *                        removes the port information.
+     * @return self           A new instance with the specified port.
+     * @throws \InvalidArgumentException for invalid ports.
+     */
+    public function withPort($port)
+    {
+        if (is_null($port) || (is_integer($port) && ($port >= 1 && $port <= 65535))) {
+            $clone = clone $this;
+            $clone->port = $port;
+            return $clone;
+        }
+
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
+    }
+
+    /**
+     * Does this Uri use a standard port?
+     *
+     * @return bool
+     */
+    protected function hasStandardPort()
+    {
+        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
     }
 
     /********************************************************************************
@@ -415,34 +453,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getFragment()
     {
         return '';
-    }
-
-    /**
-     * Create a new instance with the specified port.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified port.
-     *
-     * Implementations MUST raise an exception for ports outside the
-     * established TCP and UDP port ranges.
-     *
-     * A null value provided for the port is equivalent to removing the port
-     * information.
-     *
-     * @param  null|int $port Port to use with the new instance; a null value
-     *                        removes the port information.
-     * @return self           A new instance with the specified port.
-     * @throws \InvalidArgumentException for invalid ports.
-     */
-    public function withPort($port)
-    {
-        if (is_integer($port) && $port > 65535) {
-            throw new \InvalidArgumentException('Invalid port number');
-        }
-        $clone = clone $this;
-        $clone->port = $port;
-
-        return $clone;
     }
 
     /**

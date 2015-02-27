@@ -185,10 +185,58 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('example.com', $this->uriFactory()->getHost());
     }
 
-    public function testGetPort()
+    public function testGetPortStandard()
     {
-        $this->assertEquals(443, $this->uriFactory()->getPort());
+        $this->assertNull($this->uriFactory()->getPort());
     }
+
+    public function testGetPortNonStandard()
+    {
+        $scheme = 'https';
+        $user = 'josh';
+        $password = 'sekrit';
+        $host = 'example.com';
+        $path = '/foo/bar';
+        $port = 4000;
+        $query = 'abc=123';
+        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+
+        $this->assertEquals(4000, $uri->getPort());
+    }
+
+    public function testWithPort()
+    {
+        $uri = $this->uriFactory()->withPort(8000);
+
+        $this->assertAttributeEquals(8000, 'port', $uri);
+    }
+
+    public function testWithPortNull()
+    {
+        $uri = $this->uriFactory()->withPort(null);
+
+        $this->assertAttributeEquals(null, 'port', $uri);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithPortInvalidInt()
+    {
+        $uri = $this->uriFactory()->withPort(70000);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithPortInvalidString()
+    {
+        $uri = $this->uriFactory()->withPort('Foo');
+    }
+
+    /********************************************************************************
+     * Path
+     *******************************************************************************/
 
     public function testGetBasePathNone()
     {
@@ -240,21 +288,6 @@ class UriTest extends PHPUnit_Framework_TestCase
         $uri = $this->uriFactory()->withHost('slimframework.com');
 
         $this->assertAttributeEquals('slimframework.com', 'host', $uri);
-    }
-
-    public function testWithPort()
-    {
-        $uri = $this->uriFactory()->withPort(8000);
-
-        $this->assertAttributeEquals(8000, 'port', $uri);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testWithPortInvalid()
-    {
-        $uri = $this->uriFactory()->withPort(70000);
     }
 
     public function testWithBasePath()
