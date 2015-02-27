@@ -306,7 +306,27 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getHost()
     {
-        return $this->host ? $this->host : '';
+        return $this->host;
+    }
+
+    /**
+     * Create a new instance with the specified host.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified host.
+     *
+     * An empty host value is equivalent to removing the host.
+     *
+     * @param  string $host Hostname to use with the new instance.
+     * @return self         A new instance with the specified host.
+     * @throws \InvalidArgumentException for invalid hostnames.
+     */
+    public function withHost($host)
+    {
+        $clone = clone $this;
+        $clone->host = $host;
+
+        return $clone;
     }
 
     /**
@@ -395,26 +415,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getFragment()
     {
         return '';
-    }
-
-    /**
-     * Create a new instance with the specified host.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified host.
-     *
-     * An empty host value is equivalent to removing the host.
-     *
-     * @param  string $host Hostname to use with the new instance.
-     * @return self         A new instance with the specified host.
-     * @throws \InvalidArgumentException for invalid hostnames.
-     */
-    public function withHost($host)
-    {
-        $clone = clone $this;
-        $clone->host = $host;
-
-        return $clone;
     }
 
     /**
