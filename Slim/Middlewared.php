@@ -39,6 +39,7 @@ trait Middlewared {
      */
     public function addMiddlewares(array $newMiddlewares)
     {
+        $this->assumeIsBooted();
         foreach($newMiddlewares as $middleware) {
             $this->addMiddleware($middleware);
         }
@@ -49,6 +50,7 @@ trait Middlewared {
      */
     public function getTopLevelMiddleware()
     {
+        $this->assumeIsBooted();
         return $this->topLevel;
     }
 
