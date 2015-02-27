@@ -49,24 +49,47 @@ class UriTest extends PHPUnit_Framework_TestCase
         return new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
     }
 
+    /********************************************************************************
+     * Scheme
+     *******************************************************************************/
+
     public function testGetScheme()
     {
         $this->assertEquals('https', $this->uriFactory()->getScheme());
     }
 
-    public function testGetSchemeRemovesSuffix()
+    public function testWithScheme()
     {
-        $scheme = 'https://';
-        $user = 'josh';
-        $password = 'sekrit';
-        $host = 'example.com';
-        $path = '/foo/bar';
-        $port = 443;
-        $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = $this->uriFactory()->withScheme('http');
 
-        $this->assertEquals('https', $uri->getScheme());
+        $this->assertAttributeEquals('http', 'scheme', $uri);
     }
+
+    public function testWithSchemeRemovesSuffix()
+    {
+        $uri = $this->uriFactory()->withScheme('http://');
+
+        $this->assertAttributeEquals('http', 'scheme', $uri);
+    }
+
+    public function testWithSchemeEmpty()
+    {
+        $uri = $this->uriFactory()->withScheme('');
+
+        $this->assertAttributeEquals('', 'scheme', $uri);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithSchemeInvalid()
+    {
+        $uri = $this->uriFactory()->withScheme('ftp');
+    }
+
+    /********************************************************************************
+     * Authority
+     *******************************************************************************/
 
     public function testGetAuthorityWithUsernameAndPassword()
     {
@@ -194,13 +217,6 @@ class UriTest extends PHPUnit_Framework_TestCase
         $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
 
         $this->assertEquals('abc=123', $uri->getQuery());
-    }
-
-    public function testWithScheme()
-    {
-        $uri = $this->uriFactory()->withScheme('http://');
-
-        $this->assertAttributeEquals('http', 'scheme', $uri);
     }
 
     public function testWithUserInfo()

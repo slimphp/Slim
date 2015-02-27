@@ -32,7 +32,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $scheme;
+    protected $scheme = '';
 
     /**
      * Uri user
@@ -176,6 +176,10 @@ class Uri implements \Psr\Http\Message\UriInterface
         return $uri->withBasePath($basePath);
     }
 
+    /********************************************************************************
+     * Scheme
+     *******************************************************************************/
+
     /**
      * Retrieve the URI scheme.
      *
@@ -190,7 +194,35 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getScheme()
     {
-        return $this->scheme ? str_replace('://', '', $this->scheme) : '';
+        return $this->scheme;
+    }
+
+    /**
+     * Create a new instance with the specified scheme.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified scheme. If the scheme
+     * provided includes the "://" delimiter, it MUST be removed.
+     *
+     * Implementations SHOULD restrict values to "http", "https", or an empty
+     * string but MAY accommodate other schemes if required.
+     *
+     * An empty scheme is equivalent to removing the scheme.
+     *
+     * @param  string $scheme The scheme to use with the new instance.
+     * @return self           A new instance with the specified scheme.
+     * @throws \InvalidArgumentException for invalid or unsupported schemes.
+     */
+    public function withScheme($scheme)
+    {
+        $scheme = strtolower(str_replace('://', '', $scheme));
+        if (!in_array($scheme, ['', 'http', 'https'])) {
+            throw new \InvalidArgumentException('Uri scheme must be one of: "", "http", "https"');
+        }
+        $clone = clone $this;
+        $clone->scheme = $scheme;
+
+        return $clone;
     }
 
     /**
@@ -340,30 +372,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getFragment()
     {
         return '';
-    }
-
-    /**
-     * Create a new instance with the specified scheme.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified scheme. If the scheme
-     * provided includes the "://" delimiter, it MUST be removed.
-     *
-     * Implementations SHOULD restrict values to "http", "https", or an empty
-     * string but MAY accommodate other schemes if required.
-     *
-     * An empty scheme is equivalent to removing the scheme.
-     *
-     * @param  string $scheme The scheme to use with the new instance.
-     * @return self           A new instance with the specified scheme.
-     * @throws \InvalidArgumentException for invalid or unsupported schemes.
-     */
-    public function withScheme($scheme)
-    {
-        $clone = clone $this;
-        $clone->scheme = str_replace('://', '', $scheme);
-
-        return $clone;
     }
 
     /**
