@@ -53,7 +53,7 @@ interface RouterInterface
 
     public function popGroup();
 
-    public function urlFor($name, $params = array());
+    public function urlFor($name, array $params = array(), array $queryParams = array());
 
     public function addNamedRoute($name, RouteInterface $route);
 
