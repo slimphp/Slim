@@ -2,7 +2,7 @@
 /**
  * Slim - a micro PHP 5 framework
  *
- * @author      Josh Lockhart <info@joshlockhart.com>
+ * @author      Josh Lockhart <info@slimframework.com>
  * @copyright   2011 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
@@ -29,1051 +29,378 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-//Mock custom view
-class CustomView extends \Slim\View
-{
-    public function render($template, array $data = array()) { echo "Custom view"; }
-}
-
-//Mock middleware
-class CustomMiddleware extends \Slim\Middleware
-{
-    public function call()
-    {
-        $env = $this->app['environment'];
-        $res = $this->app['response'];
-        $this->next->call();
-        $res->setHeader('X-Slim-Test', 'Hello');
-        $res->write('Hello');
-    }
-}
+use \Slim\App;
+use \Slim\Collection;
+use \Slim\Http\Environment;
+use \Slim\Http\Uri;
+use \Slim\Http\Body;
+use \Slim\Http\Headers;
+use \Slim\Http\Request;
+use \Slim\Http\Response;
 
 class AppTest extends PHPUnit_Framework_TestCase
 {
-    protected $app;
+    /********************************************************************************
+     * Router proxy methods
+     *******************************************************************************/
 
-    protected function createApp(array $envSettings = array(), array $appSettings = array())
+    public function testMapRoute()
     {
-        $envSettings = array_merge(array(
-            'SCRIPT_NAME' => '/foo/index.php',
-            'REQUEST_URI' => '/foo/bar?one=foo&two=bar',
-            'QUERY_STRING' => 'one=foo&two=bar',
-            'SERVER_NAME' => 'slimframework.com'
-        ), $envSettings);
-
-        $appSettings = array_merge(array(), $appSettings);
-
-        $app = new \Slim\App($appSettings);
-
-        $app['environment'] = function () use ($envSettings) {
-            $env = new \Slim\Environment();
-            $env->mock($envSettings);
-            return $env;
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
         };
+        $app = new App();
+        $route = $app->map($path, $callable);
 
-        return $app;
-    }
-
-    protected function initializeApp(array $envSettings = array(), array $appSettings = array())
-    {
-        $this->app = $this->createApp($envSettings, $appSettings);
-    }
-
-    public function setUp()
-    {
-        // Remove environment mode if set
-        unset($_ENV['SLIM_MODE']);
-
-        // Reset session
-        $_SESSION = array();
-
-        // Initialize app
-        $this->initializeApp();
-    }
-
-    /************************************************
-     * INSTANTIATION
-     ************************************************/
-
-    /**
-     * Test version constant is string
-     */
-    public function testHasVersionConstant()
-    {
-        $this->assertTrue(is_string(\Slim\App::VERSION));
-    }
-
-    /**
-     * Test default instance properties
-     */
-    public function testDefaultInstanceProperties()
-    {
-        $this->assertInstanceOf('\Slim\Interfaces\Http\RequestInterface', $this->app['request']);
-        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $this->app['response']);
-        $this->assertInstanceOf('\Slim\Interfaces\RouterInterface', $this->app['router']);
-        $this->assertInstanceOf('\Slim\Environment', $this->app['environment']);
-    }
-
-    /**
-     * Test Slim autoloader ignores non-Slim classes
-     *
-     * Pre-conditions:
-     * Instantiate a non-Slim class;
-     *
-     * Post-conditions:
-     * Slim autoloader returns without requiring a class file;
-     */
-    public function testSlimAutoloaderIgnoresNonSlimClass()
-    {
-        $foo = new Foo();
-    }
-
-    /************************************************
-     * MODES
-     ************************************************/
-
-    /**
-     * Test default mode
-     */
-    public function testGetDefaultMode()
-    {
-        $this->assertEquals('development', $this->app['mode']);
-    }
-
-    /**
-     * Test custom mode from environment
-     */
-    public function testGetModeFromEnvironment()
-    {
-        $_ENV['SLIM_MODE'] = 'production';
-        $this->assertEquals('production', $this->app['mode']);
-    }
-
-    /**
-     * Test custom mode from app settings
-     */
-    public function testGetModeFromSettings()
-    {
-        $this->initializeApp(array(), array('mode' => 'test'));
-        $this->assertEquals('test', $this->app['mode']);
-    }
-
-    /**
-     * Test custom mode from getenv()
-     */
-    public function testGetModeFromGetEnv()
-    {
-        putenv('SLIM_MODE=production');
-        $this->assertEquals('production', $this->app['mode']);
-    }
-
-    /************************************************
-     * ROUTING
-     ************************************************/
-
-    /**
-     * Test GENERIC route
-     */
-    public function testGenericRoute()
-    {
-        $callable = function () { echo "foo"; };
-        $route = $this->app->map('/bar', $callable);
         $this->assertInstanceOf('\Slim\Route', $route);
-        $this->assertEmpty($route->getHttpMethods());
+        $this->assertAttributeEmpty('methods', $route);
     }
 
-    /**
-     * Test GET routes also get mapped as a HEAD route
-     */
-    public function testGetRouteIsAlsoMappedAsHead()
-    {
-        $route = $this->app->get('/foo', function () {});
-        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_GET));
-        $this->assertTrue($route->supportsHttpMethod(\Slim\Http\Request::METHOD_HEAD));
-    }
-
-    /**
-     * Test GET route
-     */
     public function testGetRoute()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->get('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->get($path, $callable);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
     }
 
-    /**
-     * Test POST route
-     */
     public function testPostRoute()
     {
-        $this->initializeApp(array(
-            'REQUEST_METHOD' => 'POST',
-        ));
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->post($path, $callable);
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->post('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('POST', 'methods', $route);
     }
 
-    /**
-     * Test PUT route
-     */
     public function testPutRoute()
     {
-        $this->initializeApp(array(
-            'REQUEST_METHOD' => 'PUT'
-        ));
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->put($path, $callable);
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->put('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('PUT', 'methods', $route);
     }
 
-    /**
-     * Test PATCH route
-     */
     public function testPatchRoute()
     {
-        $this->initializeApp(array(
-            'REQUEST_METHOD' => 'PATCH'
-        ));
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->patch($path, $callable);
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->patch('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('PATCH', 'methods', $route);
     }
 
-    /**
-     * Test DELETE route
-     */
     public function testDeleteRoute()
     {
-        $this->initializeApp(array(
-            'REQUEST_METHOD' => 'DELETE'
-        ));
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->delete($path, $callable);
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->delete('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('DELETE', 'methods', $route);
     }
 
-    /**
-     * Test OPTIONS route
-     */
     public function testOptionsRoute()
     {
-        $this->initializeApp(array(
-            'REQUEST_METHOD' => 'OPTIONS'
-        ));
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->options($path, $callable);
 
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $route = $this->app->options('/bar', $mw1, $mw2, $callable);
-        $this->app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-        $this->assertEquals('/bar', $route->getPattern());
-        $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
-    /**
-    * Test route groups
-    */
-    public function testRouteGroups()
-    {
-        // Prepare local-scope app
-        $app = $this->createApp(array(
-            'SCRIPT_NAME' => '/foo/index.php',
-            'REQUEST_URI' => '/foo/bar/baz'
-        ));
-
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $app->group('/bar', $mw1, function () use ($app, $mw2, $callable) {
-            $app->get('/baz', $mw2, $callable);
-        });
-        $app->call();
-        $this->assertEquals('foobarxyz', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /*
-     * Test ANY route
-     */
     public function testAnyRoute()
     {
-        $mw1 = function () { echo "foo"; };
-        $mw2 = function () { echo "bar"; };
-        $callable = function () { echo "xyz"; };
-        $methods = array('GET', 'POST', 'PUT', 'DELETE', 'OPTIONS');
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->any($path, $callable);
 
-        foreach ($methods as $method) {
-            $this->initializeApp(array(
-                'REQUEST_METHOD' => $method
-            ));
-            $route = $this->app->any('/bar', $mw1, $mw2, $callable);
-            $this->app->call();
-            $this->assertEquals('foobarxyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-            $this->assertEquals('/bar', $route->getPattern());
-            $this->assertSame($callable, $route->getCallable());
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('ANY', 'methods', $route);
+    }
+
+    public function testGroup()
+    {
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $app->group('/foo', function () use ($app) {
+            $route = $app->get('/bar', function ($req, $res) {
+                // Do something
+            });
+            $this->assertAttributeEquals('/foo/bar', 'pattern', $route);
+        });
+    }
+
+    /********************************************************************************
+     * Application behaviors
+     *******************************************************************************/
+
+    public function testStop()
+    {
+        $app = new App();
+        $res = new Response();
+        try {
+            $app->stop($res);
+            $this->fail('Did not catch exception!');
+        } catch (\Slim\Exception\Stop $e) {
+            $this->assertSame($res, $e->getResponse());
+        }
+    }
+
+    public function testHalt()
+    {
+        $app = new App();
+        try {
+            $app->halt(400, 'Bad');
+            $this->fail('Did not catch exception!');
+        } catch (\Slim\Exception\Stop $e) {
+            $res = $e->getResponse();
+            $body = $res->getBody();
+            $this->assertAttributeEquals(400, 'status', $res);
+            $this->assertEquals('Bad', (string)$body);
         }
     }
 
     /**
-     * Test if route does NOT expect trailing slash and URL has one
-     */
-    public function testRouteWithoutSlashAndUrlWithOne()
-    {
-        $this->initializeApp(array(
-            'REQUEST_URI' => '/foo/bar/' // <-- Trailing slash
-        ));
-
-        $this->app->get('/bar', function () { echo "xyz"; });
-        $this->app->call();
-        $this->assertEquals(404, $this->app['response']->getStatus());
-    }
-
-    /**
-      * Tests if route will match in case-insensitive manner if configured to do so
-      */
-     public function testRouteMatchesInCaseInsensitiveMannerIfConfigured()
-     {
-        $this->initializeApp(
-            array(
-                'REQUEST_URI' => '/foo/BaR' // Does not match route case
-            ),
-            array(
-                'routes.case_sensitive' => false
-            )
-        );
-
-         $route = $this->app->get('/bar', function () { echo "xyz"; });
-         $this->app->call();
-         $this->assertEquals(200, $this->app['response']->getStatus());
-         $this->assertEquals('xyz', stream_get_contents($this->app['response']->getBody(), -1, 0));
-         $this->assertEquals('/bar', $route->getPattern());
-     }
-
-    /**
-     * Test if route contains URL encoded characters
-     */
-    public function testRouteWithUrlEncodedCharacters()
-    {
-        $this->initializeApp(array(
-            'REQUEST_URI' => '/foo/bar/jo%20hn/smi%20th'
-        ));
-
-        $this->app->get('/bar/:one/:two', function ($one, $two) { echo $one . $two; });
-        $this->app->call();
-        $this->assertEquals('jo hnsmi th', stream_get_contents($this->app['response']->getBody(), -1, 0));
-    }
-
-    /************************************************
-     * FLASH
-     ************************************************/
-
-    /**
-     * Test set flash in the view
-     */
-    public function testSetFlashInView()
-    {
-        $this->initializeApp(array(), array(
-            'view' => new \Slim\View(dirname(__FILE__) . '/templates')
-        ));
-        $this->app['flash'];
-        $this->assertInstanceOf('\Slim\Flash', $this->app['view']->get('flash'));
-    }
-
-    /************************************************
-     * HTTP CACHING
-     ************************************************/
-
-    /**
-     * Test Last-Modified match
-     */
-    public function testLastModifiedMatch()
-    {
-        $app = $this->createApp(array(
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT'
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->lastModified(1286139652);
-        });
-        $app->call();
-
-        $this->assertEquals(304, $app['response']->getStatus());
-    }
-
-    /**
-     * Test Last-Modified match
-     */
-    public function testLastModifiedDoesNotMatch()
-    {
-        $app = $this->createApp(array(
-            'HTTP_IF_MODIFIED_SINCE' => 'Sun, 03 Oct 2010 21:00:52 GMT'
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->lastModified(1286139250);
-        });
-        $app->call();
-
-        $this->assertEquals(200, $app['response']->getStatus());
-    }
-
-    /**
-     * Test Last-Modified only accepts integers
-     */
-    public function testLastModifiedOnlyAcceptsIntegers()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            $app->lastModified('Test');
-        });
-        $app->call();
-    }
-
-    /**
-     * Test Last Modified header format
-     */
-    public function testLastModifiedHeaderFormat()
-    {
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            $app->lastModified(1286139652);
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertNotNull($app['response']->getHeader('Last-Modified'));
-        $this->assertEquals('Sun, 03 Oct 2010 21:00:52 GMT', $app['response']->getHeader('Last-Modified'));
-    }
-
-    /**
-     * Test ETag matches
-     */
-    public function testEtagMatches()
-    {
-        $app = $this->createApp(array(
-            'HTTP_IF_NONE_MATCH' => '"abc123"'
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->etag('abc123');
-        });
-        $app->call();
-
-        $this->assertEquals(304, $app['response']->getStatus());
-    }
-
-    /**
-     * Test ETag does not match
-     */
-    public function testEtagDoesNotMatch()
-    {
-        $app = $this->createApp(array(
-            'HTTP_IF_NONE_MATCH' => '"abc1234"'
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->etag('abc123');
-        });
-        $app->call();
-
-        $this->assertEquals(200, $app['response']->getStatus());
-    }
-
-    /**
-     * Test ETag with invalid type
-     */
-    public function testETagWithInvalidType()
-    {
-        $this->setExpectedException('\InvalidArgumentException');
-
-        $app = $this->createApp(array(
-            'HTTP_IF_NONE_MATCH' => '"abc1234"'
-        ));
-        $app->get('/bar', function () use ($app) {
-            $app->etag('123','foo');
-        });
-        $app->call();
-    }
-
-    /**
-     * Test Expires
-     */
-    public function testExpiresAsString()
-    {
-        $now = strtotime('5 days');
-        $expectedDate = gmdate('D, d M Y H:i:s T', $now);
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app, $now) {
-            $app->expires($now);
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertNotNull($app['response']->getHeader('Expires'));
-        $this->assertEquals($expectedDate, $app['response']->getHeader('Expires'));
-    }
-
-    /**
-     * Test Expires
-     */
-    public function testExpiresAsInteger()
-    {
-        $fiveDaysFromNow = time() + (60 * 60 * 24 * 5);
-        $expectedDate = gmdate('D, d M Y H:i:s T', $fiveDaysFromNow);
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app, $fiveDaysFromNow) {
-            $app->expires($fiveDaysFromNow);
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertNotNull($app['response']->getHeader('Expires'));
-        $this->assertEquals($expectedDate, $app['response']->getHeader('Expires'));
-    }
-
-    /************************************************
-     * HELPERS
-     ************************************************/
-
-    /**
-     * Test get root directory
-     */
-    public function testGetRoot()
-    {
-        $app = $this->createApp(array('SCRIPT_FILENAME' => '/var/www/index.php'));
-        $this->assertEquals('/var/www', $app->root());
-    }
-
-    /**
-     * Test get root directory when server variable is not present
-     */
-    public function testGetRootWithoutServerVariable()
-    {
-        $this->setExpectedException('\RuntimeException');
-
-        $this->app['environment']->remove('SCRIPT_FILENAME');
-        $this->app->root();
-    }
-
-    /**
-     * Test stop
-     */
-    public function testStop()
-    {
-        $this->setExpectedException('\Slim\Exception\Stop');
-
-        $this->app->stop();
-    }
-
-    /**
-     * Test stop with subsequent output
-     */
-    public function testStopWithSubsequentOutput()
-    {
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            echo "Foo"; //<-- Should be in response body
-            $app->stop();
-            echo "Bar"; //<-- Should not be in response body
-        });
-        $app->call();
-
-        $this->assertEquals('Foo', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /**
-     * Test stop with output buffer on and pre content
-     */
-    public function testStopOutputWithOutputBufferingOnAndPreContent()
-    {
-        $this->expectOutputString('1.2.Foo.3'); //<-- PHP unit uses OB here
-        echo "1.";
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            echo "Foo";
-            $app->stop();
-        });
-        echo "2.";
-        $app->run(); // <-- Needs to be run to actually echo body
-        echo ".3";
-    }
-
-    /**
-     * Test stop does not leave output buffers open
-     */
-    public function testStopDoesNotLeaveOutputBuffersOpen()
-    {
-        $level_start = ob_get_level();
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            $app->stop();
-        });
-        $app->run();
-
-        $this->assertEquals($level_start, ob_get_level());
-    }
-
-    /**
-     * Test halt
-     */
-    public function testHalt()
-    {
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            echo "Foo!"; //<-- Should not be in response body!
-            $app->halt(500, 'Something broke');
-        });
-        $app->call();
-        $app['response']->finalize($app['request']);
-
-        $this->assertEquals(500, $app['response']->getStatus());
-        $this->assertEquals('Something broke', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /**
-     * Test halt with output buffering and pre content
-     */
-    public function testHaltOutputWithOutputBufferingOnAndPreContent()
-    {
-        $this->expectOutputString('1.2.Something broke.3'); // <-- PHP unit uses OB here
-
-        echo "1.";
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            echo "Foo!"; // <-- Should not be in response body!
-            $app->halt(500, 'Something broke');
-        });
-        echo "2.";
-        $app->run();
-        echo ".3";
-    }
-
-    /**
-     * Test halt does not leave output buffers open
-     */
-    public function testHaltDoesNotLeaveOutputBuffersOpen()
-    {
-        $level_start = ob_get_level();
-
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            $app->halt(500, '');
-        });
-        $app->run();
-
-        $this->assertEquals($level_start, ob_get_level());
-    }
-
-    /**
-     * Test pass cleans buffer and throws exception
+     * @expectedException \Slim\Exception\Pass
      */
     public function testPass()
     {
-        ob_start();
-        echo "Foo";
-        try {
-            $this->app->pass();
-            $this->fail('Did not catch Slim_Exception_Pass');
-        } catch (\Slim\Exception\Pass $e) {}
-        $output = ob_get_clean();
-        $this->assertEquals('', $output);
+        $app = new App();
+        $app->pass();
     }
 
-    /**
-     * Test pass when there is a subsequent fallback route
-     */
-    public function testPassWithSubsequentRoute()
-    {
-        $app = $this->createApp(array(
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/name/Frank'
-        ));
-        $app->get('/name/Frank', function () use ($app) {
-            echo "Fail"; // <-- Should not be in response body!
-            $app->pass();
-        });
-        $app->get('/name/:name', function ($name) {
-            echo $name; // <-- Should be in response body!
-        });
-        $app->call();
-
-        $this->assertEquals('Frank', stream_get_contents($app['response']->getBody(), -1, 0));
-    }
-
-    /**
-     * Test pass when there is not a subsequent fallback route
-     */
-    public function testPassWithoutSubsequentRoute()
-    {
-        $app = $this->createApp(array(
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/name/Frank'
-        ));
-        $app->get('/name/Frank', function () use ($app) {
-            echo "Fail"; // <-- Should not be in response body!
-            $app->pass();
-        });
-        $app->call();
-
-        $this->assertEquals(404, $app['response']->getStatus());
-    }
-
-    /**
-     * Test URL for
-     */
-    public function testUrlFor()
-    {
-        $this->app->get('/hello/:name', function () {})->name('hello');
-        $this->assertEquals('/foo/hello/Josh', $this->app->urlFor('hello', array('name' => 'Josh'))); // <-- Prepends physical path!
-    }
-
-    /**
-     * Test redirect sets status and header
-     */
     public function testRedirect()
     {
-        $this->setExpectedException('\Slim\Exception\Stop'); // <-- Thrown by redirect() method
-        $this->app->redirect('/somewhere/else', 303);
-        $this->assertEquals(303, $this->app['response']->getStatus());
-        $this->assertEquals('/somewhere/else', $this->app['response']->getHeader('Location'));
-        $this->assertEquals('', (string)$this->app['response']->getBody());
+        $app = new App();
+        try {
+            $app->redirect('http://slimframework.com', 301);
+            $this->fail('Did not catch exception!');
+        } catch (\Slim\Exception\Stop $e) {
+            $res = $e->getResponse();
+            $this->assertAttributeEquals(301, 'status', $res);
+            $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
+        }
     }
 
-    /************************************************
-     * RUNNER
-     ************************************************/
+    /********************************************************************************
+     * Hooks
+     *******************************************************************************/
 
-    /**
-     * Test that runner sends headers and body
-     */
-    public function testRun()
+    // TODO: Test hook methods... pending improvements
+
+    /********************************************************************************
+     * Middleware
+     *******************************************************************************/
+
+    public function testDefaultMiddlewareStack()
     {
-        $this->expectOutputString('Foo');
+        $app = new App();
+        $prop = new \ReflectionProperty($app, 'middleware');
+        $prop->setAccessible(true);
 
-        $this->app->get('/bar', function () {
-            echo "Foo";
-        });
-        $this->app->run();
+        $this->assertEquals(1, count($prop->getValue($app)));
+        $this->assertSame($app, $prop->getValue($app)[0]);
     }
 
-    /**
-     * Test runner output with output buffering on and pre content
-     */
-    public function testRunOutputWithOutputBufferingOnAndPreContent()
-    {
-        $this->expectOutputString('1.2.Foo.3');
-
-        echo "1.";
-        $this->app->get('/bar', function () {
-            echo "Foo";
-        });
-        echo "2.";
-        $this->app->run();
-        echo ".3";
-    }
-
-    /**
-     * Test that runner does not leave output buffers open
-     */
-    public function testRunDoesNotLeaveAnyOutputBuffersOpen()
-    {
-        $level_start = ob_get_level();
-        $this->app->get('/bar', function () {});
-        $this->app->run();
-
-        $this->assertEquals($level_start, ob_get_level());
-    }
-
-    /************************************************
-     * MIDDLEWARE
-     ************************************************/
-
-    /**
-     * Test add middleware
-     *
-     * This asserts that middleware are queued and called
-     * in sequence. This also asserts that the environment
-     * variables are passed by reference.
-     */
     public function testAddMiddleware()
     {
-        $this->expectOutputString('FooHello');
-
-        $this->app->add(new CustomMiddleware()); //<-- See top of this file for class definition
-        $this->app->get('/bar', function () {
-            echo 'Foo';
-        });
-        $this->app->run();
-
-        $this->assertEquals('Hello', $this->app['response']->getHeader('X-Slim-Test'));
-    }
-
-    /**
-     * Test exception when adding circular middleware queues
-     *
-     * This asserts that the same middleware can NOT be queued twice (usually by accident).
-     *
-     * Circular middleware stack causes a troublesome to debug PHP Fatal error,
-     * mostly due to a quite opaque error message:
-     *
-     * > Fatal error: Maximum function nesting level of '100' reached. aborting!
-     */
-    public function testFailureWhenAddingCircularMiddleware()
-    {
-        $this->setExpectedException('\RuntimeException');
-        $middleware = new CustomMiddleware();
-        $this->app->add($middleware);
-        $this->app->add($middleware);
-        $this->app->run();
-    }
-
-    /************************************************
-     * NOT FOUND HANDLING
-     ************************************************/
-
-    /**
-     * Test custom Not Found handler
-     */
-    public function testNotFound()
-    {
-        $this->app['notFoundHandler'] = function () {
-            return function () {
-                return 'Not Found';
-            };
+        $app = new App();
+        $mw = function ($req, $res, $next) {
+            return $res;
         };
+        $app->add($mw);
+        $prop = new \ReflectionProperty($app, 'middleware');
+        $prop->setAccessible(true);
 
-        $this->app->get('/foo', function () {});
-        $this->app->call();
-        $this->app['response']->finalize($this->app['request']);
-
-        $this->assertEquals('Not Found', stream_get_contents($this->app['response']->getBody(), -1, 0));
+        $this->assertEquals(2, count($prop->getValue($app)));
+        $this->assertInstanceOf('\Slim\Middleware', $prop->getValue($app)[0]);
+        $this->assertAttributeSame($app, 'next', $prop->getValue($app)[0]);
     }
 
-    /************************************************
-     * ERROR HANDLING
-     ************************************************/
-
-    /**
-     * Test default and custom error handlers
-     *
-     * Pre-conditions:
-     * Invoked app route calls default error handler;
-     *
-     * Post-conditions:
-     * Response status code is 500;
-     */
-    public function testSlimError()
+    public function testHaltInMiddleware()
     {
-        $app = $this->createApp();
-        $app->get('/bar', function () use ($app) {
-            $app['errorHandler']();
-        });
-        $app->call();
-
-        $this->assertEquals(500, $app['response']->getStatus());
-    }
-
-    /**
-     * Test triggered errors are converted to ErrorExceptions
-     *
-     * Pre-conditions:
-     * Custom error handler defined;
-     * Invoked app route triggers error;
-     *
-     * Post-conditions:
-     * Response status is 500;
-     * Response body is equal to triggered error message;
-     * Error handler's argument is ErrorException instance;
-     */
-    public function testTriggeredErrorsAreConvertedToErrorExceptions()
-    {
-        $this->expectOutputString('Foo');
-
-        $this->initializeApp(array(), array('debug' => false));
-        $this->app['errorHandler'] = function () {
-            return function ($e) {
-                if ($e instanceof \ErrorException) {
-                    return $e->getMessage();
-                }
-            };
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET'
+            ]);
         };
-        $this->app->get('/bar', function () {
-            trigger_error('Foo');
+        $app->add(function ($req, $res, $next) use ($app) {
+            $app->halt(500, 'Halt');
+            $res->write('Foo');
+            return $res;
         });
-        $this->app->run();
-
-        $this->assertEquals('Foo', stream_get_contents($this->app['response']->getBody(), -1, 0));
-    }
-
-    /**
-     * Test custom error handler uses existing Response object
-     */
-    public function testErrorHandlerUsesCurrentResponseObject()
-    {
-        $this->setExpectedException('\Exception');
-
-        $app = $this->createApp(array(), array('debug' => false));
-        $app['errorHandler'] = function () use ($app) {
-            return function(\Exception $e) use ($app) {
-                $r = $app['response'];
-                $r->setStatus(503);
-                $r->setHeader('X-Powered-By', 'Slim');
-
-                return "Foo";
-            };
-        };
-        $app->get('/bar', function () {
-            throw new \Exception('Foo');
+        $app->get('/foo', function ($req, $res) {
+            return $res->withStatus(302);
         });
-        $app->call();
 
-        $this->assertEquals(503, $app['response']->getStatus());
-        $this->assertEquals('Slim', $app['response']->getHeader('X-Powered-By'));
-        $this->assertEquals('Foo', stream_get_contents($this->app['response']->getBody(), -1, 0));
+        // Invoke app
+        ob_start();
+        $app->run();
+        $output = ob_get_clean();
+
+        $this->assertEquals('Halt', $output);
     }
 
-    /**
-     * Test custom global error handler
-     */
-    public function testHandleErrors()
+    /********************************************************************************
+     * Runner
+     *******************************************************************************/
+
+    public function testInvokeWithMatchingRoute()
     {
-        $defaultErrorReporting = error_reporting();
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
 
-        // Test 1
-        error_reporting(E_ALL ^ E_NOTICE); // <-- Report all errors EXCEPT notices
-        try {
-            \Slim\App::handleErrors(E_NOTICE, 'test error', 'Slim.php', 119);
-        } catch (\ErrorException $e) {
-            $this->fail('Slim::handleErrors reported a disabled error level.');
-        }
+            return $res;
+        });
 
-        // Test 2
-        error_reporting(E_ALL | E_STRICT); // <-- Report all errors, including E_STRICT
-        try {
-            \Slim\App::handleErrors(E_STRICT, 'test error', 'Slim.php', 119);
-            $this->fail('Slim::handleErrors didn\'t report a enabled error level');
-        } catch (\ErrorException $e) {}
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET'
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
 
-        error_reporting($defaultErrorReporting);
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$res->getBody());
     }
 
-    /************************************************
-     * HOOKS
-     ************************************************/
-
-    /**
-     * Test hook listener
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Hook name does not exist;
-     * Listeners are callable objects;
-     *
-     * Post-conditions:
-     * Callables are invoked in expected order;
-     */
-    public function testRegistersAndCallsHooksByPriority()
+    public function testInvokeWithoutMatchingRoute()
     {
-        $this->expectOutputString('barfoo');
+        $app = new App();
+        $app->get('/bar', function ($req, $res) {
+            $res->write('Hello');
 
-        $callable1 = function () { echo "foo"; };
-        $callable2 = function () { echo "bar"; };
-        $this->app->hook('test.hook.one', $callable1); // default is 10
-        $this->app->hook('test.hook.one', $callable2, 8);
-        $hooks = $this->app->getHooks();
-        $this->assertEquals(7, count($hooks)); //6 default, 1 custom
-        $this->app->applyHook('test.hook.one');
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET'
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertAttributeEquals(404, 'status', $resOut);
     }
 
-    /**
-     * Test hook listener if listener is not callable
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Hook name does not exist;
-     * Listener is NOT a callable object;
-     *
-     * Post-conditions:
-     * Hook is created;
-     * Callable is NOT assigned to hook;
-     */
-    public function testHookInvalidCallable()
+    public function testInvokeWithMatchingRouteAndPass()
     {
-        $this->app->hook('test.hook.one', 'test'); // NOT callable
-        $this->assertEquals(array(array()), $this->app->getHooks('test.hook.one'));
+        $app = new App();
+        $app->get('/foo/:one', function ($req, $res) use ($app) {
+            $app->pass();
+            return $res->withStatus(200);
+        });
+        $app->get('/foo/:two', function ($req, $res) {
+            return $res->withStatus(400);
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/test',
+            'REQUEST_METHOD' => 'GET'
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertAttributeEquals(400, 'status', $resOut);
     }
 
-    /**
-     * Test hook invocation if hook does not exist
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Hook name does not exist;
-     *
-     * Post-conditions:
-     * Hook is created;
-     * Hook initialized with empty array;
-     */
-    public function testHookInvocationIfNotExists()
+    public function testInvokeWithMatchingRouteAndHalt()
     {
-        $this->app->applyHook('test.hook.one');
-        $this->assertEquals(array(array()), $this->app->getHooks('test.hook.one'));
+        $app = new App();
+        $app->get('/foo', function ($req, $res) use ($app) {
+            $app->halt(400, 'Bad');
+            return $res->withStatus(200);
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET'
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertAttributeEquals(400, 'status', $resOut);
     }
 
-    /**
-     * Test clear hooks
-     *
-     * Pre-conditions:
-     * Slim app instantiated;
-     * Two hooks exist, each with one listener;
-     *
-     * Post-conditions:
-     * Case A: Listeners for 'test.hook.one' are cleared;
-     * Case B: Listeners for all hooks are cleared;
-     */
-    public function testHookClear()
-    {
-        $this->app->hook('test.hook.one', function () {});
-        $this->app->hook('test.hook.two', function () {});
-        $this->app->clearHooks('test.hook.two');
-        $this->assertEquals(array(array()), $this->app->getHooks('test.hook.two'));
-        $hookOne = $this->app->getHooks('test.hook.one');
-        $this->assertTrue(count($hookOne[10]) === 1);
-        $this->app->clearHooks();
-        $this->assertEquals(array(array()), $this->app->getHooks('test.hook.one'));
-    }
+    // TODO: Test subRequest()
+
+    // TODO: Test finalize()
+
+    // TODO: Test run()
 }

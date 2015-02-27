@@ -32,28 +32,28 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $scheme;
+    protected $scheme = '';
 
     /**
      * Uri user
      *
      * @var string
      */
-    protected $user;
+    protected $user = '';
 
     /**
      * Uri password
      *
      * @var string
      */
-    protected $password;
+    protected $password = '';
 
     /**
      * Uri host
      *
      * @var string
      */
-    protected $host;
+    protected $host = '';
 
     /**
      * Uri port number
@@ -67,21 +67,21 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $basePath;
+    protected $basePath = '';
 
     /**
      * Uri path
      *
      * @var string
      */
-    protected $path;
+    protected $path = '';
 
     /**
      * Uri query string (without "?" prefix)
      *
      * @var string
      */
-    protected $query;
+    protected $query = '';
 
     /**
      * Create new Uri
@@ -150,7 +150,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $user = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
         $host = $env->get('HTTP_HOST', $env->get('SERVER_NAME'));
-        $port = $env->get('SERVER_PORT');
+        $port = $env->get('SERVER_PORT', 80);
 
         // Path
         $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
@@ -176,6 +176,10 @@ class Uri implements \Psr\Http\Message\UriInterface
         return $uri->withBasePath($basePath);
     }
 
+    /********************************************************************************
+     * Scheme
+     *******************************************************************************/
+
     /**
      * Retrieve the URI scheme.
      *
@@ -190,8 +194,40 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getScheme()
     {
-        return $this->scheme ? str_replace('://', '', $this->scheme) : '';
+        return $this->scheme;
     }
+
+    /**
+     * Create a new instance with the specified scheme.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified scheme. If the scheme
+     * provided includes the "://" delimiter, it MUST be removed.
+     *
+     * Implementations SHOULD restrict values to "http", "https", or an empty
+     * string but MAY accommodate other schemes if required.
+     *
+     * An empty scheme is equivalent to removing the scheme.
+     *
+     * @param  string $scheme The scheme to use with the new instance.
+     * @return self           A new instance with the specified scheme.
+     * @throws \InvalidArgumentException for invalid or unsupported schemes.
+     */
+    public function withScheme($scheme)
+    {
+        $scheme = strtolower(str_replace('://', '', $scheme));
+        if (!in_array($scheme, ['', 'http', 'https'])) {
+            throw new \InvalidArgumentException('Uri scheme must be one of: "", "http", "https"');
+        }
+        $clone = clone $this;
+        $clone->scheme = $scheme;
+
+        return $clone;
+    }
+
+    /********************************************************************************
+     * Authority
+     *******************************************************************************/
 
     /**
      * Retrieve the authority portion of the URI.
@@ -234,15 +270,30 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getUserInfo()
     {
-        if ($this->user && $this->password) {
-            $info = $this->user . ':' . $this->password;
-        } else if ($this->user) {
-            $info = $this->user;
-        } else {
-            $info = '';
-        }
+        return $this->user . ($this->password ? ':' . $this->password : '');
+    }
 
-        return $info;
+    /**
+     * Create a new instance with the specified user information.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified user information.
+     *
+     * Password is optional, but the user information MUST include the
+     * user; an empty string for the user is equivalent to removing user
+     * information.
+     *
+     * @param  string      $user     User name to use for authority.
+     * @param  null|string $password Password associated with $user.
+     * @return self A new instance with the specified user information.
+     */
+    public function withUserInfo($user, $password = null)
+    {
+        $clone = clone $this;
+        $clone->user = $user;
+        $clone->password = $password ? $password : '';
+
+        return $clone;
     }
 
     /**
@@ -255,7 +306,27 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getHost()
     {
-        return $this->host ? $this->host : '';
+        return $this->host;
+    }
+
+    /**
+     * Create a new instance with the specified host.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified host.
+     *
+     * An empty host value is equivalent to removing the host.
+     *
+     * @param  string $host Hostname to use with the new instance.
+     * @return self         A new instance with the specified host.
+     * @throws \InvalidArgumentException for invalid hostnames.
+     */
+    public function withHost($host)
+    {
+        $clone = clone $this;
+        $clone->host = $host;
+
+        return $clone;
     }
 
     /**
@@ -275,11 +346,101 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getPort()
     {
-        if (!$this->scheme && !$this->port) {
-            return null;
+        if ($this->port && !$this->hasStandardPort()) {
+            return $this->port;
         }
 
-        return $this->port;
+        return null;
+    }
+
+    /**
+     * Create a new instance with the specified port.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified port.
+     *
+     * Implementations MUST raise an exception for ports outside the
+     * established TCP and UDP port ranges.
+     *
+     * A null value provided for the port is equivalent to removing the port
+     * information.
+     *
+     * @param  null|int $port Port to use with the new instance; a null value
+     *                        removes the port information.
+     * @return self           A new instance with the specified port.
+     * @throws \InvalidArgumentException for invalid ports.
+     */
+    public function withPort($port)
+    {
+        if (is_null($port) || (is_integer($port) && ($port >= 1 && $port <= 65535))) {
+            $clone = clone $this;
+            $clone->port = $port;
+            return $clone;
+        }
+
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
+    }
+
+    /**
+     * Does this Uri use a standard port?
+     *
+     * @return bool
+     */
+    protected function hasStandardPort()
+    {
+        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+    }
+
+    /********************************************************************************
+     * Path
+     *******************************************************************************/
+
+    /**
+     * Retrieve the path segment of the URI.
+     *
+     * This method MUST return a string; if no path is present it MUST return
+     * an empty string.
+     *
+     * @return string The path segment of the URI.
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Create a new instance with the specified path.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified path.
+     *
+     * The path MUST be prefixed with "/"; if not, the implementation MAY
+     * provide the prefix itself.
+     *
+     * An empty path value is equivalent to removing the path.
+     *
+     * @param  string $path The path to use with the new instance.
+     * @return self         A new instance with the specified path.
+     * @throws \InvalidArgumentException for invalid paths.
+     */
+    public function withPath($path)
+    {
+        if (!is_string($path)) {
+            throw new \InvalidArgumentException('Uri path must be a string');
+        }
+        if (!empty($path)) {
+            $path = '/' . ltrim($path, '/');
+        }
+        $clone = clone $this;
+        $clone->path = preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $path
+        );
+
+        return $clone;
     }
 
     /**
@@ -293,19 +454,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getBasePath()
     {
         return $this->basePath ? $this->basePath : '';
-    }
-
-    /**
-     * Retrieve the path segment of the URI.
-     *
-     * This method MUST return a string; if no path is present it MUST return
-     * an empty string.
-     *
-     * @return string The path segment of the URI.
-     */
-    public function getPath()
-    {
-        return $this->path ? $this->path : '';
     }
 
     /**
@@ -343,101 +491,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified scheme.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified scheme. If the scheme
-     * provided includes the "://" delimiter, it MUST be removed.
-     *
-     * Implementations SHOULD restrict values to "http", "https", or an empty
-     * string but MAY accommodate other schemes if required.
-     *
-     * An empty scheme is equivalent to removing the scheme.
-     *
-     * @param  string $scheme The scheme to use with the new instance.
-     * @return self           A new instance with the specified scheme.
-     * @throws \InvalidArgumentException for invalid or unsupported schemes.
-     */
-    public function withScheme($scheme)
-    {
-        $clone = clone $this;
-        $clone->scheme = str_replace('://', '', $scheme);
-
-        return $clone;
-    }
-
-    /**
-     * Create a new instance with the specified user information.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified user information.
-     *
-     * Password is optional, but the user information MUST include the
-     * user; an empty string for the user is equivalent to removing user
-     * information.
-     *
-     * @param  string      $user     User name to use for authority.
-     * @param  null|string $password Password associated with $user.
-     * @return self A new instance with the specified user information.
-     */
-    public function withUserInfo($user, $password = null)
-    {
-        $clone = clone $this;
-        $clone->user = $user;
-        $clone->password = $password ? $password : '';
-
-        return $clone;
-    }
-
-    /**
-     * Create a new instance with the specified host.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified host.
-     *
-     * An empty host value is equivalent to removing the host.
-     *
-     * @param  string $host Hostname to use with the new instance.
-     * @return self         A new instance with the specified host.
-     * @throws \InvalidArgumentException for invalid hostnames.
-     */
-    public function withHost($host)
-    {
-        $clone = clone $this;
-        $clone->host = $host;
-
-        return $clone;
-    }
-
-    /**
-     * Create a new instance with the specified port.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified port.
-     *
-     * Implementations MUST raise an exception for ports outside the
-     * established TCP and UDP port ranges.
-     *
-     * A null value provided for the port is equivalent to removing the port
-     * information.
-     *
-     * @param  null|int $port Port to use with the new instance; a null value
-     *                        removes the port information.
-     * @return self           A new instance with the specified port.
-     * @throws \InvalidArgumentException for invalid ports.
-     */
-    public function withPort($port)
-    {
-        if (is_integer($port) && $port > 65535) {
-            throw new \InvalidArgumentException('Invalid port number');
-        }
-        $clone = clone $this;
-        $clone->port = $port;
-
-        return $clone;
-    }
-
-    /**
      * Set base path
      *
      * @param  string $basePath
@@ -447,29 +500,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     {
         $clone = clone $this;
         $clone->basePath = $basePath;
-
-        return $clone;
-    }
-
-    /**
-     * Create a new instance with the specified path.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified path.
-     *
-     * The path MUST be prefixed with "/"; if not, the implementation MAY
-     * provide the prefix itself.
-     *
-     * An empty path value is equivalent to removing the path.
-     *
-     * @param  string $path The path to use with the new instance.
-     * @return self         A new instance with the specified path.
-     * @throws \InvalidArgumentException for invalid paths.
-     */
-    public function withPath($path)
-    {
-        $clone = clone $this;
-        $clone->path = '/' . ltrim($path, '/');
 
         return $clone;
     }

@@ -49,24 +49,47 @@ class UriTest extends PHPUnit_Framework_TestCase
         return new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
     }
 
+    /********************************************************************************
+     * Scheme
+     *******************************************************************************/
+
     public function testGetScheme()
     {
         $this->assertEquals('https', $this->uriFactory()->getScheme());
     }
 
-    public function testGetSchemeRemovesSuffix()
+    public function testWithScheme()
     {
-        $scheme = 'https://';
-        $user = 'josh';
-        $password = 'sekrit';
-        $host = 'example.com';
-        $path = '/foo/bar';
-        $port = 443;
-        $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = $this->uriFactory()->withScheme('http');
 
-        $this->assertEquals('https', $uri->getScheme());
+        $this->assertAttributeEquals('http', 'scheme', $uri);
     }
+
+    public function testWithSchemeRemovesSuffix()
+    {
+        $uri = $this->uriFactory()->withScheme('http://');
+
+        $this->assertAttributeEquals('http', 'scheme', $uri);
+    }
+
+    public function testWithSchemeEmpty()
+    {
+        $uri = $this->uriFactory()->withScheme('');
+
+        $this->assertAttributeEquals('', 'scheme', $uri);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithSchemeInvalid()
+    {
+        $uri = $this->uriFactory()->withScheme('ftp');
+    }
+
+    /********************************************************************************
+     * Authority
+     *******************************************************************************/
 
     public function testGetAuthorityWithUsernameAndPassword()
     {
@@ -162,10 +185,58 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('example.com', $this->uriFactory()->getHost());
     }
 
-    public function testGetPort()
+    public function testGetPortStandard()
     {
-        $this->assertEquals(443, $this->uriFactory()->getPort());
+        $this->assertNull($this->uriFactory()->getPort());
     }
+
+    public function testGetPortNonStandard()
+    {
+        $scheme = 'https';
+        $user = 'josh';
+        $password = 'sekrit';
+        $host = 'example.com';
+        $path = '/foo/bar';
+        $port = 4000;
+        $query = 'abc=123';
+        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+
+        $this->assertEquals(4000, $uri->getPort());
+    }
+
+    public function testWithPort()
+    {
+        $uri = $this->uriFactory()->withPort(8000);
+
+        $this->assertAttributeEquals(8000, 'port', $uri);
+    }
+
+    public function testWithPortNull()
+    {
+        $uri = $this->uriFactory()->withPort(null);
+
+        $this->assertAttributeEquals(null, 'port', $uri);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithPortInvalidInt()
+    {
+        $uri = $this->uriFactory()->withPort(70000);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithPortInvalidString()
+    {
+        $uri = $this->uriFactory()->withPort('Foo');
+    }
+
+    /********************************************************************************
+     * Path
+     *******************************************************************************/
 
     public function testGetBasePathNone()
     {
@@ -196,13 +267,6 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('abc=123', $uri->getQuery());
     }
 
-    public function testWithScheme()
-    {
-        $uri = $this->uriFactory()->withScheme('http://');
-
-        $this->assertAttributeEquals('http', 'scheme', $uri);
-    }
-
     public function testWithUserInfo()
     {
         $uri = $this->uriFactory()->withUserInfo('bob', 'pass');
@@ -226,21 +290,6 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('slimframework.com', 'host', $uri);
     }
 
-    public function testWithPort()
-    {
-        $uri = $this->uriFactory()->withPort(8000);
-
-        $this->assertAttributeEquals(8000, 'port', $uri);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testWithPortInvalid()
-    {
-        $uri = $this->uriFactory()->withPort(70000);
-    }
-
     public function testWithBasePath()
     {
         $uri = $this->uriFactory()->withBasePath('/base');
@@ -253,6 +302,34 @@ class UriTest extends PHPUnit_Framework_TestCase
         $uri = $this->uriFactory()->withPath('/new');
 
         $this->assertAttributeEquals('/new', 'path', $uri);
+    }
+
+    public function testWithPathAddsPrefix()
+    {
+        $uri = $this->uriFactory()->withPath('new');
+
+        $this->assertAttributeEquals('/new', 'path', $uri);
+    }
+
+    public function testWithPathEmptyValue()
+    {
+        $uri = $this->uriFactory()->withPath('');
+
+        $this->assertAttributeEquals('', 'path', $uri);
+    }
+
+    public function testWithPathUrlEncodesInput()
+    {
+        $uri = $this->uriFactory()->withPath('/includes?/new');
+
+        $this->assertAttributeEquals('/includes%3F/new', 'path', $uri);
+    }
+
+    public function testWithPathDoesNotDoubleEncodeInput()
+    {
+        $uri = $this->uriFactory()->withPath('/include%25s/new');
+
+        $this->assertAttributeEquals('/include%25s/new', 'path', $uri);
     }
 
     public function testQuery()
