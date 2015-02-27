@@ -39,14 +39,14 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $user;
+    protected $user = '';
 
     /**
      * Uri password
      *
      * @var string
      */
-    protected $password;
+    protected $password = '';
 
     /**
      * Uri host
@@ -225,6 +225,10 @@ class Uri implements \Psr\Http\Message\UriInterface
         return $clone;
     }
 
+    /********************************************************************************
+     * Authority
+     *******************************************************************************/
+
     /**
      * Retrieve the authority portion of the URI.
      *
@@ -266,15 +270,30 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getUserInfo()
     {
-        if ($this->user && $this->password) {
-            $info = $this->user . ':' . $this->password;
-        } else if ($this->user) {
-            $info = $this->user;
-        } else {
-            $info = '';
-        }
+        return $this->user . ($this->password ? ':' . $this->password : '');
+    }
 
-        return $info;
+    /**
+     * Create a new instance with the specified user information.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified user information.
+     *
+     * Password is optional, but the user information MUST include the
+     * user; an empty string for the user is equivalent to removing user
+     * information.
+     *
+     * @param  string      $user     User name to use for authority.
+     * @param  null|string $password Password associated with $user.
+     * @return self A new instance with the specified user information.
+     */
+    public function withUserInfo($user, $password = null)
+    {
+        $clone = clone $this;
+        $clone->user = $user;
+        $clone->password = $password ? $password : '';
+
+        return $clone;
     }
 
     /**
@@ -313,6 +332,10 @@ class Uri implements \Psr\Http\Message\UriInterface
 
         return $this->port;
     }
+
+    /********************************************************************************
+     * Path
+     *******************************************************************************/
 
     /**
      * Retrieve the base path segment of the URI.
@@ -372,29 +395,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getFragment()
     {
         return '';
-    }
-
-    /**
-     * Create a new instance with the specified user information.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified user information.
-     *
-     * Password is optional, but the user information MUST include the
-     * user; an empty string for the user is equivalent to removing user
-     * information.
-     *
-     * @param  string      $user     User name to use for authority.
-     * @param  null|string $password Password associated with $user.
-     * @return self A new instance with the specified user information.
-     */
-    public function withUserInfo($user, $password = null)
-    {
-        $clone = clone $this;
-        $clone->user = $user;
-        $clone->password = $password ? $password : '';
-
-        return $clone;
     }
 
     /**
