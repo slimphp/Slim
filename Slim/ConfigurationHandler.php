@@ -221,9 +221,10 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      *
      * @param  array  $array
      * @param  string $separator
+     * @param  string $prepend
      * @return array
      */
-    protected function flattenArray(array $array, $separator = null)
+    protected function flattenArray(array $array, $separator = null, $prepend = '')
     {
         $flattened = array();
 
@@ -233,9 +234,9 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
 
         foreach ($array as $key => $value) {
             if (is_array($value)) {
-                $flattened = array_merge($flattened, $this->flattenArray($value, $key.$separator));
+                $flattened = array_merge($flattened, $this->flattenArray($value, $separator, $prepend.$key.$separator));
             } else {
-                $flattened[trim($separator.$key, $this->separator)] = $value;
+                $flattened[$prepend.$key] = $value;
             }
         }
 
