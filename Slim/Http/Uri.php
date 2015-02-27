@@ -53,7 +53,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $host;
+    protected $host = '';
 
     /**
      * Uri port number
@@ -67,21 +67,21 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @var string
      */
-    protected $basePath;
+    protected $basePath = '';
 
     /**
      * Uri path
      *
      * @var string
      */
-    protected $path;
+    protected $path = '';
 
     /**
      * Uri query string (without "?" prefix)
      *
      * @var string
      */
-    protected $query;
+    protected $query = '';
 
     /**
      * Create new Uri
@@ -396,6 +396,54 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
+     * Retrieve the path segment of the URI.
+     *
+     * This method MUST return a string; if no path is present it MUST return
+     * an empty string.
+     *
+     * @return string The path segment of the URI.
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * Create a new instance with the specified path.
+     *
+     * This method MUST retain the state of the current instance, and return
+     * a new instance that contains the specified path.
+     *
+     * The path MUST be prefixed with "/"; if not, the implementation MAY
+     * provide the prefix itself.
+     *
+     * An empty path value is equivalent to removing the path.
+     *
+     * @param  string $path The path to use with the new instance.
+     * @return self         A new instance with the specified path.
+     * @throws \InvalidArgumentException for invalid paths.
+     */
+    public function withPath($path)
+    {
+        if (!is_string($path)) {
+            throw new \InvalidArgumentException('Uri path must be a string');
+        }
+        if (!empty($path)) {
+            $path = '/' . ltrim($path, '/');
+        }
+        $clone = clone $this;
+        $clone->path = preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $path
+        );
+
+        return $clone;
+    }
+
+    /**
      * Retrieve the base path segment of the URI.
      *
      * This method MUST return a string; if no path is present it MUST return
@@ -406,19 +454,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function getBasePath()
     {
         return $this->basePath ? $this->basePath : '';
-    }
-
-    /**
-     * Retrieve the path segment of the URI.
-     *
-     * This method MUST return a string; if no path is present it MUST return
-     * an empty string.
-     *
-     * @return string The path segment of the URI.
-     */
-    public function getPath()
-    {
-        return $this->path ? $this->path : '';
     }
 
     /**
@@ -465,29 +500,6 @@ class Uri implements \Psr\Http\Message\UriInterface
     {
         $clone = clone $this;
         $clone->basePath = $basePath;
-
-        return $clone;
-    }
-
-    /**
-     * Create a new instance with the specified path.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified path.
-     *
-     * The path MUST be prefixed with "/"; if not, the implementation MAY
-     * provide the prefix itself.
-     *
-     * An empty path value is equivalent to removing the path.
-     *
-     * @param  string $path The path to use with the new instance.
-     * @return self         A new instance with the specified path.
-     * @throws \InvalidArgumentException for invalid paths.
-     */
-    public function withPath($path)
-    {
-        $clone = clone $this;
-        $clone->path = '/' . ltrim($path, '/');
 
         return $clone;
     }

@@ -304,6 +304,34 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/new', 'path', $uri);
     }
 
+    public function testWithPathAddsPrefix()
+    {
+        $uri = $this->uriFactory()->withPath('new');
+
+        $this->assertAttributeEquals('/new', 'path', $uri);
+    }
+
+    public function testWithPathEmptyValue()
+    {
+        $uri = $this->uriFactory()->withPath('');
+
+        $this->assertAttributeEquals('', 'path', $uri);
+    }
+
+    public function testWithPathUrlEncodesInput()
+    {
+        $uri = $this->uriFactory()->withPath('/includes?/new');
+
+        $this->assertAttributeEquals('/includes%3F/new', 'path', $uri);
+    }
+
+    public function testWithPathDoesNotDoubleEncodeInput()
+    {
+        $uri = $this->uriFactory()->withPath('/include%25s/new');
+
+        $this->assertAttributeEquals('/include%25s/new', 'path', $uri);
+    }
+
     public function testQuery()
     {
         $uri = $this->uriFactory()->withQuery('user=1');
