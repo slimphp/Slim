@@ -42,6 +42,13 @@ class Request implements RequestInterface
     protected $method;
 
     /**
+     * The original request method (ignoring override)
+     *
+     * @var string
+     */
+    protected $originalMethod;
+
+    /**
      * The request URI object
      *
      * @var \Psr\Http\Message\UriInterface
@@ -98,7 +105,7 @@ class Request implements RequestInterface
     protected $bodyParsed;
 
     /**
-     * List of request body parsers (e.g., url-encoded, JSON, XML)
+     * List of request body parsers (e.g., url-encoded, JSON, XML, multipart)
      *
      * @var callable[]
      */
@@ -122,9 +129,7 @@ class Request implements RequestInterface
      */
     public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, StreamableInterface $body)
     {
-        $this->validateMethod($method);
-
-        $this->method = $method;
+        $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
         $this->headers = $headers;
         $this->cookies = $cookies;
@@ -143,6 +148,10 @@ class Request implements RequestInterface
             parse_str($input, $data);
             return (object)$data;
         });
+
+        // TODO: Parse `multipart/mixed`
+        // TODO: Parse `multipart/alternative`
+        // TODO: Parse `multipart/form-data`
     }
 
     /**
@@ -199,8 +208,13 @@ class Request implements RequestInterface
      */
     public function withProtocolVersion($version)
     {
-        if (in_array($version, ['1.1', '1.0'], true) === false) {
-            throw new \InvalidArgumentException('Protocol must be "1.0" or "1.1"');
+        static $valid = [
+            '1.0' => true,
+            '1.1' => true,
+            '2.0' => true
+        ];
+        if (!isset($valid[$version])) {
+            throw new \InvalidArgumentException('Protocol must be "1.0", "1.1", or "2.0"');
         }
         $clone = clone $this;
         $clone->protocolVersion = $version;
@@ -213,35 +227,42 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Retrieves the HTTP method of the request.
+     * Get the HTTP request method
      *
-     * @return string Returns the request method (or method override if present)
+     * This method returns the HTTP request's method, and it
+     * respects override values specified in the `X-Http-Method-Override`
+     * request header or in the `_METHOD` body parameter.
+     *
+     * @return string
      */
     public function getMethod()
     {
-        $method = $this->method;
-        $methodOverride = $this->getHeader('HTTP_X_HTTP_METHOD_OVERRIDE');
-        if (!empty($methodOverride)) {
-            $method = strtoupper($methodOverride);
-        } else if ($method === 'POST') {
-            $body = $this->getParsedBody();
-            $customMethod = isset($body['_METHOD']) ? $body['_METHOD'] : false;
-            if ($customMethod !== false) {
-                $method = strtoupper($customMethod);
+        if ($this->method === null) {
+            $this->method = $this->originalMethod;
+            $customMethod = $this->getHeader('X-Http-Method-Override');
+            if ($customMethod) {
+                $this->method = $this->filterMethod($customMethod);
+            } else if ($this->originalMethod === 'POST') {
+                $body = $this->getParsedBody();
+                if (is_object($body) && property_exists($body, '_METHOD')) {
+                    $this->method = $this->filterMethod($body->_METHOD);
+                } else if (is_array($body) && isset($body['_METHOD'])) {
+                    $this->method = $this->filterMethod($body['_METHOD']);
+                }
             }
         }
 
-        return $method;
+        return $this->method;
     }
 
     /**
-     * Get the original HTTP method (disregard override)
+     * Get the original HTTP method (ignore override)
      *
-     * @return string Returns the original request method
+     * @return string
      */
     public function getOriginalMethod()
     {
-        return $this->method;
+        return $this->originalMethod;
     }
 
     /**
@@ -261,9 +282,10 @@ class Request implements RequestInterface
      */
     public function withMethod($method)
     {
-        $this->validateMethod($method);
+        $method = $this->filterMethod($method);
         $clone = clone $this;
-        $clone->method = is_null($method) ? $method : strtoupper($method);
+        $clone->originalMethod = $method;
+        $clone->method = null; // <-- Force method override recalculation
 
         return $clone;
     }
@@ -272,12 +294,13 @@ class Request implements RequestInterface
      * Validate the HTTP method
      *
      * @param  null|string $method
+     * @return null|string
      * @throws InvalidArgumentException on invalid HTTP method.
      */
-    protected function validateMethod($method)
+    protected function filterMethod($method)
     {
-        if (null === $method) {
-            return true;
+        if ($method === null) {
+            return $method;
         }
 
         if (is_string($method) === false) {
@@ -294,6 +317,8 @@ class Request implements RequestInterface
                 $method
             ));
         }
+
+        return $method;
     }
 
     /**
@@ -384,7 +409,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return $this->headers->get('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest';
+        return $this->headers->get('X-Requested-With') === 'XMLHttpRequest';
     }
 
     /**
@@ -1088,6 +1113,7 @@ class Request implements RequestInterface
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
+        $callable = $callable->bindTo($this);
         $this->bodyParsers[(string)$mediaType] = $callable;
     }
 }

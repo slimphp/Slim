@@ -84,33 +84,47 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('GET', $this->requestFactory()->getMethod());
     }
 
+    public function testGetOriginalMethod()
+    {
+        $this->assertEquals('GET', $this->requestFactory()->getOriginalMethod());
+    }
+
     public function testWithMethod()
     {
-        $clone = $this->requestFactory()->withMethod('PuT');
+        $request = $this->requestFactory()->withMethod('PUT');
 
-        $this->assertAttributeEquals('PUT', 'method', $clone);
+        $this->assertAttributeEquals(null, 'method', $request);
+        $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testWithMethodInvalid()
+    public function testGetMethodWithOverrideHeader()
     {
-        $this->requestFactory()->withMethod('FOO');
-    }
-
-    public function testMethodOverrideHeader()
-    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'X-Http-Method-Override' => ['PUT']
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT'
         ]);
-        $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('POST', $uri, $headers, $cookies, $body);
 
         $this->assertEquals('PUT', $request->getMethod());
-        $this->assertEquals('GET', $request->getOriginalMethod());
+        $this->assertEquals('POST', $request->getOriginalMethod());
+    }
+
+    public function testGetMethodWithOverrideParameter()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ]);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('_METHOD=PUT');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $body);
+
+        $this->assertEquals('PUT', $request->getMethod());
+        $this->assertEquals('POST', $request->getOriginalMethod());
     }
 
     /*******************************************************************************
@@ -517,7 +531,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyForm()
     {
         $method = 'GET';
-        $uri = new Uri('https', '', '', 'example.com', 443, '/foo/bar', 'abc=123');
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
         $cookies = new Collection();
@@ -530,7 +544,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyJson()
     {
         $method = 'GET';
-        $uri = new Uri('https', '', '', 'example.com', 443, '/foo/bar', 'abc=123');
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/json;charset=utf8');
         $cookies = new Collection();
@@ -544,7 +558,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyXml()
     {
         $method = 'GET';
-        $uri = new Uri('https', '', '', 'example.com', 443, '/foo/bar', 'abc=123');
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/xml;charset=utf8');
         $cookies = new Collection();
