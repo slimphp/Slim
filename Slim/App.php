@@ -136,9 +136,7 @@ class App extends \Pimple\Container
 
         $this['flash'] = function ($c) {
             $flash = new Flash($c['session'], $c['settings']['session.flash_key']);
-            if ($c['settings']['view'] instanceof Interfaces\ViewInterface) {
-                $c['view']->set('flash', $flash);
-            }
+            $c['view']->set('flash', $flash);
 
             return $flash;
         };
