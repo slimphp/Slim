@@ -73,6 +73,12 @@ class App extends \Pimple\Container
     {
         parent::__construct();
 
+        /**
+         * Settings factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\ConfigurationInterface.
+         */
         $this['settings'] = function ($c) use ($userSettings) {
             $config = new Configuration(new ConfigurationHandler);
             $config->setArray($userSettings);
@@ -80,10 +86,22 @@ class App extends \Pimple\Container
             return $config;
         };
 
+        /**
+         * Environment factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\EnvironmentInterface.
+         */
         $this['environment'] = function ($c) {
             return new Http\Environment($_SERVER);
         };
 
+        /**
+         * Request factory
+         *
+         * This factory method MUST return a NEW instance
+         * of \Psr\Http\Message\RequestInterface.
+         */
         $this['request'] = $this->factory(function ($c) {
             $env = $c['environment'];
             $method = $env['REQUEST_METHOD'];
@@ -98,6 +116,12 @@ class App extends \Pimple\Container
             return new Http\Request($method, $uri, $headers, $cookies, $body);
         });
 
+        /**
+         * Response factory
+         *
+         * This factory method MUST return a NEW instance
+         * of \Psr\Http\Message\ResponseInterface.
+         */
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $cookies = new Http\Cookies([], [
@@ -112,18 +136,42 @@ class App extends \Pimple\Container
             return $response->withProtocolVersion($c['settings']['http.version']);
         });
 
+        /**
+         * Router factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\RouterInterface.
+         */
         $this['router'] = function ($c) {
             return new Router();
         };
 
+        /**
+         * View factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\ViewInterface.
+         */
         $this['view'] = function ($c) {
             return new View($c['settings']['view.templates']);
         };
 
+        /**
+         * Crypt factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\CryptInterface.
+         */
         $this['crypt'] = function ($c) {
             return new Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
         };
 
+        /**
+         * Session factory
+         *
+         * This factory method MUSt return a SHARED singleton instance
+         * of \Slim\Interfaces\SessionInterface.
+         */
         $this['session'] = function ($c) {
             $session = new Session($c['settings']['session.handler']);
             $session->start();
@@ -134,6 +182,12 @@ class App extends \Pimple\Container
             return $session;
         };
 
+        /**
+         * Flash factory
+         *
+         * This factory method MUST return a SHARED singleton instance
+         * of \Slim\Interfaces\FlashInterface.
+         */
         $this['flash'] = function ($c) {
             $flash = new Flash($c['session'], $c['settings']['session.flash_key']);
             $c['view']->set('flash', $flash);
@@ -141,10 +195,35 @@ class App extends \Pimple\Container
             return $flash;
         };
 
+        /**
+         * Error handler factory
+         *
+         * This factory method MUST return a callable
+         * that accepts three arguments:
+         *
+         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         * 3. Instance of \Exception
+         *
+         * The callable MUST return an instance of
+         * \Psr\Http\Message\ResponseInterface.
+         */
         $this['errorHandler'] = function ($c) {
             return new ErrorHandler();
         };
 
+        /**
+         * Not Found handler factory
+         *
+         * This factory method MUST return a callable
+         * that accepts two arguments:
+         *
+         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         *
+         * The callable MUST return an instance of
+         * \Psr\Http\Message\ResponseInterface.
+         */
         $this['notFoundHandler'] = function ($c) {
             return new NotFoundHandler();
         };
