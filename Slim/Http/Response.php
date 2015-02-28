@@ -157,20 +157,10 @@ class Response implements ResponseInterface
      */
     public function __construct($status = 200, HeadersInterface $headers = null, CookiesInterface $cookies = null, StreamableInterface $body = null)
     {
-        if (is_null($headers) === true) {
-            $headers = new Headers();
-        }
-        if (is_null($cookies) === true) {
-            $cookies = new Cookies();
-        }
-        if (is_null($body) === true) {
-            $body = new Body(fopen('php://temp', 'r+'));
-        }
-
-        $this->status = (int)$status;
-        $this->headers = $headers;
-        $this->cookies = $cookies;
-        $this->body = $body;
+        $this->status = $this->filterStatus($status);
+        $this->headers = $headers ? $headers : new Headers();
+        $this->cookies = $cookies ? $cookies : new Cookies();
+        $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
     }
 
     /**
@@ -223,6 +213,14 @@ class Response implements ResponseInterface
      */
     public function withProtocolVersion($version)
     {
+        static $valid = [
+            '1.0' => true,
+            '1.1' => true,
+            '2.0' => true
+        ];
+        if (!isset($valid[$version])) {
+            throw new \InvalidArgumentException('Invalid HTTP version. Must be one of: 1.0, 1.1, 2.0');
+        }
         $clone = clone $this;
         $clone->protocolVersion = $version;
 
@@ -269,15 +267,28 @@ class Response implements ResponseInterface
      */
     public function withStatus($code, $reasonPhrase = null)
     {
-        if (isset(static::$messages[$code]) === false) {
-            throw new \InvalidArgumentException('Invalid HTTP status code');
-        }
-
+        $code = $this->filterStatus($code);
         $clone = clone $this;
-        $clone->status = (int)$code;
+        $clone->status = $code;
         // NOTE: We ignore custom reason phrases for now. Why? Because.
 
         return $clone;
+    }
+
+    /**
+     * Filter HTTP status code
+     *
+     * @param  int $status HTTP status code
+     * @return int
+     * @throws \InvalidArgumentException If invalid HTTP status code
+     */
+    protected function filterStatus($status)
+    {
+        if (!is_integer($status) || !isset(static::$messages[$status])) {
+            throw new \InvalidArgumentException('Invalid HTTP status code');
+        }
+
+        return $status;
     }
 
     /**
@@ -633,11 +644,15 @@ class Response implements ResponseInterface
      * @param  string|int $time If string, a time to be parsed by `strtotime()`;
      *                          If int, a UNIX timestamp;
      * @return self
+     * @throws \InvalidArgumentException If string argument cannot be parsed with `strtotime()`
      */
     public function withExpires($time)
     {
-        if (is_integer($time) === false) {
+        if (!is_integer($time)) {
             $time = strtotime($time);
+            if ($time === false) {
+                throw new \InvalidArgumentException('Expiration value could not be parsed with `strtotime()`.');
+            }
         }
 
         return $this->withHeader('Expires', gmdate('D, d M Y H:i:s T', $time));
@@ -672,8 +687,11 @@ class Response implements ResponseInterface
     public function withLastModified($time, callable $callback = null)
     {
         // Convert time to integer value
-        if (is_integer($time) === false) {
-            $time = strtotime((string)$time);
+        if (!is_integer($time)) {
+            $time = strtotime($time);
+            if ($time === false) {
+                throw new \InvalidArgumentException('Last Modified value could not be parsed with `strtotime()`.');
+            }
         }
 
         // Set header
@@ -756,20 +774,16 @@ class Response implements ResponseInterface
 
         // Serialize cookies
         $cookies = $response->getCookies();
-        if ($cookies) {
-            $cookieHeaders = [];
-            foreach ($cookies as $name => $properties) {
-                $cookieHeaders[] = $response->getCookie($name);
-            }
-            $response = $response->withHeader('Set-Cookie', implode("\n", $cookieHeaders));
+        foreach ($cookies as $name => $properties) {
+            $response = $response->withAddedHeader('Set-Cookie', $response->getCookie($name));
         }
 
         // Finalize headers
-        if (in_array($response->getStatusCode(), array(204, 304)) === true) {
+        if (in_array($response->getStatusCode(), [204, 304])) {
             $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         } else {
             $size = $response->getBody()->getSize();
-            if ($size) {
+            if ($size !== null) {
                 $response = $response->withHeader('Content-Length', $size);
             }
         }
@@ -801,7 +815,9 @@ class Response implements ResponseInterface
             }
 
             foreach ($this->getHeaders() as $name => $values) {
-                header($name .': ' .$this->getHeader($name));
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
             }
         }
 
