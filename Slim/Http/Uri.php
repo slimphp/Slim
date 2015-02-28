@@ -87,22 +87,22 @@ class Uri implements \Psr\Http\Message\UriInterface
      * Create new Uri
      *
      * @param string $scheme   Uri scheme
-     * @param string $user     Uri user
-     * @param string $password Uri password
      * @param string $host     Uri host
      * @param int    $port     Uri port number
      * @param string $path     Uri path
      * @param string $query    Uri query string
+     * @param string $user     Uri user
+     * @param string $password Uri password
      */
-    public function __construct($scheme, $user, $password, $host, $port, $path, $query = '')
+    public function __construct($scheme, $host, $port = 80, $path = '/', $query = '', $user = '', $password = '')
     {
-        $this->scheme = $scheme;
+        $this->scheme = $this->filterScheme($scheme);
+        $this->host = $host;
+        $this->port = $this->filterPort($port);
+        $this->path = $this->filterPath($path);
+        $this->query = $this->filterQuery($query);
         $this->user = $user;
         $this->password = $password;
-        $this->host = $host;
-        $this->port = $port;
-        $this->path = $path;
-        $this->query = $query;
     }
 
     /**
@@ -113,8 +113,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public static function createFromString($uri)
     {
-        if (is_string($uri) === false) {
-            throw new \InvalidArgumentException('URI must be a string');
+        if (!is_string($uri) && !method_exists($uri, '__toString')) {
+            throw new \InvalidArgumentException('Uri must be a string');
         }
 
         $parts = parse_url($uri);
@@ -126,7 +126,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $path = isset($parts['path']) ? $parts['path'] : '';
         $query = isset($parts['query']) ? $parts['query'] : '';
 
-        return new static($scheme, $user, $pass, $host, $port, $path, $query);
+        return new static($scheme, $host, $port, $path, $query, $user, $pass);
     }
 
     /**
@@ -171,7 +171,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $queryString = $env->get('QUERY_STRING', '');
 
         // Build Uri
-        $uri = new static($scheme, $user, $password, $host, $port, $virtualPath, $queryString);
+        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $user, $password);
 
         return $uri->withBasePath($basePath);
     }
@@ -215,14 +215,38 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function withScheme($scheme)
     {
-        $scheme = strtolower(str_replace('://', '', $scheme));
-        if (!in_array($scheme, ['', 'http', 'https'])) {
-            throw new \InvalidArgumentException('Uri scheme must be one of: "", "http", "https"');
-        }
+        $scheme = $this->filterScheme($scheme);
         $clone = clone $this;
         $clone->scheme = $scheme;
 
         return $clone;
+    }
+
+    /**
+     * Filter Uri scheme
+     *
+     * @param  string $scheme Raw Uri scheme
+     * @return string
+     * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http"
+     */
+    protected function filterScheme($scheme)
+    {
+        static $valid = [
+            '' => true,
+            'https' => true,
+            'http' => true
+        ];
+
+        if (!is_string($scheme) && !method_exists($scheme, '__toString')) {
+            throw new \InvalidArgumentException('Uri scheme must be a string');
+        }
+
+        $scheme = str_replace('://', '', strtolower((string)$scheme));
+        if (!isset($valid[(string)$scheme])) {
+            throw new \InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
+        }
+
+        return $scheme;
     }
 
     /********************************************************************************
@@ -252,7 +276,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $userInfo = $this->getUserInfo();
         $host = $this->getHost();
         $port = $this->getPort();
-        $showPort = (($scheme === 'https' && (int)$port !== 443) || ($scheme === 'http' && (int)$port !== 80));
+        $showPort = ($this->hasStandardPort() === false);
 
         return ($userInfo ? $userInfo . '@' : '') . $host . ($port && $showPort ? ':' . $port : '');
     }
@@ -346,11 +370,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getPort()
     {
-        if ($this->port && !$this->hasStandardPort()) {
-            return $this->port;
-        }
-
-        return null;
+        return $this->port && !$this->hasStandardPort() ? $this->port : null;
     }
 
     /**
@@ -372,13 +392,11 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function withPort($port)
     {
-        if (is_null($port) || (is_integer($port) && ($port >= 1 && $port <= 65535))) {
-            $clone = clone $this;
-            $clone->port = $port;
-            return $clone;
-        }
+        $port = $this->filterPort($port);
+        $clone = clone $this;
+        $clone->port = $port;
 
-        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
+        return $clone;
     }
 
     /**
@@ -389,6 +407,22 @@ class Uri implements \Psr\Http\Message\UriInterface
     protected function hasStandardPort()
     {
         return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+    }
+
+    /**
+     * Filter Uri port
+     *
+     * @param  null|int $port The Uri port number
+     * @return null|int
+     * @throws \InvalidArgumentException If the port is invalid
+     */
+    protected function filterPort($port)
+    {
+        if (is_null($port) || (is_integer($port) && ($port >= 1 && $port <= 65535))) {
+            return $port;
+        }
+
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
     }
 
     /********************************************************************************
@@ -429,16 +463,10 @@ class Uri implements \Psr\Http\Message\UriInterface
             throw new \InvalidArgumentException('Uri path must be a string');
         }
         if (!empty($path)) {
-            $path = '/' . ltrim($path, '/');
+            $path = '/' . ltrim($path, '/'); // <-- Trim on left side
         }
         $clone = clone $this;
-        $clone->path = preg_replace_callback(
-            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
-            function ($match) {
-                return rawurlencode($match[0]);
-            },
-            $path
-        );
+        $clone->path = $this->filterPath($path);
 
         return $clone;
     }
@@ -453,8 +481,55 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getBasePath()
     {
-        return $this->basePath ? $this->basePath : '';
+        return $this->basePath;
     }
+
+    /**
+     * Set base path
+     *
+     * @param  string $basePath
+     * @return self
+     */
+    public function withBasePath($basePath)
+    {
+        if (!is_string($basePath)) {
+            throw new \InvalidArgumentException('Uri path must be a string');
+        }
+        if (!empty($basePath)) {
+            $basePath = '/' . trim($basePath, '/'); // <-- Trim on both sides
+        }
+        $clone = clone $this;
+        $clone->basePath = $this->filterPath($basePath);
+
+        return $clone;
+    }
+
+    /**
+     * Filter Uri path
+     *
+     * This method percent-encodes all reserved
+     * characters in the provided path string. This method
+     * will NOT double-encode characters that are already
+     * percent-encoded.
+     *
+     * @param  string $path The raw uri path
+     * @return string       The RFC 3986 percent-encoded uri path
+     * @link   http://www.faqs.org/rfcs/rfc3986.html
+     */
+    protected function filterPath($path)
+    {
+        return preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~:@&=\+\$,\/;%]+|%(?![A-Fa-f0-9]{2}))/',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $path
+        );
+    }
+
+    /********************************************************************************
+     * Query
+     *******************************************************************************/
 
     /**
      * Retrieve the query string of the URI.
@@ -468,40 +543,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getQuery()
     {
-        if ($this->query) {
-            return strpos($this->query, '?') === 0 ? substr($this->query, 1) : $this->query;
-        }
-
-        return '';
-    }
-
-    /**
-     * Retrieve the fragment segment of the URI.
-     *
-     * This method MUST return a string; if no fragment is present, it MUST
-     * return an empty string.
-     *
-     * The string returned MUST omit the leading "#" character.
-     *
-     * @return string The URI fragment.
-     */
-    public function getFragment()
-    {
-        return '';
-    }
-
-    /**
-     * Set base path
-     *
-     * @param  string $basePath
-     * @return self
-     */
-    public function withBasePath($basePath)
-    {
-        $clone = clone $this;
-        $clone->basePath = $basePath;
-
-        return $clone;
+        return $this->query;
     }
 
     /**
@@ -522,10 +564,50 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function withQuery($query)
     {
+        if (!is_string($query) && !method_exists($query, '__toString')) {
+            throw new \InvalidArgumentException('Uri query must be a string');
+        }
+        $query = ltrim((string)$query, '?');
         $clone = clone $this;
-        $clone->query = ltrim($query, '?');
+        $clone->query = $this->filterQuery($query);
 
         return $clone;
+    }
+
+    /**
+     * Filters the query string or fragment of a URI.
+     *
+     * @param  $query The raw uri query string
+     * @return string The percent-encoded query string
+     */
+    protected function filterQuery($query)
+    {
+        return preg_replace_callback(
+            '/(?:[^a-zA-Z0-9_\-\.~!\$&\'\(\)\*\+,;=%:@\/\?]+|%(?![A-Fa-f0-9]{2}))/',
+            function ($match) {
+                return rawurlencode($match[0]);
+            },
+            $query
+        );
+    }
+
+    /********************************************************************************
+     * Fragment (Unsupported for time being)
+     *******************************************************************************/
+
+    /**
+     * Retrieve the fragment segment of the URI.
+     *
+     * This method MUST return a string; if no fragment is present, it MUST
+     * return an empty string.
+     *
+     * The string returned MUST omit the leading "#" character.
+     *
+     * @return string The URI fragment.
+     */
+    public function getFragment()
+    {
+        return '';
     }
 
     /**
@@ -545,6 +627,10 @@ class Uri implements \Psr\Http\Message\UriInterface
     {
         return $this;
     }
+
+    /********************************************************************************
+     * Helpers
+     *******************************************************************************/
 
     /**
      * Return the string representation of the URI.

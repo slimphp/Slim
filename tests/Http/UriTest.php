@@ -39,14 +39,14 @@ class UriTest extends PHPUnit_Framework_TestCase
     public function uriFactory()
     {
         $scheme = 'https';
+        $host = 'example.com';
+        $port = 443;
+        $path = '/foo/bar';
+        $query = 'abc=123';
         $user = 'josh';
         $password = 'sekrit';
-        $host = 'example.com';
-        $path = '/foo/bar';
-        $port = 443;
-        $query = 'abc=123';
 
-        return new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        return new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
     }
 
     /********************************************************************************
@@ -105,7 +105,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('josh@example.com', $uri->getAuthority());
     }
@@ -119,7 +119,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('example.com', $uri->getAuthority());
     }
@@ -133,7 +133,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 400;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('example.com:400', $uri->getAuthority());
     }
@@ -147,7 +147,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('josh:sekrit', $uri->getUserInfo());
     }
@@ -161,7 +161,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('josh', $uri->getUserInfo());
     }
@@ -175,14 +175,37 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals('', $uri->getUserInfo());
+    }
+
+    public function testWithUserInfo()
+    {
+        $uri = $this->uriFactory()->withUserInfo('bob', 'pass');
+
+        $this->assertAttributeEquals('bob', 'user', $uri);
+        $this->assertAttributeEquals('pass', 'password', $uri);
+    }
+
+    public function testWithUserInfoRemovesPassword()
+    {
+        $uri = $this->uriFactory()->withUserInfo('bob');
+
+        $this->assertAttributeEquals('bob', 'user', $uri);
+        $this->assertAttributeEquals('', 'password', $uri);
     }
 
     public function testGetHost()
     {
         $this->assertEquals('example.com', $this->uriFactory()->getHost());
+    }
+
+    public function testWithHost()
+    {
+        $uri = $this->uriFactory()->withHost('slimframework.com');
+
+        $this->assertAttributeEquals('slimframework.com', 'host', $uri);
     }
 
     public function testGetPortStandard()
@@ -199,7 +222,7 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 4000;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
 
         $this->assertEquals(4000, $uri->getPort());
     }
@@ -243,58 +266,23 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('', $this->uriFactory()->getBasePath());
     }
 
-    public function testGetPath()
-    {
-        $this->assertEquals('/foo/bar', $this->uriFactory()->getPath());
-    }
-
-    public function testGetQuery()
-    {
-        $this->assertEquals('abc=123', $this->uriFactory()->getQuery());
-    }
-
-    public function testGetQueryRemovesPrefix()
-    {
-        $scheme = 'https';
-        $user = '';
-        $password = '';
-        $host = 'example.com';
-        $path = '/foo/bar';
-        $port = 443;
-        $query = '?abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $user, $password, $host, $port, $path, $query);
-
-        $this->assertEquals('abc=123', $uri->getQuery());
-    }
-
-    public function testWithUserInfo()
-    {
-        $uri = $this->uriFactory()->withUserInfo('bob', 'pass');
-
-        $this->assertAttributeEquals('bob', 'user', $uri);
-        $this->assertAttributeEquals('pass', 'password', $uri);
-    }
-
-    public function testWithUserInfoRemovesPassword()
-    {
-        $uri = $this->uriFactory()->withUserInfo('bob');
-
-        $this->assertAttributeEquals('bob', 'user', $uri);
-        $this->assertAttributeEquals('', 'password', $uri);
-    }
-
-    public function testWithHost()
-    {
-        $uri = $this->uriFactory()->withHost('slimframework.com');
-
-        $this->assertAttributeEquals('slimframework.com', 'host', $uri);
-    }
-
     public function testWithBasePath()
     {
         $uri = $this->uriFactory()->withBasePath('/base');
 
         $this->assertAttributeEquals('/base', 'basePath', $uri);
+    }
+
+    public function testWithBasePathAddsPrefix()
+    {
+        $uri = $this->uriFactory()->withBasePath('base');
+
+        $this->assertAttributeEquals('/base', 'basePath', $uri);
+    }
+
+    public function testGetPath()
+    {
+        $this->assertEquals('/foo/bar', $this->uriFactory()->getPath());
     }
 
     public function testWithPath()
@@ -332,19 +320,39 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/include%25s/new', 'path', $uri);
     }
 
-    public function testQuery()
-    {
-        $uri = $this->uriFactory()->withQuery('user=1');
+    /********************************************************************************
+     * Query
+     *******************************************************************************/
 
-        $this->assertAttributeEquals('user=1', 'query', $uri);
+    public function testGetQuery()
+    {
+        $this->assertEquals('abc=123', $this->uriFactory()->getQuery());
     }
 
-    public function testQueryWithPrefix()
+    public function testWithQuery()
     {
-        $uri = $this->uriFactory()->withQuery('?user=1');
+        $uri = $this->uriFactory()->withQuery('xyz=123');
 
-        $this->assertAttributeEquals('user=1', 'query', $uri);
+        $this->assertAttributeEquals('xyz=123', 'query', $uri);
     }
+
+    public function testWithQueryRemovesPrefix()
+    {
+        $uri = $this->uriFactory()->withQuery('?xyz=123');
+
+        $this->assertAttributeEquals('xyz=123', 'query', $uri);
+    }
+
+    public function testWithQueryEmpty()
+    {
+        $uri = $this->uriFactory()->withQuery('');
+
+        $this->assertAttributeEquals('', 'query', $uri);
+    }
+
+    /********************************************************************************
+     * Helpers
+     *******************************************************************************/
 
     public function testToString()
     {
