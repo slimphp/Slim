@@ -97,6 +97,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithMethodInvalid()
+    {
+        $request = $this->requestFactory()->withMethod('FOO');
+    }
+
     public function testGetMethodWithOverrideHeader()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
@@ -125,6 +133,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('PUT', $request->getMethod());
         $this->assertEquals('POST', $request->getOriginalMethod());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testCreateRequestWithInvalidMethod()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('FOO', $uri, $headers, $cookies, $body);
     }
 
     /*******************************************************************************
