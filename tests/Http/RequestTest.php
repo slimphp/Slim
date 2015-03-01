@@ -51,6 +51,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
         return $request;
     }
 
+    public function testDisableSetter()
+    {
+        $request = $this->requestFactory();
+        $request->foo = 'bar';
+
+        $this->assertFalse(property_exists($request, 'foo'));
+    }
+
     /*******************************************************************************
      * Protocol
      ******************************************************************************/
@@ -105,6 +113,13 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory()->withMethod('FOO');
     }
 
+    public function testWithMethodNull()
+    {
+        $request = $this->requestFactory()->withMethod(null);
+
+        $this->assertAttributeEquals(null, 'originalMethod', $request);
+    }
+
     public function testGetMethodWithOverrideHeader()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
@@ -119,7 +134,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('POST', $request->getOriginalMethod());
     }
 
-    public function testGetMethodWithOverrideParameter()
+    public function testGetMethodWithOverrideParameterFromBodyObject()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
@@ -135,16 +150,117 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('POST', $request->getOriginalMethod());
     }
 
+    public function testGetMethodOverrideParameterFromBodyArray()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ]);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('_METHOD=PUT');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $body);
+        $request->registerMediaTypeParser('application/x-www-form-urlencoded', function ($input) {
+            parse_str($input, $body);
+            return $body; // <-- Array
+        });
+
+        $this->assertEquals('PUT', $request->getMethod());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testCreateRequestWithInvalidMethod()
+    public function testCreateRequestWithInvalidMethodString()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('FOO', $uri, $headers, $cookies, $body);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testCreateRequestWithInvalidMethodOther()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request(10, $uri, $headers, $cookies, $body);
+    }
+
+    public function testIsGet()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'GET');
+
+        $this->assertTrue($request->isGet());
+    }
+
+    public function testIsPost()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'POST');
+
+        $this->assertTrue($request->isPost());
+    }
+
+    public function testIsPut()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'PUT');
+
+        $this->assertTrue($request->isPut());
+    }
+
+    public function testIsPatch()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'PATCH');
+
+        $this->assertTrue($request->isPatch());
+    }
+
+    public function testIsDelete()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'DELETE');
+
+        $this->assertTrue($request->isDelete());
+    }
+
+    public function testIsHead()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'HEAD');
+
+        $this->assertTrue($request->isHead());
+    }
+
+    public function testIsOptions()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop->setAccessible(true);
+        $prop->setValue($request, 'OPTIONS');
+
+        $this->assertTrue($request->isOptions());
     }
 
     public function testIsXhr()
@@ -170,11 +286,39 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/bar?abc=123', $this->requestFactory()->getRequestTarget());
     }
 
+    public function testGetRequestTargetAlreadySet()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'requestTarget');
+        $prop->setAccessible(true);
+        $prop->setValue($request, '/foo/bar?abc=123');
+
+        $this->assertEquals('/foo/bar?abc=123', $request->getRequestTarget());
+    }
+
+    public function testGetRequestTargetIfNoUri()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, null);
+
+        $this->assertEquals('/', $request->getRequestTarget());
+    }
+
     public function testWithRequestTarget()
     {
         $clone = $this->requestFactory()->withRequestTarget('/test?user=1');
 
         $this->assertAttributeEquals('/test?user=1', 'requestTarget', $clone);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithRequestTargetThatHasSpaces()
+    {
+        $clone = $this->requestFactory()->withRequestTarget('/test/m ore/stuff?user=1');
     }
 
     public function testGetUri()
@@ -341,7 +485,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $request = $this->requestFactory();
 
-        $this->assertNull($request->getContentType());
+        $this->assertNull($request->getMediaType());
     }
 
     public function testGetMediaTypeParams()
@@ -461,6 +605,16 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(['abc' => '123'], $this->requestFactory()->getQueryParams());
     }
 
+    public function testGetQueryParamsAlreadySet()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'queryParams');
+        $prop->setAccessible(true);
+        $prop->setValue($request, ['foo' => 'bar']);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getQueryParams());
+    }
+
     public function testWithQueryParams()
     {
         $request = $this->requestFactory();
@@ -469,6 +623,16 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
         $this->assertAttributeEquals(['foo' => 'bar'], 'queryParams', $clone); // <-- Changed
+    }
+
+    public function testGetQueryParamsWithoutUri()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, null);
+
+        $this->assertEquals([], $request->getQueryParams());
     }
 
     /*******************************************************************************
@@ -601,6 +765,46 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = new Request($method, $uri, $headers, $cookies, $body);
 
         $this->assertEquals('Josh', $request->getParsedBody()->name);
+    }
+
+    public function testGetParsedBodyWhenAlreadyParsed()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'bodyParsed');
+        $prop->setAccessible(true);
+        $prop->setValue($request, ['foo' => 'bar']);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
+    public function testGetParsedBodyWhenBodyDoesNotExist()
+    {
+        $request = $this->requestFactory();
+        $prop = new \ReflectionProperty($request, 'body');
+        $prop->setAccessible(true);
+        $prop->setValue($request, null);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testGetParsedBodyAsArray()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers([
+            'Content-Type' => 'application/json;charset=utf8'
+        ]);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('{"foo": "bar"}');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $body);
+        $request->registerMediaTypeParser('application/json', function ($input) {
+            return 10; // <-- Return invalid body value
+        });
+        $request->getParsedBody(); // <-- Triggers exception
     }
 
     public function testWithParsedBody()

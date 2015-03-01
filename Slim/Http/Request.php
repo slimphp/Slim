@@ -482,7 +482,7 @@ class Request implements RequestInterface
     public function withRequestTarget($requestTarget)
     {
         if (preg_match('#\s#', $requestTarget)) {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 'Invalid request target provided; must be a string and cannot contain whitespace'
             );
         }
