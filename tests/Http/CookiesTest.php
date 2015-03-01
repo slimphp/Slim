@@ -53,6 +53,16 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $prop->getValue($c)['foo']['value']);
     }
 
+    public function testGetDefaults()
+    {
+        $c = new Cookies();
+        $prop = new \ReflectionProperty($c, 'defaults');
+        $prop->setAccessible(true);
+        $prop->setValue($c, ['foo' => 'bar']);
+
+        $this->assertEquals(['foo' => 'bar'], $c->getDefaults());
+    }
+
     public function testSetWithSingleValue()
     {
         $c = new Cookies();
@@ -132,6 +142,26 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $value = 'Abc=One';
 
         $this->assertEquals(['Abc' => 'One'], Cookies::parseHeader($value));
+    }
+
+    public function testParseHeaderArray()
+    {
+        $value = ['Abc=One;Def=Two;Ghi=Three'];
+        $shouldBe = [
+            'Abc' => 'One',
+            'Def' => 'Two',
+            'Ghi' => 'Three'
+        ];
+
+        $this->assertEquals($shouldBe, Cookies::parseHeader($value));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testParseHeaderInvalid()
+    {
+        Cookies::parseHeader(100);
     }
 
     public function testParseEmptyHeader()
