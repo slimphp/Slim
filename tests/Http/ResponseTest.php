@@ -57,6 +57,14 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeNotSame($body, 'body', $clone);
     }
 
+    public function testDisableSetter()
+    {
+        $response = new Response();
+        $response->foo = 'bar';
+
+        $this->assertFalse(property_exists($response, 'foo'));
+    }
+
     /*******************************************************************************
      * Protocol
      ******************************************************************************/
@@ -387,6 +395,30 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeSame($body2, 'body', $clone);
     }
 
+    public function testSendBody()
+    {
+        $this->expectOutputString('Hello world');
+
+        $headers = new Headers();
+        $cookies = new Cookies();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('Hello world');
+        $response = new Response(404, $headers, $cookies, $body);
+        $response->sendBody();
+    }
+
+    public function testSendBody204()
+    {
+        $this->expectOutputString('');
+
+        $headers = new Headers();
+        $cookies = new Cookies();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('Hello world');
+        $response = new Response(204, $headers, $cookies, $body);
+        $response->sendBody();
+    }
+
     /*******************************************************************************
      * HTTP caching
      ******************************************************************************/
@@ -514,6 +546,134 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $clone = $response->withEtag('abc', 'weak', function ($res, $value) {
             throw new \RuntimeException();
         });
+    }
+
+    /*******************************************************************************
+     * Behaviors
+     ******************************************************************************/
+
+    public function testWithRedirect()
+    {
+        $response = new Response();
+        $response = $response->withRedirect('/foo', 301);
+
+        $this->assertAttributeEquals(301, 'status', $response);
+        $this->assertEquals('/foo', $response->getHeader('Location'));
+    }
+
+    public function testIsEmpty()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 201);
+
+        $this->assertTrue($response->isEmpty());
+    }
+
+    public function testIsInformational()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 100);
+
+        $this->assertTrue($response->isInformational());
+    }
+
+    public function testIsOk()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 200);
+
+        $this->assertTrue($response->isOk());
+    }
+
+    public function testIsSuccessful()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 201);
+
+        $this->assertTrue($response->isSuccessful());
+    }
+
+    public function testIsRedirect()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 302);
+
+        $this->assertTrue($response->isRedirect());
+    }
+
+    public function testIsRedirection()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 308);
+
+        $this->assertTrue($response->isRedirection());
+    }
+
+    public function testIsForbidden()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 403);
+
+        $this->assertTrue($response->isForbidden());
+    }
+
+    public function testIsNotFound()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 404);
+
+        $this->assertTrue($response->isNotFound());
+    }
+
+    public function testIsClientError()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 400);
+
+        $this->assertTrue($response->isClientError());
+    }
+
+    public function testIsServerError()
+    {
+        $response = new Response();
+        $prop = new \ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 503);
+
+        $this->assertTrue($response->isServerError());
+    }
+
+    public function testToString()
+    {
+        $output = <<<END
+HTTP/1.1 404 Not Found
+X-Foo: Bar
+
+Where am I?
+END;
+        $this->expectOutputString($output);
+        $response = new Response();
+        $response = $response->withStatus(404)->withHeader('X-Foo', 'Bar')->write('Where am I?');
+
+        echo $response;
     }
 
     /*******************************************************************************
