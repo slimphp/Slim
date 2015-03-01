@@ -79,11 +79,10 @@ class Body implements \Psr\Http\Message\StreamableInterface
      */
     public function __construct($stream)
     {
-        if (is_resource($stream) === false) {
+        if (!is_resource($stream)) {
             throw new \InvalidArgumentException('\Slim\Http\Body::__construct() argument must be a valid PHP resource');
         }
         $this->attach($stream);
-        $this->setMetadata($stream);
     }
 
     /**
@@ -94,10 +93,6 @@ class Body implements \Psr\Http\Message\StreamableInterface
      */
     protected function setMetadata($stream)
     {
-        if (is_resource($stream) === false) {
-            throw new \InvalidArgumentException('\Slim\Http\Body::setMetadata() argument must be a valid PHP resource');
-        }
-
         // Fetch metadata
         $this->meta = stream_get_meta_data($stream);
 
@@ -171,6 +166,7 @@ class Body implements \Psr\Http\Message\StreamableInterface
         }
 
         $this->stream = $newStream;
+        $this->setMetadata($newStream);
     }
 
     /**

@@ -61,6 +61,21 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('application/json', $prop->getValue($h)['Content-Type'][0]);
     }
 
+    public function testCreateFromEnvironmentIgnoresHeaders()
+    {
+        $e = Environment::mock([
+            'CONTENT_TYPE' => 'text/csv',
+            'HTTP_CONTENT_LENGTH' => 1230, // <-- Ignored
+            'HTTP_CONTENT_TYPE' => 'application/json' // <-- Ignored
+        ]);
+        $h = Headers::createFromEnvironment($e);
+        $prop = new \ReflectionProperty($h, 'data');
+        $prop->setAccessible(true);
+
+        $this->assertEquals('text/csv', $prop->getValue($h)['Content-Type'][0]);
+        $this->assertNotContains('Content-Length', $prop->getValue($h));
+    }
+
     public function testConstructor()
     {
         $h = new Headers([
@@ -135,6 +150,18 @@ class HeadersTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($prop->getValue($h)['Foo']));
         $this->assertEquals(['Bar', 'Xyz'], $prop->getValue($h)['Foo']);
+    }
+
+    public function testAddArrayValue()
+    {
+        $h = new Headers();
+        $h->add('Foo', 'Bar');
+        $h->add('Foo', ['Xyz', '123']);
+        $prop = new \ReflectionProperty($h, 'data');
+        $prop->setAccessible(true);
+
+        $this->assertTrue(is_array($prop->getValue($h)['Foo']));
+        $this->assertEquals(['Bar', 'Xyz', '123'], $prop->getValue($h)['Foo']);
     }
 
     public function testHas()

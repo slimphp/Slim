@@ -76,6 +76,15 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertSame($this->stream, $bodyStream->getValue($body));
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testConstructorInvalidStream()
+    {
+        $this->stream = 'foo';
+        $body = new \Slim\Http\Body($this->stream);
+    }
+
     public function testConstructorSetsMetadata()
     {
         $this->stream = $this->resourceFactory();
@@ -159,6 +168,15 @@ class BodyTest extends PHPUnit_Framework_TestCase
         fclose($stream2);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAttachInvalidStream()
+    {
+        $body = new \Slim\Http\Body($this->resourceFactory());
+        $body->attach('Foo');
+    }
+
     public function testDetach()
     {
         $this->stream = $this->resourceFactory();
@@ -206,6 +224,16 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $bodyStream->setValue($body, null);
 
         $this->assertEquals('', (string)$body);
+    }
+
+    public function testClose()
+    {
+        $this->stream = $this->resourceFactory();
+        $body = new \Slim\Http\Body($this->stream);
+        $body->close();
+
+        $this->assertAttributeEquals(null, 'stream', $body);
+        $this->assertFalse($body->isAttached());
     }
 
     public function testGetSizeAttached()
