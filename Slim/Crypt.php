@@ -125,8 +125,15 @@ class Crypt implements CryptInterface
         $hmac = $parts[2];
 
         // Verify integrity of encrypted data
-        if ($this->getHmac($encryptedData) !== $hmac) {
-            throw new \RuntimeException('Integrity of encrypted data has been compromised in \Slim\Crypt::decrypt');
+        if (function_exists('hash_equals')) {
+            // Use `hash_equals()` function to avoid timing attacks
+            if (!hash_equals($this->getHmac($encryptedData), $hmac)) {
+                throw new \RuntimeException('Integrity of encrypted data has been compromised in \Slim\Crypt::decrypt');
+            }
+        } else {
+            if ($this->getHmac($encryptedData) !== $hmac) {
+                throw new \RuntimeException('Integrity of encrypted data has been compromised in \Slim\Crypt::decrypt');
+            }
         }
 
         // Get module
