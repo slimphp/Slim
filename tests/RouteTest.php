@@ -497,7 +497,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testSetHttpMethods()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $route->setHttpMethods('GET', 'POST');
+        $route->setHttpMethods(array('GET', 'POST'));
 
         $this->assertAttributeEquals(array('GET', 'POST'), 'methods', $route);
     }
@@ -521,7 +521,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $property->setAccessible(true);
         $property->setValue($route, array('GET', 'POST'));
 
-        $route->appendHttpMethods('PUT');
+        $route->appendHttpMethods(array('PUT'));
 
         $this->assertAttributeEquals(array('GET', 'POST', 'PUT'), 'methods', $route);
     }
@@ -538,7 +538,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testAppendHttpMethodsWithVia()
     {
         $route = new \Slim\Route('/foo', function () {});
-        $route->via('PUT');
+        $route->via(array('PUT'));
 
         $this->assertAttributeContains('PUT', 'methods', $route);
     }
