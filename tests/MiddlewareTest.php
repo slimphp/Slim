@@ -1,4 +1,10 @@
 <?php
+use Slim\Collection;
+use Slim\Http\Body;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Uri;
+
 /**
  * Slim - a micro PHP 5 framework
  *
@@ -30,50 +36,61 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
+class MyMiddleware implements \Slim\Interfaces\MiddlewareInterface
 {
-    public function call() {}
+    public function __invoke(
+      \Psr\Http\Message\RequestInterface $request,
+      \Psr\Http\Message\ResponseInterface $response,
+      callable $next = null
+    ) {
+        $response->write("Hello\n");
+        return $response;
+    }
 }
 
 class MiddlewareTest extends PHPUnit_Framework_TestCase
 {
-    public function testSetApplication()
+    public function requestFactory()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $mw->setApplication($app);
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
+        $cookies = new Collection([
+          'user' => 'john',
+          'id' => '123'
+        ]);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $body);
 
-        $this->assertAttributeSame($app, 'app', $mw);
+        return $request;
     }
 
-    public function testGetApplication()
+    public function testInvokes()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $property = new \ReflectionProperty($mw, 'app');
-        $property->setAccessible(true);
-        $property->setValue($mw, $app);
+        $mw1 = function ($request, $response, $next) {
+            $response->write("World\n");
+            $response = $next($request, $response, $next);
+            return $response;
+        };
+        $mw2 = new MyMiddleware();
+        $middleware = new \Slim\Middleware($mw1, $mw2);
 
-        $this->assertSame($app, $mw->getApplication());
+        $response = new \Slim\Http\Response();
+        $middleware->__invoke($this->requestFactory(), $response);
+        $body = (string) $response->getBody();
+        $this->assertContains('Hello', $body);
+        $this->assertContains('World', $body);
     }
 
     public function testSetNextMiddleware()
     {
-        $mw1 = new MyMiddleware();
+        $mw1 = function ($request, $response, $next) {
+            $response->write("World\n");
+            $response = $next($request, $response, $next);
+            return $response;
+        };
         $mw2 = new MyMiddleware();
-        $mw1->setNextMiddleware($mw2);
+        $middleware = new \Slim\Middleware($mw1, $mw2);
 
-        $this->assertAttributeSame($mw2, 'next', $mw1);
-    }
-
-    public function testGetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $property = new \ReflectionProperty($mw1, 'next');
-        $property->setAccessible(true);
-        $property->setValue($mw1, $mw2);
-
-        $this->assertSame($mw2, $mw1->getNextMiddleware());
+        $this->assertAttributeSame($mw2, 'next', $middleware);
     }
 }

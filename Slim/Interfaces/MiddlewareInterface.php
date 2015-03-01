@@ -32,6 +32,9 @@
  */
 namespace Slim\Interfaces;
 
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 /**
  * Middleware Interface
  *
@@ -41,18 +44,5 @@ namespace Slim\Interfaces;
  */
 interface MiddlewareInterface
 {
-    public function setApplication($application);
-
-    public function getApplication();
-
-    public function setNextMiddleware($nextMiddleware);
-
-    public function getNextMiddleware();
-
-    /**
-     * @param  Http\RequestInterface  $request  The current request object
-     * @param  Http\ResponseInterface $response The current response object
-     * @return Http\ResponseInterface
-     */
-    public function call(Interfaces\Http\RequestInterface $request, Interfaces\Http\ResponseInterface $response);
+    public function __invoke(RequestInterface $request, ResponseInterface $response, callable $next = null);
 }
