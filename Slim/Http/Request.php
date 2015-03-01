@@ -409,7 +409,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return $this->headers->get('X-Requested-With') === 'XMLHttpRequest';
+        return $this->getHeader('X-Requested-With') === 'XMLHttpRequest';
     }
 
     /**

@@ -147,6 +147,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = new Request('FOO', $uri, $headers, $cookies, $body);
     }
 
+    public function testIsXhr()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'X-Requested-With' => 'XMLHttpRequest'
+        ]);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $body);
+
+        $this->assertTrue($request->isXhr());
+    }
+
     /*******************************************************************************
      * URI
      ******************************************************************************/
