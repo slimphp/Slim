@@ -17,7 +17,7 @@ Thank you for choosing the Slim Framework for your next project. I think you're 
 * Resource Locator and DI container
 * Template rendering with custom views
 * Flash messages
-* Secure cookies with AES-256 encryption
+* Encrypt cookie and session data
 * HTTP caching
 * Logging with custom log writers
 * Error handling and debugging
