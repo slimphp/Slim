@@ -54,18 +54,22 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     public function testMergeArray()
     {
         $original = array(
-          'default' => 'Memcached',
-          'drivers' => array(
+          'cache' => array(
+            'default' => 'Memcached',
+            'drivers' => array(
               'Memcached' => array(),
               'File' => array(),
+            )
           )
         );
 
         $expected = array(
-          'default' => 'File',
-          'drivers' => array(
+          'cache' => array(
+            'default' => 'File',
+            'drivers' => array(
               'Memcached' => array(),
               'File' => array(),
+            )
           )
         );
 
@@ -73,7 +77,9 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
         $con->setArray($original);
 
         $con->setArray(array(
-          'default' => 'File',
+          'cache' => array(
+            'default' => 'File',
+          )
         ));
 
         $this->assertEquals($expected, $con->getAllNested());
