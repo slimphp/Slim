@@ -124,7 +124,7 @@ class SessionCookie extends \Slim\Middleware
 
         if ($value) {
             try {
-                $_SESSION = unserialize($value);
+                $_SESSION = json_decode($value, true);
             } catch (\Exception $e) {
                 $this->app->getLog()->error('Error unserializing session cookie value! ' . $e->getMessage());
             }
@@ -138,7 +138,7 @@ class SessionCookie extends \Slim\Middleware
      */
     protected function saveSession()
     {
-        $value = serialize($_SESSION);
+        $value = json_encode($_SESSION);
 
         if (strlen($value) > 4096) {
             $this->app->getLog()->error('WARNING! Slim\Middleware\SessionCookie data size is larger than 4KB. Content save failed.');
