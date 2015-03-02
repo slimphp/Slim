@@ -134,7 +134,7 @@ class Collection implements CollectionInterface
      *
      * @param CryptInterface $crypt
      */
-    public function encrypt(CryptInterface $crypt)
+    public function encrypt(\Zend\Crypt\BlockCipher $crypt)
     {
         foreach ($this->data as $key => $value) {
             $this->set($key, $crypt->encrypt($value));
@@ -146,7 +146,7 @@ class Collection implements CollectionInterface
      *
      * @param CryptInterface $crypt
      */
-    public function decrypt(CryptInterface $crypt)
+    public function decrypt(\Zend\Crypt\BlockCipher $crypt)
     {
         foreach ($this->data as $key => $value) {
             $this->set($key, $crypt->decrypt($value));

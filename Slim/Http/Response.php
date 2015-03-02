@@ -566,10 +566,10 @@ class Response implements ResponseInterface
     /**
      * Return a copy of this response with encrypted cookies
      *
-     * @param  CryptInterface $crypt
+     * @param  \Zend\Crypt\BlockCipher $crypt
      * @return self
      */
-    public function withEncryptedCookies(CryptInterface $crypt)
+    public function withEncryptedCookies(\Zend\Crypt\BlockCipher $crypt)
     {
         $clone = clone $this;
         $clone->cookies->encrypt($crypt);

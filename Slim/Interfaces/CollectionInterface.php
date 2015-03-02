@@ -57,7 +57,7 @@ interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggrega
 
     public function clear();
 
-    public function encrypt(CryptInterface $crypt);
+    public function encrypt(\Zend\Crypt\BlockCipher $crypt);
 
-    public function decrypt(CryptInterface $crypt);
+    public function decrypt(\Zend\Crypt\BlockCipher $crypt);
 }

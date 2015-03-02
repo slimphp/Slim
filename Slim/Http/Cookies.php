@@ -176,9 +176,9 @@ class Cookies extends Collection implements CookiesInterface
      * application immediately before the HTTP response
      * is serialized and returned to the client.
      *
-     * @param  CryptInterface $crypt A crypt instance
+     * @param \Zend\Crypt\BlockCipher $crypt
      */
-    public function encrypt(CryptInterface $crypt)
+    public function encrypt(\Zend\Crypt\BlockCipher $crypt)
     {
         foreach ($this as $name => $settings) {
             $settings['value'] = $crypt->encrypt($settings['value']);

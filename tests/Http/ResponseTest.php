@@ -11,7 +11,6 @@ use \Slim\Http\Response;
 use \Slim\Http\Headers;
 use \Slim\Http\Cookies;
 use \Slim\Http\Body;
-use \Slim\Crypt;
 
 class ResponseTest extends PHPUnit_Framework_TestCase
 {
@@ -351,23 +350,23 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $this->assertLessThan($now, $clone->getCookieProperties('foo')['expires']);
     }
 
-    public function testWithEncryptedCookies()
-    {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '2 days',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true
-        ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-        $crypt = new Crypt('sekritsdfsadt7u5', MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
-        $clone = $response->withEncryptedCookies($crypt);
-
-        $this->assertNotEquals('bar', $clone->getCookieProperties('foo')['value']);
-    }
+    // public function testWithEncryptedCookies()
+    // {
+    //     $cookies = new Cookies();
+    //     $cookies->setDefaults([
+    //         'expires' => '2 days',
+    //         'path' => '/',
+    //         'domain' => 'example.com',
+    //         'secure' => true,
+    //         'httponly' => true
+    //     ]);
+    //     $cookies->set('foo', 'bar');
+    //     $response = new Response(200, null, $cookies);
+    //     $crypt = new Crypt('sekritsdfsadt7u5', MCRYPT_RIJNDAEL_256, MCRYPT_MODE_CBC);
+    //     $clone = $response->withEncryptedCookies($crypt);
+//
+    //     $this->assertNotEquals('bar', $clone->getCookieProperties('foo')['value']);
+    // }
 
     /*******************************************************************************
      * Body

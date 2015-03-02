@@ -8,15 +8,9 @@
  */
 namespace Slim;
 
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
-
-// Ensure mcrypt constants are defined even if
-// mcrypt extension is not loaded
-if (!extension_loaded('mcrypt')) {
-    define('MCRYPT_MODE_CBC', 0);
-    define('MCRYPT_RIJNDAEL_256', 0);
-}
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Zend\Crypt\BlockCipher;
 
 /**
  * App
@@ -158,12 +152,16 @@ class App extends \Pimple\Container
 
         /**
          * Crypt factory
-         *
-         * This factory method MUST return a SHARED singleton instance
-         * of \Slim\Interfaces\CryptInterface.
          */
         $this['crypt'] = function ($c) {
-            return new Crypt($c['settings']['crypt.key'], $c['settings']['crypt.cipher'], $c['settings']['crypt.mode']);
+            $blockCipher = BlockCipher::factory('mcrypt', array(
+                'algo' => $c['settings']['crypt.cipher'],
+                'mode' => $c['settings']['crypt.mode'],
+                'hash' => $c['settings']['crypt.hash']
+            ));
+            $blockCipher->setKey($c['settings']['crypt.key']);
+
+            return $blockCipher;
         };
 
         /**
