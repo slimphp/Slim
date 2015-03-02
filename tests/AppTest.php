@@ -203,14 +203,10 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testDefaultMiddlewareStack()
+    public function testNoDefaultMiddleware()
     {
         $app = new App();
-        $prop = new \ReflectionProperty($app, 'middleware');
-        $prop->setAccessible(true);
-
-        $this->assertEquals(1, count($prop->getValue($app)));
-        $this->assertSame($app, $prop->getValue($app)[0]);
+        $this->assertEquals($app, $app->getTopLevelMiddleware());
     }
 
     public function testAddMiddleware()
@@ -220,12 +216,9 @@ class AppTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $app->add($mw);
-        $prop = new \ReflectionProperty($app, 'middleware');
-        $prop->setAccessible(true);
-
-        $this->assertEquals(2, count($prop->getValue($app)));
-        $this->assertInstanceOf('\Slim\Middleware', $prop->getValue($app)[0]);
-        $this->assertAttributeSame($app, 'next', $prop->getValue($app)[0]);
+        $this->assertInstanceOf('\Slim\Middleware', $app->getTopLevelMiddleware());
+        $this->assertEquals($mw, $app->getTopLevelMiddleware()->getCallable());
+        $this->assertEquals($app, $app->getTopLevelMiddleware()->getNext());
     }
 
     public function testHaltInMiddleware()

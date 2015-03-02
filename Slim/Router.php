@@ -148,9 +148,7 @@ class Router implements RouterInterface
         list($groupPattern, $groupMiddleware) = $this->processGroups();
         $route->setPattern($groupPattern . $route->getPattern());
         $this->routes[] = $route;
-        foreach ($groupMiddleware as $middleware) {
-            $route->setMiddleware($middleware);
-        }
+        $route->add($groupMiddleware);
     }
 
     /**

@@ -30,6 +30,7 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
 class LazyInitializeTestClass {
     public static $initialized = false;
 
@@ -97,7 +98,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->setParams(array('bar' => '1234'));
 
         $this->assertFalse(FooTestClass::$foo_invoked);
-        $this->assertTrue($route->dispatch());
+
+        $req = $this->getMock('Psr\Http\Message\RequestInterface');
+        $resp = $this->getMock('Psr\Http\Message\ResponseInterface');
+
+        $this->assertTrue($route->dispatch($req,$resp));
         $this->assertTrue(FooTestClass::$foo_invoked);
         $this->assertEquals(array('1234'), FooTestClass::$foo_invoked_args);
     }
@@ -109,7 +114,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new \Slim\Route('/foo', '\LazyInitializeTestClass:foo');
         $this->assertFalse(LazyInitializeTestClass::$initialized);
 
-        $route->dispatch();
+        $req = new \Slim\Http\Request();
+        $resp = $this->getMock('ResponseInterface');
+        $route->dispatch($req,$resp);
         $this->assertTrue(LazyInitializeTestClass::$initialized);
     }
 
@@ -431,7 +438,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw = function () {
             echo 'Foo';
         };
-        $route->setMiddleware($mw);
+        $route->addMiddleware($mw);
 
         $this->assertAttributeContains($mw, 'middleware', $route);
     }
@@ -445,8 +452,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw2 = function () {
             echo 'Bar';
         };
-        $route->setMiddleware($mw1);
-        $route->setMiddleware($mw2);
+        $route->add([$mw1, $mw2]);
 
         $this->assertAttributeContains($mw1, 'middleware', $route);
         $this->assertAttributeContains($mw2, 'middleware', $route);
@@ -461,7 +467,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $mw2 = function () {
             echo 'Bar';
         };
-        $route->setMiddleware(array($mw1, $mw2));
+        $route->addMiddlewares(array($mw1, $mw2));
 
         $this->assertAttributeContains($mw1, 'middleware', $route);
         $this->assertAttributeContains($mw2, 'middleware', $route);
@@ -472,7 +478,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('InvalidArgumentException');
 
         $route = new \Slim\Route('/foo', function () {});
-        $route->setMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
+        $route->addMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
     }
 
     public function testSetMiddlewareWithArrayWithInvalidArgument()
@@ -480,7 +486,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('InvalidArgumentException');
 
         $route = new \Slim\Route('/foo', function () {});
-        $route->setMiddleware(array('doesNotExist'));
+        $route->addMiddleware(array('doesNotExist'));
     }
 
     public function testGetMiddleware()
@@ -572,7 +578,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('Hello josh');
         $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
         $route->matches('/hello/josh'); //<-- Extracts params from resource URI
-        $route->dispatch();
+        $route->dispatch(Mockery::mock('RequestInterface'), Mockery::mock('ResponseInterface'));
     }
 
     /**
@@ -582,14 +588,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
     {
         $this->expectOutputString('First! Second! Hello josh');
         $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setMiddleware(function () {
+        $route->addMiddleware(function () {
             echo "First! ";
         });
-        $route->setMiddleware(function () {
+        $route->addMiddlewares(function () {
             echo "Second! ";
         });
         $route->matches('/hello/josh'); //<-- Extracts params from resource URI
-        $route->dispatch();
+
+        $route->dispatch(Mockery::mock('RequestInterface'), Mockery::mock('ResponseInterface'));
     }
 
     /**
@@ -600,10 +607,10 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('foobar');
         $route = new \Slim\Route('/foo', function () { echo "bar"; });
         $route->setName('foo');
-        $route->setMiddleware(function ($route) {
+        $route->addMiddleware(function ($route) {
             echo $route->getName();
         });
         $route->matches('/foo'); //<-- Extracts params from resource URI
-        $route->dispatch();
+        $route->dispatch(Mockery::mock('RequestInterface'), Mockery::mock('ResponseInterface'));
     }
 }

@@ -36,6 +36,9 @@ use \Slim\Interfaces\RouteInterface;
  */
 class Route implements RouteInterface
 {
+
+    use Middlewared;
+
     /**
      * The route pattern (e.g. "/hello/:first/:name")
      *
@@ -98,13 +101,6 @@ class Route implements RouteInterface
      * @var string[]
      */
     protected $methods = array();
-
-    /**
-     * Middleware to be invoked before immediately before this route is dispatched
-     *
-     * @var callable[]
-     */
-    protected $middleware = array();
 
     /**
      * Create new route
@@ -353,49 +349,6 @@ class Route implements RouteInterface
     }
 
     /**
-     * Get Route middleware
-     *
-     * @return callable[]
-     */
-    public function getMiddleware()
-    {
-        return $this->middleware;
-    }
-
-    /**
-     * Set Route middleware
-     *
-     * This method allows middleware to be assigned to a specific Route.
-     * If the method argument `is_callable` (including callable arrays!),
-     * we directly append the argument to `$this->middleware`. Else, we
-     * assume the argument is an array of callables and merge the array
-     * with `$this->middleware`.  Each middleware is checked for is_callable()
-     * and an InvalidArgumentException is thrown immediately if it isn't.
-     *
-     * @param  callable|callable[]
-     * @return self
-     * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
-     */
-    public function setMiddleware($middleware)
-    {
-        if (is_callable($middleware)) {
-            $this->middleware[] = $middleware;
-        } elseif (is_array($middleware)) {
-            foreach ($middleware as $callable) {
-                if (!is_callable($callable)) {
-                    throw new \InvalidArgumentException('All Route middleware must be callable');
-                }
-            }
-            $this->middleware = array_merge($this->middleware, $middleware);
-        } else {
-            throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Does this Route's pattern match a given request Uri path?
      *
      * Parse this route's pattern, and then compare it to an HTTP resource URI
      * This method was modeled after the techniques demonstrated by Dan Sosedoff at:
@@ -498,14 +451,12 @@ class Route implements RouteInterface
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response)
     {
-        // Invoke route middleware
-        foreach ($this->middleware as $mw) {
-            $newResponse = call_user_func_array($mw, [$request, $response, $this]);
-            if ($newResponse instanceof ResponseInterface) {
-                $response = $newResponse;
-            }
-        }
+        return $this->execMiddlewareStack($request, $response);
+    }
 
+
+    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    {
         // Inject route parameters into Request object as attributes
         $request = $request->withAttributes($this->getParams());
 
