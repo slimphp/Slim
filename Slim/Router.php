@@ -23,6 +23,8 @@ class Router extends \FastRoute\RouteCollector
 {
     protected $routes = [];
 
+    protected $routeGroups = [];
+
     public function __construct()
     {
         parent::__construct(new \FastRoute\RouteParser\Std, new \FastRoute\DataGenerator\GroupCountBased);
@@ -30,9 +32,18 @@ class Router extends \FastRoute\RouteCollector
 
     public function map($name, $methods, $pattern, $handler)
     {
+        // Prepend group pattern
+        list($groupPattern, $groupMiddleware) = $this->processGroups();
+        $pattern = $groupPattern . $pattern;
+
+        // Create route
         $route = new Route($methods, $pattern, $handler);
+        foreach ($groupMiddleware as $middleware) {
+            $route->setMiddleware($middleware);
+        }
+
+        // Append route
         $this->routes[$name] = $route;
-        // $this->addRoute($methods, $pattern, $route);
         $this->addRoute($methods[0], $pattern, $route);
 
         return $route;
