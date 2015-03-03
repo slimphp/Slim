@@ -36,18 +36,6 @@ class App extends \Pimple\Container
     protected $responded = false;
 
     /**
-     * Application hooks
-     *
-     * @var array
-     */
-    protected $hooks = array(
-        'slim.before' => array(array()),
-        'slim.before.dispatch' => array(array()),
-        'slim.after.dispatch' => array(array()),
-        'slim.after' => array(array())
-    );
-
-    /**
      * Middleware stack
      *
      * @var callable[]
@@ -207,7 +195,7 @@ class App extends \Pimple\Container
          * \Psr\Http\Message\ResponseInterface.
          */
         $this['errorHandler'] = function ($c) {
-            return new ErrorHandler();
+            return new Handlers\Error;
         };
 
         /**
@@ -223,7 +211,24 @@ class App extends \Pimple\Container
          * \Psr\Http\Message\ResponseInterface.
          */
         $this['notFoundHandler'] = function ($c) {
-            return new NotFoundHandler();
+            return new Handlers\NotFound;
+        };
+
+        /**
+         * Not Allowed handler factory
+         *
+         * This factory method MUST return a callable
+         * that accepts three arguments:
+         *
+         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         * 3. Array of allowed HTTP methods
+         *
+         * The callable MUST return an instance of
+         * \Psr\Http\Message\ResponseInterface.
+         */
+        $this['notAllowedHandler'] = function ($c) {
+            return new Handlers\NotAllowed;
         };
 
         $this->middleware = array($this);
@@ -234,34 +239,20 @@ class App extends \Pimple\Container
     *******************************************************************************/
 
     /**
-     * Add GET|POST|PUT|PATCH|DELETE route
+     * Add route
      *
-     * Adds a new route to the router with associated callable. This
-     * route will only be invoked when the HTTP request's method matches
-     * this route's method.
+     * This method's second argument is a numeric array
+     * with these elements:
      *
-     * ARGUMENTS:
+     * 1. (string) Route name
+     * 2. (string) Route URI pattern
+     * 3. (callable) One or more route middleware
+     * 4. (callable) Route handler
      *
-     * First:       string  The URL pattern (REQUIRED)
-     * In-Between:  mixed   Anything that returns TRUE for `is_callable` (OPTIONAL)
-     * Last:        mixed   Anything that returns TRUE for `is_callable` (REQUIRED)
+     * @param array $methods HTTP methods
+     * @param array $args    See notes above
      *
-     * The first argument is required and must always be the
-     * route pattern (ie. '/books/:id').
-     *
-     * The last argument is required and must always be the callable object
-     * to be invoked when the route matches an HTTP request.
-     *
-     * You may also provide an unlimited number of in-between arguments;
-     * each interior argument must be callable and will be invoked in the
-     * order specified before the route's callable is invoked.
-     *
-     * USAGE:
-     *
-     * Slim::get('/foo'[, middleware, middleware, ...], callable);
-     *
-     * @param  array $args Route path, optional middleware, and callback
-     * @return \Slim\Interfaces\RouteInterface
+     * @return Route
      */
     protected function mapRoute(array $methods, $args)
     {
@@ -423,93 +414,6 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Hooks
-    *******************************************************************************/
-
-    /**
-     * Assign hook
-     *
-     * @param string $name     The hook name
-     * @param mixed  $callable A callable object
-     * @param int    $priority The hook priority; 0 = high, 10 = low
-     */
-    public function hook($name, $callable, $priority = 10)
-    {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
-        }
-        if (is_callable($callable)) {
-            $this->hooks[$name][(int) $priority][] = $callable;
-        }
-    }
-
-    /**
-     * Invoke hook
-     *
-     * @param string $name    The hook name
-     * @param mixed  $hookArg (Optional) Argument for hooked functions
-     */
-    public function applyHook($name, $hookArg = null)
-    {
-        if (!isset($this->hooks[$name])) {
-            $this->hooks[$name] = array(array());
-        }
-        if (!empty($this->hooks[$name])) {
-            // Sort by priority, low to high, if there's more than one priority
-            if (count($this->hooks[$name]) > 1) {
-                ksort($this->hooks[$name]);
-            }
-            foreach ($this->hooks[$name] as $priority) {
-                if (!empty($priority)) {
-                    foreach ($priority as $callable) {
-                        call_user_func($callable, $hookArg);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Get hook listeners
-     *
-     * Return an array of registered hooks. If `$name` is a valid
-     * hook name, only the listeners attached to that hook are returned.
-     * Else, all listeners are returned as an associative array whose
-     * keys are hook names and whose values are arrays of listeners.
-     *
-     * @param  string     $name A hook name (Optional)
-     * @return array|null
-     */
-    public function getHooks($name = null)
-    {
-        if (!is_null($name)) {
-            return isset($this->hooks[(string) $name]) ? $this->hooks[(string) $name] : null;
-        } else {
-            return $this->hooks;
-        }
-    }
-
-    /**
-     * Clear hook listeners
-     *
-     * Clear all listeners for all hooks. If `$name` is
-     * a valid hook name, only the listeners attached
-     * to that hook will be cleared.
-     *
-     * @param string $name A hook name (Optional)
-     */
-    public function clearHooks($name = null)
-    {
-        if (!is_null($name) && isset($this->hooks[(string) $name])) {
-            $this->hooks[(string) $name] = array(array());
-        } else {
-            foreach ($this->hooks as $key => $value) {
-                $this->hooks[$key] = array(array());
-            }
-        }
-    }
-
-    /********************************************************************************
     * Middleware
     *******************************************************************************/
 
@@ -594,6 +498,7 @@ class App extends \Pimple\Container
      *
      * @param  RequestInterface  $request  The most recent Request object
      * @param  ResponseInterface $response The most recent Response object
+     *
      * @return ResponseInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
@@ -604,18 +509,10 @@ class App extends \Pimple\Container
                 $newResponse = $this['notFoundHandler']($request, $response);
                 break;
             case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                $newResponse = $this['response']
-                    ->withStatus(405)
-                    ->withHeader('Allow', implode(", ", $routeInfo[1]))
-                    ->write('405 Method Not Allowed. Method should be one of ' . implode(', ', $routeInfo[1]));
+                $newResponse = $this['notAllowedHandler']($request, $response, $routeInfo[1]);
                 break;
             case \FastRoute\Dispatcher::FOUND:
-                $handler = $routeInfo[1];
-                $newResponse = $handler(
-                    $request->withAttributes($routeInfo[2]),
-                    $response,
-                    $routeInfo[2]
-                );
+                $newResponse = $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
                 break;
         }
 
