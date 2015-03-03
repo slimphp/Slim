@@ -50,6 +50,41 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('123.456.789', $con->getAllFlat());
     }
+
+    public function testMergeArray()
+    {
+        $original = array(
+          'cache' => array(
+            'default' => 'Memcached',
+            'drivers' => array(
+              'Memcached' => array(),
+              'File' => array(),
+            )
+          )
+        );
+
+        $expected = array(
+          'cache' => array(
+            'default' => 'File',
+            'drivers' => array(
+              'Memcached' => array(),
+              'File' => array(),
+            )
+          )
+        );
+
+        $con = new ConfigurationHandler;
+        $con->setArray($original);
+
+        $con->setArray(array(
+          'cache' => array(
+            'default' => 'File',
+          )
+        ));
+
+        $this->assertEquals($expected, $con->getAllNested());
+    }
+
     public function testSetArray()
     {
         $con = new ConfigurationHandler;
