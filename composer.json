@@ -16,7 +16,8 @@
         "php": ">=5.4.0",
         "pimple/pimple": "3.*",
         "psr/http-message": "~0.8",
-        "zendframework/zend-crypt": "~2.3"
+        "zendframework/zend-crypt": "~2.3",
+        "nikic/fast-route": "~0.3"
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",

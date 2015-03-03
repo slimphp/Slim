@@ -263,32 +263,18 @@ class App extends \Pimple\Container
      * @param  array $args Route path, optional middleware, and callback
      * @return \Slim\Interfaces\RouteInterface
      */
-    protected function mapRoute($args)
+    protected function mapRoute(array $methods, $args)
     {
+        $name = array_shift($args);
         $pattern = array_shift($args);
         $callable = array_pop($args);
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $route = new Route($pattern, $callable, $this['settings']['routes.case_sensitive']);
-        $this['router']->map($route);
-        if (count($args) > 0) {
-            $route->setMiddleware($args);
-        }
+        $route = $this['router']->map($name, $methods, $pattern, $callable);
+        $route->setMiddleware($args);
 
         return $route;
-    }
-
-    /**
-     * Add route without HTTP method
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function map()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute($args);
     }
 
     /**
@@ -300,7 +286,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['GET', 'HEAD']);
+        return $this->mapRoute(['GET'], $args);
     }
 
     /**
@@ -312,7 +298,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['POST']);
+        return $this->mapRoute(['POST'], $args);
     }
 
     /**
@@ -324,7 +310,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['PUT']);
+        return $this->mapRoute(['PUT'], $args);
     }
 
     /**
@@ -336,7 +322,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['PATCH']);
+        return $this->mapRoute(['PATCH'], $args);
     }
 
     /**
@@ -348,7 +334,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['DELETE']);
+        return $this->mapRoute(['DELETE'], $args);
     }
 
     /**
@@ -360,7 +346,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute($args)->via(['OPTIONS']);
+        return $this->mapRoute(['OPTIONS'], $args);
     }
 
     /**
@@ -383,18 +369,6 @@ class App extends \Pimple\Container
             call_user_func($callable);
         }
         $this['router']->popGroup();
-    }
-
-    /**
-     * Add route for any HTTP method
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function any()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute($args)->via(['ANY']);
     }
 
     /********************************************************************************
@@ -432,20 +406,6 @@ class App extends \Pimple\Container
         $response = $this['response']->withStatus($status);
         $response->write($message);
         $this->stop($response);
-    }
-
-    /**
-     * Pass
-     *
-     * Use this method to skip the current route iteration in the App::call() method.
-     * The router iteration will skip to the next matching route, else invoke
-     * the application Not Found handler.
-     *
-     * @throws \Slim\Exception\Pass
-     */
-    public function pass()
-    {
-        throw new Exception\Pass();
     }
 
     /**
@@ -593,7 +553,6 @@ class App extends \Pimple\Container
         $app = $this;
         $request = $this['request'];
         $response = $this['response'];
-        $this['router']->setBaseUrl($request->getUri()->getBasePath());
 
         // Set response HTTP caching callbacks to short-circuit app if necessary
         $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
@@ -639,29 +598,26 @@ class App extends \Pimple\Container
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        // TODO: Inject request and response objects into hooks?
-        try {
-            $this->applyHook('slim.before');
-            $dispatched = false;
-            $matchedRoutes = $this['router']->getMatchedRoutes($request->getMethod(), $request->getUri()->getPath(), false);
-            foreach ($matchedRoutes as $route) {
-                try {
-                    $this->applyHook('slim.before.dispatch');
-                    $newResponse = $route->dispatch($request, $response);
-                    $this->applyHook('slim.after.dispatch');
-                    $dispatched = true;
-                    break;
-                } catch (Exception\Pass $e) {
-                    continue;
-                }
-            }
-            if (!$dispatched) {
+        $routeInfo = $this['router']->dispatch($request, $response);
+        switch ($routeInfo[0]) {
+            case \FastRoute\Dispatcher::NOT_FOUND:
                 $newResponse = $this['notFoundHandler']($request, $response);
-            }
-        } catch (Exception\Stop $e) {
-            $newResponse = $e->getResponse();
+                break;
+            case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
+                $newResponse = $this['response']
+                    ->withStatus(405)
+                    ->withHeader('Allow', implode(", ", $routeInfo[1]))
+                    ->write('405 Method Not Allowed. Method should be one of ' . implode(', ', $routeInfo[1]));
+                break;
+            case \FastRoute\Dispatcher::FOUND:
+                $handler = $routeInfo[1];
+                $newResponse = $handler(
+                    $request->withAttributes($routeInfo[2]),
+                    $response,
+                    $routeInfo[2]
+                );
+                break;
         }
-        $this->applyHook('slim.after');
 
         return $newResponse;
     }
