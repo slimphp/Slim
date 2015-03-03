@@ -79,6 +79,16 @@ class Route
     }
 
     /**
+     * Get route pattern
+     *
+     * @return string
+     */
+    public function getPattern()
+    {
+        return $this->pattern;
+    }
+
+    /**
      * Set route callable
      *
      * @param  string|callable           $callable
