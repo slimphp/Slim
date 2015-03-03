@@ -201,13 +201,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new \Slim\Router();
 
         $route1 = new \Slim\Route('/foo', function () {});
-		$route1 = $route1->via('GET');
+		$route1 = $route1->via(array('GET'));
 
         $route2 = new \Slim\Route('/foo', function () {});
-		$route2 = $route2->via('POST');
+		$route2 = $route2->via(array('POST'));
 
         $route3 = new \Slim\Route('/bar', function () {});
-		$route3 = $route3->via('PUT');
+		$route3 = $route3->via(array('PUT'));
 
         $routes = new \ReflectionProperty($router, 'routes');
         $routes->setAccessible(true);
@@ -224,10 +224,10 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new \Slim\Router();
 
         $route1 = new \Slim\Route('/hello/:first/:last', function () {});
-        $route1 = $route1->via('GET')->name('hello');
+        $route1 = $route1->via(array('GET'))->name('hello');
 
         $route2 = new \Slim\Route('/path/(:foo\.:bar)', function () {});
-        $route2 = $route2->via('GET')->name('regexRoute');
+        $route2 = $route2->via(array('GET'))->name('regexRoute');
 
         $routes = new \ReflectionProperty($router, 'namedRoutes');
         $routes->setAccessible(true);
