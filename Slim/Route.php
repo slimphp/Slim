@@ -155,7 +155,7 @@ class Route
      * @param  ResponseInterface $response The current Response object
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    public function __invoke(RequestInterface $request, ResponseInterface $response, $args)
     {
         // Invoke route middleware
         foreach ($this->middleware as $mw) {
@@ -168,7 +168,7 @@ class Route
         // Invoke route callable
         try {
             ob_start();
-            $newResponse = call_user_func_array($this->callable, [$request, $response, $this]);
+            $newResponse = call_user_func_array($this->callable, [$request, $response, $args]);
             $output = ob_get_clean();
         } catch (\Exception $e) {
             ob_end_clean();

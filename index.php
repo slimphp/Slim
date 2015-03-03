@@ -20,8 +20,8 @@ require 'vendor/autoload.php';
  */
 $app = new \Slim\App();
 
-$app->get('testGet', '/hello', function ($req, $res, $args) {
-    echo 'Hello';
+$app->get('testGet', '/hello/{first}/{last}', function ($req, $res, $args) {
+    var_dump($args);
 });
 
 /**

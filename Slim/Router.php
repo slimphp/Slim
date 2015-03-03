@@ -32,9 +32,8 @@ class Router extends \FastRoute\RouteCollector
     {
         $route = new Route($methods, $pattern, $handler);
         $this->routes[$name] = $route;
-        foreach ($methods as $method) {
-            parent::addRoute($method, $pattern, $route);
-        }
+        // $this->addRoute($methods, $pattern, $route);
+        $this->addRoute($methods[0], $pattern, $route);
 
         return $route;
     }
