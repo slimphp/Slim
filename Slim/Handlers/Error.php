@@ -10,6 +10,7 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Slim\Http\Body;
 
 /**
  * Default error handler
@@ -67,7 +68,7 @@ class Error
         return $response
                 ->withStatus(500)
                 ->withHeader('Content-type', 'text/html')
-                ->withBody(new Http\Body(fopen('php://temp', 'r+')))
+                ->withBody(new Body(fopen('php://temp', 'r+')))
                 ->write($output);
     }
 }
