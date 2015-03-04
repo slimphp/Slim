@@ -55,7 +55,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
-     * @return \Slim\Route
+     * @return \Slim\RouteInterface
      */
     public function map($name, $methods, $pattern, $handler)
     {

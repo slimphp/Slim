@@ -171,15 +171,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @expectedException \Slim\Exception\Pass
-     */
-    public function testPass()
-    {
-        $app = new App();
-        $app->pass();
-    }
-
     public function testRedirect()
     {
         $app = new App();
@@ -192,12 +183,6 @@ class AppTest extends PHPUnit_Framework_TestCase
             $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
         }
     }
-
-    /********************************************************************************
-     * Hooks
-     *******************************************************************************/
-
-    // TODO: Test hook methods... pending improvements
 
     /********************************************************************************
      * Middleware
