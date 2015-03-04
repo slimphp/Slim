@@ -9,7 +9,6 @@
 namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
 
 /**
  * Router
@@ -19,17 +18,45 @@ use Psr\Http\Message\ResponseInterface;
  * finding routes that match the current HTTP request, and creating
  * URLs for a named route.
  */
-class Router extends \FastRoute\RouteCollector
+class Router extends \FastRoute\RouteCollector implements RouterInterface
 {
+    /**
+     * Routes
+     *
+     * @var array
+     */
     protected $routes = [];
 
+    /**
+     * Route groups
+     *
+     * @var array
+     */
     protected $routeGroups = [];
 
-    public function __construct()
+    /**
+     * Create new router
+     *
+     * @param \FastRoute\RouteParser   $parser
+     * @param \FastRoute\DataGenerator $generator
+     */
+    public function __construct(\FastRoute\RouteParser $parser = null, \FastRoute\DataGenerator $generator = null)
     {
-        parent::__construct(new \FastRoute\RouteParser\Std, new \FastRoute\DataGenerator\GroupCountBased);
+        $parser = $parser ? $parser : new \FastRoute\RouteParser\Std;
+        $generator = $generator ? $generator : new \FastRoute\DataGenerator\GroupCountBased;
+        parent::__construct($parser, $generator);
     }
 
+    /**
+     * Add route
+     *
+     * @param string   $name    The route name
+     * @param array    $methods Array of HTTP methods
+     * @param string   $pattern The route pattern
+     * @param callable $handler The route callable
+     *
+     * @return \Slim\Route
+     */
     public function map($name, $methods, $pattern, $handler)
     {
         // Prepend group pattern
@@ -45,15 +72,27 @@ class Router extends \FastRoute\RouteCollector
         // Append route
         $this->routes[$name] = $route;
         $this->addRoute($methods[0], $pattern, $route);
+        // TODO: Send ALL methods once FastRoute supports it in next release
 
         return $route;
     }
 
-    public function dispatch(RequestInterface $request, ResponseInterface $response)
+    /**
+     * Dispatch router for HTTP request
+     *
+     * @param  RequestInterface $request The current HTTP request object
+     *
+     * @return array
+     * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
+     */
+    public function dispatch(RequestInterface $request)
     {
         $dispatcher = new \FastRoute\Dispatcher\GroupCountBased($this->getData());
 
-        return $dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
+        return $dispatcher->dispatch(
+            $request->getMethod(),
+            $request->getUri()->getPath()
+        );
     }
 
     /**
@@ -78,13 +117,14 @@ class Router extends \FastRoute\RouteCollector
     /**
      * Add a route group to the array
      *
-     * @param  string     $group      The group pattern (ie. "/books/:id")
-     * @param  array|null $middleware Optional parameter array of middleware
-     * @return int                    The index of the new group
+     * @param string     $group      The group pattern prefix
+     * @param array|null $middleware Optional middleware
+     *
+     * @return int The index of the new group
      */
     public function pushGroup($group, $middleware = array())
     {
-        return array_push($this->routeGroups, array($group => $middleware));
+        return array_push($this->routeGroups, [$group => $middleware]);
     }
 
     /**
@@ -100,11 +140,11 @@ class Router extends \FastRoute\RouteCollector
     /**
      * Build URL for named route
      *
-     * @param  string $routeName Route name
-     * @param  array  $data      Route URI segments replacement data
+     * @param string $routeName Route name
+     * @param array  $data      Route URI segments replacement data
      *
      * @return string
-     * @throws \RuntimeException If named route does not exist
+     * @throws \RuntimeException         If named route does not exist
      * @throws \InvalidArgumentException If required data not provided
      */
     public function urlFor($name, $data = array())

@@ -8,57 +8,37 @@
  */
 namespace Slim;
 
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
-use \Slim\Interfaces\RouteInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Route
- *
- * This class is a relationship of HTTP method(s), an HTTP URI, and a callback
- * to create a Slim application route. The Slim application will determine
- * the one Route object to dispatch for the current HTTP request.
- *
- * Each route object will have a URI pattern. This pattern must match the
- * current HTTP request's URI for the route object to be dispatched by
- * the Slim application. The route pattern may contain parameters, segments
- * prefixed with a colon (:). For example:
- *
- *     /hello/:first/:last
- *
- * When the route is dispatched, it's parameters array will be populated
- * with the values of the corresponding HTTP request URI segments.
- *
- * Each route object may also be assigned middleware; middleware are callbacks
- * to be invoked before the route's callable is invoked. Route middleware (not
- * to be confused with Slim application middleware) are useful for applying route
- * specific logic such as authentication.
  */
-class Route
+class Route implements RouteInterface
 {
     /**
      * HTTP methods supported by this route
      *
      * @var string[]
      */
-    protected $methods = array();
+    protected $methods = [];
 
     /**
-     * The route pattern (e.g. "/hello/:first/:name")
+     * Route pattern
      *
      * @var string
      */
     protected $pattern;
 
     /**
-     * The route callable
+     * Route callable
      *
      * @var callable
      */
     protected $callable;
 
     /**
-     * Middleware to be invoked before immediately before this route is dispatched
+     * Middleware to be invoked before the route callable
      *
      * @var callable[]
      */
@@ -67,9 +47,9 @@ class Route
     /**
      * Create new route
      *
-     * @param string   $pattern       The Route pattern
-     * @param callable $callable      The Route callable
-     * @param bool     $caseSensitive Is the Route path case-sensitive?
+     * @param string[] $methods       The route HTTP methods
+     * @param string   $pattern       The route pattern
+     * @param callable $callable      The route callable
      */
     public function __construct($methods, $pattern, $callable)
     {
@@ -91,10 +71,11 @@ class Route
     /**
      * Set route callable
      *
-     * @param  string|callable           $callable
+     * @param string|callable $callable
+     *
      * @throws \InvalidArgumentException If argument is not callable
      */
-    public function setCallable($callable)
+    protected function setCallable($callable)
     {
         $matches = array();
         if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
@@ -133,6 +114,7 @@ class Route
      * and an InvalidArgumentException is thrown immediately if it isn't.
      *
      * @param  callable|callable[]
+     *
      * @return self
      * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
      */
@@ -161,11 +143,13 @@ class Route
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param  RequestInterface  $request  The current Request object
-     * @param  ResponseInterface $response The current Response object
+     * @param RequestInterface  $request  The current Request object
+     * @param ResponseInterface $response The current Response object
+     * @param array             $args     Parsed pattern data
+     *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response, $args)
+    public function __invoke(RequestInterface $request, ResponseInterface $response, array $args)
     {
         // Invoke route middleware
         foreach ($this->middleware as $mw) {
