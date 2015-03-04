@@ -204,12 +204,22 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      */
     protected function mergeArrays()
     {
-        $arrays = func_get_args();
-        $merged = array();
-
-        foreach ($arrays as $array) {
-            foreach ($array as $key => $value) {
-                $merged = $this->setValue($key, $value, $merged);
+        $args = func_get_args();
+        $merged = array_shift($args);
+        while (!empty($args)) {
+            $next = array_shift($args);
+            foreach ($next as $k => $v) {
+                if (is_integer($k)) {
+                    if (isset($merged[$k])) {
+                        $merged[] = $v;
+                    } else {
+                        $merged[$k] = $v;
+                    }
+                } elseif (is_array($v) && isset($merged[$k]) && is_array($merged[$k])) {
+                    $merged[$k] = $this->mergeArrays($merged[$k], $v);
+                } else {
+                    $merged[$k] = $v;
+                }
             }
         }
 
