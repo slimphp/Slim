@@ -8,8 +8,7 @@
  */
 namespace Slim;
 
-use \Slim\Interfaces\CollectionInterface;
-use \Slim\Interfaces\CryptInterface;
+use Slim\Interfaces\CollectionInterface;
 
 /**
  * Collection
@@ -25,7 +24,7 @@ class Collection implements CollectionInterface
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * Create new collection
@@ -55,17 +54,14 @@ class Collection implements CollectionInterface
     /**
      * Get collection item for key
      *
-     * @param  string $key     The data key
-     * @param  mixed  $default The default value to return if data key does not exist
-     * @return mixed           The key's value, or the default value
+     * @param string $key     The data key
+     * @param mixed  $default The default value to return if data key does not exist
+     *
+     * @return mixed The key's value, or the default value
      */
     public function get($key, $default = null)
     {
-        if ($this->offsetExists($key)) {
-            return $this->offsetGet($key);
-        }
-
-        return $default;
+        return $this->offsetExists($key) ? $this->offsetGet($key) : $default;
     }
 
     /**
@@ -103,7 +99,8 @@ class Collection implements CollectionInterface
     /**
      * Does this collection have a given key?
      *
-     * @param  string $key The data key
+     * @param string $key The data key
+     *
      * @return bool
      */
     public function has($key)
@@ -132,7 +129,7 @@ class Collection implements CollectionInterface
     /**
      * Encrypt collection values
      *
-     * @param CryptInterface $crypt
+     * @param \Zend\Crypt\BlockCipher $crypt
      */
     public function encrypt(\Zend\Crypt\BlockCipher $crypt)
     {
@@ -144,7 +141,7 @@ class Collection implements CollectionInterface
     /**
      * Decrypt collection values
      *
-     * @param CryptInterface $crypt
+     * @param \Zend\Crypt\BlockCipher $crypt
      */
     public function decrypt(\Zend\Crypt\BlockCipher $crypt)
     {
@@ -161,6 +158,7 @@ class Collection implements CollectionInterface
      * Does this collection have a given key?
      *
      * @param  string $key The data key
+     *
      * @return bool
      */
     public function offsetExists($key)
@@ -171,8 +169,9 @@ class Collection implements CollectionInterface
     /**
      * Get collection item for key
      *
-     * @param  string $key The data key
-     * @return mixed       The key's value, or the default value
+     * @param string $key The data key
+     *
+     * @return mixed The key's value, or the default value
      */
     public function offsetGet($key)
     {
