@@ -424,7 +424,6 @@ class App extends \Pimple\Container
      */
     public function run()
     {
-        // Define application error handler
         set_error_handler(function ($errno, $errstr, $errfile, $errline) {
             if (!($errno & error_reporting())) {
                 return;
