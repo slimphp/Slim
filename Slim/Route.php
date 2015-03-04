@@ -59,6 +59,16 @@ class Route implements RouteInterface
     }
 
     /**
+     * Get route methods
+     *
+     * @return string[]
+     */
+    public function getMethods()
+    {
+        return $this->methods;
+    }
+
+    /**
      * Get route pattern
      *
      * @return string
@@ -66,6 +76,16 @@ class Route implements RouteInterface
     public function getPattern()
     {
         return $this->pattern;
+    }
+
+    /**
+     * Get route callable
+     *
+     * @return callable
+     */
+    public function getCallable()
+    {
+        return $this->callable;
     }
 
     /**
