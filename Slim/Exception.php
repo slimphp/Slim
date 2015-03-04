@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
-namespace Slim\Exception;
+namespace Slim;
 
-use \Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * Stop Exception
@@ -16,15 +16,17 @@ use \Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class Stop extends \Exception
+class Exception extends \Exception
 {
     /**
+     * A response object to send to the HTTP client
+     *
      * @var ResponseInterface
      */
     protected $response;
 
     /**
-     * Constructor
+     * Create new exception
      *
      * @param ResponseInterface $response
      */

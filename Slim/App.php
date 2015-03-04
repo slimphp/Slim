@@ -372,12 +372,12 @@ class App extends \Pimple\Container
      * This method stops the application and sends the provided
      * Response object to the HTTP client.
      *
-     * @param  ResponseInterface    $response
-     * @throws \Slim\Exception\Stop
+     * @param  ResponseInterface $response
+     * @throws \Slim\Exception
      */
     public function stop(ResponseInterface $response)
     {
-        throw new Exception\Stop($response);
+        throw new \Slim\Exception($response);
     }
 
     /**
@@ -390,7 +390,8 @@ class App extends \Pimple\Container
      *
      * @param  int    $status  The desired HTTP status
      * @param  string $message The desired HTTP message
-     * @throws \Slim\Exception\Stop
+     *
+     * @throws \Slim\Exception
      */
     public function halt($status, $message = '')
     {
@@ -407,6 +408,8 @@ class App extends \Pimple\Container
      *
      * @param string $url    The destination URL
      * @param int    $status The HTTP redirect status code (optional)
+     *
+     * @throws \Slim\Exception
      */
     public function redirect($url, $status = 302)
     {
@@ -476,7 +479,7 @@ class App extends \Pimple\Container
         // Traverse middleware stack and fetch updated response
         try {
             $response = $this->middleware[0]($request, $response);
-        } catch (Exception\Stop $e) {
+        } catch (\Slim\Exception $e) {
             $response = $e->getResponse();
         } catch (\Exception $e) {
             $response = $this['errorHandler']($request, $response, $e);
