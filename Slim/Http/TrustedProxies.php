@@ -8,12 +8,14 @@
  */
 namespace Slim\Http;
 
+use Slim\Interfaces\Http\TrustedProxiesInterface;
+
 /**
  * TrustedProxies
  *
  * This class is used to store trusted proxy data for XFF headers.
  */
-class TrustedProxies
+class TrustedProxies implements TrustedProxiesInterface
 {
     const HEADER_CLIENT_PROTO = 0;
     const HEADER_CLIENT_IP = 1;
@@ -66,7 +68,7 @@ class TrustedProxies
             return $this->trustedHeaderNames[$key];
         }
 
-        //TODO: Else?
+        throw new \LogicException("Trusted Header Name $key is undefined");
     }
 
     /**
