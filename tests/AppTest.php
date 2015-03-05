@@ -22,19 +22,6 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Router proxy methods
      *******************************************************************************/
 
-    public function testMapRoute()
-    {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
-        $app = new App();
-        $route = $app->map($path, $callable);
-
-        $this->assertInstanceOf('\Slim\Route', $route);
-        $this->assertAttributeEmpty('methods', $route);
-    }
-
     public function testGetRoute()
     {
         $path = '/foo';
@@ -113,19 +100,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
-    public function testAnyRoute()
-    {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
-        $app = new App();
-        $route = $app->any($path, $callable);
-
-        $this->assertInstanceOf('\Slim\Route', $route);
-        $this->assertAttributeContains('ANY', 'methods', $route);
-    }
-
     public function testGroup()
     {
         $path = '/foo';
@@ -152,7 +126,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         try {
             $app->stop($res);
             $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (\Slim\Exception $e) {
             $this->assertSame($res, $e->getResponse());
         }
     }
@@ -163,7 +137,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         try {
             $app->halt(400, 'Bad');
             $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (\Slim\Exception $e) {
             $res = $e->getResponse();
             $body = $res->getBody();
             $this->assertAttributeEquals(400, 'status', $res);
@@ -177,7 +151,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         try {
             $app->redirect('http://slimframework.com', 301);
             $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception\Stop $e) {
+        } catch (\Slim\Exception $e) {
             $res = $e->getResponse();
             $this->assertAttributeEquals(301, 'status', $res);
             $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
