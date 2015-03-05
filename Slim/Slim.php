@@ -152,7 +152,7 @@ class Slim
     {
         // Setup IoC container
         $this->container = new \Slim\Helper\Set();
-        $this->container['settings'] = array_merge(static::getDefaultSettings(), $userSettings);
+        $this->container['settings'] = $this->mergeSettings(static::getDefaultSettings(), $userSettings);
 
         // Default environment
         $this->container->singleton('environment', function ($c) {
@@ -336,20 +336,31 @@ class Slim
     public function config($name, $value = null)
     {
         $c = $this->container;
-
-        if (is_array($name)) {
-            if (true === $value) {
-                $c['settings'] = array_merge_recursive($c['settings'], $name);
-            } else {
-                $c['settings'] = array_merge($c['settings'], $name);
-            }
-        } elseif (func_num_args() === 1) {
+        
+        if (is_array($name) && func_num_args() === 1) {
             return isset($c['settings'][$name]) ? $c['settings'][$name] : null;
-        } else {
-            $settings = $c['settings'];
-            $settings[$name] = $value;
-            $c['settings'] = $settings;
         }
+        
+        $c['settings'] = $this->mergeSetings($c['settings'], $name, $value);
+    }
+    
+    /**
+     * @param  array The array of actual settings
+     * @param  string|array $name  If a string, the name of the setting to set. Else an associated array of setting names and values
+     * @param  mixed        $value If name is a string, the value of the setting identified by $name
+     * @return array The array of new settings
+     */
+    protected function mergeSettings(Array $settings, $name, $value = null)
+    {
+        if (! is_array()) {
+            return $settings[$name] = $value;
+        }
+        
+        if (true === $value) {
+            return array_merge_recursive($settings, $name);
+        }
+        
+        return array_merge($settings, $name);
     }
 
     /********************************************************************************
