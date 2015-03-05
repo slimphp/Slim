@@ -14,6 +14,10 @@ use Slim\Interfaces\Http\TrustedProxiesInterface;
  * TrustedProxies
  *
  * This class is used to store trusted proxy data for XFF headers.
+ *
+ * @package Slim\Http
+ * @author Michael Yoo <michael@yoo.id.au>
+ * @since 3.0.0
  */
 class TrustedProxies implements TrustedProxiesInterface
 {
@@ -36,7 +40,7 @@ class TrustedProxies implements TrustedProxiesInterface
     protected $trustedHeaderNames = array(
         self::HEADER_CLIENT_PROTO => "X-Forwarded-Proto",
         self::HEADER_CLIENT_IP => "X-Forwarded-For",
-        self::HEADER_CLIENT_PORT => "X-Forwarded_Port"
+        self::HEADER_CLIENT_PORT => "X-Forwarded-Port"
     );
 
     /**
@@ -48,7 +52,7 @@ class TrustedProxies implements TrustedProxiesInterface
     private function __construct($trustedProxies = array(), $trustedHeaderNames = array())
     {
         $this->trustedProxies = $trustedProxies;
-        $this->trustedHeaderNames = array_merge($this->trustedHeaderNames, $trustedHeaderNames);
+        $this->trustedHeaderNames = $trustedHeaderNames + $this->trustedHeaderNames;
     }
 
     /**
