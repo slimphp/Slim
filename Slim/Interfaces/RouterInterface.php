@@ -1,65 +1,65 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim\Interfaces;
 
-use \Slim\Interfaces\RouteInterface;
+use Psr\Http\Message\RequestInterface;
 
-/**
- * Router Interface
- *
- * @package Slim
- * @author  John Porter
- * @since   3.0.0
- */
 interface RouterInterface
 {
-    public function getCurrentRoute();
+    /**
+     * Add route
+     *
+     * @param string   $name    The route name
+     * @param array    $methods Array of HTTP methods
+     * @param string   $pattern The route pattern
+     * @param callable $handler The route callable
+     *
+     * @return \Slim\RouteInterface
+     */
+    public function map($name, $methods, $pattern, $handler);
 
-    public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false);
+    /**
+     * Dispatch router for HTTP request
+     *
+     * @param  RequestInterface $request The current HTTP request object
+     *
+     * @return array
+     * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
+     */
+    public function dispatch(RequestInterface $request);
 
-    public function map(RouteInterface $route);
-
+    /**
+     * Add a route group to the array
+     *
+     * @param string     $group      The group pattern prefix
+     * @param array|null $middleware Optional middleware
+     *
+     * @return int The index of the new group
+     */
     public function pushGroup($group, $middleware = array());
 
+    /**
+     * Removes the last route group from the array
+     *
+     * @return bool True if successful, else False
+     */
     public function popGroup();
 
-    public function urlFor($name, array $params = array(), array $queryParams = array());
-
-    public function addNamedRoute($name, RouteInterface $route);
-
-    public function hasNamedRoute($name);
-
-    public function getNamedRoute($name);
-
-    public function getNamedRoutes();
+    /**
+     * Build URL for named route
+     *
+     * @param string $routeName Route name
+     * @param array  $data      Route URI segments replacement data
+     *
+     * @return string
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
+     */
+    public function urlFor($name, $data = array());
 }

@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * Router
@@ -55,7 +56,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
-     * @return \Slim\RouteInterface
+     * @return \Slim\Interfaces\RouteInterface
      */
     public function map($name, $methods, $pattern, $handler)
     {
