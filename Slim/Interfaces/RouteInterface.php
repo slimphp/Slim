@@ -1,96 +1,37 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.0
- * @package     Slim
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
 namespace Slim\Interfaces;
 
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
-/**
- * Route Interface
- *
- * @package Slim
- * @author  John Porter
- * @since   3.0.0
- */
 interface RouteInterface
 {
-    public static function setDefaultConditions(array $defaultConditions);
-
-    public static function getDefaultConditions();
-
+    /**
+     * Get route pattern
+     *
+     * @return string
+     */
     public function getPattern();
 
-    public function setPattern($pattern);
-
-    public function getCallable();
-
-    public function setCallable($callable);
-
-    public function getConditions();
-
-    public function setConditions(array $conditions);
-
-    public function getName();
-
-    public function setName($name);
-
-    public function getParams();
-
-    public function setParams(array $params);
-
-    public function getParam($index);
-
-    public function setParam($index, $value);
-
-    public function setHttpMethods(array $methods);
-
-    public function getHttpMethods();
-
-    public function appendHttpMethods(array $methods);
-
-    public function via(array $methods);
-
-    public function supportsHttpMethod($method);
-
-    public function getMiddleware();
-
-    public function setMiddleware($middleware);
-
-    public function matches($resourceUri);
-
-    public function name($name);
-
-    public function conditions(array $conditions);
-
-    public function dispatch(RequestInterface $request, ResponseInterface $response);
+    /**
+     * Dispatch route callable against current Request and Response objects
+     *
+     * This method invokes the route object's callable. If middleware is
+     * registered for the route, each callable middleware is invoked in
+     * the order specified.
+     *
+     * @param RequestInterface  $request  The current Request object
+     * @param ResponseInterface $response The current Response object
+     * @param array             $args     Parsed pattern data
+     *
+     * @return ResponseInterface
+     */
+    public function __invoke(RequestInterface $request, ResponseInterface $response, array $args);
 }
