@@ -482,19 +482,17 @@ class App extends \Pimple\Container
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
         $routeInfo = $this['router']->dispatch($request, $response);
-        switch ($routeInfo[0]) {
-            case \FastRoute\Dispatcher::NOT_FOUND:
-                $newResponse = $this['notFoundHandler']($request, $response);
-                break;
-            case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                $newResponse = $this['notAllowedHandler']($request, $response, $routeInfo[1]);
-                break;
-            case \FastRoute\Dispatcher::FOUND:
-                $newResponse = $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
-                break;
+        if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
+                return $this['notFoundHandler']($request, $response);
         }
-
-        return $newResponse;
+        
+        if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+                return $this['notAllowedHandler']($request, $response, $routeInfo[1]);
+        }
+        
+        if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
+                return $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
+        }
     }
 
     /**
