@@ -1,6 +1,6 @@
 # Slim Framework
 
-[![Build Status](https://secure.travis-ci.org/codeguy/Slim.png?branch=master)](http://travis-ci.org/codeguy/Slim)
+[![Build Status](https://secure.travis-ci.org/slimphp/Slim.png?branch=master)](http://travis-ci.org/slimphp/Slim)
 
 Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs.
 Slim is easy to use for both beginners and professionals. Slim favors cleanliness over terseness and common cases
@@ -140,7 +140,7 @@ Two steps are required to successfully run your Slim application on Google App E
     version: 1
     runtime: php
     api_version: 1
-    
+
     handlers:
     # ...
     - url: /.*
@@ -149,14 +149,14 @@ Two steps are required to successfully run your Slim application on Google App E
 Next, edit your `index.php` file so Slim knows about the incoming URI:
 
     $app = new Slim();
-    
+
     // Google App Engine doesn't set $_SERVER['PATH_INFO']
     $app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
-    
+
     // ...
     $app->run();
 
-   
+
 ## Documentation
 
 <http://docs.slimframework.com/>
