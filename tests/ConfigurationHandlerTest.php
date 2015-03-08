@@ -53,6 +53,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
 
     public function testMergeArray()
     {
+        // test 1 - keys are string
         $original = array(
           'cache' => array(
             'default' => 'Memcached',
@@ -82,6 +83,43 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
           )
         ));
 
+        $this->assertEquals($expected, $con->getAllNested());
+
+        // test 2 - merge values keyed numeric
+        $original = array(
+            'key1' => array(
+                'sub1' => 1,
+                'sub2' => array(
+                    'E1',
+                    'E2',
+                    'E3',
+                ),
+            )
+        );
+        $expected = array(
+            'key1' => array(
+                'sub1' => 2,
+                'sub2' => array(
+                    'E1',
+                    'E2',
+                    'E3',
+                    'E5',
+                    'E6',
+                )
+            )
+        );
+        $con = new ConfigurationHandler;
+        $con->setArray($original);
+
+        $con->setArray(array(
+            'key1' => array(
+                'sub1' => 2,
+                'sub2' => array(
+                    'E5',
+                    'E6',
+                )
+            )
+        ));
         $this->assertEquals($expected, $con->getAllNested());
     }
 
