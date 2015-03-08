@@ -1,15 +1,24 @@
 {
     "name": "slim/slim",
     "type": "library",
-    "description": "Slim Framework, a PHP micro framework",
-    "keywords": ["microframework","rest","router"],
-    "homepage": "http://github.com/codeguy/Slim",
+    "description": "Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs",
+    "keywords": ["framework","micro","api","router"],
+    "homepage": "http://slimframework.com",
     "license": "MIT",
     "authors": [
         {
             "name": "Josh Lockhart",
             "email": "hello@joshlockhart.com",
             "homepage": "https://joshlockhart.com"
+        },
+        {
+            "name": "Andrew Smith",
+            "homepage": "http://silentworks.co.uk"
+        },
+        {
+            "name": "Gabriel Manricks",
+            "email": "gmanricks@me.com",
+            "homepage": "http://gabrielmanricks.com"
         }
     ],
     "require": {
@@ -22,9 +31,6 @@
     "require-dev": {
         "mockery/mockery": "dev-master@dev",
         "phpunit/phpunit": "*"
-    },
-    "suggest": {
-        "ext-mcrypt": "Required for HTTP cookie encryption"
     },
     "autoload": {
         "psr-0": {
