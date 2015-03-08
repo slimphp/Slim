@@ -342,6 +342,22 @@ class App extends \Pimple\Container
     }
 
     /**
+     * Add route for multiple methods
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function map()
+    {
+        $args = func_get_args();
+        $methods = array_shift($args);
+        if (!is_array($methods)) {
+            throw new \InvalidArgumentException('First argument must be an array of HTTP methods');
+        }
+
+        return $this->mapRoute($methods, $args);
+    }
+
+    /**
      * Route Groups
      *
      * This method accepts a route pattern and a callback. All route
@@ -491,11 +507,11 @@ class App extends \Pimple\Container
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
                 return $this['notFoundHandler']($request, $response);
         }
-        
+
         if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
                 return $this['notAllowedHandler']($request, $response, $routeInfo[1]);
         }
-        
+
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
                 return $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
         }

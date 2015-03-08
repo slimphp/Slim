@@ -72,8 +72,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 
         // Append route
         $this->routes[$name] = $route;
-        $this->addRoute($methods[0], $pattern, $route);
-        // TODO: Send ALL methods once FastRoute supports it in next release
+        $this->addRoute($methods, $pattern, $route);
 
         return $route;
     }

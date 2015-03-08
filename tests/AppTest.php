@@ -100,6 +100,33 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
+    public function testMapRoute()
+    {
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->map(['GET', 'POST'], $path, $callable);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+        $this->assertAttributeContains('POST', 'methods', $route);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMapRouteWithInvalidArgs()
+    {
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->map($path, $callable); // <-- Throws exception
+    }
+
     public function testGroup()
     {
         $path = '/foo';

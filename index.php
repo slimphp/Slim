@@ -20,10 +20,10 @@ require 'vendor/autoload.php';
  */
 $app = new \Slim\App();
 
-$app->get('testGet', '/hello/{first}/{last}', function ($req, $res, $args) {
+$app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $args) {
     echo $this['router']->urlFor('testGet', ['first' => 'Josh', 'last' => 'Lockhart']);
     var_dump($args);
-});
+}, 'testGet');
 
 /**
  * Step 3: Define the Slim application routes
