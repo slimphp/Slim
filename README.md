@@ -8,7 +8,6 @@ Slim is a PHP micro framework that helps you quickly write simple yet powerful w
 - [Documentation](http://docs.slimframework.com)
 - [Support Forum](http://help.slimframework.com)
 - [Twitter](https://twitter.com/slimphp)
-- [IRC](irc://irc.freenode.net:6667/slimphp)
 
 ## Install
 
@@ -24,8 +23,8 @@ Requires PHP 5.4.0 or newer.
 
 ```php
 $app = new \Slim\App();
-$app->get('/hello/:name', function ($name) {
-    echo "Hello, $name";
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    echo "Hello, " . $args['name'];
 });
 $app->run();
 ```
