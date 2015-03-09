@@ -23,9 +23,10 @@ trait MiddlewareAware
     /**
      * Middleware call stack
      *
-     * @var callable[]
+     * @var  \SplStack
+     * @link http://php.net/manual/class.splstack.php
      */
-    protected $stack = [];
+    protected $stack;
 
     /**
      * Add middleware
@@ -39,15 +40,18 @@ trait MiddlewareAware
      */
     public function add(callable $callable)
     {
-        $next = $this->stack[0];
-        array_unshift($this->stack, function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
+        if (is_null($this->stack)) {
+            $this->seedMiddlewareStack();
+        }
+        $next = $this->stack->top();
+        $this->stack[] = function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = $callable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new \RuntimeException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
             }
 
             return $result;
-        });
+        };
     }
 
     /**
@@ -55,6 +59,8 @@ trait MiddlewareAware
      */
     protected function seedMiddlewareStack()
     {
+        $this->stack = new \SplStack;
+        $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
         $this->stack[] = $this;
     }
 
@@ -66,18 +72,10 @@ trait MiddlewareAware
      *
      * @return ResponseInterface
      */
-    protected function callMiddlewareStack(RequestInterface $req, ResponseInterface $res)
+    public function callMiddlewareStack(RequestInterface $req, ResponseInterface $res)
     {
-        return $this->stack[0]($req, $res);
-    }
+        $start = $this->stack->top();
 
-    /**
-     * Invoke this middleware layer
-     *
-     * @param  RequestInterface  $req A request object
-     * @param  ResponseInterface $res A response object
-     *
-     * @return ResponseInterface
-     */
-    abstract public function __invoke(RequestInterface $req, ResponseInterface $res);
+        return $start($req, $res);
+    }
 }

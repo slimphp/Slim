@@ -1,79 +1,96 @@
 <?php
-/**
- * Slim - a micro PHP 5 framework
- *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+namespace Slim\Tests;
 
-class MyMiddleware extends \Slim\Middleware implements \Slim\Interfaces\MiddlewareInterface
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
+class Stackable
 {
-    public function call() {}
+    use \Slim\MiddlewareAware;
+
+    public function __invoke(RequestInterface $req, ResponseInterface $res)
+    {
+        $res = $res->write('Center');
+
+        return $res;
+    }
 }
 
-class MiddlewareTest extends PHPUnit_Framework_TestCase
+class MiddlewareTest extends \PHPUnit_Framework_TestCase
 {
-    public function testSetApplication()
+    public function testSeedsMiddlewareStack()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $mw->setApplication($app);
+        $stack = new Stackable;
+        $stack->add(function ($req, $res, $next) {
+            return $res->write('Hi');
+        });
+        $prop = new \ReflectionProperty($stack, 'stack');
+        $prop->setAccessible(true);
 
-        $this->assertAttributeSame($app, 'app', $mw);
+        $this->assertSame($stack, $prop->getValue($stack)->bottom());
     }
 
-    public function testGetApplication()
+    public function testCallMiddlewareStack()
     {
-        $app = new stdClass();
-        $mw = new MyMiddleware();
-        $property = new \ReflectionProperty($mw, 'app');
-        $property->setAccessible(true);
-        $property->setValue($mw, $app);
+        // Build middleware stack
+        $stack = new Stackable;
+        $stack->add(function ($req, $res, $next) {
+            $res = $res->write('In1');
+            $res = $next($req, $res);
+            $res = $res->write('Out1');
 
-        $this->assertSame($app, $mw->getApplication());
+            return $res;
+        });
+        $stack->add(function ($req, $res, $next) {
+            $res = $res->write('In2');
+            $res = $next($req, $res);
+            $res = $res->write('Out2');
+
+            return $res;
+        });
+
+        // Request
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Collection();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $body);
+
+        // Response
+        $response = new \Slim\Http\Response();
+
+        // Invoke call stack
+        $res = $stack->callMiddlewareStack($request, $response);
+
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
     }
 
-    public function testSetNextMiddleware()
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testMiddlewareBadReturnValue()
     {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $mw1->setNextMiddleware($mw2);
+        // Build middleware stack
+        $stack = new Stackable;
+        $stack->add(function ($req, $res, $next) {
+            $res = $res->write('In1');
+            $res = $next($req, $res);
+            $res = $res->write('Out1');
 
-        $this->assertAttributeSame($mw2, 'next', $mw1);
-    }
+            // NOTE: No return value here
+        });
 
-    public function testGetNextMiddleware()
-    {
-        $mw1 = new MyMiddleware();
-        $mw2 = new MyMiddleware();
-        $property = new \ReflectionProperty($mw1, 'next');
-        $property->setAccessible(true);
-        $property->setValue($mw1, $mw2);
+        // Request
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Collection();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $body);
 
-        $this->assertSame($mw2, $mw1->getNextMiddleware());
+        // Response
+        $response = new \Slim\Http\Response();
+
+        // Invoke call stack
+        $res = $stack->callMiddlewareStack($request, $response);
     }
 }
