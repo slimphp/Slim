@@ -10,9 +10,7 @@ class Stackable
 
     public function __invoke(RequestInterface $req, ResponseInterface $res)
     {
-        $res = $res->write('Center');
-
-        return $res;
+        return $res->write('Center');
     }
 }
 
@@ -35,16 +33,16 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         // Build middleware stack
         $stack = new Stackable;
         $stack->add(function ($req, $res, $next) {
-            $res = $res->write('In1');
+            $res->write('In1');
             $res = $next($req, $res);
-            $res = $res->write('Out1');
+            $res->write('Out1');
 
             return $res;
         });
         $stack->add(function ($req, $res, $next) {
-            $res = $res->write('In2');
+            $res->write('In2');
             $res = $next($req, $res);
-            $res = $res->write('Out2');
+            $res->write('Out2');
 
             return $res;
         });

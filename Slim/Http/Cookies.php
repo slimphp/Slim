@@ -169,24 +169,6 @@ class Cookies extends Collection implements CookiesInterface
     }
 
     /**
-     * Encrypt this cookie collection
-     *
-     * This method encrypts each cookie value with a given
-     * Crypt instance. This method is invoked by the Slim
-     * application immediately before the HTTP response
-     * is serialized and returned to the client.
-     *
-     * @param \Zend\Crypt\BlockCipher $crypt
-     */
-    public function encrypt(\Zend\Crypt\BlockCipher $crypt)
-    {
-        foreach ($this as $name => $settings) {
-            $settings['value'] = $crypt->encrypt($settings['value']);
-            $this->set($name, $settings);
-        }
-    }
-
-    /**
      * Parse HTTP request `Cookie:` header and extract
      * into a PHP associative array.
      *

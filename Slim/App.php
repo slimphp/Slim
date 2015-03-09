@@ -87,9 +87,6 @@ class App extends \Pimple\Container
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
             $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
-            if ($c['settings']['cookies.encrypt'] === true) {
-                $cookies->decrypt($c['crypt']);
-            }
             $body = new Http\Body(fopen('php://input', 'r'));
 
             return new Http\Request($method, $uri, $headers, $cookies, $body);
@@ -136,20 +133,6 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Crypt factory
-         */
-        $this['crypt'] = function ($c) {
-            $blockCipher = BlockCipher::factory('mcrypt', array(
-                'algo' => $c['settings']['crypt.cipher'],
-                'mode' => $c['settings']['crypt.mode'],
-                'hash' => $c['settings']['crypt.hash']
-            ));
-            $blockCipher->setKey($c['settings']['crypt.key']);
-
-            return $blockCipher;
-        };
-
-        /**
          * Session factory
          *
          * This factory method MUSt return a SHARED singleton instance
@@ -158,9 +141,6 @@ class App extends \Pimple\Container
         $this['session'] = function ($c) {
             $session = new Session($c['settings']['session.handler']);
             $session->start();
-            if ($c['settings']['session.encrypt'] === true) {
-                $session->decrypt($c['crypt']);
-            }
 
             return $session;
         };
@@ -559,18 +539,10 @@ class App extends \Pimple\Container
         if (!$this->responded) {
             $this->responded = true;
 
-            // Ecrypt flash and session data
+            // Persist flash and session data
             if (isset($_SESSION)) {
                 $this['flash']->save();
-                if ($this['settings']['session.encrypt'] === true) {
-                    $this['session']->encrypt($this['crypt']);
-                }
                 $this['session']->save();
-            }
-
-            // Encrypt cookies
-            if ($this['settings']['cookies.encrypt']) {
-                $response = $response->withEncryptedCookies($this['crypt']);
             }
 
             // Send response

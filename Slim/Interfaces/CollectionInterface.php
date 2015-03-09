@@ -32,8 +32,6 @@
  */
 namespace Slim\Interfaces;
 
-use \Slim\Interfaces\CryptInterface;
-
 /**
  * Collection Interface
  *
@@ -56,8 +54,4 @@ interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggrega
     public function remove($key);
 
     public function clear();
-
-    public function encrypt(\Zend\Crypt\BlockCipher $crypt);
-
-    public function decrypt(\Zend\Crypt\BlockCipher $crypt);
 }

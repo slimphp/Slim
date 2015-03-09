@@ -133,35 +133,6 @@ class CollectionTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $this->property->getValue($this->bag));
     }
 
-    public function testEncryptAndDecrypt()
-    {
-        // Prepare bag
-        $data = array(
-            'abc' => '123',
-            'foo' => 'bar'
-        );
-        $this->property->setValue($this->bag, $data);
-
-        // Prepare crypt
-        $crypt = new \Slim\Crypt(md5('secret'));
-
-        // Encrypt bag
-        $this->bag->encrypt($crypt);
-
-        // Inspect encrypted values
-        $bag = $this->property->getValue($this->bag);
-        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag['foo']));
-        $this->assertEquals(1, preg_match('#^.+\|.+\|.+$#', $bag['abc']));
-
-        // Decrypt bag
-        $this->bag->decrypt($crypt);
-
-        // Inspect decrypted values
-        $bag = $this->property->getValue($this->bag);
-        $this->assertEquals('bar', $bag['foo']);
-        $this->assertEquals('123', $bag['abc']);
-    }
-
     public function testCount()
     {
         $this->property->setValue($this->bag, array('foo' => 'bar', 'abc' => '123'));

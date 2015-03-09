@@ -126,30 +126,6 @@ class Collection implements CollectionInterface
         $this->data = array();
     }
 
-    /**
-     * Encrypt collection values
-     *
-     * @param \Zend\Crypt\BlockCipher $crypt
-     */
-    public function encrypt(\Zend\Crypt\BlockCipher $crypt)
-    {
-        foreach ($this->data as $key => $value) {
-            $this->set($key, $crypt->encrypt($value));
-        }
-    }
-
-    /**
-     * Decrypt collection values
-     *
-     * @param \Zend\Crypt\BlockCipher $crypt
-     */
-    public function decrypt(\Zend\Crypt\BlockCipher $crypt)
-    {
-        foreach ($this->data as $key => $value) {
-            $this->set($key, $crypt->decrypt($value));
-        }
-    }
-
     /********************************************************************************
      * ArrayAccess interface
      *******************************************************************************/
