@@ -218,7 +218,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
                 } elseif (is_array($v) && isset($merged[$k]) && is_array($merged[$k])) {
                     $merged[$k] = $this->mergeArrays($merged[$k], $v);
                 } else {
-                    $merged[$k] = $v;
+                    $this->setValue($k, $v, $merged);
                 }
             }
         }
