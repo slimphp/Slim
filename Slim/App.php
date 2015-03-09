@@ -36,8 +36,6 @@ class App extends \Pimple\Container
      */
     protected $responded = false;
 
-    private $routeCount = 0;
-
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -232,12 +230,14 @@ class App extends \Pimple\Container
      */
     protected function mapRoute(array $methods, $args)
     {
+        static $routeCount = 0;
+
         $name = array_pop($args);
         $pattern = array_shift($args);
         $callable = array_pop($args);
         if (empty($callable)) {
             $callable = $name;
-            $name = strtolower(implode('.', $methods)) . $this->routeCount++;
+            $name = strtolower(implode('.', $methods)) . $routeCount++;
         }
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
