@@ -17,6 +17,9 @@ use Slim\Interfaces\RouteInterface;
  */
 class Route implements RouteInterface
 {
+
+    use MiddlewareAware;
+
     /**
      * HTTP methods supported by this route
      *
@@ -39,11 +42,11 @@ class Route implements RouteInterface
     protected $callable;
 
     /**
-     * Middleware to be invoked before the route callable
+     * Route parsed arguments
      *
-     * @var callable[]
+     * @var array
      */
-    protected $middleware = array();
+    protected $parsedArgs = [];
 
     /**
      * Create new route
@@ -57,6 +60,7 @@ class Route implements RouteInterface
         $this->methods = $methods;
         $this->pattern = $pattern;
         $this->setCallable($callable);
+        $this->seedMiddlewareStack();
     }
 
     /**
@@ -124,37 +128,24 @@ class Route implements RouteInterface
         $this->callable = $callable;
     }
 
-    /**
-     * Set Route middleware
-     *
-     * This method allows middleware to be assigned to a specific Route.
-     * If the method argument `is_callable` (including callable arrays!),
-     * we directly append the argument to `$this->middleware`. Else, we
-     * assume the argument is an array of callables and merge the array
-     * with `$this->middleware`.  Each middleware is checked for is_callable()
-     * and an InvalidArgumentException is thrown immediately if it isn't.
-     *
-     * @param  callable|callable[]
-     *
-     * @return self
-     * @throws \InvalidArgumentException If argument is not callable or not an array of callables.
-     */
-    public function setMiddleware($middleware)
-    {
-        if (is_callable($middleware)) {
-            $this->middleware[] = $middleware;
-        } elseif (is_array($middleware)) {
-            foreach ($middleware as $callable) {
-                if (!is_callable($callable)) {
-                    throw new \InvalidArgumentException('All Route middleware must be callable');
-                }
-            }
-            $this->middleware = array_merge($this->middleware, $middleware);
-        } else {
-            throw new \InvalidArgumentException('Route middleware must be callable or an array of callables');
-        }
 
-        return $this;
+    /********************************************************************************
+    * Route Runner
+    *******************************************************************************/
+
+    /**
+     * Run route
+     *
+     * This method traverses the middleware stack, including the route's callable
+     * and captures the resultant HTTP response object. It then sends the response
+     * back to the Application.
+     */
+    public function run(RequestInterface $request, ResponseInterface $response, array $args)
+    {
+        $this->parsedArgs = $args;
+
+        // Traverse middleware stack and fetch updated response
+        return $this->callMiddlewareStack($request, $response);
     }
 
     /**
@@ -166,24 +157,15 @@ class Route implements RouteInterface
      *
      * @param RequestInterface $request The current Request object
      * @param ResponseInterface $response The current Response object
-     * @param array $args Parsed pattern data
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response, array $args)
+    public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        // Invoke route middleware
-        foreach ($this->middleware as $mw) {
-            $newResponse = call_user_func_array($mw, [$request, $response, $this]);
-            if ($newResponse instanceof ResponseInterface) {
-                $response = $newResponse;
-            }
-        }
-
         // Invoke route callable
         try {
             ob_start();
-            $newResponse = call_user_func_array($this->callable, [$request, $response, $args]);
+            $newResponse = call_user_func_array($this->callable, [$request, $response, $this->parsedArgs]);
             $output = ob_get_clean();
         } catch (\Exception $e) {
             ob_end_clean();

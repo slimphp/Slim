@@ -33,5 +33,5 @@ interface RouteInterface
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response, array $args);
+    public function __invoke(RequestInterface $request, ResponseInterface $response);
 }
