@@ -166,6 +166,9 @@ class Route
             $class = $matches[1];
             $method = $matches[2];
             $callable = function() use ($class, $method) {
+                if(!class_exists($class)) {
+                    return false;
+                }
                 static $obj = null;
                 if ($obj === null) {
                     $obj = new $class;
