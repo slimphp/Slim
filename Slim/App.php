@@ -10,7 +10,6 @@ namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Zend\Crypt\BlockCipher;
 
 /**
  * App
