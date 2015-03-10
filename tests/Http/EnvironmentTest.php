@@ -40,8 +40,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-	    $_SERVER['DOCUMENT_ROOT'] = '/var/www';
-	    $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/var/www';
+        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/index.php/bar/xyz';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['SERVER_NAME'] = 'slim';

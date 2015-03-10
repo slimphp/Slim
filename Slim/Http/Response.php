@@ -685,7 +685,7 @@ class Response implements ResponseInterface
         // Invoke callback if necessary
         if ($callback) {
             $callback($clone, $time);
-        } else if ($this->onLastModified) {
+        } elseif ($this->onLastModified) {
             call_user_func_array($this->onLastModified, [$clone, $time]);
         }
 
@@ -737,7 +737,7 @@ class Response implements ResponseInterface
         // Invoke callback
         if ($callback) {
             $callback($clone, $value);
-        } else if ($this->onEtag) {
+        } elseif ($this->onEtag) {
             call_user_func_array($this->onEtag, [$clone, $value]);
         }
 

@@ -1,1 +1,1 @@
-<?php $this->render('test.php'); ?>
+<?php $this->render('test.php');

@@ -152,7 +152,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($keys[0], 'foo');
     }
 
-    public function  testWithNamespacedKey()
+    public function testWithNamespacedKey()
     {
         $con = new ConfigurationHandler;
         $con['my.namespaced.keyname'] = 'My Value';
