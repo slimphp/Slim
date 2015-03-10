@@ -38,7 +38,7 @@ class Environment extends Collection implements EnvironmentInterface
      * @param  array $userData Array of custom environment keys and values
      * @return self
      */
-    public static function mock(array $userData = array())
+    public static function mock(array $userData = [])
     {
         $data = array_merge([
             'SERVER_PROTOCOL'      => 'HTTP/1.1',

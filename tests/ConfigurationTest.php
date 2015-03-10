@@ -42,7 +42,7 @@ class HandlerTest extends ConfigurationHandler
  */
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
-    public $defaults = array(
+    public $defaults = [
         // Application
         'mode' => 'development',
         'view.templates' => '../templates',
@@ -63,11 +63,11 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         'session.encrypt' => false,
         // HTTP
         'http.version' => '1.1'
-    );
+    ];
 
     public function testConstructorInjection()
     {
-        $values = array("param" => "value");
+        $values = ["param" => "value"];
         $con = new Configuration(new HandlerTest);
         $con->setArray($values);
 

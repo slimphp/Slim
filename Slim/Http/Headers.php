@@ -88,7 +88,7 @@ class Headers extends Collection implements HeadersInterface
     public function set($key, $value)
     {
         if (is_array($value) === false) {
-            $value = array($value);
+            $value = [$value];
         }
         parent::set($this->normalizeKey($key), $value);
     }
@@ -102,7 +102,7 @@ class Headers extends Collection implements HeadersInterface
      */
     public function get($key, $default = null)
     {
-        return parent::get($this->normalizeKey($key), array());
+        return parent::get($this->normalizeKey($key), []);
     }
 
     /**
@@ -160,7 +160,7 @@ class Headers extends Collection implements HeadersInterface
     public function normalizeKey($key)
     {
         $key = strtolower($key);
-        $key = str_replace(array('-', '_'), ' ', $key);
+        $key = str_replace(['-', '_'], ' ', $key);
         $key = preg_replace('#^http #', '', $key);
         $key = ucwords($key);
         $key = str_replace(' ', '-', $key);

@@ -707,7 +707,7 @@ class Request implements RequestInterface
     public function getMediaTypeParams()
     {
         $contentType = $this->getContentType();
-        $contentTypeParams = array();
+        $contentTypeParams = [];
         if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
             $contentTypePartsLength = count($contentTypeParts);

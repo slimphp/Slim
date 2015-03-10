@@ -61,13 +61,13 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testFlashWithExistingSessionData()
     {
-        $dataSource = new \ArrayObject(array(
-            'slim.session' => array(
-                'slimflash' => array(
+        $dataSource = new \ArrayObject([
+            'slim.session' => [
+                'slimflash' => [
                     'foo' => 'bar'
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
         $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
@@ -84,13 +84,13 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testFlashKeepWithExistingSessionData()
     {
-        $dataSource = new \ArrayObject(array(
-            'slim.session' => array(
-                'slimflash' => array(
+        $dataSource = new \ArrayObject([
+            'slim.session' => [
+                'slimflash' => [
                     'foo' => 'bar'
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
         $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
@@ -127,13 +127,13 @@ class FlashTest extends PHPUnit_Framework_TestCase
      */
     public function testFlashNowWithExistingSessionData()
     {
-        $dataSource = new \ArrayObject(array(
-            'slim.session' => array(
-                'slimflash' => array(
+        $dataSource = new \ArrayObject([
+            'slim.session' => [
+                'slimflash' => [
                     'foo' => 'bar'
-                )
-            )
-        ));
+                ]
+            ]
+        ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
         $session->shouldReceive('isStarted')->once()->withNoArgs()->andReturn(false);
