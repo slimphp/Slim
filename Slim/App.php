@@ -218,17 +218,17 @@ class App extends \Pimple\Container
      * This method's second argument is a numeric array
      * with these elements:
      *
-     * 1. (string) Route name
-     * 2. (string) Route URI pattern
-     * 3. (callable) One or more route middleware
-     * 4. (callable) Route handler
+     * 0. (string) Route URI pattern
+     * 1. (callable) One or more route middleware
+     * 2. (callable) Route handler
+     * 3. (string) Route name
      *
      * @param array $methods HTTP methods
      * @param array $args    See notes above
      *
      * @return Route
      */
-    protected function mapRoute(array $methods, $args)
+    public function map(array $methods, $args)
     {
         static $routeCount = 0;
 
@@ -257,7 +257,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['GET'], $args);
+        return $this->map(['GET'], $args);
     }
 
     /**
@@ -269,7 +269,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['POST'], $args);
+        return $this->map(['POST'], $args);
     }
 
     /**
@@ -281,7 +281,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['PUT'], $args);
+        return $this->map(['PUT'], $args);
     }
 
     /**
@@ -293,7 +293,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['PATCH'], $args);
+        return $this->map(['PATCH'], $args);
     }
 
     /**
@@ -305,7 +305,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['DELETE'], $args);
+        return $this->map(['DELETE'], $args);
     }
 
     /**
@@ -317,23 +317,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['OPTIONS'], $args);
-    }
-
-    /**
-     * Add route for multiple methods
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function map()
-    {
-        $args = func_get_args();
-        $methods = array_shift($args);
-        if (!is_array($methods)) {
-            throw new \InvalidArgumentException('First argument must be an array of HTTP methods');
-        }
-
-        return $this->mapRoute($methods, $args);
+        return $this->map(['OPTIONS'], $args);
     }
 
     /**
