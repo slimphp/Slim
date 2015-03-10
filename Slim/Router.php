@@ -67,7 +67,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
         // Create route
         $route = new Route($methods, $pattern, $handler);
         foreach ($groupMiddleware as $middleware) {
-            $route->setMiddleware($middleware);
+            $route->add($middleware);
         }
 
         // Append route
