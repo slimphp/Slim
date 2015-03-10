@@ -345,10 +345,10 @@ class Response implements ResponseInterface
     /**
      * Checks if a header exists by the given case-insensitive name.
      *
-     * @param  string $header Case-insensitive header name.
-     * @return bool           Returns true if any header names match the given header
-     *                        name using a case-insensitive string comparison. Returns false if
-     *                        no matching header name is found in the message.
+     * @param  string $name Case-insensitive header name.
+     * @return bool         Returns true if any header names match the given header
+     *                      name using a case-insensitive string comparison. Returns false if
+     *                      no matching header name is found in the message.
      */
     public function hasHeader($name)
     {
@@ -366,7 +366,7 @@ class Response implements ResponseInterface
      * comma concatenation. For such headers, use getHeaderLines() instead
      * and supply your own delimiter when concatenating.
      *
-     * @param  string $header Case-insensitive header name.
+     * @param  string $name Case-insensitive header name.
      * @return string
      */
     public function getHeader($name)
@@ -377,7 +377,7 @@ class Response implements ResponseInterface
     /**
      * Retrieves a header by the given case-insensitive name as an array of strings.
      *
-     * @param  string   $header Case-insensitive header name.
+     * @param  string   $name Case-insensitive header name.
      * @return string[]
      */
     public function getHeaderLines($name)
@@ -731,7 +731,7 @@ class Response implements ResponseInterface
      *
      * @param  string                    $value    The etag value
      * @param  string                    $type     The etag type (either "strong" or "weak")
-     * @param  callable                  $callable Optional callback invoked when etag set
+     * @param  callable                  $callback Optional callback invoked when etag set
      * @return self
      * @throws \InvalidArgumentException if invalid etag type
      */
