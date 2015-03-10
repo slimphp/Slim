@@ -233,7 +233,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $routes->setAccessible(true);
         $routes->setValue($router, [
             'hello' => $route1,
-            'regexRoute' => $route2
+            'regexRoute' => $route2,
         ]);
 
         $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', ['first' => 'Josh', 'last' => 'Lockhart']));

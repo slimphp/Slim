@@ -151,8 +151,8 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'X-Foo' => [
                 'one',
                 'two',
-                'three'
-            ]
+                'three',
+            ],
         ];
         $this->assertEquals($shouldBe, $response->getHeaders());
     }
@@ -219,7 +219,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
         $response = new Response(200, $headers);
         $clone = $response->withoutHeader('X-Foo');
         $shouldBe = [
-            'X-Bar' => ['two']
+            'X-Bar' => ['two'],
         ];
 
         $this->assertEquals($shouldBe, $clone->getHeaders());
@@ -237,7 +237,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => false,
-            'httponly' => false
+            'httponly' => false,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -248,8 +248,8 @@ class ResponseTest extends PHPUnit_Framework_TestCase
                 'path' => '/',
                 'domain' => 'example.com',
                 'secure' => false,
-                'httponly' => false
-            ]
+                'httponly' => false,
+            ],
         ];
 
         $this->assertEquals($shouldBe, $response->getCookies());
@@ -263,7 +263,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => false,
-            'httponly' => false
+            'httponly' => false,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -282,7 +282,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -299,7 +299,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -322,7 +322,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -339,7 +339,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
             'path' => '/',
             'domain' => 'example.com',
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
         ]);
         $cookies->set('foo', 'bar');
         $response = new Response(200, null, $cookies);
@@ -687,7 +687,7 @@ END;
             'path' => '/',
             'domain' => 'example.com',
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
         ]);
         $cookies->set('test', 'foo');
         $response = new Response(200, null, $cookies);

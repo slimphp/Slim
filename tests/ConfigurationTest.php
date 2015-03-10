@@ -62,7 +62,7 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         'session.flash_key' => 'slimflash',
         'session.encrypt' => false,
         // HTTP
-        'http.version' => '1.1'
+        'http.version' => '1.1',
     ];
 
     public function testConstructorInjection()

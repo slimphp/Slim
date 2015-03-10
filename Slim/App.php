@@ -102,7 +102,7 @@ class App extends \Pimple\Container
                 'path' => $c['settings']['cookies.path'],
                 'domain' => $c['settings']['cookies.domain'],
                 'secure' => $c['settings']['cookies.secure'],
-                'httponly' => $c['settings']['cookies.httponly']
+                'httponly' => $c['settings']['cookies.httponly'],
             ]);
             $response = new Http\Response(200, $headers, $cookies);
 

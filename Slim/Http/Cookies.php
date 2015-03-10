@@ -34,7 +34,7 @@ class Cookies extends Collection implements CookiesInterface
         'path' => null,
         'expires' => null,
         'secure' => false,
-        'httponly' => false
+        'httponly' => false,
     ];
 
     /**

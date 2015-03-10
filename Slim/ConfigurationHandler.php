@@ -132,7 +132,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
                 return;
             }
 
-            $array =& $array[$key];
+            $array = &$array[$key];
         }
 
         unset($array[array_shift($keys)]);

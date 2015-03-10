@@ -211,7 +211,7 @@ class Request implements RequestInterface
         static $valid = [
             '1.0' => true,
             '1.1' => true,
-            '2.0' => true
+            '2.0' => true,
         ];
         if (!isset($valid[$version])) {
             throw new \InvalidArgumentException('Protocol must be "1.0", "1.1", or "2.0"');

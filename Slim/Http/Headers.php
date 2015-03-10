@@ -38,7 +38,7 @@ class Headers extends Collection implements HeadersInterface
         'PHP_AUTH_USER',
         'PHP_AUTH_PW',
         'PHP_AUTH_DIGEST',
-        'AUTH_TYPE'
+        'AUTH_TYPE',
     ];
 
     /**
