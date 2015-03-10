@@ -10,7 +10,6 @@ namespace Slim\Http;
 
 use \Slim\Interfaces\Http\HeadersInterface;
 use \Slim\Interfaces\Http\CookiesInterface;
-use \Slim\Interfaces\CryptInterface;
 use \Psr\Http\Message\ResponseInterface;
 use \Psr\Http\Message\StreamableInterface;
 
@@ -559,20 +558,6 @@ class Response implements ResponseInterface
     {
         $clone = clone $this;
         $clone->cookies->remove($name);
-
-        return $clone;
-    }
-
-    /**
-     * Return a copy of this response with encrypted cookies
-     *
-     * @param  \Zend\Crypt\BlockCipher $crypt
-     * @return self
-     */
-    public function withEncryptedCookies(\Zend\Crypt\BlockCipher $crypt)
-    {
-        $clone = clone $this;
-        $clone->cookies->encrypt($crypt);
 
         return $clone;
     }
