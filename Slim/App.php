@@ -228,7 +228,7 @@ class App extends \Pimple\Container
      *
      * @return Route
      */
-    protected function mapRoute(array $methods, $args)
+    protected function map(array $methods, $args)
     {
         static $routeCount = 0;
 
@@ -257,7 +257,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['GET'], $args);
+        return $this->map(['GET'], $args);
     }
 
     /**
@@ -269,7 +269,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['POST'], $args);
+        return $this->map(['POST'], $args);
     }
 
     /**
@@ -281,7 +281,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['PUT'], $args);
+        return $this->map(['PUT'], $args);
     }
 
     /**
@@ -293,7 +293,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['PATCH'], $args);
+        return $this->map(['PATCH'], $args);
     }
 
     /**
@@ -305,7 +305,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['DELETE'], $args);
+        return $this->map(['DELETE'], $args);
     }
 
     /**
@@ -317,23 +317,7 @@ class App extends \Pimple\Container
     {
         $args = func_get_args();
 
-        return $this->mapRoute(['OPTIONS'], $args);
-    }
-
-    /**
-     * Add route for multiple methods
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function map()
-    {
-        $args = func_get_args();
-        $methods = array_shift($args);
-        if (!is_array($methods)) {
-            throw new \InvalidArgumentException('First argument must be an array of HTTP methods');
-        }
-
-        return $this->mapRoute($methods, $args);
+        return $this->map(['OPTIONS'], $args);
     }
 
     /**
