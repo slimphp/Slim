@@ -11,30 +11,54 @@ namespace Slim;
 /**
  * Autoloader
  *
- * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
+ * @link https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-4-autoloader.md
  */
 class Autoloader
 {
-    public static function autoload($className)
+    /**
+     * @var array $map namespace prefix to source location mapping
+     */
+    public static $map = [];
+    
+    /**
+     * Load class
+     * 
+     * @param string $class Class to load
+     */
+    public static function autoload($class)
     {
-        $className = ltrim($className, '\\');
-        $fileName  = '';
-        $namespace = '';
-        if ($lastNsPos = strrpos($className, '\\')) {
-            $namespace = substr($className, 0, $lastNsPos);
-            $className = substr($className, $lastNsPos + 1);
-            $fileName  = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
-        }
-        $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+        foreach (self::$map as $prefix => $source) {
+            $len = strlen($prefix);
+            if (strncmp($prefix, $class, $len) !== 0) {
+                continue;
+            }
 
-        // Require file only if it exists. Else let other registered autoloaders worry about it.
-        if (file_exists($fileName)) {
-            require $fileName;
+            $relativeClass = substr($class, $len);
+            $fileName      = $source . str_replace('\\', '/', $relativeClass) . '.php';
+
+            // Require file only if it exists. Else let other registered autoloaders worry about it.
+            if (file_exists($fileName)) {
+                require $fileName;
+                break;
+            }
         }
     }
 
-    public static function register()
+    /**
+     * Register autoloader
+     * 
+     * @param array $map namespace prefix to source location mapping
+     */
+    public static function register(array $map = [])
     {
-        spl_autoload_register(__NAMESPACE__ . "\\Autoloader::autoload");
+        static $registered = false;
+        
+        // use merge, because pubic static $map could already have a value.
+        self::$map = array_merge(self::$map, $map);
+        
+        if (!$registered) {
+            spl_autoload_register(__NAMESPACE__ . "\\Autoloader::autoload");
+            $registered = true;
+        }
     }
 }
