@@ -228,7 +228,7 @@ class App extends \Pimple\Container
      *
      * @return Route
      */
-    protected function map(array $methods, $args)
+    public function map(array $methods, $args)
     {
         static $routeCount = 0;
 
