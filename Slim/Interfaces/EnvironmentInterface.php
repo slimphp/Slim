@@ -41,5 +41,5 @@ namespace Slim\Interfaces;
  */
 interface EnvironmentInterface
 {
-    public static function mock(array $settings = array());
+    public static function mock(array $settings = []);
 }

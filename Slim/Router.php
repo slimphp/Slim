@@ -103,7 +103,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
     protected function processGroups()
     {
         $pattern = "";
-        $middleware = array();
+        $middleware = [];
         foreach ($this->routeGroups as $group) {
             $k = key($group);
             $pattern .= $k;
@@ -111,7 +111,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
                 $middleware = array_merge($middleware, $group[$k]);
             }
         }
-        return array($pattern, $middleware);
+        return [$pattern, $middleware];
     }
 
     /**
@@ -122,7 +122,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      *
      * @return int The index of the new group
      */
-    public function pushGroup($group, $middleware = array())
+    public function pushGroup($group, $middleware = [])
     {
         return array_push($this->routeGroups, [$group => $middleware]);
     }
@@ -147,7 +147,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      * @throws \RuntimeException         If named route does not exist
      * @throws \InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, $data = array())
+    public function urlFor($name, $data = [])
     {
         if (!isset($this->routes[$name])) {
             throw new \RuntimeException('Named route does not exist for name: ' . $name);

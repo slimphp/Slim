@@ -67,10 +67,10 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testMock()
     {
-        $env = Environment::mock(array(
+        $env = Environment::mock([
             'SCRIPT_NAME' => '/foo/bar/index.php',
             'REQUEST_URI' => '/foo/bar?abc=123'
-        ));
+        ]);
 
         $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
         $this->assertEquals('/foo/bar/index.php', $env->get('SCRIPT_NAME'));

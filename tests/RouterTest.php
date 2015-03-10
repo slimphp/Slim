@@ -39,7 +39,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     {
         $router = new \Slim\Router();
 
-        $this->assertAttributeEquals(array(), 'routes', $router);
+        $this->assertAttributeEquals([], 'routes', $router);
     }
 
     /**
@@ -93,7 +93,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
-        $property->setValue($router, array('foo' => $route));
+        $property->setValue($router, ['foo' => $route]);
 
         $this->assertSame($route, $router->getNamedRoute('foo'));
         $this->assertNull($router->getNamedRoute('bar'));
@@ -111,7 +111,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         // Init router routes to array
         $propertyRouterRoutes = new \ReflectionProperty($router, 'routes');
         $propertyRouterRoutes->setAccessible(true);
-        $propertyRouterRoutes->setValue($router, array($route1, $route2));
+        $propertyRouterRoutes->setValue($router, [$route1, $route2]);
 
         // Init router named routes to null
         $propertyRouterNamedRoutes = new \ReflectionProperty($router, 'namedRoutes');
@@ -138,7 +138,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
-        $property->setValue($router, array('foo' => $route));
+        $property->setValue($router, ['foo' => $route]);
 
         $this->assertTrue($router->hasNamedRoute('foo'));
         $this->assertFalse($router->hasNamedRoute('bar'));
@@ -169,7 +169,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $propertyMatchedRoutes = new \ReflectionProperty($router, 'matchedRoutes');
         $propertyMatchedRoutes->setAccessible(true);
-        $propertyMatchedRoutes->setValue($router, array($route));
+        $propertyMatchedRoutes->setValue($router, [$route]);
 
         $propertyCurrentRoute = new \ReflectionProperty($router, 'currentRoute');
         $propertyCurrentRoute->setAccessible(true);
@@ -187,7 +187,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $propertyMatchedRoutes = new \ReflectionProperty($router, 'matchedRoutes');
         $propertyMatchedRoutes->setAccessible(true);
-        $propertyMatchedRoutes->setValue($router, array());
+        $propertyMatchedRoutes->setValue($router, []);
 
         $propertyCurrentRoute = new \ReflectionProperty($router, 'currentRoute');
         $propertyCurrentRoute->setAccessible(true);
@@ -211,7 +211,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $routes = new \ReflectionProperty($router, 'routes');
         $routes->setAccessible(true);
-        $routes->setValue($router, array($route1, $route2, $route3));
+        $routes->setValue($router, [$route1, $route2, $route3]);
 
         $matchedRoutes = $router->getMatchedRoutes('GET', '/foo');
         $this->assertSame($route1, $matchedRoutes[0]);
@@ -231,13 +231,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $routes = new \ReflectionProperty($router, 'namedRoutes');
         $routes->setAccessible(true);
-        $routes->setValue($router, array(
+        $routes->setValue($router, [
             'hello' => $route1,
             'regexRoute' => $route2
-        ));
+        ]);
 
-        $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', array('first' => 'Josh', 'last' => 'Lockhart')));
-        $this->assertEquals('/path/Hello.Josh', $router->urlFor('regexRoute', array('foo' => 'Hello', 'bar' => 'Josh')));
+        $this->assertEquals('/hello/Josh/Lockhart', $router->urlFor('hello', ['first' => 'Josh', 'last' => 'Lockhart']));
+        $this->assertEquals('/path/Hello.Josh', $router->urlFor('regexRoute', ['foo' => 'Hello', 'bar' => 'Josh']));
     }
 
     public function testUrlForIfNoSuchRoute()
@@ -245,6 +245,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('RuntimeException');
 
         $router = new \Slim\Router();
-        $router->urlFor('foo', array('abc' => '123'));
+        $router->urlFor('foo', ['abc' => '123']);
     }
 }

@@ -45,8 +45,8 @@ class ViewTest extends PHPUnit_Framework_TestCase
     public function testDisplay()
     {
         $this->expectOutputString('test output bar 123');
-        $this->property->setValue($this->view, array('foo' => 'bar'));
-        $this->view->display('test.php', array('abc' => '123'));
+        $this->property->setValue($this->view, ['foo' => 'bar']);
+        $this->view->display('test.php', ['abc' => '123']);
     }
 
     /**
@@ -64,6 +64,6 @@ class ViewTest extends PHPUnit_Framework_TestCase
     public function testRenderWithinTemplate()
     {
         $this->setExpectedException('\LogicException');
-        $this->view->display('testRenderException.php', array('abc' => '123'));
+        $this->view->display('testRenderException.php', ['abc' => '123']);
     }
 }

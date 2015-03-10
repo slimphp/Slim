@@ -59,11 +59,11 @@ class Flash implements FlashInterface
     {
         $this->session = $session;
         $this->key = $key;
-        $this->messages = array(
-            'prev' => $session->get($key, array()),
-            'next' => array(),
-            'now' => array()
-        );
+        $this->messages = [
+            'prev' => $session->get($key, []),
+            'next' => [],
+            'now' => []
+        ];
     }
 
     /**

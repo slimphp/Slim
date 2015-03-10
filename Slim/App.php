@@ -45,7 +45,7 @@ class App extends \Pimple\Container
      *
      * @param array $userSettings Associative array of application settings
      */
-    public function __construct(array $userSettings = array())
+    public function __construct(array $userSettings = [])
     {
         parent::__construct();
 
@@ -512,7 +512,7 @@ class App extends \Pimple\Container
      * @param  string            $bodyContent The request body
      * @return ResponseInterface
      */
-    public function subRequest($method, $path, array $headers = array(), array $cookies = array(), $bodyContent = '')
+    public function subRequest($method, $path, array $headers = [], array $cookies = [], $bodyContent = '')
     {
         $env = $this['environment'];
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);

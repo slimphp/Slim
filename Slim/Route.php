@@ -43,7 +43,7 @@ class Route implements RouteInterface
      *
      * @var callable[]
      */
-    protected $middleware = array();
+    protected $middleware = [];
 
     /**
      * Create new route
@@ -98,7 +98,7 @@ class Route implements RouteInterface
      */
     protected function setCallable($callable)
     {
-        $matches = array();
+        $matches = [];
         if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
             $class = $matches[1];
             $method = $matches[2];
@@ -113,7 +113,7 @@ class Route implements RouteInterface
                 if (!method_exists($obj, $method)) {
                     throw new \InvalidArgumentException('Route callable method does not exist');
                 }
-                return call_user_func_array(array($obj, $method), func_get_args());
+                return call_user_func_array([$obj, $method], func_get_args());
             };
         }
 

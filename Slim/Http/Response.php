@@ -80,7 +80,7 @@ class Response implements ResponseInterface
      *
      * @var array
      */
-    protected static $messages = array(
+    protected static $messages = [
         //Informational 1xx
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -145,7 +145,7 @@ class Response implements ResponseInterface
         508 => 'Loop Detected',
         510 => 'Not Extended',
         511 => 'Network Authentication Required'
-    );
+    ];
 
     /**
      * Create new HTTP response
@@ -738,7 +738,7 @@ class Response implements ResponseInterface
     public function withEtag($value, $type = 'strong', callable $callback = null)
     {
         // Ensure type is correct
-        if (!in_array($type, array('strong', 'weak'))) {
+        if (!in_array($type, ['strong', 'weak'])) {
             throw new \InvalidArgumentException('Invalid etag type. Must be "strong" or "weak".');
         }
 
@@ -832,7 +832,7 @@ class Response implements ResponseInterface
      */
     public function sendBody($bufferSize = 1024)
     {
-        if (in_array($this->getStatusCode(), array(204, 304)) === false) {
+        if (in_array($this->getStatusCode(), [204, 304]) === false) {
             $body = $this->getBody();
             if ($body->isAttached() === true) {
                 $body->rewind();
@@ -867,7 +867,7 @@ class Response implements ResponseInterface
      */
     public function isEmpty()
     {
-        return in_array($this->getStatusCode(), array(201, 204, 304));
+        return in_array($this->getStatusCode(), [201, 204, 304]);
     }
 
     /**
@@ -907,7 +907,7 @@ class Response implements ResponseInterface
      */
     public function isRedirect()
     {
-        return in_array($this->getStatusCode(), array(301, 302, 303, 307));
+        return in_array($this->getStatusCode(), [301, 302, 303, 307]);
     }
 
     /**
