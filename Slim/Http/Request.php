@@ -242,11 +242,11 @@ class Request implements RequestInterface
             $customMethod = $this->getHeader('X-Http-Method-Override');
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
-            } else if ($this->originalMethod === 'POST') {
+            } elseif ($this->originalMethod === 'POST') {
                 $body = $this->getParsedBody();
                 if (is_object($body) && property_exists($body, '_METHOD')) {
                     $this->method = $this->filterMethod($body->_METHOD);
-                } else if (is_array($body) && isset($body['_METHOD'])) {
+                } elseif (is_array($body) && isset($body['_METHOD'])) {
                     $this->method = $this->filterMethod($body['_METHOD']);
                 }
             }

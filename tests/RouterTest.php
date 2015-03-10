@@ -48,7 +48,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testMap()
     {
         $router = new \Slim\Router();
-        $route = new \Slim\Route('/foo', function() {});
+        $route = new \Slim\Route('/foo', function () {});
         $router->map($route);
 
         $this->assertAttributeContains($route, 'routes', $router);
@@ -66,7 +66,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $property = new \ReflectionProperty($router, 'namedRoutes');
         $property->setAccessible(true);
 
-		$rV = $property->getValue($router);
+        $rV = $property->getValue($router);
         $this->assertSame($route, $rV['foo']);
     }
 
@@ -201,13 +201,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new \Slim\Router();
 
         $route1 = new \Slim\Route('/foo', function () {});
-		$route1 = $route1->via('GET');
+        $route1 = $route1->via('GET');
 
         $route2 = new \Slim\Route('/foo', function () {});
-		$route2 = $route2->via('POST');
+        $route2 = $route2->via('POST');
 
         $route3 = new \Slim\Route('/bar', function () {});
-		$route3 = $route3->via('PUT');
+        $route3 = $route3->via('PUT');
 
         $routes = new \ReflectionProperty($router, 'routes');
         $routes->setAccessible(true);

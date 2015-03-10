@@ -41,5 +41,4 @@ namespace Slim\Interfaces;
  */
 interface ConfigurationHandlerInterface extends \ArrayAccess, \IteratorAggregate
 {
-
 }

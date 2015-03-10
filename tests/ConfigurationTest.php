@@ -34,7 +34,8 @@ use \Slim\Configuration;
 use \Slim\ConfigurationHandler;
 
 class HandlerTest extends ConfigurationHandler
-{}
+{
+}
 
 /**
  * Configuration Test

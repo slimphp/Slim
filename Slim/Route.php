@@ -102,7 +102,7 @@ class Route implements RouteInterface
         if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
             $class = $matches[1];
             $method = $matches[2];
-            $callable = function() use ($class, $method) {
+            $callable = function () use ($class, $method) {
                 static $obj = null;
                 if ($obj === null) {
                     if (!class_exists($class)) {
