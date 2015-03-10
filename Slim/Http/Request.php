@@ -696,7 +696,7 @@ class Request implements RequestInterface
             return strtolower($contentTypeParts[0]);
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -732,7 +732,7 @@ class Request implements RequestInterface
             return $mediaTypeParams['charset'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1052,7 +1052,7 @@ class Request implements RequestInterface
         }
 
         if (!$this->body) {
-            return null;
+            return;
         }
 
         $mediaType = $this->getMediaType();
