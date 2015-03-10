@@ -32,8 +32,8 @@
         "phpunit/phpunit": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Slim": "."
+        "psr-4": {
+            "Slim\\": "src/"
         }
     }
 }
