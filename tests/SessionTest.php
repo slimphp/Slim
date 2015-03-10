@@ -67,8 +67,8 @@ class SessionTest extends PHPUnit_Framework_TestCase
     {
         $dataSource = new \ArrayObject([
             'slim.session' => [
-                'foo' => 'bar'
-            ]
+                'foo' => 'bar',
+            ],
         ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);

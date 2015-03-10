@@ -43,7 +43,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
         $con->setArray([
             '123' => [
                 '456' => [
-                    '789' => 1
+                    '789' => 1,
                 ],
             ],
         ]);
@@ -60,8 +60,8 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
             'drivers' => [
               'Memcached' => [],
               'File' => [],
-            ]
-          ]
+            ],
+          ],
         ];
 
         $expected = [
@@ -70,8 +70,8 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
             'drivers' => [
               'Memcached' => [],
               'File' => [],
-            ]
-          ]
+            ],
+          ],
         ];
 
         $con = new ConfigurationHandler;
@@ -80,7 +80,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
         $con->setArray([
           'cache' => [
             'default' => 'File',
-          ]
+          ],
         ]);
 
         $this->assertEquals($expected, $con->getAllNested());
@@ -94,7 +94,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
                     'E2',
                     'E3',
                 ],
-            ]
+            ],
         ];
         $expected = [
             'key1' => [
@@ -105,8 +105,8 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
                     'E3',
                     'E5',
                     'E6',
-                ]
-            ]
+                ],
+            ],
         ];
         $con = new ConfigurationHandler;
         $con->setArray($original);
@@ -117,8 +117,8 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
                 'sub2' => [
                     'E5',
                     'E6',
-                ]
-            ]
+                ],
+            ],
         ]);
         $this->assertEquals($expected, $con->getAllNested());
     }
@@ -127,7 +127,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $con = new ConfigurationHandler;
         $con->setArray([
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]);
 
         $this->assertEquals($con['foo'], 'bar');
@@ -145,7 +145,7 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     {
         $con = new ConfigurationHandler;
         $con->setArray([
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]);
         $keys = $con->getKeys();
 

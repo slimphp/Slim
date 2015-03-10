@@ -43,7 +43,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = new Collection([
             'user' => 'john',
-            'id' => '123'
+            'id' => '123',
         ]);
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $body);
@@ -124,7 +124,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT'
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT',
         ]);
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
@@ -138,7 +138,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'Content-Type' => 'application/x-www-form-urlencoded'
+            'Content-Type' => 'application/x-www-form-urlencoded',
         ]);
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
@@ -154,7 +154,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'Content-Type' => 'application/x-www-form-urlencoded'
+            'Content-Type' => 'application/x-www-form-urlencoded',
         ]);
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
@@ -268,7 +268,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
             'Content-Type' => 'application/x-www-form-urlencoded',
-            'X-Requested-With' => 'XMLHttpRequest'
+            'X-Requested-With' => 'XMLHttpRequest',
         ]);
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
@@ -355,7 +355,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetHeaders()
     {
         $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three']
+            'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -363,7 +363,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headersProp->setValue($request, $headers);
 
         $shouldBe = [
-            'X-Foo' => ['one', 'two', 'three']
+            'X-Foo' => ['one', 'two', 'three'],
         ];
         $this->assertEquals($shouldBe, $request->getHeaders());
     }
@@ -383,7 +383,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetHeader()
     {
         $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three']
+            'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -397,7 +397,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetHeaderLines()
     {
         $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three']
+            'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -419,7 +419,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testWithAddedHeader()
     {
         $headers = new Headers([
-            'X-Foo' => ['one']
+            'X-Foo' => ['one'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -434,7 +434,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $headers = new Headers([
             'X-Foo' => ['one'],
-            'X-Bar' => ['two']
+            'X-Bar' => ['two'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -442,7 +442,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headersProp->setValue($request, $headers);
         $clone = $request->withoutHeader('X-Foo');
         $shouldBe = [
-            'X-Bar' => ['two']
+            'X-Bar' => ['two'],
         ];
 
         $this->assertEquals($shouldBe, $clone->getHeaders());
@@ -451,7 +451,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetContentType()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json;charset=utf8']
+            'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -471,7 +471,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetMediaType()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json;charset=utf8']
+            'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -491,7 +491,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetMediaTypeParams()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json;charset=utf8;foo=bar']
+            'Content-Type' => ['application/json;charset=utf8;foo=bar'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -504,7 +504,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetMediaTypeParamsEmpty()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json']
+            'Content-Type' => ['application/json'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -524,7 +524,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetContentCharset()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json;charset=utf8']
+            'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -537,7 +537,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetContentCharsetEmpty()
     {
         $headers = new Headers([
-            'Content-Type' => ['application/json']
+            'Content-Type' => ['application/json'],
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -557,7 +557,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetContentLength()
     {
         $headers = new Headers([
-            'Content-Length' => '150' // <-- Note we define as a string
+            'Content-Length' => '150', // <-- Note we define as a string
         ]);
         $request = $this->requestFactory();
         $headersProp = new \ReflectionProperty($request, 'headers');
@@ -582,7 +582,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $shouldBe = [
             'user' => 'john',
-            'id' => '123'
+            'id' => '123',
         ];
 
         $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParams());
@@ -794,7 +794,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'Content-Type' => 'application/json;charset=utf8'
+            'Content-Type' => 'application/json;charset=utf8',
         ]);
         $cookies = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));

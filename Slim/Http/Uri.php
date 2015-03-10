@@ -234,7 +234,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         static $valid = [
             '' => true,
             'https' => true,
-            'http' => true
+            'http' => true,
         ];
 
         if (!is_string($scheme) && !method_exists($scheme, '__toString')) {

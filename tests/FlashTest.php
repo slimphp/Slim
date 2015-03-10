@@ -64,9 +64,9 @@ class FlashTest extends PHPUnit_Framework_TestCase
         $dataSource = new \ArrayObject([
             'slim.session' => [
                 'slimflash' => [
-                    'foo' => 'bar'
-                ]
-            ]
+                    'foo' => 'bar',
+                ],
+            ],
         ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
@@ -87,9 +87,9 @@ class FlashTest extends PHPUnit_Framework_TestCase
         $dataSource = new \ArrayObject([
             'slim.session' => [
                 'slimflash' => [
-                    'foo' => 'bar'
-                ]
-            ]
+                    'foo' => 'bar',
+                ],
+            ],
         ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
@@ -130,9 +130,9 @@ class FlashTest extends PHPUnit_Framework_TestCase
         $dataSource = new \ArrayObject([
             'slim.session' => [
                 'slimflash' => [
-                    'foo' => 'bar'
-                ]
-            ]
+                    'foo' => 'bar',
+                ],
+            ],
         ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);

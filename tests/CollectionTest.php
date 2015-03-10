@@ -75,7 +75,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     {
         $this->bag->replace([
             'abc' => '123',
-            'foo' => 'bar'
+            'foo' => 'bar',
         ]);
         $this->assertArrayHasKey('abc', $this->property->getValue($this->bag));
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
@@ -88,7 +88,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     {
         $data = [
             'abc' => '123',
-            'foo' => 'bar'
+            'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
         $this->assertEquals($data, $this->bag->all());
@@ -98,7 +98,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     {
         $data = [
             'abc' => '123',
-            'foo' => 'bar'
+            'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
         $this->assertEquals(['abc', 'foo'], $this->bag->keys());
@@ -115,7 +115,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     {
         $data = [
             'abc' => '123',
-            'foo' => 'bar'
+            'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
         $this->bag->remove('foo');
@@ -126,7 +126,7 @@ class CollectionTest extends PHPUnit_Framework_TestCase
     {
         $data = [
             'abc' => '123',
-            'foo' => 'bar'
+            'foo' => 'bar',
         ];
         $this->property->setValue($this->bag, $data);
         $this->bag->clear();

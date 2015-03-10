@@ -26,7 +26,7 @@ class Body implements \Psr\Http\Message\StreamableInterface
      */
     protected static $modes = [
         'readable' => ['r', 'r+', 'w+', 'a+', 'x+', 'c+'],
-        'writable' => ['r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+']
+        'writable' => ['r+', 'w', 'w+', 'a', 'a+', 'x', 'x+', 'c', 'c+'],
     ];
 
     /**
