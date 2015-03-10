@@ -8,10 +8,9 @@
  */
 namespace Slim\Http;
 
-use \Slim\Collection;
-use \Slim\Interfaces\CryptInterface;
-use \Slim\Interfaces\Http\CookiesInterface;
-use \Slim\Interfaces\Http\HeadersInterface;
+use Slim\Collection;
+use Slim\Interfaces\Http\CookiesInterface;
+use Slim\Interfaces\Http\HeadersInterface;
 
 /**
  * Cookie

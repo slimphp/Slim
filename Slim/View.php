@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use \Slim\Collection;
-use \Slim\Interfaces\ViewInterface;
+use Slim\Collection;
+use Slim\Interfaces\ViewInterface;
 
 /**
  * View

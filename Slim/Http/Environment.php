@@ -8,8 +8,8 @@
  */
 namespace Slim\Http;
 
-use \Slim\Collection;
-use \Slim\Interfaces\EnvironmentInterface;
+use Slim\Collection;
+use Slim\Interfaces\EnvironmentInterface;
 
 /**
  * Environment

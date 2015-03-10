@@ -8,9 +8,9 @@
  */
 namespace Slim;
 
-use \Slim\Collection;
-use \Slim\Interfaces\SessionInterface;
-use \Slim\Interfaces\SessionHandlerInterface;
+use Slim\Collection;
+use Slim\Interfaces\SessionInterface;
+use Slim\Interfaces\SessionHandlerInterface;
 
 /**
  * Session
