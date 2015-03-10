@@ -563,20 +563,6 @@ class Response implements ResponseInterface
         return $clone;
     }
 
-    /**
-     * Return a copy of this response with encrypted cookies
-     *
-     * @param  \Zend\Crypt\BlockCipher $crypt
-     * @return self
-     */
-    public function withEncryptedCookies(\Zend\Crypt\BlockCipher $crypt)
-    {
-        $clone = clone $this;
-        $clone->cookies->encrypt($crypt);
-
-        return $clone;
-    }
-
     /*******************************************************************************
      * Body
      ******************************************************************************/
