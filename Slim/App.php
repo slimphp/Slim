@@ -243,7 +243,11 @@ class App extends \Pimple\Container
             $callable = $callable->bindTo($this);
         }
         $route = $this['router']->map($name, $methods, $pattern, $callable);
-        $route->setMiddleware($args);
+        if ($args) {
+            foreach ($args as $arg) {
+                $route->add($arg);
+            }
+        }
 
         return $route;
     }
@@ -484,15 +488,15 @@ class App extends \Pimple\Container
     {
         $routeInfo = $this['router']->dispatch($request, $response);
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
-                return $this['notFoundHandler']($request, $response);
+            return $this['notFoundHandler']($request, $response);
         }
 
         if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
-                return $this['notAllowedHandler']($request, $response, $routeInfo[1]);
+            return $this['notAllowedHandler']($request, $response, $routeInfo[1]);
         }
 
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
-                return $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
+            return $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
         }
     }
 
