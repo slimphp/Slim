@@ -28,7 +28,12 @@ trait MiddlewareAware
      */
     protected $stack;
 
-    private $middlewareLock = false;
+    /**
+     * Middleware stack lock
+     * 
+     * @var bool
+     */
+    protected $middlewareLock = false;
 
     /**
      * Add middleware
