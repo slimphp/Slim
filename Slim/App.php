@@ -204,8 +204,6 @@ class App extends \Pimple\Container
         $this['notAllowedHandler'] = function ($c) {
             return new Handlers\NotAllowed;
         };
-
-        $this->seedMiddlewareStack();
     }
 
     /********************************************************************************
