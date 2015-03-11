@@ -29,6 +29,13 @@ trait MiddlewareAware
     protected $stack;
 
     /**
+     * Middleware stack lock
+     * 
+     * @var bool
+     */
+    protected $middlewareLock = false;
+
+    /**
      * Add middleware
      *
      * This method prepends new middleware to the application middleware stack.
@@ -40,6 +47,10 @@ trait MiddlewareAware
      */
     public function add(callable $callable)
     {
+        if($this->middlewareLock) {
+            throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');
+        }
+
         if (is_null($this->stack)) {
             $this->seedMiddlewareStack();
         }
@@ -81,7 +92,9 @@ trait MiddlewareAware
             $this->seedMiddlewareStack();
         }
         $start = $this->stack->top();
-
-        return $start($req, $res);
+        $this->middlewareLock = true;
+        $resp = $start($req, $res);
+        $this->middlewareLock = false;
+        return $resp;
     }
 }
