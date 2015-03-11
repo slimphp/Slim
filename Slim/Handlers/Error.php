@@ -36,7 +36,7 @@ class Error
         $message = $exception->getMessage();
         $file = $exception->getFile();
         $line = $exception->getLine();
-        $trace = str_replace(array('#', '\n'), array('<div>#', '</div>'), $exception->getTraceAsString());
+        $trace = str_replace(['#', '\n'], ['<div>#', '</div>'], $exception->getTraceAsString());
         $html = '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
         $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));

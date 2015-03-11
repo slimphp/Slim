@@ -32,7 +32,8 @@
 
 class SessionTest extends PHPUnit_Framework_TestCase
 {
-    public function tearDown() {
+    public function tearDown()
+    {
         \Mockery::close();
     }
 
@@ -64,11 +65,11 @@ class SessionTest extends PHPUnit_Framework_TestCase
 
     public function testStartWithExistingSessionData()
     {
-        $dataSource = new \ArrayObject(array(
-            'slim.session' => array(
-                'foo' => 'bar'
-            )
-        ));
+        $dataSource = new \ArrayObject([
+            'slim.session' => [
+                'foo' => 'bar',
+            ],
+        ]);
         $session = \Mockery::mock('\Slim\Session[isStarted,initialize]');
         $session->setDataSource($dataSource);
 

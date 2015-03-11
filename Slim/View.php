@@ -55,7 +55,7 @@ class View extends Collection implements ViewInterface
      * @param string $templateDirectory Path to template directory
      * @param array  $items             Initialize view with this data
      */
-    public function __construct($templateDirectory, array $items = array())
+    public function __construct($templateDirectory, array $items = [])
     {
         $this->templateDirectory = rtrim($templateDirectory, DIRECTORY_SEPARATOR);
         parent::__construct($items);
@@ -69,7 +69,7 @@ class View extends Collection implements ViewInterface
      * @param string $template Pathname of template file relative to templates directory
      * @param array  $items    Expose these array items to the rendered template
      */
-    public function display($template, array $data = array())
+    public function display($template, array $data = [])
     {
         echo $this->fetch($template, $data);
     }
@@ -84,7 +84,7 @@ class View extends Collection implements ViewInterface
      * @param  array  $items    Expose these array items to the rendered template
      * @return string           The rendered template
      */
-    public function fetch($template, array $data = array())
+    public function fetch($template, array $data = [])
     {
         return $this->render($template, $data);
     }
@@ -102,7 +102,7 @@ class View extends Collection implements ViewInterface
      * @throws \LogicException             If it is called from within a template
      * @throws \RuntimeException           If resolved template pathname is not a valid file
      */
-    protected function render($template, array $data = array())
+    protected function render($template, array $data = [])
     {
 
         // Check if this template is already being rendered

@@ -36,7 +36,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
     public function testConstructorSetsDefaults()
     {
         $c = new Cookies([], [
-            'path' => '/foo'
+            'path' => '/foo',
         ]);
         $prop = new \ReflectionProperty($c, 'defaults');
         $prop->setAccessible(true);
@@ -78,7 +78,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $c = new Cookies();
         $c->set('foo', [
             'value' => 'bar',
-            'path' => '/foo'
+            'path' => '/foo',
         ]);
         $prop = new \ReflectionProperty($c, 'data');
         $prop->setAccessible(true);
@@ -99,8 +99,8 @@ class CookiesTest extends PHPUnit_Framework_TestCase
                 'path' => '/path',
                 'expires' => null,
                 'secure' => false,
-                'httponly' => false
-            ]
+                'httponly' => false,
+            ],
         ]);
         $c->remove('foo');
 
@@ -118,8 +118,8 @@ class CookiesTest extends PHPUnit_Framework_TestCase
                 'path' => '/foo',
                 'domain' => 'example.com',
                 'secure' => true,
-                'httponly' => true
-            ]
+                'httponly' => true,
+            ],
         ]);
 
         $this->assertEquals('foo=bar; domain=example.com; path=/foo; expires=' . gmdate('D, d-M-Y H:i:s e', $expiresAt) . '; secure; HttpOnly', $c->getAsString('foo'));
@@ -131,7 +131,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $shouldBe = [
             'Abc' => 'One',
             'Def' => 'Two',
-            'Ghi' => 'Three'
+            'Ghi' => 'Three',
         ];
 
         $this->assertEquals($shouldBe, Cookies::parseHeader($value));
@@ -150,7 +150,7 @@ class CookiesTest extends PHPUnit_Framework_TestCase
         $shouldBe = [
             'Abc' => 'One',
             'Def' => 'Two',
-            'Ghi' => 'Three'
+            'Ghi' => 'Three',
         ];
 
         $this->assertEquals($shouldBe, Cookies::parseHeader($value));

@@ -38,7 +38,7 @@ class Environment extends Collection implements EnvironmentInterface
      * @param  array $userData Array of custom environment keys and values
      * @return self
      */
-    public static function mock(array $userData = array())
+    public static function mock(array $userData = [])
     {
         $data = array_merge([
             'SERVER_PROTOCOL'      => 'HTTP/1.1',
@@ -54,7 +54,7 @@ class Environment extends Collection implements EnvironmentInterface
             'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
             'HTTP_USER_AGENT'      => 'Slim Framework',
             'REMOTE_ADDR'          => '127.0.0.1',
-            'REQUEST_TIME'         => time()
+            'REQUEST_TIME'         => time(),
         ], $userData);
 
         return new static($data);

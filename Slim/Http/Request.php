@@ -211,7 +211,7 @@ class Request implements RequestInterface
         static $valid = [
             '1.0' => true,
             '1.1' => true,
-            '2.0' => true
+            '2.0' => true,
         ];
         if (!isset($valid[$version])) {
             throw new \InvalidArgumentException('Protocol must be "1.0", "1.1", or "2.0"');
@@ -242,11 +242,11 @@ class Request implements RequestInterface
             $customMethod = $this->getHeader('X-Http-Method-Override');
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
-            } else if ($this->originalMethod === 'POST') {
+            } elseif ($this->originalMethod === 'POST') {
                 $body = $this->getParsedBody();
                 if (is_object($body) && property_exists($body, '_METHOD')) {
                     $this->method = $this->filterMethod($body->_METHOD);
-                } else if (is_array($body) && isset($body['_METHOD'])) {
+                } elseif (is_array($body) && isset($body['_METHOD'])) {
                     $this->method = $this->filterMethod($body['_METHOD']);
                 }
             }
@@ -696,7 +696,7 @@ class Request implements RequestInterface
             return strtolower($contentTypeParts[0]);
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -707,7 +707,7 @@ class Request implements RequestInterface
     public function getMediaTypeParams()
     {
         $contentType = $this->getContentType();
-        $contentTypeParams = array();
+        $contentTypeParams = [];
         if ($contentType) {
             $contentTypeParts = preg_split('/\s*[;,]\s*/', $contentType);
             $contentTypePartsLength = count($contentTypeParts);
@@ -732,7 +732,7 @@ class Request implements RequestInterface
             return $mediaTypeParams['charset'];
         }
 
-        return null;
+        return;
     }
 
     /**
@@ -1052,7 +1052,7 @@ class Request implements RequestInterface
         }
 
         if (!$this->body) {
-            return null;
+            return;
         }
 
         $mediaType = $this->getMediaType();

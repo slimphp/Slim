@@ -283,7 +283,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
-        while(feof($this->stream) === false) {
+        while (feof($this->stream) === false) {
             fread($this->stream, 1024);
         }
 
@@ -430,7 +430,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
-        while(feof($this->stream) === false) {
+        while (feof($this->stream) === false) {
             fread($this->stream, 1024);
         }
         $body->write('foo');

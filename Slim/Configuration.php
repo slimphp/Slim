@@ -31,14 +31,14 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
      *
      * @var array
      */
-    protected $values = array();
+    protected $values = [];
 
     /**
      * Default values
      *
      * @var array
      */
-    protected $defaults = array(
+    protected $defaults = [
         // Application
         'mode' => 'development',
         'view.templates' => '../templates',
@@ -61,8 +61,8 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
         // HTTP
         'http.version' => '1.1',
         // Routing
-        'routes.case_sensitive' => true
-    );
+        'routes.case_sensitive' => true,
+    ];
 
     /**
      * Create new configuration
@@ -110,9 +110,9 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
      * @param  array $params
      * @return mixed
      */
-    public function callHandlerMethod($method, array $params = array())
+    public function callHandlerMethod($method, array $params = [])
     {
-        return call_user_func_array(array($this->handler, $method), $params);
+        return call_user_func_array([$this->handler, $method], $params);
     }
 
     /**

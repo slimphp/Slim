@@ -40,13 +40,13 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     public function testFlattenArray()
     {
         $con = new ConfigurationHandler;
-        $con->setArray(array(
-            '123' => array(
-                '456' => array(
-                    '789' => 1
-                ),
-            ),
-        ));
+        $con->setArray([
+            '123' => [
+                '456' => [
+                    '789' => 1,
+                ],
+            ],
+        ]);
 
         $this->assertArrayHasKey('123.456.789', $con->getAllFlat());
     }
@@ -54,81 +54,81 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     public function testMergeArray()
     {
         // test 1 - keys are string
-        $original = array(
-          'cache' => array(
+        $original = [
+          'cache' => [
             'default' => 'Memcached',
-            'drivers' => array(
-              'Memcached' => array(),
-              'File' => array(),
-            )
-          )
-        );
+            'drivers' => [
+              'Memcached' => [],
+              'File' => [],
+            ],
+          ],
+        ];
 
-        $expected = array(
-          'cache' => array(
+        $expected = [
+          'cache' => [
             'default' => 'File',
-            'drivers' => array(
-              'Memcached' => array(),
-              'File' => array(),
-            )
-          )
-        );
+            'drivers' => [
+              'Memcached' => [],
+              'File' => [],
+            ],
+          ],
+        ];
 
         $con = new ConfigurationHandler;
         $con->setArray($original);
 
-        $con->setArray(array(
-          'cache' => array(
+        $con->setArray([
+          'cache' => [
             'default' => 'File',
-          )
-        ));
+          ],
+        ]);
 
         $this->assertEquals($expected, $con->getAllNested());
 
         // test 2 - merge values keyed numeric
-        $original = array(
-            'key1' => array(
+        $original = [
+            'key1' => [
                 'sub1' => 1,
-                'sub2' => array(
+                'sub2' => [
                     'E1',
                     'E2',
                     'E3',
-                ),
-            )
-        );
-        $expected = array(
-            'key1' => array(
+                ],
+            ],
+        ];
+        $expected = [
+            'key1' => [
                 'sub1' => 2,
-                'sub2' => array(
+                'sub2' => [
                     'E1',
                     'E2',
                     'E3',
                     'E5',
                     'E6',
-                )
-            )
-        );
+                ],
+            ],
+        ];
         $con = new ConfigurationHandler;
         $con->setArray($original);
 
-        $con->setArray(array(
-            'key1' => array(
+        $con->setArray([
+            'key1' => [
                 'sub1' => 2,
-                'sub2' => array(
+                'sub2' => [
                     'E5',
                     'E6',
-                )
-            )
-        ));
+                ],
+            ],
+        ]);
         $this->assertEquals($expected, $con->getAllNested());
     }
 
     public function testSetArray()
     {
         $con = new ConfigurationHandler;
-        $con->setArray(array(
-            'foo' => 'bar'
-        ));
+        $con->setArray([
+            'foo' => 'bar',
+        ]);
 
         $this->assertEquals($con['foo'], 'bar');
     }
@@ -144,15 +144,15 @@ class ConfigurationHandlerTest extends \PHPUnit_Framework_TestCase
     public function testKeys()
     {
         $con = new ConfigurationHandler;
-        $con->setArray(array(
-            'foo' => 'bar'
-        ));
+        $con->setArray([
+            'foo' => 'bar',
+        ]);
         $keys = $con->getKeys();
 
         $this->assertEquals($keys[0], 'foo');
     }
 
-    public function  testWithNamespacedKey()
+    public function testWithNamespacedKey()
     {
         $con = new ConfigurationHandler;
         $con['my.namespaced.keyname'] = 'My Value';

@@ -24,14 +24,14 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      *
      * @var array
      */
-    protected $keys = array();
+    protected $keys = [];
 
     /**
      * Storage array of values
      *
      * @var array
      */
-    protected $values = array();
+    protected $values = [];
 
     /**
      * Expected nested key separator
@@ -46,7 +46,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      *
      * @param array $values
      */
-    public function setArray(array $values = array())
+    public function setArray(array $values = [])
     {
         $this->values = $this->mergeArrays($this->values, $values);
     }
@@ -132,7 +132,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
                 return;
             }
 
-            $array =& $array[$key];
+            $array = &$array[$key];
         }
 
         unset($array[array_shift($keys)]);
@@ -160,7 +160,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      * @param  array  $array
      * @return mixed
      */
-    protected function getValue($key, array $array = array())
+    protected function getValue($key, array $array = [])
     {
         $keys = $this->parseKey($key);
 
@@ -180,14 +180,14 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      * @param  array  $array
      * @return array
      */
-    protected function setValue($key, $value, array &$array = array())
+    protected function setValue($key, $value, array &$array = [])
     {
         $keys = $this->parseKey($key, $this->separator);
         $pointer = &$array;
 
         while (count($keys) > 0) {
             $key = array_shift($keys);
-            $pointer[$key] = (isset($pointer[$key]) ? $pointer[$key] : array());
+            $pointer[$key] = (isset($pointer[$key]) ? $pointer[$key] : []);
             $pointer = &$pointer[$key];
         }
 
@@ -236,7 +236,7 @@ class ConfigurationHandler implements ConfigurationHandlerInterface
      */
     protected function flattenArray(array $array, $separator = null, $prepend = '')
     {
-        $flattened = array();
+        $flattened = [];
 
         if (is_null($separator)) {
             $separator = $this->separator;

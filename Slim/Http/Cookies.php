@@ -33,7 +33,7 @@ class Cookies extends Collection implements CookiesInterface
         'path' => null,
         'expires' => null,
         'secure' => false,
-        'httponly' => false
+        'httponly' => false,
     ];
 
     /**
@@ -91,7 +91,7 @@ class Cookies extends Collection implements CookiesInterface
         if (is_array($value)) {
             $settings = array_replace($this->defaults, $value);
         } else {
-            $settings = array_replace($this->defaults, array('value' => $value));
+            $settings = array_replace($this->defaults, ['value' => $value]);
         }
 
         parent::set($key, $settings);
@@ -108,7 +108,7 @@ class Cookies extends Collection implements CookiesInterface
      * @param  string $key      The cookie name
      * @param  array  $settings The cookie properties, if necessary
      */
-    public function remove($key, $settings = array())
+    public function remove($key, $settings = [])
     {
         $settings['value'] = '';
         $settings['expires'] = time() - 86400;
@@ -186,7 +186,7 @@ class Cookies extends Collection implements CookiesInterface
 
         $header = rtrim($header, "\r\n");
         $pieces = preg_split('@\s*[;,]\s*@', $header);
-        $cookies = array();
+        $cookies = [];
 
         foreach ($pieces as $cookie) {
             $cookie = explode('=', $cookie, 2);

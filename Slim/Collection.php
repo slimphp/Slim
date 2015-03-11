@@ -31,7 +31,7 @@ class Collection implements CollectionInterface
      *
      * @param array $items Pre-populate collection with this key-value array
      */
-    public function __construct(array $items = array())
+    public function __construct(array $items = [])
     {
         $this->replace($items);
     }
@@ -123,7 +123,7 @@ class Collection implements CollectionInterface
      */
     public function clear()
     {
-        $this->data = array();
+        $this->data = [];
     }
 
     /********************************************************************************

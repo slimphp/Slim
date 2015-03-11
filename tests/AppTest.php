@@ -221,7 +221,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             return Environment::mock([
                 'SCRIPT_NAME' => '/index.php',
                 'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET'
+                'REQUEST_METHOD' => 'GET',
             ]);
         };
         $app->add(function ($req, $res, $next) use ($app) {
@@ -258,7 +258,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET'
+            'REQUEST_METHOD' => 'GET',
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
@@ -287,7 +287,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET'
+            'REQUEST_METHOD' => 'GET',
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
@@ -318,7 +318,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo/test',
-            'REQUEST_METHOD' => 'GET'
+            'REQUEST_METHOD' => 'GET',
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
@@ -346,7 +346,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET'
+            'REQUEST_METHOD' => 'GET',
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);

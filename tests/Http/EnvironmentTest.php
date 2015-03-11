@@ -40,8 +40,8 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function setUp()
     {
-	    $_SERVER['DOCUMENT_ROOT'] = '/var/www';
-	    $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/var/www';
+        $_SERVER['SCRIPT_NAME'] = '/foo/index.php';
         $_SERVER['REQUEST_URI'] = '/foo/index.php/bar/xyz';
         $_SERVER['SERVER_PROTOCOL'] = 'HTTP/1.1';
         $_SERVER['SERVER_NAME'] = 'slim';
@@ -67,10 +67,10 @@ class EnvironmentTest extends PHPUnit_Framework_TestCase
      */
     public function testMock()
     {
-        $env = Environment::mock(array(
+        $env = Environment::mock([
             'SCRIPT_NAME' => '/foo/bar/index.php',
-            'REQUEST_URI' => '/foo/bar?abc=123'
-        ));
+            'REQUEST_URI' => '/foo/bar?abc=123',
+        ]);
 
         $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
         $this->assertEquals('/foo/bar/index.php', $env->get('SCRIPT_NAME'));

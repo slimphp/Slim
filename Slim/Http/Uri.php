@@ -161,7 +161,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         if (strpos($requestUri, $requestScriptName) === 0) {
             $basePath = $requestScriptName;
             $virtualPath = substr($requestUri, strlen($requestScriptName));
-        } else if (strpos($requestUri, $requestScriptDir) === 0) {
+        } elseif (strpos($requestUri, $requestScriptDir) === 0) {
             $basePath = $requestScriptDir;
             $virtualPath = substr($requestUri, strlen($requestScriptDir));
         }
@@ -234,7 +234,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         static $valid = [
             '' => true,
             'https' => true,
-            'http' => true
+            'http' => true,
         ];
 
         if (!is_string($scheme) && !method_exists($scheme, '__toString')) {

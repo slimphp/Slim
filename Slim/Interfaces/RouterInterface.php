@@ -42,7 +42,7 @@ interface RouterInterface
      *
      * @return int The index of the new group
      */
-    public function pushGroup($group, $middleware = array());
+    public function pushGroup($group, $middleware = []);
 
     /**
      * Removes the last route group from the array
@@ -61,5 +61,5 @@ interface RouterInterface
      * @throws \RuntimeException         If named route does not exist
      * @throws \InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, $data = array());
+    public function urlFor($name, $data = []);
 }

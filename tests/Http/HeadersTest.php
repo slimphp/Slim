@@ -38,7 +38,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function testCreateFromEnvironment()
     {
         $e = Environment::mock([
-            'HTTP_ACCEPT' => 'application/json'
+            'HTTP_ACCEPT' => 'application/json',
         ]);
         $h = Headers::createFromEnvironment($e);
         $prop = new \ReflectionProperty($h, 'data');
@@ -51,7 +51,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function testCreateFromEnvironmentWithSpecialHeaders()
     {
         $e = Environment::mock([
-            'CONTENT_TYPE' => 'application/json'
+            'CONTENT_TYPE' => 'application/json',
         ]);
         $h = Headers::createFromEnvironment($e);
         $prop = new \ReflectionProperty($h, 'data');
@@ -66,7 +66,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $e = Environment::mock([
             'CONTENT_TYPE' => 'text/csv',
             'HTTP_CONTENT_LENGTH' => 1230, // <-- Ignored
-            'HTTP_CONTENT_TYPE' => 'application/json' // <-- Ignored
+            'HTTP_CONTENT_TYPE' => 'application/json', // <-- Ignored
         ]);
         $h = Headers::createFromEnvironment($e);
         $prop = new \ReflectionProperty($h, 'data');
@@ -79,7 +79,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $h = new Headers([
-            'Content-Length' => 100
+            'Content-Length' => 100,
         ]);
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
@@ -116,7 +116,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
         $prop->setValue($h, [
-            'Allow' => ['GET', 'POST']
+            'Allow' => ['GET', 'POST'],
         ]);
 
         $this->assertEquals(['GET', 'POST'], $h->get('Allow'));
@@ -170,7 +170,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
         $prop->setValue($h, [
-            'Allow' => ['GET', 'POST']
+            'Allow' => ['GET', 'POST'],
         ]);
 
         $this->assertTrue($h->has('Allow'));
@@ -183,7 +183,7 @@ class HeadersTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
         $prop->setValue($h, [
-            'Allow' => ['GET', 'POST']
+            'Allow' => ['GET', 'POST'],
         ]);
         $h->remove('Allow');
 
