@@ -48,7 +48,7 @@ trait MiddlewareAware
     public function add(callable $callable)
     {
         if($this->middlewareLock) {
-            throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');
+            throw new \RuntimeException('Middleware can’t be added once the stack is dequeuing');
         }
 
         if (is_null($this->stack)) {
@@ -70,6 +70,9 @@ trait MiddlewareAware
      */
     protected function seedMiddlewareStack(callable $kernel = null)
     {
+        if (!is_null($this->stack)) {
+            throw new \RuntimeException('MiddlewareStack can only be seeded once.');
+        }
         if ($kernel === null) {
             $kernel = $this;
         }
