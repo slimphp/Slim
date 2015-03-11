@@ -522,7 +522,7 @@ class App extends \Pimple\Container
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this['router']->dispatch($request, $response);
+        $routeInfo = $this['router']->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
             return $this['notFoundHandler']($request, $response);
         }
