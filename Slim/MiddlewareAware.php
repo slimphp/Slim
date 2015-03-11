@@ -57,11 +57,14 @@ trait MiddlewareAware
     /**
      * Seed middleware stack with first callable
      */
-    protected function seedMiddlewareStack()
+    protected function seedMiddlewareStack(callable $kernel = null)
     {
+        if ($kernel === null) {
+            $kernel = $this;
+        }
         $this->stack = new \SplStack;
         $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->stack[] = $this;
+        $this->stack[] = $kernel;
     }
 
     /**
@@ -74,6 +77,9 @@ trait MiddlewareAware
      */
     public function callMiddlewareStack(RequestInterface $req, ResponseInterface $res)
     {
+        if (is_null($this->stack)) {
+            $this->seedMiddlewareStack();
+        }
         $start = $this->stack->top();
 
         return $start($req, $res);
