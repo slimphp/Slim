@@ -8,10 +8,10 @@
  */
 namespace Slim\Http;
 
-use \Slim\Interfaces\Http\HeadersInterface;
-use \Slim\Interfaces\Http\CookiesInterface;
-use \Psr\Http\Message\ResponseInterface;
-use \Psr\Http\Message\StreamableInterface;
+use Slim\Interfaces\Http\HeadersInterface;
+use Slim\Interfaces\Http\CookiesInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamableInterface;
 
 /**
  * Response

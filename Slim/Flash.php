@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use \Slim\Interfaces\FlashInterface;
-use \Slim\Interfaces\SessionInterface;
+use Slim\Interfaces\FlashInterface;
+use Slim\Interfaces\SessionInterface;
 
 /**
  * Flash

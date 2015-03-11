@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use \Slim\Interfaces\ConfigurationInterface;
-use \Slim\Interfaces\ConfigurationHandlerInterface;
+use Slim\Interfaces\ConfigurationInterface;
+use Slim\Interfaces\ConfigurationHandlerInterface;
 
 /**
  * Configuration
