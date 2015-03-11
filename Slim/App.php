@@ -502,7 +502,14 @@ class App extends \Pimple\Container
         }
 
         // Finalize and send HTTP response
-        $this->finalize($request, $response);
+        if (!$this->responded) {
+            $this->responded = true;
+            $response = $response->finalize();
+            $response->sendHeaders();
+            if (!$request->isHead()) {
+                $response->sendBody();
+            }
+        }
 
         restore_error_handler();
     }
@@ -563,31 +570,5 @@ class App extends \Pimple\Container
         $response = $this['response'];
 
         return $this($request, $response);
-    }
-
-    /**
-     * Finalize and send the HTTP response
-     *
-     * @param RequestInterface  $Request  The most recent Request object
-     * @param ResponseInterface $response The most recent Response object
-     */
-    public function finalize(RequestInterface $request, ResponseInterface $response)
-    {
-        if (!$this->responded) {
-            $this->responded = true;
-
-            // Persist flash and session data
-            if (isset($_SESSION)) {
-                $this['flash']->save();
-                $this['session']->save();
-            }
-
-            // Send response
-            $response = $response->finalize();
-            $response->sendHeaders();
-            if ($request->isHead() === false) {
-                $response->sendBody();
-            }
-        }
     }
 }
