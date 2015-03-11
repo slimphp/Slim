@@ -92,35 +92,12 @@ class Route implements RouteInterface
     /**
      * Set route callable
      *
-     * @param string|callable $callable
+     * @param callable $callable
      *
      * @throws \InvalidArgumentException If argument is not callable
      */
-    protected function setCallable($callable)
+    protected function setCallable(callable $callable)
     {
-        $matches = array();
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
-            $class = $matches[1];
-            $method = $matches[2];
-            $callable = function() use ($class, $method) {
-                static $obj = null;
-                if ($obj === null) {
-                    if (!class_exists($class)) {
-                        throw new \InvalidArgumentException('Route callable class does not exist');
-                    }
-                    $obj = new $class;
-                }
-                if (!method_exists($obj, $method)) {
-                    throw new \InvalidArgumentException('Route callable method does not exist');
-                }
-                return call_user_func_array(array($obj, $method), func_get_args());
-            };
-        }
-
-        if (!is_callable($callable)) {
-            throw new \InvalidArgumentException('Route callable must be callable');
-        }
-
         $this->callable = $callable;
     }
 

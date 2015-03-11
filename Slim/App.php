@@ -239,6 +239,8 @@ class App extends \Pimple\Container
             $callable = $name;
             $name = strtolower(implode('.', $methods)) . $routeCount++;
         }
+
+        $callable = $this->resolveCallable($callable);
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
@@ -246,6 +248,42 @@ class App extends \Pimple\Container
         $route->setMiddleware($args);
 
         return $route;
+    }
+
+    /**
+     * Resolve a string of the format 'class:method' into a closure that the
+     * router can dispatch.
+     *
+     * @param  string $callable
+     *
+     * @return Closure
+     */
+    protected function resolveCallable($callable)
+    {
+        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
+            // $callable is a class:method string, so wrap it into a closure, retriving the class from Pimple if registered there
+            $class = $matches[1];
+            $method = $matches[2];
+            $callable = function() use ($class, $method) {
+                static $obj = null;
+                if ($obj === null) {
+                    if (isset($this[$class])) {
+                        $obj = $this[$class];
+                    } else {
+                        if (!class_exists($class)) {
+                            throw new \InvalidArgumentException('Route callable class does not exist');
+                        }
+                        $obj = new $class;
+                        if (!method_exists($obj, $method)) {
+                            throw new \InvalidArgumentException('Route callable method does not exist');
+                        }
+                    }
+                }
+                return call_user_func_array(array($obj, $method), func_get_args());
+            };
+        }
+
+        return $callable;
     }
 
     /**
