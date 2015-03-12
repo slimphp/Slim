@@ -30,7 +30,7 @@ trait MiddlewareAware
 
     /**
      * Middleware stack lock
-     * 
+     *
      * @var bool
      */
     protected $middlewareLock = false;
@@ -79,6 +79,18 @@ trait MiddlewareAware
         $this->stack = new \SplStack;
         $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
         $this->stack[] = $kernel;
+    }
+
+    /**
+     * Get the middleware stack
+     * return \SplStack
+     */
+    public function getMiddlewareStack()
+    {
+        if (is_null($this->stack)) {
+            $this->seedMiddlewareStack();
+        }
+        return $this->stack;
     }
 
     /**
