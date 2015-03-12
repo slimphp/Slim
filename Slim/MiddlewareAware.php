@@ -82,18 +82,6 @@ trait MiddlewareAware
     }
 
     /**
-     * Get the middleware stack
-     * return \SplStack
-     */
-    public function getMiddlewareStack()
-    {
-        if (is_null($this->stack)) {
-            $this->seedMiddlewareStack();
-        }
-        return $this->stack;
-    }
-
-    /**
      * Call middleware stack
      *
      * @param  RequestInterface  $req A request object
