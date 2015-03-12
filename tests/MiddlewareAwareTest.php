@@ -4,6 +4,11 @@ namespace Slim\Tests;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+function testMiddlewareKernel(RequestInterface $req, ResponseInterface $res)
+{
+    return $res->write('hello from testMiddlewareKernel');
+}
+
 class Stackable
 {
     use \Slim\MiddlewareAware;
@@ -11,6 +16,11 @@ class Stackable
     public function __invoke(RequestInterface $req, ResponseInterface $res)
     {
         return $res->write('Center');
+    }
+
+    public function alternativeSeed()
+    {
+        $this->seedMiddlewareStack('Slim\Tests\testMiddlewareKernel');
     }
 }
 
@@ -90,5 +100,32 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
 
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
+    }
+
+    public function testAlternativeSeedMiddlewareStack()
+    {
+        $stack = new Stackable;
+        $stack->alternativeSeed();
+        $prop = new \ReflectionProperty($stack, 'stack');
+        $prop->setAccessible(true);
+
+        $this->assertSame('Slim\Tests\testMiddlewareKernel', $prop->getValue($stack)->bottom());
+    }
+
+
+    public function testAddMiddlewareWillStackIsRunningThrowException()
+    {
+        $stack = new Stackable;
+        $stack->add(function($req, $resp) use($stack) {
+            $stack->add(function($req, $resp){
+                return $resp;
+            });
+            return $resp;
+        });
+        $this->setExpectedException('RuntimeException');
+        $stack->callMiddlewareStack(
+            $this->getMock('Psr\Http\Message\RequestInterface'),
+            $this->getMock('Psr\Http\Message\ResponseInterface')
+        );
     }
 }
