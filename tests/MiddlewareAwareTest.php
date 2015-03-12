@@ -113,7 +113,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testAddMiddlewareWillStackIsRunningThrowException()
+    public function testAddMiddlewareWhileStackIsRunningThrowException()
     {
         $stack = new Stackable;
         $stack->add(function($req, $resp) use($stack) {
@@ -127,5 +127,13 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             $this->getMock('Psr\Http\Message\RequestInterface'),
             $this->getMock('Psr\Http\Message\ResponseInterface')
         );
+    }
+
+    public function testSeedTwiceThrowException()
+    {
+        $stack = new Stackable;
+        $stack->alternativeSeed();
+        $this->setExpectedException('RuntimeException');
+        $stack->alternativeSeed();
     }
 }
