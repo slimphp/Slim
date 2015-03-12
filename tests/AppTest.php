@@ -189,6 +189,20 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Middleware
      *******************************************************************************/
 
+     public function testBottomMiddlewareIsApp()
+     {
+         $app = new App();
+         $mw = function ($req, $res, $next) {
+             return $res;
+         };
+         $app->add($mw);
+
+         $prop = new \ReflectionProperty($app, 'stack');
+         $prop->setAccessible(true);
+
+         $this->assertEquals($app, $prop->getValue($app)->bottom());
+     }
+
     public function testAddMiddleware()
     {
         $app = new App();

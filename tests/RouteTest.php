@@ -76,7 +76,36 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_callable($callable));
     }
 
+
+    public function testBottomMiddlewareIsRoute()
+    {
+        $route = $this->routeFactory();
+        $mw = function ($req, $res, $next) {
+            return $res;
+        };
+        $route->add($mw);
+
+        $prop = new \ReflectionProperty($route, 'stack');
+        $prop->setAccessible(true);
+
+        $this->assertEquals($route, $prop->getValue($route)->bottom());
+    }
+
+    public function testAddMiddleware()
+    {
+        $route = $this->routeFactory();
+        $mw = function ($req, $res, $next) {
+            return $res;
+        };
+        $route->add($mw);
+
+        $prop = new \ReflectionProperty($route, 'stack');
+        $prop->setAccessible(true);
+
+        $this->assertCount(2, $prop->getValue($route));
+    }
+
+
     // TODO: Test adding controller callables with "Foo:bar" syntax
 
-    // TODO: Test __invoke() method once middleware trait is added
 }
