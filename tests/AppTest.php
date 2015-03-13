@@ -189,15 +189,19 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testDefaultMiddlewareStack()
-    {
-        $app = new App();
-        $prop = new \ReflectionProperty($app, 'middleware');
-        $prop->setAccessible(true);
+     public function testBottomMiddlewareIsApp()
+     {
+         $app = new App();
+         $mw = function ($req, $res, $next) {
+             return $res;
+         };
+         $app->add($mw);
 
-        $this->assertEquals(1, count($prop->getValue($app)));
-        $this->assertSame($app, $prop->getValue($app)[0]);
-    }
+         $prop = new \ReflectionProperty($app, 'stack');
+         $prop->setAccessible(true);
+
+         $this->assertEquals($app, $prop->getValue($app)->bottom());
+     }
 
     public function testAddMiddleware()
     {
@@ -206,12 +210,11 @@ class AppTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $app->add($mw);
-        $prop = new \ReflectionProperty($app, 'middleware');
+
+        $prop = new \ReflectionProperty($app, 'stack');
         $prop->setAccessible(true);
 
-        $this->assertEquals(2, count($prop->getValue($app)));
-        $this->assertInstanceOf('\Slim\Middleware', $prop->getValue($app)[0]);
-        $this->assertAttributeSame($app, 'next', $prop->getValue($app)[0]);
+        $this->assertCount(2, $prop->getValue($app));
     }
 
     public function testHaltInMiddleware()
@@ -221,7 +224,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             return Environment::mock([
                 'SCRIPT_NAME' => '/index.php',
                 'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
+                'REQUEST_METHOD' => 'GET'
             ]);
         };
         $app->add(function ($req, $res, $next) use ($app) {

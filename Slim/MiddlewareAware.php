@@ -30,7 +30,7 @@ trait MiddlewareAware
 
     /**
      * Middleware stack lock
-     * 
+     *
      * @var bool
      */
     protected $middlewareLock = false;
