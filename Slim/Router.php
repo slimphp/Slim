@@ -48,6 +48,21 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
         parent::__construct($parser, $generator);
     }
 
+
+    /**
+     * Create new route.
+     *
+     * @param array    $methods Array of HTTP methods
+     * @param string   $pattern The route pattern
+     * @param callable $handler The route callable
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function createRoute($methods, $pattern, $handler)
+    {
+        return new Route($methods, $pattern, $handler);
+    }
+
     /**
      * Add route
      *
@@ -65,7 +80,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
         $pattern = $groupPattern . $pattern;
 
         // Create route
-        $route = new Route($methods, $pattern, $handler);
+        $route = $this->createRoute($methods, $pattern, $handler);
         foreach ($groupMiddleware as $middleware) {
             $route->add($middleware);
         }
