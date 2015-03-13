@@ -24,7 +24,7 @@ class Error
      * Invoke error handler
      *
      * @param  RequestInterface  $request   The most recent Request object
-     * @param  ResponseInterface $response  The most recent REsposne object
+     * @param  ResponseInterface $response  The most recent Response object
      * @param  \Exception        $exception The caught Exception object
      *
      * @return ResponseInterface
