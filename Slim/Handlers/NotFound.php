@@ -24,7 +24,7 @@ class NotFound
      * Invoke not found handler
      *
      * @param  RequestInterface  $request   The most recent Request object
-     * @param  ResponseInterface $response  The most recent Resposne object
+     * @param  ResponseInterface $response  The most recent Response object
      *
      * @return ResponseInterface
      */
