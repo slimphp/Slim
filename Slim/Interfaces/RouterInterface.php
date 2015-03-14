@@ -15,14 +15,13 @@ interface RouterInterface
     /**
      * Add route
      *
-     * @param string   $name    The route name
-     * @param array    $methods Array of HTTP methods
+     * @param string[] $methods Array of HTTP methods
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
      * @return \Slim\RouteInterface
      */
-    public function map($name, $methods, $pattern, $handler);
+    public function map($methods, $pattern, $handler);
 
     /**
      * Dispatch router for HTTP request

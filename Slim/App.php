@@ -132,7 +132,7 @@ class App extends \Pimple\Container
         /**
          * Session factory
          *
-         * This factory method MUSt return a SHARED singleton instance
+         * This factory method MUST return a SHARED singleton instance
          * of \Slim\Interfaces\SessionInterface.
          */
         $this['session'] = function ($c) {
@@ -211,45 +211,126 @@ class App extends \Pimple\Container
     *******************************************************************************/
 
     /**
-     * Add route
+     * Add GET route
      *
-     * This method's second argument is a numeric array
-     * with these elements:
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
      *
-     * 1. (string) Route name
-     * 2. (string) Route URI pattern
-     * 3. (callable) One or more route middleware
-     * 4. (callable) Route handler
-     *
-     * @param array $methods HTTP methods
-     * @param array $args    See notes above
-     *
-     * @return Route
+     * @return \Slim\Interfaces\RouteInterface
      */
-    protected function mapRoute(array $methods, $args)
+    public function get($pattern, $callable)
     {
-        static $routeCount = 0;
+        return $this->map(['GET'], $pattern, $callable);
+    }
 
-        $name = array_pop($args);
-        $pattern = array_shift($args);
-        $callable = array_pop($args);
-        if (empty($callable)) {
-            $callable = $name;
-            $name = strtolower(implode('.', $methods)) . $routeCount++;
+    /**
+     * Add POST route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function post($pattern, $callable)
+    {
+        return $this->map(['POST'], $pattern, $callable);
+    }
+
+    /**
+     * Add PUT route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function put($pattern, $callable)
+    {
+        return $this->map(['PUT'], $pattern, $callable);
+    }
+
+    /**
+     * Add PATCH route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function patch($pattern, $callable)
+    {
+        return $this->map(['PATCH'], $pattern, $callable);
+    }
+
+    /**
+     * Add DELETE route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function delete($pattern, $callable)
+    {
+        return $this->map(['DELETE'], $pattern, $callable);
+    }
+
+    /**
+     * Add OPTIONS route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function options($pattern, $callable)
+    {
+        return $this->map(['OPTIONS'], $pattern, $callable);
+    }
+
+    /**
+     * Add route with multiple methods
+     *
+     * @param  string[] $methods  Numeric array of HTTP method names
+     * @param  string   $pattern  The route URI pattern
+     * @param  mixed    $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function map(array $methods, $pattern, $callable)
+    {
+        if (!is_string($pattern)) {
+            throw new \InvalidArgumentException('Route pattern must be a string');
         }
 
         $callable = $this->resolveCallable($callable);
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
-        $route = $this['router']->map($name, $methods, $pattern, $callable);
-        if ($args) {
-            foreach ($args as $arg) {
-                $route->add($arg);
-            }
-        }
 
-        return $route;
+        return $this['router']->map($methods, $pattern, $callable);
+    }
+
+    /**
+     * Route Groups
+     *
+     * This method accepts a route pattern and a callback. All route
+     * declarations in the callback will be prepended by the group(s)
+     * that it is in.
+     *
+     * Accepts the same parameters as a standard route so:
+     * (pattern, middleware1, middleware2, ..., $callback)
+     */
+    public function group()
+    {
+        $args = func_get_args();
+        $pattern = array_shift($args);
+        $callable = array_pop($args);
+        $this['router']->pushGroup($pattern, $args);
+        if (is_callable($callable)) {
+            call_user_func($callable);
+        }
+        $this['router']->popGroup();
     }
 
     /**
@@ -286,116 +367,6 @@ class App extends \Pimple\Container
         }
 
         return $callable;
-    }
-
-    /**
-     * Add GET route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function get()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['GET'], $args);
-    }
-
-    /**
-     * Add POST route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function post()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['POST'], $args);
-    }
-
-    /**
-     * Add PUT route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function put()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['PUT'], $args);
-    }
-
-    /**
-     * Add PATCH route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function patch()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['PATCH'], $args);
-    }
-
-    /**
-     * Add DELETE route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function delete()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['DELETE'], $args);
-    }
-
-    /**
-     * Add OPTIONS route
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function options()
-    {
-        $args = func_get_args();
-
-        return $this->mapRoute(['OPTIONS'], $args);
-    }
-
-    /**
-     * Add route for multiple methods
-     *
-     * @return \Slim\Interfaces\RouteInterface
-     */
-    public function map()
-    {
-        $args = func_get_args();
-        $methods = array_shift($args);
-        if (!is_array($methods)) {
-            throw new \InvalidArgumentException('First argument must be an array of HTTP methods');
-        }
-
-        return $this->mapRoute($methods, $args);
-    }
-
-    /**
-     * Route Groups
-     *
-     * This method accepts a route pattern and a callback. All route
-     * declarations in the callback will be prepended by the group(s)
-     * that it is in.
-     *
-     * Accepts the same parameters as a standard route so:
-     * (pattern, middleware1, middleware2, ..., $callback)
-     */
-    public function group()
-    {
-        $args = func_get_args();
-        $pattern = array_shift($args);
-        $callable = array_pop($args);
-        $this['router']->pushGroup($pattern, $args);
-        if (is_callable($callable)) {
-            call_user_func($callable);
-        }
-        $this['router']->popGroup();
     }
 
     /********************************************************************************

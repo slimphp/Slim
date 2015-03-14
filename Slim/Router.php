@@ -23,10 +23,15 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 {
     /**
      * Routes
-     *
-     * @var array
      */
     protected $routes = [];
+
+    /**
+     * Named routes
+     *
+     * @var null|array
+     */
+    protected $namedRoutes;
 
     /**
      * Route groups
@@ -51,28 +56,25 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
     /**
      * Add route
      *
-     * @param string   $name    The route name
-     * @param array    $methods Array of HTTP methods
-     * @param string   $pattern The route pattern
-     * @param callable $handler The route callable
+     * @param  string[] $methods Array of HTTP methods
+     * @param  string   $pattern The route pattern
+     * @param  callable $handler The route callable
      *
      * @return \Slim\Interfaces\RouteInterface
      */
-    public function map($name, $methods, $pattern, $handler)
+    public function map($methods, $pattern, $handler)
     {
         // Prepend group pattern
         list($groupPattern, $groupMiddleware) = $this->processGroups();
         $pattern = $groupPattern . $pattern;
 
-        // Create route
+        // Add route
         $route = new Route($methods, $pattern, $handler);
         foreach ($groupMiddleware as $middleware) {
             $route->add($middleware);
         }
-
-        // Append route
-        $this->routes[$name] = $route;
         $this->addRoute($methods, $pattern, [$route, 'run']);
+        $this->routes[] = $route;
 
         return $route;
     }
@@ -140,8 +142,8 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
     /**
      * Build URL for named route
      *
-     * @param string $routeName Route name
-     * @param array  $data      Route URI segments replacement data
+     * @param  string $routeName Route name
+     * @param  array  $data      Route URI segments replacement data
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
@@ -149,10 +151,13 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      */
     public function urlFor($name, $data = [])
     {
-        if (!isset($this->routes[$name])) {
+        if (is_null($this->namedRoutes)) {
+            $this->buildNameIndex();
+        }
+        if (!isset($this->namedRoutes[$name])) {
             throw new \RuntimeException('Named route does not exist for name: ' . $name);
         }
-        $route = $this->routes[$name];
+        $route = $this->namedRoutes[$name];
         $pattern = $route->getPattern();
 
         return preg_replace_callback('/{([^}]+)}/', function ($match) use ($data) {
@@ -163,5 +168,19 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 
             return $data[$segmentName];
         }, $pattern);
+    }
+
+    /**
+     * Build index of named routes
+     */
+    protected function buildNameIndex()
+    {
+        $this->namedRoutes = [];
+        foreach ($this->routes as $route) {
+            $name = $route->getName();
+            if ($name) {
+                $this->namedRoutes[$name] = $route;
+            }
+        }
     }
 }

@@ -17,7 +17,6 @@ use Slim\Interfaces\RouteInterface;
  */
 class Route implements RouteInterface
 {
-
     use MiddlewareAware;
 
     /**
@@ -40,6 +39,13 @@ class Route implements RouteInterface
      * @var callable
      */
     protected $callable;
+
+    /**
+     * Route name
+     *
+     * @var null|string
+     */
+    protected $name;
 
     /**
      * Route parsed arguments
@@ -105,6 +111,28 @@ class Route implements RouteInterface
         $this->callable = $callable;
     }
 
+    /**
+     * Get route name
+     *
+     * @return null|string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set route name
+     *
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        if (!is_string($name)) {
+            throw new \InvalidArgumentException('Route name must be a string');
+        }
+        $this->name = $name;
+    }
 
     /********************************************************************************
     * Route Runner
