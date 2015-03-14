@@ -29,13 +29,6 @@ class App extends \Pimple\Container
      */
     const VERSION = '3.0.0';
 
-    /**
-     * Has the app responsed to the HTTP client?
-     *
-     * @var bool
-     */
-    protected $responded = false;
-
     /********************************************************************************
     * Instantiation and Configuration
     *******************************************************************************/
@@ -400,6 +393,8 @@ class App extends \Pimple\Container
      */
     public function run()
     {
+        static $responded = false;
+
         set_error_handler(function ($errno, $errstr, $errfile, $errline) {
             if (!($errno & error_reporting())) {
                 return;
@@ -437,8 +432,8 @@ class App extends \Pimple\Container
         }
 
         // Finalize and send HTTP response
-        if (!$this->responded) {
-            $this->responded = true;
+        if (!$responded) {
+            $responded = true;
             $response = $response->finalize();
             $response->sendHeaders();
             if (!$request->isHead()) {
