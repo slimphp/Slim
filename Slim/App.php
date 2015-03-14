@@ -120,42 +120,6 @@ class App extends \Pimple\Container
         };
 
         /**
-         * View factory
-         *
-         * This factory method MUST return a SHARED singleton instance
-         * of \Slim\Interfaces\ViewInterface.
-         */
-        $this['view'] = function ($c) {
-            return new View($c['settings']['view.templates']);
-        };
-
-        /**
-         * Session factory
-         *
-         * This factory method MUST return a SHARED singleton instance
-         * of \Slim\Interfaces\SessionInterface.
-         */
-        $this['session'] = function ($c) {
-            $session = new Session($c['settings']['session.handler']);
-            $session->start();
-
-            return $session;
-        };
-
-        /**
-         * Flash factory
-         *
-         * This factory method MUST return a SHARED singleton instance
-         * of \Slim\Interfaces\FlashInterface.
-         */
-        $this['flash'] = function ($c) {
-            $flash = new Flash($c['session'], $c['settings']['session.flash_key']);
-            $c['view']->set('flash', $flash);
-
-            return $flash;
-        };
-
-        /**
          * Error handler factory
          *
          * This factory method MUST return a callable
