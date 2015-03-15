@@ -582,7 +582,7 @@ class Request
         foreach ($keys as $key) {
             if (isset($this->env[$key])) {
                 foreach(explode(',',$this->env[$key]) as $ip) {
-                    if (filter_var(trim($test), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                    if (filter_var(trim($ip), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
                         return $ip;
                     }
                 }
