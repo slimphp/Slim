@@ -32,8 +32,70 @@
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
-    public function testTrue()
+    protected $router;
+
+    public function setUp()
     {
-        $this->assertTrue(true);
+        $this->router = new \Slim\Router;
+    }
+
+    public function testMap()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+
+        $this->assertInstanceOf('\Slim\Interfaces\RouteInterface', $route);
+        $this->assertAttributeContains($route, 'routes', $this->router);
+    }
+
+    public function testMapPrependsGroupPattern()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+
+        $this->router->pushGroup('/prefix', []);
+        $route = $this->router->map($methods, $pattern, $callable);
+        $this->router->popGroup();
+
+        $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
+    }
+
+    public function testUrlFor()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/hello/josh/lockhart',
+            $this->router->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+        );
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testUrlForRouteNotExists()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->router->urlFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
     }
 }
