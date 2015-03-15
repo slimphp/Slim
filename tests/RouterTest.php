@@ -84,6 +84,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testUrlForWithMissingSegmentData()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->router->urlFor('foo', ['last' => 'lockhart']);
+    }
+
+    /**
      * @expectedException \RuntimeException
      */
     public function testUrlForRouteNotExists()
