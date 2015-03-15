@@ -288,6 +288,58 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', (string)$response->getBody());
     }
 
+    public function testLastModifiedHit()
+    {
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_IF_MODIFIED_SINCE' => 'Sat, 14 Mar 2015 19:43:31 GMT'
+            ]);
+        };
+        $app->get('/foo', function ($req, $res, $args) {
+            $res = $res->withLastModified('Sat, 14 Mar 2015 19:43:31 GMT');
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Invoke app
+        ob_start();
+        $response = $app->run();
+        ob_end_clean();
+
+        $this->assertEquals(304, $response->getStatusCode());
+    }
+
+    public function testLastModifiedMiss()
+    {
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_IF_MODIFIED_SINCE' => 'Sat, 12 Mar 2015 19:43:31 GMT'
+            ]);
+        };
+        $app->get('/foo', function ($req, $res, $args) {
+            $res = $res->withLastModified('Mon, 16 Mar 2015 19:43:31 GMT');
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Invoke app
+        ob_start();
+        $response = $app->run();
+        ob_end_clean();
+
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
     /********************************************************************************
      * Runner
      *******************************************************************************/

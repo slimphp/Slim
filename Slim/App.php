@@ -409,7 +409,7 @@ class App extends \Pimple\Container
 
         // Set response HTTP caching callbacks to short-circuit app if necessary
         $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
-            if ($time === strtotime($request->getHeader('IF_MODIFIED_SINCE'))) {
+            if ($time === strtotime($request->getHeader('If-Modified-Since'))) {
                 $app->halt(304);
             }
         });
