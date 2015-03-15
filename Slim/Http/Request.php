@@ -576,16 +576,19 @@ class Request
      * Get IP
      * @return string
      */
-    public function getIp()
+    public function getIp() 
     {
-        $keys = array('X_FORWARDED_FOR', 'HTTP_X_FORWARDED_FOR', 'CLIENT_IP', 'REMOTE_ADDR');
+        $keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR');
         foreach ($keys as $key) {
             if (isset($this->env[$key])) {
-                return $this->env[$key];
+                foreach(explode(',',$this->env[$key]) as $ip) {
+                    if (filter_var(trim($ip), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                        return $ip;
+                    }
+                }
             }
         }
-
-        return $this->env['REMOTE_ADDR'];
+        return isset($this->env['REMOTE_ADDR']) ? $this->env['REMOTE_ADDR'] : false;
     }
 
     /**
