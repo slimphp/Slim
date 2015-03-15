@@ -70,7 +70,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
     public function testUrlFor()
     {
         $methods = ['GET'];
-        $pattern = '/hello/{first}/{last}';
+        $pattern = '/hello/{first:\w+}/{last}';
         $callable = function ($request, $response, $args) {
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
