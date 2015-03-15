@@ -55,8 +55,9 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
         'cookies.httponly' => false,
         // Encryption
         'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-        'crypt.cipher' => MCRYPT_RIJNDAEL_256,
-        'crypt.mode' => MCRYPT_MODE_CBC,
+        'crypt.cipher' => 'aes',
+        'crypt.mode' => 'cbc',
+        'crypt.hash' => 'sha256',
         // Session
         'session.handler' => null,
         'session.flash_key' => 'slimflash',
