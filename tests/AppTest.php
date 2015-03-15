@@ -114,19 +114,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testMapRouteWithInvalidArgs()
-    {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
-        $app = new App();
-        $route = $app->map($path, $callable); // <-- Throws exception
-    }
-
     public function testGroup()
     {
         $path = '/foo';
@@ -189,19 +176,19 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Middleware
      *******************************************************************************/
 
-     public function testBottomMiddlewareIsApp()
-     {
-         $app = new App();
-         $mw = function ($req, $res, $next) {
-             return $res;
-         };
-         $app->add($mw);
+    public function testBottomMiddlewareIsApp()
+    {
+        $app = new App();
+        $mw = function ($req, $res, $next) {
+            return $res;
+        };
+        $app->add($mw);
 
-         $prop = new \ReflectionProperty($app, 'stack');
-         $prop->setAccessible(true);
+        $prop = new \ReflectionProperty($app, 'stack');
+        $prop->setAccessible(true);
 
-         $this->assertEquals($app, $prop->getValue($app)->bottom());
-     }
+        $this->assertEquals($app, $prop->getValue($app)->bottom());
+    }
 
     public function testAddMiddleware()
     {
@@ -242,6 +229,63 @@ class AppTest extends PHPUnit_Framework_TestCase
         $output = ob_get_clean();
 
         $this->assertEquals('Halt', $output);
+    }
+
+    /********************************************************************************
+     * HTTP caching
+     *******************************************************************************/
+
+    public function testEtagHit()
+    {
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_IF_NONE_MATCH' => '"abc123"'
+            ]);
+        };
+        $app->get('/foo', function ($req, $res, $args) {
+            $res = $res->withEtag('abc123');
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Invoke app
+        ob_start();
+        $response = $app->run();
+        ob_end_clean();
+
+        $this->assertEquals(304, $response->getStatusCode());
+    }
+
+    public function testEtagMiss()
+    {
+        $app = new App();
+        $app['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+                'HTTP_IF_NONE_MATCH' => '"xyz123"'
+            ]);
+        };
+        $app->get('/foo', function ($req, $res, $args) {
+            $res = $res->withEtag('abc123');
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Invoke app
+        ob_start();
+        $response = $app->run();
+        ob_end_clean();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('Hello', (string)$response->getBody());
     }
 
     /********************************************************************************
@@ -306,37 +350,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals(404, 'status', $resOut);
     }
 
-    public function testInvokeWithMatchingRouteAndPass()
-    {
-        $app = new App();
-        $app->get('/foo/:one', function ($req, $res) use ($app) {
-            $app->pass();
-            return $res->withStatus(200);
-        });
-        $app->get('/foo/:two', function ($req, $res) {
-            return $res->withStatus(400);
-        });
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/test',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $body);
-        $res = new Response();
-
-        // Invoke app
-        $resOut = $app($req, $res);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertAttributeEquals(400, 'status', $resOut);
-    }
-
     public function testInvokeWithMatchingRouteAndHalt()
     {
         $app = new App();
@@ -359,10 +372,12 @@ class AppTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertAttributeEquals(400, 'status', $resOut);
+        try {
+            $app($req, $res);
+            $this->fail('Did not catch \Slim\Exception');
+        } catch (\Slim\Exception $e) {
+            $this->assertEquals(400, $e->getResponse()->getStatusCode());
+        }
     }
 
     // TODO: Test subRequest()

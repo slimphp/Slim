@@ -25,6 +25,13 @@ $app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $args)
     var_dump($args);
 })->setName('testGet');
 
+$app->get('/etaghit', function ($request, $response, $args) {
+    $response->withEtag('abc123');
+    $response->write("Test body");
+
+    return $response;
+});
+
 /**
  * Step 3: Define the Slim application routes
  *

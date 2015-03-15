@@ -414,7 +414,7 @@ class App extends \Pimple\Container
             }
         });
         $response->onEtag(function ($latestResponse, $etag) use ($app, $request) {
-            if ($etagHeader = $request->getHeader('IF_NONE_MATCH')) {
+            if ($etagHeader = $request->getHeader('If-None-Match')) {
                 $etagList = preg_split('@\s*,\s*@', $etagHeader);
                 if (in_array($etag, $etagList) || in_array('*', $etagList)) {
                     $app->halt(304);
@@ -440,6 +440,8 @@ class App extends \Pimple\Container
                 $response->sendBody();
             }
         }
+
+        return $response;
 
         restore_error_handler();
     }
