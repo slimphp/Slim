@@ -431,6 +431,73 @@ class AppTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(400, $e->getResponse()->getStatusCode());
         }
     }
+    
+    public function testInvokeWithPimpleCallable()
+    {
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
+        
+        $mock = $this->getMock('StdClass', ['bar']);
+        
+        $app = new App();
+        
+        $app['foo'] = function() use ($mock, $res) {
+            $mock->method('bar')
+                ->willReturn(
+                    $res->write('Hello')
+                );
+            return $mock;
+        };
+        
+        $app->get('/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$res->getBody());
+    }
+    
+    public function testInvokeWithPimpleUndefinedCallable()
+    {
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $body);
+        $res = new Response();
+        
+        $mock = $this->getMock('StdClass');
+        
+        $app = new App();
+        
+        $app['foo'] = function() use ($mock, $res) {
+            return $mock;
+        };
+        
+        $app->get('/foo', 'foo:bar');
+        
+        $this->setExpectedException('\InvalidArgumentException', 'Route callable method does not exist');
+
+        // Invoke app
+        $app($req, $res);
+    }
 
     // TODO: Test subRequest()
 

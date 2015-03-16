@@ -314,9 +314,9 @@ class App extends \Pimple\Container
                             throw new \InvalidArgumentException('Route callable class does not exist');
                         }
                         $obj = new $class;
-                        if (!method_exists($obj, $method)) {
-                            throw new \InvalidArgumentException('Route callable method does not exist');
-                        }
+                    }
+                    if (!method_exists($obj, $method)) {
+                        throw new \InvalidArgumentException('Route callable method does not exist');
                     }
                 }
                 return call_user_func_array(array($obj, $method), func_get_args());
