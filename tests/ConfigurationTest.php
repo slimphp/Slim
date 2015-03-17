@@ -43,25 +43,12 @@ class HandlerTest extends ConfigurationHandler
 class ConfigurationTest extends \PHPUnit_Framework_TestCase
 {
     public $defaults = [
-        // Application
-        'mode' => 'development',
-        'view.templates' => '../templates',
         // Cookies
-        'cookies.encrypt' => false,
         'cookies.lifetime' => '20 minutes',
         'cookies.path' => '/',
         'cookies.domain' => null,
         'cookies.secure' => false,
         'cookies.httponly' => false,
-        // Encryption
-        'crypt.key' => 'A9s_lWeIn7cML8M]S6Xg4aR^GwovA&UN',
-        'crypt.cipher' => 'aes',
-        'crypt.mode' => 'cbc',
-        'crypt.hash' => 'sha256',
-        // Session
-        'session.handler' => null,
-        'session.flash_key' => 'slimflash',
-        'session.encrypt' => false,
         // HTTP
         'http.version' => '1.1',
     ];
