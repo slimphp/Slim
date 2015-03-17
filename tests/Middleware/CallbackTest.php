@@ -9,7 +9,7 @@
  *
  * @license     http://www.slimframework.com/license
  *
- * @version     2.6.1
+ * @version     2.6.2
  *
  * MIT LICENSE
  *
