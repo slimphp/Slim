@@ -122,7 +122,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $user = isset($parts['user']) ? $parts['user'] : '';
         $pass = isset($parts['pass']) ? $parts['pass'] : '';
         $host = isset($parts['host']) ? $parts['host'] : '';
-        $port = isset($parts['port']) ? $parts['port'] : '';
+        $port = isset($parts['port']) ? $parts['port'] : 80;
         $path = isset($parts['path']) ? $parts['path'] : '';
         $query = isset($parts['query']) ? $parts['query'] : '';
 
