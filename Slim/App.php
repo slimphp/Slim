@@ -10,6 +10,7 @@ namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Pimple\ServiceProviderInterface;
 
 /**
  * App
@@ -266,7 +267,11 @@ class App extends \Pimple\Container
             $callable = $callable->bindTo($this);
         }
 
-        return $this['router']->map($methods, $pattern, $callable);
+        $route = $this['router']->map($methods, $pattern, $callable);
+        if ($route instanceof ServiceProviderInterface) {
+            $route->register($this);
+        }
+        return $route;
     }
 
     /**
