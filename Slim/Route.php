@@ -132,6 +132,7 @@ class Route implements RouteInterface
             throw new \InvalidArgumentException('Route name must be a string');
         }
         $this->name = $name;
+        return $this;
     }
 
     /********************************************************************************

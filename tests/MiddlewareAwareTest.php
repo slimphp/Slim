@@ -48,8 +48,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             $res->write('Out1');
 
             return $res;
-        });
-        $stack->add(function ($req, $res, $next) {
+        })->add(function ($req, $res, $next) {
             $res->write('In2');
             $res = $next($req, $res);
             $res->write('Out2');
@@ -136,4 +135,5 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('RuntimeException');
         $stack->alternativeSeed();
     }
+
 }
