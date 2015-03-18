@@ -367,17 +367,16 @@ class App extends \Pimple\Container
     /**
      * Redirect
      *
-     * This method immediately redirects to a new URL by preparing
-     * and sending a new 3XX HTTP response object.
+     * This method returns a new 3XX HTTP response object to specific URL.
      *
      * @param string $url    The destination URL
      * @param int    $status The HTTP redirect status code (optional)
      *
-     * @throws \Slim\Exception
+     * @throws \Slim\Http\Response
      */
     public function redirect($url, $status = 302)
     {
-        $this->stop($this['response']->withStatus($status)->withHeader('Location', $url));
+        return $this['response']->withStatus($status)->withHeader('Location', $url);
     }
 
     /********************************************************************************

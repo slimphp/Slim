@@ -162,14 +162,9 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testRedirect()
     {
         $app = new App();
-        try {
-            $app->redirect('http://slimframework.com', 301);
-            $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception $e) {
-            $res = $e->getResponse();
-            $this->assertAttributeEquals(301, 'status', $res);
-            $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
-        }
+        $res = $app->redirect('http://slimframework.com', 301);
+        $this->assertEquals(301, $res->getStatusCode());
+        $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
     }
 
     /********************************************************************************
