@@ -60,13 +60,6 @@ class Route implements RouteInterface, ServiceProviderInterface
     protected $parsedArgs = [];
 
     /**
-     * Container for resolving callable strings
-     *
-     * @var \Pimple\Container
-     */
-    protected $container;
-
-    /**
      * Create new route
      *
      * @param string[] $methods       The route HTTP methods
