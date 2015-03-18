@@ -372,7 +372,7 @@ class App extends \Pimple\Container
      * @param string $url    The destination URL
      * @param int    $status The HTTP redirect status code (optional)
      *
-     * @throws \Slim\Http\Response
+     * @return \Slim\Http\Response
      */
     public function redirect($url, $status = 302)
     {
