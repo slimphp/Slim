@@ -105,6 +105,12 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($route));
     }
 
+    public function testSetName()
+    {
+        $route = $this->routeFactory();
+        $this->assertEquals($route, $route->setName('foo'));
+        $this->assertEquals('foo', $route->getName());
+    }    
 
     // TODO: Test adding controller callables with "Foo:bar" syntax
 

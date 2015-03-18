@@ -44,6 +44,7 @@ trait MiddlewareAware
      *                                1. A Request object
      *                                2. A Response object
      *                                3. A "next" middleware callable
+     * @return self
      */
     public function add(callable $callable)
     {
@@ -63,6 +64,8 @@ trait MiddlewareAware
 
             return $result;
         };
+
+        return $this;
     }
 
     /**
