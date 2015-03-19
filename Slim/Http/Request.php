@@ -875,7 +875,15 @@ class Request implements RequestInterface
      */
     public function getFileParams()
     {
-
+		if($this->files)
+			return $this->files; 
+		
+		if(!empty($_FILES)){
+			$files = &$_FILES; //some functions wont work if this isnt a reference
+		}else{
+			$files = [];
+		}
+        return $files;
     }
 
     /*******************************************************************************
