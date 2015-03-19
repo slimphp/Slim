@@ -82,6 +82,13 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @var string
      */
     protected $query = '';
+    
+    /**
+     * Uri fragment string (without "#" prefix)
+     *
+     * @var string
+     */
+    protected $fragment = '';
 
     /**
      * Create new Uri
@@ -94,13 +101,14 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @param string $user     Uri user
      * @param string $password Uri password
      */
-    public function __construct($scheme, $host, $port = null, $path = '/', $query = '', $user = '', $password = '')
+    public function __construct($scheme, $host, $port = null, $path = '/', $query = '', $fragment = '', $user = '', $password = '')
     {
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
         $this->path = empty($path) ? '/' : $this->filterPath($path);
         $this->query = $this->filterQuery($query);
+        $this->fragment = $this->filterQuery($fragment);
         $this->user = $user;
         $this->password = $password;
     }
@@ -125,8 +133,9 @@ class Uri implements \Psr\Http\Message\UriInterface
         $port = isset($parts['port']) ? $parts['port'] : null;
         $path = isset($parts['path']) ? $parts['path'] : '';
         $query = isset($parts['query']) ? $parts['query'] : '';
+        $fragment = isset($parts['fragment']) ? $parts['fragment'] : '';
 
-        return new static($scheme, $host, $port, $path, $query, $user, $pass);
+        return new static($scheme, $host, $port, $path, $query, $fragment, $user, $pass);
     }
 
     /**
@@ -169,9 +178,12 @@ class Uri implements \Psr\Http\Message\UriInterface
 
         // Query string
         $queryString = $env->get('QUERY_STRING', '');
+        
+        // Fragment
+        $fragment = '';
 
         // Build Uri
-        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $user, $password);
+        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $user, $password);
 
         return $uri->withBasePath($basePath);
     }
@@ -602,7 +614,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /********************************************************************************
-     * Fragment (Unsupported for time being)
+     * Fragment
      *******************************************************************************/
 
     /**
@@ -617,7 +629,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getFragment()
     {
-        return '';
+        return $this->fragment;
     }
 
     /**
@@ -635,7 +647,14 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function withFragment($fragment)
     {
-        return $this;
+        if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
+            throw new \InvalidArgumentException('Uri fragment must be a string');
+        }
+        $fragment = ltrim((string)$fragment, '?');
+        $clone = clone $this;
+        $clone->fragment = $this->filterQuery($fragment);
+
+        return $clone;
     }
 
     /********************************************************************************
