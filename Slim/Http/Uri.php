@@ -650,7 +650,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
             throw new \InvalidArgumentException('Uri fragment must be a string');
         }
-        $fragment = ltrim((string)$fragment, '?');
+        $fragment = ltrim((string)$fragment, '#');
         $clone = clone $this;
         $clone->fragment = $this->filterQuery($fragment);
 
