@@ -344,6 +344,36 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('', 'query', $uri);
     }
+    
+    /********************************************************************************
+     * Fragment
+     *******************************************************************************/
+
+    public function testGetFragment()
+    {
+        $this->assertEquals('section3', $this->uriFactory()->getFragment());
+    }
+
+    public function testWithFragment()
+    {
+        $uri = $this->uriFactory()->withFragment('other-fragment');
+
+        $this->assertAttributeEquals('other-fragment', 'fragment', $uri);
+    }
+
+    public function testWithFragmentRemovesPrefix()
+    {
+        $uri = $this->uriFactory()->withFragment('#other-fragment');
+
+        $this->assertAttributeEquals('other-fragment', 'fragment', $uri);
+    }
+
+    public function testWithFragmentEmpty()
+    {
+        $uri = $this->uriFactory()->withFragment('');
+
+        $this->assertAttributeEquals('', 'fragment', $uri);
+    }
 
     /********************************************************************************
      * Helpers
