@@ -98,10 +98,10 @@ class Request implements RequestInterface
     protected $body;
 	
 	/**
-     * The requests uploaded files or empty array
-     *
+	 * The requests uploaded files or empty array
+	 *
 	 * @var array
-     */
+	 */
 	protected $files;
 
     /**
