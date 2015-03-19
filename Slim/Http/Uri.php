@@ -683,7 +683,8 @@ class Uri implements \Psr\Http\Message\UriInterface
         $basePath = $this->getBasePath();
         $path = $this->getPath();
         $query = $this->getQuery();
+        $fragment = $this->getFragment();
 
-        return ($scheme ? $scheme . '://' : '') . $authority . $basePath . $path . ($query ? '?' . $query : '');
+        return ($scheme ? $scheme . '://' : '') . $authority . $basePath . $path . ($query ? '?' . $query : '') . ($fragment ? '#' . $fragment : '');
     }
 }

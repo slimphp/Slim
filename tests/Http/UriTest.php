@@ -381,6 +381,6 @@ class UriTest extends PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123', (string)$this->uriFactory());
+        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string)$this->uriFactory());
     }
 }
