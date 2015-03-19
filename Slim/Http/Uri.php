@@ -94,7 +94,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @param string $user     Uri user
      * @param string $password Uri password
      */
-    public function __construct($scheme, $host, $port = 80, $path = '/', $query = '', $user = '', $password = '')
+    public function __construct($scheme, $host, $port = null, $path = '/', $query = '', $user = '', $password = '')
     {
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
@@ -122,7 +122,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $user = isset($parts['user']) ? $parts['user'] : '';
         $pass = isset($parts['pass']) ? $parts['pass'] : '';
         $host = isset($parts['host']) ? $parts['host'] : '';
-        $port = isset($parts['port']) ? $parts['port'] : 80;
+        $port = isset($parts['port']) ? $parts['port'] : null;
         $path = isset($parts['path']) ? $parts['path'] : '';
         $query = isset($parts['query']) ? $parts['query'] : '';
 
