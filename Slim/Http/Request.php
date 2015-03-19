@@ -1124,4 +1124,32 @@ class Request implements RequestInterface
         $callable = $callable->bindTo($this);
         $this->bodyParsers[(string)$mediaType] = $callable;
     }
+
+    /*******************************************************************************
+     * Parameters (e.g., POST and GET data)
+     ******************************************************************************/
+
+    /**
+     * Fetch request parameter value from
+     * body or query string (in that order).
+     *
+     * @param  string $key The parameter key
+     *
+     * @return mixed The parameter value
+     */
+    public function getParam($key)
+    {
+        $postParams = $this->getParsedBody();
+        $getParams = $this->getQueryParams();
+        $result = null;
+        if (is_array($postParams) && isset($postParams[$key])) {
+            $result = $postParams[$key];
+        } elseif (is_object($postParams) && property_exists($postParams, $key)) {
+            $result = $postParams->$key;
+        } elseif (isset($getParams[$key])) {
+            $result = $getParams[$key];
+        }
+
+        return $result;
+    }
 }

@@ -184,24 +184,35 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('slimframework.com', 'host', $uri);
     }
-
-    public function testGetPortStandard()
+    
+    public function testGetPortWithSchemeAndNonDefaultPort()
     {
-        $this->assertNull($this->uriFactory()->getPort());
-    }
-
-    public function testGetPortNonStandard()
-    {
-        $scheme = 'https';
-        $user = 'josh';
-        $password = 'sekrit';
-        $host = 'example.com';
-        $path = '/foo/bar';
-        $port = 4000;
-        $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $uri = new Slim\Http\Uri('https', 'www.example.com', 4000);
 
         $this->assertEquals(4000, $uri->getPort());
+    }
+    
+    public function testGetPortWithSchemeAndDefaultPort()
+    {
+        $uriHppt = new Slim\Http\Uri('http', 'www.example.com', 80);
+        $uriHppts = new Slim\Http\Uri('https', 'www.example.com', 443);
+        
+        $this->assertNull($uriHppt->getPort());
+        $this->assertNull($uriHppts->getPort());
+    }
+
+    public function testGetPortWithoutSchemeAndPort()
+    {
+        $uri = new Slim\Http\Uri('', 'www.example.com');
+        
+        $this->assertNull($uri->getPort());
+    }
+
+    public function testGetPortWithSchemeWithoutPort()
+    {
+        $uri = new Slim\Http\Uri('http', 'www.example.com');
+        
+        $this->assertNull($uri->getPort());
     }
 
     public function testWithPort()
