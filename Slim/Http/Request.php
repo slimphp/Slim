@@ -96,7 +96,7 @@ class Request implements RequestInterface
      * @var \Psr\Http\Message\StreamableInterface
      */
     protected $body;
-	
+    
     /**
      * The requests uploaded files or empty array
      *
@@ -142,8 +142,8 @@ class Request implements RequestInterface
         $this->cookies = $cookies;
         $this->attributes = new Collection();
         $this->body = $body;
-		$this->files = $this->getFileParams();
-		
+        $this->files = $this->getFileParams();
+        
         $this->registerMediaTypeParser('application/json', function ($input) {
             return json_decode($input);
         });
@@ -160,7 +160,7 @@ class Request implements RequestInterface
         // TODO: Parse `multipart/mixed`
         // TODO: Parse `multipart/alternative`
         // TODO: Parse `multipart/form-data`
-		
+        
     }
 
     /**
@@ -875,14 +875,14 @@ class Request implements RequestInterface
      */
     public function getFileParams()
     {
-		if($this->files)
-			return $this->files; 
-		
-		if(!empty($_FILES)){
-			$files = &$_FILES; //some functions wont work if this isnt a reference
-		}else{
-			$files = [];
-		}
+        if($this->files)
+            return $this->files; 
+        
+        if(!empty($_FILES)){
+            $files = &$_FILES; //some functions wont work if this isnt a reference
+        }else{
+            $files = [];
+        }
         return $files;
     }
 
