@@ -45,8 +45,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'user' => 'john',
             'id' => '123',
         ]);
+        $env = Slim\Http\Environment::mock();
+        $serverEnv = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverEnv, $body);
 
         return $request;
     }
@@ -638,6 +640,21 @@ class RequestTest extends PHPUnit_Framework_TestCase
     /*******************************************************************************
      * Server Params
      ******************************************************************************/
+
+    public function testGetServerParams()
+    {
+        $mockEnv = Slim\Http\Environment::mock();
+        $request = $this->requestFactory();
+
+        $serverParams = $request->getServerParams();
+        foreach ($serverParams as $key => $value) {
+            if ($key == 'REQUEST_TIME') {
+                $this->assertGreaterThanOrEqual($mockEnv['REQUEST_TIME'], $value, sprintf("%s value of %s was less than expected value of %s", $key, $value, $mockEnv[$key]));
+            } else {
+                $this->assertEquals($mockEnv[$key], $value, sprintf("%s value of %s did not equal expected value of %s", $key, $value, $mockEnv[$key]));
+            }
+        }
+    }
 
     /*******************************************************************************
      * File Params
