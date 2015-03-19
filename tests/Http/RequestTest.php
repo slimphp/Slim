@@ -821,4 +821,38 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $this->requestFactory()->withParsedBody(2);
     }
+
+    /*******************************************************************************
+     * Parameters
+     ******************************************************************************/
+
+    public function testGetParameterFromBody()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('bar', $request->getParam('foo'));
+    }
+
+    public function testGetParameterFromQuery()
+    {
+        $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('123', $request->getParam('abc'));
+    }
+
+    public function testGetParameterFromBodyOverQuery()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('abc=xyz');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+        $this->assertEquals('xyz', $request->getParam('abc'));
+    }
 }
