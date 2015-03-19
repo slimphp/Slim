@@ -20,10 +20,11 @@ class UriTest extends PHPUnit_Framework_TestCase
         $port = 443;
         $path = '/foo/bar';
         $query = 'abc=123';
+        $fragment = 'section3';
         $user = 'josh';
         $password = 'sekrit';
 
-        return new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        return new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
     }
 
     /********************************************************************************
@@ -82,7 +83,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('josh@example.com', $uri->getAuthority());
     }
@@ -96,7 +98,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('example.com', $uri->getAuthority());
     }
@@ -110,7 +113,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 400;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('example.com:400', $uri->getAuthority());
     }
@@ -124,7 +128,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('josh:sekrit', $uri->getUserInfo());
     }
@@ -138,7 +143,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('josh', $uri->getUserInfo());
     }
@@ -152,7 +158,8 @@ class UriTest extends PHPUnit_Framework_TestCase
         $path = '/foo/bar';
         $port = 443;
         $query = 'abc=123';
-        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $user, $password);
+        $fragment = 'section3';
+        $uri = new \Slim\Http\Uri($scheme, $host, $port, $path, $query, $fragment, $user, $password);
 
         $this->assertEquals('', $uri->getUserInfo());
     }
