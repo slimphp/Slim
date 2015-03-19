@@ -94,12 +94,12 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @param string $user     Uri user
      * @param string $password Uri password
      */
-    public function __construct($scheme, $host, $port = 80, $path = '/', $query = '', $user = '', $password = '')
+    public function __construct($scheme, $host, $port = 80, $path = '', $query = '', $user = '', $password = '')
     {
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
-        $this->path = $this->filterPath($path);
+        $this->path = empty($path) ? '/' : $this->filterPath($path);
         $this->query = $this->filterQuery($query);
         $this->user = $user;
         $this->password = $password;
@@ -122,7 +122,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $user = isset($parts['user']) ? $parts['user'] : '';
         $pass = isset($parts['pass']) ? $parts['pass'] : '';
         $host = isset($parts['host']) ? $parts['host'] : '';
-        $port = isset($parts['port']) ? $parts['port'] : '';
+        $port = isset($parts['port']) ? $parts['port'] : 80;
         $path = isset($parts['path']) ? $parts['path'] : '';
         $query = isset($parts['query']) ? $parts['query'] : '';
 
@@ -406,7 +406,13 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     protected function hasStandardPort()
     {
-        return ($this->scheme === 'http' && $this->port === 80) || ($this->scheme === 'https' && $this->port === 443);
+        $defaultPorts = [
+            '' => 80,
+            'http' => 80,
+            'https' => 443,
+        ];
+
+        return isset($defaultPorts[$this->scheme]) && $defaultPorts[$this->scheme] === $this->port;
     }
 
     /**
@@ -464,6 +470,8 @@ class Uri implements \Psr\Http\Message\UriInterface
         }
         if (!empty($path)) {
             $path = '/' . ltrim($path, '/'); // <-- Trim on left side
+        } else {
+            $path = '/';
         }
         $clone = clone $this;
         $clone->path = $this->filterPath($path);
