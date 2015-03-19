@@ -331,6 +331,19 @@ class UriTest extends PHPUnit_Framework_TestCase
      * Helpers
      *******************************************************************************/
 
+    public function testCreateFromString()
+    {
+        $uri = \Slim\Http\Uri::createFromString('https://josh:sekrit@example.com/foo/bar?abc=123');
+
+        $this->assertEquals('https', $uri->getScheme());
+        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
+        $this->assertEquals('example.com', $uri->getHost());
+        $this->assertNull($uri->getPort());
+        $this->assertEquals('/foo/bar', $uri->getPath());
+        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123', (string)$uri);
+    }
+
     public function testToString()
     {
         $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123', (string)$this->uriFactory());
