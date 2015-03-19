@@ -280,7 +280,7 @@ class UriTest extends PHPUnit_Framework_TestCase
     {
         $uri = $this->uriFactory()->withPath('');
 
-        $this->assertAttributeEquals('', 'path', $uri);
+        $this->assertAttributeEquals('/', 'path', $uri);
     }
 
     public function testWithPathUrlEncodesInput()
