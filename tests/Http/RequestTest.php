@@ -855,4 +855,28 @@ class RequestTest extends PHPUnit_Framework_TestCase
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
         $this->assertEquals('xyz', $request->getParam('abc'));
     }
+
+    public function testGetParameters()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals(['abc' => '123', 'foo' => 'bar'], $request->getParams());
+    }
+
+    public function testGetParametersWithBodyPriority()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('foo=bar&abc=xyz');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
+    }
 }

@@ -1144,4 +1144,20 @@ class Request implements RequestInterface
 
         return $result;
     }
+
+    /**
+     * Fetch assocative array of body and query string parameters
+     *
+     * @return array
+     */
+    public function getParams()
+    {
+        $params = $this->getQueryParams();
+        $postParams = $this->getParsedBody();
+        if ($postParams) {
+            $params = array_merge($params, (array)$postParams);
+        }
+
+        return $params;
+    }
 }
