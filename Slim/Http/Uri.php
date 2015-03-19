@@ -99,7 +99,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
-        $this->path = $this->filterPath($path);
+        $this->path = empty($path) ? '/' : $this->filterPath($path);
         $this->query = $this->filterQuery($query);
         $this->user = $user;
         $this->password = $password;
@@ -433,7 +433,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * Retrieve the path segment of the URI.
      *
      * This method MUST return a string; if no path is present it MUST return
-     * an empty string.
+     * the string "/".
      *
      * @return string The path segment of the URI.
      */
@@ -451,6 +451,10 @@ class Uri implements \Psr\Http\Message\UriInterface
      * The path MUST be prefixed with "/"; if not, the implementation MAY
      * provide the prefix itself.
      *
+     * The implementation MUST percent-encode reserved characters as
+     * specified in RFC 3986, Section 2, but MUST NOT double-encode any
+     * characters.
+     *
      * An empty path value is equivalent to removing the path.
      *
      * @param  string $path The path to use with the new instance.
@@ -464,6 +468,8 @@ class Uri implements \Psr\Http\Message\UriInterface
         }
         if (!empty($path)) {
             $path = '/' . ltrim($path, '/'); // <-- Trim on left side
+        } else {
+            $path = '/';
         }
         $clone = clone $this;
         $clone->path = $this->filterPath($path);
@@ -556,6 +562,10 @@ class Uri implements \Psr\Http\Message\UriInterface
      * Additionally, the query string SHOULD be parseable by parse_str() in
      * order to be valid.
      *
+     * The implementation MUST percent-encode reserved characters as
+     * specified in RFC 3986, Section 2, but MUST NOT double-encode any
+     * characters.
+     *
      * An empty query string value is equivalent to removing the query string.
      *
      * @param  string $query The query string to use with the new instance.
@@ -641,7 +651,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * - If a scheme is present, "://" MUST append the value.
      * - If the authority information is present, that value will be
      *   concatenated.
-     * - If a path is present, it MUST be prefixed by a "/" character.
+     * - If a path is present, it MUST start with a "/" character.
      * - If a query string is present, it MUST be prefixed by a "?" character.
      * - If a URI fragment is present, it MUST be prefixed by a "#" character.
      *
