@@ -142,7 +142,7 @@ class Request implements RequestInterface
         $this->cookies = $cookies;
         $this->attributes = new Collection();
         $this->body = $body;
-		$this->files = $this->getFileParams();
+		
 		
         $this->registerMediaTypeParser('application/json', function ($input) {
             return json_decode($input);
