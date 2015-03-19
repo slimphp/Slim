@@ -97,12 +97,6 @@ class Request implements RequestInterface
      */
     protected $body;
 	
-	/**
-     * The requests uploaded files or empty array
-     *
-     * @var hell if i know what goes here
-     */
-	protected $files;
 
     /**
      * The request body parsed (if possible) into a PHP array or object
