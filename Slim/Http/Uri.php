@@ -118,13 +118,13 @@ class Uri implements \Psr\Http\Message\UriInterface
         }
 
         $parts = parse_url($uri);
-        $scheme = isset($parts['scheme']) ? $parts['scheme'] : '';
-        $user = isset($parts['user']) ? $parts['user'] : '';
-        $pass = isset($parts['pass']) ? $parts['pass'] : '';
-        $host = isset($parts['host']) ? $parts['host'] : '';
-        $port = isset($parts['port']) ? $parts['port'] : '';
-        $path = isset($parts['path']) ? $parts['path'] : '';
-        $query = isset($parts['query']) ? $parts['query'] : '';
+        $scheme = isset($parts['scheme']) ? $parts['scheme'] : null;
+        $user = isset($parts['user']) ? $parts['user'] : null;
+        $pass = isset($parts['pass']) ? $parts['pass'] : null;
+        $host = isset($parts['host']) ? $parts['host'] : null;
+        $port = isset($parts['port']) ? $parts['port'] : null;
+        $path = isset($parts['path']) ? $parts['path'] : null;
+        $query = isset($parts['query']) ? $parts['query'] : null;
 
         return new static($scheme, $host, $port, $path, $query, $user, $pass);
     }
