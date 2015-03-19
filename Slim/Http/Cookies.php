@@ -118,13 +118,13 @@ class Cookies extends Collection implements CookiesInterface
     /**
      * Get an HTTP response cookie as HTTP header string
      *
-     * @param  string $name The cookie name
+     * @param  string $key  The cookie name
      * @return string       The equivalent `Cookie:` header value
      */
-    public function getAsString($name)
+    public function getAsString($key)
     {
         $output = null;
-        $cookie = $this->get($name);
+        $cookie = $this->get($key);
         if ($cookie) {
             $value = (string)$cookie['value'];
             $parts = [];
@@ -159,7 +159,7 @@ class Cookies extends Collection implements CookiesInterface
 
             $output = sprintf(
                 '%s=%s',
-                urlencode($name),
+                urlencode($key),
                 urlencode($value) . implode('', $parts)
             );
         }
