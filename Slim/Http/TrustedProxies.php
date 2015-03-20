@@ -65,6 +65,14 @@ class TrustedProxies implements TrustedProxiesInterface
         return $this->trustedProxies;
     }
 
+    /**
+     * Get the corresponding HTTP header for a unique header identifier.
+     *
+     * @param string $key
+     *
+     * @throws \LogicException
+     * @return string
+     */
     public function getTrustedHeaderName($key)
     {
         if(isset($this->trustedHeaderNames[$key]))
@@ -85,19 +93,29 @@ class TrustedProxies implements TrustedProxiesInterface
         return $this->trustedHeaderNames;
     }
 
+	/**
+	 * Checks if an IP address (IPv4 and IPv6) belongs in the TrustedProxies address space
+	 *
+	 * @param string $address
+	 *
+	 * @return bool
+	 */
     public function check($address)
     {
         return static::checkIp($address, $this->trustedProxies);
     }
 
+	/**
+	 * Used for better syntax.
+	 *
+	 * @param array $trustedProxies
+	 * @param array $trustedHeaderNames
+	 *
+	 * @return TrustedProxies
+	 */
     public static function create($trustedProxies = array(), $trustedHeaderNames = array())
     {
-        return static::__set_state($trustedProxies, $trustedHeaderNames);
-    }
-
-    public static function __set_state($trustedProxies = array(), $trustedHeaderNames = array())
-    {
-        return new static($trustedProxies, $trustedHeaderNames);
+	    return new static($trustedProxies, $trustedHeaderNames);
     }
 
     /*****************************************************************************

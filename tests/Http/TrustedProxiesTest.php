@@ -37,6 +37,7 @@ class TrustedProxiesTest extends PHPUnit_Framework_TestCase
 {
     public function testInstantiation()
     {
+	    // Doesn't need to be big, just checking that it's instantiated correctly.
         $trustedProxies = [
             "8.0.0.0/8",
             "155.1.1.1"
@@ -52,6 +53,7 @@ class TrustedProxiesTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($trustedProxies, $trustedProxiesObject->getTrustedProxies(),
             "Trusted Proxies Instntiation Proxies Mismatch");
+
         $this->assertEquals($trustedHeaderNames, $trustedProxiesObject->getTrustedHeaderNames(),
             "Trusted Proxies Instntiation Headers Mismatch");
     }
@@ -73,11 +75,48 @@ class TrustedProxiesTest extends PHPUnit_Framework_TestCase
     public function provideTestIPv4AddressValidation()
     {
         return [
+	        // Range, Address, Expected
+
+	        // True Assertions
             ["1.2.3.4", "1.2.3.4", true],
-            ["1.0.0.0/8", "1.2.3.4", true]//TODO: Write more
+            ["1.0.0.0/8", "1.2.3.4", true],
+	        ["127.0.0.1/32", "127.0.0.1", true],
+
+	        // False Assertions
+            ["8.0.0.1", "1.2.3.4", false],
+            ["8.0.0.0/8", "1.2.3.4", false],
+            ["127.0.0.1/32", "123.123.123.123", false]
         ];
     }
 
-    //TODO: public function testIPv6AddressValidation();
+	/**
+	 * @param string|array $range Range(s) of valid IPv6 addresses
+	 * @param string $address Address to validate
+	 * @param boolean $expected
+	 *
+	 * @dataProvider provideTestIPv6AddressValidation
+	 */
+	public function testIPv6AddressValidation($range, $address, $expected)
+	{
+		$trustedProxiesObject = TrustedProxies::create($range);
+
+		$this->assertEquals($expected, $trustedProxiesObject->check($address));
+	}
+
+	public function provideTestIPv6AddressValidation()
+	{
+		return [
+			// Range, Address, Expected
+
+			// True Assertions
+			["2001:0db8:0a0b:12f0:0000:0000:0000:0000/63", "2001:0db8:0a0b:12f0:0000:0000:0000:0001", true],
+			["2001:0db8:0a0b:12f0:0000:0000:0000:0000/63", "2001:0db8:0a0b:12f1:0000:0000:0000:0001", true],
+			["::1", "::1", true],
+
+			// False Assertions
+			["2001:0db8:0a0b:12f0:0000:0000:0000:0000/63", "2001:0db8:0a0b:12c0:0000:0000:0000:0001", false],
+			["::1", "2001:0db8:0a0b:12c0:0000:0000:0000:0001", false]
+		];
+	}
 }
  
