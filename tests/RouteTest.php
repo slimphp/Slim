@@ -31,6 +31,14 @@
  */
 
 use Slim\Route;
+use Pimple\Container;
+
+class MiddlewareStub
+{
+    public function run($request, $response, $next) {
+        return $next($request, $response);
+    }
+}
 
 class RouteTest extends PHPUnit_Framework_TestCase
 {
@@ -110,7 +118,30 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
         $this->assertEquals($route, $route->setName('foo'));
         $this->assertEquals('foo', $route->getName());
-    }    
+    }
+
+    public function testAddMiddlewareAsString()
+    {
+        $route = $this->routeFactory();
+
+        $container = new Container();
+        $route->register($container);
+        $route->add('MiddlewareStub:run');
+
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = new \Slim\Collection([
+            'user' => 'john',
+            'id' => '123',
+        ]);
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $body);
+
+        $response = new \Slim\Http\Response;
+        $result = $route->callMiddlewareStack($request, $response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+    }
 
     // TODO: Test adding controller callables with "Foo:bar" syntax
 

@@ -11,13 +11,18 @@ namespace Slim;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Interfaces\RouteInterface;
+use Pimple\Container;
+use Pimple\ServiceProviderInterface;
 
 /**
  * Route
  */
-class Route implements RouteInterface
+class Route implements RouteInterface, ServiceProviderInterface
 {
-    use MiddlewareAware;
+    use ResolveCallable;
+    use MiddlewareAware {
+        add as addMiddleware;
+    }
 
     /**
      * HTTP methods supported by this route
@@ -67,6 +72,25 @@ class Route implements RouteInterface
         $this->pattern = $pattern;
         $this->setCallable($callable);
         $this->seedMiddlewareStack();
+    }
+
+    /**
+     * Add middleware
+     *
+     * This method prepends new middleware to the route's middleware stack.
+     *
+     * @param  mixed    $callable The callback routine
+     *
+     * @return RouteInterface
+     */
+    public function add($callable)
+    {
+        $callable = $this->resolveCallable($callable);
+        if ($callable instanceof \Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
+
+        return $this->addMiddleware($callable);
     }
 
     /**
@@ -132,6 +156,17 @@ class Route implements RouteInterface
             throw new \InvalidArgumentException('Route name must be a string');
         }
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Set container for use with resolveCallable
+     *
+     * @param \Pimple\Container $container
+     */
+    public function register(Container $container)
+    {
+        $this->container = $container;
         return $this;
     }
 

@@ -10,6 +10,7 @@ namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Pimple\ServiceProviderInterface;
 
 /**
  * App
@@ -20,6 +21,7 @@ use Psr\Http\Message\ResponseInterface;
  */
 class App extends \Pimple\Container
 {
+    use ResolveCallable;
     use MiddlewareAware;
 
     /**
@@ -265,7 +267,11 @@ class App extends \Pimple\Container
             $callable = $callable->bindTo($this);
         }
 
-        return $this['router']->map($methods, $pattern, $callable);
+        $route = $this['router']->map($methods, $pattern, $callable);
+        if ($route instanceof ServiceProviderInterface) {
+            $route->register($this);
+        }
+        return $route;
     }
 
     /**
@@ -288,42 +294,6 @@ class App extends \Pimple\Container
             call_user_func($callable);
         }
         $this['router']->popGroup();
-    }
-
-    /**
-     * Resolve a string of the format 'class:method' into a closure that the
-     * router can dispatch.
-     *
-     * @param  string $callable
-     *
-     * @return Closure
-     */
-    protected function resolveCallable($callable)
-    {
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
-            // $callable is a class:method string, so wrap it into a closure, retriving the class from Pimple if registered there
-            $class = $matches[1];
-            $method = $matches[2];
-            $callable = function() use ($class, $method) {
-                static $obj = null;
-                if ($obj === null) {
-                    if (isset($this[$class])) {
-                        $obj = $this[$class];
-                    } else {
-                        if (!class_exists($class)) {
-                            throw new \RuntimeException('Route callable class does not exist');
-                        }
-                        $obj = new $class;
-                    }
-                    if (!method_exists($obj, $method)) {
-                        throw new \RuntimeException('Route callable method does not exist');
-                    }
-                }
-                return call_user_func_array(array($obj, $method), func_get_args());
-            };
-        }
-
-        return $callable;
     }
 
     /********************************************************************************
