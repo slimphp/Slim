@@ -298,13 +298,13 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-     * Reverse Proxy Handling //TODO: Better Name
+     * Client Details / Reverse Proxy Handling
      *******************************************************************************/
 
     /**
      * Get the HTTP Client IP address, taking reverse proxies into account
      *
-     * @param bool $returnAll
+     * @param bool $returnAll If multiple XFF headers are given, return all addresses in an array.
      * @return array|string
      */
     public function getClientIp($returnAll = false)

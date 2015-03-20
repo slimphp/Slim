@@ -10,6 +10,7 @@
 use \Slim\App;
 use \Slim\Collection;
 use \Slim\Http\Environment;
+use Slim\Http\TrustedProxies;
 use \Slim\Http\Uri;
 use \Slim\Http\Body;
 use \Slim\Http\Headers;
@@ -498,6 +499,26 @@ class AppTest extends PHPUnit_Framework_TestCase
         // Invoke app
         $app($req, $res);
     }
+
+	/********************************************************************************
+	 * Client Details / Reverse Proxy Handling
+	 *******************************************************************************/
+
+	public function testGetClientIp()
+	{
+		$_SERVER['REMOTE_ADDR'] = "127.0.0.1";
+
+		$_SERVER['HTTP_X_FORWARDED_FOR'] = "1.2.3.4";
+
+		$app1 = new App([
+			'http.trusted_proxies' => "127.0.0.1"
+		]);
+
+		$app2 = new App();
+
+		$this->assertEquals("1.2.3.4", $app1->getClientIp());
+		$this->assertNotEquals("1.2.3.4", $app2->getClientIp());
+	}
 
     // TODO: Test subRequest()
 
