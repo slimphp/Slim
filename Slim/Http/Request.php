@@ -84,6 +84,13 @@ class Request implements RequestInterface
     protected $cookies;
 
     /**
+     * The server environment variables at the time the request was created.
+     * 
+     * @var \Slim\Interfaces\CollectionInterface 
+     */
+    protected $serverParams;
+
+    /**
      * The request attributes (route segment names and values)
      *
      * @var \Slim\Interfaces\CollectionInterface
@@ -127,12 +134,13 @@ class Request implements RequestInterface
      * @param CollectionInterface $cookies The request cookies collection
      * @param StreamableInterface $body    The request body object
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, StreamableInterface $body)
+    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamableInterface $body)
     {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
         $this->headers = $headers;
         $this->cookies = $cookies;
+        $this->serverParams = $serverParams;
         $this->attributes = new Collection();
         $this->body = $body;
 
@@ -165,6 +173,7 @@ class Request implements RequestInterface
         $this->uri = clone $this->uri;
         $this->headers = clone $this->headers;
         $this->cookies = clone $this->cookies;
+        $this->serverParams = clone $this->serverParams;
         $this->attributes = clone $this->attributes;
         $this->body = clone $this->body;
     }
@@ -885,8 +894,7 @@ class Request implements RequestInterface
      */
     public function getServerParams()
     {
-        // TODO: Implement request server params
-        return [];
+        return $this->serverParams->all();
     }
 
     /*******************************************************************************

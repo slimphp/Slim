@@ -79,9 +79,10 @@ class App extends \Pimple\Container
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
             $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
+            $serverParams = new Collection($env->all());
             $body = new Http\Body(fopen('php://input', 'r'));
 
-            return new Http\Request($method, $uri, $headers, $cookies, $body);
+            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
         });
 
         /**
@@ -464,10 +465,11 @@ class App extends \Pimple\Container
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
         $cookies = new Collection($cookies);
+        $serverParams = new Collection($env->all());
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
-        $request = new Http\Request($method, $uri, $headers, $cookies, $body);
+        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
         $response = $this['response'];
 
         return $this($request, $response);
