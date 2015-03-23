@@ -47,8 +47,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $env = Slim\Http\Environment::mock();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         return $request;
     }
@@ -130,8 +131,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertEquals('PUT', $request->getMethod());
         $this->assertEquals('POST', $request->getOriginalMethod());
@@ -145,10 +147,11 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
-        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertEquals('PUT', $request->getMethod());
         $this->assertEquals('POST', $request->getOriginalMethod());
@@ -162,10 +165,11 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
-        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $request->registerMediaTypeParser('application/x-www-form-urlencoded', function ($input) {
             parse_str($input, $body);
             return $body; // <-- Array
@@ -183,8 +187,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
     }
 
     /**
@@ -196,8 +201,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request(10, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request(10, $uri, $headers, $cookies, $serverParams, $fileParams, $body);
     }
 
     public function testIsGet()
@@ -279,8 +285,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertTrue($request->isXhr());
     }
@@ -335,8 +342,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertSame($uri, $request->getUri());
     }
@@ -351,8 +359,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
+        $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $fileParams, $body);
         $clone = $request->withUri($uri2);
 
         $this->assertAttributeSame($uri2, 'uri', $clone);
@@ -759,9 +768,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('foo=bar');
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
     }
 
@@ -773,9 +783,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/json;charset=utf8');
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('{"foo":"bar"}');
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
     }
@@ -788,9 +799,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/xml;charset=utf8');
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('<person><name>Josh</name></person>');
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $this->assertEquals('Josh', $request->getParsedBody()->name);
     }
@@ -826,10 +838,11 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = new Collection();
         $serverParams = new Collection();
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('{"foo": "bar"}');
         $body->rewind();
-        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $request->registerMediaTypeParser('application/json', function ($input) {
             return 10; // <-- Return invalid body value
         });
