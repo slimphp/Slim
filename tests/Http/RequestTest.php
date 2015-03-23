@@ -676,6 +676,85 @@ class RequestTest extends PHPUnit_Framework_TestCase
     /*******************************************************************************
      * File Params
      ******************************************************************************/
+    
+    public function testGetFileParams()
+    {
+        $fileParams = new Collection([
+            'input_field' => [
+                'name' => 'some_image.jpg',
+                'type' => 'image/jpeg',
+                'tmp_name' => '/tmp/phpn3FmFr',
+                'error' => 0,
+                'size' => 15466,
+            ],
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'fileParams');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $fileParams);
+
+        $this->assertEquals($fileParams->all(), $request->getFileParams());
+    }
+    
+    public function testGetFileParamsWithMultipleFiles()
+    {
+        $fileParams = new Collection([
+            'input_field' => [
+                'name' => [
+                    'some_image.jpg',
+                    'other_image2.png',
+                ],
+                'type' => [
+                    'image/jpeg',
+                    'image/png',
+                ],
+                'tmp_name' => [
+                    '/tmp/phpn3FmFr',
+                    '/tmp/dfljL1jef',
+                ],
+                'error' => [
+                    0,
+                    0,
+                ],
+                'size' => [
+                    15466,
+                    23414,
+                ],
+            ],
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'fileParams');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $fileParams);
+
+        $this->assertEquals($fileParams->all(), $request->getFileParams());
+    }
+    
+    public function testGetFileParamsWithMultipleInputFields()
+    {
+        $fileParams = new Collection([
+            'input_field1' => [
+                'name' => 'some_image.jpg',
+                'type' => 'image/jpeg',
+                'tmp_name' => '/tmp/phpn3FmFr',
+                'error' => 0,
+                'size' => 15466,
+            ],
+            'input_field2' => [
+                'name' => 'other_image2.png',
+                'type' => 'image/png',
+                'tmp_name' => '/tmp/dfljL1jef',
+                'error' => 0,
+                'size' => 23414,
+            ],
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'fileParams');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $fileParams);
+
+        $this->assertEquals($fileParams->all(), $request->getFileParams());
+    }
 
     /*******************************************************************************
      * Attributes
