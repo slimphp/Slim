@@ -80,9 +80,10 @@ class App extends \Pimple\Container
             $headers = Http\Headers::createFromEnvironment($env);
             $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
             $serverParams = new Collection($env->all());
+            $fileParams = new Collection($_FILES);
             $body = new Http\Body(fopen('php://input', 'r'));
 
-            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         });
 
         /**
