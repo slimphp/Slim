@@ -84,11 +84,18 @@ class Request implements RequestInterface
     protected $cookies;
 
     /**
-     * The server environment variables at the time the request was created.
+     * The server environment variables at the time the request was created
      * 
      * @var \Slim\Interfaces\CollectionInterface 
      */
     protected $serverParams;
+    
+    /**
+     * The upload file metadata
+     * 
+     * @var \Slim\Interfaces\CollectionInterface 
+     */
+    protected $fileParams;
 
     /**
      * The request attributes (route segment names and values)
@@ -133,15 +140,17 @@ class Request implements RequestInterface
      * @param HeadersInterface    $headers      The request headers collection
      * @param CollectionInterface $cookies      The request cookies collection
      * @param CollectionInterface $serverParams The server environment variables
+     * @param CollectionInterface $fileParams   The upload file metadata
      * @param StreamableInterface $body         The request body object
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamableInterface $body)
+    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, CollectionInterface $fileParams, StreamableInterface $body)
     {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
         $this->headers = $headers;
         $this->cookies = $cookies;
         $this->serverParams = $serverParams;
+        $this->fileParams = $fileParams;
         $this->attributes = new Collection();
         $this->body = $body;
 
@@ -876,8 +885,7 @@ class Request implements RequestInterface
      */
     public function getFileParams()
     {
-        // TODO: Implement request file params
-        return [];
+        return $this->fileParams->all();
     }
 
     /*******************************************************************************
