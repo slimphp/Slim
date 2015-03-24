@@ -167,9 +167,8 @@ class Route
             $method = $matches[2];
             $callable = function() use ($class, $method) {
                 static $obj = null;
-                if ($obj === null) {
-                    $obj = new $class;
-                }
+                $obj = $obj === null ? new $class : $obj ;
+                
                 return call_user_func_array(array($obj, $method), func_get_args());
             };
         }
