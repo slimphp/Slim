@@ -93,7 +93,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 
         return $dispatcher->dispatch(
             $request->getMethod(),
-            $request->getUri()->getPath()
+            rtrim($request->getUri()->getPath(), '/')
         );
     }
 
