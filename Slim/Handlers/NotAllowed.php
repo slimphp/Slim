@@ -34,6 +34,7 @@ class NotAllowed
         return $response
                 ->withStatus(405)
                 ->withHeader('Content-type', 'text/html')
+                ->withHeader('Allow', implode(', ', $methods))
                 ->withBody(new Body(fopen('php://temp', 'r+')))
                 ->write('<p>Method not allowed. Must be one of: ' . implode(', ', $methods) . '</p>');
     }
