@@ -128,11 +128,12 @@ class Request implements RequestInterface
     /**
      * Create new HTTP request
      *
-     * @param string              $method  The request method
-     * @param UriInterface        $uri     The request URI object
-     * @param HeadersInterface    $headers The request headers collection
-     * @param CollectionInterface $cookies The request cookies collection
-     * @param StreamableInterface $body    The request body object
+     * @param string              $method       The request method
+     * @param UriInterface        $uri          The request URI object
+     * @param HeadersInterface    $headers      The request headers collection
+     * @param CollectionInterface $cookies      The request cookies collection
+     * @param CollectionInterface $serverParams The server environment variables
+     * @param StreamableInterface $body         The request body object
      */
     public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamableInterface $body)
     {
