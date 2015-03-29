@@ -373,24 +373,8 @@ class App extends \Pimple\Container
         });
 
         // Get new request and response objects from container factory
-        $app = $this;
         $request = $this['request'];
         $response = $this['response'];
-
-        // Set response HTTP caching callbacks to short-circuit app if necessary
-        $response->onLastModified(function ($latestResponse, $time) use ($app, $request) {
-            if ($time === strtotime($request->getHeader('If-Modified-Since'))) {
-                $app->halt(304);
-            }
-        });
-        $response->onEtag(function ($latestResponse, $etag) use ($app, $request) {
-            if ($etagHeader = $request->getHeader('If-None-Match')) {
-                $etagList = preg_split('@\s*,\s*@', $etagHeader);
-                if (in_array($etag, $etagList) || in_array('*', $etagList)) {
-                    $app->halt(304);
-                }
-            }
-        });
 
         // Traverse middleware stack and fetch updated response
         try {

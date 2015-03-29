@@ -227,115 +227,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /********************************************************************************
-     * HTTP caching
-     *******************************************************************************/
-
-    public function testEtagHit()
-    {
-        $app = new App();
-        $app['environment'] = function () {
-            return Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-                'HTTP_IF_NONE_MATCH' => '"abc123"'
-            ]);
-        };
-        $app->get('/foo', function ($req, $res, $args) {
-            $res = $res->withEtag('abc123');
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Invoke app
-        ob_start();
-        $response = $app->run();
-        ob_end_clean();
-
-        $this->assertEquals(304, $response->getStatusCode());
-    }
-
-    public function testEtagMiss()
-    {
-        $app = new App();
-        $app['environment'] = function () {
-            return Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-                'HTTP_IF_NONE_MATCH' => '"xyz123"'
-            ]);
-        };
-        $app->get('/foo', function ($req, $res, $args) {
-            $res = $res->withEtag('abc123');
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Invoke app
-        ob_start();
-        $response = $app->run();
-        ob_end_clean();
-
-        $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('Hello', (string)$response->getBody());
-    }
-
-    public function testLastModifiedHit()
-    {
-        $app = new App();
-        $app['environment'] = function () {
-            return Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-                'HTTP_IF_MODIFIED_SINCE' => 'Sat, 14 Mar 2015 19:43:31 GMT'
-            ]);
-        };
-        $app->get('/foo', function ($req, $res, $args) {
-            $res = $res->withLastModified('Sat, 14 Mar 2015 19:43:31 GMT');
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Invoke app
-        ob_start();
-        $response = $app->run();
-        ob_end_clean();
-
-        $this->assertEquals(304, $response->getStatusCode());
-    }
-
-    public function testLastModifiedMiss()
-    {
-        $app = new App();
-        $app['environment'] = function () {
-            return Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-                'HTTP_IF_MODIFIED_SINCE' => 'Sat, 12 Mar 2015 19:43:31 GMT'
-            ]);
-        };
-        $app->get('/foo', function ($req, $res, $args) {
-            $res = $res->withLastModified('Mon, 16 Mar 2015 19:43:31 GMT');
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Invoke app
-        ob_start();
-        $response = $app->run();
-        ob_end_clean();
-
-        $this->assertEquals(200, $response->getStatusCode());
-    }
-
-    /********************************************************************************
      * Runner
      *******************************************************************************/
 
@@ -429,7 +320,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             $this->assertEquals(400, $e->getResponse()->getStatusCode());
         }
     }
-    
+
     public function testInvokeWithPimpleCallable()
     {
         // Prepare request and response objects
@@ -445,11 +336,11 @@ class AppTest extends PHPUnit_Framework_TestCase
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
-        
+
         $mock = $this->getMock('StdClass', ['bar']);
-        
+
         $app = new App();
-        
+
         $app['foo'] = function() use ($mock, $res) {
             $mock->method('bar')
                 ->willReturn(
@@ -457,7 +348,7 @@ class AppTest extends PHPUnit_Framework_TestCase
                 );
             return $mock;
         };
-        
+
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
@@ -466,7 +357,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$res->getBody());
     }
-    
+
     public function testInvokeWithPimpleUndefinedCallable()
     {
         // Prepare request and response objects
@@ -482,17 +373,17 @@ class AppTest extends PHPUnit_Framework_TestCase
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
-        
+
         $mock = $this->getMock('StdClass');
-        
+
         $app = new App();
-        
+
         $app['foo'] = function() use ($mock, $res) {
             return $mock;
         };
-        
+
         $app->get('/foo', 'foo:bar');
-        
+
         $this->setExpectedException('\RuntimeException', 'Route callable method does not exist');
 
         // Invoke app
