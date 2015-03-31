@@ -1,8 +1,8 @@
 <?php
 namespace Slim\Tests;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 
 function testMiddlewareKernel(RequestInterface $req, ResponseInterface $res)
 {
@@ -125,8 +125,8 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\RequestInterface'),
-            $this->getMock('Psr\Http\Message\ResponseInterface')
+            $this->getMock('Slim\Interfaces\Http\RequestInterface'),
+            $this->getMock('Slim\Interfaces\Http\ResponseInterface')
         );
     }
 

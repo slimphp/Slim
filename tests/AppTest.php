@@ -256,7 +256,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
@@ -286,7 +286,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
     }
 
@@ -354,7 +354,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf('\Slim\Interfaces\Http\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 

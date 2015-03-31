@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 use Slim\Interfaces\RouteInterface;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
@@ -198,7 +198,7 @@ class Route implements RouteInterface, ServiceProviderInterface
      *
      * @param RequestInterface $request The current Request object
      * @param ResponseInterface $response The current Response object
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return \Slim\Interfaces\Http\ResponseInterface
      * @throws \Exception
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)

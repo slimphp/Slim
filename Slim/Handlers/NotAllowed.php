@@ -8,8 +8,8 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 use Slim\Http\Body;
 
 /**

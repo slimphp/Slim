@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 
 /**
  * Middleware
@@ -63,7 +63,7 @@ trait MiddlewareAware
         $this->stack[] = function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = $callable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
-                throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
+                throw new \UnexpectedValueException('Middleware must return instance of \Slim\Interfaces\Http\ResponseInterface');
             }
 
             return $result;

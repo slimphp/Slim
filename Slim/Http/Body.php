@@ -8,6 +8,8 @@
  */
 namespace Slim\Http;
 
+use Psr\Http\Message\StreamableInterface;
+
 /**
  * Body
  *
@@ -16,7 +18,7 @@ namespace Slim\Http;
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/StreamableInterface.php
  */
-class Body implements \Psr\Http\Message\StreamableInterface
+class Body implements StreamableInterface
 {
     /**
      * Resource modes

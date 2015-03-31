@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 
 /**
  * Stop Exception
