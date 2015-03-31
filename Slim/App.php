@@ -395,9 +395,9 @@ class App extends \Pimple\Container
             }
         }
 
-        return $response;
-
         restore_error_handler();
+
+        return $response;
     }
 
     /**
