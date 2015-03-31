@@ -47,6 +47,8 @@ class Configuration implements ConfigurationInterface, \IteratorAggregate
         'cookies.httponly' => false,
         // HTTP
         'http.version' => '1.1',
+        'http.trusted_proxies' => [],
+        'http.trusted_headers' => [],
     ];
 
     /**

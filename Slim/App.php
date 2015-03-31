@@ -298,6 +298,53 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
+     * Client Details / Reverse Proxy Handling
+     *******************************************************************************/
+
+    /**
+     * Get the HTTP Client IP address, taking reverse proxies into account
+     *
+     * @param bool $returnAll If multiple XFF headers are given, return all addresses in an array.
+     * @return array|string
+     */
+    public function getClientIp($returnAll = false)
+    {
+        $trustedProxies = Http\TrustedProxies::create($this['settings']['http.trusted_proxies'],
+            $this['settings']['http.trusted_headers']);
+
+        if(isset($this['environment'][$trustedProxies->getTrustedHeaderName(Http\TrustedProxies::HEADER_CLIENT_IP)]) and
+            $trustedProxies->check($this['environment']['REMOTE_ADDR']))
+        {
+            $XFF = $this['environment'][$trustedProxies->getTrustedHeaderName(Http\TrustedProxies::HEADER_CLIENT_IP)];
+
+            if(strpos($XFF, ", ") !== false)
+            {
+                $XFF = explode(", ", $XFF);
+
+                if($returnAll === false)
+                {
+                    return trim(array_pop($XFF)); // If user only wants one IP, use the latest one - most secure since
+                                                  // directly from the trusted proxy
+                }
+                else
+                {
+                    return array_map("trim", $XFF);
+                }
+            }
+            else
+            {
+                // The X-Forwarded-For header only has a single IP address, and is immediately usable
+                return trim($XFF);
+            }
+        }
+        else
+        {
+            // Either there is no reverse proxy or it is fake or spoofed
+            return $this['environment']['REMOTE_ADDR'];
+        }
+    }
+
+    /********************************************************************************
     * Application Behavior Methods
     *******************************************************************************/
 

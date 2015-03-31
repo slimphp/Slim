@@ -146,16 +146,19 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public static function createFromEnvironment(Environment $env)
     {
+        $trustedProxies = TrustedProxies::create($env->get('http.trusted_proxies'), $env->get('http.trusted_headers'));
+
         // Scheme
-        if ($env->has('HTTP_X_FORWARDED_PROTO') === true) {
-            $scheme = $env->get('HTTP_X_FORWARDED_PROTO');
+        if ($env->has($trustedProxies->getTrustedHeaderName(TrustedProxies::HEADER_CLIENT_PROTO)) === true and
+            $trustedProxies->check($env->get("REMOTE_ADDR")))
+        {
+            $scheme = $env->get($trustedProxies->getTrustedHeaderName(TrustedProxies::HEADER_CLIENT_PROTO));
         } else {
             $https = $env->get('HTTPS', '');
             $scheme = empty($https) || $https === 'off' ? 'http' : 'https';
         }
 
         // Authority
-        // TODO: Respect trusted proxy X-Forwarded-* headers
         $user = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
         $host = $env->get('HTTP_HOST', $env->get('SERVER_NAME'));
