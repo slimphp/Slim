@@ -8,11 +8,11 @@
  */
 namespace Slim\Http;
 
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamableInterface;
 use Slim\Interfaces\Http\HeadersInterface;
 use Slim\Interfaces\CollectionInterface;
+use Slim\Interfaces\Http\RequestInterface;
 use Slim\Collection;
 
 /**

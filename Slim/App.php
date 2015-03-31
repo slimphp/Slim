@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\RequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 use Pimple\ServiceProviderInterface;
 
 /**
@@ -71,7 +71,7 @@ class App extends \Pimple\Container
          * Request factory
          *
          * This factory method MUST return a NEW instance
-         * of \Psr\Http\Message\RequestInterface.
+         * of \Slim\Interfaces\Http\RequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
             $env = $c['environment'];
@@ -89,7 +89,7 @@ class App extends \Pimple\Container
          * Response factory
          *
          * This factory method MUST return a NEW instance
-         * of \Psr\Http\Message\ResponseInterface.
+         * of \Slim\Interfaces\Http\ResponseInterface.
          */
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
@@ -121,12 +121,12 @@ class App extends \Pimple\Container
          * This factory method MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         * 1. Instance of \Slim\Interfaces\Http\RequestInterface
+         * 2. Instance of \Slim\Interfaces\Http\ResponseInterface
          * 3. Instance of \Exception
          *
          * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
+         * \Slim\Interfaces\Http\ResponseInterface.
          */
         $this['errorHandler'] = function ($c) {
             return new Handlers\Error;
@@ -138,11 +138,11 @@ class App extends \Pimple\Container
          * This factory method MUST return a callable
          * that accepts two arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         * 1. Instance of \Slim\Interfaces\Http\RequestInterface
+         * 2. Instance of \Slim\Interfaces\Http\ResponseInterface
          *
          * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
+         * \Slim\Interfaces\Http\ResponseInterface.
          */
         $this['notFoundHandler'] = function ($c) {
             return new Handlers\NotFound;
@@ -154,12 +154,12 @@ class App extends \Pimple\Container
          * This factory method MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
+         * 1. Instance of \Slim\Interfaces\Http\RequestInterface
+         * 2. Instance of \Slim\Interfaces\Http\ResponseInterface
          * 3. Array of allowed HTTP methods
          *
          * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
+         * \Slim\Interfaces\Http\ResponseInterface.
          */
         $this['notAllowedHandler'] = function ($c) {
             return new Handlers\NotAllowed;

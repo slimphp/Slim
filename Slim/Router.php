@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
+use Slim\Interfaces\Http\RequestInterface;
 use Slim\Interfaces\RouterInterface;
 
 /**
