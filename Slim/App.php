@@ -32,8 +32,8 @@ class App extends \Pimple\Container
     const VERSION = '3.0.0';
 
     /********************************************************************************
-    * Instantiation and Configuration
-    *******************************************************************************/
+     * Instantiation and Configuration
+     *******************************************************************************/
 
     /**
      * Create new application
@@ -151,8 +151,8 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Router proxy methods
-    *******************************************************************************/
+     * Router proxy methods
+     *******************************************************************************/
 
     /**
      * Add GET route
@@ -256,6 +256,7 @@ class App extends \Pimple\Container
         if ($route instanceof ServiceProviderInterface) {
             $route->register($this);
         }
+
         return $route;
     }
 
@@ -282,8 +283,8 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Application Behavior Methods
-    *******************************************************************************/
+     * Application flow methods
+     *******************************************************************************/
 
     /**
      * Stop
@@ -292,6 +293,7 @@ class App extends \Pimple\Container
      * Response object to the HTTP client.
      *
      * @param  ResponseInterface $response
+     *
      * @throws \Slim\Exception
      */
     public function stop(ResponseInterface $response)
@@ -335,8 +337,8 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Runner
-    *******************************************************************************/
+     * Runner
+     *******************************************************************************/
 
     /**
      * Run application
