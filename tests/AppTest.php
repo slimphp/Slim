@@ -159,14 +159,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function testRedirect()
-    {
-        $app = new App();
-        $res = $app->redirect('http://slimframework.com', 301);
-        $this->assertEquals(301, $res->getStatusCode());
-        $this->assertEquals('http://slimframework.com', $res->getHeader('Location'));
-    }
-
     /********************************************************************************
      * Middleware
      *******************************************************************************/
