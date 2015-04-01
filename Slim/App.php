@@ -45,9 +45,7 @@ class App extends \Pimple\Container
         parent::__construct();
 
         /**
-         * Settings factory
-         *
-         * This factory method MUST return a SHARED singleton instance
+         * This Pimple service MUST return a shared instance
          * of \Slim\Interfaces\ConfigurationInterface.
          */
         $this['settings'] = function ($c) use ($userSettings) {
@@ -58,9 +56,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Environment factory
-         *
-         * This factory method MUST return a SHARED singleton instance
+         * This Pimple service MUST return a shared instance
          * of \Slim\Interfaces\EnvironmentInterface.
          */
         $this['environment'] = function ($c) {
@@ -68,9 +64,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Request factory
-         *
-         * This factory method MUST return a NEW instance
+         * This Pimple service MUST return a NEW instance
          * of \Psr\Http\Message\RequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
@@ -86,9 +80,7 @@ class App extends \Pimple\Container
         });
 
         /**
-         * Response factory
-         *
-         * This factory method MUST return a NEW instance
+         * This Pimple service MUST return a NEW instance
          * of \Psr\Http\Message\ResponseInterface.
          */
         $this['response'] = $this->factory(function ($c) {
@@ -106,9 +98,7 @@ class App extends \Pimple\Container
         });
 
         /**
-         * Router factory
-         *
-         * This factory method MUST return a SHARED singleton instance
+         * This Pimple service MUST return a SHARED instance
          * of \Slim\Interfaces\RouterInterface.
          */
         $this['router'] = function ($c) {
@@ -116,9 +106,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Error handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
@@ -133,9 +121,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Not Found handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts two arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
@@ -149,9 +135,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Not Allowed handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
