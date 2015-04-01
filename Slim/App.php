@@ -24,7 +24,6 @@ use Pimple\ServiceProviderInterface;
  */
 class App extends \Pimple\Container
 {
-    use ResolveCallable;
     use MiddlewareAware;
 
     /**
@@ -162,6 +161,14 @@ class App extends \Pimple\Container
         $this['notAllowedHandler'] = function ($c) {
             return new Handlers\NotAllowed;
         };
+
+        /**
+         * This Pimple service MUST return a SHARED instance
+         * of \Slim\Interfaces\RouterInterface.
+         */
+        $this['resolver'] = function($c) {
+            return new Resolvers\DependencyResolver($c);
+        };
     }
 
     /********************************************************************************
@@ -261,7 +268,8 @@ class App extends \Pimple\Container
             throw new \InvalidArgumentException('Route pattern must be a string');
         }
 
-        $callable = $this->resolveCallable($callable);
+        $callable = $this['resolver']->build($callable);
+
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
