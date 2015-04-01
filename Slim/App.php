@@ -31,6 +31,20 @@ class App extends \Pimple\Container
      */
     const VERSION = '3.0.0';
 
+    /**
+     * Default settings
+     *
+     * @var array
+     */
+    protected $defaultSettings = [
+        'cookieLifetime' => '20 minutes',
+        'cookiePath' => '/',
+        'cookieDomain' => null,
+        'cookieSecure' => false,
+        'cookieHttpOnly' => false,
+        'httpVersion' => '1.1'
+    ];
+
     /********************************************************************************
      * Instantiation and Configuration
      *******************************************************************************/
@@ -45,14 +59,11 @@ class App extends \Pimple\Container
         parent::__construct();
 
         /**
-         * This Pimple service MUST return a shared instance
-         * of \Slim\Interfaces\ConfigurationInterface.
+         * This Pimple service MUST return an array or an
+         * instance of \ArrayAccess.
          */
         $this['settings'] = function ($c) use ($userSettings) {
-            $config = new Configuration(new ConfigurationHandler);
-            $config->setArray($userSettings);
-
-            return $config;
+            return array_merge($c->defaultSettings, $userSettings);
         };
 
         /**
@@ -86,15 +97,15 @@ class App extends \Pimple\Container
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $cookies = new Http\Cookies([], [
-                'expires' => $c['settings']['cookies.lifetime'],
-                'path' => $c['settings']['cookies.path'],
-                'domain' => $c['settings']['cookies.domain'],
-                'secure' => $c['settings']['cookies.secure'],
-                'httponly' => $c['settings']['cookies.httponly'],
+                'expires' => $c['settings']['cookieLifetime'],
+                'path' => $c['settings']['cookiePath'],
+                'domain' => $c['settings']['cookieDomain'],
+                'secure' => $c['settings']['cookieSecure'],
+                'httponly' => $c['settings']['cookieHttpOnly'],
             ]);
             $response = new Http\Response(200, $headers, $cookies);
 
-            return $response->withProtocolVersion($c['settings']['http.version']);
+            return $response->withProtocolVersion($c['settings']['httpVersion']);
         });
 
         /**
