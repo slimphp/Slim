@@ -365,18 +365,9 @@ class App extends \Pimple\Container
     {
         static $responded = false;
 
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            if (!($errno & error_reporting())) {
-                return;
-            }
-            throw new \ErrorException($errstr, $errno, 1, $errfile, $errline);
-        });
-
-        // Get new request and response objects from container factory
         $request = $this['request'];
         $response = $this['response'];
 
-        // Traverse middleware stack and fetch updated response
         try {
             $response = $this->callMiddlewareStack($request, $response);
         } catch (\Slim\Exception $e) {
@@ -385,7 +376,6 @@ class App extends \Pimple\Container
             $response = $this['errorHandler']($request, $response, $e);
         }
 
-        // Finalize and send HTTP response
         if (!$responded) {
             $responded = true;
             $response = $response->finalize();
@@ -396,8 +386,6 @@ class App extends \Pimple\Container
         }
 
         return $response;
-
-        restore_error_handler();
     }
 
     /**
