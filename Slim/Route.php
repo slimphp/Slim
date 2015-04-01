@@ -220,7 +220,7 @@ class Route implements RouteInterface, ServiceProviderInterface
 
         // Else append output buffer content
         if ($output) {
-            $response->write($output);
+            $response->getBody()->write($output);
         }
 
         return $response;
