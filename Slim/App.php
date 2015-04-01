@@ -15,9 +15,12 @@ use Pimple\ServiceProviderInterface;
 /**
  * App
  *
- * This is the "application". It lets you define routes. It runs
- * your application. And it returns the serialized HTTP response
- * back to the HTTP client.
+ * This is the primary class with which you instantiate,
+ * configure, and run a Slim Framework application. This
+ * is also a \Pimple\Container instance, meaning you can
+ * register custom Pimple service providers on each
+ * \Slim\App instance. The \Slim\App class also accepts
+ * Slim Framework middleware.
  */
 class App extends \Pimple\Container
 {
@@ -25,7 +28,7 @@ class App extends \Pimple\Container
     use MiddlewareAware;
 
     /**
-     * The current Slim Framework version
+     * Current version
      *
      * @var string
      */
@@ -46,7 +49,7 @@ class App extends \Pimple\Container
     ];
 
     /********************************************************************************
-     * Instantiation and Configuration
+     * Constructor and default Pimple services
      *******************************************************************************/
 
     /**
@@ -354,9 +357,8 @@ class App extends \Pimple\Container
     /**
      * Run application
      *
-     * This method traverses the middleware stack, including the core Slim application,
-     * and captures the resultant HTTP response object. It then sends the response
-     * back to the HTTP client.
+     * This method traverses the application middleware stack,
+     * and it returns the resultant Response object to the HTTP client.
      */
     public function run()
     {
@@ -386,7 +388,7 @@ class App extends \Pimple\Container
     }
 
     /**
-     * Invoke the app as the inner-most middleware
+     * Invoke application
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
