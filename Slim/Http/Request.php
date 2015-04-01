@@ -184,6 +184,7 @@ class Request implements RequestInterface
         $this->headers = clone $this->headers;
         $this->cookies = clone $this->cookies;
         $this->serverParams = clone $this->serverParams;
+        $this->fileParams = clone $this->fileParams;
         $this->attributes = clone $this->attributes;
         $this->body = clone $this->body;
     }
