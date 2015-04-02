@@ -63,6 +63,28 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(property_exists($response, 'foo'));
     }
+    
+    /*******************************************************************************
+     * Static redirect factory
+     ******************************************************************************/
+
+    public function testStaticRedirect()
+    {
+        $response = Response::redirect('http://slimframework.com');
+        
+        $this->assertInstanceOf('\Slim\Http\Response', $response);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('http://slimframework.com', $response->getHeader('Location'));
+    }
+
+    public function testStaticRedirectWithStatus()
+    {
+        $response = Response::redirect('http://slimframework.com/foo/bar', 301);
+        
+        $this->assertInstanceOf('\Slim\Http\Response', $response);
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals('http://slimframework.com/foo/bar', $response->getHeader('Location'));
+    }
 
     /*******************************************************************************
      * Protocol

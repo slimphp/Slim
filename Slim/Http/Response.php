@@ -131,6 +131,23 @@ class Response implements ResponseInterface
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
+    
+    /**
+     * Redirect response factory
+     *
+     * This method returns a new 3XX HTTP response object to specific URL.
+     *
+     * @param string $url    The destination URL
+     * @param int    $status The HTTP redirect status code (optional)
+     *
+     * @return self
+     */
+    public static function redirect($url, $status = 302)
+    {
+        $headers = new Headers(['Location' => $url]);
+        
+        return new static($status, $headers);
+    }
 
     /**
      * Create new HTTP response

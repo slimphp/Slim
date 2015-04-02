@@ -15,9 +15,12 @@ use Pimple\ServiceProviderInterface;
 /**
  * App
  *
- * This is the "application". It lets you define routes. It runs
- * your application. And it returns the serialized HTTP response
- * back to the HTTP client.
+ * This is the primary class with which you instantiate,
+ * configure, and run a Slim Framework application. This
+ * is also a \Pimple\Container instance, meaning you can
+ * register custom Pimple service providers on each
+ * \Slim\App instance. The \Slim\App class also accepts
+ * Slim Framework middleware.
  */
 class App extends \Pimple\Container
 {
@@ -25,15 +28,29 @@ class App extends \Pimple\Container
     use MiddlewareAware;
 
     /**
-     * The current Slim Framework version
+     * Current version
      *
      * @var string
      */
     const VERSION = '3.0.0';
 
+    /**
+     * Default settings
+     *
+     * @var array
+     */
+    protected $defaultSettings = [
+        'cookieLifetime' => '20 minutes',
+        'cookiePath' => '/',
+        'cookieDomain' => null,
+        'cookieSecure' => false,
+        'cookieHttpOnly' => false,
+        'httpVersion' => '1.1'
+    ];
+
     /********************************************************************************
-    * Instantiation and Configuration
-    *******************************************************************************/
+     * Constructor and default Pimple services
+     *******************************************************************************/
 
     /**
      * Create new application
@@ -45,22 +62,15 @@ class App extends \Pimple\Container
         parent::__construct();
 
         /**
-         * Settings factory
-         *
-         * This factory method MUST return a SHARED singleton instance
-         * of \Slim\Interfaces\ConfigurationInterface.
+         * This Pimple service MUST return an array or an
+         * instance of \ArrayAccess.
          */
         $this['settings'] = function ($c) use ($userSettings) {
-            $config = new Configuration(new ConfigurationHandler);
-            $config->setArray($userSettings);
-
-            return $config;
+            return array_merge($c->defaultSettings, $userSettings);
         };
 
         /**
-         * Environment factory
-         *
-         * This factory method MUST return a SHARED singleton instance
+         * This Pimple service MUST return a shared instance
          * of \Slim\Interfaces\EnvironmentInterface.
          */
         $this['environment'] = function ($c) {
@@ -68,9 +78,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Request factory
-         *
-         * This factory method MUST return a NEW instance
+         * This Pimple service MUST return a NEW instance
          * of \Psr\Http\Message\RequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
@@ -86,29 +94,25 @@ class App extends \Pimple\Container
         });
 
         /**
-         * Response factory
-         *
-         * This factory method MUST return a NEW instance
+         * This Pimple service MUST return a NEW instance
          * of \Psr\Http\Message\ResponseInterface.
          */
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $cookies = new Http\Cookies([], [
-                'expires' => $c['settings']['cookies.lifetime'],
-                'path' => $c['settings']['cookies.path'],
-                'domain' => $c['settings']['cookies.domain'],
-                'secure' => $c['settings']['cookies.secure'],
-                'httponly' => $c['settings']['cookies.httponly'],
+                'expires' => $c['settings']['cookieLifetime'],
+                'path' => $c['settings']['cookiePath'],
+                'domain' => $c['settings']['cookieDomain'],
+                'secure' => $c['settings']['cookieSecure'],
+                'httponly' => $c['settings']['cookieHttpOnly'],
             ]);
             $response = new Http\Response(200, $headers, $cookies);
 
-            return $response->withProtocolVersion($c['settings']['http.version']);
+            return $response->withProtocolVersion($c['settings']['httpVersion']);
         });
 
         /**
-         * Router factory
-         *
-         * This factory method MUST return a SHARED singleton instance
+         * This Pimple service MUST return a SHARED instance
          * of \Slim\Interfaces\RouterInterface.
          */
         $this['router'] = function ($c) {
@@ -116,9 +120,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Error handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
@@ -133,9 +135,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Not Found handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts two arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
@@ -149,9 +149,7 @@ class App extends \Pimple\Container
         };
 
         /**
-         * Not Allowed handler factory
-         *
-         * This factory method MUST return a callable
+         * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
          * 1. Instance of \Psr\Http\Message\RequestInterface
@@ -167,8 +165,8 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Router proxy methods
-    *******************************************************************************/
+     * Router proxy methods
+     *******************************************************************************/
 
     /**
      * Add GET route
@@ -272,6 +270,7 @@ class App extends \Pimple\Container
         if ($route instanceof ServiceProviderInterface) {
             $route->register($this);
         }
+
         return $route;
     }
 
@@ -298,8 +297,8 @@ class App extends \Pimple\Container
     }
 
     /********************************************************************************
-    * Application Behavior Methods
-    *******************************************************************************/
+     * Application flow methods
+     *******************************************************************************/
 
     /**
      * Stop
@@ -308,6 +307,7 @@ class App extends \Pimple\Container
      * Response object to the HTTP client.
      *
      * @param  ResponseInterface $response
+     *
      * @throws \Slim\Exception
      */
     public function stop(ResponseInterface $response)
@@ -335,48 +335,23 @@ class App extends \Pimple\Container
         $this->stop($response);
     }
 
-    /**
-     * Redirect
-     *
-     * This method returns a new 3XX HTTP response object to specific URL.
-     *
-     * @param string $url    The destination URL
-     * @param int    $status The HTTP redirect status code (optional)
-     *
-     * @return \Slim\Http\Response
-     */
-    public function redirect($url, $status = 302)
-    {
-        return $this['response']->withStatus($status)->withHeader('Location', $url);
-    }
-
     /********************************************************************************
-    * Runner
-    *******************************************************************************/
+     * Runner
+     *******************************************************************************/
 
     /**
      * Run application
      *
-     * This method traverses the middleware stack, including the core Slim application,
-     * and captures the resultant HTTP response object. It then sends the response
-     * back to the HTTP client.
+     * This method traverses the application middleware stack,
+     * and it returns the resultant Response object to the HTTP client.
      */
     public function run()
     {
         static $responded = false;
 
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            if (!($errno & error_reporting())) {
-                return;
-            }
-            throw new \ErrorException($errstr, $errno, 1, $errfile, $errline);
-        });
-
-        // Get new request and response objects from container factory
         $request = $this['request'];
         $response = $this['response'];
 
-        // Traverse middleware stack and fetch updated response
         try {
             $response = $this->callMiddlewareStack($request, $response);
         } catch (\Slim\Exception $e) {
@@ -385,7 +360,6 @@ class App extends \Pimple\Container
             $response = $this['errorHandler']($request, $response, $e);
         }
 
-        // Finalize and send HTTP response
         if (!$responded) {
             $responded = true;
             $response = $response->finalize();
@@ -396,12 +370,10 @@ class App extends \Pimple\Container
         }
 
         return $response;
-
-        restore_error_handler();
     }
 
     /**
-     * Invoke the app as the inner-most middleware
+     * Invoke application
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
