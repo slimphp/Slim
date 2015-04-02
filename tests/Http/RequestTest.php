@@ -31,7 +31,7 @@
  */
 use \Slim\Http\Uri;
 use \Slim\Http\Headers;
-use \Slim\Collection;
+use \Slim\Http\Collection;
 use \Slim\Http\Body;
 use \Slim\Http\Request;
 
@@ -677,7 +677,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $attrProp = new \ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
-        $attrProp->setValue($request, new \Slim\Collection(['foo' => 'bar']));
+        $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
         $this->assertEquals(['foo' => 'bar'], $request->getAttributes());
     }
@@ -687,7 +687,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $attrProp = new \ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
-        $attrProp->setValue($request, new \Slim\Collection(['foo' => 'bar']));
+        $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
         $this->assertEquals('bar', $request->getAttribute('foo'));
         $this->assertNull($request->getAttribute('bar'));
@@ -699,7 +699,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $attrProp = new \ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
-        $attrProp->setValue($request, new \Slim\Collection(['foo' => 'bar']));
+        $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withAttribute('test', '123');
 
         $this->assertEquals('123', $clone->getAttribute('test'));
@@ -710,7 +710,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $attrProp = new \ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
-        $attrProp->setValue($request, new \Slim\Collection(['foo' => 'bar']));
+        $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withAttributes(['test' => '123']);
 
         $this->assertNull($clone->getAttribute('foo'));
@@ -722,7 +722,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $attrProp = new \ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
-        $attrProp->setValue($request, new \Slim\Collection(['foo' => 'bar']));
+        $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withoutAttribute('foo');
 
         $this->assertNull($clone->getAttribute('foo'));

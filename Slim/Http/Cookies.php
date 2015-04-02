@@ -8,7 +8,6 @@
  */
 namespace Slim\Http;
 
-use Slim\Collection;
 use Slim\Interfaces\Http\CookiesInterface;
 use Slim\Interfaces\Http\HeadersInterface;
 

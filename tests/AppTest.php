@@ -8,7 +8,7 @@
  */
 
 use \Slim\App;
-use \Slim\Collection;
+use \Slim\Http\Collection;
 use \Slim\Http\Environment;
 use \Slim\Http\Uri;
 use \Slim\Http\Body;

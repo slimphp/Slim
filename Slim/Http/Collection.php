@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
-namespace Slim;
+namespace Slim\Http;
 
 use Slim\Interfaces\CollectionInterface;
 
