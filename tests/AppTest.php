@@ -241,8 +241,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = new Collection();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $res = new Response();
 
         // Invoke app
@@ -271,8 +272,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = new Collection();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $res = new Response();
 
         // Invoke app
@@ -300,8 +302,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = new Collection();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $res = new Response();
 
         // Invoke app
@@ -325,8 +328,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = new Collection();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $res = new Response();
 
         $mock = $this->getMock('StdClass', ['bar']);
@@ -362,8 +366,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = new Collection();
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
         $res = new Response();
 
         $mock = $this->getMock('StdClass');

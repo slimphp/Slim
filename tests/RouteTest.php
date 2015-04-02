@@ -137,8 +137,9 @@ class RouteTest extends PHPUnit_Framework_TestCase
             'id' => '123',
         ]);
         $serverParams = new Collection($env->all());
+        $fileParams = new Collection();
         $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $fileParams, $body);
 
         $response = new \Slim\Http\Response;
         $result = $route->callMiddlewareStack($request, $response);
