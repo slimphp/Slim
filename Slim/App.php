@@ -86,8 +86,8 @@ class App extends \Pimple\Container
             $method = $env['REQUEST_METHOD'];
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
-            $serverParams = new Collection($env->all());
+            $cookies = new Http\Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
+            $serverParams = new Http\Collection($env->all());
             $body = new Http\Body(fopen('php://input', 'r'));
 
             return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
