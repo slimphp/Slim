@@ -9,7 +9,6 @@
 namespace Slim\Http;
 
 use Slim\Interfaces\Http\HeadersInterface;
-use Slim\Interfaces\Http\CookiesInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamableInterface;
 
@@ -17,7 +16,7 @@ use Psr\Http\Message\StreamableInterface;
  * Response
  *
  * This class represents an HTTP response. It manages
- * the response status, headers, cookies, and body
+ * the response status, headers, and body
  * according to the PSR-7 standard.
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
