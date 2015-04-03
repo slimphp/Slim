@@ -373,7 +373,7 @@ class App extends \Pimple\Container
 
         // Serialize cookies into Response
         if (!$this['cookies'] instanceof CookiesInterface) {
-            throw new \InvalidArgumentException('cookies service must return an instance of \Slim\Interfaces\Http\CookiesInterface');
+            throw new \RuntimeException('cookies service must return an instance of \Slim\Interfaces\Http\CookiesInterface');
         }
 
         $cookieHeaders = $this['cookies']->toHeaders();
