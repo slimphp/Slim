@@ -244,35 +244,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /*******************************************************************************
-     * Cookies
-     ******************************************************************************/
-
-    public function testWithCookie()
-    {
-        $response = new Response();
-        $response->setCookieDefaults([
-            'domain' => 'example.com'
-        ]);
-        $response = $response->withCookie('foo', ['value' => 'bar']);
-
-        $this->assertContains('foo=bar; domain=example.com', $response->getHeaderLines('Set-Cookie'));
-    }
-
-    public function testWithoutCookie()
-    {
-        $response = new Response();
-        $response->setCookieDefaults([
-            'domain' => 'example.com'
-        ]);
-        $response = $response->withCookie('foo1', ['value' => 'bar1']);
-        $response = $response->withCookie('foo2', ['value' => 'bar2']);
-        $response = $response->withoutCookie('foo1');
-
-        $this->assertEquals(1, count($response->getHeaderLines('Set-Cookie')));
-        $this->assertContains('foo2=bar2; domain=example.com', $response->getHeaderLines('Set-Cookie'));
-    }
-
-    /*******************************************************************************
      * Body
      ******************************************************************************/
 
