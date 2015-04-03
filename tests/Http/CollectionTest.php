@@ -37,14 +37,14 @@ class CollectionTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->bag = new \Slim\Collection();
+        $this->bag = new \Slim\Http\Collection();
         $this->property = new \ReflectionProperty($this->bag, 'data');
         $this->property->setAccessible(true);
     }
 
     public function testInitializeWithData()
     {
-        $bag = new \Slim\Collection(['foo' => 'bar']);
+        $bag = new \Slim\Http\Collection(['foo' => 'bar']);
         $bagProperty = new \ReflectionProperty($bag, 'data');
         $bagProperty->setAccessible(true);
 

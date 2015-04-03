@@ -31,7 +31,7 @@
  */
 
 use Slim\Route;
-use Slim\Collection;
+use Slim\Http\Collection;
 use Pimple\Container;
 
 class MiddlewareStub
@@ -132,7 +132,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Http\Environment::mock();
         $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
         $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Collection([
+        $cookies = new \Slim\Http\Collection([
             'user' => 'john',
             'id' => '123',
         ]);

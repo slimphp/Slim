@@ -86,8 +86,8 @@ class App extends \Pimple\Container
             $method = $env['REQUEST_METHOD'];
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = new Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
-            $serverParams = new Collection($env->all());
+            $cookies = new Http\Collection(Http\Cookies::parseHeader($headers->get('Cookie')));
+            $serverParams = new Http\Collection($env->all());
             $body = new Http\Body(fopen('php://input', 'r'));
 
             return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
@@ -99,14 +99,14 @@ class App extends \Pimple\Container
          */
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
-            $cookies = new Http\Cookies([], [
+            $response = new Http\Response(200, $headers);
+            $response->setCookieDefaults([
                 'expires' => $c['settings']['cookieLifetime'],
                 'path' => $c['settings']['cookiePath'],
                 'domain' => $c['settings']['cookieDomain'],
                 'secure' => $c['settings']['cookieSecure'],
                 'httponly' => $c['settings']['cookieHttpOnly'],
             ]);
-            $response = new Http\Response(200, $headers, $cookies);
 
             return $response->withProtocolVersion($c['settings']['httpVersion']);
         });
@@ -348,10 +348,10 @@ class App extends \Pimple\Container
     public function run()
     {
         static $responded = false;
-
         $request = $this['request'];
         $response = $this['response'];
 
+        // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
         } catch (\Slim\Exception $e) {
@@ -360,13 +360,46 @@ class App extends \Pimple\Container
             $response = $this['errorHandler']($request, $response, $e);
         }
 
-        if (!$responded) {
-            $responded = true;
-            $response = $response->finalize();
-            $response->sendHeaders();
-            if (!$request->isHead()) {
-                $response->sendBody();
+        // Finalize response
+        if (in_array($response->getStatusCode(), [204, 304])) {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        } else {
+            $size = $response->getBody()->getSize();
+            if ($size !== null) {
+                $response = $response->withHeader('Content-Length', $size);
             }
+        }
+
+        // Send response
+        if (!$responded) {
+            if (!headers_sent()) {
+                // Status
+                header(sprintf(
+                    'HTTP/%s %s %s',
+                    $response->getProtocolVersion(),
+                    $response->getStatusCode(),
+                    $response->getReasonPhrase()
+                ));
+
+                // Headers
+                foreach ($response->getHeaders() as $name => $values) {
+                    foreach ($values as $value) {
+                        header(sprintf('%s: %s', $name, $value), false);
+                    }
+                }
+            }
+
+            // Body
+            if (!in_array($response->getStatusCode(), [204, 304])) {
+                $body = $response->getBody();
+                if ($body->isAttached()) {
+                    $body->rewind();
+                    while (!$body->eof()) {
+                        echo $body->read(1024);
+                    }
+                }
+            }
+            $responded = true;
         }
 
         return $response;

@@ -6,13 +6,14 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
+namespace Slim\Tests\Http;
 
-use \Slim\Http\Response;
-use \Slim\Http\Headers;
-use \Slim\Http\Cookies;
-use \Slim\Http\Body;
+use Slim\Http\Response;
+use Slim\Http\Headers;
+use Slim\Http\Cookies;
+use Slim\Http\Body;
 
-class ResponseTest extends PHPUnit_Framework_TestCase
+class ResponseTest extends \PHPUnit_Framework_TestCase
 {
     /*******************************************************************************
      * Create
@@ -24,35 +25,30 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals(200, 'status', $response);
         $this->assertAttributeInstanceOf('\Slim\Http\Headers', 'headers', $response);
-        $this->assertAttributeInstanceOf('\Slim\Http\Cookies', 'cookies', $response);
         $this->assertAttributeInstanceOf('\Psr\Http\Message\StreamableInterface', 'body', $response);
     }
 
     public function testConstructorWithCustomArgs()
     {
         $headers = new Headers();
-        $cookies = new Cookies();
         $body = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $cookies, $body);
+        $response = new Response(404, $headers, $body);
 
         $this->assertAttributeEquals(404, 'status', $response);
         $this->assertAttributeSame($headers, 'headers', $response);
-        $this->assertAttributeSame($cookies, 'cookies', $response);
         $this->assertAttributeSame($body, 'body', $response);
     }
 
     public function testDeepCopyClone()
     {
         $headers = new Headers();
-        $cookies = new Cookies();
         $body = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $cookies, $body);
+        $response = new Response(404, $headers, $body);
         $clone = clone $response;
 
         $this->assertAttributeEquals('1.1', 'protocolVersion', $clone);
         $this->assertAttributeEquals(404, 'status', $clone);
         $this->assertAttributeNotSame($headers, 'headers', $clone);
-        $this->assertAttributeNotSame($cookies, 'cookies', $clone);
         $this->assertAttributeNotSame($body, 'body', $clone);
     }
 
@@ -63,7 +59,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(property_exists($response, 'foo'));
     }
-    
+
     /*******************************************************************************
      * Static redirect factory
      ******************************************************************************/
@@ -71,7 +67,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testStaticRedirect()
     {
         $response = Response::redirect('http://slimframework.com');
-        
+
         $this->assertInstanceOf('\Slim\Http\Response', $response);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('http://slimframework.com', $response->getHeader('Location'));
@@ -80,7 +76,7 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testStaticRedirectWithStatus()
     {
         $response = Response::redirect('http://slimframework.com/foo/bar', 301);
-        
+
         $this->assertInstanceOf('\Slim\Http\Response', $response);
         $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals('http://slimframework.com/foo/bar', $response->getHeader('Location'));
@@ -251,125 +247,29 @@ class ResponseTest extends PHPUnit_Framework_TestCase
      * Cookies
      ******************************************************************************/
 
-    public function testGetCookies()
-    {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '20 minutes',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => false,
-            'httponly' => false,
-        ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-        $shouldBe = [
-            'foo' => [
-                'value' => 'bar',
-                'expires' => '20 minutes',
-                'path' => '/',
-                'domain' => 'example.com',
-                'secure' => false,
-                'httponly' => false,
-            ],
-        ];
-
-        $this->assertEquals($shouldBe, $response->getCookies());
-    }
-
-    public function testHasCookie()
-    {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '20 minutes',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => false,
-            'httponly' => false,
-        ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-
-        $this->assertTrue($response->hasCookie('foo'));
-        $this->assertFalse($response->hasCookie('bar'));
-    }
-
-    public function testGetCookie()
-    {
-        $expiresAt = time();
-        $expresAtString = gmdate('D, d-M-Y H:i:s e', $expiresAt);
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => $expiresAt,
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true,
-        ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-
-        $this->assertEquals('foo=bar; domain=example.com; path=/; expires=' . $expresAtString . '; secure; HttpOnly', $response->getCookie('foo'));
-    }
-
-    public function testGetCookieProperties()
-    {
-        $expiresAt = time();
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => $expiresAt,
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true,
-        ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-        $props = $response->getCookieProperties('foo');
-        $props2 = $response->getCookieProperties('bar');
-
-        $this->assertEquals($expiresAt, $props['expires']);
-        $this->assertEquals('/', $props['path']);
-        $this->assertEquals('example.com', $props['domain']);
-        $this->assertTrue($props['secure']);
-        $this->assertTrue($props['httponly']);
-        $this->assertNull($props2);
-    }
-
     public function testWithCookie()
     {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '2 days',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true,
+        $response = new Response();
+        $response->setCookieDefaults([
+            'domain' => 'example.com'
         ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-        $clone = $response->withCookie('foo', 'xyz');
+        $response = $response->withCookie('foo', ['value' => 'bar']);
 
-        $this->assertEquals('xyz', $clone->getCookieProperties('foo')['value']);
+        $this->assertContains('foo=bar; domain=example.com', $response->getHeaderLines('Set-Cookie'));
     }
 
     public function testWithoutCookie()
     {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '2 days',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true,
+        $response = new Response();
+        $response->setCookieDefaults([
+            'domain' => 'example.com'
         ]);
-        $cookies->set('foo', 'bar');
-        $response = new Response(200, null, $cookies);
-        $now = time();
-        $clone = $response->withoutCookie('foo');
+        $response = $response->withCookie('foo1', ['value' => 'bar1']);
+        $response = $response->withCookie('foo2', ['value' => 'bar2']);
+        $response = $response->withoutCookie('foo1');
 
-        $this->assertEquals('', $clone->getCookieProperties('foo')['value']);
-        $this->assertLessThan($now, $clone->getCookieProperties('foo')['expires']);
+        $this->assertEquals(1, count($response->getHeaderLines('Set-Cookie')));
+        $this->assertContains('foo2=bar2; domain=example.com', $response->getHeaderLines('Set-Cookie'));
     }
 
     /*******************************************************************************
@@ -379,9 +279,8 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testGetBody()
     {
         $headers = new Headers();
-        $cookies = new Cookies();
         $body = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $cookies, $body);
+        $response = new Response(404, $headers, $body);
 
         $this->assertSame($body, $response->getBody());
     }
@@ -389,51 +288,17 @@ class ResponseTest extends PHPUnit_Framework_TestCase
     public function testWithBody()
     {
         $headers = new Headers();
-        $cookies = new Cookies();
         $body = new Body(fopen('php://temp', 'r+'));
         $body2 = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $cookies, $body);
+        $response = new Response(404, $headers, $body);
         $clone = $response->withBody($body2);
 
         $this->assertAttributeSame($body2, 'body', $clone);
     }
 
-    public function testSendBody()
-    {
-        $this->expectOutputString('Hello world');
-
-        $headers = new Headers();
-        $cookies = new Cookies();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write('Hello world');
-        $response = new Response(404, $headers, $cookies, $body);
-        $response->sendBody();
-    }
-
-    public function testSendBody204()
-    {
-        $this->expectOutputString('');
-
-        $headers = new Headers();
-        $cookies = new Cookies();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write('Hello world');
-        $response = new Response(204, $headers, $cookies, $body);
-        $response->sendBody();
-    }
-
     /*******************************************************************************
      * Behaviors
      ******************************************************************************/
-
-    public function testWithRedirect()
-    {
-        $response = new Response();
-        $response = $response->withRedirect('/foo', 301);
-
-        $this->assertAttributeEquals(301, 'status', $response);
-        $this->assertEquals('/foo', $response->getHeader('Location'));
-    }
 
     public function testIsEmpty()
     {
@@ -548,50 +413,5 @@ END;
         $response = $response->withStatus(404)->withHeader('X-Foo', 'Bar')->write('Where am I?');
 
         echo $response;
-    }
-
-    /*******************************************************************************
-     * Finalize
-     ******************************************************************************/
-
-    public function testFinalizeSerializesCookies()
-    {
-        $cookies = new Cookies();
-        $cookies->setDefaults([
-            'expires' => '2 days',
-            'path' => '/',
-            'domain' => 'example.com',
-            'secure' => true,
-            'httponly' => true,
-        ]);
-        $cookies->set('test', 'foo');
-        $response = new Response(200, null, $cookies);
-        $response = $response->finalize();
-
-        $this->assertArrayHasKey('Set-Cookie', $response->getHeaders());
-    }
-
-    public function testFinalizeRemovesHeaders()
-    {
-        $response = new Response(204);
-        $response = $response->withHeader('Content-Type', 'text/plain');
-        $response->write('Hello world');
-        $response = $response->finalize();
-        $headers = $response->getHeaders();
-
-        $this->assertArrayNotHasKey('Content-Type', $headers);
-        $this->assertArrayNotHasKey('Content-Length', $headers);
-    }
-
-    public function testFinalizeAddsHeaders()
-    {
-        $response = new Response(200);
-        $response = $response->withHeader('Content-Type', 'text/plain');
-        $response->write('Hello world');
-        $response = $response->finalize();
-        $headers = $response->getHeaders();
-
-        $this->assertArrayHasKey('Content-Type', $headers);
-        $this->assertArrayHasKey('Content-Length', $headers);
     }
 }

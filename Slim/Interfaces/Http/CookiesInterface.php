@@ -8,9 +8,6 @@
  */
 namespace Slim\Interfaces\Http;
 
-use \Slim\Interfaces\CollectionInterface;
-use \Slim\Interfaces\Http\HeadersInterface;
-
 /**
  * Cookies Interface
  *
@@ -18,7 +15,8 @@ use \Slim\Interfaces\Http\HeadersInterface;
  * @author  John Porter
  * @since   3.0.0
  */
-interface CookiesInterface extends CollectionInterface
+interface CookiesInterface
 {
+    public static function arrayToString(array $properties);
     public static function parseHeader($header);
 }

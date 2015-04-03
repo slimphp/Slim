@@ -13,7 +13,6 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamableInterface;
 use Slim\Interfaces\Http\HeadersInterface;
 use Slim\Interfaces\CollectionInterface;
-use Slim\Collection;
 
 /**
  * Request
