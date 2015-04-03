@@ -10,13 +10,11 @@ namespace Slim\Interfaces\Http;
 
 /**
  * Cookies Interface
- *
- * @package Slim
- * @author  John Porter
- * @since   3.0.0
  */
 interface CookiesInterface
 {
-    public static function arrayToString(array $properties);
+    public function get($name, $default = null);
+    public function set($name, $value);
+    public function toHeaders();
     public static function parseHeader($header);
 }

@@ -100,16 +100,26 @@ class App extends \Pimple\Container
         $this['response'] = $this->factory(function ($c) {
             $headers = new Http\Headers(['Content-Type' => 'text/html']);
             $response = new Http\Response(200, $headers);
-            $response->setCookieDefaults([
+
+            return $response->withProtocolVersion($c['settings']['httpVersion']);
+        });
+
+        /**
+         * This Pimple service MUST return a SHARED instance
+         * of \Slim\Interfaces\Http\CookiesInterface.
+         */
+        $this['cookies'] = function ($c) {
+            $cookies = new Http\Cookies($c['request']->getCookieParams());
+            $cookies->setDefaults([
                 'expires' => $c['settings']['cookieLifetime'],
                 'path' => $c['settings']['cookiePath'],
                 'domain' => $c['settings']['cookieDomain'],
                 'secure' => $c['settings']['cookieSecure'],
-                'httponly' => $c['settings']['cookieHttpOnly'],
+                'httponly' => $c['settings']['cookieHttpOnly']
             ]);
 
-            return $response->withProtocolVersion($c['settings']['httpVersion']);
-        });
+            return $cookies;
+        };
 
         /**
          * This Pimple service MUST return a SHARED instance
@@ -360,6 +370,12 @@ class App extends \Pimple\Container
             $response = $this['errorHandler']($request, $response, $e);
         }
 
+        // Serialize cookies into Response
+        $cookieHeaders = $this['cookies']->toHeaders();
+        if ($cookieHeaders) {
+            $response = $response->withAddedHeader('Set-Cookie', $cookieHeaders);
+        }
+
         // Finalize response
         if (in_array($response->getStatusCode(), [204, 304])) {
             $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
@@ -453,7 +469,6 @@ class App extends \Pimple\Container
         $env = $this['environment'];
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
-        $cookies = new Collection($cookies);
         $serverParams = new Collection($env->all());
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
