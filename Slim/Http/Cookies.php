@@ -8,162 +8,53 @@
  */
 namespace Slim\Http;
 
-use Slim\Interfaces\Http\CookiesInterface;
-use Slim\Interfaces\Http\HeadersInterface;
-
 /**
- * Cookie
- *
- * This class represents a collection of HTTP response cookies.
- * It lets you manage each cookie's properties using PHP
- * scalar values. These values are serialized into an HTTP header
- * only at the end of the application lifecycle.
+ * Cookie helper
  */
-class Cookies extends Collection implements CookiesInterface
+class Cookies
 {
     /**
-     * Default cookie properties
+     * Convert array to header value
      *
-     * @var array
-     */
-    protected $defaults = [
-        'value' => '',
-        'domain' => null,
-        'path' => null,
-        'expires' => null,
-        'secure' => false,
-        'httponly' => false,
-    ];
-
-    /**
-     * Create new HTTP cookie collection
+     * @param array $cookie Cookie properties
      *
-     * @param array|null $data     Initial cookie names and values
-     * @param array|null $defaults Custom cookie default properties
+     * @return string
      */
-    public function __construct(array $data = null, array $defaults = null)
+    public static function arrayToString(array $cookie)
     {
-        if ($defaults) {
-            $this->setDefaults($defaults);
+        if (!isset($cookie['value'])) {
+            throw new \InvalidArgumentException('Cookie properties array must have a `value` key');
+        }
+        $value = urlencode((string)$cookie['value']);
+
+        if (isset($cookie['domain'])) {
+            $value .= '; domain=' . $cookie['domain'];
         }
 
-        if ($data) {
-            $this->replace($data);
-        }
-    }
-
-    /**
-     * Set default cookie properties
-     *
-     * @param array $settings Custom default cookie properties
-     */
-    public function setDefaults(array $settings)
-    {
-        $this->defaults = array_merge($this->defaults, $settings);
-    }
-
-    /**
-     * Get default cookie properties
-     *
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return $this->defaults;
-    }
-
-    /**
-     * Set HTTP cookie
-     *
-     * This method adds a new HTTP response cookie to this
-     * collection. The second argument can be a string or
-     * an array. If a string, the string becomes the cookie
-     * value property and adopts the default values of
-     * other cookie properties. If an array, the second argument
-     * is merged with the default cookie properties.
-     *
-     * @param string       $key   The cookie name
-     * @param string|array $value The cookie value or properties
-     */
-    public function set($key, $value)
-    {
-        if (is_array($value)) {
-            $settings = array_replace($this->defaults, $value);
-        } else {
-            $settings = array_replace($this->defaults, ['value' => $value]);
+        if (isset($cookie['path'])) {
+            $value .= '; path=' . $cookie['path'];
         }
 
-        parent::set($key, $settings);
-    }
-
-    /**
-     * Remove HTTP response cookie
-     *
-     * This method removes a cookie from this cookie collection.
-     * Technically speaking, this method _sets_ a cookie with an
-     * empty value and a time in the past; this prompts the HTTP
-     * client to invalidate and remove the client-side cookie.
-     *
-     * @param  string $key      The cookie name
-     * @param  array  $settings The cookie properties, if necessary
-     */
-    public function remove($key, $settings = [])
-    {
-        $settings['value'] = '';
-        $settings['expires'] = time() - 86400;
-        $this->set($key, array_replace($this->defaults, $settings));
-    }
-
-    /**
-     * Get an HTTP response cookie as HTTP header string
-     *
-     * @param  string $key  The cookie name
-     * @return string       The equivalent `Cookie:` header value
-     */
-    public function getAsString($key)
-    {
-        $output = null;
-        $cookie = $this->get($key);
-        if ($cookie) {
-            $value = (string)$cookie['value'];
-            $parts = [];
-
-            if (isset($cookie['domain']) && $cookie['domain']) {
-                $parts[] = '; domain=' . $cookie['domain'];
+        if (isset($cookie['expires'])) {
+            if (is_string($cookie['expires'])) {
+                $timestamp = strtotime($cookie['expires']);
+            } else {
+                $timestamp = (int)$cookie['expires'];
             }
-
-            if (isset($cookie['path']) && $cookie['path']) {
-                $parts[] = '; path=' . $cookie['path'];
+            if ($timestamp !== 0) {
+                $value .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
             }
-
-            if (isset($cookie['expires'])) {
-                if (is_string($cookie['expires'])) {
-                    $timestamp = strtotime($cookie['expires']);
-                } else {
-                    $timestamp = (int)$cookie['expires'];
-                }
-
-                if ($timestamp !== 0) {
-                    $parts[] = '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
-                }
-            }
-
-            if (isset($cookie['secure']) && $cookie['secure']) {
-                $parts[] = '; secure';
-            }
-
-            if (isset($cookie['httponly']) && $cookie['httponly']) {
-                $parts[] = '; HttpOnly';
-            }
-
-            $output = sprintf(
-                '%s=%s',
-                urlencode($key),
-                urlencode($value) . implode('', $parts)
-            );
         }
 
-        return $output;
+        if (isset($cookie['secure']) && $cookie['secure']) {
+            $value .= '; secure';
+        }
+
+        if (isset($cookie['httponly']) && $cookie['httponly']) {
+            $value .= '; HttpOnly';
+        }
+
+        return $value;
     }
 
     /**

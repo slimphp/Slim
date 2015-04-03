@@ -47,11 +47,18 @@ class Response implements ResponseInterface
     protected $headers;
 
     /**
-     * Cookies
+     * Cookies default properties
      *
-     * @var \Slim\Interfaces\Http\CookiesInterface
+     * @var array
      */
-    protected $cookies;
+    protected $cookieDefaults = [
+        'value' => '',
+        'domain' => null,
+        'path' => null,
+        'expires' => null,
+        'secure' => false,
+        'httponly' => false,
+    ];
 
     /**
      * Body object
@@ -131,7 +138,7 @@ class Response implements ResponseInterface
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
-    
+
     /**
      * Redirect response factory
      *
@@ -145,7 +152,7 @@ class Response implements ResponseInterface
     public static function redirect($url, $status = 302)
     {
         $headers = new Headers(['Location' => $url]);
-        
+
         return new static($status, $headers);
     }
 
@@ -154,14 +161,12 @@ class Response implements ResponseInterface
      *
      * @param int                      $status  The response status code
      * @param HeadersInterface|null    $headers The response headers
-     * @param CookiesInterface|null    $cookies The response cookies
      * @param StreamableInterface|null $body    The response body
      */
-    public function __construct($status = 200, HeadersInterface $headers = null, CookiesInterface $cookies = null, StreamableInterface $body = null)
+    public function __construct($status = 200, HeadersInterface $headers = null, StreamableInterface $body = null)
     {
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
-        $this->cookies = $cookies ? $cookies : new Cookies();
         $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
     }
 
@@ -174,7 +179,6 @@ class Response implements ResponseInterface
     public function __clone()
     {
         $this->headers = clone $this->headers;
-        $this->cookies = clone $this->cookies;
         $this->body = clone $this->body;
     }
 
@@ -460,109 +464,52 @@ class Response implements ResponseInterface
      ******************************************************************************/
 
     /**
-     * Retrieves all cookies.
-     *
-     * The keys represent the cookie name as it will be sent over the wire, and
-     * each value is an array of properties associated with the cookie.
-     *
-     *     // Represent the headers as a string
-     *     foreach ($message->getCookies() as $name => $values) {
-     *         echo $values['value'];
-     *         echo $values['expires'];
-     *         echo $values['path'];
-     *         echo $values['domain'];
-     *         echo $values['secure'];
-     *         echo $values['httponly'];
-     *     }
-     *
-     * @return array Returns an associative array of the cookie's properties. Each
-     *               key MUST be a cookie name, and each value MUST be an array of properties.
+     * Set default cookie properties
      */
-    public function getCookies()
+    public function setCookieDefaults(array $settings)
     {
-        return $this->cookies->all();
+        $this->cookieDefaults = array_replace($this->cookieDefaults, $settings);
     }
 
     /**
-     * Checks if a cookie exists by the given case-insensitive name.
-     *
-     * @param  string $name Case-insensitive header name.
-     * @return bool         Returns true if any cookie names match the given cookie
-     *                      name using a case-insensitive string comparison. Returns false if
-     *                      no matching cookie name is found in the message.
-     */
-    public function hasCookie($name)
-    {
-        return $this->cookies->has($name);
-    }
-
-    /**
-     * Retrieve a cookie by the given case-insensitive name, as a string.
-     *
-     * This method returns all of the cookie values of the given
-     * case-insensitive cookie name as a string as it will
-     * appear in the HTTP response's `Set-Cookie` header.
-     *
-     * @param  string      $name Case-insensitive cookie name.
-     * @return string|null
-     */
-    public function getCookie($name)
-    {
-        return $this->cookies->getAsString($name);
-    }
-
-    /**
-     * Retrieves a cookie by the given case-insensitive name as an array of properties.
-     *
-     * @param  string        $name Case-insensitive cookie name.
-     * @return string[]|null
-     */
-    public function getCookieProperties($name)
-    {
-        return $this->cookies->get($name);
-    }
-
-    /**
-     * Create a new instance with the provided cookie, replacing any existing
-     * values of any cookies with the same case-insensitive name.
-     *
-     * While cookie names are case-insensitive, the casing of the cookie will
-     * be preserved by this function, and returned from getCookies().
-     *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
-     * new and/or updated cookie and value.
+     * Create new Response object with an additional
+     * `Set-Cookie` header.
      *
      * @param  string          $name  Cookie name
-     * @param  string|string[] $value Cookie value(s).
-     * @return self
+     * @param  string|string[] $value Cookie value(s)
+     *
+     * @return ResponseInterface
      */
     public function withCookie($name, $value)
     {
-        $clone = clone $this;
-        $clone->cookies->set($name, $value);
+        if (is_array($value)) {
+            $cookie = array_replace($this->cookieDefaults, $value);
+        } else {
+            $cookie = array_replace($this->cookieDefaults, ['value' => $value]);
+        }
 
-        return $clone;
+        return $this->withAddedHeader(
+            'Set-Cookie',
+            urlencode($name) . '=' . Cookies::arrayToString($cookie)
+        );
     }
 
     /**
-     * Creates a new instance, without the specified cookie.
+     * Create new Response object without a given
+     * `Set-Cookie` header.
      *
-     * Cookie resolution MUST be done without case-sensitivity.
+     * @param  string $name Cookie name
      *
-     * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that removes
-     * the named cookie.
-     *
-     * @param  string $name HTTP cookie to remove
-     * @return self
+     * @return ResponseInterface
      */
     public function withoutCookie($name)
     {
-        $clone = clone $this;
-        $clone->cookies->remove($name);
+        $name = urlencode($name) . '=';
+        $values = $this->getHeaderLines('Set-Cookie');
 
-        return $clone;
+        return $this->withHeader('Set-Cookie', array_filter($values, function ($value) use ($name) {
+            return (strpos($value, $name) !== 0);
+        }));
     }
 
     /*******************************************************************************
@@ -618,88 +565,6 @@ class Response implements ResponseInterface
     /*******************************************************************************
      * Response Helpers
      ******************************************************************************/
-
-    /**
-     * Finalize response for delivery to client
-     *
-     * @return self
-     */
-    public function finalize()
-    {
-        $response = $this;
-
-        // Serialize cookies
-        $cookies = $response->getCookies();
-        foreach ($cookies as $name => $properties) {
-            $response = $response->withAddedHeader('Set-Cookie', $response->getCookie($name));
-        }
-
-        // Finalize headers
-        if (in_array($response->getStatusCode(), [204, 304])) {
-            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-        } else {
-            $size = $response->getBody()->getSize();
-            if ($size !== null) {
-                $response = $response->withHeader('Content-Length', $size);
-            }
-        }
-
-        return $response;
-    }
-
-    /**
-     * Send HTTP headers to client
-     *
-     * @return self
-     */
-    public function sendHeaders()
-    {
-        if (headers_sent() === false) {
-            if (strpos(PHP_SAPI, 'cgi') === 0) {
-                header(sprintf(
-                    'Status: %s %s',
-                    $this->getStatusCode(),
-                    $this->getReasonPhrase()
-                ));
-            } else {
-                header(sprintf(
-                    'HTTP/%s %s %s',
-                    $this->getProtocolVersion(),
-                    $this->getStatusCode(),
-                    $this->getReasonPhrase()
-                ));
-            }
-
-            foreach ($this->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Send HTTP body to client
-     *
-     * @param  int $bufferSize
-     * @return self
-     */
-    public function sendBody($bufferSize = 1024)
-    {
-        if (in_array($this->getStatusCode(), [204, 304]) === false) {
-            $body = $this->getBody();
-            if ($body->isAttached() === true) {
-                $body->rewind();
-                while ($body->eof() === false) {
-                    echo $body->read($bufferSize);
-                }
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * Redirect
