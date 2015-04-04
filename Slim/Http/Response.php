@@ -47,20 +47,6 @@ class Response implements ResponseInterface
     protected $headers;
 
     /**
-     * Cookies default properties
-     *
-     * @var array
-     */
-    protected $cookieDefaults = [
-        'value' => '',
-        'domain' => null,
-        'path' => null,
-        'expires' => null,
-        'secure' => false,
-        'httponly' => false,
-    ];
-
-    /**
      * Body object
      *
      * @var \Psr\Http\Message\StreamableInterface
@@ -138,23 +124,6 @@ class Response implements ResponseInterface
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
     ];
-
-    /**
-     * Redirect response factory
-     *
-     * This method returns a new 3XX HTTP response object to specific URL.
-     *
-     * @param string $url    The destination URL
-     * @param int    $status The HTTP redirect status code (optional)
-     *
-     * @return self
-     */
-    public static function redirect($url, $status = 302)
-    {
-        $headers = new Headers(['Location' => $url]);
-
-        return new static($status, $headers);
-    }
 
     /**
      * Create new HTTP response
@@ -457,59 +426,6 @@ class Response implements ResponseInterface
         $clone->headers->remove($header);
 
         return $clone;
-    }
-
-    /*******************************************************************************
-     * Cookies
-     ******************************************************************************/
-
-    /**
-     * Set default cookie properties
-     */
-    public function setCookieDefaults(array $settings)
-    {
-        $this->cookieDefaults = array_replace($this->cookieDefaults, $settings);
-    }
-
-    /**
-     * Create new Response object with an additional
-     * `Set-Cookie` header.
-     *
-     * @param  string          $name  Cookie name
-     * @param  string|string[] $value Cookie value(s)
-     *
-     * @return ResponseInterface
-     */
-    public function withCookie($name, $value)
-    {
-        if (is_array($value)) {
-            $cookie = array_replace($this->cookieDefaults, $value);
-        } else {
-            $cookie = array_replace($this->cookieDefaults, ['value' => $value]);
-        }
-
-        return $this->withAddedHeader(
-            'Set-Cookie',
-            urlencode($name) . '=' . Cookies::arrayToString($cookie)
-        );
-    }
-
-    /**
-     * Create new Response object without a given
-     * `Set-Cookie` header.
-     *
-     * @param  string $name Cookie name
-     *
-     * @return ResponseInterface
-     */
-    public function withoutCookie($name)
-    {
-        $name = urlencode($name) . '=';
-        $values = $this->getHeaderLines('Set-Cookie');
-
-        return $this->withHeader('Set-Cookie', array_filter($values, function ($value) use ($name) {
-            return (strpos($value, $name) !== 0);
-        }));
     }
 
     /*******************************************************************************

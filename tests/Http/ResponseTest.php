@@ -61,28 +61,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /*******************************************************************************
-     * Static redirect factory
-     ******************************************************************************/
-
-    public function testStaticRedirect()
-    {
-        $response = Response::redirect('http://slimframework.com');
-
-        $this->assertInstanceOf('\Slim\Http\Response', $response);
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('http://slimframework.com', $response->getHeader('Location'));
-    }
-
-    public function testStaticRedirectWithStatus()
-    {
-        $response = Response::redirect('http://slimframework.com/foo/bar', 301);
-
-        $this->assertInstanceOf('\Slim\Http\Response', $response);
-        $this->assertEquals(301, $response->getStatusCode());
-        $this->assertEquals('http://slimframework.com/foo/bar', $response->getHeader('Location'));
-    }
-
-    /*******************************************************************************
      * Protocol
      ******************************************************************************/
 
@@ -241,35 +219,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($shouldBe, $clone->getHeaders());
-    }
-
-    /*******************************************************************************
-     * Cookies
-     ******************************************************************************/
-
-    public function testWithCookie()
-    {
-        $response = new Response();
-        $response->setCookieDefaults([
-            'domain' => 'example.com'
-        ]);
-        $response = $response->withCookie('foo', ['value' => 'bar']);
-
-        $this->assertContains('foo=bar; domain=example.com', $response->getHeaderLines('Set-Cookie'));
-    }
-
-    public function testWithoutCookie()
-    {
-        $response = new Response();
-        $response->setCookieDefaults([
-            'domain' => 'example.com'
-        ]);
-        $response = $response->withCookie('foo1', ['value' => 'bar1']);
-        $response = $response->withCookie('foo2', ['value' => 'bar2']);
-        $response = $response->withoutCookie('foo1');
-
-        $this->assertEquals(1, count($response->getHeaderLines('Set-Cookie')));
-        $this->assertContains('foo2=bar2; domain=example.com', $response->getHeaderLines('Set-Cookie'));
     }
 
     /*******************************************************************************

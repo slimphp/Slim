@@ -8,53 +8,143 @@
  */
 namespace Slim\Http;
 
+use Slim\Interfaces\Http\CookiesInterface;
+
 /**
  * Cookie helper
  */
-class Cookies
+class Cookies implements CookiesInterface
 {
     /**
-     * Convert array to header value
+     * Cookies from HTTP request
      *
-     * @param array $cookie Cookie properties
+     * @var array
+     */
+    protected $requestCookies = [];
+
+    /**
+     * Cookies for HTTP response
+     *
+     * @var array
+     */
+    protected $responseCookies = [];
+
+    /**
+     * Default cookie properties
+     *
+     * @var array
+     */
+    protected $defaults = [
+        'value' => '',
+        'domain' => null,
+        'path' => null,
+        'expires' => null,
+        'secure' => false,
+        'httponly' => false
+    ];
+
+    /**
+     * Create new cookies helper
+     *
+     * @param array $cookies
+     */
+    public function __construct(array $cookies = [])
+    {
+        $this->requestCookies = $cookies;
+    }
+
+    /**
+     * Set default cookie properties
+     *
+     * @param array $settings
+     */
+    public function setDefaults(array $settings)
+    {
+        $this->defaults = array_replace($this->defaults, $settings);
+    }
+
+    /**
+     * Get request cookie
+     *
+     * @param  string $name    Cookie name
+     * @param  mixed  $default Cookie default value
+     *
+     * @return mixed  Cookie value if present, else default
+     */
+    public function get($name, $default = null)
+    {
+        return isset($this->requestCookies[$name]) ? $this->requestCookies[$name] : $default;
+    }
+
+    /**
+     * Set response cookie
+     *
+     * @param string       $name  Cookie name
+     * @param string|array $value Cookie value, or cookie properties
+     */
+    public function set($name, $value)
+    {
+        if (!is_array($value)) {
+            $value = ['value' => (string)$value];
+        }
+        $this->responseCookies[$name] = array_replace($this->defaults, $value);
+    }
+
+    /**
+     * Convert to `Set-Cookie` headers
+     *
+     * @return string[]
+     */
+    public function toHeaders()
+    {
+        $headers = [];
+        foreach ($this->responseCookies as $name => $properties) {
+            $headers[] = $this->toHeader($name, $properties);
+        }
+
+        return $headers;
+    }
+
+    /**
+     * Convert to `Set-Cookie` header
+     *
+     * @param  string $name   Cookie name
+     * @param  array  $cookie Cookie properties
      *
      * @return string
      */
-    public static function arrayToString(array $cookie)
+    protected function toHeader($name, array $properties)
     {
-        if (!isset($cookie['value'])) {
-            throw new \InvalidArgumentException('Cookie properties array must have a `value` key');
-        }
-        $value = urlencode((string)$cookie['value']);
+        $result = urlencode($name) . '=' . urlencode($properties['value']);
 
-        if (isset($cookie['domain'])) {
-            $value .= '; domain=' . $cookie['domain'];
+        if (isset($properties['domain'])) {
+            $result .= '; domain=' . $properties['domain'];
         }
 
-        if (isset($cookie['path'])) {
-            $value .= '; path=' . $cookie['path'];
+        if (isset($properties['path'])) {
+            $result .= '; path=' . $properties['path'];
         }
 
-        if (isset($cookie['expires'])) {
-            if (is_string($cookie['expires'])) {
-                $timestamp = strtotime($cookie['expires']);
+        if (isset($properties['expires'])) {
+            if (is_string($properties['expires'])) {
+                $timestamp = strtotime($properties['expires']);
             } else {
-                $timestamp = (int)$cookie['expires'];
+                $timestamp = (int)$properties['expires'];
             }
             if ($timestamp !== 0) {
-                $value .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
+                $result .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
             }
         }
 
-        if (isset($cookie['secure']) && $cookie['secure']) {
-            $value .= '; secure';
+        if (isset($properties['secure']) && $properties['secure']) {
+            $result .= '; secure';
         }
 
-        if (isset($cookie['httponly']) && $cookie['httponly']) {
-            $value .= '; HttpOnly';
+        if (isset($properties['httponly']) && $properties['httponly']) {
+            $result .= '; HttpOnly';
         }
 
-        return $value;
+        return $result;
     }
 
     /**
