@@ -382,7 +382,46 @@ class AppTest extends PHPUnit_Framework_TestCase
         $app($req, $res);
     }
 
-    // TODO: Test subRequest()
+    public function testSubRequest()
+    {
+        $app = new App();
+
+        $app->post('/bar', function ($req, $res) {
+            $res->write((string)$req->getBody());
+            
+            return $res;
+        });
+
+        $app->get('/foo', function ($req, $res) {
+            return $this->subRequest(
+                'POST', 
+                '/bar', 
+                $req->getCookieParams(), 
+                $req->getServerParams(), 
+                'Hello'
+            );
+        });
+
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $serverParams = new Collection($env->all());
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$resOut->getBody());
+    }
 
     // TODO: Test finalize()
 
