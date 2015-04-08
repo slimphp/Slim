@@ -46,8 +46,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function routeFactory()
     {
         $methods = ['GET', 'POST'];
-        $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
+        $pattern = '/hello';
+        $callable = function ($req, $res) {
             // Do something
         };
 
@@ -57,8 +57,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
     public function testConstructor()
     {
         $methods = ['GET', 'POST'];
-        $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
+        $pattern = '/hello';
+        $callable = function ($req, $res) {
             // Do something
         };
         $route = new Route($methods, $pattern, $callable);
@@ -75,7 +75,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     public function testGetPattern()
     {
-        $this->assertEquals('/hello/{name}', $this->routeFactory()->getPattern());
+        $this->assertEquals('/hello', $this->routeFactory()->getPattern());
     }
 
     public function testGetCallable()
@@ -145,6 +145,47 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
     }
+
+    public function testRouteHandlerCallableParams()
+    {
+        // routing
+
+        $router = new \Slim\Router;
+
+        $methods = ['GET', 'POST'];
+        $pattern = '/category/{slug}/page/{page}';
+        $callable = function ($req, $res, $slug, $page)
+        {
+            echo '/category/' . $slug . '/page/' . $page;
+        };
+
+        $router->map($methods, $pattern, $callable);
+
+        // env
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com/category/hello/page/10');
+        $headers = new \Slim\Http\Headers;
+        $cookies = new \Slim\Http\Collection;
+        $serverParams = new Collection($env->all());
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $response = new \Slim\Http\Response;
+
+        // router dispath
+
+        $routeInfo = $router->dispatch($request);
+
+        $result = $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
+
+        // test
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+
+        $this->assertEquals($result->getBody(), '/category/hello/page/10');
+    }
+
 
     // TODO: Test adding controller callables with "Foo:bar" syntax
 
