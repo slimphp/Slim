@@ -218,10 +218,12 @@ class Request
     {
         if (!isset($this->env['slim.request.query_hash'])) {
             $output = array();
+            $queryString = ($this->env['QUERY_STRING'] !== '') ? $this->env['QUERY_STRING'] :
+                (stripos($this->env['REQUEST_URI'], '?') !== false) ? substr($this->env['REQUEST_URI'], stripos($this->env['REQUEST_URI'], '?') + 1) : '';
             if (function_exists('mb_parse_str') && !isset($this->env['slim.tests.ignore_multibyte'])) {
-                mb_parse_str($this->env['QUERY_STRING'], $output);
+                mb_parse_str($queryString, $output);
             } else {
-                parse_str($this->env['QUERY_STRING'], $output);
+                parse_str($queryString, $output);
             }
             $this->env['slim.request.query_hash'] = Util::stripSlashesIfMagicQuotes($output);
         }

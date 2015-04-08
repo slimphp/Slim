@@ -226,6 +226,22 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test fetch GET params with empty QUERY_STRING
+     */
+    public function testGetWithEmptyQueryString()
+    {
+        $env = \Slim\Environment::mock(array(
+            'QUERY_STRING' => '',
+            'REQUEST_URI'  => '/foo/bar/baz?one=1&two=2&three=3',
+        ));
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals(3, count($req->get()));
+        $this->assertEquals('1', $req->get('one'));
+        $this->assertNull($req->get('foo'));
+        $this->assertFalse($req->get('foo', false));
+    }
+
+    /**
      * Test fetch GET params without multibyte
      */
     public function testGetWithoutMultibyte()
