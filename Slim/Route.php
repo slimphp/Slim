@@ -206,7 +206,7 @@ class Route implements RouteInterface, ServiceProviderInterface
         // Invoke route callable
         try {
             ob_start();
-            $newResponse = call_user_func_array($this->callable, [$request, $response, $this->parsedArgs]);
+            $newResponse = call_user_func_array($this->callable, [$request, $response] + $this->parsedArgs);
             $output = ob_get_clean();
         } catch (\Exception $e) {
             ob_end_clean();
