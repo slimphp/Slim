@@ -76,6 +76,24 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
+     * Return array of HTTP header names and values.
+     * This method returns the _original_ header name
+     * as specified by the end user.
+     *
+     * @return array
+     */
+    public function all()
+    {
+        $all = parent::all();
+        $out = [];
+        foreach ($all as $key => $props) {
+            $out[$props['originalKey']] = $props['value'];
+        }
+
+        return $out;
+    }
+
+    /**
      * Set HTTP header value
      *
      * This method sets a header value. It replaces
@@ -86,22 +104,47 @@ class Headers extends Collection implements HeadersInterface
      */
     public function set($key, $value)
     {
-        if (is_array($value) === false) {
+        if (!is_array($value)) {
             $value = [$value];
         }
-        parent::set($this->normalizeKey($key), $value);
+        parent::set($this->normalizeKey($key), [
+            'value' => $value,
+            'originalKey' => $key
+        ]);
     }
 
     /**
      * Get HTTP header value
      *
-     * @param  string     $key     The case-insensitive header name
-     * @param  null|mixed $default This argument is unused
-     * @return string[]            The header values
+     * @param  string  $key     The case-insensitive header name
+     * @param  mixed   $default The default value if key does not exist
+     *
+     * @return string[]
      */
     public function get($key, $default = null)
     {
-        return parent::get($this->normalizeKey($key), []);
+        if ($this->has($key)) {
+            return parent::get($this->normalizeKey($key))['value'];
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get HTTP header key as originally specified
+     *
+     * @param  string   $key     The case-insensitive header name
+     * @param  mixed    $default The default value if key does not exist
+     *
+     * @return string
+     */
+    public function getOriginalKey($key, $default = null)
+    {
+        if ($this->has($key)) {
+            return parent::get($this->normalizeKey($key))['originalKey'];
+        }
+
+        return $default;
     }
 
     /**
@@ -116,13 +159,9 @@ class Headers extends Collection implements HeadersInterface
      */
     public function add($key, $value)
     {
-        $header = $this->get($key, true);
-        if (is_array($value)) {
-            $header = array_merge($header, $value);
-        } else {
-            $header[] = $value;
-        }
-        parent::set($this->normalizeKey($key), $header);
+        $oldValues = $this->get($key, []);
+        $newValues = is_array($value) ? $value : [$value];
+        $this->set($key, array_merge($oldValues, array_values($newValues)));
     }
 
     /**

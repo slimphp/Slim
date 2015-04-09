@@ -84,8 +84,8 @@ class Request implements RequestInterface
 
     /**
      * The server environment variables at the time the request was created.
-     * 
-     * @var \Slim\Interfaces\CollectionInterface 
+     *
+     * @var \Slim\Interfaces\CollectionInterface
      */
     protected $serverParams;
 
@@ -596,7 +596,7 @@ class Request implements RequestInterface
      */
     public function getHeader($name)
     {
-        return implode(',', $this->headers->get($name));
+        return implode(',', $this->headers->get($name, []));
     }
 
     /**
@@ -607,7 +607,7 @@ class Request implements RequestInterface
      */
     public function getHeaderLines($name)
     {
-        return $this->headers->get($name);
+        return $this->headers->get($name, []);
     }
 
     /**

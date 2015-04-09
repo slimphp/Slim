@@ -346,7 +346,7 @@ class Response implements ResponseInterface
      */
     public function getHeader($name)
     {
-        return implode(',', $this->headers->get($name));
+        return implode(',', $this->headers->get($name, []));
     }
 
     /**
@@ -357,7 +357,7 @@ class Response implements ResponseInterface
      */
     public function getHeaderLines($name)
     {
-        return $this->headers->get($name);
+        return $this->headers->get($name, []);
     }
 
     /**
