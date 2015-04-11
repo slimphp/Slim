@@ -72,7 +72,7 @@ class App extends \Pimple\Container
 
         /**
          * This Pimple service MUST return a shared instance
-         * of \Slim\Interfaces\EnvironmentInterface.
+         * of \Slim\Interfaces\Http\EnvironmentInterface.
          */
         $this['environment'] = function ($c) {
             return new Http\Environment($_SERVER);
