@@ -56,7 +56,7 @@ trait ResolveCallable
                         }
                         $obj = new $class;
                     }
-                    if ((is_object($obj) && !is_callable([$obj, $method])) || (!is_object($obj) && !method_exists($obj, $method))) {
+                    if (!is_callable([$obj, $method])) {
                         throw new \RuntimeException('Route callable method does not exist');
                     }
                 }
