@@ -38,11 +38,11 @@ trait ResolveCallable
     {
         if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
             // $callable is a class:method string, so wrap it into a closure, retriving the class from Pimple if registered there
-     
+
             if ((! $this instanceof Container) && (! $this->container instanceof Container)) {
                 throw new \RuntimeException('Cannot resolve callable string');
             }
-     
+
             $class = $matches[1];
             $method = $matches[2];
             $callable = function() use ($class, $method) {
@@ -56,7 +56,7 @@ trait ResolveCallable
                         }
                         $obj = new $class;
                     }
-                    if (!method_exists($obj, $method)) {
+                    if (!is_callable([$obj, $method])) {
                         throw new \RuntimeException('Route callable method does not exist');
                     }
                 }

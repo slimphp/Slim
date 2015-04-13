@@ -16,6 +16,18 @@ use \Slim\Http\Headers;
 use \Slim\Http\Request;
 use \Slim\Http\Response;
 
+class MockAction
+{
+    public function __call($name, array $arguments)
+    {
+        if (count($arguments) !== 3) {
+            throw new InvalidArgumentException("Not a Slim call");
+        }
+
+        $arguments[1]->write(json_encode(compact('name') + ['arguments' => $arguments[2]]));
+    }
+}
+
 class AppTest extends PHPUnit_Framework_TestCase
 {
     /********************************************************************************
@@ -380,6 +392,39 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         // Invoke app
         $app($req, $res);
+    }
+
+    public function testInvokeWithPimpleCallableViaMagicMethod()
+    {
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = new Collection();
+        $serverParams = new Collection($env->all());
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        $mock = new MockAction();
+
+        $app = new App();
+
+        $app['foo'] = function() use ($mock, $res) {
+            return $mock;
+        };
+
+        $app->get('/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 
     // TODO: Test subRequest()
