@@ -47,7 +47,7 @@ class App extends \Pimple\Container
         'cookieSecure' => false,
         'cookieHttpOnly' => false,
         'httpVersion' => '1.1',
-        'defaultRetrievalSize' => 1024
+        'responseChunkSize' => 4096
     ];
 
     /********************************************************************************
@@ -417,7 +417,7 @@ class App extends \Pimple\Container
                 if ($body->isAttached()) {
                     $body->rewind();
                     while (!$body->eof()) {
-                        echo $body->read($this['settings']['defaultRetrievalSize']);
+                        echo $body->read($this['settings']['responseChunkSize']);
                     }
                 }
             }
