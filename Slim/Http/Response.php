@@ -11,7 +11,7 @@ namespace Slim\Http;
 use Slim\Interfaces\Http\HeadersInterface;
 use Slim\Interfaces\Http\CookiesInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Response
@@ -49,7 +49,7 @@ class Response implements ResponseInterface
     /**
      * Body object
      *
-     * @var \Psr\Http\Message\StreamableInterface
+     * @var \Psr\Http\Message\StreamInterface
      */
     protected $body;
 
@@ -130,9 +130,9 @@ class Response implements ResponseInterface
      *
      * @param int                      $status  The response status code
      * @param HeadersInterface|null    $headers The response headers
-     * @param StreamableInterface|null $body    The response body
+     * @param StreamInterface|null $body    The response body
      */
-    public function __construct($status = 200, HeadersInterface $headers = null, StreamableInterface $body = null)
+    public function __construct($status = 200, HeadersInterface $headers = null, StreamInterface $body = null)
     {
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
@@ -449,7 +449,7 @@ class Response implements ResponseInterface
     /**
      * Gets the body of the message.
      *
-     * @return StreamableInterface Returns the body as a stream.
+     * @return StreamInterface Returns the body as a stream.
      */
     public function getBody()
     {
@@ -459,17 +459,17 @@ class Response implements ResponseInterface
     /**
      * Create a new instance, with the specified message body.
      *
-     * The body MUST be a StreamableInterface object.
+     * The body MUST be a StreamInterface object.
      *
      * This method MUST be implemented in such a way as to retain the
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param  StreamableInterface $body Body.
+     * @param  StreamInterface $body Body.
      * @return self
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function withBody(StreamableInterface $body)
+    public function withBody(StreamInterface $body)
     {
         // TODO: Test for invalid body?
         $clone = clone $this;
@@ -620,4 +620,25 @@ class Response implements ResponseInterface
 
         return $output;
     }
+
+    
+
+    /**
+     * Retrieve a header by the given case-insensitive name, as a string.
+     *
+     * This method returns all of the header values of the given
+     * case-insensitive header name as a string concatenated together using
+     * a comma.
+     *
+     * NOTE: Not all header values may be appropriately represented using
+     * comma concatenation. For such headers, use getHeaderLines() instead
+     * and supply your own delimiter when concatenating.
+     *
+     * @param  string $name Case-insensitive header name.
+     * @return string
+     */
+    public function getHeaderLine($name)
+    {
+        return implode(',', $this->headers->get($name, []));
+    }    
 }

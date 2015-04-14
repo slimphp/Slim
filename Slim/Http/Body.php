@@ -14,9 +14,9 @@ namespace Slim\Http;
  * This class represents an HTTP message body and encapsulates a
  * streamable resource according to the PSR-7 standard.
  *
- * @link https://github.com/php-fig/http-message/blob/master/src/StreamableInterface.php
+ * @link https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php
  */
-class Body implements \Psr\Http\Message\StreamableInterface
+class Body implements \Psr\Http\Message\StreamInterface
 {
     /**
      * Resource modes
