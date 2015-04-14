@@ -25,7 +25,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals(200, 'status', $response);
         $this->assertAttributeInstanceOf('\Slim\Http\Headers', 'headers', $response);
-        $this->assertAttributeInstanceOf('\Psr\Http\Message\StreamableInterface', 'body', $response);
+        $this->assertAttributeInstanceOf('\Psr\Http\Message\StreamInterface', 'body', $response);
     }
 
     public function testConstructorWithCustomArgs()

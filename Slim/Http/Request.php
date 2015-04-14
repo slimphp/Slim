@@ -10,7 +10,7 @@ namespace Slim\Http;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
-use Psr\Http\Message\StreamableInterface;
+use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
 use Slim\Interfaces\CollectionInterface;
 
@@ -99,7 +99,7 @@ class Request implements RequestInterface
     /**
      * The request body object
      *
-     * @var \Psr\Http\Message\StreamableInterface
+     * @var \Psr\Http\Message\StreamInterface
      */
     protected $body;
 
@@ -132,9 +132,9 @@ class Request implements RequestInterface
      * @param HeadersInterface    $headers      The request headers collection
      * @param CollectionInterface $cookies      The request cookies collection
      * @param CollectionInterface $serverParams The server environment variables
-     * @param StreamableInterface $body         The request body object
+     * @param StreamInterface $body         The request body object
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamableInterface $body)
+    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamInterface $body)
     {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
@@ -525,8 +525,10 @@ class Request implements RequestInterface
      * @param  UriInterface $uri New request URI to use.
      * @return self
      */
-    public function withUri(UriInterface $uri)
+    public function withUri(UriInterface $uri, $preserveHost = false)
     {
+        //TODO Do something with $preserveHost
+        
         $clone = clone $this;
         $clone->uri = $uri;
 
@@ -1011,7 +1013,7 @@ class Request implements RequestInterface
     /**
      * Gets the body of the message.
      *
-     * @return StreamableInterface Returns the body as a stream.
+     * @return StreamInterface Returns the body as a stream.
      */
     public function getBody()
     {
@@ -1021,17 +1023,17 @@ class Request implements RequestInterface
     /**
      * Create a new instance, with the specified message body.
      *
-     * The body MUST be a StreamableInterface object.
+     * The body MUST be a StreamInterface object.
      *
      * This method MUST be implemented in such a way as to retain the
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param  StreamableInterface $body Body.
+     * @param  StreamInterface $body Body.
      * @return self
      * @throws \InvalidArgumentException When the body is not valid.
      */
-    public function withBody(StreamableInterface $body)
+    public function withBody(StreamInterface $body)
     {
         $clone = clone $this;
         $clone->body = $body;
@@ -1168,4 +1170,24 @@ class Request implements RequestInterface
 
         return $params;
     }
+
+    
+    /**
+     * Retrieve a header by the given case-insensitive name, as a string.
+     *
+     * This method returns all of the header values of the given
+     * case-insensitive header name as a string concatenated together using
+     * a comma.
+     *
+     * NOTE: Not all header values may be appropriately represented using
+     * comma concatenation. For such headers, use getHeaderLines() instead
+     * and supply your own delimiter when concatenating.
+     *
+     * @param  string $name Case-insensitive header field name.
+     * @return string
+     */
+    public function getHeaderLine($name) {
+        return implode(',', $this->headers->get($name, []));
+    }
+
 }
