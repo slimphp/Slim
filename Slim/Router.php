@@ -65,8 +65,11 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
     public function map($methods, $pattern, $handler)
     {
         // Prepend group pattern
-        list($groupPattern, $groupMiddleware) = $this->processGroups();
-        $pattern = $groupPattern . $pattern;
+        $groupMiddleware = [];
+        if ($this->routeGroups) {
+            list($groupPattern, $groupMiddleware) = $this->processGroups();
+            $pattern = $groupPattern . $pattern;
+        }
 
         // Add route
         $route = new Route($methods, $pattern, $handler);
