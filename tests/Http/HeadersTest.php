@@ -22,8 +22,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Accept']));
-        $this->assertEquals('application/json', $prop->getValue($h)['Accept']['value'][0]);
+        $this->assertTrue(is_array($prop->getValue($h)['accept']));
+        $this->assertEquals('application/json', $prop->getValue($h)['accept']['value'][0]);
     }
 
     public function testCreateFromEnvironmentWithSpecialHeaders()
@@ -35,8 +35,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Content-Type']));
-        $this->assertEquals('application/json', $prop->getValue($h)['Content-Type']['value'][0]);
+        $this->assertTrue(is_array($prop->getValue($h)['content-type']));
+        $this->assertEquals('application/json', $prop->getValue($h)['content-type']['value'][0]);
     }
 
     public function testCreateFromEnvironmentIgnoresHeaders()
@@ -50,8 +50,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertEquals('text/csv', $prop->getValue($h)['Content-Type']['value'][0]);
-        $this->assertNotContains('Content-Length', $prop->getValue($h));
+        $this->assertEquals('text/csv', $prop->getValue($h)['content-type']['value'][0]);
+        $this->assertNotContains('content-length', $prop->getValue($h));
     }
 
     public function testConstructor()
@@ -62,8 +62,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Content-Length']));
-        $this->assertEquals(100, $prop->getValue($h)['Content-Length']['value'][0]);
+        $this->assertTrue(is_array($prop->getValue($h)['content-length']));
+        $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
     public function testSetSingleValue()
@@ -73,8 +73,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Content-Length']));
-        $this->assertEquals(100, $prop->getValue($h)['Content-Length']['value'][0]);
+        $this->assertTrue(is_array($prop->getValue($h)['content-length']));
+        $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
     public function testSetArrayValue()
@@ -84,8 +84,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Allow']));
-        $this->assertEquals(['GET', 'POST'], $prop->getValue($h)['Allow']['value']);
+        $this->assertTrue(is_array($prop->getValue($h)['allow']));
+        $this->assertEquals(['GET', 'POST'], $prop->getValue($h)['allow']['value']);
     }
 
     public function testGet()
@@ -94,7 +94,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
         $prop->setValue($h, [
-            'Allow' => [
+            'allow' => [
                 'value' => ['GET', 'POST'],
                 'originalKey' => 'Allow'
             ]
@@ -117,8 +117,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Foo']));
-        $this->assertEquals(['Bar'], $prop->getValue($h)['Foo']['value']);
+        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertEquals(['Bar'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testAddAnotherValue()
@@ -129,8 +129,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Foo']));
-        $this->assertEquals(['Bar', 'Xyz'], $prop->getValue($h)['Foo']['value']);
+        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertEquals(['Bar', 'Xyz'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testAddArrayValue()
@@ -141,8 +141,8 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['Foo']));
-        $this->assertEquals(['Bar', 'Xyz', '123'], $prop->getValue($h)['Foo']['value']);
+        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertEquals(['Bar', 'Xyz', '123'], $prop->getValue($h)['foo']['value']);
     }
 
     public function testHas()
@@ -151,13 +151,13 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
         $prop->setValue($h, [
-            'Allow' => [
+            'allow' => [
                 'value' => ['GET', 'POST'],
                 'originalKey' => 'Allow'
             ]
         ]);
-        $this->assertTrue($h->has('Allow'));
-        $this->assertFalse($h->has('Foo'));
+        $this->assertTrue($h->has('allow'));
+        $this->assertFalse($h->has('foo'));
     }
 
     public function testRemove()
@@ -195,11 +195,11 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
     public function testNormalizeKey()
     {
         $h = new Headers();
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('HTTP_FOO_BAR'));
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('HTTP-FOO-BAR'));
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('Http-Foo-Bar'));
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('Http_Foo_Bar'));
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('http_foo_bar'));
-        $this->assertEquals('Foo-Bar', $h->normalizeKey('http-foo-bar'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('HTTP_FOO_BAR'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('HTTP-FOO-BAR'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('Http-Foo-Bar'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('Http_Foo_Bar'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('http_foo_bar'));
+        $this->assertEquals('foo-bar', $h->normalizeKey('http-foo-bar'));
     }
 }

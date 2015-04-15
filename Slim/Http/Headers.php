@@ -197,10 +197,10 @@ class Headers extends Collection implements HeadersInterface
     public function normalizeKey($key)
     {
         $key = strtolower($key);
-        $key = str_replace(['-', '_'], ' ', $key);
-        $key = preg_replace('#^http #', '', $key);
-        $key = ucwords($key);
-        $key = str_replace(' ', '-', $key);
+        $key = str_replace('_', '-', $key);
+        if (strpos($key, 'http-') === 0) {
+            $key = substr_replace($key, '', 0, 5);
+        }
 
         return $key;
     }
