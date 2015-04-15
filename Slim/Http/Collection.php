@@ -48,7 +48,7 @@ class Collection implements CollectionInterface
      */
     public function set($key, $value)
     {
-        $this->offsetSet($key, $value);
+        $this->data[$key] = $value;
     }
 
     /**
@@ -61,7 +61,7 @@ class Collection implements CollectionInterface
      */
     public function get($key, $default = null)
     {
-        return $this->offsetExists($key) ? $this->offsetGet($key) : $default;
+        return $this->has($key) ? $this->data[$key] : $default;
     }
 
     /**
@@ -105,7 +105,7 @@ class Collection implements CollectionInterface
      */
     public function has($key)
     {
-        return $this->offsetExists($key);
+        return array_key_exists($key, $this->data);
     }
 
     /**
@@ -115,7 +115,7 @@ class Collection implements CollectionInterface
      */
     public function remove($key)
     {
-        $this->offsetUnset($key);
+        unset($this->data[$key]);
     }
 
     /**
@@ -139,7 +139,7 @@ class Collection implements CollectionInterface
      */
     public function offsetExists($key)
     {
-        return array_key_exists($key, $this->data);
+        return $this->has($key);
     }
 
     /**
@@ -151,7 +151,7 @@ class Collection implements CollectionInterface
      */
     public function offsetGet($key)
     {
-        return $this->data[$key];
+        return $this->get($key);
     }
 
     /**
@@ -162,7 +162,7 @@ class Collection implements CollectionInterface
      */
     public function offsetSet($key, $value)
     {
-        $this->data[$key] = $value;
+        $this->set($key, $value);
     }
 
     /**
@@ -172,7 +172,7 @@ class Collection implements CollectionInterface
      */
     public function offsetUnset($key)
     {
-        unset($this->data[$key]);
+        $this->remove($key);
     }
 
     /**
