@@ -20,9 +20,10 @@ require 'vendor/autoload.php';
  */
 $app = new \Slim\App();
 
-$app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $args) {
+$app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $first, $last) {
     echo $this['router']->urlFor('testGet', ['first' => 'Josh', 'last' => 'Lockhart']);
-    var_dump($args);
+    var_dump($first);
+    var_dump($last);
 })->setName('testGet');
 
 $app->get('/etaghit', function ($request, $response, $args) {
