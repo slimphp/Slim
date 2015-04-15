@@ -32,12 +32,12 @@ class Headers extends Collection implements HeadersInterface
      * @var array
      */
     protected static $special = [
-        'CONTENT_TYPE',
-        'CONTENT_LENGTH',
-        'PHP_AUTH_USER',
-        'PHP_AUTH_PW',
-        'PHP_AUTH_DIGEST',
-        'AUTH_TYPE',
+        'CONTENT_TYPE' => 1,
+        'CONTENT_LENGTH' => 1,
+        'PHP_AUTH_USER' => 1,
+        'PHP_AUTH_PW' => 1,
+        'PHP_AUTH_DIGEST' => 1,
+        'AUTH_TYPE' => 1,
     ];
 
     /**
@@ -64,11 +64,10 @@ class Headers extends Collection implements HeadersInterface
         $headers = new static();
         foreach ($environment as $key => $value) {
             $key = strtoupper($key);
-            if (strpos($key, 'HTTP_') === 0 || in_array($key, static::$special)) {
-                if ($key === 'HTTP_CONTENT_TYPE' || $key === 'HTTP_CONTENT_LENGTH') {
-                    continue;
+            if (strpos($key, 'HTTP_') === 0 || isset(static::$special[$key])) {
+                if ($key !== 'HTTP_CONTENT_TYPE' && $key !== 'HTTP_CONTENT_LENGTH') {
+                    $headers->set($key, $value);
                 }
-                $headers->set($key, $value);
             }
         }
 
