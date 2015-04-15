@@ -26,10 +26,10 @@ $app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $args)
 })->setName('testGet');
 
 $app->get('/etaghit', function ($request, $response, $args) {
-    $response->withEtag('abc123');
-    $response->write("Test body");
-
-    return $response;
+    return $response
+        ->withHeader('Content-Type', 'application/json')
+        ->withAddedHeader('ETag', 'abc123')
+        ->write(json_encode(array('name' => 'Josh')));
 });
 
 /**
