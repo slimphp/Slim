@@ -20,18 +20,6 @@ require 'vendor/autoload.php';
  */
 $app = new \Slim\App();
 
-$app->map(['GET', 'POST'], '/hello/{first}/{last}', function ($req, $res, $args) {
-    echo $this['router']->urlFor('testGet', ['first' => 'Josh', 'last' => 'Lockhart']);
-    var_dump($args);
-})->setName('testGet');
-
-$app->get('/etaghit', function ($request, $response, $args) {
-    $response->withEtag('abc123');
-    $response->write("Test body");
-
-    return $response;
-});
-
 /**
  * Step 3: Define the Slim application routes
  *
@@ -40,12 +28,11 @@ $app->get('/etaghit', function ($request, $response, $args) {
  * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
  * is an anonymous function.
  */
-// $app->get('/hello/:first/:last', function ($req, $res) {
-//     $first = $req->getAttribute('first');
-//     $last = $req->getAttribute('last');
-//
-//     echo "Hello, $first $last";
-// });
+$app->get('/hello/{first}/{last}', function ($req, $res, $args) {
+    $res->write("Hi");
+
+    return $res;
+});
 
 /**
  * Step 4: Run the Slim application
