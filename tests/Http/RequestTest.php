@@ -390,6 +390,20 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($request->hasHeader('X-Bar'));
     }
 
+    public function testGetHeaderLine()
+    {
+        $headers = new Headers([
+            'X-Foo' => ['one', 'two', 'three'],
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $headers);
+
+        $this->assertEquals('one,two,three', $request->getHeaderLine('X-Foo'));
+        $this->assertEquals('', $request->getHeaderLine('X-Bar'));
+    }
+
     public function testGetHeader()
     {
         $headers = new Headers([
@@ -400,22 +414,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
-        $this->assertEquals('one,two,three', $request->getHeader('X-Foo'));
-        $this->assertEquals('', $request->getHeader('X-Bar'));
-    }
-
-    public function testGetHeaderLines()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-
-        $this->assertEquals(['one', 'two', 'three'], $request->getHeaderLines('X-Foo'));
-        $this->assertEquals([], $request->getHeaderLines('X-Bar'));
+        $this->assertEquals(['one', 'two', 'three'], $request->getHeader('X-Foo'));
+        $this->assertEquals([], $request->getHeader('X-Bar'));
     }
 
     public function testWithHeader()
@@ -423,7 +423,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $request = $this->requestFactory();
         $clone = $request->withHeader('X-Foo', 'bar');
 
-        $this->assertEquals('bar', $clone->getHeader('X-Foo'));
+        $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithAddedHeader()
@@ -437,7 +437,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headersProp->setValue($request, $headers);
         $clone = $request->withAddedHeader('X-Foo', 'two');
 
-        $this->assertEquals('one,two', $clone->getHeader('X-Foo'));
+        $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithoutHeader()

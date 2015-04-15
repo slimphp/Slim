@@ -331,6 +331,19 @@ class Response implements ResponseInterface
     }
 
     /**
+     * Retrieves a header by the given case-insensitive name as an array of strings.
+     *
+     * @param  string   $name Case-insensitive header field name.
+     * @return string[]       An array of string values as provided for the given
+     *                        header. If the header does not appear in the message, 
+     *                        this method MUST return an empty array.
+     */
+    public function getHeader($name)
+    {
+        return $this->headers->get($name, []);
+    }
+
+    /**
      * Retrieve a header by the given case-insensitive name, as a string.
      *
      * This method returns all of the header values of the given
@@ -338,27 +351,16 @@ class Response implements ResponseInterface
      * a comma.
      *
      * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeaderLines() instead
+     * comma concatenation. For such headers, use getHeader instead
      * and supply your own delimiter when concatenating.
      *
      * @param  string $name Case-insensitive header name.
      * @return string
      */
-    public function getHeader($name)
+    public function getHeaderLine($name)
     {
         return implode(',', $this->headers->get($name, []));
-    }
-
-    /**
-     * Retrieves a header by the given case-insensitive name as an array of strings.
-     *
-     * @param  string   $name Case-insensitive header name.
-     * @return string[]
-     */
-    public function getHeaderLines($name)
-    {
-        return $this->headers->get($name, []);
-    }
+    }  
 
     /**
      * Create a new instance with the provided header, replacing any existing
@@ -613,32 +615,11 @@ class Response implements ResponseInterface
         );
         $output .= PHP_EOL;
         foreach ($this->getHeaders() as $name => $values) {
-            $output .= sprintf('%s: %s', $name, $this->getHeader($name)) . PHP_EOL;
+            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . PHP_EOL;
         }
         $output .= PHP_EOL;
         $output .= (string)$this->getBody();
 
         return $output;
     }
-
-    
-
-    /**
-     * Retrieve a header by the given case-insensitive name, as a string.
-     *
-     * This method returns all of the header values of the given
-     * case-insensitive header name as a string concatenated together using
-     * a comma.
-     *
-     * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeaderLines() instead
-     * and supply your own delimiter when concatenating.
-     *
-     * @param  string $name Case-insensitive header name.
-     * @return string
-     */
-    public function getHeaderLine($name)
-    {
-        return implode(',', $this->headers->get($name, []));
-    }    
 }

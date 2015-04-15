@@ -163,6 +163,18 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->hasHeader('X-Bar'));
     }
 
+    public function testGetHeaderLine()
+    {
+        $headers = new Headers();
+        $headers->add('X-Foo', 'one');
+        $headers->add('X-Foo', 'two');
+        $headers->add('X-Foo', 'three');
+        $response = new Response(200, $headers);
+
+        $this->assertEquals('one,two,three', $response->getHeaderLine('X-Foo'));
+        $this->assertEquals('', $response->getHeaderLine('X-Bar'));
+    }
+
     public function testGetHeader()
     {
         $headers = new Headers();
@@ -171,20 +183,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $headers->add('X-Foo', 'three');
         $response = new Response(200, $headers);
 
-        $this->assertEquals('one,two,three', $response->getHeader('X-Foo'));
-        $this->assertEquals('', $response->getHeader('X-Bar'));
-    }
-
-    public function testGetHeaderLines()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $headers->add('X-Foo', 'two');
-        $headers->add('X-Foo', 'three');
-        $response = new Response(200, $headers);
-
-        $this->assertEquals(['one', 'two', 'three'], $response->getHeaderLines('X-Foo'));
-        $this->assertEquals([], $response->getHeaderLines('X-Bar'));
+        $this->assertEquals(['one', 'two', 'three'], $response->getHeader('X-Foo'));
+        $this->assertEquals([], $response->getHeader('X-Bar'));
     }
 
     public function testWithHeader()
@@ -194,7 +194,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response(200, $headers);
         $clone = $response->withHeader('X-Foo', 'bar');
 
-        $this->assertEquals('bar', $clone->getHeader('X-Foo'));
+        $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithAddedHeader()
@@ -204,7 +204,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response(200, $headers);
         $clone = $response->withAddedHeader('X-Foo', 'two');
 
-        $this->assertEquals('one,two', $clone->getHeader('X-Foo'));
+        $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
     }
 
     public function testWithoutHeader()

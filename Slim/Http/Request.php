@@ -248,7 +248,7 @@ class Request implements RequestInterface
     {
         if ($this->method === null) {
             $this->method = $this->originalMethod;
-            $customMethod = $this->getHeader('X-Http-Method-Override');
+            $customMethod = $this->getHeaderLine('X-Http-Method-Override');
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
             } elseif ($this->originalMethod === 'POST') {
@@ -418,7 +418,7 @@ class Request implements RequestInterface
      */
     public function isAjax()
     {
-        return $this->getHeader('X-Requested-With') === 'XMLHttpRequest';
+        return $this->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
 
     /**
@@ -583,6 +583,19 @@ class Request implements RequestInterface
     }
 
     /**
+     * Retrieves a header by the given case-insensitive name as an array of strings.
+     *
+     * @param  string   $name Case-insensitive header field name.
+     * @return string[]       An array of string values as provided for the given
+     *                        header. If the header does not appear in the message, 
+     *                        this method MUST return an empty array.
+     */
+    public function getHeader($name)
+    {
+        return $this->headers->get($name, []);
+    }
+
+    /**
      * Retrieve a header by the given case-insensitive name, as a string.
      *
      * This method returns all of the header values of the given
@@ -590,26 +603,15 @@ class Request implements RequestInterface
      * a comma.
      *
      * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeaderLines() instead
+     * comma concatenation. For such headers, use getHeader instead
      * and supply your own delimiter when concatenating.
      *
      * @param  string $name Case-insensitive header field name.
      * @return string
      */
-    public function getHeader($name)
+    public function getHeaderLine($name) 
     {
         return implode(',', $this->headers->get($name, []));
-    }
-
-    /**
-     * Retrieves a header by the given case-insensitive name as an array of strings.
-     *
-     * @param  string   $name Case-insensitive header field name.
-     * @return string[]
-     */
-    public function getHeaderLines($name)
-    {
-        return $this->headers->get($name, []);
     }
 
     /**
@@ -688,7 +690,7 @@ class Request implements RequestInterface
      */
     public function getContentType()
     {
-        $result = $this->getHeaderLines('Content-Type');
+        $result = $this->getHeader('Content-Type');
 
         return $result ? $result[0] : null;
     }
@@ -1170,24 +1172,4 @@ class Request implements RequestInterface
 
         return $params;
     }
-
-    
-    /**
-     * Retrieve a header by the given case-insensitive name, as a string.
-     *
-     * This method returns all of the header values of the given
-     * case-insensitive header name as a string concatenated together using
-     * a comma.
-     *
-     * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeaderLines() instead
-     * and supply your own delimiter when concatenating.
-     *
-     * @param  string $name Case-insensitive header field name.
-     * @return string
-     */
-    public function getHeaderLine($name) {
-        return implode(',', $this->headers->get($name, []));
-    }
-
 }
