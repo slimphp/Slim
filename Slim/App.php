@@ -252,9 +252,6 @@ class App extends \Pimple\Container
      */
     public function map(array $methods, $pattern, $callable)
     {
-        if (!is_string($pattern)) {
-            throw new \InvalidArgumentException('Route pattern must be a string');
-        }
 
         $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof \Closure) {
