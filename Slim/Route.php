@@ -70,7 +70,7 @@ class Route implements RouteInterface, ServiceProviderInterface
     {
         $this->methods = $methods;
         $this->pattern = $pattern;
-        $this->setCallable($callable);
+        $this->callable = $callable;
         $this->seedMiddlewareStack();
     }
 
@@ -203,26 +203,8 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        // Invoke route callable
-        try {
-            ob_start();
-            $newResponse = call_user_func_array($this->callable, [$request, $response, $this->parsedArgs]);
-            $output = ob_get_clean();
-        } catch (\Exception $e) {
-            ob_end_clean();
-            throw $e;
-        }
+        $function = $this->callable;
 
-        // End if route callback returns Interfaces\Http\ResponseInterface object
-        if ($newResponse instanceof ResponseInterface) {
-            return $newResponse;
-        }
-
-        // Else append output buffer content
-        if ($output) {
-            $response->getBody()->write($output);
-        }
-
-        return $response;
+        return $function($request, $response, $this->parsedArgs);
     }
 }

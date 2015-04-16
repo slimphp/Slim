@@ -37,7 +37,7 @@ use Pimple\Container;
 class MiddlewareStub
 {
     public function run($request, $response, $next) {
-        return $next($request, $response);
+        return $response; //$next($request, $response);
     }
 }
 

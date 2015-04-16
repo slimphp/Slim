@@ -25,6 +25,8 @@ class MockAction
         }
 
         $arguments[1]->write(json_encode(compact('name') + ['arguments' => $arguments[2]]));
+
+        return $arguments[1];
     }
 }
 
