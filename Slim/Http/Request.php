@@ -78,14 +78,14 @@ class Request implements RequestInterface
     /**
      * The request cookies
      *
-     * @var array 
+     * @var array
      */
     protected $cookies;
 
     /**
      * The server environment variables at the time the request was created.
      *
-     * @var array 
+     * @var array
      */
     protected $serverParams;
 
@@ -122,7 +122,17 @@ class Request implements RequestInterface
      *
      * @var string[]
      */
-    protected $validMethods = ['CONNECT', 'DELETE', 'GET', 'HEAD', 'OPTIONS', 'PATCH', 'POST', 'PUT', 'TRACE'];
+    protected $validMethods = [
+        'CONNECT' => 1,
+        'DELETE' => 1,
+        'GET' => 1,
+        'HEAD' => 1,
+        'OPTIONS' => 1,
+        'PATCH' => 1,
+        'POST' => 1,
+        'PUT' => 1,
+        'TRACE' => 1,
+    ];
 
     /**
      * Create new HTTP request
@@ -306,7 +316,7 @@ class Request implements RequestInterface
             return $method;
         }
 
-        if (is_string($method) === false) {
+        if (!is_string($method)) {
             throw new \InvalidArgumentException(sprintf(
                 'Unsupported HTTP method; must be a string, received %s',
                 (is_object($method) ? get_class($method) : gettype($method))
@@ -314,7 +324,7 @@ class Request implements RequestInterface
         }
 
         $method = strtoupper($method);
-        if (in_array($method, $this->validMethods, true) === false) {
+        if (!isset($this->validMethods[$method])) {
             throw new \InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
