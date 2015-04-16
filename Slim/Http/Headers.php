@@ -61,17 +61,17 @@ class Headers extends Collection implements HeadersInterface
      */
     public static function createFromEnvironment(Environment $environment)
     {
-        $headers = new static();
+        $data = [];
         foreach ($environment as $key => $value) {
             $key = strtoupper($key);
             if (strpos($key, 'HTTP_') === 0 || isset(static::$special[$key])) {
                 if ($key !== 'HTTP_CONTENT_TYPE' && $key !== 'HTTP_CONTENT_LENGTH') {
-                    $headers->set($key, $value);
+                    $data[$key] =  $value;
                 }
             }
         }
 
-        return $headers;
+        return new static($data);
     }
 
     /**
