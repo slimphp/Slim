@@ -32,14 +32,41 @@ class Error
     public function __invoke(RequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
         $title = 'Slim Application Error';
+        $html = '<p>The application could not run because of the following error:</p>';
+        $html .= '<h2>Details</h2>';
+        $html .= $this->renderException($exception);
+
+        while ($exception = $exception->getPrevious()) {
+
+            $html .= '<h2>Previous exception</h2>';
+            $html .= $this->renderException($exception);
+        }
+
+        $output = sprintf(
+            "<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
+            "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;" .
+            "width:65px;}</style></head><body><h1>%s</h1>%s</body></html>",
+            $title,
+            $title,
+            $html
+        );
+
+        return $response
+                ->withStatus(500)
+                ->withHeader('Content-type', 'text/html')
+                ->withBody(new Body(fopen('php://temp', 'r+')))
+                ->write($output);
+    }
+
+    private function renderException($exception)
+    {
         $code = $exception->getCode();
         $message = $exception->getMessage();
         $file = $exception->getFile();
         $line = $exception->getLine();
         $trace = str_replace(['#', '\n'], ['<div>#', '</div>'], $exception->getTraceAsString());
-        $html = '<p>The application could not run because of the following error:</p>';
-        $html .= '<h2>Details</h2>';
-        $html .= sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
+        
+        $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
         if ($code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
@@ -56,19 +83,6 @@ class Error
             $html .= '<h2>Trace</h2>';
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
-        $output = sprintf(
-            "<html><head><title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
-            "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{display:inline-block;" .
-            "width:65px;}</style></head><body><h1>%s</h1>%s</body></html>",
-            $title,
-            $title,
-            $html
-        );
-
-        return $response
-                ->withStatus(500)
-                ->withHeader('Content-type', 'text/html')
-                ->withBody(new Body(fopen('php://temp', 'r+')))
-                ->write($output);
+        return $html;
     }
 }
