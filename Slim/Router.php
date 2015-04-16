@@ -64,6 +64,11 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      */
     public function map($methods, $pattern, $handler)
     {
+        
+        if (!is_string($pattern)) {
+            throw new \InvalidArgumentException('Route pattern must be a string');
+        }
+
         // Prepend group pattern
         $groupMiddleware = [];
         if ($this->routeGroups) {
