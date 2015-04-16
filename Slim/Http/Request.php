@@ -130,11 +130,11 @@ class Request implements RequestInterface
      * @param string              $method       The request method
      * @param UriInterface        $uri          The request URI object
      * @param HeadersInterface    $headers      The request headers collection
-     * @param CollectionInterface $cookies      The request cookies collection
-     * @param CollectionInterface $serverParams The server environment variables
+     * @param array               $cookies      The request cookies collection
+     * @param array               $serverParams The server environment variables
      * @param StreamInterface $body         The request body object
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, CollectionInterface $cookies, CollectionInterface $serverParams, StreamInterface $body)
+    public function __construct($method, UriInterface $uri, HeadersInterface $headers, array $cookies, array $serverParams, StreamInterface $body)
     {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
@@ -156,10 +156,6 @@ class Request implements RequestInterface
             parse_str($input, $data);
             return (object)$data;
         });
-
-        // TODO: Parse `multipart/mixed`
-        // TODO: Parse `multipart/alternative`
-        // TODO: Parse `multipart/form-data`
     }
 
     /**
@@ -172,8 +168,6 @@ class Request implements RequestInterface
     {
         $this->uri = clone $this->uri;
         $this->headers = clone $this->headers;
-        $this->cookies = clone $this->cookies;
-        $this->serverParams = clone $this->serverParams;
         $this->attributes = clone $this->attributes;
         $this->body = clone $this->body;
     }
@@ -528,7 +522,7 @@ class Request implements RequestInterface
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
         //TODO Do something with $preserveHost
-        
+
         $clone = clone $this;
         $clone->uri = $uri;
 
@@ -587,7 +581,7 @@ class Request implements RequestInterface
      *
      * @param  string   $name Case-insensitive header field name.
      * @return string[]       An array of string values as provided for the given
-     *                        header. If the header does not appear in the message, 
+     *                        header. If the header does not appear in the message,
      *                        this method MUST return an empty array.
      */
     public function getHeader($name)
@@ -609,7 +603,7 @@ class Request implements RequestInterface
      * @param  string $name Case-insensitive header field name.
      * @return string
      */
-    public function getHeaderLine($name) 
+    public function getHeaderLine($name)
     {
         return implode(',', $this->headers->get($name, []));
     }
@@ -776,7 +770,7 @@ class Request implements RequestInterface
      */
     public function getCookieParams()
     {
-        return $this->cookies->all();
+        return $this->cookies;
     }
 
     /**
@@ -796,7 +790,7 @@ class Request implements RequestInterface
     public function withCookieParams(array $cookies)
     {
         $clone = clone $this;
-        $clone->cookies = new Collection($cookies);
+        $clone->cookies = $cookies;
 
         return $clone;
     }
@@ -898,7 +892,7 @@ class Request implements RequestInterface
      */
     public function getServerParams()
     {
-        return $this->serverParams->all();
+        return $this->serverParams;
     }
 
     /*******************************************************************************

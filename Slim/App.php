@@ -88,8 +88,8 @@ class App extends \Pimple\Container
             $method = $env['REQUEST_METHOD'];
             $uri = Http\Uri::createFromEnvironment($env);
             $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = new Http\Collection(Http\Cookies::parseHeader($headers->get('Cookie', [])));
-            $serverParams = new Http\Collection($env->all());
+            $cookies = Http\Cookies::parseHeader($headers->get('Cookie', []));
+            $serverParams = $env->all();
             $body = new Http\Body(fopen('php://input', 'r'));
 
             return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
@@ -105,23 +105,6 @@ class App extends \Pimple\Container
 
             return $response->withProtocolVersion($c['settings']['httpVersion']);
         });
-
-        /**
-         * This Pimple service MUST return a SHARED instance
-         * of \Slim\Interfaces\Http\CookiesInterface.
-         */
-        $this['cookies'] = function ($c) {
-            $cookies = new Http\Cookies($c['request']->getCookieParams());
-            $cookies->setDefaults([
-                'expires' => $c['settings']['cookieLifetime'],
-                'path' => $c['settings']['cookiePath'],
-                'domain' => $c['settings']['cookieDomain'],
-                'secure' => $c['settings']['cookieSecure'],
-                'httponly' => $c['settings']['cookieHttpOnly']
-            ]);
-
-            return $cookies;
-        };
 
         /**
          * This Pimple service MUST return a SHARED instance
@@ -370,16 +353,6 @@ class App extends \Pimple\Container
             $response = $e->getResponse();
         } catch (\Exception $e) {
             $response = $this['errorHandler']($request, $response, $e);
-        }
-
-        // Serialize cookies into Response
-        if (!$this['cookies'] instanceof CookiesInterface) {
-            throw new \RuntimeException('cookies service must return an instance of \Slim\Interfaces\Http\CookiesInterface');
-        }
-
-        $cookieHeaders = $this['cookies']->toHeaders();
-        if ($cookieHeaders) {
-            $response = $response->withAddedHeader('Set-Cookie', $cookieHeaders);
         }
 
         // Finalize response

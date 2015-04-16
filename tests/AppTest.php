@@ -251,8 +251,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -281,8 +281,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -310,8 +310,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -335,8 +335,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -372,8 +372,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -404,8 +404,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
-        $cookies = new Collection();
-        $serverParams = new Collection($env->all());
+        $cookies = [];
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();

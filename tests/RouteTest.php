@@ -132,11 +132,11 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $env = \Slim\Http\Environment::mock();
         $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
         $headers = new \Slim\Http\Headers();
-        $cookies = new \Slim\Http\Collection([
+        $cookies = [
             'user' => 'john',
             'id' => '123',
-        ]);
-        $serverParams = new Collection($env->all());
+        ];
+        $serverParams = $env->all();
         $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
         $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 

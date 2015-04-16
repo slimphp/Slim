@@ -41,12 +41,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
-        $cookies = new Collection([
+        $cookies = [
             'user' => 'john',
             'id' => '123',
-        ]);
+        ];
         $env = Slim\Http\Environment::mock();
-        $serverParams = new Collection($env->all());
+        $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
@@ -128,8 +128,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers([
             'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT',
         ]);
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
@@ -143,8 +143,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers([
             'Content-Type' => 'application/x-www-form-urlencoded',
         ]);
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
@@ -160,8 +160,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers([
             'Content-Type' => 'application/x-www-form-urlencoded',
         ]);
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
@@ -181,8 +181,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
     }
@@ -194,8 +194,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request(10, $uri, $headers, $cookies, $serverParams, $body);
     }
@@ -277,8 +277,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => 'application/x-www-form-urlencoded',
             'X-Requested-With' => 'XMLHttpRequest',
         ]);
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
@@ -333,8 +333,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
@@ -349,8 +349,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         // Request
         $headers = new Headers();
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
         $clone = $request->withUri($uri2);
@@ -757,8 +757,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('foo=bar');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
@@ -771,8 +771,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/json;charset=utf8');
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
@@ -786,8 +786,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/xml;charset=utf8');
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
@@ -824,8 +824,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers([
             'Content-Type' => 'application/json;charset=utf8',
         ]);
-        $cookies = new Collection();
-        $serverParams = new Collection();
+        $cookies = [];
+        $serverParams = [];
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write('{"foo": "bar"}');
         $body->rewind();

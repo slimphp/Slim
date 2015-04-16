@@ -48,7 +48,7 @@ class Headers extends Collection implements HeadersInterface
     public function __construct(array $headers = null)
     {
         if ($headers) {
-            $this->replace($headers);
+            parent::__construct($headers);
         }
     }
 
