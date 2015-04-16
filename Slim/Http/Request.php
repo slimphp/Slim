@@ -12,7 +12,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
-use Slim\Interfaces\CollectionInterface;
+use Slim\Interfaces\Http\CollectionInterface;
 
 /**
  * Request
@@ -78,21 +78,21 @@ class Request implements RequestInterface
     /**
      * The request cookies
      *
-     * @var \Slim\Interfaces\CollectionInterface
+     * @var array 
      */
     protected $cookies;
 
     /**
      * The server environment variables at the time the request was created.
      *
-     * @var \Slim\Interfaces\CollectionInterface
+     * @var array 
      */
     protected $serverParams;
 
     /**
      * The request attributes (route segment names and values)
      *
-     * @var \Slim\Interfaces\CollectionInterface
+     * @var \Slim\Http\Collection
      */
     protected $attributes;
 
