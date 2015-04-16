@@ -256,7 +256,7 @@ class App extends \Pimple\Container
             throw new \InvalidArgumentException('Route pattern must be a string');
         }
 
-        $callable = $this->resolveCallable($callable);
+        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
