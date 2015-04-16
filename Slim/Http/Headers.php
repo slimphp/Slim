@@ -41,18 +41,6 @@ class Headers extends Collection implements HeadersInterface
     ];
 
     /**
-     * Create new headers collection
-     *
-     * @param array|null $headers Initial header names and values
-     */
-    public function __construct(array $headers = null)
-    {
-        if ($headers) {
-            parent::__construct($headers);
-        }
-    }
-
-    /**
      * Create new headers collection with data extracted from
      * the application Environment object
      *
@@ -196,10 +184,9 @@ class Headers extends Collection implements HeadersInterface
      */
     public function normalizeKey($key)
     {
-        $key = strtolower($key);
-        $key = str_replace('_', '-', $key);
+        $key = strtr(strtolower($key), '_', '-');
         if (strpos($key, 'http-') === 0) {
-            $key = substr_replace($key, '', 0, 5);
+            $key = substr($key, 5);
         }
 
         return $key;
