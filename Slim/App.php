@@ -356,7 +356,9 @@ class App extends \Pimple\Container
         }
 
         // Finalize response
-        if (in_array($response->getStatusCode(), [204, 304])) {
+        $statusCode = $response->getStatusCode();
+        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+        if (!$hasBody) {
             $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         } else {
             $size = $response->getBody()->getSize();
@@ -385,7 +387,7 @@ class App extends \Pimple\Container
             }
 
             // Body
-            if (!in_array($response->getStatusCode(), [204, 304])) {
+            if ($hasBody) {
                 $body = $response->getBody();
                 if ($body->isAttached()) {
                     $body->rewind();
