@@ -33,7 +33,9 @@ class Collection implements CollectionInterface
      */
     public function __construct(array $items = [])
     {
-        $this->replace($items);
+        foreach ($items as $key => $value) {
+            $this->set($key, $value);
+        }
     }
 
     /********************************************************************************
