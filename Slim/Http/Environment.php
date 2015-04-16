@@ -20,18 +20,6 @@ use Slim\Interfaces\Http\EnvironmentInterface;
 class Environment extends Collection implements EnvironmentInterface
 {
     /**
-     * Create new environment
-     *
-     * @param array|null $environment Array of custom environment keys and values
-     */
-    public function __construct(array $environment = null)
-    {
-        if ($environment) {
-            $this->replace($environment);
-        }
-    }
-
-    /**
      * Create mock environment
      *
      * @param  array $userData Array of custom environment keys and values
