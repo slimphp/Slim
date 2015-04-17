@@ -10,7 +10,7 @@ namespace Slim;
 
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Pimple\ServiceProviderInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * App
@@ -22,7 +22,7 @@ use Pimple\ServiceProviderInterface;
  * \Slim\App instance. The \Slim\App class also accepts
  * Slim Framework middleware.
  */
-class App extends \Pimple\Container
+class App
 {
     use ResolveCallable;
     use MiddlewareAware;
@@ -35,127 +35,40 @@ class App extends \Pimple\Container
     const VERSION = '3.0.0';
 
     /**
-     * Default settings
+     * Container
      *
-     * @var array
+     * @var ContainerInterface
      */
-    protected $defaultSettings = [
-        'cookieLifetime' => '20 minutes',
-        'cookiePath' => '/',
-        'cookieDomain' => null,
-        'cookieSecure' => false,
-        'cookieHttpOnly' => false,
-        'httpVersion' => '1.1',
-        'responseChunkSize' => 4096
-    ];
+    private $container;
 
     /********************************************************************************
-     * Constructor and default Pimple services
+     * Constructor
      *******************************************************************************/
 
     /**
      * Create new application
      *
-     * @param array $userSettings Associative array of application settings
+     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
      */
-    public function __construct(array $userSettings = [])
+    public function __construct($container)
     {
-        parent::__construct();
+        if (is_array($container)) {
+            $container = new Slim\Container($container);
+        }
+        if (!$container instanceof ContainerInterface) {
+            throw new \Exception("Expected a ContainerInterface");
+        }
+        $this->container = $container;
+    }
 
-        /**
-         * This Pimple service MUST return an array or an
-         * instance of \ArrayAccess.
-         */
-        $this['settings'] = function ($c) use ($userSettings) {
-            return array_merge($c->defaultSettings, $userSettings);
-        };
-
-        /**
-         * This Pimple service MUST return a shared instance
-         * of \Slim\Interfaces\Http\EnvironmentInterface.
-         */
-        $this['environment'] = function () {
-            return new Http\Environment($_SERVER);
-        };
-
-        /**
-         * This Pimple service MUST return a NEW instance
-         * of \Psr\Http\Message\RequestInterface.
-         */
-        $this['request'] = $this->factory(function ($c) {
-            $env = $c['environment'];
-            $method = $env['REQUEST_METHOD'];
-            $uri = Http\Uri::createFromEnvironment($env);
-            $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = Http\Cookies::parseHeader($headers->get('Cookie', []));
-            $serverParams = $env->all();
-            $body = new Http\Body(fopen('php://input', 'r'));
-
-            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
-        });
-
-        /**
-         * This Pimple service MUST return a NEW instance
-         * of \Psr\Http\Message\ResponseInterface.
-         */
-        $this['response'] = $this->factory(function ($c) {
-            $headers = new Http\Headers(['Content-Type' => 'text/html']);
-            $response = new Http\Response(200, $headers);
-
-            return $response->withProtocolVersion($c['settings']['httpVersion']);
-        });
-
-        /**
-         * This Pimple service MUST return a SHARED instance
-         * of \Slim\Interfaces\RouterInterface.
-         */
-        $this['router'] = function () {
-            return new Router();
-        };
-
-        /**
-         * This Pimple service MUST return a callable
-         * that accepts three arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         * 3. Instance of \Exception
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         */
-        $this['errorHandler'] = function () {
-            return new Handlers\Error;
-        };
-
-        /**
-         * This Pimple service MUST return a callable
-         * that accepts two arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         */
-        $this['notFoundHandler'] = function () {
-            return new Handlers\NotFound;
-        };
-
-        /**
-         * This Pimple service MUST return a callable
-         * that accepts three arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         * 3. Array of allowed HTTP methods
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         */
-        $this['notAllowedHandler'] = function () {
-            return new Handlers\NotAllowed;
-        };
+    /**
+     * Enable access to the DI container by consumers of $app
+     *
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
     }
 
     /********************************************************************************
@@ -256,9 +169,9 @@ class App extends \Pimple\Container
             $callable = $callable->bindTo($this);
         }
 
-        $route = $this['router']->map($methods, $pattern, $callable);
-        if ($route instanceof ServiceProviderInterface) {
-            $route->register($this);
+        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        if (method_exists($route, 'register')) {
+            $route->register($this->container);
         }
 
         return $route;
@@ -279,11 +192,11 @@ class App extends \Pimple\Container
         $args = func_get_args();
         $pattern = array_shift($args);
         $callable = array_pop($args);
-        $this['router']->pushGroup($pattern, $args);
+        $this->container->get('router')->pushGroup($pattern, $args);
         if (is_callable($callable)) {
             call_user_func($callable);
         }
-        $this['router']->popGroup();
+        $this->container->get('router')->popGroup();
     }
 
     /********************************************************************************
@@ -320,7 +233,7 @@ class App extends \Pimple\Container
      */
     public function halt($status, $message = '')
     {
-        $response = $this['response']->withStatus($status);
+        $response = $this->container->get('response')->withStatus($status);
         $response->write($message);
         $this->stop($response);
     }
@@ -338,8 +251,8 @@ class App extends \Pimple\Container
     public function run()
     {
         static $responded = false;
-        $request = $this['request'];
-        $response = $this['response'];
+        $request = $this->container->get('request');
+        $response = $this->container->get('response');
 
         // Traverse middleware stack
         try {
@@ -347,7 +260,8 @@ class App extends \Pimple\Container
         } catch (\Slim\Exception $e) {
             $response = $e->getResponse();
         } catch (\Exception $e) {
-            $response = $this['errorHandler']($request, $response, $e);
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
         }
 
         // Finalize response
@@ -387,7 +301,8 @@ class App extends \Pimple\Container
                 if ($body->isAttached()) {
                     $body->rewind();
                     while (!$body->eof()) {
-                        echo $body->read($this['settings']['responseChunkSize']);
+                        $settings = $this->container->get('settings');
+                        echo $body->read($settings['responseChunkSize']);
                     }
                 }
             }
@@ -412,20 +327,22 @@ class App extends \Pimple\Container
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this['router']->dispatch($request);
+        $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
             // URL decode the named arguments from the router
             $attributes = $routeInfo[2];
-            array_walk($attributes, function(&$v, $k) {
+            array_walk($attributes, function (&$v, $k) {
                 $v = urldecode($v);
             });
             return $routeInfo[1]($request->withAttributes($attributes), $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
-            return $this['notFoundHandler']($request, $response);
+            $notFoundHandler = $this->container->get('notFoundHandler');
+            return $notFoundHandler($request, $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this['notAllowedHandler']($request, $response, $routeInfo[1]);
+            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
     }
 
@@ -447,7 +364,7 @@ class App extends \Pimple\Container
      */
     public function subRequest($method, $path, array $headers = [], array $cookies = [], $bodyContent = '')
     {
-        $env = $this['environment'];
+        $env = $this->container->get('environment');
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
         $serverParams = new Collection($env->all());
@@ -455,7 +372,7 @@ class App extends \Pimple\Container
         $body->write($bodyContent);
         $body->rewind();
         $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
-        $response = $this['response'];
+        $response = $this->container->get('response');
 
         return $this($request, $response);
     }
