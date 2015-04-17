@@ -90,7 +90,6 @@ class Route implements RouteInterface, ServiceProviderInterface
     {
         $this->unresolvedMiddleware[] = $callable;
         return $this;
-        return $this->addMiddleware($callable);
     }
 
     /**
