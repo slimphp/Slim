@@ -21,7 +21,6 @@ class CallableResolver
     
     public function resolve()
     {
-        static $obj = null;
         preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $this->toResolve, $matches);
         $class = $matches[1];
         $method = $matches[2];
@@ -33,9 +32,9 @@ class CallableResolver
                 throw new \RuntimeException('Route callable class does not exist');
             }
             $this->resolved = [new $class, $method];
-            if (!is_callable([$obj, $method])) {
-                throw new \RuntimeException('Route callable method does not exist');
-            }
+        }
+        if (!is_callable($this->resolved)) {
+            throw new \RuntimeException('Route callable method does not exist');
         }
     }
     
@@ -44,7 +43,6 @@ class CallableResolver
         if(!isset($this->resolved)) {
             $this->resolve();
         }
-        
         return call_user_func_array($this->resolved, func_get_args());
     }
     
