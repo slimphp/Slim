@@ -1142,10 +1142,11 @@ class Request implements RequestInterface
      * body or query string (in that order).
      *
      * @param  string $key The parameter key
+     * @param  callable $callable a callable executed on the param value, returning the parsed result
      *
      * @return mixed The parameter value
      */
-    public function getParam($key)
+    public function getParam($key, callable $callable = null)
     {
         $postParams = $this->getParsedBody();
         $getParams = $this->getQueryParams();
@@ -1158,20 +1159,32 @@ class Request implements RequestInterface
             $result = $getParams[$key];
         }
 
+        if ($callable) {
+            $callable->bindTo($this);
+            $parsed_result = $callable($result);
+            return $parsed_result;
+        }
+
         return $result;
     }
 
     /**
-     * Fetch assocative array of body and query string parameters
-     *
+     * Fetch associative array of body and query string parameters
+     * @param callable $callable a callable executed on array of parameters, returning the result. Should return an array
      * @return array
      */
-    public function getParams()
+    public function getParams(callable $callable = null)
     {
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
             $params = array_merge($params, (array)$postParams);
+        }
+
+        if ($callable) {
+            $callable->bindTo($this);
+            $parsed_params = $callable($params);
+            return $parsed_params;
         }
 
         return $params;
