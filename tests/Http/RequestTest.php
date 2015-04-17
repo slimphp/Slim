@@ -867,6 +867,22 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $request->getParam('foo'));
     }
 
+    public function testGetParameterFromBodyWithCallable()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('xss=<script language="javascript">alert("foo")</script>');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $callable = function ($raw) {
+            return filter_var($raw, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+        };
+
+        $this->assertEquals('alert("foo")', $request->getParam('xss', $callable));
+    }
+
     public function testGetParameterFromQuery()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -895,6 +911,26 @@ class RequestTest extends PHPUnit_Framework_TestCase
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         $this->assertEquals(['abc' => '123', 'foo' => 'bar'], $request->getParams());
+    }
+
+    public function testGetParametersWithCallable()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('xss=<script language="javascript">alert("foo")</script>');
+        $body->rewind();
+        $request = $this->requestFactory()
+                   ->withBody($body)
+                   ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $callable = function ($raw) {
+            return filter_var_array($raw, [
+                    'xss' => ['filter' => FILTER_SANITIZE_STRING, 'flags' => FILTER_FLAG_NO_ENCODE_QUOTES],
+                    'abc' => ['filter' => FILTER_VALIDATE_EMAIL]
+                ]
+            );
+        };
+
+        $this->assertEquals(['abc' => false, 'xss' => 'alert("foo")'], $request->getParams($callable ));
     }
 
     public function testGetParametersWithBodyPriority()
