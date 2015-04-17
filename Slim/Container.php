@@ -3,9 +3,9 @@ namespace Slim;
 
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\NotFoundException;
-use Pimple\Container;
+use Pimple\Container as PimpleContainer;
 
-final class DefaultContainerFactory extends Container implements ContainerInterface
+final class Container extends PimpleContainer implements ContainerInterface
 {
     /**
      * Default settings
