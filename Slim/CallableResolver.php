@@ -13,16 +13,16 @@ class CallableResolver
     
     protected $resolved;
     
-    public function __construct($to_resolve, Container $container)
+    public function __construct($toResolve, Container $container)
     {
-        $this->to_resolve = $to_resolve;
+        $this->toResolve = $toResolve;
         $this->container = $container;
     }
     
     public function resolve()
     {
         static $obj = null;
-        preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $this->to_resolve, $matches);
+        preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $this->toResolve, $matches);
         $class = $matches[1];
         $method = $matches[2];
         
