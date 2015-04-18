@@ -396,7 +396,6 @@ class UriTest extends PHPUnit_Framework_TestCase
             'SERVER_PORT' => 8080,
 
         ]);
-        //    ('https://josh:sekrit@example.com:8080/foo/bar?abc=123#section3');
 
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
 
