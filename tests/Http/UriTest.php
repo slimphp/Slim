@@ -406,6 +406,19 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('', $uri->getFragment());
     }
 
+    public function testCreateEnvironmentWithForwardedProto()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'HTTPS' => '',
+            'X_HTTP_FORWARDED_PROTO' => 'https'
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('https', $uri->getScheme());
+    }
+
     public function testCreateEnvironmentWithForwardedHost()
     {
         $environment = \Slim\Http\Environment::mock([

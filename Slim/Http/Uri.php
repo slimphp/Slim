@@ -147,11 +147,11 @@ class Uri implements \Psr\Http\Message\UriInterface
     public static function createFromEnvironment(Environment $env)
     {
         // Scheme
-        if ($env->has('HTTP_X_FORWARDED_PROTO') === true) {
-            $scheme = $env->get('HTTP_X_FORWARDED_PROTO');
+        if ($env->has('X_HTTP_FORWARDED_PROTO')) {
+            $scheme = $env->get('X_HTTP_FORWARDED_PROTO'); // Will be "http" or "https"
         } else {
-            $https = $env->get('HTTPS', '');
-            $scheme = empty($https) || $https === 'off' ? 'http' : 'https';
+            $isSecure = $env->get('HTTPS');
+            $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
         }
 
         // Authority: Username and password
