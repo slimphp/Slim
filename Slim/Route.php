@@ -59,6 +59,9 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     protected $parsedArgs = [];
 
+
+    protected $unresolvedMiddleware = [];
+
     /**
      * Create new route
      *
@@ -85,12 +88,8 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof \Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->addMiddleware($callable);
+        $this->unresolvedMiddleware[] = $callable;
+        return $this;
     }
 
     /**
@@ -184,6 +183,14 @@ class Route implements RouteInterface, ServiceProviderInterface
     public function run(RequestInterface $request, ResponseInterface $response, array $args)
     {
         $this->parsedArgs = $args;
+
+        foreach($this->unresolvedMiddleware as $callable) {
+            $callable = $this->resolveCallable($callable);
+            if ($callable instanceof \Closure) {
+                $callable = $callable->bindTo($this->container);
+            }
+            $this->addMiddleware($callable);
+        }
 
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
