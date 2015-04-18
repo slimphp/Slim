@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Slim\Interfaces\Http\CookiesInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Pimple\ServiceProviderInterface;
@@ -75,7 +74,7 @@ class App extends \Pimple\Container
          * This Pimple service MUST return a shared instance
          * of \Slim\Interfaces\Http\EnvironmentInterface.
          */
-        $this['environment'] = function ($c) {
+        $this['environment'] = function () {
             return new Http\Environment($_SERVER);
         };
 
@@ -110,7 +109,7 @@ class App extends \Pimple\Container
          * This Pimple service MUST return a SHARED instance
          * of \Slim\Interfaces\RouterInterface.
          */
-        $this['router'] = function ($c) {
+        $this['router'] = function () {
             return new Router();
         };
 
@@ -125,7 +124,7 @@ class App extends \Pimple\Container
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
          */
-        $this['errorHandler'] = function ($c) {
+        $this['errorHandler'] = function () {
             return new Handlers\Error;
         };
 
@@ -139,7 +138,7 @@ class App extends \Pimple\Container
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
          */
-        $this['notFoundHandler'] = function ($c) {
+        $this['notFoundHandler'] = function () {
             return new Handlers\NotFound;
         };
 
@@ -154,7 +153,7 @@ class App extends \Pimple\Container
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
          */
-        $this['notAllowedHandler'] = function ($c) {
+        $this['notAllowedHandler'] = function () {
             return new Handlers\NotAllowed;
         };
     }
@@ -252,7 +251,6 @@ class App extends \Pimple\Container
      */
     public function map(array $methods, $pattern, $callable)
     {
-
         $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
@@ -436,7 +434,7 @@ class App extends \Pimple\Container
      * application routes. The result response object is returned.
      *
      * @param  string            $method      The request method (e.g., GET, POST, PUT, etc.)
-     * @param  string            $uri         The request URI path
+     * @param  string            $path        The request URI path
      * @param  array             $headers     The request headers (key-value array)
      * @param  array             $cookies     The request cookies (key-value array)
      * @param  string            $bodyContent The request body

@@ -40,10 +40,10 @@ trait MiddlewareAware
      *
      * This method prepends new middleware to the application middleware stack.
      *
-     * @param callable $newMiddleware Any callable that accepts three arguments:
-     *                                1. A Request object
-     *                                2. A Response object
-     *                                3. A "next" middleware callable
+     * @param callable $callable Any callable that accepts three arguments:
+     *                           1. A Request object
+     *                           2. A Response object
+     *                           3. A "next" middleware callable
      * @return self
      */
     public function add($callable)

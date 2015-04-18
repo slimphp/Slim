@@ -12,7 +12,6 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
-use Slim\Interfaces\Http\CollectionInterface;
 
 /**
  * Request
@@ -308,7 +307,7 @@ class Request implements RequestInterface
      *
      * @param  null|string $method
      * @return null|string
-     * @throws InvalidArgumentException on invalid HTTP method.
+     * @throws \InvalidArgumentException on invalid HTTP method.
      */
     protected function filterMethod($method)
     {

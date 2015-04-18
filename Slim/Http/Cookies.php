@@ -108,8 +108,8 @@ class Cookies implements CookiesInterface
     /**
      * Convert to `Set-Cookie` header
      *
-     * @param  string $name   Cookie name
-     * @param  array  $cookie Cookie properties
+     * @param  string $name       Cookie name
+     * @param  array  $properties Cookie properties
      *
      * @return string
      */

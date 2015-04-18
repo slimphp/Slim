@@ -32,7 +32,7 @@ trait ResolveCallable
      *
      * @param  string $callable
      *
-     * @return Closure
+     * @return \Closure
      */
     protected function resolveCallable($callable)
     {
