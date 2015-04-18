@@ -36,7 +36,7 @@ trait ResolveCallable
      */
     protected function resolveCallable($callable)
     {
-        if (is_string($callable) && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
+        if (is_string($callable) && strpos($callable, ':') !== false && preg_match('!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!', $callable, $matches)) {
             // $callable is a class:method string, so wrap it into a closure, retriving the class from Pimple if registered there
 
             if ((! $this instanceof Container) && (! $this->container instanceof Container)) {
