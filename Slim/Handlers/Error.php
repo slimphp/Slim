@@ -58,7 +58,7 @@ class Error
                 ->write($output);
     }
 
-    private function renderException($exception)
+    private function renderException(\Exception $exception)
     {
         $code = $exception->getCode();
         $message = $exception->getMessage();

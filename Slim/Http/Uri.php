@@ -284,7 +284,6 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getAuthority()
     {
-        $scheme = $this->getScheme();
         $userInfo = $this->getUserInfo();
         $host = $this->getHost();
         $port = $this->getPort();
@@ -599,7 +598,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Filters the query string or fragment of a URI.
      *
-     * @param  $query The raw uri query string
+     * @param string $query The raw uri query string
      * @return string The percent-encoded query string
      */
     protected function filterQuery($query)

@@ -19,7 +19,7 @@ interface RouterInterface
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
-     * @return \Slim\RouteInterface
+     * @return \Slim\Interfaces\RouteInterface
      */
     public function map($methods, $pattern, $handler);
 
@@ -53,8 +53,8 @@ interface RouterInterface
     /**
      * Build URL for named route
      *
-     * @param string $routeName Route name
-     * @param array  $data      Route URI segments replacement data
+     * @param string $name Route name
+     * @param array  $data Route URI segments replacement data
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist

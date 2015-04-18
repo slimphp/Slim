@@ -23,13 +23,15 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 {
     /**
      * Routes
+     *
+     * @var Route[]
      */
     protected $routes = [];
 
     /**
      * Named routes
      *
-     * @var null|array
+     * @var null|Route[]
      */
     protected $namedRoutes;
 
@@ -150,8 +152,8 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
     /**
      * Build URL for named route
      *
-     * @param  string $routeName Route name
-     * @param  array  $data      Route URI segments replacement data
+     * @param  string $name Route name
+     * @param  array  $data Route URI segments replacement data
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
