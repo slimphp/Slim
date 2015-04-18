@@ -36,7 +36,7 @@ trait ResolveCallable
      */
     protected function resolveCallable($callable)
     {
-        if (is_string($callable) && strpos($callable, ':')) {            
+        if (is_string($callable) && strpos($callable, ':')) {
             if($this instanceof Container) {
                 $container = $this;
             } elseif($this->container instanceof Container) {
