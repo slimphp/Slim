@@ -79,43 +79,7 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function __construct($stream)
     {
-        if (!is_resource($stream)) {
-            throw new \InvalidArgumentException('\Slim\Http\Body::__construct() argument must be a valid PHP resource');
-        }
         $this->attach($stream);
-    }
-
-    /**
-     * Set HTTP message metadata
-     *
-     * @param  resource                  $stream
-     * @throws \InvalidArgumentException If argument is not a resource
-     */
-    protected function setMetadata($stream)
-    {
-        // Fetch metadata
-        $this->meta = stream_get_meta_data($stream);
-
-        // Is readable?
-        $this->readable = false;
-        foreach (self::$modes['readable'] as $mode) {
-            if (strpos($this->meta['mode'], $mode) === 0) {
-                $this->readable = true;
-                break;
-            }
-        }
-
-        // Is writable?
-        $this->writable = false;
-        foreach (self::$modes['writable'] as $mode) {
-            if (strpos($this->meta['mode'], $mode) === 0) {
-                $this->writable = true;
-                break;
-            }
-        }
-
-        // Is seekable?
-        $this->seekable = $this->meta['seekable'];
     }
 
     /**
@@ -166,7 +130,7 @@ class Body implements \Psr\Http\Message\StreamInterface
         }
 
         $this->stream = $newStream;
-        $this->setMetadata($newStream);
+        $this->meta = stream_get_meta_data($newStream);
     }
 
     /**
@@ -260,7 +224,19 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function isReadable()
     {
-        return is_null($this->readable) ? false : $this->readable;
+        if ($this->readable === null) {
+            $this->readable = false;
+            if ($this->isAttached()) {
+                foreach (self::$modes['readable'] as $mode) {
+                    if (strpos($this->meta['mode'], $mode) === 0) {
+                        $this->readable = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->readable;
     }
 
     /**
@@ -270,7 +246,19 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function isWritable()
     {
-        return is_null($this->writable) ? false : $this->writable;
+        if ($this->writable === null) {
+            $this->writable = false;
+            if ($this->isAttached()) {
+                foreach (self::$modes['writable'] as $mode) {
+                    if (strpos($this->meta['mode'], $mode) === 0) {
+                        $this->writable = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->writable;
     }
 
     /**
@@ -280,7 +268,14 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function isSeekable()
     {
-        return is_null($this->seekable) ? false : $this->seekable;
+        if ($this->seekable === null) {
+            $this->seekable = false;
+            if ($this->isAttached()) {
+                $this->seekable = $this->meta['seekable'];
+            }
+        }
+
+        return $this->seekable;
     }
 
     /**
@@ -298,7 +293,7 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        return $this->isAttached() && $this->isSeekable() ? fseek($this->stream, $offset, $whence) : false;
+        return $this->isSeekable() ? fseek($this->stream, $offset, $whence) : false;
     }
 
     /**
@@ -314,7 +309,7 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function rewind()
     {
-        return $this->isAttached() && $this->isSeekable() ? rewind($this->stream) : false;
+        return $this->isSeekable() ? rewind($this->stream) : false;
     }
 
     /**
@@ -328,7 +323,7 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function read($length)
     {
-        return $this->isAttached() && $this->isReadable() ? fread($this->stream, $length) : false;
+        return $this->isReadable() ? fread($this->stream, $length) : false;
     }
 
     /**
@@ -340,7 +335,7 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function write($string)
     {
-        return $this->isAttached() && $this->isWritable() ? fwrite($this->stream, $string) : false;
+        return $this->isWritable() ? fwrite($this->stream, $string) : false;
     }
 
     /**
@@ -350,6 +345,6 @@ class Body implements \Psr\Http\Message\StreamInterface
      */
     public function getContents()
     {
-        return $this->isAttached() && $this->isReadable() ? stream_get_contents($this->stream) : '';
+        return $this->isReadable() ? stream_get_contents($this->stream) : '';
     }
 }

@@ -88,19 +88,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $bodyMetadata = new \ReflectionProperty($body, 'meta');
         $bodyMetadata->setAccessible(true);
 
-        $bodyReadable = new \ReflectionProperty($body, 'readable');
-        $bodyReadable->setAccessible(true);
-
-        $bodyWritable = new \ReflectionProperty($body, 'writable');
-        $bodyWritable->setAccessible(true);
-
-        $bodySeekable = new \ReflectionProperty($body, 'seekable');
-        $bodySeekable->setAccessible(true);
-
         $this->assertTrue(is_array($bodyMetadata->getValue($body)));
-        $this->assertTrue($bodyReadable->getValue($body));
-        $this->assertTrue($bodyWritable->getValue($body));
-        $this->assertTrue($bodySeekable->getValue($body));
     }
 
     public function testGetMetadata()
