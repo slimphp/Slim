@@ -412,7 +412,7 @@ class UriTest extends PHPUnit_Framework_TestCase
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo/bar',
             'HTTPS' => '',
-            'X_HTTP_FORWARDED_PROTO' => 'https'
+            'HTTP_X_FORWARDED_PROTO' => 'https'
         ]);
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
 
@@ -429,7 +429,7 @@ class UriTest extends PHPUnit_Framework_TestCase
             'QUERY_STRING' => 'abc=123',
             'HTTP_HOST' => 'example.com:8080',
             'SERVER_PORT' => 8080,
-            'X_HTTP_FORWARDED_HOST' => 'example3.com, example2.com, example1.com'
+            'HTTP_X_FORWARDED_HOST' => 'example3.com, example2.com, example1.com'
         ]);
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
 

@@ -147,8 +147,8 @@ class Uri implements \Psr\Http\Message\UriInterface
     public static function createFromEnvironment(Environment $env)
     {
         // Scheme
-        if ($env->has('X_HTTP_FORWARDED_PROTO')) {
-            $scheme = $env->get('X_HTTP_FORWARDED_PROTO'); // Will be "http" or "https"
+        if ($env->has('HTTP_X_FORWARDED_PROTO')) {
+            $scheme = $env->get('HTTP_X_FORWARDED_PROTO'); // Will be "http" or "https"
         } else {
             $isSecure = $env->get('HTTPS');
             $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
@@ -159,8 +159,8 @@ class Uri implements \Psr\Http\Message\UriInterface
         $password = $env->get('PHP_AUTH_PW', '');
 
         // Authority: Host
-        if ($env->has('X_HTTP_FORWARDED_HOST')) {
-            $host = trim(current(explode(',', $env->get('X_HTTP_FORWARDED_HOST'))));
+        if ($env->has('HTTP_X_FORWARDED_HOST')) {
+            $host = trim(current(explode(',', $env->get('HTTP_X_FORWARDED_HOST'))));
         } elseif ($env->has('HTTP_HOST')) {
             $host = $env->get('HTTP_HOST');
         } else {
