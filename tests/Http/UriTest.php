@@ -394,7 +394,6 @@ class UriTest extends PHPUnit_Framework_TestCase
             'QUERY_STRING' => 'abc=123',
             'HTTP_HOST' => 'example.com:8080',
             'SERVER_PORT' => 8080,
-
         ]);
 
         $uri = \Slim\Http\Uri::createFromEnvironment($environment);
@@ -405,5 +404,22 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/bar', $uri->getPath());
         $this->assertEquals('abc=123', $uri->getQuery());
         $this->assertEquals('', $uri->getFragment());
+    }
+
+    public function testCreateEnvironmentWithForwardedHost()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'PHP_AUTH_USER' => 'josh',
+            'PHP_AUTH_PW' => 'sekrit',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => 'example.com:8080',
+            'SERVER_PORT' => 8080,
+            'X_HTTP_FORWARDED_HOST' => 'example3.com, example2.com, example1.com'
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('example3.com', $uri->getHost());
     }
 }

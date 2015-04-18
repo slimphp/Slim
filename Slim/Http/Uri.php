@@ -154,13 +154,27 @@ class Uri implements \Psr\Http\Message\UriInterface
             $scheme = empty($https) || $https === 'off' ? 'http' : 'https';
         }
 
-        // Authority
-        // TODO: Respect trusted proxy X-Forwarded-* headers
-        $user = $env->get('PHP_AUTH_USER', '');
+        // Authority: Username and password
+        $username = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
-        $host = $env->get('HTTP_HOST', $env->get('SERVER_NAME'));
-        $host = strstr($host, ':', true);
-        $port = (int)$env->get('SERVER_PORT', 80);
+
+        // Authority: Host
+        if ($env->has('X_HTTP_FORWARDED_HOST')) {
+            $host = trim(current(explode(',', $env->get('X_HTTP_FORWARDED_HOST'))));
+        } elseif ($env->has('HTTP_HOST')) {
+            $host = $env->get('HTTP_HOST');
+        } else {
+            $host = $env->get('SERVER_NAME');
+        }
+
+        // Authority: Port
+        $pos = strpos($host, ':');
+        if ($pos !== false) {
+            $port = (int)substr($host, $pos + 1);
+            $host = strstr($host, ':', true);
+        } else {
+            $port = (int)$env->get('SERVER_PORT', 80);
+        }
 
         // Path
         $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
@@ -184,7 +198,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $fragment = '';
 
         // Build Uri
-        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $user, $password);
+        $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
 
         return $uri->withBasePath($basePath);
     }
