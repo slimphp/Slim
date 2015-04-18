@@ -159,6 +159,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $user = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
         $host = $env->get('HTTP_HOST', $env->get('SERVER_NAME'));
+        $host = strstr($host, ':', true);
         $port = (int)$env->get('SERVER_PORT', 80);
 
         // Path
