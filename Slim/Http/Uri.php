@@ -82,7 +82,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * @var string
      */
     protected $query = '';
-    
+
     /**
      * Uri fragment string (without "#" prefix)
      *
@@ -178,7 +178,7 @@ class Uri implements \Psr\Http\Message\UriInterface
 
         // Query string
         $queryString = $env->get('QUERY_STRING', '');
-        
+
         // Fragment
         $fragment = '';
 

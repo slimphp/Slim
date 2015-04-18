@@ -191,19 +191,19 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('slimframework.com', 'host', $uri);
     }
-    
+
     public function testGetPortWithSchemeAndNonDefaultPort()
     {
         $uri = new Slim\Http\Uri('https', 'www.example.com', 4000);
 
         $this->assertEquals(4000, $uri->getPort());
     }
-    
+
     public function testGetPortWithSchemeAndDefaultPort()
     {
         $uriHppt = new Slim\Http\Uri('http', 'www.example.com', 80);
         $uriHppts = new Slim\Http\Uri('https', 'www.example.com', 443);
-        
+
         $this->assertNull($uriHppt->getPort());
         $this->assertNull($uriHppts->getPort());
     }
@@ -211,14 +211,14 @@ class UriTest extends PHPUnit_Framework_TestCase
     public function testGetPortWithoutSchemeAndPort()
     {
         $uri = new Slim\Http\Uri('', 'www.example.com');
-        
+
         $this->assertNull($uri->getPort());
     }
 
     public function testGetPortWithSchemeWithoutPort()
     {
         $uri = new Slim\Http\Uri('http', 'www.example.com');
-        
+
         $this->assertNull($uri->getPort());
     }
 
@@ -344,7 +344,7 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('', 'query', $uri);
     }
-    
+
     /********************************************************************************
      * Fragment
      *******************************************************************************/
