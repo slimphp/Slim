@@ -191,19 +191,19 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('slimframework.com', 'host', $uri);
     }
-    
+
     public function testGetPortWithSchemeAndNonDefaultPort()
     {
         $uri = new Slim\Http\Uri('https', 'www.example.com', 4000);
 
         $this->assertEquals(4000, $uri->getPort());
     }
-    
+
     public function testGetPortWithSchemeAndDefaultPort()
     {
         $uriHppt = new Slim\Http\Uri('http', 'www.example.com', 80);
         $uriHppts = new Slim\Http\Uri('https', 'www.example.com', 443);
-        
+
         $this->assertNull($uriHppt->getPort());
         $this->assertNull($uriHppts->getPort());
     }
@@ -211,14 +211,14 @@ class UriTest extends PHPUnit_Framework_TestCase
     public function testGetPortWithoutSchemeAndPort()
     {
         $uri = new Slim\Http\Uri('', 'www.example.com');
-        
+
         $this->assertNull($uri->getPort());
     }
 
     public function testGetPortWithSchemeWithoutPort()
     {
         $uri = new Slim\Http\Uri('http', 'www.example.com');
-        
+
         $this->assertNull($uri->getPort());
     }
 
@@ -344,7 +344,7 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertAttributeEquals('', 'query', $uri);
     }
-    
+
     /********************************************************************************
      * Fragment
      *******************************************************************************/
@@ -382,5 +382,28 @@ class UriTest extends PHPUnit_Framework_TestCase
     public function testToString()
     {
         $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string)$this->uriFactory());
+    }
+
+    public function testCreateEnvironment()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'PHP_AUTH_USER' => 'josh',
+            'PHP_AUTH_PW' => 'sekrit',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => 'example.com:8080',
+            'SERVER_PORT' => 8080,
+
+        ]);
+
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
+        $this->assertEquals('example.com', $uri->getHost());
+        $this->assertEquals('8080', $uri->getPort());
+        $this->assertEquals('/foo/bar', $uri->getPath());
+        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertEquals('', $uri->getFragment());
     }
 }
