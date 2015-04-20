@@ -23,7 +23,7 @@ Requires PHP 5.4.0 or newer.
 
 ```php
 $app = new \Slim\App();
-$app->get('/hello/{name}', function (\Slim\Http\Request $req, \Slim\Http\Response $res, array $args) {
+$app->get('/hello/{name}', function ($req, $res, $args) {
     $res->write("Hi {$args['name']}");
     return $res;
 });
