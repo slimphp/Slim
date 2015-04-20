@@ -23,8 +23,8 @@ Requires PHP 5.4.0 or newer.
 
 ```php
 $app = new \Slim\App();
-$app->get('/hello/{name}', function ($req, $res, $args) {
-    $res->write("Hi {$args['name']}");
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    $res->write("Hello, " . $args['name']);
     return $res;
 });
 $app->run();
