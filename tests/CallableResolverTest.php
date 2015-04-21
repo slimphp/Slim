@@ -94,4 +94,19 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
+    public function testMethodNotFoundThrowException()
+    {
+        $this->container['callable_service'] = new CallableTest();
+        $resolver = new CallableResolver('callable_service:noFound', $this->container);
+        $this->setExpectedException('\RuntimeException');
+        $resolver();
+    }
+
+    public function testFunctionNotFoundThrowException()
+    {
+        $resolver = new CallableResolver('noFound', $this->container);
+        $this->setExpectedException('\RuntimeException');
+        $resolver();
+    }
+
 }
