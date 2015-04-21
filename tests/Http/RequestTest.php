@@ -908,4 +908,52 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
     }
+
+    /*******************************************************************************
+     * Helpers
+     ******************************************************************************/
+
+    public function testGetIp()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
+        $cookies = [];
+        $env = Slim\Http\Environment::mock([
+            'REMOTE_ADDR' => '192.168.1.1'
+        ]);
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals('192.168.1.1', $request->getIp());
+    }
+
+    public function testGetIpIfMissing()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
+        $cookies = [];
+        $env = Slim\Http\Environment::mock();
+        $serverParams = $env->all();
+        unset($serverParams['REMOTE_ADDR']);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertNull($request->getIp());
+    }
+
+    public function testGetForwardedIp()
+    {
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $env = Slim\Http\Environment::mock([
+            'HTTP_X_FORWARDED_FOR' => '192.168.1.3, 192.168.1.2, 192.168.1.1'
+        ]);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals('192.168.1.3', $request->getIp());
+    }
 }

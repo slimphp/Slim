@@ -1175,4 +1175,17 @@ class Request implements RequestInterface
 
         return $params;
     }
+
+    /*******************************************************************************
+     * Helpers
+     ******************************************************************************/
+
+    public function getIp()
+    {
+        if ($this->hasHeader('X-Forwarded-For')) {
+            return trim(current(explode(',', $this->getHeaderLine('X-Forwarded-For'))));
+        }
+
+        return isset($this->serverParams['REMOTE_ADDR']) ? $this->serverParams['REMOTE_ADDR'] : null;
+    }
 }
