@@ -390,7 +390,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app->get('/foo', 'foo:bar');
 
-        $this->setExpectedException('\RuntimeException', 'Route callable method does not exist');
+        $this->setExpectedException('\RuntimeException');
 
         // Invoke app
         $app($req, $res);
