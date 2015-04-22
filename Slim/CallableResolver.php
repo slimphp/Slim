@@ -19,7 +19,7 @@ class CallableResolver
         $this->container = $container;
     }
     
-    public function resolve()
+    private function resolve()
     {
         // check it's callable
         if(is_callable($this->toResolve)) {
