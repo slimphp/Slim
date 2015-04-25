@@ -414,7 +414,12 @@ class App extends \Pimple\Container
     {
         $routeInfo = $this['router']->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
-            return $routeInfo[1]($request->withAttributes($routeInfo[2]), $response, $routeInfo[2]);
+            // URL decode the named arguments from the router
+            $attributes = $routeInfo[2];
+            array_walk($attributes, function(&$v, $k) {
+                $v = urldecode($v);
+            });
+            return $routeInfo[1]($request->withAttributes($attributes), $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
             return $this['notFoundHandler']($request, $response);
