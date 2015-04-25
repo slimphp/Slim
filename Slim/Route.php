@@ -183,6 +183,11 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     public function run(RequestInterface $request, ResponseInterface $response, array $args)
     {
+        // URL decode the named arguments from the router
+        array_walk($args, function(&$v, $k) {
+            $v = urldecode($v);
+        });
+
         $this->parsedArgs = $args;
 
         // Traverse middleware stack and fetch updated response
