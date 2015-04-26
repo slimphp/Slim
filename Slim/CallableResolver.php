@@ -4,7 +4,7 @@ namespace Slim;
 
 use Pimple\Container;
 
-class CallableResolver 
+class CallableResolver
 {
     
     protected $container;
@@ -22,13 +22,13 @@ class CallableResolver
     private function resolve()
     {
         // check it's callable
-        if(is_callable($this->toResolve)) {
+        if (is_callable($this->toResolve)) {
             $this->resolved = $this->toResolve;
             
         // check for slim callable as "class:method"
         } elseif (is_string($this->toResolve)) {
             $callable_pattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
-            if(preg_match($callable_pattern, $this->toResolve, $matches)) {
+            if (preg_match($callable_pattern, $this->toResolve, $matches)) {
                 $class = $matches[1];
                 $method = $matches[2];
                 
@@ -49,12 +49,11 @@ class CallableResolver
         }
     }
     
-    public function __invoke() 
+    public function __invoke()
     {
-        if(!isset($this->resolved)) {
+        if (!isset($this->resolved)) {
             $this->resolve();
         }
         return call_user_func_array($this->resolved, func_get_args());
     }
-    
 }

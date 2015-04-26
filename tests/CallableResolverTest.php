@@ -33,9 +33,11 @@
 use Slim\CallableResolver;
 use Pimple\Container;
 
-class CallableTest{
+class CallableTest
+{
     public static $CalledCount = 0;
-    public function toCall() {
+    public function toCall()
+    {
         return static::$CalledCount++;
     }
 }
@@ -62,7 +64,8 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
 
     public function testFunctionName()
     {
-        function test_callable() {
+        function test_callable()
+        {
             static $called_count = 0;
             return $called_count++;
         };
@@ -108,5 +111,4 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException');
         $resolver();
     }
-
 }
