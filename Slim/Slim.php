@@ -1371,7 +1371,7 @@ class Slim
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
         } catch (\Exception $e) {
-            if ($this->config('debug')) {
+            if (true !== $this->config('custom_errors') && $this->config('debug')) {
                 throw $e;
             } else {
                 try {
