@@ -46,12 +46,8 @@ trait MiddlewareAware
      *                           3. A "next" middleware callable
      * @return self
      */
-    public function add($callable)
+    public function add(callable $callable)
     {
-        if (!is_callable($callable)) {
-            throw new \RuntimeException('Expected a callable to be added');
-        }
-
         if ($this->middlewareLock) {
             throw new \RuntimeException('Middleware can’t be added once the stack is dequeuing');
         }
