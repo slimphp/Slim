@@ -194,8 +194,32 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        $function = $this->callable;
+        // invoke route callable
+        try {
+            ob_start();
+            $function = $this->callable;
+            $newReponse = $function($request, $response, $request->getAttributes());
+            $output = ob_get_clean();
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
+        
+        // if route callback returns a ResponseInterface, then use it
+        if ($newReponse instanceof ResponseInterface) {
+            $response = $newReponse;
+        }
 
-        return $function($request, $response, $request->getAttributes());
+        // if route callback retuns a string, then append it to the response
+        if (is_string($newReponse)) {
+            $response->getBody()->write($newReponse);
+        }
+        
+        // append output buffer content if there is any
+        if ($output) {
+            $response->getBody()->write($output);
+        }
+
+        return $response;
     }
 }
