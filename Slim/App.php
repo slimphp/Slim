@@ -113,6 +113,7 @@ class App
     public function __isset($name)
     {
         return $this->container->has($name);
+
     }
 
     /********************************************************************************
