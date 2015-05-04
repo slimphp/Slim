@@ -18,7 +18,7 @@ use Interop\Container\ContainerInterface;
  */
 class Route implements RouteInterface
 {
-    use ResolveCallable;
+    use CallableResolverAware;
     use MiddlewareAware {
         add as addMiddleware;
     }
