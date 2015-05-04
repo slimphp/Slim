@@ -13,10 +13,15 @@ class CallableResolver
     
     protected $resolved;
     
-    public function __construct($toResolve, ContainerInterface $container)
+    public function __construct(Container $container, $toResolve = null)
     {
         $this->toResolve = $toResolve;
         $this->container = $container;
+    }
+    
+    public function setToResolve($toResolve)
+    {
+        $this->toResolve = $toResolve;
     }
     
     private function resolve()

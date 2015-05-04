@@ -224,4 +224,5 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', (string)$response->getBody());
     }
+
 }

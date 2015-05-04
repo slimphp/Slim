@@ -57,7 +57,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
             static $called_count = 0;
             return $called_count++;
         };
-        $resolver = new CallableResolver($test_callable, $this->container);
+        $resolver = new CallableResolver($this->container, $test_callable);
         $resolver();
         $this->assertEquals(1, $test_callable());
     }
@@ -69,7 +69,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
             static $called_count = 0;
             return $called_count++;
         };
-        $resolver = new CallableResolver('test_callable', $this->container);
+        $resolver = new CallableResolver($this->container, 'test_callable');
         $resolver();
         $this->assertEquals(1, test_callable());
     }
@@ -77,14 +77,14 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
     public function testObjMethodArray()
     {
         $obj = new CallableTest();
-        $resolver = new CallableResolver([$obj, 'toCall'], $this->container);
+        $resolver = new CallableResolver($this->container, [$obj, 'toCall']);
         $resolver();
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
     public function testSlimCallable()
     {
-        $resolver = new CallableResolver('CallableTest:toCall', $this->container);
+        $resolver = new CallableResolver($this->container, 'CallableTest:toCall');
         $resolver();
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
@@ -92,7 +92,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
     public function testContainer()
     {
         $this->container['callable_service'] = new CallableTest();
-        $resolver = new CallableResolver('callable_service:toCall', $this->container);
+        $resolver = new CallableResolver($this->container, 'callable_service:toCall');
         $resolver();
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
@@ -100,14 +100,14 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
     public function testMethodNotFoundThrowException()
     {
         $this->container['callable_service'] = new CallableTest();
-        $resolver = new CallableResolver('callable_service:noFound', $this->container);
+        $resolver = new CallableResolver($this->container, 'callable_service:noFound');
         $this->setExpectedException('\RuntimeException');
         $resolver();
     }
 
     public function testFunctionNotFoundThrowException()
     {
-        $resolver = new CallableResolver('noFound', $this->container);
+        $resolver = new CallableResolver($this->container, 'noFound');
         $this->setExpectedException('\RuntimeException');
         $resolver();
     }
