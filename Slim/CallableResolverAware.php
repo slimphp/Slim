@@ -17,7 +17,7 @@ use Pimple\Container;
  * into a closure. This class is an implementation detail and is used only inside
  * of the Slim application.
  */
-trait ResolveCallable
+trait CallableResolverAware
 {
     /**
      * Container

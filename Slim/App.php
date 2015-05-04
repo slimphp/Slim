@@ -24,7 +24,7 @@ use Pimple\ServiceProviderInterface;
  */
 class App extends \Pimple\Container
 {
-    use ResolveCallable;
+    use CallableResolverAware;
     use MiddlewareAware;
 
     /**

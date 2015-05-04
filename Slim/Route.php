@@ -19,7 +19,7 @@ use Pimple\ServiceProviderInterface;
  */
 class Route implements RouteInterface, ServiceProviderInterface
 {
-    use ResolveCallable;
+    use CallableResolverAware;
     use MiddlewareAware {
         add as addMiddleware;
     }
