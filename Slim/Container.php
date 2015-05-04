@@ -151,7 +151,7 @@ final class Container extends PimpleContainer implements ContainerInterface
         /**
          * This service MUST return a NEW instance of 
          * \Slim\Interfaces\CallableResolverInterface
-         */
+         */ 
         $this['callableResolver'] = $this->factory(function($c) {
             return new CallableResolver($c);
         });
