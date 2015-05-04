@@ -194,8 +194,12 @@ class Route implements RouteInterface, ServiceProviderInterface
      */
     public function __invoke(RequestInterface $request, ResponseInterface $response)
     {
-        $function = $this->callable;
-
-        return $function($request, $response, $request->getAttributes());
+        return call_user_func_array(
+            $this->callable, 
+            array_merge(
+                [$request, $response], 
+                array_values($request->getAttributes()
+            )
+        );
     }
 }
