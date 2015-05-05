@@ -154,12 +154,13 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      *
      * @param  string $name Route name
      * @param  array  $data Route URI segments replacement data
+     * @param  array  $queryParams optional query parameters 
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
      * @throws \InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, $data = [])
+    public function urlFor($name, array $data = [], array $queryParams = [])
     {
         if (is_null($this->namedRoutes)) {
             $this->buildNameIndex();
@@ -170,7 +171,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
         $route = $this->namedRoutes[$name];
         $pattern = $route->getPattern();
 
-        return preg_replace_callback('/{([^}]+)}/', function ($match) use ($data) {
+        $url = preg_replace_callback('/{([^}]+)}/', function ($match) use ($data) {
             $segmentName = explode(':', $match[1])[0];
             if (!isset($data[$segmentName])) {
                 throw new \InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
@@ -178,6 +179,12 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
 
             return $data[$segmentName];
         }, $pattern);
+
+        if ($queryParams) {
+            $url .= '?' . http_build_query($queryParams);
+        }
+        
+        return $url;
     }
 
     /**
