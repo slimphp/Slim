@@ -154,7 +154,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      *
      * @param  string $name Route name
      * @param  array  $data Route URI segments replacement data
-     * @param  array  $queryParams optional query parameters 
+     * @param  array  $queryParams optional query string parameters 
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
