@@ -243,14 +243,21 @@ class App extends \Pimple\Container
     /**
      * Add route with multiple methods
      *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  mixed    $callable The route callback routine
+     * @param  string|string[] $methods  HTTP method names array or comma separated list
+     * @param  string          $pattern  The route URI pattern
+     * @param  mixed           $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
-    public function map(array $methods, $pattern, $callable)
+    public function map($methods, $pattern, $callable)
     {
+        if (!is_array($methods)) {
+            if (!is_string($methods)) {
+                throw new \InvalidArgumentException('Route $methods MUST be an array or a string');
+            }
+            $methods = preg_split('/\s*,\s*/', trim($methods));
+        }
+
         $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
