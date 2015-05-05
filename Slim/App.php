@@ -330,27 +330,15 @@ class App extends \Pimple\Container
      *******************************************************************************/
 
     /**
-     * Run application
+     * Sends response to the client
      *
-     * This method traverses the application middleware stack,
-     * and it returns the resultant Response object to the HTTP client.
+     * @param  ResponseInterface $response
+     * @param  bool &$responded
+     *
+     * @return ResponseInterface
      */
-    public function run()
+    public function respond($response, &$responded)
     {
-        static $responded = false;
-        $request = $this['request'];
-        $response = $this['response'];
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (\Slim\Exception $e) {
-            $response = $e->getResponse();
-        } catch (\Exception $e) {
-            $response = $this['errorHandler']($request, $response, $e);
-        }
-
-        // Finalize response
         $statusCode = $response->getStatusCode();
         $hasBody = ($statusCode !== 204 && $statusCode !== 304);
         if (!$hasBody) {
@@ -361,7 +349,6 @@ class App extends \Pimple\Container
                 $response = $response->withHeader('Content-Length', $size);
             }
         }
-
         // Send response
         if (!$responded) {
             if (!headers_sent()) {
@@ -393,8 +380,32 @@ class App extends \Pimple\Container
             }
             $responded = true;
         }
-
         return $response;
+    }
+
+    /**
+     * Run application
+     *
+     * This method traverses the application middleware stack,
+     * and it returns the resultant Response object to the HTTP client.
+     */
+    public function run()
+    {
+        static $responded = false;
+        $request = $this['request'];
+        $response = $this['response'];
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (\Slim\Exception $e) {
+            $response = $e->getResponse();
+        } catch (\Exception $e) {
+            $response = $this['errorHandler']($request, $response, $e);
+        }
+
+        // Finalize response
+        return $this->respond($response, $responded);
     }
 
     /**
