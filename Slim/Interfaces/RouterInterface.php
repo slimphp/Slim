@@ -53,8 +53,8 @@ interface RouterInterface
     /**
      * Build URL for named route
      *
-     * @param string $name Route  name
-     * @param array  $data Route  URI segments replacement data
+     * @param string $name        Route name
+     * @param array  $data        Route URI segments replacement data
      * @param array  $queryParams Optional query string parameters 
      *
      * @return string
