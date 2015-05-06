@@ -64,7 +64,6 @@ class Route implements RouteInterface, ServiceProviderInterface
         $this->methods = $methods;
         $this->pattern = $pattern;
         $this->callable = $callable;
-        $this->seedMiddlewareStack();
     }
 
     /**
