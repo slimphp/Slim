@@ -59,15 +59,8 @@ trait MiddlewareAware
         if (is_null($this->stack)) {
             $this->seedMiddlewareStack();
         }
-        $next = $this->stack->top();
-        $this->stack[] = function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
-            $result = $callable($req, $res, $next);
-            if ($result instanceof ResponseInterface === false) {
-                throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
-            }
 
-            return $result;
-        };
+        $this->addMiddlewareLayer($callable);
 
         return $this;
     }
@@ -85,7 +78,26 @@ trait MiddlewareAware
         }
         $this->stack = new \SplStack;
         $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
-        $this->stack[] = $kernel;
+        $this->addMiddlewareLayer($kernel);
+    }
+
+    /**
+     * Add a new layer on top of the stack wrapping the callable into a
+     * closure whose purpose is to feed the next layer if any
+     * 
+     * @params callable $callable The new middleware 
+     */
+    protected function addMiddlewareLayer(callable $callable)
+    {
+        $next = $this->stack->count() > 0 ? $this->stack->top() : null;
+        $this->stack[] = function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
+            $result = call_user_func($callable, $req, $res, $next);
+            if ($result instanceof ResponseInterface === false) {
+                throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
+            }
+
+            return $result;
+        };
     }
 
     /**
