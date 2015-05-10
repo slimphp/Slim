@@ -58,7 +58,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Uri port number
      *
-     * @var int
+     * @var null|int
      */
     protected $port;
 
