@@ -269,7 +269,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         }
 
         $scheme = str_replace('://', '', strtolower((string)$scheme));
-        if (!isset($valid[(string)$scheme])) {
+        if (!isset($valid[$scheme])) {
             throw new \InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
         }
 
