@@ -82,10 +82,12 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      */
     public function get($key, $default = null)
     {
-        if ($this->has($key)) {
-            $isInvokable = is_object($this->data[$this->normalizeKey($key)]) && method_exists($this->data[$this->normalizeKey($key)], '__invoke');
 
-            return $isInvokable ? $this->data[$this->normalizeKey($key)]($this) : $this->data[$this->normalizeKey($key)];
+        if ($this->has($key)) {
+            $normalKey = $this->normalizeKey($key);
+            $isInvokable = is_object($this->data[$normalKey]) && method_exists($this->data[$normalKey], '__invoke');
+
+            return $isInvokable ? $this->data[$normalKey]($this) : $this->data[$normalKey];
         }
 
         return $default;
