@@ -8,7 +8,7 @@
  */
 namespace Slim\Http;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
@@ -22,8 +22,9 @@ use Slim\Interfaces\Http\HeadersInterface;
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
+ * @link https://github.com/php-fig/http-message/blob/master/src/ServerRequestInterface.php
  */
-class Request implements RequestInterface
+class Request implements ServerRequestInterface
 {
     /**
      * The request protocol version
@@ -869,21 +870,38 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Retrieve the upload file metadata.
+     * Retrieve normalized file upload data.
      *
-     * This method MUST return file upload metadata in the same structure
-     * as PHP's $_FILES superglobal.
+     * This method returns upload metadata in a normalized tree, with each leaf
+     * an instance of Psr\Http\Message\UploadedFileInterface.
      *
-     * These values MUST remain immutable over the course of the incoming
-     * request. They SHOULD be injected during instantiation, such as from PHP's
-     * $_FILES superglobal, but MAY be derived from other sources.
+     * These values MAY be prepared from $_FILES or the message body during
+     * instantiation, or MAY be injected via withUploadedFiles().
      *
-     * @return array Upload file(s) metadata, if any.
+     * @return array An array tree of UploadedFileInterface instances; an empty
+     *     array MUST be returned if no data is present.
      */
-    public function getFileParams()
+    public function getUploadedFiles()
     {
         // TODO: Implement request file params
         return [];
+    }
+
+    /**
+     * Create a new instance with the specified uploaded files.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return an instance that has the
+     * updated body parameters.
+     *
+     * @param array An array tree of UploadedFileInterface instances.
+     * @return self
+     * @throws \InvalidArgumentException if an invalid structure is provided.
+     */
+    public function withUploadedFiles(array $uploadedFiles)
+    {
+        // TODO: Implement request file params
+        return $this;
     }
 
     /*******************************************************************************
