@@ -8,7 +8,7 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
 
@@ -23,13 +23,13 @@ class Error
     /**
      * Invoke error handler
      *
-     * @param  RequestInterface  $request   The most recent Request object
-     * @param  ResponseInterface $response  The most recent Response object
-     * @param  \Exception        $exception The caught Exception object
+     * @param  ServerRequestInterface $request   The most recent Request object
+     * @param  ResponseInterface      $response  The most recent Response object
+     * @param  \Exception             $exception The caught Exception object
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response, \Exception $exception)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
         $title = 'Slim Application Error';
         $html = '<p>The application could not run because of the following error:</p>';

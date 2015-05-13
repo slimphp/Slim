@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Pimple\ServiceProviderInterface;
 
@@ -80,7 +80,7 @@ class App extends \Pimple\Container
 
         /**
          * This Pimple service MUST return a NEW instance
-         * of \Psr\Http\Message\RequestInterface.
+         * of \Psr\Http\Message\ServerRequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
             $env = $c['environment'];
@@ -117,7 +117,7 @@ class App extends \Pimple\Container
          * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          * 3. Instance of \Exception
          *
@@ -132,7 +132,7 @@ class App extends \Pimple\Container
          * This Pimple service MUST return a callable
          * that accepts two arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          *
          * The callable MUST return an instance of
@@ -146,7 +146,7 @@ class App extends \Pimple\Container
          * This Pimple service MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          * 3. Array of allowed HTTP methods
          *
@@ -405,12 +405,12 @@ class App extends \Pimple\Container
      * after dispatching the Request object to the appropriate Route
      * callback routine.
      *
-     * @param  RequestInterface  $request  The most recent Request object
-     * @param  ResponseInterface $response The most recent Response object
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         $routeInfo = $this['router']->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {

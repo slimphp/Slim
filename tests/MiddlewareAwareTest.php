@@ -1,10 +1,10 @@
 <?php
 namespace Slim\Tests;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-function testMiddlewareKernel(RequestInterface $req, ResponseInterface $res)
+function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $res)
 {
     return $res->write('hello from testMiddlewareKernel');
 }
@@ -13,7 +13,7 @@ class Stackable
 {
     use \Slim\MiddlewareAware;
 
-    public function __invoke(RequestInterface $req, ResponseInterface $res)
+    public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
     {
         return $res->write('Center');
     }
@@ -125,7 +125,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\RequestInterface'),
+            $this->getMock('Psr\Http\Message\ServerRequestInterface'),
             $this->getMock('Psr\Http\Message\ResponseInterface')
         );
     }
