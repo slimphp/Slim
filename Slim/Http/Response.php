@@ -37,6 +37,13 @@ class Response implements ResponseInterface
      * @var int
      */
     protected $status = 200;
+    
+    /**
+     * Reason phrase
+     *
+     * @var string
+     */
+    protected $reasonPhrase = '';
 
     /**
      * Headers
@@ -243,9 +250,14 @@ class Response implements ResponseInterface
     public function withStatus($code, $reasonPhrase = '')
     {
         $code = $this->filterStatus($code);
+                    
+        if (!is_string($reasonPhrase) && !method_exists($reasonPhrase, '__toString')) {
+            throw new \InvalidArgumentException('ReasonPhrase must be a string');
+        }
+        
         $clone = clone $this;
         $clone->status = $code;
-        // NOTE: We ignore custom reason phrases for now. Why? Because.
+        $clone->reasonPhrase = $reasonPhrase;
 
         return $clone;
     }
@@ -281,7 +293,10 @@ class Response implements ResponseInterface
      */
     public function getReasonPhrase()
     {
-        return isset(static::$messages[$this->status]) ? static::$messages[$this->status] : '';
+        if ($this->reasonPhrase) {
+            return $this->reasonPhrase;
+        }
+        return static::$messages[$this->status];
     }
 
     /*******************************************************************************

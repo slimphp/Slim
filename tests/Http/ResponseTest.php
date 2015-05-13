@@ -85,10 +85,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testWithProtocolVersionInvalid()
+    public function testWithProtocolVersionInvalidThrowsException()
     {
         $response = new Response();
-        $clone = $response->withProtocolVersion('3.0');
+        $response->withProtocolVersion('3.0');
     }
 
     /*******************************************************************************
@@ -116,10 +116,19 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testWithStatusInvalid()
+    public function testWithStatusInvalidStatusCodeThrowsException()
     {
         $response = new Response();
-        $clone = $response->withStatus(800);
+        $response->withStatus(800);
+    }
+    
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithStatusInvalidReasonPhraseThrowsException()
+    {
+        $response = new Response();
+        $response->withStatus(200, null);
     }
 
     public function testGetReasonPhrase()
@@ -130,6 +139,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $responseStatus->setValue($response, '404');
 
         $this->assertEquals('Not Found', $response->getReasonPhrase());
+    }
+    
+    public function testGetCustomReasonPhrase()
+    {
+        $response = new Response();
+        $clone = $response->withStatus(200, 'Custom Phrase');
+
+        $this->assertEquals('Custom Phrase', $clone->getReasonPhrase());
     }
 
     /*******************************************************************************
