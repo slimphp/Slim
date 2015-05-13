@@ -548,10 +548,18 @@ class Request implements ServerRequestInterface
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
-        //TODO Do something with $preserveHost
-
         $clone = clone $this;
         $clone->uri = $uri;
+        
+        if (!$preserveHost) {
+            if (!empty($uri->getHost())) {
+                $this->withHeader('Host', $uri->getHost());
+            }
+        } else {
+            if ((!$this->hasHeader('Host') || empty($this->getHeader('Host'))) && !empty($uri->getHost())) {
+                $this->withHeader('Host', $uri->getHost());
+            }
+        }
 
         return $clone;
     }
