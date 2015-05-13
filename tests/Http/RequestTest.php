@@ -219,10 +219,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsPost()
     {
         $request = $this->requestFactory();
+        $request = $request->withHeader('Content-Type', 'application/x-www-form-urlencoded');
         $prop = new \ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'POST');
-
         $this->assertTrue($request->isPost());
     }
 
@@ -814,6 +814,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyWhenBodyDoesNotExist()
     {
         $request = $this->requestFactory();
+        $request = $request->withHeader('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
         $prop = new \ReflectionProperty($request, 'body');
         $prop->setAccessible(true);
         $prop->setValue($request, null);
@@ -855,6 +856,30 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testWithParsedBodyInvalid()
     {
         $this->requestFactory()->withParsedBody(2);
+    }
+    
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testWithParserNotDefined()
+    {
+        $request = $this->requestFactory();
+        $request = $request->withHeader('Content-Type', 'application/x-foo');
+        $request->getParsedBody();
+    }
+    
+    
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithParserInvalid()
+    {
+        $request = $this->requestFactory();
+        $request = $request->withHeader('Content-Type', 'application/x-foo');
+        $request->registerMediaTypeParser('x-foo', function($body) {
+            return 'bar';
+        });
+        $request->getParsedBody();
     }
 
     /*******************************************************************************
