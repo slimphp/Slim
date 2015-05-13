@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -56,7 +56,7 @@ trait MiddlewareAware
             $this->seedMiddlewareStack();
         }
         $next = $this->stack->top();
-        $this->stack[] = function (RequestInterface $req, ResponseInterface $res) use ($callable, $next) {
+        $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = $callable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
@@ -87,12 +87,12 @@ trait MiddlewareAware
     /**
      * Call middleware stack
      *
-     * @param  RequestInterface  $req A request object
-     * @param  ResponseInterface $res A response object
+     * @param  ServerRequestInterface $req A request object
+     * @param  ResponseInterface      $res A response object
      *
      * @return ResponseInterface
      */
-    public function callMiddlewareStack(RequestInterface $req, ResponseInterface $res)
+    public function callMiddlewareStack(ServerRequestInterface $req, ResponseInterface $res)
     {
         if (is_null($this->stack)) {
             $this->seedMiddlewareStack();

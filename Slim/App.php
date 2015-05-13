@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 
@@ -343,12 +343,12 @@ class App
      * after dispatching the Request object to the appropriate Route
      * callback routine.
      *
-     * @param  RequestInterface  $request  The most recent Request object
-     * @param  ResponseInterface $response The most recent Response object
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {

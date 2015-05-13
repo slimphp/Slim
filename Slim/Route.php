@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Interfaces\RouteInterface;
 use Interop\Container\ContainerInterface;
@@ -179,7 +179,7 @@ class Route implements RouteInterface
      * and captures the resultant HTTP response object. It then sends the response
      * back to the Application.
      */
-    public function run(RequestInterface $request, ResponseInterface $response)
+    public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
@@ -192,12 +192,12 @@ class Route implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param RequestInterface $request The current Request object
-     * @param ResponseInterface $response The current Response object
+     * @param ServerRequestInterface $request  The current Request object
+     * @param ResponseInterface      $response The current Response object
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         // invoke route callable
         try {
