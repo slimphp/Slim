@@ -9,14 +9,17 @@
 namespace Slim\Http;
 
 /**
- * Value object representing a URI for use in HTTP requests.
+ * Value object representing a URI.
  *
- * This interface is meant to represent only URIs for use with HTTP requests,
- * and is not intended as a general-purpose URI implementation.
+ * This interface is meant to represent URIs according to RFC 3986 and to
+ * provide methods for most common operations. Additional functionality for
+ * working with URIs can be provided on top of the interface or externally.
+ * Its primary use is for HTTP requests, but may also be used in other
+ * contexts.
  *
  * Instances of this interface are considered immutable; all methods that
  * might change state MUST be implemented such that they retain the internal
- * state of the current instance and return a new instance that contains the
+ * state of the current instance and return an instance that contains the
  * changed state.
  *
  * Typically the Host header will be also be present in the request message.
@@ -91,15 +94,15 @@ class Uri implements \Psr\Http\Message\UriInterface
     protected $fragment = '';
 
     /**
-     * Create new Uri
+     * Create new Uri.
      *
-     * @param string $scheme   Uri scheme
-     * @param string $host     Uri host
-     * @param int    $port     Uri port number
-     * @param string $path     Uri path
-     * @param string $query    Uri query string
-     * @param string $user     Uri user
-     * @param string $password Uri password
+     * @param string $scheme   Uri scheme.
+     * @param string $host     Uri host.
+     * @param int    $port     Uri port number.
+     * @param string $path     Uri path.
+     * @param string $query    Uri query string.
+     * @param string $user     Uri user.
+     * @param string $password Uri password.
      */
     public function __construct($scheme, $host, $port = null, $path = '/', $query = '', $fragment = '', $user = '', $password = '')
     {
@@ -114,9 +117,10 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create new Uri from string
+     * Create new Uri from string.
      *
-     * @param  string $uri Complete Uri string (i.e., https://user:pass@host:443/path?query)
+     * @param  string $uri Complete Uri string 
+     *     (i.e., https://user:pass@host:443/path?query).
      * @return self
      */
     public static function createFromString($uri)
@@ -139,7 +143,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create new Uri from environment
+     * Create new Uri from environment.
      *
      * @param  Environment $env
      * @return self
@@ -208,16 +212,18 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
-     * Retrieve the URI scheme.
-     *
-     * Implementations SHOULD restrict values to "http", "https", or an empty
-     * string but MAY accommodate other schemes if required.
+     * Retrieve the scheme component of the URI.
      *
      * If no scheme is present, this method MUST return an empty string.
      *
-     * The string returned MUST omit the trailing "://" delimiter if present.
+     * The value returned MUST be normalized to lowercase, per RFC 3986
+     * Section 3.1.
      *
-     * @return string The scheme of the URI.
+     * The trailing ":" character is not part of the scheme and MUST NOT be
+     * added.
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-3.1
+     * @return string The URI scheme.
      */
     public function getScheme()
     {
@@ -225,19 +231,18 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified scheme.
+     * Return an instance with the specified scheme.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified scheme. If the scheme
-     * provided includes the "://" delimiter, it MUST be removed.
+     * an instance that contains the specified scheme.
      *
-     * Implementations SHOULD restrict values to "http", "https", or an empty
-     * string but MAY accommodate other schemes if required.
+     * Implementations MUST support the schemes "http" and "https" case
+     * insensitively, and MAY accommodate other schemes if required.
      *
      * An empty scheme is equivalent to removing the scheme.
      *
-     * @param  string $scheme The scheme to use with the new instance.
-     * @return self           A new instance with the specified scheme.
+     * @param string $scheme The scheme to use with the new instance.
+     * @return self A new instance with the specified scheme.
      * @throws \InvalidArgumentException for invalid or unsupported schemes.
      */
     public function withScheme($scheme)
@@ -250,11 +255,11 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Filter Uri scheme
+     * Filter Uri scheme.
      *
-     * @param  string $scheme Raw Uri scheme
+     * @param  string $scheme Raw Uri scheme.
      * @return string
-     * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http"
+     * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http".
      */
     protected function filterScheme($scheme)
     {
@@ -281,9 +286,12 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
-     * Retrieve the authority portion of the URI.
+     * Retrieve the authority component of the URI.
      *
-     * The authority portion of the URI is:
+     * If no authority information is present, this method MUST return an empty
+     * string.
+     *
+     * The authority syntax of the URI is:
      *
      * <pre>
      * [user-info@]host[:port]
@@ -292,10 +300,8 @@ class Uri implements \Psr\Http\Message\UriInterface
      * If the port component is not set or is the standard port for the current
      * scheme, it SHOULD NOT be included.
      *
-     * This method MUST return an empty string if no authority information is
-     * present.
-     *
-     * @return string Authority portion of the URI, in "[user-info@]host[:port]" format.
+     * @see https://tools.ietf.org/html/rfc3986#section-3.2
+     * @return string The URI authority, in "[user-info@]host[:port]" format.
      */
     public function getAuthority()
     {
@@ -308,15 +314,19 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Retrieve the user information portion of the URI, if present.
+     * Retrieve the user information component of the URI.
+     *
+     * If no user information is present, this method MUST return an empty
+     * string.
      *
      * If a user is present in the URI, this will return that value;
      * additionally, if the password is also present, it will be appended to the
      * user value, with a colon (":") separating the values.
      *
-     * Implementations MUST NOT return the "@" suffix when returning this value.
+     * The trailing "@" character is not part of the user information and MUST
+     * NOT be added.
      *
-     * @return string User information portion of the URI, if present, in "username[:password]" format.
+     * @return string The URI user information, in "username[:password]" format.
      */
     public function getUserInfo()
     {
@@ -324,17 +334,17 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified user information.
+     * Return an instance with the specified user information.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified user information.
+     * an instance that contains the specified user information.
      *
      * Password is optional, but the user information MUST include the
      * user; an empty string for the user is equivalent to removing user
      * information.
      *
-     * @param  string      $user     User name to use for authority.
-     * @param  null|string $password Password associated with $user.
+     * @param string $user The user name to use for authority.
+     * @param null|string $password The password associated with $user.
      * @return self A new instance with the specified user information.
      */
     public function withUserInfo($user, $password = null)
@@ -347,12 +357,15 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Retrieve the host segment of the URI.
+     * Retrieve the host component of the URI.
      *
-     * This method MUST return a string; if no host segment is present, an
-     * empty string MUST be returned.
+     * If no host is present, this method MUST return an empty string.
      *
-     * @return string Host segment of the URI.
+     * The value returned MUST be normalized to lowercase, per RFC 3986
+     * Section 3.2.2.
+     *
+     * @see http://tools.ietf.org/html/rfc3986#section-3.2.2
+     * @return string The URI host.
      */
     public function getHost()
     {
@@ -360,15 +373,15 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified host.
+     * Return an instance with the specified host.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified host.
+     * an instance that contains the specified host.
      *
      * An empty host value is equivalent to removing the host.
      *
-     * @param  string $host Hostname to use with the new instance.
-     * @return self         A new instance with the specified host.
+     * @param string $host The hostname to use with the new instance.
+     * @return self A new instance with the specified host.
      * @throws \InvalidArgumentException for invalid hostnames.
      */
     public function withHost($host)
@@ -380,7 +393,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Retrieve the port segment of the URI.
+     * Retrieve the port component of the URI.
      *
      * If a port is present, and it is non-standard for the current scheme,
      * this method MUST return it as an integer. If the port is the standard port
@@ -392,7 +405,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      * If no port is present, but a scheme is present, this method MAY return
      * the standard port for that scheme, but SHOULD return null.
      *
-     * @return null|int The port for the URI.
+     * @return null|int The URI port.
      */
     public function getPort()
     {
@@ -400,10 +413,10 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified port.
+     * Return an instance with the specified port.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified port.
+     * an instance that contains the specified port.
      *
      * Implementations MUST raise an exception for ports outside the
      * established TCP and UDP port ranges.
@@ -411,9 +424,9 @@ class Uri implements \Psr\Http\Message\UriInterface
      * A null value provided for the port is equivalent to removing the port
      * information.
      *
-     * @param  null|int $port Port to use with the new instance; a null value
-     *                        removes the port information.
-     * @return self           A new instance with the specified port.
+     * @param null|int $port The port to use with the new instance; a null value
+     *     removes the port information.
+     * @return self A new instance with the specified port.
      * @throws \InvalidArgumentException for invalid ports.
      */
     public function withPort($port)
@@ -436,11 +449,11 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Filter Uri port
+     * Filter Uri port.
      *
-     * @param  null|int $port The Uri port number
+     * @param  null|int $port The Uri port number.
      * @return null|int
-     * @throws \InvalidArgumentException If the port is invalid
+     * @throws \InvalidArgumentException If the port is invalid.
      */
     protected function filterPort($port)
     {
@@ -456,39 +469,63 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
-     * Retrieve the path segment of the URI.
+     * Retrieve the path component of the URI.
      *
-     * This method MUST return a string; if no path is present it MUST return
-     * the string "/".
+     * The path can either be empty or absolute (starting with a slash) or
+     * rootless (not starting with a slash). Implementations MUST support all
+     * three syntaxes.
      *
-     * @return string The path segment of the URI.
+     * Normally, the empty path "" and absolute path "/" are considered equal as
+     * defined in RFC 7230 Section 2.7.3. But this method MUST NOT automatically
+     * do this normalization because in contexts with a trimmed base path, e.g.
+     * the front controller, this difference becomes significant. It's the task
+     * of the user to handle both "" and "/".
+     *
+     * The value returned MUST be percent-encoded, but MUST NOT double-encode
+     * any characters. To determine what characters to encode, please refer to
+     * RFC 3986, Sections 2 and 3.3.
+     *
+     * As an example, if the value should include a slash ("/") not intended as
+     * delimiter between path segments, that value MUST be passed in encoded
+     * form (e.g., "%2F") to the instance.
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-2
+     * @see https://tools.ietf.org/html/rfc3986#section-3.3
+     * @return string The URI path.
      */
     public function getPath()
     {
+        // TODO: Handler path properly!
+        
         return $this->path;
     }
 
     /**
-     * Create a new instance with the specified path.
+     * Return an instance with the specified path.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified path.
+     * an instance that contains the specified path.
      *
-     * The path MUST be prefixed with "/"; if not, the implementation MAY
-     * provide the prefix itself.
+     * The path can either be empty or absolute (starting with a slash) or
+     * rootless (not starting with a slash). Implementations MUST support all
+     * three syntaxes.
      *
-     * The implementation MUST percent-encode reserved characters as
-     * specified in RFC 3986, Section 2, but MUST NOT double-encode any
-     * characters.
+     * If the path is intended to be domain-relative rather than path relative then
+     * it must begin with a slash ("/"). Paths not starting with a slash ("/")
+     * are assumed to be relative to some base path known to the application or
+     * consumer.
      *
-     * An empty path value is equivalent to removing the path.
+     * Users can provide both encoded and decoded path characters.
+     * Implementations ensure the correct encoding as outlined in getPath().
      *
-     * @param  string $path The path to use with the new instance.
-     * @return self         A new instance with the specified path.
+     * @param string $path The path to use with the new instance.
+     * @return self A new instance with the specified path.
      * @throws \InvalidArgumentException for invalid paths.
      */
     public function withPath($path)
     {
+        // TODO: Handler path properly!
+        
         if (!is_string($path)) {
             throw new \InvalidArgumentException('Uri path must be a string');
         }
@@ -517,7 +554,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Set base path
+     * Set base path.
      *
      * @param  string $basePath
      * @return self
@@ -537,15 +574,15 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Filter Uri path
+     * Filter Uri path.
      *
      * This method percent-encodes all reserved
      * characters in the provided path string. This method
      * will NOT double-encode characters that are already
      * percent-encoded.
      *
-     * @param  string $path The raw uri path
-     * @return string       The RFC 3986 percent-encoded uri path
+     * @param  string $path The raw uri path.
+     * @return string       The RFC 3986 percent-encoded uri path.
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
     protected function filterPath($path)
@@ -566,11 +603,21 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Retrieve the query string of the URI.
      *
-     * This method MUST return a string; if no query string is present, it MUST
-     * return an empty string.
+     * If no query string is present, this method MUST return an empty string.
      *
-     * The string returned MUST omit the leading "?" character.
+     * The leading "?" character is not part of the query and MUST NOT be
+     * added.
      *
+     * The value returned MUST be percent-encoded, but MUST NOT double-encode
+     * any characters. To determine what characters to encode, please refer to
+     * RFC 3986, Sections 2 and 3.4.
+     *
+     * As an example, if a value in a key/value pair of the query string should
+     * include an ampersand ("&") not intended as a delimiter between values,
+     * that value MUST be passed in encoded form (e.g., "%26") to the instance.
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-2
+     * @see https://tools.ietf.org/html/rfc3986#section-3.4
      * @return string The URI query string.
      */
     public function getQuery()
@@ -579,23 +626,18 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified query string.
+     * Return an instance with the specified query string.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified query string.
+     * an instance that contains the specified query string.
      *
-     * If the query string is prefixed by "?", that character MUST be removed.
-     * Additionally, the query string SHOULD be parseable by parse_str() in
-     * order to be valid.
-     *
-     * The implementation MUST percent-encode reserved characters as
-     * specified in RFC 3986, Section 2, but MUST NOT double-encode any
-     * characters.
+     * Users can provide both encoded and decoded query characters.
+     * Implementations ensure the correct encoding as outlined in getQuery().
      *
      * An empty query string value is equivalent to removing the query string.
      *
-     * @param  string $query The query string to use with the new instance.
-     * @return self          A new instance with the specified query string.
+     * @param string $query The query string to use with the new instance.
+     * @return self A new instance with the specified query string.
      * @throws \InvalidArgumentException for invalid query strings.
      */
     public function withQuery($query)
@@ -613,8 +655,8 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Filters the query string or fragment of a URI.
      *
-     * @param string $query The raw uri query string
-     * @return string The percent-encoded query string
+     * @param string $query The raw uri query string.
+     * @return string The percent-encoded query string.
      */
     protected function filterQuery($query)
     {
@@ -632,13 +674,19 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
-     * Retrieve the fragment segment of the URI.
+     * Retrieve the fragment component of the URI.
      *
-     * This method MUST return a string; if no fragment is present, it MUST
-     * return an empty string.
+     * If no fragment is present, this method MUST return an empty string.
      *
-     * The string returned MUST omit the leading "#" character.
+     * The leading "#" character is not part of the fragment and MUST NOT be
+     * added.
      *
+     * The value returned MUST be percent-encoded, but MUST NOT double-encode
+     * any characters. To determine what characters to encode, please refer to
+     * RFC 3986, Sections 2 and 3.5.
+     *
+     * @see https://tools.ietf.org/html/rfc3986#section-2
+     * @see https://tools.ietf.org/html/rfc3986#section-3.5
      * @return string The URI fragment.
      */
     public function getFragment()
@@ -647,17 +695,18 @@ class Uri implements \Psr\Http\Message\UriInterface
     }
 
     /**
-     * Create a new instance with the specified URI fragment.
+     * Return an instance with the specified URI fragment.
      *
      * This method MUST retain the state of the current instance, and return
-     * a new instance that contains the specified URI fragment.
+     * an instance that contains the specified URI fragment.
      *
-     * If the fragment is prefixed by "#", that character MUST be removed.
+     * Users can provide both encoded and decoded fragment characters.
+     * Implementations ensure the correct encoding as outlined in getFragment().
      *
      * An empty fragment value is equivalent to removing the fragment.
      *
-     * @param  string $fragment The URI fragment to use with the new instance.
-     * @return self             A new instance with the specified URI fragment.
+     * @param string $fragment The fragment to use with the new instance.
+     * @return self A new instance with the specified fragment.
      */
     public function withFragment($fragment)
     {
@@ -676,18 +725,26 @@ class Uri implements \Psr\Http\Message\UriInterface
      *******************************************************************************/
 
     /**
-     * Return the string representation of the URI.
+     * Return the string representation as a URI reference.
      *
-     * Concatenates the various segments of the URI, using the appropriate
-     * delimiters:
+     * Depending on which components of the URI are present, the resulting
+     * string is either a full URI or relative reference according to RFC 3986,
+     * Section 4.1. The method concatenates the various components of the URI,
+     * using the appropriate delimiters:
      *
-     * - If a scheme is present, "://" MUST append the value.
-     * - If the authority information is present, that value will be
-     *   concatenated.
-     * - If a path is present, it MUST start with a "/" character.
-     * - If a query string is present, it MUST be prefixed by a "?" character.
-     * - If a URI fragment is present, it MUST be prefixed by a "#" character.
+     * - If a scheme is present, it MUST be suffixed by ":".
+     * - If an authority is present, it MUST be prefixed by "//".
+     * - The path can be concatenated without delimiters. But there are two
+     *   cases where the path has to be adjusted to make the URI reference
+     *   valid as PHP does not allow to throw an exception in __toString():
+     *     - If the path is rootless and an authority is present, the path MUST
+     *       be prefixed by "/".
+     *     - If the path is starting with more than one "/" and no authority is
+     *       present, the starting slashes MUST be reduced to one.
+     * - If a query is present, it MUST be prefixed by "?".
+     * - If a fragment is present, it MUST be prefixed by "#".
      *
+     * @see http://tools.ietf.org/html/rfc3986#section-4.1
      * @return string
      */
     public function __toString()
@@ -698,7 +755,14 @@ class Uri implements \Psr\Http\Message\UriInterface
         $path = $this->getPath();
         $query = $this->getQuery();
         $fragment = $this->getFragment();
+        
+        // TODO: Handler path properly!
 
-        return ($scheme ? $scheme . '://' : '') . $authority . $basePath . $path . ($query ? '?' . $query : '') . ($fragment ? '#' . $fragment : '');
+        return ($scheme ? $scheme . ':' : '')
+            . ($authority ? '//' . $authority : '')
+            . $basePath
+            . $path
+            . ($query ? '?' . $query : '')
+            . ($fragment ? '#' . $fragment : '');
     }
 }
