@@ -1217,6 +1217,8 @@ class Request implements ServerRequestInterface
             
                 $this->bodyParsed = $parsed;
             }
+        } else {
+            throw new \RuntimeException("There is no parser defined for request body media type {$mediaType}");
         }
 
         return $this->bodyParsed;
