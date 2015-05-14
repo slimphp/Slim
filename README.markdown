@@ -163,6 +163,10 @@ Next, edit your `index.php` file so Slim knows about the incoming URI:
 
 ## How to Contribute
 
+
+*NOTE: We are only accepting security fixes for Slim 2 (master branch). All development is concentrated on Slim 3 which is on the develop branch.*
+
+
 ### Pull Requests
 
 1. Fork the Slim Framework repository
