@@ -2,7 +2,7 @@
 
 namespace Slim;
 
-use Pimple\Container;
+use Interop\Container\ContainerInterface;
 
 class CallableResolver
 {
@@ -13,7 +13,7 @@ class CallableResolver
     
     protected $resolved;
     
-    public function __construct($toResolve, Container $container)
+    public function __construct($toResolve, ContainerInterface $container)
     {
         $this->toResolve = $toResolve;
         $this->container = $container;
@@ -32,8 +32,8 @@ class CallableResolver
                 $class = $matches[1];
                 $method = $matches[2];
                 
-                if (isset($this->container[$class])) {
-                    $this->resolved = [$this->container[$class], $method];
+                if ($this->container->has($class)) {
+                    $this->resolved = [$this->container->get($class), $method];
                 } else {
                     if (!class_exists($class)) {
                         throw new \RuntimeException(sprintf('Callable %s does not exist', $class));
