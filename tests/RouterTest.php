@@ -83,6 +83,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testUrlForWithQueryParameters()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{name}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s', $args['name']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/hello/josh?a=b&c=d',
+            $this->router->urlFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
+        );
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
