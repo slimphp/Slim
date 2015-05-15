@@ -184,8 +184,8 @@ class App
         }
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (method_exists($route, 'register')) {
-            $route->register($this->container);
+        if (method_exists($route, 'setContainer')) {
+            $route->setContainer($this->container);
         }
 
         return $route;

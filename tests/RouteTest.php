@@ -126,7 +126,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
 
         $container = new Container();
-        $route->register($container);
+        $route->setContainer($container);
         $route->add('MiddlewareStub:run');
 
         $env = \Slim\Http\Environment::mock();

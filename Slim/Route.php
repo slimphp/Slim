@@ -163,7 +163,7 @@ class Route implements RouteInterface
      *
      * @param ContainerInterface $container
      */
-    public function register(ContainerInterface $container)
+    public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
         return $this;
