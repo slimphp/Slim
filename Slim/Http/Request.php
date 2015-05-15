@@ -267,6 +267,8 @@ class Request implements ServerRequestInterface
     /**
      * Get the original HTTP method (ignore override).
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return string
      */
     public function getOriginalMethod()
@@ -333,6 +335,8 @@ class Request implements ServerRequestInterface
     /**
      * Does this request use a given method?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @param  string $method HTTP method
      * @return bool
      */
@@ -344,6 +348,8 @@ class Request implements ServerRequestInterface
     /**
      * Is this a GET request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isGet()
@@ -353,6 +359,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Is this a POST request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -364,6 +372,8 @@ class Request implements ServerRequestInterface
     /**
      * Is this a PUT request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isPut()
@@ -373,6 +383,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Is this a PATCH request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -384,6 +396,8 @@ class Request implements ServerRequestInterface
     /**
      * Is this a DELETE request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isDelete()
@@ -393,6 +407,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Is this a HEAD request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -404,6 +420,8 @@ class Request implements ServerRequestInterface
     /**
      * Is this a OPTIONS request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isOptions()
@@ -414,6 +432,8 @@ class Request implements ServerRequestInterface
     /**
      * Is this an AJAX request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isAjax()
@@ -423,6 +443,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Is this an XHR request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @see    isAjax()
      * @return bool
@@ -724,6 +746,8 @@ class Request implements ServerRequestInterface
     /**
      * Get request content type.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return string|null The request content type, if known
      */
     public function getContentType()
@@ -735,6 +759,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Get request media type, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string|null The request media type, minus content-type params
      */
@@ -752,6 +778,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Get request media type params, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return array
      */
@@ -774,6 +802,8 @@ class Request implements ServerRequestInterface
     /**
      * Get request content character set, if known.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return string|null
      */
     public function getContentCharset()
@@ -788,6 +818,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Get request content length, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return int|null
      */
@@ -1026,6 +1058,8 @@ class Request implements ServerRequestInterface
     /**
      * Create a new instance with the specified derived request attributes.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * This method allows setting all new derived request attributes as
      * described in getAttributes().
      *
@@ -1180,8 +1214,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Register media type parser.
-     * 
-     * Note: Not part of the psr-7 interface.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @param string   $mediaType A HTTP media type (excluding content-type
      *     params).
@@ -1200,8 +1234,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Fetch request parameter value from body or query string (in that order).
-     * 
-     * Note: Not part of the psr-7 interface.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key The parameter key.
      *
@@ -1245,6 +1279,8 @@ class Request implements ServerRequestInterface
 
     /**
      * Get the client IP address.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      * 
      * @return string|null IP address or null if none found.
      */

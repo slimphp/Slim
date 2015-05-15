@@ -463,6 +463,8 @@ class Response implements ResponseInterface
     /**
      * Write data to the response body.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * Proxies to the underlying stream and writes the provided data to it.
      *
      * @param string $data
@@ -514,6 +516,8 @@ class Response implements ResponseInterface
     /**
      * Redirect.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * This method prepares the response object to return an HTTP Redirect 
      * response to the client.
      *
@@ -529,6 +533,8 @@ class Response implements ResponseInterface
     /**
      * Is this response empty?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isEmpty()
@@ -538,6 +544,8 @@ class Response implements ResponseInterface
 
     /**
      * Is this response informational?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -549,6 +557,8 @@ class Response implements ResponseInterface
     /**
      * Is this response OK?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isOk()
@@ -558,6 +568,8 @@ class Response implements ResponseInterface
 
     /**
      * Is this response successful?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -569,6 +581,8 @@ class Response implements ResponseInterface
     /**
      * Is this response a redirect?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isRedirect()
@@ -579,6 +593,8 @@ class Response implements ResponseInterface
     /**
      * Is this response a redirection?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isRedirection()
@@ -588,6 +604,8 @@ class Response implements ResponseInterface
 
     /**
      * Is this response forbidden?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      * @api
@@ -600,6 +618,8 @@ class Response implements ResponseInterface
     /**
      * Is this response not Found?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isNotFound()
@@ -609,6 +629,8 @@ class Response implements ResponseInterface
 
     /**
      * Is this response a client error?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -620,6 +642,8 @@ class Response implements ResponseInterface
     /**
      * Is this response a server error?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isServerError()
@@ -629,6 +653,8 @@ class Response implements ResponseInterface
 
     /**
      * Convert response to string.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string
      */

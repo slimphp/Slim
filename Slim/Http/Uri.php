@@ -543,6 +543,8 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Retrieve the base path segment of the URI.
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * This method MUST return a string; if no path is present it MUST return
      * an empty string.
      *
@@ -555,6 +557,8 @@ class Uri implements \Psr\Http\Message\UriInterface
 
     /**
      * Set base path.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $basePath
      * @return self
