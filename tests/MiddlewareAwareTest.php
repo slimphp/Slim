@@ -137,12 +137,4 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('RuntimeException');
         $stack->alternativeSeed();
     }
-
-    public function testAddingNonCallableFails()
-    {
-        $stack = new Stackable;
-        $this->setExpectedException('RuntimeException', 'Expected a callable to be added');
-        $stack->add('string');
-
-    }
 }
