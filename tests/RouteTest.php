@@ -148,4 +148,80 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
     // TODO: Test adding controller callables with "Foo:bar" syntax
 
+    /**
+     * Ensure that the response returned by a route callable is the response
+     * object that is returned by __invoke().
+     */
+    public function testInvokeWhenReturningAResponse()
+    {
+        $callable = function ($req, $res, $args) {
+            return $res->write('foo');
+        };
+        $route = new Route(['GET'], '/', $callable);
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('foo', (string)$response->getBody());
+    }
+
+    /**
+     * Ensure that anything echo'd in a route callable is added to the response
+     * object that is returned by __invoke().
+     */
+    public function testInvokeWhenEchoingOutput()
+    {
+        $callable = function ($req, $res, $args) {
+            echo "foo";
+            return $res->withStatus(201);
+        };
+        $route = new Route(['GET'], '/', $callable);
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    /**
+     * Ensure that if a string is returned by a route callable, then it is
+     * added to the response object that is returned by __invoke().
+     */
+    public function testInvokeWhenReturningAString()
+    {
+        $callable = function ($req, $res, $args) {
+            return "foo";
+        };
+        $route = new Route(['GET'], '/', $callable);
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('foo', (string)$response->getBody());
+    }
 }
