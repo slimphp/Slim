@@ -50,7 +50,7 @@ class App
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
      */
-    public function __construct($container)
+    public function __construct($container = [])
     {
         if (is_array($container)) {
             $container = new Container($container);
