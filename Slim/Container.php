@@ -149,11 +149,10 @@ final class Container extends PimpleContainer implements ContainerInterface
      */
     public function get($id)
     {
-        try {
-            return $this->offsetGet($id);
-        } catch (\InvalidArgumentException $e) {
-            throw new NotFoundException($e->getMessage(), $e->getCode(), $e);
+        if (!$this->offsetExists($id)) {
+            throw new NotFoundException(sprintf('Identifier "%s" is not defined.', $id));
         }
+        return $this->offsetGet($id);
     }
 
     /**
