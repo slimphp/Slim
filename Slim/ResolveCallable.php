@@ -30,9 +30,7 @@ trait ResolveCallable
     protected function resolveCallable($callable)
     {
         if (is_string($callable) && strpos($callable, ':')) {
-            if ($this instanceof ContainerInterface) {
-                $container = $this;
-            } elseif ($this->container instanceof ContainerInterface) {
+            if ($this->container instanceof ContainerInterface) {
                 $container = $this->container;
             } else {
                 throw new \RuntimeException('Cannot resolve callable string');
