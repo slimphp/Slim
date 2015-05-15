@@ -495,8 +495,6 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function getPath()
     {
-        // TODO: Handler path properly!
-        
         return $this->path;
     }
 
@@ -524,16 +522,10 @@ class Uri implements \Psr\Http\Message\UriInterface
      */
     public function withPath($path)
     {
-        // TODO: Handler path properly!
-        
         if (!is_string($path)) {
             throw new \InvalidArgumentException('Uri path must be a string');
         }
-        if (!empty($path)) {
-            $path = '/' . ltrim($path, '/'); // <-- Trim on left side
-        } else {
-            $path = '/';
-        }
+
         $clone = clone $this;
         $clone->path = $this->filterPath($path);
 
@@ -760,11 +752,15 @@ class Uri implements \Psr\Http\Message\UriInterface
         $query = $this->getQuery();
         $fragment = $this->getFragment();
         
-        // TODO: Handler path properly!
+        if ($authority && substr($path, 0, 1) !== '/') {
+            $path = $basePath . '/' . $path;
+        }
+        if (!$authority && substr($path, 0, 2) === '//') {
+            $path = '/' . ltrim($path);
+        }
 
         return ($scheme ? $scheme . ':' : '')
             . ($authority ? '//' . $authority : '')
-            . $basePath
             . $path
             . ($query ? '?' . $query : '')
             . ($fragment ? '#' . $fragment : '');
