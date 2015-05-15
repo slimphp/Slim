@@ -763,6 +763,24 @@ class Request implements RequestInterface
         return $result ? (int)$result[0] : null;
     }
 
+    /**
+     * Get accept headers if available
+     *
+     * @return Array the accept headers
+     */
+    public function getAcceptHeaders()
+    {
+        $acceptHeaders = [];
+
+        if (count($this->headers->get('ACCEPT')) > 0) {
+            foreach ($this->headers->get('ACCEPT') as $header) {
+                $acceptHeaders = array_merge($acceptHeaders, explode(', ', $header));
+            }
+        }
+
+        return $acceptHeaders;
+    }
+
     /*******************************************************************************
      * Cookies
      ******************************************************************************/
