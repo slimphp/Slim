@@ -32,7 +32,7 @@
 
 use Slim\Route;
 use Slim\Http\Collection;
-use Pimple\Container;
+use Slim\Container;
 
 class MiddlewareStub
 {

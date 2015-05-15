@@ -208,7 +208,8 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testHaltInMiddleware()
     {
         $app = new App();
-        $app['environment'] = function () {
+        $container = $app->getContainer();
+        $container['environment'] = function () {
             return Environment::mock([
                 'SCRIPT_NAME' => '/index.php',
                 'REQUEST_URI' => '/foo',
@@ -374,8 +375,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         $mock = $this->getMock('StdClass', ['bar']);
 
         $app = new App();
-
-        $app['foo'] = function() use ($mock, $res) {
+        $container = $app->getContainer();
+        $container['foo'] = function() use ($mock, $res) {
             $mock->method('bar')
                 ->willReturn(
                     $res->write('Hello')
@@ -411,8 +412,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         $mock = $this->getMock('StdClass');
 
         $app = new App();
-
-        $app['foo'] = function() use ($mock, $res) {
+        $container = $app->getContainer();
+        $container['foo'] = function() use ($mock, $res) {
             return $mock;
         };
 
@@ -443,8 +444,8 @@ class AppTest extends PHPUnit_Framework_TestCase
         $mock = new MockAction();
 
         $app = new App();
-
-        $app['foo'] = function() use ($mock, $res) {
+        $container = $app->getContainer();
+        $container['foo'] = function() use ($mock, $res) {
             return $mock;
         };
 
