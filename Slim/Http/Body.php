@@ -106,6 +106,8 @@ class Body implements \Psr\Http\Message\StreamInterface
     /**
      * Is a resource attached to this HTTP message body?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isAttached()
@@ -115,6 +117,8 @@ class Body implements \Psr\Http\Message\StreamInterface
 
     /**
      * Attach new resource to this HTTP message body.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @param  resource                  $newStream A PHP resource handle.
      * @throws \InvalidArgumentException If argument is not a valid PHP resource.
