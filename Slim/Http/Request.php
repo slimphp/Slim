@@ -8,7 +8,7 @@
  */
 namespace Slim\Http;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
@@ -22,8 +22,9 @@ use Slim\Interfaces\Http\HeadersInterface;
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
+ * @link https://github.com/php-fig/http-message/blob/master/src/ServerRequestInterface.php
  */
-class Request implements RequestInterface
+class Request implements ServerRequestInterface
 {
     /**
      * The request protocol version
@@ -206,16 +207,16 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the specified HTTP protocol version.
+     * Return an instance with the specified HTTP protocol version.
      *
      * The version string MUST contain only the HTTP version number (e.g.,
      * "1.1", "1.0").
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * new protocol version.
      *
-     * @param  string $version HTTP protocol version
+     * @param string $version HTTP protocol version
      * @return self
      */
     public function withProtocolVersion($version)
@@ -239,13 +240,9 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Get the HTTP request method
+     * Retrieves the HTTP method of the request.
      *
-     * This method returns the HTTP request's method, and it
-     * respects override values specified in the `X-Http-Method-Override`
-     * request header or in the `_METHOD` body parameter.
-     *
-     * @return string
+     * @return string Returns the request method.
      */
     public function getMethod()
     {
@@ -268,7 +265,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get the original HTTP method (ignore override)
+     * Get the original HTTP method (ignore override).
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string
      */
@@ -278,17 +277,17 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the provided HTTP method.
+     * Return an instance with the provided HTTP method.
      *
      * While HTTP method names are typically all uppercase characters, HTTP
      * method names are case-sensitive and thus implementations SHOULD NOT
      * modify the given string.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * changed request method.
      *
-     * @param  string $method Case-insensitive method.
+     * @param string $method Case-sensitive method.
      * @return self
      * @throws \InvalidArgumentException for invalid HTTP methods.
      */
@@ -336,6 +335,8 @@ class Request implements RequestInterface
     /**
      * Does this request use a given method?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @param  string $method HTTP method
      * @return bool
      */
@@ -347,6 +348,8 @@ class Request implements RequestInterface
     /**
      * Is this a GET request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isGet()
@@ -356,6 +359,8 @@ class Request implements RequestInterface
 
     /**
      * Is this a POST request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -367,6 +372,8 @@ class Request implements RequestInterface
     /**
      * Is this a PUT request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isPut()
@@ -376,6 +383,8 @@ class Request implements RequestInterface
 
     /**
      * Is this a PATCH request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -387,6 +396,8 @@ class Request implements RequestInterface
     /**
      * Is this a DELETE request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isDelete()
@@ -396,6 +407,8 @@ class Request implements RequestInterface
 
     /**
      * Is this a HEAD request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
      */
@@ -407,6 +420,8 @@ class Request implements RequestInterface
     /**
      * Is this a OPTIONS request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isOptions()
@@ -417,6 +432,8 @@ class Request implements RequestInterface
     /**
      * Is this an AJAX request?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isAjax()
@@ -426,6 +443,8 @@ class Request implements RequestInterface
 
     /**
      * Is this an XHR request?
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @see    isAjax()
      * @return bool
@@ -476,7 +495,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with a specific request-target.
+     * Return an instance with the specific request-target.
      *
      * If the request needs a non-origin-form request-target — e.g., for
      * specifying an absolute-form, authority-form, or asterisk-form —
@@ -484,11 +503,12 @@ class Request implements RequestInterface
      * request-target, verbatim.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * changed request target.
      *
-     * @link   http://tools.ietf.org/html/rfc7230#section-2.7 (for the various request-target forms allowed in request messages)
-     * @param  mixed $requestTarget
+     * @link http://tools.ietf.org/html/rfc7230#section-2.7 (for the various
+     *     request-target forms allowed in request messages)
+     * @param mixed $requestTarget
      * @return self
      */
     public function withRequestTarget($requestTarget)
@@ -509,8 +529,9 @@ class Request implements RequestInterface
      *
      * This method MUST return a UriInterface instance.
      *
-     * @link   http://tools.ietf.org/html/rfc3986#section-4.3
-     * @return UriInterface Returns a UriInterface instance representing the URI of the request, if any.
+     * @link http://tools.ietf.org/html/rfc3986#section-4.3
+     * @return UriInterface Returns a UriInterface instance
+     *     representing the URI of the request.
      */
     public function getUri()
     {
@@ -518,22 +539,49 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the provided URI.
+     * Returns an instance with the provided URI.
+     *
+     * This method MUST update the Host header of the returned request by
+     * default if the URI contains a host component. If the URI does not
+     * contain a host component, any pre-existing Host header MUST be carried
+     * over to the returned request.
+     *
+     * You can opt-in to preserving the original state of the Host header by
+     * setting `$preserveHost` to `true`. When `$preserveHost` is set to
+     * `true`, this method interacts with the Host header in the following ways:
+     *
+     * - If the the Host header is missing or empty, and the new URI contains
+     *   a host component, this method MUST update the Host header in the returned
+     *   request.
+     * - If the Host header is missing or empty, and the new URI does not contain a
+     *   host component, this method MUST NOT update the Host header in the returned
+     *   request.
+     * - If a Host header is present and non-empty, this method MUST NOT update
+     *   the Host header in the returned request.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * new UriInterface instance.
      *
-     * @link   http://tools.ietf.org/html/rfc3986#section-4.3
-     * @param  UriInterface $uri New request URI to use.
+     * @link http://tools.ietf.org/html/rfc3986#section-4.3
+     * @param UriInterface $uri New request URI to use.
+     * @param bool $preserveHost Preserve the original state of the Host header.
      * @return self
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
-        //TODO Do something with $preserveHost
-
         $clone = clone $this;
         $clone->uri = $uri;
+        
+        if (!$preserveHost) {
+            if (!empty($uri->getHost())) {
+                $this->withHeader('Host', $uri->getHost());
+            }
+        } else {
+            if ((!$this->hasHeader('Host') || empty($this->getHeader('Host'))) && !empty($uri->getHost())) {
+                $this->withHeader('Host', $uri->getHost());
+            }
+        }
 
         return $clone;
     }
@@ -543,7 +591,7 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Retrieves all message headers.
+     * Retrieves all message header values.
      *
      * The keys represent the header name as it will be sent over the wire, and
      * each value is an array of strings associated with the header.
@@ -563,9 +611,9 @@ class Request implements RequestInterface
      * While header names are not case-sensitive, getHeaders() will preserve the
      * exact case in which headers were originally specified.
      *
-     * @return array Returns an associative array of the message's headers.
-     *               Each key MUST be a header name, and each value MUST be
-     *               an array of strings.
+     * @return array Returns an associative array of the message's headers. Each
+     *     key MUST be a header name, and each value MUST be an array of strings
+     *     for that header.
      */
     public function getHeaders()
     {
@@ -575,10 +623,10 @@ class Request implements RequestInterface
     /**
      * Checks if a header exists by the given case-insensitive name.
      *
-     * @param  string $name Case-insensitive header field name.
-     * @return bool         Returns true if any header names match the given header
-     *                      name using a case-insensitive string comparison. Returns
-     *                      false if no matching header name is found in the message.
+     * @param string $name Case-insensitive header field name.
+     * @return bool Returns true if any header names match the given header
+     *     name using a case-insensitive string comparison. Returns false if
+     *     no matching header name is found in the message.
      */
     public function hasHeader($name)
     {
@@ -586,12 +634,18 @@ class Request implements RequestInterface
     }
 
     /**
-     * Retrieves a header by the given case-insensitive name as an array of strings.
+     * Retrieves a message header value by the given case-insensitive name.
      *
-     * @param  string   $name Case-insensitive header field name.
-     * @return string[]       An array of string values as provided for the given
-     *                        header. If the header does not appear in the message,
-     *                        this method MUST return an empty array.
+     * This method returns an array of all the header values of the given
+     * case-insensitive header name.
+     *
+     * If the header does not appear in the message, this method MUST return an
+     * empty array.
+     *
+     * @param string $name Case-insensitive header field name.
+     * @return string[] An array of string values as provided for the given
+     *    header. If the header does not appear in the message, this method MUST
+     *    return an empty array.
      */
     public function getHeader($name)
     {
@@ -599,18 +653,23 @@ class Request implements RequestInterface
     }
 
     /**
-     * Retrieve a header by the given case-insensitive name, as a string.
+     * Retrieves a comma-separated string of the values for a single header.
      *
      * This method returns all of the header values of the given
      * case-insensitive header name as a string concatenated together using
      * a comma.
      *
      * NOTE: Not all header values may be appropriately represented using
-     * comma concatenation. For such headers, use getHeader instead
+     * comma concatenation. For such headers, use getHeader() instead
      * and supply your own delimiter when concatenating.
      *
-     * @param  string $name Case-insensitive header field name.
-     * @return string
+     * If the header does not appear in the message, this method MUST return
+     * an empty string.
+     *
+     * @param string $name Case-insensitive header field name.
+     * @return string A string of values as provided for the given header
+     *    concatenated together using a comma. If the header does not appear in
+     *    the message, this method MUST return an empty string.
      */
     public function getHeaderLine($name)
     {
@@ -618,18 +677,17 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the provided header, replacing any existing
-     * values of any headers with the same case-insensitive name.
+     * Return an instance with the provided value replacing the specified header.
      *
      * While header names are case-insensitive, the casing of the header will
      * be preserved by this function, and returned from getHeaders().
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * new and/or updated header and value.
      *
-     * @param  string          $name  Case-insensitive header field name.
-     * @param  string|string[] $value Header value(s).
+     * @param string $name Case-insensitive header field name.
+     * @param string|string[] $value Header value(s).
      * @return self
      * @throws \InvalidArgumentException for invalid header names or values.
      */
@@ -642,19 +700,18 @@ class Request implements RequestInterface
     }
 
     /**
-     * Creates a new instance, with the specified header appended with the
-     * given value.
+     * Return an instance with the specified header appended with the given value.
      *
      * Existing values for the specified header will be maintained. The new
      * value(s) will be appended to the existing list. If the header did not
      * exist previously, it will be added.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * new header and/or value.
      *
-     * @param  string          $name  Case-insensitive header field name to add.
-     * @param  string|string[] $value Header value(s).
+     * @param string $name Case-insensitive header field name to add.
+     * @param string|string[] $value Header value(s).
      * @return self
      * @throws \InvalidArgumentException for invalid header names or values.
      */
@@ -667,15 +724,15 @@ class Request implements RequestInterface
     }
 
     /**
-     * Creates a new instance, without the specified header.
+     * Return an instance without the specified header.
      *
      * Header resolution MUST be done without case-sensitivity.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that removes
+     * immutability of the message, and MUST return an instance that removes
      * the named header.
      *
-     * @param  string $name Case-insensitive header field name to remove.
+     * @param string $name Case-insensitive header field name to remove.
      * @return self
      */
     public function withoutHeader($name)
@@ -687,7 +744,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get request content type
+     * Get request content type.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string|null The request content type, if known
      */
@@ -699,7 +758,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get request media type, if known
+     * Get request media type, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string|null The request media type, minus content-type params
      */
@@ -716,7 +777,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get request media type params, if known
+     * Get request media type params, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return array
      */
@@ -737,7 +800,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get request content character set, if known
+     * Get request content character set, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return string|null
      */
@@ -752,7 +817,9 @@ class Request implements RequestInterface
     }
 
     /**
-     * Get request content length, if known
+     * Get request content length, if known.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return int|null
      */
@@ -783,17 +850,20 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the specified cookies.
+     * Return an instance with the specified cookies.
      *
      * The data IS NOT REQUIRED to come from the $_COOKIE superglobal, but MUST
      * be compatible with the structure of $_COOKIE. Typically, this data will
      * be injected at instantiation.
      *
+     * This method MUST NOT update the related Cookie header of the request
+     * instance, nor related values in the server params.
+     *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * updated cookie values.
      *
-     * @param  array $cookies Array of key/value pairs representing cookies.
+     * @param array $cookies Array of key/value pairs representing cookies.
      * @return self
      */
     public function withCookieParams(array $cookies)
@@ -813,10 +883,10 @@ class Request implements RequestInterface
      *
      * Retrieves the deserialized query string arguments, if any.
      *
-     * Note: the query params might not be in sync with the URL or server
+     * Note: the query params might not be in sync with the URI or server
      * params. If you need to ensure you are only getting the original
-     * values, you may need to parse the composed URL or the `QUERY_STRING`
-     * composed in the server params.
+     * values, you may need to parse the query string from `getUri()->getQuery()`
+     * or from the `QUERY_STRING` server param.
      *
      * @return array
      */
@@ -836,7 +906,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the specified query string arguments.
+     * Return an instance with the specified query string arguments.
      *
      * These values SHOULD remain immutable over the course of the incoming
      * request. They MAY be injected during instantiation, such as from PHP's
@@ -846,14 +916,15 @@ class Request implements RequestInterface
      * purposes of how duplicate query parameters are handled, and how nested
      * sets are handled.
      *
-     * Setting query string arguments MUST NOT change the URL stored by the
+     * Setting query string arguments MUST NOT change the URI stored by the
      * request, nor the values in the server params.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * updated query string arguments.
      *
-     * @param  array $query Array of query string arguments, typically from $_GET.
+     * @param array $query Array of query string arguments, typically from
+     *     $_GET.
      * @return self
      */
     public function withQueryParams(array $query)
@@ -869,21 +940,38 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Retrieve the upload file metadata.
+     * Retrieve normalized file upload data.
      *
-     * This method MUST return file upload metadata in the same structure
-     * as PHP's $_FILES superglobal.
+     * This method returns upload metadata in a normalized tree, with each leaf
+     * an instance of Psr\Http\Message\UploadedFileInterface.
      *
-     * These values MUST remain immutable over the course of the incoming
-     * request. They SHOULD be injected during instantiation, such as from PHP's
-     * $_FILES superglobal, but MAY be derived from other sources.
+     * These values MAY be prepared from $_FILES or the message body during
+     * instantiation, or MAY be injected via withUploadedFiles().
      *
-     * @return array Upload file(s) metadata, if any.
+     * @return array An array tree of UploadedFileInterface instances; an empty
+     *     array MUST be returned if no data is present.
      */
-    public function getFileParams()
+    public function getUploadedFiles()
     {
         // TODO: Implement request file params
         return [];
+    }
+
+    /**
+     * Create a new instance with the specified uploaded files.
+     *
+     * This method MUST be implemented in such a way as to retain the
+     * immutability of the message, and MUST return an instance that has the
+     * updated body parameters.
+     *
+     * @param array An array tree of UploadedFileInterface instances.
+     * @return self
+     * @throws \InvalidArgumentException if an invalid structure is provided.
+     */
+    public function withUploadedFiles(array $uploadedFiles)
+    {
+        // TODO: Implement request file params
+        return $this;
     }
 
     /*******************************************************************************
@@ -934,9 +1022,9 @@ class Request implements RequestInterface
      * This method obviates the need for a hasAttribute() method, as it allows
      * specifying a default value to return if the attribute is not found.
      *
-     * @see    getAttributes()
-     * @param  string $name The attribute name.
-     * @param  mixed  $default Default value to return if the attribute does not exist.
+     * @see getAttributes()
+     * @param string $name The attribute name.
+     * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
     public function getAttribute($name, $default = null)
@@ -945,18 +1033,18 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the specified derived request attribute.
+     * Return an instance with the specified derived request attribute.
      *
      * This method allows setting a single derived request attribute as
      * described in getAttributes().
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * updated attribute.
      *
-     * @see    getAttributes()
-     * @param  string $name The attribute name.
-     * @param  mixed  $value The value of the attribute.
+     * @see getAttributes()
+     * @param string $name The attribute name.
+     * @param mixed $value The value of the attribute.
      * @return self
      */
     public function withAttribute($name, $value)
@@ -969,6 +1057,8 @@ class Request implements RequestInterface
 
     /**
      * Create a new instance with the specified derived request attributes.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * This method allows setting all new derived request attributes as
      * described in getAttributes().
@@ -989,18 +1079,17 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance that removes the specified derived request
-     * attribute.
+     * Return an instance that removes the specified derived request attribute.
      *
      * This method allows removing a single derived request attribute as
      * described in getAttributes().
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that removes
+     * immutability of the message, and MUST return an instance that removes
      * the attribute.
      *
-     * @see    getAttributes()
-     * @param  string $name The attribute name.
+     * @see getAttributes()
+     * @param string $name The attribute name.
      * @return self
      */
     public function withoutAttribute($name)
@@ -1026,7 +1115,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance, with the specified message body.
+     * Return an instance with the specified message body.
      *
      * The body MUST be a StreamInterface object.
      *
@@ -1034,7 +1123,7 @@ class Request implements RequestInterface
      * immutability of the message, and MUST return a new instance that has the
      * new body stream.
      *
-     * @param  StreamInterface $body Body.
+     * @param StreamInterface $body Body.
      * @return self
      * @throws \InvalidArgumentException When the body is not valid.
      */
@@ -1049,8 +1138,9 @@ class Request implements RequestInterface
     /**
      * Retrieve any parameters provided in the request body.
      *
-     * If the request Content-Type is application/x-www-form-urlencoded and the
-     * request method is POST, this method MUST return the contents of $_POST.
+     * If the request Content-Type is either application/x-www-form-urlencoded
+     * or multipart/form-data, and the request method is POST, this method MUST
+     * return the contents of $_POST.
      *
      * Otherwise, this method may return any results of deserializing
      * the request body content; as parsing returns structured content, the
@@ -1058,7 +1148,7 @@ class Request implements RequestInterface
      * the absence of body content.
      *
      * @return null|array|object The deserialized body parameters, if any.
-     *                           These will typically be an array or object.
+     *     These will typically be an array or object.
      */
     public function getParsedBody()
     {
@@ -1084,13 +1174,13 @@ class Request implements RequestInterface
     }
 
     /**
-     * Create a new instance with the specified body parameters.
+     * Return an instance with the specified body parameters.
      *
      * These MAY be injected during instantiation.
      *
-     * If the request Content-Type is application/x-www-form-urlencoded and the
-     * request method is POST, use this method ONLY to inject the contents of
-     * $_POST.
+     * If the request Content-Type is either application/x-www-form-urlencoded
+     * or multipart/form-data, and the request method is POST, use this method
+     * ONLY to inject the contents of $_POST.
      *
      * The data IS NOT REQUIRED to come from $_POST, but MUST be the results of
      * deserializing the request body content. Deserialization/parsing returns
@@ -1102,12 +1192,14 @@ class Request implements RequestInterface
      * instance with the deserialized parameters.
      *
      * This method MUST be implemented in such a way as to retain the
-     * immutability of the message, and MUST return a new instance that has the
+     * immutability of the message, and MUST return an instance that has the
      * updated body parameters.
      *
      * @param null|array|object $data The deserialized body data. This will
-     *                                typically be in an array or object.
+     *     typically be in an array or object.
      * @return self
+     * @throws \InvalidArgumentException if an unsupported argument type is
+     *     provided.
      */
     public function withParsedBody($data)
     {
@@ -1121,10 +1213,14 @@ class Request implements RequestInterface
     }
 
     /**
-     * Register media type parser
+     * Register media type parser.
      *
-     * @param string   $mediaType A HTTP media type (excluding content-type params)
-     * @param callable $callable  A callable that returns parsed contents for media type
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @param string   $mediaType A HTTP media type (excluding content-type
+     *     params).
+     * @param callable $callable  A callable that returns parsed contents for
+     *     media type.
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
@@ -1137,12 +1233,13 @@ class Request implements RequestInterface
      ******************************************************************************/
 
     /**
-     * Fetch request parameter value from
-     * body or query string (in that order).
+     * Fetch request parameter value from body or query string (in that order).
      *
-     * @param  string $key The parameter key
+     * Note: This method is not part of the PSR-7 standard.
      *
-     * @return mixed The parameter value
+     * @param  string $key The parameter key.
+     *
+     * @return mixed The parameter value.
      */
     public function getParam($key)
     {
@@ -1161,7 +1258,7 @@ class Request implements RequestInterface
     }
 
     /**
-     * Fetch assocative array of body and query string parameters
+     * Fetch assocative array of body and query string parameters.
      *
      * @return array
      */
@@ -1180,6 +1277,13 @@ class Request implements RequestInterface
      * Helpers
      ******************************************************************************/
 
+    /**
+     * Get the client IP address.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     * 
+     * @return string|null IP address or null if none found.
+     */
     public function getIp()
     {
         if ($this->hasHeader('X-Forwarded-For')) {

@@ -8,7 +8,7 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
 
@@ -23,12 +23,12 @@ class NotFound
     /**
      * Invoke not found handler
      *
-     * @param  RequestInterface  $request   The most recent Request object
-     * @param  ResponseInterface $response  The most recent Response object
+     * @param  ServerRequestInterface $request   The most recent Request object
+     * @param  ResponseInterface      $response  The most recent Response object
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         $output = <<<END
 <html>

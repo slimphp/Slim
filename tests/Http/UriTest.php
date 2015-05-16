@@ -287,18 +287,18 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/new', 'path', $uri);
     }
 
-    public function testWithPathAddsPrefix()
+    public function testWithPathWithoutPrefix()
     {
         $uri = $this->uriFactory()->withPath('new');
 
-        $this->assertAttributeEquals('/new', 'path', $uri);
+        $this->assertAttributeEquals('new', 'path', $uri);
     }
 
     public function testWithPathEmptyValue()
     {
         $uri = $this->uriFactory()->withPath('');
 
-        $this->assertAttributeEquals('/', 'path', $uri);
+        $this->assertAttributeEquals('', 'path', $uri);
     }
 
     public function testWithPathUrlEncodesInput()
@@ -381,7 +381,18 @@ class UriTest extends PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string)$this->uriFactory());
+        $uri = $this->uriFactory();
+        
+        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
+        
+        $uri = $uri->withPath('bar');
+        $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
+        
+        $uri = $uri->withBasePath('foo/');
+        $this->assertEquals('https://josh:sekrit@example.com/foo/bar?abc=123#section3', (string) $uri);
+        
+        $uri = $uri->withPath('/bar');
+        $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
     }
 
     public function testCreateEnvironment()

@@ -8,7 +8,7 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
 
@@ -23,13 +23,13 @@ class NotAllowed
     /**
      * Invoke error handler
      *
-     * @param  RequestInterface  $request   The most recent Request object
-     * @param  ResponseInterface $response  The most recent Response object
-     * @param  string[]          $methods   Allowed HTTP methods
+     * @param  ServerRequestInterface $request   The most recent Request object
+     * @param  ResponseInterface      $response  The most recent Response object
+     * @param  string[]               $methods   Allowed HTTP methods
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response, array $methods)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
     {
         return $response
                 ->withStatus(405)
