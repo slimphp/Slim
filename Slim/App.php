@@ -61,6 +61,7 @@ class App
      */
     public function __construct($container = [])
     {
+
         if (is_array($container)) {
             $container = new Container($container);
         }
