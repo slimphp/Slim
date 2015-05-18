@@ -36,6 +36,7 @@ class App
         add as addMiddleware;
     }
 
+
     /**
      * Current version
      *
