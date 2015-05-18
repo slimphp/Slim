@@ -17,7 +17,7 @@ use Interop\Container\ContainerInterface;
  * into a closure. This class is an implementation detail and is used only inside
  * of the Slim application.
  */
-trait ResolveCallable
+trait CallableResolverAware
 {
     /**
      * Resolve a string of the format 'class:method' into a closure that the
