@@ -2,7 +2,7 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\NotFoundException;
+use Slim\Exception\NotFoundException;
 use Pimple\Container as PimpleContainer;
 
 /**
