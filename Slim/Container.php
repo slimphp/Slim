@@ -5,6 +5,22 @@ use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\NotFoundException;
 use Pimple\Container as PimpleContainer;
 
+/**
+ * Slim's default DI container is Pimple.
+ *
+ * Slim\App expect a container that implements Interop\Container\ContainerInterface
+ * with these service keys configured and ready for use:
+ *
+ *  - settings: an array or instance of \ArrayAccess
+ *  - environment: an instance of \Slim\Interfaces\Http\EnvironmentInterface
+ *  - request: an instance of \Psr\Http\Message\RequestInterface
+ *  - response: an instance of \Psr\Http\Message\ResponseInterface
+ *  - router: an instance of \Slim\Interfaces\RouterInterface
+ *  - errorHandler: a callable with the signature: function($request, $response, $exception)
+ *  - notFoundHandler: a callable with the signature: function($request, $response)
+ *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
+ *
+ */
 final class Container extends PimpleContainer implements ContainerInterface
 {
     /**
