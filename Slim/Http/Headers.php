@@ -52,7 +52,7 @@ class Headers extends Collection implements HeadersInterface
         foreach ($environment as $key => $value) {
             $key = strtoupper($key);
             if (strpos($key, 'HTTP_') === 0 || isset(static::$special[$key])) {
-                if ($key !== 'HTTP_CONTENT_TYPE' && $key !== 'HTTP_CONTENT_LENGTH') {
+                if ($key !== 'HTTP_CONTENT_LENGTH') {
                     $data[$key] =  $value;
                 }
             }
