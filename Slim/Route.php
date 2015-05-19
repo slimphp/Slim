@@ -11,18 +11,24 @@ namespace Slim;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Interfaces\RouteInterface;
-use Pimple\Container;
-use Pimple\ServiceProviderInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * Route
  */
-class Route implements RouteInterface, ServiceProviderInterface
+class Route implements RouteInterface
 {
     use ResolveCallable;
     use MiddlewareAware {
         add as addMiddleware;
     }
+
+    /**
+     * Container
+     *
+     * @var ContainerInterface
+     */
+    private $container;
 
     /**
      * HTTP methods supported by this route
@@ -155,9 +161,9 @@ class Route implements RouteInterface, ServiceProviderInterface
     /**
      * Set container for use with resolveCallable
      *
-     * @param \Pimple\Container $container
+     * @param ContainerInterface $container
      */
-    public function register(Container $container)
+    public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
         return $this;

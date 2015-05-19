@@ -31,7 +31,7 @@
  */
 
 use Slim\CallableResolver;
-use Pimple\Container;
+use Slim\Container;
 
 class CallableTest
 {
