@@ -52,6 +52,13 @@ class App
     const VERSION = '3.0.0';
 
     /**
+     * Has the app responsed to the HTTP client?
+     *
+     * @var bool
+     */
+    protected $responded = false;
+
+    /**
      * Container
      *
      * @var ContainerInterface
@@ -274,9 +281,7 @@ class App
      */
     public function respond(ResponseInterface $response)
     {
-        static $responded = false;
-
-        if (!$responded) {
+        if (!$this->responded) {
             // Finalize response
             $statusCode = $response->getStatusCode();
             $hasBody = ($statusCode !== 204 && $statusCode !== 304);
@@ -306,7 +311,7 @@ class App
                     }
                 }
             }
-
+            
             // Body
             if ($hasBody) {
                 $body = $response->getBody();
@@ -318,7 +323,7 @@ class App
                     }
                 }
             }
-            $responded = true;
+            $this->responded = true;
         }
     }
 
@@ -330,7 +335,6 @@ class App
      */
     public function run()
     {
-        static $responded = false;
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 

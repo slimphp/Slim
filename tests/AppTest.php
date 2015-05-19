@@ -494,4 +494,27 @@ class AppTest extends PHPUnit_Framework_TestCase
     // TODO: Test finalize()
 
     // TODO: Test run()
+    
+    public function testRunSendBody()
+    {
+        $app = new App();
+        $container = $app->getContainer();
+        $container['environment'] = function () {
+            return Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET'
+            ]);
+        };
+        $app->get('/foo', function ($req, $res) {
+            $res->write('ok');
+        });
+
+        ob_start();
+        $app->run();
+        $output = ob_get_clean();
+        
+        $this->assertEquals('ok', $output);
+    }
+
 }
