@@ -4,7 +4,7 @@ namespace Slim;
 
 use Interop\Container\ContainerInterface;
 
-class CallableResolver
+final class CallableResolver
 {
     
     protected $container;
