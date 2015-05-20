@@ -23,7 +23,7 @@ use Interop\Container\ContainerInterface;
  * Slim Framework middleware.
  *
  * @property-read array $settings App settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface environment 
+ * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment 
  * @property-read \Psr\Http\Message\RequestInterface $request
  * @property-read \Psr\Http\Message\ResponseInterface $response
  * @property-read \Slim\Interfaces\RouterInterface $router
