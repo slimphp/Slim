@@ -166,6 +166,19 @@ class App
     {
         return $this->map(['OPTIONS'], $pattern, $callable);
     }
+    
+    /**
+     * Add route for every HTTP method
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  mixed  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function all($pattern, $callable)
+    {
+        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+    }
 
     /**
      * Add route with multiple methods
