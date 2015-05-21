@@ -86,7 +86,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function testBottomMiddlewareIsRoute()
+    public function testBottomMiddlewareInvokesRoute()
     {
         $route = $this->routeFactory();
         $mw = function ($req, $res, $next) {
@@ -106,7 +106,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             }
         }
 
-        $this->assertEquals($route, $prop->getValue($route)->bottom());
+        $this->assertEquals($route, $callable);
     }
 
     public function testAddMiddleware()
