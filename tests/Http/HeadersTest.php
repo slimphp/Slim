@@ -44,13 +44,11 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $e = Environment::mock([
             'CONTENT_TYPE' => 'text/csv',
             'HTTP_CONTENT_LENGTH' => 1230, // <-- Ignored
-            'HTTP_CONTENT_TYPE' => 'application/json', // <-- Ignored
         ]);
         $h = Headers::createFromEnvironment($e);
         $prop = new \ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertEquals('text/csv', $prop->getValue($h)['content-type']['value'][0]);
         $this->assertNotContains('content-length', $prop->getValue($h));
     }
 
