@@ -97,6 +97,15 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
 
+        $bottom = new \ReflectionFunction($prop->getValue($route)->bottom());
+        $callable = null;
+        foreach ($bottom->getStaticVariables() as $k => $var) {
+            if ($k === 'callable') {
+                $callable = $var;
+                break;
+            }
+        }
+
         $this->assertEquals($route, $prop->getValue($route)->bottom());
     }
 
