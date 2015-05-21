@@ -28,11 +28,11 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
 {
     public function testSeedsMiddlewareStack()
     {
-        $stack = new Stackable;
-        $stack->add(function ($req, $res, $next) {
+        $stackable = new Stackable;
+        $stackable->add(function ($req, $res, $next) {
             return $res->write('Hi');
         });
-        $prop = new \ReflectionProperty($stack, 'stack');
+        $prop = new \ReflectionProperty($stackable, 'stack');
         $prop->setAccessible(true);
 
         $bottom = new \ReflectionFunction($prop->getValue($stackable)->bottom());
@@ -44,7 +44,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $this->assertSame($stack, $prop->getValue($stack)->bottom());
+        $this->assertSame($stack, $callable);
     }
 
     public function testCallMiddlewareStack()
@@ -114,9 +114,9 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
 
     public function testAlternativeSeedMiddlewareStack()
     {
-        $stack = new Stackable;
-        $stack->alternativeSeed();
-        $prop = new \ReflectionProperty($stack, 'stack');
+        $stackable = new Stackable;
+        $stackable->alternativeSeed();
+        $prop = new \ReflectionProperty($stackable, 'stack');
         $prop->setAccessible(true);
 
         $bottom = new \ReflectionFunction($prop->getValue($stackable)->bottom());
@@ -128,7 +128,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $this->assertSame('Slim\Tests\testMiddlewareKernel', $prop->getValue($stack)->bottom());
+        $this->assertSame('Slim\Tests\testMiddlewareKernel', $callable);
     }
 
 
