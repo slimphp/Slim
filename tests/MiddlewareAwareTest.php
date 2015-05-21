@@ -35,6 +35,15 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($stack, 'stack');
         $prop->setAccessible(true);
 
+        $bottom = new \ReflectionFunction($prop->getValue($stackable)->bottom());
+        $callable = null;
+        foreach ($bottom->getStaticVariables() as $k => $var) {
+            if ($k === 'callable') {
+                $callable = $var;
+                break;
+            }
+        }
+
         $this->assertSame($stack, $prop->getValue($stack)->bottom());
     }
 
@@ -109,6 +118,15 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         $stack->alternativeSeed();
         $prop = new \ReflectionProperty($stack, 'stack');
         $prop->setAccessible(true);
+
+        $bottom = new \ReflectionFunction($prop->getValue($stackable)->bottom());
+        $callable = null;
+        foreach ($bottom->getStaticVariables() as $k => $var) {
+            if ($k === 'callable') {
+                $callable = $var;
+                break;
+            }
+        }
 
         $this->assertSame('Slim\Tests\testMiddlewareKernel', $prop->getValue($stack)->bottom());
     }
