@@ -135,7 +135,9 @@ class Request implements ServerRequestInterface
     ];
 
     /**
-     * Create new HTTP request
+     * Create new HTTP request.
+     * 
+     * Adds a host header when none was provided and a host is defined in uri.
      *
      * @param string              $method       The request method
      * @param UriInterface        $uri          The request URI object
@@ -153,6 +155,10 @@ class Request implements ServerRequestInterface
         $this->serverParams = $serverParams;
         $this->attributes = new Collection();
         $this->body = $body;
+
+        if (!$this->headers->has('Host') || !empty($this->uri->getHost())) {
+            $this->headers->set('Host', $this->uri->getHost());
+        }
 
         $this->registerMediaTypeParser('application/json', function ($input) {
             return json_decode($input);
