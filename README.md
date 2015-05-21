@@ -1,56 +1,81 @@
 # Slim Framework
 
 [![Build Status](https://travis-ci.org/slimphp/Slim.svg?branch=develop)](https://travis-ci.org/slimphp/Slim)
+[![Total Downloads](https://poser.pugx.org/slim/slim/downloads)](https://packagist.org/packages/slim/slim)
+[![License](https://poser.pugx.org/slim/slim/license)](https://packagist.org/packages/slim/slim)
 
-Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs. Learn more at these links:
+Slim is a PHP micro-framework that helps you quickly write simple yet powerful web applications and APIs.
 
-- [Website](http://www.slimframework.com)
-- [Documentation](http://docs.slimframework.com)
-- [Support Forum](http://help.slimframework.com)
-- [Twitter](https://twitter.com/slimphp)
+## Installation
 
-## Install
-
-Via [Composer](https://getcomposer.org/)
+It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
 
 ```bash
 $ composer require slim/slim
 ```
 
-Requires PHP 5.4.0 or newer.
+This will install Slim and all required dependencies. Slim requires PHP 5.4.0 or newer.
 
 ## Usage
 
+Create an index.php file with the following contents:
+
 ```php
-$app = new \Slim\App();
+<?php
+
+require 'vendor/autoload.php';
+
+$app = new Slim\App();
+
 $app->get('/hello/{name}', function ($request, $response, $args) {
     $response->write("Hello, " . $args['name']);
     return $response;
 });
+
 $app->run();
 ```
 
-## Testing
+You may quickly test this using the built-in PHP server:
+```bash
+$ php -S localhost:8000
+```
+
+Going to http://localhost:8000/hello/world will now display "Hello, world".
+
+For more information on how to configure your web server, see the [Documentation](http://docs.slimframework.com).
+
+## Tests
+
+To execute the test suite, you'll need phpunit.
 
 ```bash
-phpunit
+$ phpunit
 ```
 
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
+## Learn More
+
+Learn more at these links:
+
+- [Website](http://www.slimframework.com)
+- [Documentation](http://docs.slimframework.com)
+- [Support Forum](http://help.slimframework.com)
+- [Twitter](https://twitter.com/slimphp)
+
 ## Security
 
-If you discover any security related issues, please email security@slimframework.com instead of using the issue tracker.
+If you discover security related issues, please email security@slimframework.com instead of using the issue tracker.
 
 ## Credits
 
 - [Josh Lockhart](https://github.com/codeguy)
 - [Andrew Smith](https://github.com/silentworks)
-- [Gabriel Manricks](https://github.com/gmanricks) 
+- [Gabriel Manricks](https://github.com/gmanricks)
 - [All Contributors](../../contributors)
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The Slim Framework is licensed under the MIT license. See [License File](LICENSE.md) for more information.

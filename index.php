@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Step 1: Require the Slim Framework
  *
@@ -18,7 +19,7 @@ require 'vendor/autoload.php';
  * your Slim application now by passing an associative array
  * of setting names and values into the application constructor.
  */
-$app = new \Slim\App();
+$app = new Slim\App();
 
 /**
  * Step 3: Define the Slim application routes
@@ -28,10 +29,14 @@ $app = new \Slim\App();
  * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
  * is an anonymous function.
  */
-$app->get('/hello/{first}/{last}', function ($req, $res, $args) {
-    $res->write("Hi");
+$app->get('/', function ($request, $response, $args) {
+    $response->write("Welcome to Slim!");
+    return $response;
+});
 
-    return $res;
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    $response->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
