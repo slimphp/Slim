@@ -177,7 +177,7 @@ class AppTest extends PHPUnit_Framework_TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testBottomMiddlewareIsApp()
+    public function testBottomMiddlewareInvokesApp()
     {
         $app = new App();
         $mw = function ($req, $res, $next) {
@@ -197,7 +197,7 @@ class AppTest extends PHPUnit_Framework_TestCase
             }
         }
 
-        $this->assertEquals($app, $prop->getValue($app)->bottom());
+        $this->assertEquals($app, $callable);
     }
 
     public function testAddMiddleware()
