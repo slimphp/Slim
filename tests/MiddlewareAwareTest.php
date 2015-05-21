@@ -44,7 +44,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $this->assertSame($stack, $callable);
+        $this->assertSame($stackable, $callable);
     }
 
     public function testCallMiddlewareStack()
