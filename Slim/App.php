@@ -21,6 +21,15 @@ use Interop\Container\ContainerInterface;
  * register custom Pimple service providers on each
  * \Slim\App instance. The \Slim\App class also accepts
  * Slim Framework middleware.
+ *
+ * @property-read array $settings App settings
+ * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment 
+ * @property-read \Psr\Http\Message\RequestInterface $request
+ * @property-read \Psr\Http\Message\ResponseInterface $response
+ * @property-read \Slim\Interfaces\RouterInterface $router
+ * @property-read callable $errorHandler
+ * @property-read callable function($request, $response) $notFoundHandler
+ * @property-read callable function($request, $response, $allowedHttpMethods) $notAllowedHandler
  */
 class App
 {
