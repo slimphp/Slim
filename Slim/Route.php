@@ -70,7 +70,6 @@ class Route implements RouteInterface
         $this->methods = $methods;
         $this->pattern = $pattern;
         $this->callable = $callable;
-        $this->seedMiddlewareStack();
     }
 
     /**
