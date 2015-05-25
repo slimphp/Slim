@@ -72,10 +72,10 @@ class Body implements \Psr\Http\Message\StreamInterface
     protected $size;
 
     /**
-     * Create a new HTTP message body
+     * Create a new HTTP message body.
      *
-     * @param  resource                  $stream A PHP resource handle
-     * @throws \InvalidArgumentException If argument is not a resource
+     * @param  resource                  $stream A PHP resource handle.
+     * @throws \InvalidArgumentException If argument is not a resource.
      */
     public function __construct($stream)
     {
@@ -88,11 +88,11 @@ class Body implements \Psr\Http\Message\StreamInterface
      * The keys returned are identical to the keys returned from PHP's
      * stream_get_meta_data() function.
      *
-     * @param  string           $key The metadata property name
-     * @return array|null|mixed Returns array if key not provided;
-     *                          Returns mixed if valid key provided;
-     *                          Returns null if invalid key provided;
-     * @link   http://php.net/manual/function.stream-get-meta-data.php
+     * @link http://php.net/manual/en/function.stream-get-meta-data.php
+     * @param string $key Specific metadata to retrieve.
+     * @return array|mixed|null Returns an associative array if no key is
+     *     provided. Returns a specific key value if a key is provided and the
+     *     value is found, or null if the key is not found.
      */
     public function getMetadata($key = null)
     {
@@ -106,6 +106,8 @@ class Body implements \Psr\Http\Message\StreamInterface
     /**
      * Is a resource attached to this HTTP message body?
      *
+     * Note: This method is not part of the PSR-7 standard.
+     *
      * @return bool
      */
     public function isAttached()
@@ -114,10 +116,12 @@ class Body implements \Psr\Http\Message\StreamInterface
     }
 
     /**
-     * Attach new resource to this HTTP message body
+     * Attach new resource to this HTTP message body.
      *
-     * @param  resource                  $newStream A PHP resource handle
-     * @throws \InvalidArgumentException If argument is not a valid PHP resource
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @param  resource                  $newStream A PHP resource handle.
+     * @throws \InvalidArgumentException If argument is not a valid PHP resource.
      */
     public function attach($newStream)
     {
@@ -161,11 +165,15 @@ class Body implements \Psr\Http\Message\StreamInterface
      *
      * Warning: This could attempt to load a large amount of data into memory.
      *
+     * This method MUST NOT raise an exception in order to conform with PHP's
+     * string casting operations.
+     *
+     * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
      * @return string
      */
     public function __toString()
     {
-        return $this->isAttached() ? stream_get_contents($this->stream, -1, 0) : '';
+        return $this->isAttached() ? (string) stream_get_contents($this->stream, -1, 0) : '';
     }
 
     /**
@@ -183,7 +191,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     }
 
     /**
-     * Get the size of the stream if known
+     * Get the size of the stream if known.
      *
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
@@ -200,11 +208,15 @@ class Body implements \Psr\Http\Message\StreamInterface
     /**
      * Returns the current position of the file read/write pointer
      *
-     * @return int|bool Position of the file pointer or false on error.
+     * @return int Position of the file pointer
+     * @throws \RuntimeException on error.
      */
     public function tell()
     {
-        return $this->isAttached() ? ftell($this->stream) : false;
+        if (!$this->isAttached() || ($position = ftell($this->stream)) === false) {
+            throw new \RuntimeException('Could not get the position of the pointer in stream');
+        }
+        return $position;
     }
 
     /**
@@ -281,70 +293,85 @@ class Body implements \Psr\Http\Message\StreamInterface
     /**
      * Seek to a position in the stream.
      *
-     * @link  http://www.php.net/manual/function.fseek.php
+     * @link http://www.php.net/manual/en/function.fseek.php
      * @param int $offset Stream offset
      * @param int $whence Specifies how the cursor position will be calculated
-     *                    based on the seek offset. Valid values are identical
-     *                    to the built-in PHP $whence values for `fseek()`.
-     *                    - SEEK_SET: Set position equal to offset bytes;
-     *                    - SEEK_CUR: Set position to current location plus offset;
-     *                    - SEEK_END: Set position to end-of-stream plus offset.
-     * @return bool Returns TRUE on success or FALSE on failure.
+     *     based on the seek offset. Valid values are identical to the built-in
+     *     PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
+     *     offset bytes SEEK_CUR: Set position to current location plus offset
+     *     SEEK_END: Set position to end-of-stream plus offset.
+     * @throws \RuntimeException on failure.
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        return $this->isSeekable() ? fseek($this->stream, $offset, $whence) : false;
+        // Note that fseek returns 0 on success!
+        if (!$this->isSeekable() || fseek($this->stream, $offset, $whence) === -1) {
+            throw new \RuntimeException('Could not to seek in stream');
+        }
     }
 
     /**
      * Seek to the beginning of the stream.
      *
-     * If the stream is not seekable, this method will return FALSE, indicating
-     * failure; otherwise, it will perform a seek(0), and return the status of
-     * that operation.
+     * If the stream is not seekable, this method will raise an exception;
+     * otherwise, it will perform a seek(0).
      *
-     * @see    seek()
-     * @link   http://www.php.net/manual/function.fseek.php
-     * @return bool Returns TRUE on success or FALSE on failure.
+     * @see seek()
+     * @link http://www.php.net/manual/en/function.fseek.php
+     * @throws \RuntimeException on failure.
      */
     public function rewind()
     {
-        return $this->isSeekable() ? rewind($this->stream) : false;
+        if (!$this->isSeekable() || rewind($this->stream) === false) {
+            throw new \RuntimeException('Could not to rewind stream');
+        }
     }
 
     /**
      * Read data from the stream.
      *
-     * @param int           $length Read up to $length bytes from the object and return
-     *                              them. Fewer than $length bytes may be returned if underlying
-     *                              stream call returns fewer bytes.
-     * @return string|false         Returns the data read from the stream, false if
-     *                              unable to read or if an error occurs.
+     * @param int $length Read up to $length bytes from the object and return
+     *     them. Fewer than $length bytes may be returned if underlying stream
+     *     call returns fewer bytes.
+     * @return string Returns the data read from the stream, or an empty string
+     *     if no bytes are available.
+     * @throws \RuntimeException if an error occurs.
      */
     public function read($length)
     {
-        return $this->isReadable() ? fread($this->stream, $length) : false;
+        if (!$this->isReadable() || ($data = fread($this->stream, $length)) === false) {
+            throw new \RuntimeException('Could not read from stream');
+        }
+        return $data;
     }
 
     /**
      * Write data to the stream.
      *
-     * @param  string   $string The string that is to be written.
-     * @return int|bool         Returns the number of bytes written to the stream on
-     *                          success or FALSE on failure.
+     * @param string $string The string that is to be written.
+     * @return int Returns the number of bytes written to the stream.
+     * @throws \RuntimeException on failure.
      */
     public function write($string)
     {
-        return $this->isWritable() ? fwrite($this->stream, $string) : false;
+        if (!$this->isWritable() || ($written = fwrite($this->stream, $string)) === false) {
+            throw new \RuntimeException('Could not write to stream');
+        }
+        return $written;
     }
 
     /**
      * Returns the remaining contents in a string
      *
      * @return string
+     * @throws \RuntimeException if unable to read or an error occurs while
+     *     reading.
      */
     public function getContents()
     {
-        return $this->isReadable() ? stream_get_contents($this->stream) : '';
+        if (!$this->isReadable() || ($contents = stream_get_contents($this->stream)) === false) {
+            throw new \RuntimeException('Could get contents of stream');
+        }
+        return $contents;
     }
 }

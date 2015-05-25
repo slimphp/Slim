@@ -60,6 +60,12 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(property_exists($request, 'foo'));
     }
+    
+    public function testAddsHostHeaderFromUri()
+    {
+        $request = $this->requestFactory();
+        $this->assertEquals('example.com', $request->getHeaderLine('Host'));
+    }
 
     /*******************************************************************************
      * Protocol

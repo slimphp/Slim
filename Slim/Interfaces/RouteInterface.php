@@ -8,7 +8,7 @@
  */
 namespace Slim\Interfaces;
 
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 interface RouteInterface
@@ -27,11 +27,11 @@ interface RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param RequestInterface  $request  The current Request object
-     * @param ResponseInterface $response The current Response object
-     * @param array             $args     Parsed pattern data
+     * @param ServerRequestInterface $request  The current Request object
+     * @param ResponseInterface      $response The current Response object
+     * @param array                  $args     Parsed pattern data
      *
      * @return ResponseInterface
      */
-    public function __invoke(RequestInterface $request, ResponseInterface $response);
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response);
 }

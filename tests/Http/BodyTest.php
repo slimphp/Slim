@@ -247,7 +247,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(10, $body->tell());
     }
 
-    public function testTellDetached()
+    public function testTellDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
@@ -255,7 +255,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
-        $this->assertFalse($body->tell());
+        $this->setExpectedException('\RuntimeException');
+        $body->tell();
     }
 
     public function testEofAttachedFalse()
@@ -369,13 +370,14 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(10, ftell($this->stream));
     }
 
-    public function testSeekDetached()
+    public function testSeekDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
         $body->detach();
 
-        $this->assertFalse($body->seek(10));
+        $this->setExpectedException('\RuntimeException');
+        $body->seek(10);
     }
 
     public function testRewindAttached()
@@ -388,13 +390,14 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(0, ftell($this->stream));
     }
 
-    public function testRewindDetached()
+    public function testRewindDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
         $body->detach();
 
-        $this->assertFalse($body->rewind());
+        $this->setExpectedException('\RuntimeException');
+        $body->rewind();
     }
 
     public function testReadAttached()
@@ -405,13 +408,14 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(substr($this->text, 0, 10), $body->read(10));
     }
 
-    public function testReadDetached()
+    public function testReadDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
         $body->detach();
 
-        $this->assertFalse($body->read(10));
+        $this->setExpectedException('\RuntimeException');
+        $body->read(10);
     }
 
     public function testWriteAttached()
@@ -426,21 +430,32 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->text . 'foo', (string)$body);
     }
 
-    public function testWriteDetached()
+    public function testWriteDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
         $body->detach();
 
-        $this->assertFalse($body->write('foo'));
+        $this->setExpectedException('\RuntimeException');
+        $body->write('foo');
     }
 
-    public function testGetContents()
+    public function testGetContentsAttached()
     {
         $this->stream = $this->resourceFactory();
         $body = new \Slim\Http\Body($this->stream);
         fseek($this->stream, 10);
 
         $this->assertEquals(substr($this->text, 10), $body->getContents());
+    }
+
+    public function testGetContentsDetachedThrowsRuntimeException()
+    {
+        $this->stream = $this->resourceFactory();
+        $body = new \Slim\Http\Body($this->stream);
+        $body->detach();
+
+        $this->setExpectedException('\RuntimeException');
+        $body->getContents();
     }
 }
