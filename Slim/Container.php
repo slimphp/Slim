@@ -13,7 +13,7 @@ use Pimple\Container as PimpleContainer;
  *
  *  - settings: an array or instance of \ArrayAccess
  *  - environment: an instance of \Slim\Interfaces\Http\EnvironmentInterface
- *  - request: an instance of \Psr\Http\Message\RequestInterface
+ *  - request: an instance of \Psr\Http\Message\ServerRequestInterface
  *  - response: an instance of \Psr\Http\Message\ResponseInterface
  *  - router: an instance of \Slim\Interfaces\RouterInterface
  *  - errorHandler: a callable with the signature: function($request, $response, $exception)
@@ -71,7 +71,7 @@ final class Container extends PimpleContainer implements ContainerInterface
 
         /**
          * This service MUST return a NEW instance
-         * of \Psr\Http\Message\RequestInterface.
+         * of \Psr\Http\Message\ServerRequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
             $env = $c['environment'];
@@ -108,7 +108,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          * 3. Instance of \Exception
          *
@@ -123,7 +123,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a callable
          * that accepts two arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          *
          * The callable MUST return an instance of
@@ -137,7 +137,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a callable
          * that accepts three arguments:
          *
-         * 1. Instance of \Psr\Http\Message\RequestInterface
+         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
          * 2. Instance of \Psr\Http\Message\ResponseInterface
          * 3. Array of allowed HTTP methods
          *
