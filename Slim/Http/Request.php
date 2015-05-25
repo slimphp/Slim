@@ -581,11 +581,11 @@ class Request implements ServerRequestInterface
         
         if (!$preserveHost) {
             if (!empty($uri->getHost())) {
-                $this->withHeader('Host', $uri->getHost());
+                $clone->headers->set('Host', $uri->getHost());
             }
         } else {
             if ((!$this->hasHeader('Host') || empty($this->getHeader('Host'))) && !empty($uri->getHost())) {
-                $this->withHeader('Host', $uri->getHost());
+                $clone->headers->set('Host', $uri->getHost());
             }
         }
 
