@@ -382,7 +382,7 @@ class App
         $env = $this->container->get('environment');
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
-        $serverParams = new Collection($env->all());
+        $serverParams = $env->all();
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
