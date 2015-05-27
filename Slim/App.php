@@ -380,15 +380,16 @@ class App
      *
      * @param  string            $method      The request method (e.g., GET, POST, PUT, etc.)
      * @param  string            $path        The request URI path
+     * @param  string            $query       The request URI query string
      * @param  array             $headers     The request headers (key-value array)
      * @param  array             $cookies     The request cookies (key-value array)
      * @param  string            $bodyContent The request body
      * @return ResponseInterface
      */
-    public function subRequest($method, $path, array $headers = [], array $cookies = [], $bodyContent = '')
+    public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '')
     {
         $env = $this->container->get('environment');
-        $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
+        $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Http\Headers($headers);
         $serverParams = $env->all();
         $body = new Http\Body(fopen('php://temp', 'r+'));
