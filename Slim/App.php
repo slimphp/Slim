@@ -16,11 +16,8 @@ use Interop\Container\ContainerInterface;
  * App
  *
  * This is the primary class with which you instantiate,
- * configure, and run a Slim Framework application. This
- * is also a \Pimple\Container instance, meaning you can
- * register custom Pimple service providers on each
- * \Slim\App instance. The \Slim\App class also accepts
- * Slim Framework middleware.
+ * configure, and run a Slim Framework application. 
+ * The \Slim\App class also accepts Slim Framework middleware.
  *
  * @property-read array $settings App settings
  * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment 
