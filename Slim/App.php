@@ -363,10 +363,8 @@ class App
         $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
             // URL decode the named arguments from the router
-            $attributes = $routeInfo[2];
-            array_walk($attributes, function (&$v, $k) {
-                $v = urldecode($v);
-            });
+            $attributes = array_map('urldecode', $routeInfo[2]);
+            
             return $routeInfo[1]($request->withAttributes($attributes), $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
