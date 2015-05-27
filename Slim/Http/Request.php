@@ -156,7 +156,7 @@ class Request implements ServerRequestInterface
         $this->attributes = new Collection();
         $this->body = $body;
 
-        if (!$this->headers->has('Host') || !empty($this->uri->getHost())) {
+        if (!$this->headers->has('Host') || $this->uri->getHost() !== '') {
             $this->headers->set('Host', $this->uri->getHost());
         }
 
@@ -580,11 +580,11 @@ class Request implements ServerRequestInterface
         $clone->uri = $uri;
         
         if (!$preserveHost) {
-            if (!empty($uri->getHost())) {
+            if ($uri->getHost() !== '') {
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ((!$this->hasHeader('Host') || empty($this->getHeader('Host'))) && !empty($uri->getHost())) {
+            if ((!$this->hasHeader('Host') || $this->getHeader('Host') === null) && $this->uri->getHost() !== '') {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }
