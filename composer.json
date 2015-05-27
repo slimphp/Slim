@@ -13,7 +13,13 @@
         },
         {
             "name": "Andrew Smith",
+            "email": "a.smith@silentworks.co.uk",
             "homepage": "http://silentworks.co.uk"
+        },
+        {
+            "name": "Rob Allen",
+            "email": "rob@akrabat.com",
+            "homepage": "http://akrabat.com"
         },
         {
             "name": "Gabriel Manricks",
@@ -33,8 +39,8 @@
         "phpunit/phpunit": "*"
     },
     "autoload": {
-        "psr-0": {
-            "Slim": "."
+        "psr-4": {
+            "Slim\\": "Slim"
         }
     },
     "extra": {
