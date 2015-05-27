@@ -61,7 +61,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 Learn more at these links:
 
 - [Website](http://www.slimframework.com)
-- [Documentation](http://docs.slimframework.com)
+- [Documentation](http://docs-new.slimframework.com)
 - [Support Forum](http://help.slimframework.com)
 - [Twitter](https://twitter.com/slimphp)
 
@@ -73,6 +73,7 @@ If you discover security related issues, please email security@slimframework.com
 
 - [Josh Lockhart](https://github.com/codeguy)
 - [Andrew Smith](https://github.com/silentworks)
+- [Rob Allen](https://github.com/akrabat)
 - [Gabriel Manricks](https://github.com/gmanricks)
 - [All Contributors](../../contributors)
 
