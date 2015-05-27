@@ -113,6 +113,24 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
+    
+    public function testAnyRoute()
+    {
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App();
+        $route = $app->any($path, $callable);
+        
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+        $this->assertAttributeContains('POST', 'methods', $route);
+        $this->assertAttributeContains('PUT', 'methods', $route);
+        $this->assertAttributeContains('PATCH', 'methods', $route);
+        $this->assertAttributeContains('DELETE', 'methods', $route);
+        $this->assertAttributeContains('OPTIONS', 'methods', $route);
+    }
 
     public function testMapRoute()
     {
