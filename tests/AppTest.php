@@ -505,6 +505,34 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', (string)$res->getBody());
     }
+
+    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
+    {
+        $app = new App();
+        $app->get('/foo/{name}', function ($req, $res, $args) {
+            return $res->write($req->getAttribute('one') . $req->getAttribute('name'));
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/rob',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $req = $req->withAttribute("one", 1);
+        $res = new Response();
+
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $this->assertEquals('1rob', (string)$resOut->getBody());
+    }
     
     // TODO: Test subRequest()
 
