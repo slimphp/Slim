@@ -203,7 +203,7 @@ class Route implements RouteInterface
         try {
             ob_start();
             $function = $this->callable;
-            $newReponse = $function($request, $response, $request->getAttributes());
+            $newResponse = $function($request, $response, $request->getAttributes());
             $output = ob_get_clean();
         } catch (\Exception $e) {
             ob_end_clean();
@@ -211,13 +211,13 @@ class Route implements RouteInterface
         }
         
         // if route callback returns a ResponseInterface, then use it
-        if ($newReponse instanceof ResponseInterface) {
-            $response = $newReponse;
+        if ($newResponse instanceof ResponseInterface) {
+            $response = $newResponse;
         }
 
         // if route callback retuns a string, then append it to the response
-        if (is_string($newReponse)) {
-            $response->getBody()->write($newReponse);
+        if (is_string($newResponse)) {
+            $response->getBody()->write($newResponse);
         }
         
         // append output buffer content if there is any
