@@ -46,7 +46,7 @@ trait MiddlewareAware
      *                           3. A "next" middleware callable
      * @return self
      */
-    public function add(callable $callable)
+    public function add($callable)
     {
         if ($this->middlewareLock) {
             throw new \RuntimeException('Middleware can’t be added once the stack is dequeuing');
@@ -57,7 +57,8 @@ trait MiddlewareAware
         }
         $next = $this->stack->top();
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
-            $result = $callable($req, $res, $next);
+            $resolvedCallable = $this->resolveCallabe($callable);
+            $result = $resolvedCallable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
             }
