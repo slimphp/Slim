@@ -57,7 +57,7 @@ trait MiddlewareAware
         }
         $next = $this->stack->top();
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
-            $resolvedCallable = $this->resolveCallabe($callable);
+            $resolvedCallable = $this->resolveCallable($callable);
             $result = $resolvedCallable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
