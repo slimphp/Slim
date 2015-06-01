@@ -31,7 +31,9 @@ use Interop\Container\ContainerInterface;
 class App
 {
     use ResolveCallable;
-    use MiddlewareAware;
+    use MiddlewareAware {
+        add as addMiddleware;
+    }
 
     /**
      * Current version
@@ -75,6 +77,25 @@ class App
     public function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * Add middleware
+     *
+     * This method prepends new middleware to the route's middleware stack.
+     *
+     * @param  mixed    $callable The callback routine
+     *
+     * @return RouteInterface
+     */
+    public function add($callable)
+    {
+        $callable = $this->resolveCallable($callable);
+        if ($callable instanceof \Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
+
+        return $this->addMiddleware($callable);
     }
 
     /********************************************************************************
