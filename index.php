@@ -1,13 +1,10 @@
 <?php
 
 /**
- * Step 1: Require the Slim Framework
+ * Step 1: Require the Slim Framework using Composer's autoloader
  *
- * If you are not using Composer, you need to require the
- * Slim Framework and register its PSR-0 autoloader with:
- *
- *     require 'Slim/Autoloader.php';
- *     \Slim\Autoloader::register();
+ * If you are not using Composer, you need to load Slim Framework with your own
+ * PSR-4 autoloader.
  */
 require 'vendor/autoload.php';
 
