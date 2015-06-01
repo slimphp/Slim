@@ -16,14 +16,11 @@ use Interop\Container\ContainerInterface;
  * App
  *
  * This is the primary class with which you instantiate,
- * configure, and run a Slim Framework application. This
- * is also a \Pimple\Container instance, meaning you can
- * register custom Pimple service providers on each
- * \Slim\App instance. The \Slim\App class also accepts
- * Slim Framework middleware.
+ * configure, and run a Slim Framework application.
+ * The \Slim\App class also accepts Slim Framework middleware.
  *
  * @property-read array $settings App settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment 
+ * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment
  * @property-read \Psr\Http\Message\RequestInterface $request
  * @property-read \Psr\Http\Message\ResponseInterface $response
  * @property-read \Slim\Interfaces\RouterInterface $router
@@ -88,7 +85,7 @@ class App
     {
         return $this->container->get($name);
     }
-    
+
     public function __isset($name)
     {
         return $this->container->has($name);
@@ -175,7 +172,7 @@ class App
     {
         return $this->map(['OPTIONS'], $pattern, $callable);
     }
-    
+
     /**
      * Add route for any HTTP method
      *
@@ -367,10 +364,10 @@ class App
         if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
             // URL decode the named arguments from the router
             $attributes = $routeInfo[2];
-            array_walk($attributes, function (&$v, $k) {
-                $v = urldecode($v);
-            });
-            return $routeInfo[1]($request->withAttributes($attributes), $response);
+            foreach ($attributes as $k => $v) {
+                $request = $request->withAttribute($k, urldecode($v));
+            }
+            return $routeInfo[1]($request, $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
             $notFoundHandler = $this->container->get('notFoundHandler');
