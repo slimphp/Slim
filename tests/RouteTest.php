@@ -97,7 +97,6 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
 
-
         $this->assertEquals($route, $prop->getValue($route)->bottom());
     }
 
@@ -148,7 +147,6 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
     // TODO: Test adding controller callables with "Foo:bar" syntax
-
 
     /**
      * Ensure that the response returned by a route callable is the response
@@ -226,6 +224,4 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', (string)$response->getBody());
     }
-
-
 }

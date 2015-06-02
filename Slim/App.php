@@ -30,7 +30,6 @@ use Interop\Container\ContainerInterface;
  */
 class App
 {
-
     use CallableResolverAware;
     use MiddlewareAware {
         add as addMiddleware;
@@ -61,7 +60,6 @@ class App
      */
     public function __construct($container = [])
     {
-
         if (is_array($container)) {
             $container = new Container($container);
         }
@@ -112,7 +110,6 @@ class App
     public function __isset($name)
     {
         return $this->container->has($name);
-
     }
 
     /********************************************************************************
