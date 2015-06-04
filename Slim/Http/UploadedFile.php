@@ -74,39 +74,12 @@ class UploadedFile implements UploadedFileInterface
     public static function createFromEnvironment(Environment $env)
     {
         if ($env->has('slim.files') && is_array($env['slim.files'])) {
-            return static::parseUploadedFilesNormalized($env['slim.files']);
+            return $env['slim.files'];
         } elseif (isset($_FILES)) {
-            return static::parseUploadedFiles($_FILES, false);
+            return static::parseUploadedFiles($_FILES);
         }
 
         return [];
-    }
-
-    /**
-     * Parse an already normalized tree of uploaded file data.
-     *
-     * @param array $uploadedFiles A normalized tree of uploaded file details.
-     *
-     * @return array A normalized tree of UploadedFile instances.
-     */
-    public static function parseUploadedFilesNormalized(array $uploadedFiles)
-    {
-        $parsed = [];
-        foreach ($uploadedFiles as $field => $uploadedFile) {
-            if (!isset($uploadedFile['tmp_name'])) {
-                $parsed[$field] = static::parseUploadedFilesNormalized($uploadedFile);
-                continue;
-            }
-            $parsed[$field] = new static(
-                $uploadedFile['tmp_name'],
-                isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
-                isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
-                isset($uploadedFile['size']) ? (int)$uploadedFile['size'] : null,
-                isset($uploadedFile['error']) ? (int)$uploadedFile['error'] : UPLOAD_ERR_OK
-            );
-        }
-
-        return $parsed;
     }
 
     /**
