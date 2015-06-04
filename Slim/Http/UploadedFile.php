@@ -110,7 +110,7 @@ class UploadedFile implements UploadedFileInterface
     }
 
     /**
-     * Parse a the non-normalized, i.e. $_FILES superglobal, tree of uploaded file data.
+     * Parse a non-normalized, i.e. $_FILES superglobal, tree of uploaded file data.
      *
      * @param array $uploadedFiles The non-normalized tree of uploaded file data.
      *
@@ -240,11 +240,21 @@ class UploadedFile implements UploadedFileInterface
         if ($this->moved) {
             throw new \RuntimeException('Uploaded file already moved');
         }
+
         if (!is_writable($targetPath)) {
             throw new \InvalidArgumentException('Upload target path is not writable');
         }
 
-        if ($this->sapi) {
+        $targetIsStream = strpos($targetPath, '://') > 0;
+        if ($targetIsStream) {
+            $target = rtrim($targetPath, '/') . '/' . $this->name;
+            if (!copy($this->file, $target)) {
+                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $target));
+            }
+            if (!unlink($this->file)) {
+                throw new \RuntimeException(sprintf('Error removing uploaded file %1s', $this->name));
+            }
+        } elseif ($this->sapi) {
             if (!is_uploaded_file($this->file)) {
                 throw new \RuntimeException(sprintf('%1s is not a valid uploaded file', $this->file));
             }
@@ -253,10 +263,13 @@ class UploadedFile implements UploadedFileInterface
                 throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         } else {
-            if (!rename($this->file, rtrim($targetPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->name)) {
-                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+            $target = rtrim($targetPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->name;
+            if (!rename($this->file, $target)) {
+                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $target));
             }
         }
+
+        $this->moved = true;
     }
 
     /**
