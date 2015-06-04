@@ -162,36 +162,6 @@ class AppTest extends PHPUnit_Framework_TestCase
     }
 
     /********************************************************************************
-     * Application behaviors
-     *******************************************************************************/
-
-    public function testStop()
-    {
-        $app = new App();
-        $res = new Response();
-        try {
-            $app->stop($res);
-            $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception $e) {
-            $this->assertSame($res, $e->getResponse());
-        }
-    }
-
-    public function testHalt()
-    {
-        $app = new App();
-        try {
-            $app->halt(400, 'Bad');
-            $this->fail('Did not catch exception!');
-        } catch (\Slim\Exception $e) {
-            $res = $e->getResponse();
-            $body = $res->getBody();
-            $this->assertAttributeEquals(400, 'status', $res);
-            $this->assertEquals('Bad', (string)$body);
-        }
-    }
-
-    /********************************************************************************
      * Middleware
      *******************************************************************************/
 
@@ -223,33 +193,6 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($app));
     }
 
-    public function testHaltInMiddleware()
-    {
-        $app = new App();
-        $container = $app->getContainer();
-        $container['environment'] = function () {
-            return Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET'
-            ]);
-        };
-        $app->add(function ($req, $res, $next) use ($app) {
-            $app->halt(500, 'Halt');
-            $res->write('Foo');
-            return $res;
-        });
-        $app->get('/foo', function ($req, $res) {
-            return $res->withStatus(302);
-        });
-
-        // Invoke app
-        ob_start();
-        $app->run();
-        $output = ob_get_clean();
-
-        $this->assertEquals('Halt', $output);
-    }
 
     /********************************************************************************
      * Runner
@@ -341,37 +284,6 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
-    }
-
-    public function testInvokeWithMatchingRouteAndHalt()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) use ($app) {
-            $app->halt(400, 'Bad');
-            return $res->withStatus(200);
-        });
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-
-        // Invoke app
-        try {
-            $app($req, $res);
-            $this->fail('Did not catch \Slim\Exception');
-        } catch (\Slim\Exception $e) {
-            $this->assertEquals(400, $e->getResponse()->getStatusCode());
-        }
     }
 
     public function testInvokeWithPimpleCallable()
