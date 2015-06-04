@@ -57,6 +57,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
+     * @throws \Exception
      */
     public function __construct($container = [])
     {
@@ -86,7 +87,7 @@ class App
      *
      * @param  mixed    $callable The callback routine
      *
-     * @return RouteInterface
+     * @return \Slim\Interfaces\RouteInterface
      */
     public function add($callable)
     {
@@ -102,11 +103,19 @@ class App
      * Container proxy methods
      *******************************************************************************/
 
+    /**
+     * @param $name
+     * @return mixed
+     */
     public function __get($name)
     {
         return $this->container->get($name);
     }
 
+    /**
+     * @param $name
+     * @return bool
+     */
     public function __isset($name)
     {
         return $this->container->has($name);
@@ -262,6 +271,8 @@ class App
      *
      * This method traverses the application middleware stack,
      * and it returns the resultant Response object to the HTTP client.
+     *
+     * @return mixed|\Psr\Http\Message\MessageInterface|ResponseInterface
      */
     public function run()
     {
@@ -276,6 +287,7 @@ class App
             $response = $e->getResponse();
         } catch (\Exception $e) {
             $errorHandler = $this->container->get('errorHandler');
+            /* @var $errorHandler \Slim\Handlers\Error */
             $response = $errorHandler($request, $response, $e);
         }
 
@@ -315,8 +327,8 @@ class App
                 $body = $response->getBody();
                 if ($body->isAttached()) {
                     $body->rewind();
+                    $settings = $this->container->get('settings');
                     while (!$body->eof()) {
-                        $settings = $this->container->get('settings');
                         echo $body->read($settings['responseChunkSize']);
                     }
                 }
@@ -339,6 +351,7 @@ class App
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     * @throws \RuntimeException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -353,12 +366,16 @@ class App
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
             $notFoundHandler = $this->container->get('notFoundHandler');
+            /* @var $notFoundHandler \Slim\Handlers\NotFound */
             return $notFoundHandler($request, $response);
         }
         if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             $notAllowedHandler = $this->container->get('notAllowedHandler');
+            /* @var $notAllowedHandler \Slim\Handlers\NotAllowed */
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
+        
+        throw new \RuntimeException("Unexpected router response");
     }
 
     /**
@@ -379,14 +396,15 @@ class App
      */
     public function subRequest($method, $path, array $headers = [], array $cookies = [], $bodyContent = '')
     {
+
         $env = $this->container->get('environment');
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path);
         $headers = new Http\Headers($headers);
-        $serverParams = new Collection($env->all());
+        $serverParams = new Http\Collection($env->all());
         $body = new Http\Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
-        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body); //Collection implements the ArrayInterface
         $response = $this->container->get('response');
 
         return $this($request, $response);
