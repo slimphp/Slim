@@ -267,7 +267,7 @@ class App
      *******************************************************************************/
 
     /**
-     *  Run application
+     * Run application
      *
      * This method traverses the application middleware stack,
      * and it returns the resultant Response object to the HTTP client.
