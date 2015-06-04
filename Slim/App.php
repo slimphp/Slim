@@ -351,6 +351,7 @@ class App
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     * @throws \RuntimeException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -373,6 +374,8 @@ class App
             /* @var $notAllowedHandler \Slim\Handlers\NotAllowed */
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
+        
+        throw new \RuntimeException("Unexpected router response");
     }
 
     /**
