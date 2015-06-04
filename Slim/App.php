@@ -254,45 +254,6 @@ class App
     }
 
     /********************************************************************************
-     * Application flow methods
-     *******************************************************************************/
-
-    /**
-     * Stop
-     *
-     * This method stops the application and sends the provided
-     * Response object to the HTTP client.
-     *
-     * @param  ResponseInterface $response
-     *
-     * @throws \Slim\Exception
-     */
-    public function stop(ResponseInterface $response)
-    {
-        throw new \Slim\Exception($response);
-    }
-
-    /**
-     * Halt
-     *
-     * This method prepares a new HTTP response with a specific
-     * status and message. The method immediately halts the
-     * application and returns a new response with a specific
-     * status and message.
-     *
-     * @param  int    $status  The desired HTTP status
-     * @param  string $message The desired HTTP message
-     *
-     * @throws \Slim\Exception
-     */
-    public function halt($status, $message = '')
-    {
-        $response = $this->container->get('response')->withStatus($status);
-        $response->write($message);
-        $this->stop($response);
-    }
-
-    /********************************************************************************
      * Runner
      *******************************************************************************/
 
