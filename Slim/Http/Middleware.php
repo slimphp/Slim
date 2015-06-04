@@ -54,7 +54,7 @@ abstract class Middleware {
      */
     public function before(RequestInterface $request, ResponseInterface $response)
     {
-        return [$request, $response];
+        return array($request, $response);
     }
 
     /**
