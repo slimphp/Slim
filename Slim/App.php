@@ -13,8 +13,13 @@ use Closure;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
+use FastRoute\Dispatcher;
 use Slim\Container;
 use Slim\Exception\Exception as SlimException;
+use Slim\Http\Uri;
+use Slim\Http\Headers;
+use Slim\Http\Body;
+use Slim\Http\Request;
 
 /**
  * App

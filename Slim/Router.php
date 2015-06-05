@@ -15,7 +15,8 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
 use FastRoute\DataGenerator;
-use FastRoute\Dispatcher\GroupCountBased;
+use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
+use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
 use Slim\Route;
 
@@ -59,7 +60,7 @@ class Router extends RouteCollector implements RouterInterface
     public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
     {
         $parser = $parser ? $parser : new StdParser;
-        $generator = $generator ? $generator : new GroupCountBased;
+        $generator = $generator ? $generator : new GroupCountBasedGenerator;
         parent::__construct($parser, $generator);
     }
 
@@ -108,7 +109,7 @@ class Router extends RouteCollector implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
-        $dispatcher = new GroupCountBased($this->getData());
+        $dispatcher = new GroupCountBasedDispatcher($this->getData());
 
         return $dispatcher->dispatch(
             $request->getMethod(),
