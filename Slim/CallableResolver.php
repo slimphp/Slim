@@ -2,9 +2,10 @@
 
 namespace Slim;
 
+use Slim\Interfaces\CallableResolverInterface;
 use Interop\Container\ContainerInterface;
 
-final class CallableResolver
+final class CallableResolver implements CallableResolverInterface
 {
     
     protected $container;
