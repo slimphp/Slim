@@ -14,7 +14,7 @@ final class CallableResolver implements CallableResolverInterface
     
     protected $resolved;
     
-    public function __construct(Container $container, $toResolve = null)
+    public function __construct(ContainerInterface $container, $toResolve = null)
     {
         $this->toResolve = $toResolve;
         $this->container = $container;
