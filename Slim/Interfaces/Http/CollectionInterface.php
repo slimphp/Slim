@@ -12,7 +12,6 @@ namespace Slim\Interfaces\Http;
  * Collection Interface
  *
  * @package Slim
- * @author  John Porter
  * @since   3.0.0
  */
 interface CollectionInterface extends \ArrayAccess, \Countable, \IteratorAggregate
