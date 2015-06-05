@@ -8,10 +8,12 @@
  */
 namespace Slim\Http;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
+use Slim\Http\Collection;
 
 /**
  * Request
@@ -136,7 +138,7 @@ class Request implements ServerRequestInterface
 
     /**
      * Create new HTTP request.
-     * 
+     *
      * Adds a host header when none was provided and a host is defined in uri.
      *
      * @param string              $method       The request method
@@ -224,6 +226,7 @@ class Request implements ServerRequestInterface
      *
      * @param string $version HTTP protocol version
      * @return self
+     * @throws InvalidArgumentException if the protocol is an invalid number
      */
     public function withProtocolVersion($version)
     {
@@ -233,7 +236,7 @@ class Request implements ServerRequestInterface
             '2.0' => true,
         ];
         if (!isset($valid[$version])) {
-            throw new \InvalidArgumentException('Protocol must be "1.0", "1.1", or "2.0"');
+            throw new InvalidArgumentException('Protocol must be "1.0", "1.1", or "2.0"');
         }
         $clone = clone $this;
         $clone->protocolVersion = $version;
@@ -255,10 +258,12 @@ class Request implements ServerRequestInterface
         if ($this->method === null) {
             $this->method = $this->originalMethod;
             $customMethod = $this->getHeaderLine('X-Http-Method-Override');
+
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
             } elseif ($this->originalMethod === 'POST') {
                 $body = $this->getParsedBody();
+
                 if (is_object($body) && property_exists($body, '_METHOD')) {
                     $this->method = $this->filterMethod($body->_METHOD);
                 } elseif (is_array($body) && isset($body['_METHOD'])) {
@@ -321,7 +326,7 @@ class Request implements ServerRequestInterface
         }
 
         if (!is_string($method)) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method; must be a string, received %s',
                 (is_object($method) ? get_class($method) : gettype($method))
             ));
@@ -329,7 +334,7 @@ class Request implements ServerRequestInterface
 
         $method = strtoupper($method);
         if (!isset($this->validMethods[$method])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
             ));
@@ -516,11 +521,12 @@ class Request implements ServerRequestInterface
      *     request-target forms allowed in request messages)
      * @param mixed $requestTarget
      * @return self
+     * @throws InvalidArgumentException if the request target is invalid
      */
     public function withRequestTarget($requestTarget)
     {
         if (preg_match('#\s#', $requestTarget)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Invalid request target provided; must be a string and cannot contain whitespace'
             );
         }
@@ -578,7 +584,7 @@ class Request implements ServerRequestInterface
     {
         $clone = clone $this;
         $clone->uri = $uri;
-        
+
         if (!$preserveHost) {
             if ($uri->getHost() !== '') {
                 $clone->headers->set('Host', $uri->getHost());
@@ -1155,6 +1161,7 @@ class Request implements ServerRequestInterface
      *
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
+     * @throws RuntimeException if the request body media type parser returns an invalid value
      */
     public function getParsedBody()
     {
@@ -1168,10 +1175,12 @@ class Request implements ServerRequestInterface
 
         $mediaType = $this->getMediaType();
         $body = (string)$this->getBody();
+
         if (isset($this->bodyParsers[$mediaType]) === true) {
             $parsed = $this->bodyParsers[$mediaType]($body);
+
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
-                throw new \RuntimeException('Request body media type parser return value must be an array, an object, or null');
+                throw new RuntimeException('Request body media type parser return value must be an array, an object, or null');
             }
             $this->bodyParsed = $parsed;
         }
@@ -1210,8 +1219,9 @@ class Request implements ServerRequestInterface
     public function withParsedBody($data)
     {
         if (!is_null($data) && !is_object($data) && !is_array($data)) {
-            throw new \InvalidArgumentException('Parsed body value must be an array, an object, or null');
+            throw new InvalidArgumentException('Parsed body value must be an array, an object, or null');
         }
+
         $clone = clone $this;
         $clone->bodyParsed = $data;
 
@@ -1287,7 +1297,7 @@ class Request implements ServerRequestInterface
      * Get the client IP address.
      *
      * Note: This method is not part of the PSR-7 standard.
-     * 
+     *
      * @return string|null IP address or null if none found.
      */
     public function getIp()

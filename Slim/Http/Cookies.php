@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use InvalidArgumentException;
 use Slim\Interfaces\Http\CookiesInterface;
 
 /**
@@ -153,6 +154,7 @@ class Cookies implements CookiesInterface
      *
      * @param  string $header The raw HTTP request `Cookie:` header
      * @return array          Associative array of cookie names and values
+     * @throws InvalidArgumentException if the cookie data cannot be parsed
      */
     public static function parseHeader($header)
     {
@@ -161,7 +163,7 @@ class Cookies implements CookiesInterface
         }
 
         if (is_string($header) === false) {
-            throw new \InvalidArgumentException('Cannot parse Cookie data. Header value must be a string.');
+            throw new InvalidArgumentException('Cannot parse Cookie data. Header value must be a string.');
         }
 
         $header = rtrim($header, "\r\n");

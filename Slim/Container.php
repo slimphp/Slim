@@ -1,9 +1,27 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ */
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
-use Slim\Exception\NotFoundException;
 use Pimple\Container as PimpleContainer;
+use Slim\Router;
+use Slim\Exception\NotFoundException;
+use Slim\Handlers\Error;
+use Slim\Handlers\NotFound;
+use Slim\Handlers\NotAllowed;
+use Slim\Http\Environment;
+use Slim\Http\Uri;
+use Slim\Http\Headers;
+use Slim\Http\Cookies;
+use Slim\Http\Body;
+use Slim\Http\Request;
+use Slim\Http\Response;
 
 /**
  * Slim's default DI container is Pimple.
@@ -66,7 +84,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * of \Slim\Interfaces\Http\EnvironmentInterface.
          */
         $this['environment'] = function ($c) {
-            return new Http\Environment($_SERVER);
+            return new Environment($_SERVER);
         };
 
         /**
@@ -76,13 +94,13 @@ final class Container extends PimpleContainer implements ContainerInterface
         $this['request'] = $this->factory(function ($c) {
             $env = $c['environment'];
             $method = $env['REQUEST_METHOD'];
-            $uri = Http\Uri::createFromEnvironment($env);
-            $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = Http\Cookies::parseHeader($headers->get('Cookie', []));
+            $uri = Uri::createFromEnvironment($env);
+            $headers = Headers::createFromEnvironment($env);
+            $cookies = Cookies::parseHeader($headers->get('Cookie', []));
             $serverParams = $env->all();
-            $body = new Http\Body(fopen('php://input', 'r'));
+            $body = new Body(fopen('php://input', 'r'));
 
-            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+            return new Request($method, $uri, $headers, $cookies, $serverParams, $body);
         });
 
         /**
@@ -90,8 +108,8 @@ final class Container extends PimpleContainer implements ContainerInterface
          * of \Psr\Http\Message\ResponseInterface.
          */
         $this['response'] = $this->factory(function ($c) {
-            $headers = new Http\Headers(['Content-Type' => 'text/html']);
-            $response = new Http\Response(200, $headers);
+            $headers = new Headers(['Content-Type' => 'text/html']);
+            $response = new Response(200, $headers);
 
             return $response->withProtocolVersion($c['settings']['httpVersion']);
         });
@@ -116,7 +134,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * \Psr\Http\Message\ResponseInterface.
          */
         $this['errorHandler'] = function ($c) {
-            return new Handlers\Error;
+            return new Error();
         };
 
         /**
@@ -130,7 +148,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * \Psr\Http\Message\ResponseInterface.
          */
         $this['notFoundHandler'] = function ($c) {
-            return new Handlers\NotFound;
+            return new NotFound();
         };
 
         /**
@@ -145,13 +163,13 @@ final class Container extends PimpleContainer implements ContainerInterface
          * \Psr\Http\Message\ResponseInterface.
          */
         $this['notAllowedHandler'] = function ($c) {
-            return new Handlers\NotAllowed;
+            return new NotAllowed;
         };
-        
+
         /**
-         * This service MUST return a NEW instance of 
+         * This service MUST return a NEW instance of
          * \Slim\Interfaces\CallableResolverInterface
-         */ 
+         */
         $this['callableResolver'] = $this->factory(function($c) {
             return new CallableResolver($c);
         });

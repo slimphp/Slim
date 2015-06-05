@@ -11,6 +11,12 @@ namespace Slim\Interfaces;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * Route Interface
+ *
+ * @package Slim
+ * @since   3.0.0
+ */
 interface RouteInterface
 {
     /**

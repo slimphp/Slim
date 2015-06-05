@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use RuntimeException;
 use Interop\Container\ContainerInterface;
 
 /**
@@ -26,6 +27,7 @@ trait CallableResolverAware
      * @param  string $callable
      *
      * @return \Closure
+     * @throws RuntimeException if the string cannot be resolved as a callable
      */
     protected function resolveCallable($callable)
     {
@@ -33,7 +35,7 @@ trait CallableResolverAware
             if ($this->container instanceof ContainerInterface) {
                 $container = $this->container;
             } else {
-                throw new \RuntimeException('Cannot resolve callable string');
+                throw new RuntimeException('Cannot resolve callable string');
             }
             $resolver = $container->get('callableResolver');
             $resolver->setToResolve($callable);

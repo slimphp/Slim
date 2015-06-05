@@ -8,10 +8,15 @@
  */
 namespace Slim;
 
+use Closure;
+use Exception;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Interfaces\RouteInterface;
 use Interop\Container\ContainerInterface;
+use Slim\Interfaces\RouteInterface;
+use Slim\CallableResolverAware;
+use Slim\MiddlewareAware;
 
 /**
  * Route
@@ -84,7 +89,7 @@ class Route implements RouteInterface
     public function add($callable)
     {
         $callable = $this->resolveCallable($callable);
-        if ($callable instanceof \Closure) {
+        if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
@@ -147,11 +152,12 @@ class Route implements RouteInterface
      * Set route name
      *
      * @param string $name
+     * @throws InvalidArgumentException if the route name is not a string
      */
     public function setName($name)
     {
         if (!is_string($name)) {
-            throw new \InvalidArgumentException('Route name must be a string');
+            throw new InvalidArgumentException('Route name must be a string');
         }
         $this->name = $name;
         return $this;
@@ -195,7 +201,7 @@ class Route implements RouteInterface
      * @param ServerRequestInterface $request  The current Request object
      * @param ResponseInterface      $response The current Response object
      * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Exception
+     * @throws \Exception  if the route callable throws an exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -205,11 +211,11 @@ class Route implements RouteInterface
             $function = $this->callable;
             $newResponse = $function($request, $response, $request->getAttributes());
             $output = ob_get_clean();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             ob_end_clean();
             throw $e;
         }
-        
+
         // if route callback returns a ResponseInterface, then use it
         if ($newResponse instanceof ResponseInterface) {
             $response = $newResponse;
@@ -219,7 +225,7 @@ class Route implements RouteInterface
         if (is_string($newResponse)) {
             $response->getBody()->write($newResponse);
         }
-        
+
         // append output buffer content if there is any
         if ($output) {
             $response->getBody()->write($output);
