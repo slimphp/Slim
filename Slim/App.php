@@ -376,9 +376,10 @@ class App
      * @param  array             $headers     The request headers (key-value array)
      * @param  array             $cookies     The request cookies (key-value array)
      * @param  string            $bodyContent The request body
+     * @param  ResponseInterface $request     The response object (optional)
      * @return ResponseInterface
      */
-    public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '')
+    public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
     {
         $env = $this->container->get('environment');
         $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
@@ -388,7 +389,10 @@ class App
         $body->write($bodyContent);
         $body->rewind();
         $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
-        $response = $this->container->get('response');
+
+        if (!$response) {
+            $response = $this->container->get('response');
+        }
 
         return $this($request, $response);
     }
