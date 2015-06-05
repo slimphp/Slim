@@ -19,7 +19,7 @@ use Pimple\Container as PimpleContainer;
  *  - errorHandler: a callable with the signature: function($request, $response, $exception)
  *  - notFoundHandler: a callable with the signature: function($request, $response)
  *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
- *
+ *  - callableResolver: an instance of \Slim\Interfaces\CallableResolverInterface
  */
 final class Container extends PimpleContainer implements ContainerInterface
 {
@@ -147,6 +147,14 @@ final class Container extends PimpleContainer implements ContainerInterface
         $this['notAllowedHandler'] = function ($c) {
             return new Handlers\NotAllowed;
         };
+        
+        /**
+         * This service MUST return a NEW instance of 
+         * \Slim\Interfaces\CallableResolverInterface
+         */ 
+        $this['callableResolver'] = $this->factory(function($c) {
+            return new CallableResolver($c);
+        });
     }
 
     /********************************************************************************

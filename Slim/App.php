@@ -30,7 +30,7 @@ use Interop\Container\ContainerInterface;
  */
 class App
 {
-    use ResolveCallable;
+    use CallableResolverAware;
     use MiddlewareAware {
         add as addMiddleware;
     }

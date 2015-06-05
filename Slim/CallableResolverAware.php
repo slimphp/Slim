@@ -17,7 +17,7 @@ use Interop\Container\ContainerInterface;
  * into a closure. This class is an implementation detail and is used only inside
  * of the Slim application.
  */
-trait ResolveCallable
+trait CallableResolverAware
 {
     /**
      * Resolve a string of the format 'class:method' into a closure that the
@@ -29,13 +29,15 @@ trait ResolveCallable
      */
     protected function resolveCallable($callable)
     {
-        if (is_string($callable) && strpos($callable, ':')) {
+        if (!is_callable($callable) && is_string($callable)) {
             if ($this->container instanceof ContainerInterface) {
                 $container = $this->container;
             } else {
                 throw new \RuntimeException('Cannot resolve callable string');
             }
-            return new CallableResolver($callable, $container);
+            $resolver = $container->get('callableResolver');
+            $resolver->setToResolve($callable);
+            $callable = $resolver;
         }
 
         return $callable;
