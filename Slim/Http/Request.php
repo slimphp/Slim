@@ -9,6 +9,7 @@
 namespace Slim\Http;
 
 use InvalidArgumentException;
+use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
