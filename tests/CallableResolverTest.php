@@ -53,7 +53,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
 
     public function testClosure()
     {
-        $test_callable = function() {
+        $test_callable = function () {
             static $called_count = 0;
             return $called_count++;
         };
