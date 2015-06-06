@@ -374,7 +374,7 @@ X-Foo: Bar
 
 Where am I?
 END;
-        $this->expectOutputString($output);
+        $this->expectOutputString(str_replace("\n",PHP_EOL,$output));
         $response = new Response();
         $response = $response->withStatus(404)->withHeader('X-Foo', 'Bar')->write('Where am I?');
 
