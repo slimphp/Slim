@@ -74,15 +74,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * of \Psr\Http\Message\ServerRequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
-            $env = $c['environment'];
-            $method = $env['REQUEST_METHOD'];
-            $uri = Http\Uri::createFromEnvironment($env);
-            $headers = Http\Headers::createFromEnvironment($env);
-            $cookies = Http\Cookies::parseHeader($headers->get('Cookie', []));
-            $serverParams = $env->all();
-            $body = new Http\Body(fopen('php://input', 'r'));
-
-            return new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+            return Http\Request::createFromEnvironment($c['environment']);
         });
 
         /**
