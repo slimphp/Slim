@@ -135,6 +135,33 @@ class Request implements ServerRequestInterface
     ];
 
     /**
+     * Create new HTTP request with data extracted from the application
+     * Environment object
+     *
+     * @param  Environment $environment The Slim application Environment
+     * @return self
+     */
+    public static function createFromEnvironment(Environment $environment)
+    {
+        $method = $environment['REQUEST_METHOD'];
+        $uri = Uri::createFromEnvironment($environment);
+        $headers = Headers::createFromEnvironment($environment);
+        $cookies = Cookies::parseHeader($headers->get('Cookie', []));
+        $serverParams = $environment->all();
+        $body = new Body(fopen('php://input', 'r'));
+
+        $request = new static($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        if ($request->isPost() &&
+            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+        ) {
+            // parsed body must be $_POST
+            $request = $request->withParsedBody($_POST);
+        }
+        return $request;
+    }
+
+    /**
      * Create new HTTP request.
      * 
      * Adds a host header when none was provided and a host is defined in uri.
