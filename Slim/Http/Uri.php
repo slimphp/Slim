@@ -313,9 +313,8 @@ class Uri implements UriInterface
         $userInfo = $this->getUserInfo();
         $host = $this->getHost();
         $port = $this->getPort();
-        $showPort = ($this->hasStandardPort() === false);
 
-        return ($userInfo ? $userInfo . '@' : '') . $host . ($port && $showPort ? ':' . $port : '');
+        return ($userInfo ? $userInfo . '@' : '') . $host . ($port !== null ? ':' . $port : '');
     }
 
     /**
