@@ -8,6 +8,7 @@
  */
 namespace Slim\Handlers;
 
+use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
@@ -29,7 +30,7 @@ class Error
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Exception $exception)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
     {
         $title = 'Slim Application Error';
         $html = '<p>The application could not run because of the following error:</p>';
@@ -58,14 +59,14 @@ class Error
                 ->write($output);
     }
 
-    private function renderException(\Exception $exception)
+    private function renderException(Exception $exception)
     {
         $code = $exception->getCode();
         $message = $exception->getMessage();
         $file = $exception->getFile();
         $line = $exception->getLine();
         $trace = str_replace(['#', '\n'], ['<div>#', '</div>'], $exception->getTraceAsString());
-        
+
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
         if ($code) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);

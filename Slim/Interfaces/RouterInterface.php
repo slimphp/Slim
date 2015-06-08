@@ -10,6 +10,12 @@ namespace Slim\Interfaces;
 
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Router Interface
+ *
+ * @package Slim
+ * @since   3.0.0
+ */
 interface RouterInterface
 {
     /**
@@ -55,7 +61,7 @@ interface RouterInterface
      *
      * @param string $name        Route name
      * @param array  $data        Route URI segments replacement data
-     * @param array  $queryParams Optional query string parameters 
+     * @param array  $queryParams Optional query string parameters
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist

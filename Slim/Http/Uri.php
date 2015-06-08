@@ -8,6 +8,10 @@
  */
 namespace Slim\Http;
 
+use InvalidArgumentException;
+use \Psr\Http\Message\UriInterface;
+use Slim\Http\Environment;
+
 /**
  * Value object representing a URI.
  *
@@ -28,7 +32,7 @@ namespace Slim\Http;
  *
  * @link http://tools.ietf.org/html/rfc3986 (the URI specification)
  */
-class Uri implements \Psr\Http\Message\UriInterface
+class Uri implements UriInterface
 {
     /**
      * Uri scheme (without "://" suffix)
@@ -119,7 +123,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     /**
      * Create new Uri from string.
      *
-     * @param  string $uri Complete Uri string 
+     * @param  string $uri Complete Uri string
      *     (i.e., https://user:pass@host:443/path?query).
      * @return self
      */
@@ -259,6 +263,7 @@ class Uri implements \Psr\Http\Message\UriInterface
      *
      * @param  string $scheme Raw Uri scheme.
      * @return string
+     * @throws InvalidArgumentException if the Uri scheme is not a string.
      * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http".
      */
     protected function filterScheme($scheme)
@@ -461,7 +466,7 @@ class Uri implements \Psr\Http\Message\UriInterface
             return $port;
         }
 
-        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
+        throw new InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
     }
 
     /********************************************************************************
@@ -523,7 +528,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function withPath($path)
     {
         if (!is_string($path)) {
-            throw new \InvalidArgumentException('Uri path must be a string');
+            throw new InvalidArgumentException('Uri path must be a string');
         }
 
         $clone = clone $this;
@@ -558,7 +563,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function withBasePath($basePath)
     {
         if (!is_string($basePath)) {
-            throw new \InvalidArgumentException('Uri path must be a string');
+            throw new InvalidArgumentException('Uri path must be a string');
         }
         if (!empty($basePath)) {
             $basePath = '/' . trim($basePath, '/'); // <-- Trim on both sides
@@ -639,7 +644,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function withQuery($query)
     {
         if (!is_string($query) && !method_exists($query, '__toString')) {
-            throw new \InvalidArgumentException('Uri query must be a string');
+            throw new InvalidArgumentException('Uri query must be a string');
         }
         $query = ltrim((string)$query, '?');
         $clone = clone $this;
@@ -707,7 +712,7 @@ class Uri implements \Psr\Http\Message\UriInterface
     public function withFragment($fragment)
     {
         if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
-            throw new \InvalidArgumentException('Uri fragment must be a string');
+            throw new InvalidArgumentException('Uri fragment must be a string');
         }
         $fragment = ltrim((string)$fragment, '#');
         $clone = clone $this;
@@ -751,7 +756,7 @@ class Uri implements \Psr\Http\Message\UriInterface
         $path = $this->getPath();
         $query = $this->getQuery();
         $fragment = $this->getFragment();
-        
+
         if ($authority && substr($path, 0, 1) !== '/') {
             $path = $basePath . '/' . $path;
         }

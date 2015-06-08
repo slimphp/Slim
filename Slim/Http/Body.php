@@ -8,6 +8,10 @@
  */
 namespace Slim\Http;
 
+use InvalidArgumentException;
+use RuntimeException;
+use Psr\Http\Message\StreamInterface;
+
 /**
  * Body
  *
@@ -16,7 +20,7 @@ namespace Slim\Http;
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php
  */
-class Body implements \Psr\Http\Message\StreamInterface
+class Body implements StreamInterface
 {
     /**
      * Resource modes
@@ -126,7 +130,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function attach($newStream)
     {
         if (is_resource($newStream) === false) {
-            throw new \InvalidArgumentException('\Slim\Http\Body::attach() argument must be a valid PHP resource');
+            throw new InvalidArgumentException('\Slim\Http\Body::attach() argument must be a valid PHP resource');
         }
 
         if ($this->isAttached() === true) {
@@ -214,7 +218,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function tell()
     {
         if (!$this->isAttached() || ($position = ftell($this->stream)) === false) {
-            throw new \RuntimeException('Could not get the position of the pointer in stream');
+            throw new RuntimeException('Could not get the position of the pointer in stream');
         }
         return $position;
     }
@@ -306,7 +310,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     {
         // Note that fseek returns 0 on success!
         if (!$this->isSeekable() || fseek($this->stream, $offset, $whence) === -1) {
-            throw new \RuntimeException('Could not to seek in stream');
+            throw new RuntimeException('Could not to seek in stream');
         }
     }
 
@@ -323,7 +327,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function rewind()
     {
         if (!$this->isSeekable() || rewind($this->stream) === false) {
-            throw new \RuntimeException('Could not to rewind stream');
+            throw new RuntimeException('Could not to rewind stream');
         }
     }
 
@@ -340,7 +344,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function read($length)
     {
         if (!$this->isReadable() || ($data = fread($this->stream, $length)) === false) {
-            throw new \RuntimeException('Could not read from stream');
+            throw new RuntimeException('Could not read from stream');
         }
         return $data;
     }
@@ -355,7 +359,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function write($string)
     {
         if (!$this->isWritable() || ($written = fwrite($this->stream, $string)) === false) {
-            throw new \RuntimeException('Could not write to stream');
+            throw new RuntimeException('Could not write to stream');
         }
         return $written;
     }
@@ -370,7 +374,7 @@ class Body implements \Psr\Http\Message\StreamInterface
     public function getContents()
     {
         if (!$this->isReadable() || ($contents = stream_get_contents($this->stream)) === false) {
-            throw new \RuntimeException('Could get contents of stream');
+            throw new RuntimeException('Could get contents of stream');
         }
         return $contents;
     }
