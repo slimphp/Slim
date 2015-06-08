@@ -351,13 +351,13 @@ class App
             }
             return $routeInfo[1]($request, $response);
         }
-        if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
-            $notFoundHandler = $this->container->get('notFoundHandler');
-            return $notFoundHandler($request, $response);
-        }
-        if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+        else if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
+        }        
+        else {
+            $notFoundHandler = $this->container->get('notFoundHandler');
+            return $notFoundHandler($request, $response);
         }
     }
 
