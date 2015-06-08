@@ -6,9 +6,15 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
-namespace Slim;
+namespace Slim\Exception;
 
+use Exception as BaseException
 use Psr\Http\Message\ResponseInterface;
+use FastRoute\Dispatcher;
+use Slim\Http\Uri;
+use Slim\Http\Headers;
+use Slim\Http\Body;
+use Slim\Http\Request;
 
 /**
  * Stop Exception
@@ -16,7 +22,7 @@ use Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class Exception extends \Exception
+class Exception extends BaseException
 {
     /**
      * A response object to send to the HTTP client

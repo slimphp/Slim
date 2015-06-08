@@ -8,9 +8,18 @@
  */
 namespace Slim;
 
+use Exception;
+use Closure;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
+use FastRoute\Dispatcher;
+use Slim\Container;
+use Slim\Exception\Exception as SlimException;
+use Slim\Http\Uri;
+use Slim\Http\Headers;
+use Slim\Http\Body;
+use Slim\Http\Request;
 
 /**
  * App
@@ -57,6 +66,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
+     * @throws Exception when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
     {
@@ -64,7 +74,7 @@ class App
             $container = new Container($container);
         }
         if (!$container instanceof ContainerInterface) {
-            throw new \Exception("Expected a ContainerInterface");
+            throw new Exception("Expected a ContainerInterface");
         }
         $this->container = $container;
     }
@@ -91,7 +101,7 @@ class App
     public function add($callable)
     {
         $callable = $this->resolveCallable($callable);
-        if ($callable instanceof \Closure) {
+        if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
@@ -219,7 +229,7 @@ class App
     public function map(array $methods, $pattern, $callable)
     {
         $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
-        if ($callable instanceof \Closure) {
+        if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this);
         }
 
@@ -272,9 +282,9 @@ class App
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
-        } catch (\Slim\Exception $e) {
+        } catch (SlimException $e) {
             $response = $e->getResponse();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $errorHandler = $this->container->get('errorHandler');
             $response = $errorHandler($request, $response, $e);
         }
@@ -343,7 +353,7 @@ class App
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         $routeInfo = $this->container->get('router')->dispatch($request);
-        if ($routeInfo[0] === \FastRoute\Dispatcher::FOUND) {
+        if ($routeInfo[0] === Dispatcher::FOUND) {
             // URL decode the named arguments from the router
             $attributes = $routeInfo[2];
             foreach ($attributes as $k => $v) {
@@ -351,11 +361,11 @@ class App
             }
             return $routeInfo[1]($request, $response);
         }
-        if ($routeInfo[0] === \FastRoute\Dispatcher::NOT_FOUND) {
+        if ($routeInfo[0] === Dispatcher::NOT_FOUND) {
             $notFoundHandler = $this->container->get('notFoundHandler');
             return $notFoundHandler($request, $response);
         }
-        if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+        if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
@@ -382,13 +392,13 @@ class App
     public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
     {
         $env = $this->container->get('environment');
-        $uri = Http\Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
-        $headers = new Http\Headers($headers);
+        $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
+        $headers = new Headers($headers);
         $serverParams = $env->all();
-        $body = new Http\Body(fopen('php://temp', 'r+'));
+        $body = new Body(fopen('php://temp', 'r+'));
         $body->write($bodyContent);
         $body->rewind();
-        $request = new Http\Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
             $response = $this->container->get('response');

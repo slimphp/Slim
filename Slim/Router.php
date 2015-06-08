@@ -8,8 +8,17 @@
  */
 namespace Slim;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
+use FastRoute\RouteCollector;
+use FastRoute\RouteParser;
+use FastRoute\RouteParser\Std as StdParser;
+use FastRoute\DataGenerator;
+use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
+use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
+use Slim\Route;
 
 /**
  * Router
@@ -19,7 +28,7 @@ use Slim\Interfaces\RouterInterface;
  * finding routes that match the current HTTP request, and creating
  * URLs for a named route.
  */
-class Router extends \FastRoute\RouteCollector implements RouterInterface
+class Router extends RouteCollector implements RouterInterface
 {
     /**
      * Routes
@@ -48,10 +57,10 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      * @param \FastRoute\RouteParser   $parser
      * @param \FastRoute\DataGenerator $generator
      */
-    public function __construct(\FastRoute\RouteParser $parser = null, \FastRoute\DataGenerator $generator = null)
+    public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
     {
-        $parser = $parser ? $parser : new \FastRoute\RouteParser\Std;
-        $generator = $generator ? $generator : new \FastRoute\DataGenerator\GroupCountBased;
+        $parser = $parser ? $parser : new StdParser;
+        $generator = $generator ? $generator : new GroupCountBasedGenerator;
         parent::__construct($parser, $generator);
     }
 
@@ -63,12 +72,13 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      * @param  callable $handler The route callable
      *
      * @return \Slim\Interfaces\RouteInterface
+     * @throws InvalidArgumentException if the route pattern isn't a string
      */
     public function map($methods, $pattern, $handler)
     {
-        
+
         if (!is_string($pattern)) {
-            throw new \InvalidArgumentException('Route pattern must be a string');
+            throw new InvalidArgumentException('Route pattern must be a string');
         }
 
         // Prepend group pattern
@@ -99,7 +109,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
-        $dispatcher = new \FastRoute\Dispatcher\GroupCountBased($this->getData());
+        $dispatcher = new GroupCountBasedDispatcher($this->getData());
 
         return $dispatcher->dispatch(
             $request->getMethod(),
@@ -154,7 +164,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
      *
      * @param  string $name        Route name
      * @param  array  $data        Route URI segments replacement data
-     * @param  array  $queryParams Optional query string parameters 
+     * @param  array  $queryParams Optional query string parameters
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
@@ -166,7 +176,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
             $this->buildNameIndex();
         }
         if (!isset($this->namedRoutes[$name])) {
-            throw new \RuntimeException('Named route does not exist for name: ' . $name);
+            throw new RuntimeException('Named route does not exist for name: ' . $name);
         }
         $route = $this->namedRoutes[$name];
         $pattern = $route->getPattern();
@@ -174,7 +184,7 @@ class Router extends \FastRoute\RouteCollector implements RouterInterface
         $url = preg_replace_callback('/{([^}]+)}/', function ($match) use ($data) {
             $segmentName = explode(':', $match[1])[0];
             if (!isset($data[$segmentName])) {
-                throw new \InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
+                throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
             }
 
             return $data[$segmentName];

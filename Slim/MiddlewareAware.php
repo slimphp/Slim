@@ -8,6 +8,9 @@
  */
 namespace Slim;
 
+use RuntimeException;
+use SplStack;
+use SplDoublyLinkedList;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -45,11 +48,13 @@ trait MiddlewareAware
      *                           2. A Response object
      *                           3. A "next" middleware callable
      * @return self
+     * @throws RuntimeException if middleware is added while the stack is dequeuing
+     * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
      */
     public function add(callable $callable)
     {
         if ($this->middlewareLock) {
-            throw new \RuntimeException('Middleware can’t be added once the stack is dequeuing');
+            throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');
         }
 
         if (is_null($this->stack)) {
@@ -70,17 +75,20 @@ trait MiddlewareAware
 
     /**
      * Seed middleware stack with first callable
+     *
+     * @param callable $kernel The last item to run as middleware
+     * @throws RuntimeException if the stack is seeded more than once
      */
     protected function seedMiddlewareStack(callable $kernel = null)
     {
         if (!is_null($this->stack)) {
-            throw new \RuntimeException('MiddlewareStack can only be seeded once.');
+            throw new RuntimeException('MiddlewareStack can only be seeded once.');
         }
         if ($kernel === null) {
             $kernel = $this;
         }
-        $this->stack = new \SplStack;
-        $this->stack->setIteratorMode(\SplDoublyLinkedList::IT_MODE_LIFO | \SplDoublyLinkedList::IT_MODE_KEEP);
+        $this->stack = new SplStack;
+        $this->stack->setIteratorMode(SplDoublyLinkedList::IT_MODE_LIFO | SplDoublyLinkedList::IT_MODE_KEEP);
         $this->stack[] = $kernel;
     }
 

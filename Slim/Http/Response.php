@@ -8,9 +8,12 @@
  */
 namespace Slim\Http;
 
-use Slim\Interfaces\Http\HeadersInterface;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Slim\Interfaces\Http\HeadersInterface;
+use Slim\Http\Headers;
+use Slim\Http\Body;
 
 /**
  * Response
@@ -37,7 +40,7 @@ class Response implements ResponseInterface
      * @var int
      */
     protected $status = 200;
-    
+
     /**
      * Reason phrase
      *
@@ -193,6 +196,7 @@ class Response implements ResponseInterface
      *
      * @param string $version HTTP protocol version
      * @return self
+     * @throws InvalidArgumentException if the http version is an invalid number
      */
     public function withProtocolVersion($version)
     {
@@ -202,7 +206,7 @@ class Response implements ResponseInterface
             '2.0' => true,
         ];
         if (!isset($valid[$version])) {
-            throw new \InvalidArgumentException('Invalid HTTP version. Must be one of: 1.0, 1.1, 2.0');
+            throw new InvalidArgumentException('Invalid HTTP version. Must be one of: 1.0, 1.1, 2.0');
         }
         $clone = clone $this;
         $clone->protocolVersion = $version;
@@ -250,11 +254,11 @@ class Response implements ResponseInterface
     public function withStatus($code, $reasonPhrase = '')
     {
         $code = $this->filterStatus($code);
-                    
+
         if (!is_string($reasonPhrase) && !method_exists($reasonPhrase, '__toString')) {
-            throw new \InvalidArgumentException('ReasonPhrase must be a string');
+            throw new InvalidArgumentException('ReasonPhrase must be a string');
         }
-        
+
         $clone = clone $this;
         $clone->status = $code;
         $clone->reasonPhrase = $reasonPhrase;
@@ -267,12 +271,12 @@ class Response implements ResponseInterface
      *
      * @param  int $status HTTP status code.
      * @return int
-     * @throws \InvalidArgumentException If invalid HTTP status code.
+     * @throws \InvalidArgumentException If an invalid HTTP status code is provided.
      */
     protected function filterStatus($status)
     {
         if (!is_integer($status) || !isset(static::$messages[$status])) {
-            throw new \InvalidArgumentException('Invalid HTTP status code');
+            throw new InvalidArgumentException('Invalid HTTP status code');
         }
 
         return $status;
@@ -387,7 +391,7 @@ class Response implements ResponseInterface
     public function getHeaderLine($name)
     {
         return implode(',', $this->headers->get($name, []));
-    }  
+    }
 
     /**
      * Return an instance with the provided value replacing the specified header.
@@ -518,7 +522,7 @@ class Response implements ResponseInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * This method prepares the response object to return an HTTP Redirect 
+     * This method prepares the response object to return an HTTP Redirect
      * response to the client.
      *
      * @param  string $url    The redirect destination.
