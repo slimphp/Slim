@@ -101,11 +101,11 @@ class UploadedFile implements UploadedFileInterface
             }
             $parsed[$field] = [];
             if (!is_array($uploadedFile['error'])) {
-                $parsed[$field][] = new static(
+                $parsed[$field] = new static(
                     $uploadedFile['tmp_name'],
-                    $uploadedFile['name'],
-                    $uploadedFile['type'],
-                    $uploadedFile['size'],
+                    isset($uploadedFile['tmp_name']) ? $uploadedFile['name'] : null,
+                    isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
+                    isset($uploadedFile['size']) ? $uploadedFile['size'] : null,
                     $uploadedFile['error'],
                     true
                 );
@@ -113,9 +113,9 @@ class UploadedFile implements UploadedFileInterface
                 foreach ($uploadedFile['error'] as $fileIdx => $error) {
                     $parsed[$field][] = new static(
                         $uploadedFile['tmp_name'][$fileIdx],
-                        $uploadedFile['name'][$fileIdx],
-                        $uploadedFile['type'][$fileIdx],
-                        $uploadedFile['size'][$fileIdx],
+                        isset($uploadedFile['tmp_name']) ? $uploadedFile['name'][$fileIdx] : null,
+                        isset($uploadedFile['type']) ? $uploadedFile['type'][$fileIdx] : null,
+                        isset($uploadedFile['size']) ? $uploadedFile['size'][$fileIdx] : null,
                         $uploadedFile['error'][$fileIdx],
                         true
                     );
