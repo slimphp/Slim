@@ -92,15 +92,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * of \Psr\Http\Message\ServerRequestInterface.
          */
         $this['request'] = $this->factory(function ($c) {
-            $env = $c['environment'];
-            $method = $env['REQUEST_METHOD'];
-            $uri = Uri::createFromEnvironment($env);
-            $headers = Headers::createFromEnvironment($env);
-            $cookies = Cookies::parseHeader($headers->get('Cookie', []));
-            $serverParams = $env->all();
-            $body = new Body(fopen('php://input', 'r'));
-
-            return new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+            return Request::createFromEnvironment($c['environment']);
         });
 
         /**
@@ -170,7 +162,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a NEW instance of
          * \Slim\Interfaces\CallableResolverInterface
          */
-        $this['callableResolver'] = $this->factory(function($c) {
+        $this['callableResolver'] = $this->factory(function ($c) {
             return new CallableResolver($c);
         });
     }
