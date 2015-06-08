@@ -355,10 +355,9 @@ class App
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }        
-        else {
-            $notFoundHandler = $this->container->get('notFoundHandler');
-            return $notFoundHandler($request, $response);
-        }
+
+        $notFoundHandler = $this->container->get('notFoundHandler');
+        return $notFoundHandler($request, $response);
     }
 
     /**
