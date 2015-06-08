@@ -65,7 +65,7 @@ class Uri implements UriInterface
     /**
      * Uri port number
      *
-     * @var int
+     * @var null|int
      */
     protected $port;
 
