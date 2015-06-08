@@ -42,6 +42,7 @@ class Environment extends Collection implements EnvironmentInterface
             'HTTP_USER_AGENT'      => 'Slim Framework',
             'REMOTE_ADDR'          => '127.0.0.1',
             'REQUEST_TIME'         => time(),
+            'REQUEST_TIME_FLOAT'   => microtime(true),
         ], $userData);
 
         return new static($data);
