@@ -350,11 +350,10 @@ class App
                 $request = $request->withAttribute($k, urldecode($v));
             }
             return $routeInfo[1]($request, $response);
-        }
-        else if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+        } else if ($routeInfo[0] === \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
-        }        
+        }
 
         $notFoundHandler = $this->container->get('notFoundHandler');
         return $notFoundHandler($request, $response);
