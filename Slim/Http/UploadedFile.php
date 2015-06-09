@@ -89,7 +89,7 @@ class UploadedFile implements UploadedFileInterface
      *
      * @return array A normalized tree of UploadedFile instances.
      */
-    public static function parseUploadedFiles(array $uploadedFiles)
+    private static function parseUploadedFiles(array $uploadedFiles)
     {
         $parsed = [];
         foreach ($uploadedFiles as $field => $uploadedFile) {
