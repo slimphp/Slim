@@ -8,7 +8,7 @@
  */
 namespace Slim\Exception;
 
-use Exception as BaseException
+use Exception as BaseException;
 use Psr\Http\Message\ResponseInterface;
 use FastRoute\Dispatcher;
 use Slim\Http\Uri;
