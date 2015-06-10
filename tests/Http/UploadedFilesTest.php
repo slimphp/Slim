@@ -21,14 +21,15 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * @param array $input The input array to parse.
      * @param array $expected The expected normalized output.
      *
-     * @dataProvider providerParseUploadedFiles
+     * @dataProvider providerCreateFromEnvironment
      */
-    public function testParseUploadedFiles(array $input, array $expected)
+    public function testCreateFromEnvironmentFromFilesSuperglobal(array $input, array $expected)
     {
-        $this->assertEquals($expected, UploadedFile::parseUploadedFiles($input));
+        $_FILES = $input;
+        $this->assertEquals($expected, UploadedFile::createFromEnvironment(Environment::mock()));
     }
 
-    public function providerParseUploadedFiles()
+    public function providerCreateFromEnvironment()
     {
         return [
             [
