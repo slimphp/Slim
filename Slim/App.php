@@ -268,41 +268,28 @@ class App
      *******************************************************************************/
 
     /**
-     * Run application
+     * Send the response the client
      *
-     * This method traverses the application middleware stack,
-     * and it returns the resultant Response object to the HTTP client.
+     * @param ResponseInterface $response
      */
-    public function run()
+    public function respond(ResponseInterface $response)
     {
         static $responded = false;
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
 
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
-        } catch (Exception $e) {
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
-        }
-
-        // Finalize response
-        $statusCode = $response->getStatusCode();
-        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-        if (!$hasBody) {
-            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-        } else {
-            $size = $response->getBody()->getSize();
-            if ($size !== null) {
-                $response = $response->withHeader('Content-Length', $size);
-            }
-        }
-
-        // Send response
         if (!$responded) {
+            // Finalize response
+            $statusCode = $response->getStatusCode();
+            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+            if ($hasBody) {
+                $size = $response->getBody()->getSize();
+                if ($size !== null) {
+                    $response = $response->withHeader('Content-Length', $size);
+                }
+            } else {
+                $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+            }
+
+            // Send response
             if (!headers_sent()) {
                 // Status
                 header(sprintf(
@@ -333,8 +320,31 @@ class App
             }
             $responded = true;
         }
+    }
 
-        return $response;
+    /**
+     * Run application
+     *
+     * This method traverses the application middleware stack and then sends the
+     * resultant Response object to the HTTP client.
+     */
+    public function run()
+    {
+        static $responded = false;
+        $request = $this->container->get('request');
+        $response = $this->container->get('response');
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (SlimException $e) {
+            $response = $e->getResponse();
+        } catch (Exception $e) {
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
+        }
+
+        $this->respond($response);
     }
 
     /**
