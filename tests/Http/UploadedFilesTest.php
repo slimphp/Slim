@@ -8,8 +8,6 @@
  */
 namespace Slim\Tests\Http;
 
-use org\bovigo\vfs\vfsStreamFile;
-use org\bovigo\vfs\vfsStreamWrapper;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -17,7 +15,6 @@ use Slim\Http\Request;
 use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
-use org\bovigo\vfs\vfsStreamDirectory;
 
 
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
