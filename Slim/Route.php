@@ -16,7 +16,6 @@ use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\CallableResolverAwareTrait;
-
 use Slim\MiddlewareAwareTrait;
 
 /**
@@ -25,7 +24,6 @@ use Slim\MiddlewareAwareTrait;
 class Route implements RouteInterface
 {
     use CallableResolverAwareTrait;
-
     use MiddlewareAwareTrait {
         add as addMiddleware;
     }
