@@ -16,14 +16,14 @@ use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 {
     static private $filename = './phpUxcOty';
     /**
      * @beforeClass
      */
-    public static function setUpBeforeClass() {
+    public static function setUpBeforeClass()
+    {
         $fh = fopen(self::$filename, "w");
         fwrite($fh, "12345678");
         fclose($fh);
@@ -56,7 +56,8 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @return UploadedFile
      */
-    public function testConstructor() {
+    public function testConstructor()
+    {
         $attr = [
             'tmp_name' => self::$filename,
             'name'     => 'my-avatar.txt',
@@ -81,7 +82,8 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * @param UploadedFile $uploadedFile
      * @return UploadedFile
      */
-    public function testGetStream(UploadedFile $uploadedFile) {
+    public function testGetStream(UploadedFile $uploadedFile)
+    {
         $stream = $uploadedFile->getStream();
         $this->assertEquals(true, $uploadedFile->getStream() instanceof Stream);
         $stream->close();
@@ -117,10 +119,22 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
                         ],
                         [
                             'files' => [
-                                0 => new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'file0.txt', 'file0.txt', 'text/plain',
-                                    null, UPLOAD_ERR_OK, true),
-                                1 => new UploadedFile(__DIR__ . DIRECTORY_SEPARATOR . 'file1.html', 'file1.html', 'text/html',
-                                    null, UPLOAD_ERR_OK, true),
+                                0 => new UploadedFile(
+                                    __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                                    'file0.txt',
+                                    'text/plain',
+                                    null,
+                                    UPLOAD_ERR_OK,
+                                    true
+                                ),
+                                1 => new UploadedFile(
+                                    __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                                    'file1.html',
+                                    'text/html',
+                                    null,
+                                    UPLOAD_ERR_OK,
+                                    true
+                                ),
                             ],
                         ]
                     ],
@@ -160,6 +174,4 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
         return $request;
     }
-
-    
 }
