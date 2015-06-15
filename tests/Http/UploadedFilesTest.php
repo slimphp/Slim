@@ -19,12 +19,12 @@ use Slim\Http\Uri;
 
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 {
-
+    static private $filename = './phpUxcOty';
     /**
      * @beforeClass
      */
     public static function setUpBeforeClass() {
-        $fh = fopen("./phpUxcOty", "w");
+        $fh = fopen(self::$filename, "w");
         fwrite($fh, "12345678");
         fclose($fh);
     }
@@ -34,7 +34,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public static function tearDownAfterClass()
     {
-        unlink("./phpUxcOty");
+        if (file_exists(self::$filename)) {
+            unlink(self::$filename);
+        }
     }
 
     /**
@@ -56,7 +58,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public function testConstructor() {
         $attr = [
-            'tmp_name' => './phpUxcOty',
+            'tmp_name' => self::$filename,
             'name'     => 'my-avatar.txt',
             'size'     => 8,
             'type'     => 'text/plain',
