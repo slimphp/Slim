@@ -120,6 +120,8 @@ class Request implements ServerRequestInterface
      */
     protected $bodyParsers = [];
 
+    protected $uploadedFiles;
+
     /**
      * Valid request methods
      *
@@ -152,8 +154,9 @@ class Request implements ServerRequestInterface
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
         $body = new Body(fopen('php://input', 'r'));
+        $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
-        $request = new static($method, $uri, $headers, $cookies, $serverParams, $body);
+        $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         if ($request->isPost() &&
             in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
@@ -169,14 +172,15 @@ class Request implements ServerRequestInterface
      *
      * Adds a host header when none was provided and a host is defined in uri.
      *
-     * @param string              $method       The request method
-     * @param UriInterface        $uri          The request URI object
-     * @param HeadersInterface    $headers      The request headers collection
-     * @param array               $cookies      The request cookies collection
-     * @param array               $serverParams The server environment variables
-     * @param StreamInterface $body         The request body object
+     * @param string           $method        The request method
+     * @param UriInterface     $uri           The request URI object
+     * @param HeadersInterface $headers       The request headers collection
+     * @param array            $cookies       The request cookies collection
+     * @param array            $serverParams  The server environment variables
+     * @param StreamInterface  $body          The request body object
+     * @param array            $uploadedFiles The request uploadedFiles collection
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, array $cookies, array $serverParams, StreamInterface $body)
+    public function __construct($method, UriInterface $uri, HeadersInterface $headers, array $cookies, array $serverParams, StreamInterface $body, array $uploadedFiles = [])
     {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
@@ -185,6 +189,7 @@ class Request implements ServerRequestInterface
         $this->serverParams = $serverParams;
         $this->attributes = new Collection();
         $this->body = $body;
+        $this->uploadedFiles = $uploadedFiles;
 
         if (!$this->headers->has('Host') || $this->uri->getHost() !== '') {
             $this->headers->set('Host', $this->uri->getHost());
@@ -992,8 +997,7 @@ class Request implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        // TODO: Implement request file params
-        return [];
+        return $this->uploadedFiles;
     }
 
     /**
@@ -1003,14 +1007,16 @@ class Request implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * updated body parameters.
      *
-     * @param array An array tree of UploadedFileInterface instances.
+     * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
      * @return self
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        // TODO: Implement request file params
-        return $this;
+        $clone = clone $this;
+        $clone->uploadedFiles = $uploadedFiles;
+
+        return $clone;
     }
 
     /*******************************************************************************
