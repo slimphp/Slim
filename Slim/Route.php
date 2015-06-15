@@ -15,7 +15,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
-use Slim\CallableResolverAware;
+use Slim\CallableResolverAwareTrait;
+
 use Slim\MiddlewareAware;
 
 /**
@@ -23,7 +24,8 @@ use Slim\MiddlewareAware;
  */
 class Route implements RouteInterface
 {
-    use CallableResolverAware;
+    use CallableResolverAwareTrait;
+
     use MiddlewareAware {
         add as addMiddleware;
     }

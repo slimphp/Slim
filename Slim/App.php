@@ -39,7 +39,8 @@ use Slim\Http\Request;
  */
 class App
 {
-    use CallableResolverAware;
+    use CallableResolverAwareTrait;
+
     use MiddlewareAware {
         add as addMiddleware;
     }
