@@ -15,16 +15,16 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
-use Slim\CallableResolverAware;
-use Slim\MiddlewareAware;
+use Slim\CallableResolverAwareTrait;
+use Slim\MiddlewareAwareTrait;
 
 /**
  * Route
  */
 class Route implements RouteInterface
 {
-    use CallableResolverAware;
-    use MiddlewareAware {
+    use CallableResolverAwareTrait;
+    use MiddlewareAwareTrait {
         add as addMiddleware;
     }
 

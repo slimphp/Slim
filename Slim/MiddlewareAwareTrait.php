@@ -21,7 +21,7 @@ use Psr\Http\Message\ResponseInterface;
  * class is an implementation detail and is used only inside of the Slim
  * application; it is not visible to—and should not be used by—end users.
  */
-trait MiddlewareAware
+trait MiddlewareAwareTrait
 {
     /**
      * Middleware call stack

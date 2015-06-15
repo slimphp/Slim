@@ -11,7 +11,7 @@ function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $re
 
 class Stackable
 {
-    use \Slim\MiddlewareAware;
+    use \Slim\MiddlewareAwareTrait;
 
     public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
     {
