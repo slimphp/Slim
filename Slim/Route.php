@@ -17,7 +17,7 @@ use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\CallableResolverAwareTrait;
 
-use Slim\MiddlewareAware;
+use Slim\MiddlewareAwareTrait;
 
 /**
  * Route
@@ -26,7 +26,7 @@ class Route implements RouteInterface
 {
     use CallableResolverAwareTrait;
 
-    use MiddlewareAware {
+    use MiddlewareAwareTrait {
         add as addMiddleware;
     }
 

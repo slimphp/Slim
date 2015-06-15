@@ -41,7 +41,7 @@ class App
 {
     use CallableResolverAwareTrait;
 
-    use MiddlewareAware {
+    use MiddlewareAwareTrait {
         add as addMiddleware;
     }
 
