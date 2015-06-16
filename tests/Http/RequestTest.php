@@ -39,16 +39,18 @@ class RequestTest extends PHPUnit_Framework_TestCase
 {
     public function requestFactory()
     {
+        $env = Slim\Http\Environment::mock();
+
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new Headers();
+        $headers = Headers::createFromEnvironment($env);
         $cookies = [
             'user' => 'john',
             'id' => '123',
         ];
-        $env = Slim\Http\Environment::mock();
         $serverParams = $env->all();
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($env);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         return $request;
     }
