@@ -9,4 +9,9 @@ php:
 
 before_script: composer install
 
-script: phpunit --coverage-text
+script:
+  - mkdir -p build/logs
+  - phpunit --coverage-clover build/logs/clover.xml
+
+after_script:
+  - php vendor/bin/coveralls -v
