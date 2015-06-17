@@ -3,4 +3,4 @@ composer.lock
 phpunit.xml
 vendor
 .idea
-/nbproject/private/
+clover.xml
