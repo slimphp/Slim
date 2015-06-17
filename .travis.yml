@@ -12,7 +12,7 @@ before_script:
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then composer install -n ; fi
 
 script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then phpunit --coverage-clover clover.xml ; fi
+  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then mkdir -p build/logs && phpunit --coverage-clover build/logs/clover.xml ; fi
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then phpunit ; fi
 
 after_script:

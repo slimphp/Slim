@@ -1,2 +1,2 @@
+service_name: travis-ci
 src_dir: Slim
-coverage_clover: clover.xml
