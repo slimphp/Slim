@@ -36,7 +36,8 @@
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "satooshi/php-coveralls": "dev-master"
     },
     "autoload": {
         "psr-4": {
