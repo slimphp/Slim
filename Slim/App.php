@@ -370,7 +370,7 @@ class App
                 $request = $request->withAttribute($k, urldecode($v));
             }
             return $routeInfo[1]($request, $response);
-        } else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
