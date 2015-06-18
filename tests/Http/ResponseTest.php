@@ -121,7 +121,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
         $response->withStatus(800);
     }
-    
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -140,7 +140,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('Not Found', $response->getReasonPhrase());
     }
-    
+
     public function testGetCustomReasonPhrase()
     {
         $response = new Response();
@@ -368,13 +368,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $output = <<<END
-HTTP/1.1 404 Not Found
-X-Foo: Bar
-
-Where am I?
-END;
-        $this->expectOutputString(str_replace("\n",PHP_EOL,$output));
+        $output = 'HTTP/1.1 404 Not Found' . PHP_EOL .
+                  'X-Foo: Bar' . PHP_EOL . PHP_EOL .
+                  'Where am I?';
+        $this->expectOutputString($output);
         $response = new Response();
         $response = $response->withStatus(404)->withHeader('X-Foo', 'Bar')->write('Where am I?');
 
