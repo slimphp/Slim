@@ -212,27 +212,47 @@ class Route implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $outputBuffer = 'append';
+        if (($this->container !== null) && isset($this->container->get('settings')['outputBuffer'])) {
+            $outputBuffer = $this->container->get('settings')['outputBuffer'];
+        }
+
+        $function = $this->callable;
+
         // invoke route callable
-        try {
-            ob_start();
-            $function = $this->callable;
+        if ($outputBuffer === false) {
             $newResponse = $function($request, $response, $request->getAttributes());
-            $output = ob_get_clean();
-        } catch (Exception $e) {
-            ob_end_clean();
-            throw $e;
+        } else {
+            try {
+                ob_start();
+                $newResponse = $function($request, $response, $request->getAttributes());
+                $output = ob_get_clean();
+            } catch (Exception $e) {
+                ob_end_clean();
+                throw $e;
+            }
         }
 
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
-        } elseif (is_string($newResponse)) {
-            // if route callback returns a string, then append it to the response
+        }
+
+        // prepend output buffer content if there is any
+        if (isset($output) && ($outputBuffer === 'prepend')) {
+            $body = new Http\Body(fopen('php://temp', 'r+'));
+            $body->write($output);
+            $body->write((string)$response->getBody());
+            $response = $response->withBody($body);
+        }
+
+        if (is_string($newResponse)) {
+            // if route callback retuns a string, then append it to the response
             $response->getBody()->write($newResponse);
         }
 
         // append output buffer content if there is any
-        if ($output) {
+        if (isset($output) && ($outputBuffer === 'append')) {
             $response->getBody()->write($output);
         }
 
