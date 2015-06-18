@@ -205,20 +205,38 @@ class Route implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $outputBuffer = 'append';
+        if (($this->container !== null) && isset($this->container->get('settings')['outputBuffer'])) {
+            $outputBuffer = $this->container->get('settings')['outputBuffer'];
+        }
+
+        $function = $this->callable;
+
         // invoke route callable
-        try {
-            ob_start();
-            $function = $this->callable;
+        if ($outputBuffer === false) {
             $newResponse = $function($request, $response, $request->getAttributes());
-            $output = ob_get_clean();
-        } catch (Exception $e) {
-            ob_end_clean();
-            throw $e;
+        } else {
+            try {
+                ob_start();
+                $newResponse = $function($request, $response, $request->getAttributes());
+                $output = ob_get_clean();
+            } catch (Exception $e) {
+                ob_end_clean();
+                throw $e;
+            }
         }
 
         // if route callback returns a ResponseInterface, then use it
         if ($newResponse instanceof ResponseInterface) {
             $response = $newResponse;
+        }
+
+        // prepend output buffer content if there is any
+        if (isset($output) && ($outputBuffer === 'prepend')) {
+            $body = new Http\Body(fopen('php://temp', 'r+'));
+            $body->write($output);
+            $body->write((string)$response->getBody());
+            $response = $response->withBody($body);
         }
 
         // if route callback retuns a string, then append it to the response
@@ -227,7 +245,7 @@ class Route implements RouteInterface
         }
 
         // append output buffer content if there is any
-        if ($output) {
+        if (isset($output) && ($outputBuffer === 'append')) {
             $response->getBody()->write($output);
         }
 
