@@ -189,7 +189,7 @@ class Router extends RouteCollector implements RouterInterface
         $route = $this->namedRoutes[$name];
         $pattern = $route->getPattern();
 
-        $routeDatas = ($this->routeParser->parse($pattern));
+        $routeDatas = $this->routeParser->parse($pattern);
         // $routeDatas is an array of all possible routes that can be made. There is
         // one routedata for each optional parameter plus one for no optional parameters.
         //
