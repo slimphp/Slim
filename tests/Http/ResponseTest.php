@@ -121,7 +121,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
         $response->withStatus(800);
     }
-    
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -140,7 +140,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('Not Found', $response->getReasonPhrase());
     }
-    
+
     public function testGetCustomReasonPhrase()
     {
         $response = new Response();
@@ -368,16 +368,40 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $output = <<<END
-HTTP/1.1 404 Not Found
-X-Foo: Bar
-
-Where am I?
-END;
-        $this->expectOutputString(str_replace("\n",PHP_EOL,$output));
+        $output = 'HTTP/1.1 404 Not Found' . PHP_EOL .
+                  'X-Foo: Bar' . PHP_EOL . PHP_EOL .
+                  'Where am I?';
+        $this->expectOutputString($output);
         $response = new Response();
         $response = $response->withStatus(404)->withHeader('X-Foo', 'Bar')->write('Where am I?');
 
         echo $response;
+    }
+    function testWithJson()
+    {
+        $data = ['foo' => 'bar1&bar2'];
+        
+        $response = new Response();
+        $response = $response->withJson($data,201);
+        
+        $this->assertEquals(201,$response->getStatusCode());
+        $this->assertEquals('application/json;charset=utf-8',$response->getHeaderLine('Content-Type'));
+        
+        $body = $response->getBody();
+        $body->rewind();
+        $dataJson = $body->getContents(); //json_decode($body->getContents(),true);
+        
+        $this->assertEquals('{"foo":"bar1&bar2"}',$dataJson);
+        $this->assertEquals($data['foo'],json_decode($dataJson,true)['foo']);
+        
+        // Test encoding option
+        $response = $response->withJson($data,200,JSON_HEX_AMP);
+        
+        $body = $response->getBody();
+        $body->rewind();
+        $dataJson = $body->getContents();
+        
+        $this->assertEquals('{"foo":"bar1\u0026bar2"}',$dataJson);
+        $this->assertEquals($data['foo'],json_decode($dataJson,true)['foo']);
     }
 }

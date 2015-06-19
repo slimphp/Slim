@@ -382,7 +382,7 @@ class Stream implements StreamInterface
     public function getContents()
     {
         if (!$this->isReadable() || ($contents = stream_get_contents($this->stream)) === false) {
-            throw new RuntimeException('Could get contents of stream');
+            throw new RuntimeException('Could not get contents of stream');
         }
 
         return $contents;
