@@ -330,7 +330,6 @@ class App
      */
     public function run()
     {
-        static $responded = false;
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
