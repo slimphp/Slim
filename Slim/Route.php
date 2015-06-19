@@ -62,6 +62,13 @@ class Route implements RouteInterface
     protected $name;
 
     /**
+     * Output buffering mode
+     *
+     * @var boolean|string
+     */
+    protected $outputBuffering = 'append';
+
+    /**
      * Create new route
      *
      * @param string[] $methods       The route HTTP methods
@@ -112,6 +119,26 @@ class Route implements RouteInterface
     public function getPattern()
     {
         return $this->pattern;
+    }
+
+    /**
+     * Get output buffering mode
+     *
+     * @return boolean|string
+     */
+    public function getOutputBuffering()
+    {
+        return $this->outputBuffering;
+    }
+
+    /**
+     * Set output buffering mode
+     *
+     * @param boolean|string $mode
+     */
+    public function setOutputBuffering($mode)
+    {
+        $this->outputBuffering = $mode;
     }
 
     /**
@@ -212,15 +239,10 @@ class Route implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $outputBuffer = 'append';
-        if (($this->container !== null) && isset($this->container->get('settings')['outputBuffer'])) {
-            $outputBuffer = $this->container->get('settings')['outputBuffer'];
-        }
-
         $function = $this->callable;
 
         // invoke route callable
-        if ($outputBuffer === false) {
+        if ($this->outputBuffering === false) {
             $newResponse = $function($request, $response, $request->getAttributes());
         } else {
             try {
@@ -239,7 +261,7 @@ class Route implements RouteInterface
         }
 
         // prepend output buffer content if there is any
-        if (isset($output) && ($outputBuffer === 'prepend')) {
+        if (isset($output) && ($this->outputBuffering === 'prepend')) {
             $body = new Http\Body(fopen('php://temp', 'r+'));
             $body->write($output);
             $body->write((string)$response->getBody());
@@ -252,7 +274,7 @@ class Route implements RouteInterface
         }
 
         // append output buffer content if there is any
-        if (isset($output) && ($outputBuffer === 'append')) {
+        if (isset($output) && ($this->outputBuffering === 'append')) {
             $response->getBody()->write($output);
         }
 
