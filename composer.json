@@ -31,7 +31,7 @@
         "php": ">=5.4.0",
         "pimple/pimple": "3.*",
         "psr/http-message": "1.0",
-        "nikic/fast-route": "dev-master",
+        "nikic/fast-route": "dev-master@dev",
         "container-interop/container-interop": "~1.1"
     },
     "require-dev": {
