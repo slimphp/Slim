@@ -345,6 +345,8 @@ class App
         }
 
         $this->respond($response);
+        
+        return $response;
     }
 
     /**
