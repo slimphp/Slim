@@ -226,22 +226,17 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensure that if `outputBuffer` setting is set to `prepend` correct response
+     * Ensure that if `outputBuffering` property is set to `prepend` correct response
      * body is returned by __invoke().
      */
     public function testInvokeWhenPrependingOutputBuffer()
     {
-        $container = new \Slim\Container();
-        $container->extend('settings', function ($settings, $c) {
-            $settings['outputBuffer'] = 'prepend';
-            return $settings;
-        });
         $callable = function ($req, $res, $args) {
             echo 'foo';
             return $res->write('bar');
         };
         $route = new Route(['GET'], '/', $callable);
-        $route->setContainer($container);
+        $route->setOutputBuffering('prepend');
 
         $env = \Slim\Http\Environment::mock();
         $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
@@ -258,22 +253,17 @@ class RouteTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensure that if `outputBuffer` setting is set to `false` correct response
+     * Ensure that if `outputBuffering` property is set to `false` correct response
      * body is returned by __invoke().
      */
     public function testInvokeWhenDisablingOutputBuffer()
     {
-        $container = new \Slim\Container();
-        $container->extend('settings', function ($settings, $c) {
-            $settings['outputBuffer'] = false;
-            return $settings;
-        });
         $callable = function ($req, $res, $args) {
             echo 'foo';
             return $res->write('bar');
         };
         $route = new Route(['GET'], '/', $callable);
-        $route->setContainer($container);
+        $route->setOutputBuffering(false);
 
         $env = \Slim\Http\Environment::mock();
         $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
