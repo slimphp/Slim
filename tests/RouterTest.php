@@ -83,6 +83,30 @@ class RouterTest extends PHPUnit_Framework_TestCase
         );
     }
 
+    public function testUrlForWithOptionalParameters()
+    {
+        $methods = ['GET'];
+        $pattern = '/archive/{year}[/{month:[\d:{2}]}[/d/{day}]]';
+        $callable = function ($request, $response, $args) {
+            return $response;
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/archive/2015',
+            $this->router->urlFor('foo', ['year' => '2015'])
+        );
+        $this->assertEquals(
+            '/archive/2015/07',
+            $this->router->urlFor('foo', ['year' => '2015', 'month' => '07'])
+        );
+        $this->assertEquals(
+            '/archive/2015/07/d/19',
+            $this->router->urlFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
+        );
+    }
+
     public function testUrlForWithQueryParameters()
     {
         $methods = ['GET'];
