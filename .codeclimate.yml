@@ -1,0 +1,4 @@
+languages:
+  PHP: true
+exclude_paths:
+  - "tests/"
