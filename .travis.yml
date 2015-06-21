@@ -8,7 +8,7 @@ php:
   - hhvm
 
 before_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then composer require satooshi/php-coveralls:dev-master -n ; fi
+  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then composer require satooshi/php-coveralls:dev-master codeclimate/php-test-reporter:dev-master -n ; fi
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then composer install -n ; fi
 
 script:
@@ -16,4 +16,4 @@ script:
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then phpunit ; fi
 
 after_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls -v ; fi
+  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls -v ; CODECLIMATE_REPO_TOKEN=e2bf4c3e4a4aa5dac0334db26617588664192128f1cad144b78c3e9d51c5bfce ./vendor/bin/test-reporter; fi
