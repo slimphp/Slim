@@ -35,7 +35,6 @@ interface RouteInterface
      *
      * @param ServerRequestInterface $request  The current Request object
      * @param ResponseInterface      $response The current Response object
-     * @param array                  $args     Parsed pattern data
      *
      * @return ResponseInterface
      */

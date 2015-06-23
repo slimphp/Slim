@@ -13,6 +13,7 @@ use SplStack;
 use SplDoublyLinkedList;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use UnexpectedValueException;
 
 /**
  * Middleware
@@ -64,7 +65,7 @@ trait MiddlewareAwareTrait
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = $callable($req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
-                throw new \UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
+                throw new UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
             }
 
             return $result;
@@ -105,6 +106,7 @@ trait MiddlewareAwareTrait
         if (is_null($this->stack)) {
             $this->seedMiddlewareStack();
         }
+        /** @var callable $start */
         $start = $this->stack->top();
         $this->middlewareLock = true;
         $resp = $start($req, $res);

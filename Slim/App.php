@@ -14,12 +14,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
-use Slim\Container;
 use Slim\Exception\Exception as SlimException;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
+use Slim\Interfaces\RouteInterface;
 
 /**
  * App
@@ -34,8 +34,8 @@ use Slim\Http\Request;
  * @property-read \Psr\Http\Message\ResponseInterface $response
  * @property-read \Slim\Interfaces\RouterInterface $router
  * @property-read callable $errorHandler
- * @property-read callable function($request, $response) $notFoundHandler
- * @property-read callable function($request, $response, $allowedHttpMethods) $notAllowedHandler
+ * @property-read callable $notFoundHandler function($request, $response)
+ * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
 class App
 {
@@ -339,12 +339,13 @@ class App
         } catch (SlimException $e) {
             $response = $e->getResponse();
         } catch (Exception $e) {
+            /** @var callable $errorHandler */
             $errorHandler = $this->container->get('errorHandler');
             $response = $errorHandler($request, $response, $e);
         }
 
         $this->respond($response);
-        
+
         return $response;
     }
 
@@ -372,10 +373,11 @@ class App
             }
             return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+            /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
-
+        /** @var callable $notFoundHandler */
         $notFoundHandler = $this->container->get('notFoundHandler');
         return $notFoundHandler($request, $response);
     }
@@ -395,7 +397,7 @@ class App
      * @param  array             $headers     The request headers (key-value array)
      * @param  array             $cookies     The request cookies (key-value array)
      * @param  string            $bodyContent The request body
-     * @param  ResponseInterface $request     The response object (optional)
+     * @param  ResponseInterface $response     The response object (optional)
      * @return ResponseInterface
      */
     public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)

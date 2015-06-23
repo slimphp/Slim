@@ -17,6 +17,8 @@ use Interop\Container\ContainerInterface;
  * This is an internal class that enables resolution of 'class:method' strings
  * into a closure. This class is an implementation detail and is used only inside
  * of the Slim application.
+ *
+ * @property ContainerInterface $container
  */
 trait CallableResolverAwareTrait
 {
@@ -37,6 +39,7 @@ trait CallableResolverAwareTrait
             } else {
                 throw new RuntimeException('Cannot resolve callable string');
             }
+            /** @var CallableResolver $resolver */
             $resolver = $container->get('callableResolver');
             $resolver->setToResolve($callable);
             $callable = $resolver;
