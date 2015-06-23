@@ -14,7 +14,7 @@ use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure
- * that can be disatched. It is itself invokable as it lazily resolves the string
+ * that can be dispatched. It is itself invokable as it lazily resolves the string
  * when it is invoked.
  */
 final class CallableResolver implements CallableResolverInterface
@@ -63,8 +63,6 @@ final class CallableResolver implements CallableResolverInterface
      * If toResolve is of the format 'class:method', then try to extract 'class'
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
-     * @param  string $callable
-     *
      * @return \Closure
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
@@ -102,7 +100,7 @@ final class CallableResolver implements CallableResolverInterface
     /**
      * Invoke the resolved callable.
      *
-     * @return \Psr\Http\MessageResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function __invoke()
     {

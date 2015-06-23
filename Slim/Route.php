@@ -15,8 +15,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
-use Slim\CallableResolverAwareTrait;
-use Slim\MiddlewareAwareTrait;
 
 /**
  * Route
@@ -152,6 +150,8 @@ class Route implements RouteInterface
      * Set route name
      *
      * @param string $name
+     *
+     * @return $this
      * @throws InvalidArgumentException if the route name is not a string
      */
     public function setName($name)
@@ -167,6 +167,8 @@ class Route implements RouteInterface
      * Set container for use with resolveCallable
      *
      * @param ContainerInterface $container
+     *
+     * @return $this
      */
     public function setContainer(ContainerInterface $container)
     {
@@ -175,8 +177,8 @@ class Route implements RouteInterface
     }
 
     /********************************************************************************
-    * Route Runner
-    *******************************************************************************/
+     * Route Runner
+     *******************************************************************************/
 
     /**
      * Run route
@@ -184,6 +186,11 @@ class Route implements RouteInterface
      * This method traverses the middleware stack, including the route's callable
      * and captures the resultant HTTP response object. It then sends the response
      * back to the Application.
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface      $response
+     *
+     * @return ResponseInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -221,7 +228,7 @@ class Route implements RouteInterface
             $response = $newResponse;
         }
 
-        // if route callback retuns a string, then append it to the response
+        // if route callback returns a string, then append it to the response
         if (is_string($newResponse)) {
             $response->getBody()->write($newResponse);
         }

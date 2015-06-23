@@ -18,7 +18,6 @@ use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
-use Slim\Route;
 
 /**
  * Router

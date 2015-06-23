@@ -29,7 +29,7 @@ interface CallableResolverInterface
     /**
      * Invoke the resolved callable.
      *
-     * @return \Psr\Http\MessageResponseInterface
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function __invoke();
 }

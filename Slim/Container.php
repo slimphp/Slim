@@ -9,24 +9,26 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
+use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
-use Slim\Router;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\NotFoundException;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
 use Slim\Http\Environment;
-use Slim\Http\Uri;
 use Slim\Http\Headers;
-use Slim\Http\Cookies;
-use Slim\Http\Body;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * Slim's default DI container is Pimple.
  *
- * Slim\App expect a container that implements Interop\Container\ContainerInterface
+ * Slim\App expects a container that implements Interop\Container\ContainerInterface
  * with these service keys configured and ready for use:
  *
  *  - settings: an array or instance of \ArrayAccess
@@ -70,11 +72,16 @@ final class Container extends PimpleContainer implements ContainerInterface
     {
         parent::__construct();
 
+        $defaultSettings = $this->defaultSettings;
+
         /**
          * This service MUST return an array or an
          * instance of \ArrayAccess.
+         *
+         * @param Container $c
+         *
+         * @return array|\ArrayAccess
          */
-        $defaultSettings = $this->defaultSettings;
         $this['settings'] = function ($c) use ($userSettings, $defaultSettings) {
             return array_merge($defaultSettings, $userSettings);
         };
@@ -82,6 +89,10 @@ final class Container extends PimpleContainer implements ContainerInterface
         /**
          * This service MUST return a shared instance
          * of \Slim\Interfaces\Http\EnvironmentInterface.
+         *
+         * @param Container $c
+         *
+         * @return EnvironmentInterface
          */
         $this['environment'] = function ($c) {
             return new Environment($_SERVER);
@@ -91,24 +102,42 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a NEW instance
          * of \Psr\Http\Message\ServerRequestInterface.
          */
-        $this['request'] = $this->factory(function ($c) {
-            return Request::createFromEnvironment($c['environment']);
-        });
+        $this['request'] = $this->factory(
+            /**
+             * @param Container $c
+             *
+             * @return ServerRequestInterface
+             */
+            function ($c) {
+                return Request::createFromEnvironment($c['environment']);
+            }
+        );
 
         /**
          * This service MUST return a NEW instance
          * of \Psr\Http\Message\ResponseInterface.
          */
-        $this['response'] = $this->factory(function ($c) {
-            $headers = new Headers(['Content-Type' => 'text/html']);
-            $response = new Response(200, $headers);
+        $this['response'] = $this->factory(
+            /**
+             * @param Container $c
+             *
+             * @return ResponseInterface
+             */
+            function ($c) {
+                $headers = new Headers(['Content-Type' => 'text/html']);
+                $response = new Response(200, $headers);
 
-            return $response->withProtocolVersion($c['settings']['httpVersion']);
-        });
+                return $response->withProtocolVersion($c['settings']['httpVersion']);
+            }
+        );
 
         /**
          * This service MUST return a SHARED instance
          * of \Slim\Interfaces\RouterInterface.
+         *
+         * @param Container $c
+         *
+         * @return RouterInterface
          */
         $this['router'] = function ($c) {
             return new Router();
@@ -124,6 +153,10 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
+         *
+         * @param Container $c
+         *
+         * @return callable
          */
         $this['errorHandler'] = function ($c) {
             return new Error();
@@ -138,6 +171,10 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
+         *
+         * @param Container $c
+         *
+         * @return callable
          */
         $this['notFoundHandler'] = function ($c) {
             return new NotFound();
@@ -153,6 +190,10 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * The callable MUST return an instance of
          * \Psr\Http\Message\ResponseInterface.
+         *
+         * @param Container $c
+         *
+         * @return callable
          */
         $this['notAllowedHandler'] = function ($c) {
             return new NotAllowed;
@@ -162,9 +203,16 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return a NEW instance of
          * \Slim\Interfaces\CallableResolverInterface
          */
-        $this['callableResolver'] = $this->factory(function ($c) {
-            return new CallableResolver($c);
-        });
+        $this['callableResolver'] = $this->factory(
+            /**
+             * @param Container $c
+             *
+             * @return CallableResolverInterface
+             */
+            function ($c) {
+                return new CallableResolver($c);
+            }
+        );
     }
 
     /********************************************************************************
