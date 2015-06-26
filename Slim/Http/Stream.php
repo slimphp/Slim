@@ -114,7 +114,7 @@ class Stream implements StreamInterface
      *
      * @return bool
      */
-    public function isAttached()
+    protected function isAttached()
     {
         return is_resource($this->stream);
     }
@@ -128,7 +128,7 @@ class Stream implements StreamInterface
      *
      * @throws InvalidArgumentException If argument is not a valid PHP resource.
      */
-    public function attach($newStream)
+    protected function attach($newStream)
     {
         if (is_resource($newStream) === false) {
             throw new InvalidArgumentException(__METHOD__ . ' argument must be a valid PHP resource');

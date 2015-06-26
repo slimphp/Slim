@@ -310,12 +310,10 @@ class App
             // Body
             if ($hasBody) {
                 $body = $response->getBody();
-                if ($body->isAttached()) {
-                    $body->rewind();
-                    while (!$body->eof()) {
-                        $settings = $this->container->get('settings');
-                        echo $body->read($settings['responseChunkSize']);
-                    }
+                $body->rewind();
+                while (!$body->eof()) {
+                    $settings = $this->container->get('settings');
+                    echo $body->read($settings['responseChunkSize']);
                 }
             }
             $responded = true;
