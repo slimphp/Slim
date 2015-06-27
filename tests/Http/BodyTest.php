@@ -115,54 +115,6 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertNull($body->getMetadata('foo'));
     }
 
-    /**
-     * #1269 - geggleto
-    public function testIsAttachedTrue()
-    {
-        $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-
-        $this->assertTrue($body->isAttached());
-    }
-
-    public function testIsAttachedFalse()
-    {
-        $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
-        $bodyStream->setAccessible(true);
-        $bodyStream->setValue($body, null);
-
-        $this->assertFalse($body->isAttached());
-    }
-
-    public function testAttachStream()
-    {
-        $stream1 = $this->resourceFactory();
-        $stream2 = $this->resourceFactory();
-
-        $body = new \Slim\Http\Body($stream1);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
-        $bodyStream->setAccessible(true);
-
-        $this->assertSame($stream1, $bodyStream->getValue($body));
-        $body->attach($stream2);
-        $this->assertSame($stream2, $bodyStream->getValue($body));
-
-        fclose($stream1);
-        fclose($stream2);
-    }
-
-
-     * expectedException \InvalidArgumentException
-
-    public function testAttachInvalidStream()
-    {
-        $body = new \Slim\Http\Body($this->resourceFactory());
-        $body->attach('Foo');
-    }
-    */
-
     public function testDetach()
     {
         $this->stream = $this->resourceFactory();
