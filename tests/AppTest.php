@@ -228,6 +228,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
+
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
         $app = new App();
@@ -494,4 +495,37 @@ class AppTest extends PHPUnit_Framework_TestCase
     // TODO: Test finalize()
 
     // TODO: Test run()
+
+    public function testRespond()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString('Hello');
+    }
+
 }
