@@ -64,6 +64,8 @@ class Route implements RouteInterface
     /**
      * Output buffering mode
      *
+     * One of: false, 'prepend' or 'append'
+     *
      * @var boolean|string
      */
     protected $outputBuffering = 'append';
@@ -134,10 +136,15 @@ class Route implements RouteInterface
     /**
      * Set output buffering mode
      *
+     * One of: false, 'prepend' or 'append'
+     *
      * @param boolean|string $mode
      */
     public function setOutputBuffering($mode)
     {
+        if (!in_array($mode, [false, 'prepend', 'append'], true)) {
+            throw new Exception('Unknown output buffering mode');
+        }
         $this->outputBuffering = $mode;
     }
 
