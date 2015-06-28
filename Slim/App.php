@@ -311,8 +311,8 @@ class App
             if ($hasBody) {
                 $body = $response->getBody();
                 $body->rewind();
+                $settings = $this->container->get('settings');
                 while (!$body->eof()) {
-                    $settings = $this->container->get('settings');
                     echo $body->read($settings['responseChunkSize']);
                 }
             }
