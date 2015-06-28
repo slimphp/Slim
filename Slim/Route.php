@@ -266,21 +266,18 @@ class Route implements RouteInterface
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
         } elseif (is_string($newResponse)) {
-            // if route callback retuns a string, then append it to the response
+            // if route callback returns a string, then append it to the response
             $response->getBody()->write($newResponse);
         }
 
         if (isset($output)) {
             if ($this->outputBuffering === 'prepend') {
-                // prepend output buffer content if there is any
+                // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));
-                $body->write($output);
-                $body->write((string)$response->getBody());
+                $body->write($output . $response->getBody());
                 $response = $response->withBody($body);
-            }
-
-            if (($this->outputBuffering === 'append')) {
-                // append output buffer content if there is any
+            } elseif ($this->outputBuffering === 'append') {
+                // append output buffer content
                 $response->getBody()->write($output);
             }
         }
