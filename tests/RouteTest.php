@@ -224,4 +224,62 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo', (string)$response->getBody());
     }
+
+    /**
+     * Ensure that if `outputBuffering` property is set to `prepend` correct response
+     * body is returned by __invoke().
+     */
+    public function testInvokeWhenPrependingOutputBuffer()
+    {
+        $callable = function ($req, $res, $args) {
+            echo 'foo';
+            return $res->write('bar');
+        };
+        $route = new Route(['GET'], '/', $callable);
+        $route->setOutputBuffering('prepend');
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('foobar', (string)$response->getBody());
+    }
+
+    /**
+     * Ensure that if `outputBuffering` property is set to `false` correct response
+     * body is returned by __invoke().
+     */
+    public function testInvokeWhenDisablingOutputBuffer()
+    {
+        ob_start();
+        $callable = function ($req, $res, $args) {
+            echo 'foo';
+            return $res->write('bar');
+        };
+        $route = new Route(['GET'], '/', $callable);
+        $route->setOutputBuffering(false);
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('bar', (string)$response->getBody());
+
+        $output = ob_get_clean();
+        $this->assertEquals('foo', $output);
+    }
 }

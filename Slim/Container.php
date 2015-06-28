@@ -55,7 +55,8 @@ final class Container extends PimpleContainer implements ContainerInterface
         'cookieSecure' => false,
         'cookieHttpOnly' => false,
         'httpVersion' => '1.1',
-        'responseChunkSize' => 4096
+        'responseChunkSize' => 4096,
+        'outputBuffering' => 'append',
     ];
 
 
