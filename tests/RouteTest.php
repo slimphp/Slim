@@ -258,6 +258,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
      */
     public function testInvokeWhenDisablingOutputBuffer()
     {
+        ob_start();
         $callable = function ($req, $res, $args) {
             echo 'foo';
             return $res->write('bar');
@@ -277,5 +278,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $response = $route->__invoke($request, $response);
 
         $this->assertEquals('bar', (string)$response->getBody());
+
+        $output = ob_get_clean();
+        $this->assertEquals('foo', $output);
     }
 }
