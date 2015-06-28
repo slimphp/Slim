@@ -223,13 +223,11 @@ class Route implements RouteInterface
             throw $e;
         }
 
-        // if route callback returns a ResponseInterface, then use it
         if ($newResponse instanceof ResponseInterface) {
+            // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
-        }
-
-        // if route callback returns a string, then append it to the response
-        if (is_string($newResponse)) {
+        } elseif (is_string($newResponse)) {
+            // if route callback returns a string, then append it to the response
             $response->getBody()->write($newResponse);
         }
 
