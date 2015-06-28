@@ -314,7 +314,7 @@ class Stream implements StreamInterface
     {
         // Note that fseek returns 0 on success!
         if (!$this->isSeekable() || fseek($this->stream, $offset, $whence) === -1) {
-            throw new RuntimeException('Could not to seek in stream');
+            throw new RuntimeException('Could not seek in stream');
         }
     }
 
@@ -331,7 +331,7 @@ class Stream implements StreamInterface
     public function rewind()
     {
         if (!$this->isSeekable() || rewind($this->stream) === false) {
-            throw new RuntimeException('Could not to rewind stream');
+            throw new RuntimeException('Could not rewind stream');
         }
     }
 
