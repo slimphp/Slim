@@ -57,15 +57,15 @@ interface RouterInterface
     public function popGroup();
 
     /**
-     * Build URL for named route
+     * Build the path for a named route
      *
      * @param string $name        Route name
-     * @param array  $data        Route URI segments replacement data
+     * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
      * @throws \RuntimeException         If named route does not exist
      * @throws \InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, array $data = [], array $queryParams = []);
+    public function pathFor($name, array $data = [], array $queryParams = []);
 }
