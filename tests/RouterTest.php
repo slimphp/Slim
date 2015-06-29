@@ -154,4 +154,32 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->router->pathFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
     }
+
+    public function testFullUrlFor()
+    {
+        // Prepare request and response objects
+        $env = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/base/index.php',
+            'REQUEST_URI' => '/base/hello',
+            'REQUEST_METHOD' => 'GET',
+            'HTTP_HOST' => 'example.com:8081',
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($env);
+        $headers = \Slim\Http\Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $methods = ['GET'];
+        $pattern = '/hello/{first}';
+        $callable = function ($request, $response, $args) {
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('hello');
+
+        $url = $this->router->fullUrlFor($request, 'hello', ['first' => 'josh'], ['foo' => 'bar']);
+
+        $this->assertEquals('http://example.com:8081/base/hello/josh?foo=bar', $url);
+    }
 }

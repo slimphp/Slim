@@ -416,4 +416,24 @@ class App
 
         return $this($request, $response);
     }
+
+    /**
+     * Build the fully qualified URL for a named route
+     *
+     * @param string $name              Route name
+     * @param array  $data              Named argument replacement data
+     * @param array  $queryParams       Optional query string parameters
+     * @param RequestInterface $request Optional request object
+     *
+     * @return string
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
+     */
+    public function fullUrlFor($name, array $data = [], array $queryParams = [], $request = null)
+    {
+        $router = $this->container->get('router');
+        $request = $request ?: $this->container->get('request');
+
+        return $router->fullUrlFor($request, $name, $data, $queryParams);
+    }
 }
