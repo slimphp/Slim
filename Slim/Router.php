@@ -254,6 +254,28 @@ class Router extends RouteCollector implements RouterInterface
     }
 
     /**
+     * Build the fully qualified URL for a named route
+     *
+     * @param ServerRequestInterface $request     Request object
+     * @param string                 $name        Route name
+     * @param array                  $data        Named argument replacement data
+     * @param array                  $queryParams Optional query string parameters
+     *
+     * @return string
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
+     */
+    public function fullUrlFor(ServerRequestInterface $request, $name, array $data = [], array $queryParams = [])
+    {
+        $uri = $request->getUri();
+
+        return $uri->getScheme() . '://' . $uri->getHost()
+            . ($uri->getPort() ? ':' . $uri->getPort() : '')
+            . rtrim($uri->getBasePath(), '/')
+            . $this->pathFor($name, $data, $queryParams);
+    }
+
+    /**
      * Build index of named routes
      */
     protected function buildNameIndex()
