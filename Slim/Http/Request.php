@@ -874,6 +874,37 @@ class Request implements ServerRequestInterface
         return $result ? (int)$result[0] : null;
     }
 
+    /**
+     * Get accept headers if available
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @return Array the accept headers
+     */
+    public function getAcceptHeaders()
+    {
+        $acceptHeaders = [];
+        if (count($this->headers->get('ACCEPT')) > 0) {
+            foreach ($this->headers->get('ACCEPT') as $header) {
+                $acceptHeaders = array_merge($acceptHeaders, explode(', ', $header));
+            }
+        }
+        return $acceptHeaders;
+    }
+
+    /**
+     * Checks is a specified accept header exists in the request
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @param  string  $acceptHeader the header to look for
+     * @return boolean               whether the specified accept header exists in the request
+     */
+    public function hasAcceptHeader($acceptHeader)
+    {
+        return in_array($acceptHeader, $this->getAcceptHeaders());
+    }
+
     /*******************************************************************************
      * Cookies
      ******************************************************************************/
