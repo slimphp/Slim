@@ -784,20 +784,15 @@ class Uri implements UriInterface
         $scheme = $this->getScheme();
         $authority = $this->getAuthority();
         $basePath = $this->getBasePath();
-        $basePath = $this->getBasePath();
         $query = $this->getQuery();
         $fragment = $this->getFragment();
 
         if ($authority && substr($basePath, 0, 1) !== '/') {
             $basePath = $basePath . '/' . $basePath;
         }
-        if (!$authority && substr($basePath, 0, 2) === '//') {
-            $basePath = '/' . ltrim($basePath);
-        }
 
         return ($scheme ? $scheme . ':' : '')
             . ($authority ? '//' . $authority : '')
             . rtrim($basePath, '/');
-
     }
 }
