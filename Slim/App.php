@@ -20,6 +20,7 @@ use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * App
@@ -233,7 +234,7 @@ class App
             $callable = $callable->bindTo($this);
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        $route = $this->router->map($methods, $pattern, $callable);
         if (method_exists($route, 'setContainer')) {
             $route->setContainer($this->container);
         }
@@ -249,19 +250,20 @@ class App
      * declarations in the callback will be prepended by the group(s)
      * that it is in.
      *
-     * Accepts the same parameters as a standard route so:
-     * (pattern, middleware1, middleware2, ..., $callback)
+     * @param string     $pattern
+     * @param callable   $callable
+     * @param callable[] $middleware
      */
-    public function group()
+    public function group($pattern, $callable/*, $middleware = []*/)
     {
-        $args = func_get_args();
-        $pattern = array_shift($args);
-        $callable = array_pop($args);
-        $this->container->get('router')->pushGroup($pattern, $args);
-        if (is_callable($callable)) {
-            call_user_func($callable);
-        }
+        $group = new RouteGroup($pattern, $callable);
+//        foreach ($middleware as $callable) {
+//            $group->add($callable);
+//        }
+        $this->container->get('router')->pushGroup($group);
+        $group($this);
         $this->container->get('router')->popGroup();
+        return $group;
     }
 
     /********************************************************************************
@@ -329,6 +331,11 @@ class App
      */
     public function run()
     {
+        // Build routes here so we can bind group middleware late
+        /** @var Router $router */
+        $router = $this->container->get('router');
+        $router->compile();
+
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
@@ -363,14 +370,18 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this->container->get('router')->dispatch($request);
+        /** @var Router $router */
+        $router = $this->container->get('router');
+        $router->compile();
+
+        $routeInfo = $router->dispatch($request);
         if ($routeInfo[0] === Dispatcher::FOUND) {
             // URL decode the named arguments from the router
             $attributes = $routeInfo[2];
             foreach ($attributes as $k => $v) {
                 $request = $request->withAttribute($k, urldecode($v));
             }
-            return $routeInfo[1]($request, $response);
+            return $routeInfo[1]($request, $response, []);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');

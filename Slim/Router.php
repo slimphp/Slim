@@ -53,9 +53,11 @@ class Router extends RouteCollector implements RouterInterface
     /**
      * Route groups
      *
-     * @var array
+     * @var RouteGroup[]
      */
     protected $routeGroups = [];
+
+    private $compiled = false;
 
     /**
      * Create new router
@@ -88,22 +90,27 @@ class Router extends RouteCollector implements RouterInterface
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
-        // Prepend group pattern
-        $groupMiddleware = [];
+        // Prepend parent group pattern(s)
         if ($this->routeGroups) {
-            list($groupPattern, $groupMiddleware) = $this->processGroups();
-            $pattern = $groupPattern . $pattern;
+            $pattern = $this->processGroups() . $pattern;
         }
 
         // Add route
-        $route = new Route($methods, $pattern, $handler);
-        foreach ($groupMiddleware as $middleware) {
-            $route->add($middleware);
-        }
-        $this->addRoute($methods, $pattern, [$route, 'run']);
+        $route = new Route($methods, $pattern, $handler, $this->routeGroups);
         $this->routes[] = $route;
 
         return $route;
+    }
+
+    public function compile()
+    {
+        if (!$this->compiled) {
+            foreach ($this->getRoutes() as $route) {
+                $route->compile();
+                $this->addRoute($route->getMethods(), $route->getPattern(), [$route, 'run']);
+            }
+            $this->compiled = true;
+        }
     }
 
     /**
@@ -124,46 +131,46 @@ class Router extends RouteCollector implements RouterInterface
         );
     }
 
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
     /**
      * Process route groups
      *
-     * @return array An array with two elements: pattern, middlewareArr
+     * @return string A group pattern to prefix routes with
      */
     protected function processGroups()
     {
         $pattern = "";
-        $middleware = [];
         foreach ($this->routeGroups as $group) {
-            $k = key($group);
-            $pattern .= $k;
-            if (is_array($group[$k])) {
-                $middleware = array_merge($middleware, $group[$k]);
-            }
+            $pattern .= $group->getPattern();
         }
-        return [$pattern, $middleware];
+        return $pattern;
     }
 
     /**
      * Add a route group to the array
      *
-     * @param string     $group      The group pattern prefix
-     * @param array|null $middleware Optional middleware
+     * @param RouteGroup &$group The route group
      *
      * @return int The index of the new group
      */
-    public function pushGroup($group, $middleware = [])
+    public function pushGroup(&$group)
     {
-        return array_push($this->routeGroups, [$group => $middleware]);
+        return array_push($this->routeGroups, $group);
     }
 
     /**
      * Removes the last route group from the array
      *
-     * @return bool True if successful, else False
+     * @return RouteGroup|bool The RouteGroup if successful, else False
      */
     public function popGroup()
     {
-        return (array_pop($this->routeGroups) !== null);
+        $group = array_pop($this->routeGroups);
+        return $group instanceof RouteGroup ? $group : false;
     }
 
     /**

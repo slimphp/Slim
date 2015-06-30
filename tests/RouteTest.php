@@ -93,6 +93,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $route->add($mw);
+        $route->compile();
 
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
@@ -107,6 +108,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $route->add($mw);
+        $route->compile();
 
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
