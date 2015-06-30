@@ -769,4 +769,30 @@ class Uri implements UriInterface
             . ($query ? '?' . $query : '')
             . ($fragment ? '#' . $fragment : '');
     }
+
+    /**
+     * Return the fully qualified base URL.
+     *
+     * Note that this method never includes a trailing /
+     *
+     * This method is not part of PSR-7.
+     *
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        $scheme = $this->getScheme();
+        $authority = $this->getAuthority();
+        $basePath = $this->getBasePath();
+        $query = $this->getQuery();
+        $fragment = $this->getFragment();
+
+        if ($authority && substr($basePath, 0, 1) !== '/') {
+            $basePath = $basePath . '/' . $basePath;
+        }
+
+        return ($scheme ? $scheme . ':' : '')
+            . ($authority ? '//' . $authority : '')
+            . rtrim($basePath, '/');
+    }
 }
