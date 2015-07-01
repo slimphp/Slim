@@ -43,11 +43,12 @@ interface RouterInterface
     /**
      * Add a route group to the array
      *
-     * @param RouteGroup $group The route group
+     * @param string   $pattern The group pattern
+     * @param callable $callable A group callable
      *
-     * @return int The index of the new group
+     * @return RouteGroup
      */
-    public function pushGroup($group);
+    public function pushGroup($pattern, $callable);
 
     /**
      * Removes the last route group from the array

@@ -9,13 +9,14 @@
 namespace Slim;
 
 use Closure;
+use Slim\Interfaces\RouteGroupInterface;
 
 /**
  * A collector for Routable objects with a common middleware stack
  *
  * @package Slim
  */
-class RouteGroup extends Routable
+class RouteGroup extends Routable implements RouteGroupInterface
 {
     protected $routes = [];
 

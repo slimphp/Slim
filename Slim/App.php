@@ -10,6 +10,7 @@ namespace Slim;
 
 use Exception;
 use Closure;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
@@ -19,6 +20,8 @@ use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
+use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 
@@ -30,10 +33,10 @@ use Slim\Interfaces\RouterInterface;
  * The \Slim\App class also accepts Slim Framework middleware.
  *
  * @property-read array $settings App settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment
- * @property-read \Psr\Http\Message\RequestInterface $request
- * @property-read \Psr\Http\Message\ResponseInterface $response
- * @property-read \Slim\Interfaces\RouterInterface $router
+ * @property-read EnvironmentInterface $environment
+ * @property-read RequestInterface $request
+ * @property-read ResponseInterface $response
+ * @property-read RouterInterface $router
  * @property-read callable $errorHandler
  * @property-read callable $notFoundHandler function($request, $response)
  * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
@@ -93,11 +96,11 @@ class App
     /**
      * Add middleware
      *
-     * This method prepends new middleware to the route's middleware stack.
+     * This method prepends new middleware to the app's middleware stack.
      *
      * @param  mixed    $callable The callback routine
      *
-     * @return RouteInterface
+     * @return static
      */
     public function add($callable)
     {
@@ -225,7 +228,7 @@ class App
      * @param  string   $pattern  The route URI pattern
      * @param  mixed    $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -253,12 +256,11 @@ class App
      * @param string   $pattern
      * @param callable $callable
      *
-     * @return RouteGroup
+     * @return RouteGroupInterface
      */
     public function group($pattern, $callable)
     {
-        $group = new RouteGroup($pattern, $callable);
-        $this->container->get('router')->pushGroup($group);
+        $group = $this->container->get('router')->pushGroup($pattern, $callable);
         $group($this);
         $this->container->get('router')->popGroup();
         return $group;
