@@ -48,7 +48,7 @@ trait MiddlewareAwareTrait
      *                           1. A Request object
      *                           2. A Response object
      *                           3. A "next" middleware callable
-     * @return self
+     * @return static
      * @throws RuntimeException if middleware is added while the stack is dequeuing
      * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
      */

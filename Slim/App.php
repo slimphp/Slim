@@ -10,6 +10,7 @@ namespace Slim;
 
 use Exception;
 use Closure;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
@@ -19,7 +20,10 @@ use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
+use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * App
@@ -29,10 +33,10 @@ use Slim\Interfaces\RouteInterface;
  * The \Slim\App class also accepts Slim Framework middleware.
  *
  * @property-read array $settings App settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface $environment
- * @property-read \Psr\Http\Message\RequestInterface $request
- * @property-read \Psr\Http\Message\ResponseInterface $response
- * @property-read \Slim\Interfaces\RouterInterface $router
+ * @property-read EnvironmentInterface $environment
+ * @property-read RequestInterface $request
+ * @property-read ResponseInterface $response
+ * @property-read RouterInterface $router
  * @property-read callable $errorHandler
  * @property-read callable $notFoundHandler function($request, $response)
  * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
@@ -92,11 +96,11 @@ class App
     /**
      * Add middleware
      *
-     * This method prepends new middleware to the route's middleware stack.
+     * This method prepends new middleware to the app's middleware stack.
      *
      * @param  mixed    $callable The callback routine
      *
-     * @return RouteInterface
+     * @return static
      */
     public function add($callable)
     {
@@ -224,7 +228,7 @@ class App
      * @param  string   $pattern  The route URI pattern
      * @param  mixed    $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -249,19 +253,17 @@ class App
      * declarations in the callback will be prepended by the group(s)
      * that it is in.
      *
-     * Accepts the same parameters as a standard route so:
-     * (pattern, middleware1, middleware2, ..., $callback)
+     * @param string   $pattern
+     * @param callable $callable
+     *
+     * @return RouteGroupInterface
      */
-    public function group()
+    public function group($pattern, $callable)
     {
-        $args = func_get_args();
-        $pattern = array_shift($args);
-        $callable = array_pop($args);
-        $this->container->get('router')->pushGroup($pattern, $args);
-        if (is_callable($callable)) {
-            call_user_func($callable);
-        }
+        $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group($this);
         $this->container->get('router')->popGroup();
+        return $group;
     }
 
     /********************************************************************************
@@ -329,6 +331,9 @@ class App
      */
     public function run()
     {
+        // Finalize routes here for middleware stack
+        $this->container->get('router')->finalize();
+
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
@@ -353,8 +358,8 @@ class App
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
-     * after dispatching the Request object to the appropriate Route
-     * callback routine.
+     * after compiling the routes registered in the Router and dispatching
+     * the Request object to the appropriate Route callback routine.
      *
      * @param  ServerRequestInterface $request  The most recent Request object
      * @param  ResponseInterface      $response The most recent Response object
@@ -370,7 +375,7 @@ class App
             foreach ($attributes as $k => $v) {
                 $request = $request->withAttribute($k, urldecode($v));
             }
-            return $routeInfo[1]($request, $response);
+            return $routeInfo[1]($request, $response, []);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');

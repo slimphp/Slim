@@ -157,8 +157,13 @@ class AppTest extends PHPUnit_Framework_TestCase
             $route = $app->get('/bar', function ($req, $res) {
                 // Do something
             });
-            $this->assertAttributeEquals('/foo/bar', 'pattern', $route);
+
         });
+
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
     }
 
     /********************************************************************************

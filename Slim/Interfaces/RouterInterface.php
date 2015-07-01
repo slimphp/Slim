@@ -9,6 +9,7 @@
 namespace Slim\Interfaces;
 
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\RouteGroup;
 
 /**
  * Router Interface
@@ -42,12 +43,12 @@ interface RouterInterface
     /**
      * Add a route group to the array
      *
-     * @param string     $group      The group pattern prefix
-     * @param array|null $middleware Optional middleware
+     * @param string   $pattern The group pattern
+     * @param callable $callable A group callable
      *
-     * @return int The index of the new group
+     * @return RouteGroup
      */
-    public function pushGroup($group, $middleware = []);
+    public function pushGroup($pattern, $callable);
 
     /**
      * Removes the last route group from the array

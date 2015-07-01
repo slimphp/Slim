@@ -13,25 +13,16 @@ use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
 use Slim\Interfaces\RouteInterface;
 
 /**
  * Route
  */
-class Route implements RouteInterface
+class Route extends Routable implements RouteInterface
 {
-    use CallableResolverAwareTrait;
     use MiddlewareAwareTrait {
         add as addMiddleware;
     }
-
-    /**
-     * Container
-     *
-     * @var ContainerInterface
-     */
-    private $container;
 
     /**
      * HTTP methods supported by this route
@@ -41,25 +32,18 @@ class Route implements RouteInterface
     protected $methods = [];
 
     /**
-     * Route pattern
-     *
-     * @var string
-     */
-    protected $pattern;
-
-    /**
-     * Route callable
-     *
-     * @var callable
-     */
-    protected $callable;
-
-    /**
      * Route name
      *
      * @var null|string
      */
     protected $name;
+
+    /**
+     * Parent route groups
+     *
+     * @var RouteGroup[]
+     */
+    protected $groups;
 
     /**
      * Output buffering mode
@@ -73,15 +57,17 @@ class Route implements RouteInterface
     /**
      * Create new route
      *
-     * @param string[] $methods       The route HTTP methods
-     * @param string   $pattern       The route pattern
-     * @param callable $callable      The route callable
+     * @param string[]     $methods  The route HTTP methods
+     * @param string       $pattern  The route pattern
+     * @param callable     $callable The route callable
+     * @param RouteGroup[] $groups   The parent route groups
      */
-    public function __construct($methods, $pattern, $callable)
+    public function __construct($methods, $pattern, $callable, $groups = [])
     {
-        $this->methods = $methods;
-        $this->pattern = $pattern;
+        $this->methods  = $methods;
+        $this->pattern  = $pattern;
         $this->callable = $callable;
+        $this->groups   = $groups;
     }
 
     /**
@@ -100,7 +86,33 @@ class Route implements RouteInterface
             $callable = $callable->bindTo($this->container);
         }
 
-        return $this->addMiddleware($callable);
+        $this->middleware[] = $callable;
+        return $this;
+    }
+
+    /**
+     * Finalize the route in preparation for dispatching
+     */
+    public function finalize()
+    {
+        foreach ($this->getGroups() as $group) {
+            foreach ($group->getMiddleware() as $middleware) {
+                array_unshift($this->middleware, $middleware);
+            }
+        }
+        foreach ($this->getMiddleware() as $middleware) {
+            $this->addMiddleware($middleware);
+        }
+    }
+
+    /**
+     * Get route callable
+     *
+     * @return callable
+     */
+    public function getCallable()
+    {
+        return $this->callable;
     }
 
     /**
@@ -114,13 +126,23 @@ class Route implements RouteInterface
     }
 
     /**
-     * Get route pattern
+     * Get parent route groups
      *
-     * @return string
+     * @return RouteGroup[]
      */
-    public function getPattern()
+    public function getGroups()
     {
-        return $this->pattern;
+        return $this->groups;
+    }
+
+    /**
+     * Get route name
+     *
+     * @return null|string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -149,16 +171,6 @@ class Route implements RouteInterface
     }
 
     /**
-     * Get route callable
-     *
-     * @return callable
-     */
-    public function getCallable()
-    {
-        return $this->callable;
-    }
-
-    /**
      * Set route callable
      *
      * @param callable $callable
@@ -168,16 +180,6 @@ class Route implements RouteInterface
     protected function setCallable(callable $callable)
     {
         $this->callable = $callable;
-    }
-
-    /**
-     * Get route name
-     *
-     * @return null|string
-     */
-    public function getName()
-    {
-        return $this->name;
     }
 
     /**
@@ -194,19 +196,6 @@ class Route implements RouteInterface
             throw new InvalidArgumentException('Route name must be a string');
         }
         $this->name = $name;
-        return $this;
-    }
-
-    /**
-     * Set container for use with resolveCallable
-     *
-     * @param ContainerInterface $container
-     *
-     * @return $this
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
         return $this;
     }
 

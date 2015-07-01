@@ -32,6 +32,7 @@
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
+    /** @var \Slim\Router */
     protected $router;
 
     public function setUp()
@@ -60,7 +61,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
 
-        $this->router->pushGroup('/prefix', []);
+        $this->router->pushGroup('/prefix', function() {});
         $route = $this->router->map($methods, $pattern, $callable);
         $this->router->popGroup();
 
