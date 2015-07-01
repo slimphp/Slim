@@ -165,11 +165,11 @@ class Router extends RouteCollector implements RouterInterface
     /**
      * Add a route group to the array
      *
-     * @param RouteGroup &$group The route group
+     * @param RouteGroup $group The route group
      *
      * @return int The index of the new group
      */
-    public function pushGroup(&$group)
+    public function pushGroup($group)
     {
         return array_push($this->routeGroups, $group);
     }

@@ -234,7 +234,7 @@ class App
             $callable = $callable->bindTo($this);
         }
 
-        $route = $this->router->map($methods, $pattern, $callable);
+        $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (method_exists($route, 'setContainer')) {
             $route->setContainer($this->container);
         }
@@ -250,11 +250,12 @@ class App
      * declarations in the callback will be prepended by the group(s)
      * that it is in.
      *
-     * @param string     $pattern
-     * @param callable   $callable
-     * @param callable[] $middleware
+     * @param string   $pattern
+     * @param callable $callable
+     *
+     * @return RouteGroup
      */
-    public function group($pattern, $callable/*, $middleware = []*/)
+    public function group($pattern, $callable)
     {
         $group = new RouteGroup($pattern, $callable);
         $this->container->get('router')->pushGroup($group);
