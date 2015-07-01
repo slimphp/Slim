@@ -160,8 +160,10 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         });
 
-        $app->router->compile();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $app->router->getRoutes()[0]);
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
     }
 
     /********************************************************************************

@@ -87,10 +87,13 @@ class Route extends Routable implements RouteInterface
         }
 
         $this->middleware[] = $callable;
-        return $this/*->addMiddleware($callable)*/;
+        return $this;
     }
 
-    public function compile()
+    /**
+     * Finalize the route in preparation for dispatching
+     */
+    public function finalize()
     {
         foreach ($this->getGroups() as $group) {
             foreach ($group->getMiddleware() as $middleware) {

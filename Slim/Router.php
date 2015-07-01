@@ -57,7 +57,7 @@ class Router extends RouteCollector implements RouterInterface
      */
     protected $routeGroups = [];
 
-    private $compiled = false;
+    private $finalized = false;
 
     /**
      * Create new router
@@ -102,14 +102,19 @@ class Router extends RouteCollector implements RouterInterface
         return $route;
     }
 
-    public function compile()
+    /**
+     * Finalize registered routes in preparation for dispatching
+     *
+     * NOTE: The routes can only be finalized once.
+     */
+    public function finalize()
     {
-        if (!$this->compiled) {
+        if (!$this->finalized) {
             foreach ($this->getRoutes() as $route) {
-                $route->compile();
+                $route->finalize();
                 $this->addRoute($route->getMethods(), $route->getPattern(), [$route, 'run']);
             }
-            $this->compiled = true;
+            $this->finalized = true;
         }
     }
 
@@ -123,6 +128,8 @@ class Router extends RouteCollector implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
+        $this->finalize();
+
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
 
         return $dispatcher->dispatch(
@@ -131,6 +138,11 @@ class Router extends RouteCollector implements RouterInterface
         );
     }
 
+    /**
+     * Get route objects
+     *
+     * @return Route[]
+     */
     public function getRoutes()
     {
         return $this->routes;

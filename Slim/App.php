@@ -257,9 +257,6 @@ class App
     public function group($pattern, $callable/*, $middleware = []*/)
     {
         $group = new RouteGroup($pattern, $callable);
-//        foreach ($middleware as $callable) {
-//            $group->add($callable);
-//        }
         $this->container->get('router')->pushGroup($group);
         $group($this);
         $this->container->get('router')->popGroup();
@@ -331,10 +328,8 @@ class App
      */
     public function run()
     {
-        // Build routes here so we can bind group middleware late
-        /** @var Router $router */
-        $router = $this->container->get('router');
-        $router->compile();
+        // Finalize routes here for middleware stack
+        $this->container->get('router')->finalize();
 
         $request = $this->container->get('request');
         $response = $this->container->get('response');
@@ -360,8 +355,8 @@ class App
      *
      * This method implements the middleware interface. It receives
      * Request and Response objects, and it returns a Response object
-     * after dispatching the Request object to the appropriate Route
-     * callback routine.
+     * after compiling the routes registered in the Router and dispatching
+     * the Request object to the appropriate Route callback routine.
      *
      * @param  ServerRequestInterface $request  The most recent Request object
      * @param  ResponseInterface      $response The most recent Response object
@@ -370,11 +365,7 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        /** @var Router $router */
-        $router = $this->container->get('router');
-        $router->compile();
-
-        $routeInfo = $router->dispatch($request);
+        $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === Dispatcher::FOUND) {
             // URL decode the named arguments from the router
             $attributes = $routeInfo[2];

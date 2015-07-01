@@ -44,6 +44,11 @@ class RouteGroup extends Routable
         return $this;
     }
 
+    /**
+     * Invoke the group to register any Routable objects within it.
+     *
+     * @param App &$app The App to bind the callable to.
+     */
     function __invoke(&$app)
     {
         $callable = $this->resolveCallable($this->callable);
