@@ -31,6 +31,11 @@ $app->get('/', function ($request, $response, $args) {
     return $response;
 });
 
+$app->get('/hello/world', function ($request, $response, $args) {
+    $response->write("Hello " . $args['extra']);
+    return $response;
+})->setArgument('extra', 'world');
+
 $app->get('/hello/{name}', function ($request, $response, $args) {
     $response->write("Hello, " . $args['name']);
     return $response;
