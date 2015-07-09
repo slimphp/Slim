@@ -8,20 +8,22 @@
  */
 namespace Slim\Interfaces;
 
-
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Defines a contract for invoking a route callable.
+ */
 interface InvocationStrategyInterface
 {
     /**
-     * @param ContainerInterface     $container
-     * @param array                  $route
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface      $response
+     * Invoke a route callable.
      *
-     * @return mixed
+     * @param callable               $callable The callable to invoke using the strategy.
+     * @param ServerRequestInterface $request The request object.
+     * @param ResponseInterface      $response The response object.
+     *
+     * @return ResponseInterface|string The response from the callable.
      */
-    public function invoke(ContainerInterface $container, array $route, ServerRequestInterface $request, ResponseInterface $response);
+    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response);
 }

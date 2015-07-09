@@ -10,9 +10,13 @@ namespace Slim;
 
 use Closure;
 use Exception;
+use FastRoute\Dispatcher;
+use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Slim\Handlers\Strategies\RequestResponse;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
 
 /**
@@ -57,10 +61,10 @@ class Route extends Routable implements RouteInterface
     /**
      * Create new route
      *
-     * @param string[]     $methods  The route HTTP methods
-     * @param string       $pattern  The route pattern
+     * @param string[]     $methods The route HTTP methods
+     * @param string       $pattern The route pattern
      * @param callable     $callable The route callable
-     * @param RouteGroup[] $groups   The parent route groups
+     * @param RouteGroup[] $groups The parent route groups
      */
     public function __construct($methods, $pattern, $callable, $groups = [])
     {
@@ -161,6 +165,8 @@ class Route extends Routable implements RouteInterface
      * One of: false, 'prepend' or 'append'
      *
      * @param boolean|string $mode
+     *
+     * @throws Exception If an unknown buffering mode is specified
      */
     public function setOutputBuffering($mode)
     {
@@ -235,15 +241,16 @@ class Route extends Routable implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $function = $this->callable;
+        /** @var InvocationStrategyInterface $handler */
+        $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $function($request, $response, $request->getAttributes());
+            $newResponse = $handler($this->callable, $request, $response);
         } else {
             try {
                 ob_start();
-                $newResponse = $function($request, $response, $request->getAttributes());
+                $newResponse = $handler($this->callable, $request, $response);
                 $output = ob_get_clean();
             } catch (Exception $e) {
                 ob_end_clean();

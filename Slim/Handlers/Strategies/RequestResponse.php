@@ -1,41 +1,35 @@
 <?php
-/*
- * This file is part of the slim package.
+/**
+ * Slim Framework (http://slimframework.com)
  *
- * Copyright (c) Jason Coward <jason@opengeek.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
+ * @link      https://github.com/codeguy/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
  */
-
 namespace Slim\Handlers\Strategies;
 
-
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 
+/**
+ * Default route callback strategy with route parameters as an array of arguments.
+ */
 class RequestResponse implements InvocationStrategyInterface
 {
 
     /**
-     * @param ContainerInterface     $container
-     * @param array                  $route
+     * Invoke a route callable with request, response, and all route parameters
+     * as an array of arguments.
+     *
+     * @param array|callable         $callable
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
      *
      * @return mixed
      */
-    public function invoke(
-        ContainerInterface $container,
-        array $route,
-        ServerRequestInterface $request,
-        ResponseInterface $response
-    ) {
-        foreach ($route[2] as $k => $v) {
-            $request = $request->withAttribute($k, urldecode($v));
-        }
-        return $route[1]($request, $response, []);
+    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        return $callable($request, $response, $request->getAttribute('routeArguments'));
     }
 }
