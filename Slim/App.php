@@ -371,9 +371,12 @@ class App
     {
         $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === Dispatcher::FOUND) {
-            /** @var InvocationStrategyInterface $handler */
-            $handler = $this->container->get('foundHandler');
-            return $handler->invoke($this->container, $routeInfo, $request, $response);
+            $routeArguments = [];
+            foreach ($routeInfo[2] as $k => $v) {
+                $routeArguments[$k] = urldecode($v);
+            }
+            $request = $request->withAttribute('routeArguments', $routeArguments);
+            return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
