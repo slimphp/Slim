@@ -21,6 +21,7 @@ use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
 use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
@@ -370,12 +371,9 @@ class App
     {
         $routeInfo = $this->container->get('router')->dispatch($request);
         if ($routeInfo[0] === Dispatcher::FOUND) {
-            // URL decode the named arguments from the router
-            $attributes = $routeInfo[2];
-            foreach ($attributes as $k => $v) {
-                $request = $request->withAttribute($k, urldecode($v));
-            }
-            return $routeInfo[1]($request, $response, []);
+            /** @var InvocationStrategyInterface $handler */
+            $handler = $this->container->get('foundHandler');
+            return $handler->invoke($this->container, $routeInfo, $request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
