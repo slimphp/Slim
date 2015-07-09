@@ -17,12 +17,14 @@ use Slim\Exception\NotFoundException;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
+use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
 
 /**
@@ -36,6 +38,7 @@ use Slim\Interfaces\RouterInterface;
  *  - request: an instance of \Psr\Http\Message\ServerRequestInterface
  *  - response: an instance of \Psr\Http\Message\ResponseInterface
  *  - router: an instance of \Slim\Interfaces\RouterInterface
+ *  - foundHandler: an instance of \Slim\Interfaces\InvocationStrategyInterface
  *  - errorHandler: a callable with the signature: function($request, $response, $exception)
  *  - notFoundHandler: a callable with the signature: function($request, $response)
  *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
@@ -142,6 +145,18 @@ final class Container extends PimpleContainer implements ContainerInterface
          */
         $this['router'] = function ($c) {
             return new Router();
+        };
+
+        /**
+         * This service MUST return a SHARED instance
+         * of \Slim\Interfaces\InvocationStrategyInterface.
+         *
+         * @param Container $c
+         *
+         * @return InvocationStrategyInterface
+         */
+        $this['foundHandler'] = function ($c) {
+            return new RequestResponse();
         };
 
         /**
