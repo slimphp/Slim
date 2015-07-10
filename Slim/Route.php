@@ -212,6 +212,33 @@ class Route extends Routable implements RouteInterface
         return $this;
     }
 
+    /**
+     * Set a route argument
+     *
+     * @param string $name
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setRouteArgument($name, $value)
+    {
+        $this->routeArguments[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Replace route arguments
+     *
+     * @param array $arguments
+     *
+     * @return $this
+     */
+    public function setRouteArguments($arguments)
+    {
+        $this->routeArguments = $arguments;
+        return $this;
+    }
+
     /********************************************************************************
      * Route Runner
      *******************************************************************************/
@@ -231,7 +258,9 @@ class Route extends Routable implements RouteInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response, array $routeArguments)
     {
-        $this->routeArguments = $routeArguments;
+        foreach ($routeArguments as $k => $v) {
+            $this->setRouteArgument($k, $v);
+        }
 
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
