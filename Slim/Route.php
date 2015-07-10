@@ -63,7 +63,7 @@ class Route extends Routable implements RouteInterface
      *
      * @var array
      */
-    protected $routeArguments = [];
+    protected $arguments = [];
 
     /**
      * Create new route
@@ -220,9 +220,9 @@ class Route extends Routable implements RouteInterface
      *
      * @return $this
      */
-    public function setRouteArgument($name, $value)
+    public function setArgument($name, $value)
     {
-        $this->routeArguments[$name] = $value;
+        $this->arguments[$name] = $value;
         return $this;
     }
 
@@ -233,9 +233,9 @@ class Route extends Routable implements RouteInterface
      *
      * @return $this
      */
-    public function setRouteArguments($arguments)
+    public function setArguments($arguments)
     {
-        $this->routeArguments = $arguments;
+        $this->arguments = $arguments;
         return $this;
     }
 
@@ -244,9 +244,9 @@ class Route extends Routable implements RouteInterface
      *
      * @return array
      */
-    public function getRouteArguments()
+    public function getArguments()
     {
-        return $this->routeArguments;
+        return $this->arguments;
     }
 
     /********************************************************************************
@@ -262,14 +262,14 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
-     * @param array                  $routeArguments
+     * @param array                  $arguments
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response, array $routeArguments)
+    public function run(ServerRequestInterface $request, ResponseInterface $response, array $arguments)
     {
-        foreach ($routeArguments as $k => $v) {
-            $this->setRouteArgument($k, $v);
+        foreach ($arguments as $k => $v) {
+            $this->setArgument($k, $v);
         }
 
         // add this route to the request's attributes in case route middleware needs access to route arguments
@@ -298,11 +298,11 @@ class Route extends Routable implements RouteInterface
 
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response, $this->routeArguments);
+            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
         } else {
             try {
                 ob_start();
-                $newResponse = $handler($this->callable, $request, $response, $this->routeArguments);
+                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
                 $output = ob_get_clean();
             } catch (Exception $e) {
                 ob_end_clean();
