@@ -239,6 +239,16 @@ class Route extends Routable implements RouteInterface
         return $this;
     }
 
+    /**
+     * Retrieve route arguments
+     *
+     * @return array
+     */
+    public function getRouteArguments()
+    {
+        return $this->routeArguments;
+    }
+
     /********************************************************************************
      * Route Runner
      *******************************************************************************/
@@ -261,6 +271,9 @@ class Route extends Routable implements RouteInterface
         foreach ($routeArguments as $k => $v) {
             $this->setRouteArgument($k, $v);
         }
+
+        // add this route to the request's attributes in case route middleware needs access to route arguments
+        $request = $request->withAttribute('route', $this);
 
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
