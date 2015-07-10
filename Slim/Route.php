@@ -249,6 +249,19 @@ class Route extends Routable implements RouteInterface
         return $this->arguments;
     }
 
+    /**
+     * Retrieve a specific route argument
+     *
+     * @return array
+     */
+    public function getArgument($name, $default = null)
+    {
+        if (array_key_exists($name, $this->arguments)) {
+            return $this->arguments[$name];
+        }
+        return $default;
+    }
+
     /********************************************************************************
      * Route Runner
      *******************************************************************************/

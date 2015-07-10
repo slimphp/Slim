@@ -97,6 +97,8 @@ class RouteTest extends PHPUnit_Framework_TestCase
         
         $route->setArguments(['a' => 'b']);
         $this->assertSame($route->getArguments(), ['a' => 'b']);
+        $this->assertSame($route->getArgument('a', 'default'), 'b');
+        $this->assertSame($route->getArgument('b', 'default'), 'default');
     }
 
 
