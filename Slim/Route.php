@@ -59,6 +59,13 @@ class Route extends Routable implements RouteInterface
     protected $outputBuffering = 'append';
 
     /**
+     * Route parameters
+     *
+     * @var array
+     */
+    protected $routeArguments = [];
+
+    /**
      * Create new route
      *
      * @param string[]     $methods The route HTTP methods
@@ -218,11 +225,14 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param array                  $routeArguments
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response)
+    public function run(ServerRequestInterface $request, ResponseInterface $response, array $routeArguments)
     {
+        $this->routeArguments = $routeArguments;
+
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }
@@ -246,11 +256,11 @@ class Route extends Routable implements RouteInterface
 
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response);
+            $newResponse = $handler($this->callable, $request, $response, $this->routeArguments);
         } else {
             try {
                 ob_start();
-                $newResponse = $handler($this->callable, $request, $response);
+                $newResponse = $handler($this->callable, $request, $response, $this->routeArguments);
                 $output = ob_get_clean();
             } catch (Exception $e) {
                 ob_end_clean();

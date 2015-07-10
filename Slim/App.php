@@ -375,8 +375,7 @@ class App
             foreach ($routeInfo[2] as $k => $v) {
                 $routeArguments[$k] = urldecode($v);
             }
-            $request = $request->withAttribute('routeArguments', $routeArguments);
-            return $routeInfo[1]($request, $response);
+            return $routeInfo[1]($request, $response, $routeArguments);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');

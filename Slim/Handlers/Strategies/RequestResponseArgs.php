@@ -25,15 +25,18 @@ class RequestResponseArgs implements InvocationStrategyInterface
      * @param array|callable         $callable
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param array                  $routeArguments
      *
      * @return mixed
      */
-    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $arguments = [$request, $response];
-        foreach ($request->getAttribute('routeArguments') as $k => $v) {
-            array_push($arguments, $v);
-        }
-        return call_user_func_array($callable, $arguments);
+    public function __invoke(
+        callable $callable,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $routeArguments
+    ) {
+        array_unshift($routeArguments, $request, $response);
+
+        return call_user_func_array($callable, $routeArguments);
     }
 }
