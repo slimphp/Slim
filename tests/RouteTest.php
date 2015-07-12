@@ -85,6 +85,22 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_callable($callable));
     }
 
+    public function testArgumentSetting()
+    {
+        $route = $this->routeFactory();
+        $route->setArguments(['foo' => 'FOO', 'bar' => 'BAR']);
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'BAR']);
+        $route->setArgument('bar', 'bar');
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar']);
+        $route->setArgument('baz', 'BAZ');
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar', 'baz' => 'BAZ']);
+        
+        $route->setArguments(['a' => 'b']);
+        $this->assertSame($route->getArguments(), ['a' => 'b']);
+        $this->assertSame($route->getArgument('a', 'default'), 'b');
+        $this->assertSame($route->getArgument('b', 'default'), 'default');
+    }
+
 
     public function testBottomMiddlewareIsRoute()
     {

@@ -25,11 +25,20 @@ class RequestResponse implements InvocationStrategyInterface
      * @param array|callable         $callable
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param array                  $routeArguments
      *
      * @return mixed
      */
-    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        return $callable($request, $response, $request->getAttribute('routeArguments'));
+    public function __invoke(
+        callable $callable,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $routeArguments
+    ) {
+        foreach ($routeArguments as $k => $v) {
+            $request = $request->withAttribute($k, $v);
+        }
+
+        return $callable($request, $response, $routeArguments);
     }
 }

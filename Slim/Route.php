@@ -59,6 +59,13 @@ class Route extends Routable implements RouteInterface
     protected $outputBuffering = 'append';
 
     /**
+     * Route parameters
+     *
+     * @var array
+     */
+    protected $arguments = [];
+
+    /**
      * Create new route
      *
      * @param string[]     $methods The route HTTP methods
@@ -205,6 +212,56 @@ class Route extends Routable implements RouteInterface
         return $this;
     }
 
+    /**
+     * Set a route argument
+     *
+     * @param string $name
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function setArgument($name, $value)
+    {
+        $this->arguments[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Replace route arguments
+     *
+     * @param array $arguments
+     *
+     * @return $this
+     */
+    public function setArguments($arguments)
+    {
+        $this->arguments = $arguments;
+        return $this;
+    }
+
+    /**
+     * Retrieve route arguments
+     *
+     * @return array
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * Retrieve a specific route argument
+     *
+     * @return array
+     */
+    public function getArgument($name, $default = null)
+    {
+        if (array_key_exists($name, $this->arguments)) {
+            return $this->arguments[$name];
+        }
+        return $default;
+    }
+
     /********************************************************************************
      * Route Runner
      *******************************************************************************/
@@ -218,11 +275,19 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param array                  $arguments
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response)
+    public function run(ServerRequestInterface $request, ResponseInterface $response, array $arguments)
     {
+        foreach ($arguments as $k => $v) {
+            $this->setArgument($k, $v);
+        }
+
+        // add this route to the request's attributes in case route middleware needs access to route arguments
+        $request = $request->withAttribute('route', $this);
+
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }
@@ -246,11 +311,11 @@ class Route extends Routable implements RouteInterface
 
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response);
+            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
         } else {
             try {
                 ob_start();
-                $newResponse = $handler($this->callable, $request, $response);
+                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
                 $output = ob_get_clean();
             } catch (Exception $e) {
                 ob_end_clean();
