@@ -119,7 +119,6 @@ class Slim
 
         $className = ltrim($className, '\\');
         $fileName  = $baseDir;
-        $namespace = '';
         if ($lastNsPos = strripos($className, '\\')) {
             $namespace = substr($className, 0, $lastNsPos);
             $className = substr($className, $lastNsPos + 1);
@@ -350,6 +349,7 @@ class Slim
             $settings[$name] = $value;
             $c['settings'] = $settings;
         }
+        return null;
     }
 
     /********************************************************************************
@@ -1163,6 +1163,7 @@ class Slim
         if (isset($this->environment['slim.flash'])) {
             return $this->environment['slim.flash']->getMessages();
         }
+        return null;
     }
 
     /********************************************************************************
@@ -1299,7 +1300,11 @@ class Slim
         }
 
         //Invoke middleware and application stack
-        $this->middleware[0]->call();
+        $firstMiddleware = $this->middleware[0];
+        /**
+         * @var Middleware $firstMiddleware
+         */
+        $firstMiddleware->call();
 
         //Fetch status, header, and body
         list($status, $headers, $body) = $this->response->finalize();
@@ -1372,6 +1377,11 @@ class Slim
             $this->response()->write(ob_get_clean());
         } catch (\Exception $e) {
             if ($this->config('debug')) {
+                /**
+                 * Not cleaning causes a leak. Since we call ob_start at the beginning.
+                 * Also this causes the tests to fail.
+                 */
+                ob_get_clean();
                 throw $e;
             } else {
                 try {
