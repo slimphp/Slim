@@ -32,9 +32,9 @@ $app->get('/', function ($request, $response, $args) {
 });
 
 $app->get('/hello[/{name}]', function ($request, $response, $args) {
-    $response->write("Hello " . $args['name']);
+    $response->write("Hello, " . $args['name']);
     return $response;
-})->setArgument('name', 'world');
+})->setArgument('name', 'World!');
 
 /**
  * Step 4: Run the Slim application
