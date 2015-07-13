@@ -24,9 +24,9 @@ class Error
     /**
      * Invoke error handler
      *
-     * @param  ServerRequestInterface $request   The most recent Request object
-     * @param  ResponseInterface      $response  The most recent Response object
-     * @param  \Exception             $exception The caught Exception object
+     * @param ServerRequestInterface $request   The most recent Request object
+     * @param ResponseInterface      $response  The most recent Response object
+     * @param Exception              $exception The caught Exception object
      *
      * @return ResponseInterface
      */
@@ -59,6 +59,13 @@ class Error
                 ->write($output);
     }
 
+    /**
+     * Render exception as html.
+     *
+     * @param Exception $exception
+     *
+     * @return string
+     */
     private function renderException(Exception $exception)
     {
         $code = $exception->getCode();

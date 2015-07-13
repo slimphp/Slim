@@ -8,6 +8,8 @@
  */
 namespace Slim\Interfaces;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\RouteGroup;
 
@@ -26,7 +28,7 @@ interface RouterInterface
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function map($methods, $pattern, $handler);
 
@@ -36,6 +38,7 @@ interface RouterInterface
      * @param  ServerRequestInterface $request The current HTTP request object
      *
      * @return array
+     *
      * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
      */
     public function dispatch(ServerRequestInterface $request);
@@ -65,8 +68,9 @@ interface RouterInterface
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
-     * @throws \RuntimeException         If named route does not exist
-     * @throws \InvalidArgumentException If required data not provided
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
      */
     public function pathFor($name, array $data = [], array $queryParams = []);
 }

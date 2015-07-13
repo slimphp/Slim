@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-
 use Interop\Container\ContainerInterface;
 
 /**
@@ -74,7 +73,7 @@ abstract class Routable
      *
      * @param ContainerInterface $container
      *
-     * @return $this
+     * @return self
      */
     public function setContainer(ContainerInterface $container)
     {

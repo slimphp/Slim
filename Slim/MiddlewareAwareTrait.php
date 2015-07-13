@@ -49,7 +49,8 @@ trait MiddlewareAwareTrait
      *                           2. A Response object
      *                           3. A "next" middleware callable
      * @return static
-     * @throws RuntimeException if middleware is added while the stack is dequeuing
+     *
+     * @throws RuntimeException         If middleware is added while the stack is dequeuing
      * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
      */
     public function add(callable $callable)
@@ -78,6 +79,7 @@ trait MiddlewareAwareTrait
      * Seed middleware stack with first callable
      *
      * @param callable $kernel The last item to run as middleware
+     *
      * @throws RuntimeException if the stack is seeded more than once
      */
     protected function seedMiddlewareStack(callable $kernel = null)

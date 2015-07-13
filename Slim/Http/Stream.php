@@ -124,7 +124,7 @@ class Stream implements StreamInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param  resource $newStream A PHP resource handle.
+     * @param resource $newStream A PHP resource handle.
      *
      * @throws InvalidArgumentException If argument is not a valid PHP resource.
      */
@@ -183,8 +183,6 @@ class Stream implements StreamInterface
 
     /**
      * Closes the stream and any underlying resources.
-     *
-     * @return void
      */
     public function close()
     {
@@ -214,6 +212,7 @@ class Stream implements StreamInterface
      * Returns the current position of the file read/write pointer
      *
      * @return int Position of the file pointer
+     *
      * @throws RuntimeException on error.
      */
     public function tell()
@@ -325,7 +324,9 @@ class Stream implements StreamInterface
      * otherwise, it will perform a seek(0).
      *
      * @see seek()
+     *
      * @link http://www.php.net/manual/en/function.fseek.php
+     *
      * @throws RuntimeException on failure.
      */
     public function rewind()
@@ -344,6 +345,7 @@ class Stream implements StreamInterface
      *
      * @return string Returns the data read from the stream, or an empty string
      *     if no bytes are available.
+     *
      * @throws RuntimeException if an error occurs.
      */
     public function read($length)
@@ -361,6 +363,7 @@ class Stream implements StreamInterface
      * @param string $string The string that is to be written.
      *
      * @return int Returns the number of bytes written to the stream.
+     *
      * @throws RuntimeException on failure.
      */
     public function write($string)
@@ -376,6 +379,7 @@ class Stream implements StreamInterface
      * Returns the remaining contents in a string
      *
      * @return string
+     *
      * @throws RuntimeException if unable to read or an error occurs while
      *     reading.
      */

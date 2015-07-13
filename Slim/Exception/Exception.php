@@ -10,11 +10,6 @@ namespace Slim\Exception;
 
 use Exception as BaseException;
 use Psr\Http\Message\ResponseInterface;
-use FastRoute\Dispatcher;
-use Slim\Http\Uri;
-use Slim\Http\Headers;
-use Slim\Http\Body;
-use Slim\Http\Request;
 
 /**
  * Stop Exception

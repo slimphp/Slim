@@ -49,8 +49,6 @@ final class CallableResolver implements CallableResolverInterface
      * Receive a string that is to be resolved to a callable
      *
      * @param  string $toResolve
-     *
-     * @return void
      */
     public function setToResolve($toResolve)
     {
@@ -64,6 +62,7 @@ final class CallableResolver implements CallableResolverInterface
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
      * @return \Closure
+     *
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
      */

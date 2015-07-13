@@ -23,8 +23,8 @@ class NotFound
     /**
      * Invoke not found handler
      *
-     * @param  ServerRequestInterface $request   The most recent Request object
-     * @param  ResponseInterface      $response  The most recent Response object
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
      */

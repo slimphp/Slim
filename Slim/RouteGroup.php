@@ -21,7 +21,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
     /**
      * Create a new RouteGroup
      *
-     * @param string $pattern The pattern prefix for the group
+     * @param string   $pattern  The pattern prefix for the group
      * @param callable $callable The group callable
      */
     public function __construct($pattern, $callable)
