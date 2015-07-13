@@ -131,7 +131,7 @@ class Uri implements UriInterface
     public static function createFromString($uri)
     {
         if (!is_string($uri) && !method_exists($uri, '__toString')) {
-            throw new \InvalidArgumentException('Uri must be a string');
+            throw new InvalidArgumentException('Uri must be a string');
         }
 
         $parts = parse_url($uri);
