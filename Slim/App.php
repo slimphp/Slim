@@ -242,7 +242,10 @@ class App
         if (method_exists($route, 'setContainer')) {
             $route->setContainer($this->container);
         }
-        $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+
+        if (method_exists($route, 'setOutputBuffering')) {
+            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+        }
 
         return $route;
     }
