@@ -31,7 +31,6 @@
  */
 
 use Slim\Route;
-use Slim\Http\Collection;
 use Slim\Container;
 
 class MiddlewareStub
@@ -137,6 +136,38 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
         $this->assertEquals($route, $route->setName('foo'));
         $this->assertEquals('foo', $route->getName());
+    }
+
+    public function testSetInvalidName()
+    {
+        $route = $this->routeFactory();
+
+        $this->setExpectedException('InvalidArgumentException');
+        
+        $route->setName(false);
+    }
+
+    public function testSetOutputBuffering()
+    {
+        $route = $this->routeFactory();
+
+        $route->setOutputBuffering(false);
+        $this->assertFalse($route->getOutputBuffering());
+
+        $route->setOutputBuffering('append');
+        $this->assertSame('append', $route->getOutputBuffering());
+
+        $route->setOutputBuffering('prepend');
+        $this->assertSame('prepend', $route->getOutputBuffering());
+    }
+
+    public function testSetInvalidOutputBuffering()
+    {
+        $route = $this->routeFactory();
+
+        $this->setExpectedException('InvalidArgumentException');
+        
+        $route->setOutputBuffering('invalid');
     }
 
     public function testAddMiddlewareAsString()
