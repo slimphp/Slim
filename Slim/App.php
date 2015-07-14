@@ -287,7 +287,7 @@ class App
             if ($hasBody) {
                 $size = $response->getBody()->getSize();
                 if ($size !== null) {
-                    $response = $response->withHeader('Content-Length', $size);
+                    $response = $response->withHeader('Content-Length', (string) $size);
                 }
             } else {
                 $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
