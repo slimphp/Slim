@@ -62,11 +62,6 @@ final class Container extends PimpleContainer implements ContainerInterface
         'outputBuffering' => 'append',
     ];
 
-
-    /********************************************************************************
-     * Constructor sets up default Pimple services
-     *******************************************************************************/
-
     /**
      * Create new container
      *
@@ -76,6 +71,21 @@ final class Container extends PimpleContainer implements ContainerInterface
     {
         parent::__construct();
 
+        $this->registerDefaultServices($userSettings);
+    }
+
+    /**
+     * This function registers the default services that Slim needs to work.
+     *
+     * All services are shared - that is, they are registered such that the
+     * same instance is returned on subsequent calls.
+     *
+     * @param array $userSettings Associative array of application settings
+     *
+     * @return void
+     */
+    private function registerDefaultServices($userSettings)
+    {
         $defaultSettings = $this->defaultSettings;
 
         /**
@@ -103,37 +113,29 @@ final class Container extends PimpleContainer implements ContainerInterface
         };
 
         /**
-         * This service MUST return a NEW instance
-         * of \Psr\Http\Message\ServerRequestInterface.
+         * PSR-7 Request object
+         *
+         * @param Container $c
+         *
+         * @return ServerRequestInterface
          */
-        $this['request'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return ServerRequestInterface
-             */
-            function ($c) {
-                return Request::createFromEnvironment($c['environment']);
-            }
-        );
+        $this['request'] = function ($c) {
+            return Request::createFromEnvironment($c['environment']);
+        };
 
         /**
-         * This service MUST return a NEW instance
-         * of \Psr\Http\Message\ResponseInterface.
+         * PSR-7 Response object
+         *
+         * @param Container $c
+         *
+         * @return ResponseInterface
          */
-        $this['response'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return ResponseInterface
-             */
-            function ($c) {
-                $headers = new Headers(['Content-Type' => 'text/html']);
-                $response = new Response(200, $headers);
+        $this['response'] = function ($c) {
+            $headers = new Headers(['Content-Type' => 'text/html']);
+            $response = new Response(200, $headers);
 
-                return $response->withProtocolVersion($c['settings']['httpVersion']);
-            }
-        );
+            return $response->withProtocolVersion($c['settings']['httpVersion']);
+        };
 
         /**
          * This service MUST return a SHARED instance
@@ -216,19 +218,15 @@ final class Container extends PimpleContainer implements ContainerInterface
         };
 
         /**
-         * This service MUST return a NEW instance of
-         * \Slim\Interfaces\CallableResolverInterface
+         * Instance of \Slim\Interfaces\CallableResolverInterface
+         *
+         * @param Container $c
+         *
+         * @return CallableResolverInterface
          */
-        $this['callableResolver'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return CallableResolverInterface
-             */
-            function ($c) {
-                return new CallableResolver($c);
-            }
-        );
+        $this['callableResolver'] = function ($c) {
+            return new CallableResolver($c);
+        };
     }
 
     /********************************************************************************
