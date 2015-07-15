@@ -233,7 +233,7 @@ class Route extends Routable implements RouteInterface
      *
      * @return $this
      */
-    public function setArguments($arguments)
+    public function setArguments(array $arguments)
     {
         $this->arguments = $arguments;
         return $this;
@@ -252,7 +252,10 @@ class Route extends Routable implements RouteInterface
     /**
      * Retrieve a specific route argument
      *
-     * @return array
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
      */
     public function getArgument($name, $default = null)
     {

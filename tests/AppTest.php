@@ -232,6 +232,61 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
+    public function testInvokeWithMatchingRouteWithSetArgument()
+    {
+        $app = new App();
+        $app->get('/foo/bar', function ($req, $res, $args) {
+            return $res->write("Hello {$args['attribute']}");
+        })->setArgument('attribute', 'world!');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello world!', (string)$res->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithSetArguments()
+    {
+        $app = new App();
+        $app->get('/foo/bar', function ($req, $res, $args) {
+            return $res->write("Hello {$args['attribute1']} {$args['attribute2']}");
+        })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello there world!', (string)$res->getBody());
+    }
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
@@ -292,6 +347,34 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello test!', (string)$res->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
+    {
+        $app = new App();
+        $app->get('/foo/{name}', function ($req, $res, $args) {
+            return $res->write("Hello {$args['extra']} {$args['name']}");
+        })->setArguments(['extra' => 'there', 'name' => 'world!']);
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/test!',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello there test!', (string)$res->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute()
