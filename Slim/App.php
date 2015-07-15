@@ -340,6 +340,8 @@ class App
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
+        $request = $this->dispatchRouterAndPrepareRoute($request);
+
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
@@ -371,13 +373,15 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this->container->get('router')->dispatch($request);
+        if (null === $request->getAttribute('routeInfo')) {
+            $request = $this->dispatchRouterAndPrepareRoute($request);
+        }
+
+        // Get the route info
+        $routeInfo = $request->getAttribute('routeInfo');
+
         if ($routeInfo[0] === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
-            return $routeInfo[1]($request, $response, $routeArguments);
+            return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
@@ -422,5 +426,25 @@ class App
         }
 
         return $this($request, $response);
+    }
+
+    /**
+     * Dispatch the router to find the route. Prepare the route for use.
+     *
+     * @param ServerRequestInterface $request
+     * @return ServerRequestInterface
+     */
+    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request) {
+        $routeInfo = $this->container->get('router')->dispatch($request);
+
+        if ($routeInfo[0] === Dispatcher::FOUND) {
+            $routeArguments = [];
+            foreach ($routeInfo[2] as $k => $v) {
+                $routeArguments[$k] = urldecode($v);
+            }
+            $request = $routeInfo[1][0]->prepare($request, $routeArguments);
+        }
+
+        return $request->withAttribute('routeInfo', $routeInfo);
     }
 }
