@@ -41,7 +41,7 @@ trait CallableResolverAwareTrait
                 throw new RuntimeException('Cannot resolve callable string');
             }
             /** @var CallableResolver $resolver */
-            $resolver = $container->get('callableResolver');
+            $resolver = clone($container->get('callableResolver')); // we need a new one each time
             $resolver->setToResolve($callable);
             $callable = $resolver;
         }
