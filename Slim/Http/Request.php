@@ -144,6 +144,7 @@ class Request implements ServerRequestInterface
      * Environment object
      *
      * @param  Environment $environment The Slim application Environment
+     *
      * @return self
      */
     public static function createFromEnvironment(Environment $environment)

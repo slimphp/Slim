@@ -10,8 +10,6 @@ namespace Slim;
 
 use Closure;
 use Exception;
-use FastRoute\Dispatcher;
-use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -173,12 +171,12 @@ class Route extends Routable implements RouteInterface
      *
      * @param boolean|string $mode
      *
-     * @throws Exception If an unknown buffering mode is specified
+     * @throws InvalidArgumentException If an unknown buffering mode is specified
      */
     public function setOutputBuffering($mode)
     {
         if (!in_array($mode, [false, 'prepend', 'append'], true)) {
-            throw new Exception('Unknown output buffering mode');
+            throw new InvalidArgumentException('Unknown output buffering mode');
         }
         $this->outputBuffering = $mode;
     }
@@ -187,8 +185,6 @@ class Route extends Routable implements RouteInterface
      * Set route callable
      *
      * @param callable $callable
-     *
-     * @throws \InvalidArgumentException If argument is not callable
      */
     protected function setCallable(callable $callable)
     {
@@ -200,7 +196,8 @@ class Route extends Routable implements RouteInterface
      *
      * @param string $name
      *
-     * @return $this
+     * @return self
+     *
      * @throws InvalidArgumentException if the route name is not a string
      */
     public function setName($name)
@@ -218,7 +215,7 @@ class Route extends Routable implements RouteInterface
      * @param string $name
      * @param string $value
      *
-     * @return $this
+     * @return self
      */
     public function setArgument($name, $value)
     {
@@ -231,7 +228,7 @@ class Route extends Routable implements RouteInterface
      *
      * @param array $arguments
      *
-     * @return $this
+     * @return self
      */
     public function setArguments(array $arguments)
     {

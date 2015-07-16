@@ -18,6 +18,7 @@ use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\RouteInterface;
 
 /**
  * Router
@@ -62,8 +63,8 @@ class Router extends RouteCollector implements RouterInterface
     /**
      * Create new router
      *
-     * @param \FastRoute\RouteParser   $parser
-     * @param \FastRoute\DataGenerator $generator
+     * @param RouteParser   $parser
+     * @param DataGenerator $generator
      */
     public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
     {
@@ -80,12 +81,12 @@ class Router extends RouteCollector implements RouterInterface
      * @param  string   $pattern The route pattern
      * @param  callable $handler The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
+     *
      * @throws InvalidArgumentException if the route pattern isn't a string
      */
     public function map($methods, $pattern, $handler)
     {
-
         if (!is_string($pattern)) {
             throw new InvalidArgumentException('Route pattern must be a string');
         }
@@ -124,6 +125,7 @@ class Router extends RouteCollector implements RouterInterface
      * @param  ServerRequestInterface $request The current HTTP request object
      *
      * @return array
+     *
      * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
      */
     public function dispatch(ServerRequestInterface $request)
@@ -196,8 +198,9 @@ class Router extends RouteCollector implements RouterInterface
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
-     * @throws \RuntimeException         If named route does not exist
-     * @throws \InvalidArgumentException If required data not provided
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
@@ -266,8 +269,9 @@ class Router extends RouteCollector implements RouterInterface
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
-     * @throws \RuntimeException         If named route does not exist
-     * @throws \InvalidArgumentException If required data not provided
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {

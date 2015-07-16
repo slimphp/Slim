@@ -23,9 +23,9 @@ class NotAllowed
     /**
      * Invoke error handler
      *
-     * @param  ServerRequestInterface $request   The most recent Request object
-     * @param  ResponseInterface      $response  The most recent Response object
-     * @param  string[]               $methods   Allowed HTTP methods
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
+     * @param  string[]               $methods  Allowed HTTP methods
      *
      * @return ResponseInterface
      */

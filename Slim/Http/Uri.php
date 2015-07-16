@@ -125,12 +125,13 @@ class Uri implements UriInterface
      *
      * @param  string $uri Complete Uri string
      *     (i.e., https://user:pass@host:443/path?query).
+     *
      * @return self
      */
     public static function createFromString($uri)
     {
         if (!is_string($uri) && !method_exists($uri, '__toString')) {
-            throw new \InvalidArgumentException('Uri must be a string');
+            throw new InvalidArgumentException('Uri must be a string');
         }
 
         $parts = parse_url($uri);
@@ -149,7 +150,8 @@ class Uri implements UriInterface
     /**
      * Create new Uri from environment.
      *
-     * @param  Environment $env
+     * @param Environment $env
+     *
      * @return self
      */
     public static function createFromEnvironment(Environment $env)
@@ -263,8 +265,9 @@ class Uri implements UriInterface
      *
      * @param  string $scheme Raw Uri scheme.
      * @return string
-     * @throws InvalidArgumentException if the Uri scheme is not a string.
-     * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http".
+     *
+     * @throws InvalidArgumentException If the Uri scheme is not a string.
+     * @throws InvalidArgumentException If Uri scheme is not "", "https", or "http".
      */
     protected function filterScheme($scheme)
     {
@@ -275,12 +278,12 @@ class Uri implements UriInterface
         ];
 
         if (!is_string($scheme) && !method_exists($scheme, '__toString')) {
-            throw new \InvalidArgumentException('Uri scheme must be a string');
+            throw new InvalidArgumentException('Uri scheme must be a string');
         }
 
         $scheme = str_replace('://', '', strtolower((string)$scheme));
         if (!isset($valid[$scheme])) {
-            throw new \InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
+            throw new InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
         }
 
         return $scheme;
@@ -457,7 +460,8 @@ class Uri implements UriInterface
      *
      * @param  null|int $port The Uri port number.
      * @return null|int
-     * @throws \InvalidArgumentException If the port is invalid.
+     *
+     * @throws InvalidArgumentException If the port is invalid.
      */
     protected function filterPort($port)
     {
@@ -784,8 +788,6 @@ class Uri implements UriInterface
         $scheme = $this->getScheme();
         $authority = $this->getAuthority();
         $basePath = $this->getBasePath();
-        $query = $this->getQuery();
-        $fragment = $this->getFragment();
 
         if ($authority && substr($basePath, 0, 1) !== '/') {
             $basePath = $basePath . '/' . $basePath;
