@@ -29,15 +29,16 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "pimple/pimple": "3.*",
         "psr/http-message": "1.0",
+        "pimple/pimple": "~3.0",
         "nikic/fast-route": "^0.6",
         "container-interop/container-interop": "~1.1"
     },
     "require-dev": {
         "mockery/mockery": "dev-master@dev",
         "phpunit/phpunit": "*",
-        "satooshi/php-coveralls": "dev-master"
+        "satooshi/php-coveralls": "dev-master",
+        "mouf/picotainer" : "~1.0"
     },
     "autoload": {
         "psr-4": {

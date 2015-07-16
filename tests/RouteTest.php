@@ -176,6 +176,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
 
         $container = new Container();
         $route->setContainer($container);
+        $route->setCallableResolver(new \Slim\CallableResolver($container));
         $route->add('MiddlewareStub:run');
 
         $env = \Slim\Http\Environment::mock();

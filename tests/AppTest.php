@@ -160,7 +160,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         });
 
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getConfiguration()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
     }
@@ -319,9 +319,9 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
         $c = new \Slim\Container();
-        $c['foundHandler'] = function($c) {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
-        };
+
+        $c = new \Slim\Configuration();
+        $c->setFoundHandler(new \Slim\Handlers\Strategies\RequestResponseArgs());
 
         $app = new App($c);
         $app->get('/foo/{name}', function ($req, $res, $name) {
@@ -425,15 +425,20 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $mock = $this->getMock('StdClass', ['bar']);
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
-            $mock->method('bar')
-                ->willReturn(
-                    $res->write('Hello')
-                );
-            return $mock;
-        };
+        $container = new \Mouf\Picotainer\Picotainer([
+            "foo" => function() use ($mock, $res) {
+                $mock->method('bar')
+                    ->willReturn(
+                        $res->write('Hello')
+                    );
+                return $mock;
+            }
+        ]);
+
+        $c = new \Slim\Configuration();
+        $c->setContainer($container);
+
+        $app = new App($c);
 
         $app->get('/foo', 'foo:bar');
 
@@ -462,11 +467,15 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $mock = $this->getMock('StdClass');
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
-            return $mock;
-        };
+        $container = new \Mouf\Picotainer\Picotainer([
+            "foo" => function() use ($mock, $res) {
+                return $mock;
+            }
+        ]);
+        $configuration = new \Slim\Configuration();
+        $configuration->setContainer($container);
+
+        $app = new App($configuration);
 
         $app->get('/foo', 'foo:bar');
 
@@ -494,11 +503,15 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $mock = new MockAction();
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
-            return $mock;
-        };
+        $container = new \Mouf\Picotainer\Picotainer([
+            "foo" => function() use ($mock, $res) {
+                return $mock;
+            }
+        ]);
+        $configuration = new \Slim\Configuration();
+        $configuration->setContainer($container);
+
+        $app = new App($configuration);
 
         $app->get('/foo', 'foo:bar');
 
@@ -569,10 +582,8 @@ class AppTest extends PHPUnit_Framework_TestCase
     
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
-        $c = new \Slim\Container();
-        $c['foundHandler'] = function() {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
-        };
+        $c = new \Slim\Configuration();
+        $c->setFoundHandler(new \Slim\Handlers\Strategies\RequestResponseArgs());
 
         $app = new App($c);
         $app->get('/foo/{name}', function ($req, $res, $name) {

@@ -9,6 +9,8 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
+use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 
 /**
  * A routable, middleware-aware object
@@ -33,6 +35,16 @@ abstract class Routable
      * @var ContainerInterface
      */
     protected $container;
+
+    /**
+     * @var InvocationStrategyInterface
+     */
+    protected $foundHandler;
+
+    /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
 
     /**
      * Route middleware
@@ -79,5 +91,39 @@ abstract class Routable
     {
         $this->container = $container;
         return $this;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
+     * Set the foundHandler for use
+     *
+     * @param InvocationStrategyInterface $foundHandler
+     *
+     * @return self
+     */
+    public function setFoundHandler(InvocationStrategyInterface $foundHandler)
+    {
+        $this->foundHandler = $foundHandler;
+        return $this;
+    }
+
+    /**
+     * @param CallableResolverInterface $callableResolver
+     * @return $this
+     */
+    public function setCallableResolver(CallableResolverInterface $callableResolver) {
+        $this->callableResolver = $callableResolver;
+        return $this;
+    }
+
+    protected function getCallableResolver() {
+        return $this->callableResolver;
     }
 }
