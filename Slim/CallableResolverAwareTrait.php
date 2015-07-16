@@ -35,13 +35,8 @@ trait CallableResolverAwareTrait
     protected function resolveCallable($callable)
     {
         if (!is_callable($callable) && is_string($callable)) {
-            if ($this->container instanceof ContainerInterface) {
-                $container = $this->container;
-            } else {
-                throw new RuntimeException('Cannot resolve callable string');
-            }
             /** @var CallableResolver $resolver */
-            $resolver = clone($container->get('callableResolver')); // we need a new one each time
+            $resolver = clone($this->getCallableResolver()); // we need a new one each time
             $resolver->setToResolve($callable);
             $callable = $resolver;
         }

@@ -35,10 +35,10 @@ final class CallableResolver implements CallableResolverInterface
     protected $resolved;
 
     /**
-     * @param ContainerInterface $container
+     * @param ContainerInterface|null $container
      * @param string             $toResolve
      */
-    public function __construct(ContainerInterface $container, $toResolve = null)
+    public function __construct(ContainerInterface $container = null, $toResolve = null)
     {
         $this->toResolve = $toResolve;
         $this->container = $container;
@@ -79,7 +79,7 @@ final class CallableResolver implements CallableResolverInterface
                 $class = $matches[1];
                 $method = $matches[2];
 
-                if ($this->container->has($class)) {
+                if ($this->container && $this->container->has($class)) {
                     $this->resolved = [$this->container->get($class), $method];
                 } else {
                     if (!class_exists($class)) {

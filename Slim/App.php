@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
 use Slim\Exception\Exception as SlimException;
+use Slim\Exception\NotFoundException;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
@@ -56,11 +57,11 @@ class App
     const VERSION = '3.0.0';
 
     /**
-     * Container
+     * Configuration
      *
-     * @var ContainerInterface
+     * @var ConfigurationInterface
      */
-    private $container;
+    private $configuration;
 
     /********************************************************************************
      * Constructor
@@ -69,18 +70,18 @@ class App
     /**
      * Create new application
      *
-     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
+     * @param ContainerInterface|array $configuration Either a ContainerInterface or an associative array of application settings
      * @throws Exception when no container is provided that implements ContainerInterface
      */
-    public function __construct($container = [])
+    public function __construct($configuration = [])
     {
-        if (is_array($container)) {
-            $container = new Container($container);
+        if (is_array($configuration)) {
+            $configuration = new Configuration($configuration);
         }
-        if (!$container instanceof ContainerInterface) {
-            throw new Exception("Expected a ContainerInterface");
+        if (!$configuration instanceof ConfigurationInterface) {
+            throw new Exception("Expected a ConfigurationInterface");
         }
-        $this->container = $container;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -90,7 +91,17 @@ class App
      */
     public function getContainer()
     {
-        return $this->container;
+        return $this->configuration->getContainer();
+    }
+
+    /**
+     * Enables access to the configuration of the application.
+     *
+     * @return ConfigurationInterface
+     */
+    public function getConfiguration()
+    {
+        return $this->configuration;
     }
 
     /**
@@ -105,8 +116,9 @@ class App
     public function add($callable)
     {
         $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
+        $container = $this->getContainer();
+        if ($callable instanceof Closure && $container !== null) {
+            $callable = $callable->bindTo($container);
         }
 
         return $this->addMiddleware($callable);
@@ -118,12 +130,20 @@ class App
 
     public function __get($name)
     {
-        return $this->container->get($name);
+        if ($this->getContainer() !== null) {
+            return $this->getContainer()->get($name);
+        } else {
+            throw new NotFoundException("Could not find '".$name."'. Note: no container has been configured.");
+        }
     }
 
     public function __isset($name)
     {
-        return $this->container->has($name);
+        if ($this->getContainer() !== null) {
+            return $this->getContainer()->has($name);
+        } else {
+            return false;
+        }
     }
 
     /********************************************************************************
@@ -237,13 +257,21 @@ class App
             $callable = $callable->bindTo($this);
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
+        $route = $this->configuration->getRouter()->map($methods, $pattern, $callable);
+        if (is_callable([$route, 'setContainer']) && $this->getContainer() !== null) {
+            $route->setContainer($this->getContainer());
+        }
+
+        if (is_callable([$route, 'setFoundHandler'])) {
+            $route->setFoundHandler($this->configuration->getFoundHandler());
+        }
+
+        if (is_callable([$route, 'setCallableResolver'])) {
+            $route->setCallableResolver($this->configuration->getCallableResolver());
         }
 
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+            $route->setOutputBuffering($this->configuration->getSettings()['outputBuffering']);
         }
 
         return $route;
@@ -263,9 +291,9 @@ class App
      */
     public function group($pattern, $callable)
     {
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group = $this->configuration->getRouter()->pushGroup($pattern, $callable);
         $group($this);
-        $this->container->get('router')->popGroup();
+        $this->configuration->getRouter()->popGroup();
         return $group;
     }
 
@@ -317,7 +345,7 @@ class App
             if ($hasBody) {
                 $body = $response->getBody();
                 $body->rewind();
-                $settings = $this->container->get('settings');
+                $settings = $this->configuration->getSettings();
                 while (!$body->eof()) {
                     echo $body->read($settings['responseChunkSize']);
                 }
@@ -335,10 +363,10 @@ class App
     public function run()
     {
         // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
+        $this->configuration->getRouter()->finalize();
 
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
+        $request = $this->configuration->getRequest();
+        $response = $this->configuration->getResponse();
 
         // Traverse middleware stack
         try {
@@ -347,7 +375,7 @@ class App
             $response = $e->getResponse();
         } catch (Exception $e) {
             /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
+            $errorHandler = $this->configuration->getErrorHandler();
             $response = $errorHandler($request, $response, $e);
         }
 
@@ -371,7 +399,7 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this->container->get('router')->dispatch($request);
+        $routeInfo = $this->configuration->getRouter()->dispatch($request);
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeArguments = [];
             foreach ($routeInfo[2] as $k => $v) {
@@ -380,11 +408,11 @@ class App
             return $routeInfo[1]($request, $response, $routeArguments);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            $notAllowedHandler = $this->configuration->getNotAllowedHandler();
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
         /** @var callable $notFoundHandler */
-        $notFoundHandler = $this->container->get('notFoundHandler');
+        $notFoundHandler = $this->configuration->getNotFoundHandler();
         return $notFoundHandler($request, $response);
     }
 
@@ -408,7 +436,7 @@ class App
      */
     public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
     {
-        $env = $this->container->get('environment');
+        $env = $this->configuration->getEnvironment();
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -418,9 +446,13 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $response = $this->configuration->getResponse();
         }
 
         return $this($request, $response);
+    }
+
+    protected function getCallableResolver() {
+        return $this->configuration->getCallableResolver();
     }
 }
