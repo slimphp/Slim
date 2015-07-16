@@ -238,11 +238,11 @@ class App
         }
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (method_exists($route, 'setContainer')) {
+        if (is_callable([$route, 'setContainer'])) {
             $route->setContainer($this->container);
         }
 
-        if (method_exists($route, 'setOutputBuffering')) {
+        if (is_callable([$route, 'setOutputBuffering'])) {
             $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
         }
 
