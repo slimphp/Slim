@@ -26,10 +26,11 @@ trait CallableResolverAwareTrait
      * Resolve a string of the format 'class:method' into a closure that the
      * router can dispatch.
      *
-     * @param  string $callable
+     * @param string $callable
      *
      * @return \Closure
-     * @throws RuntimeException if the string cannot be resolved as a callable
+     *
+     * @throws RuntimeException If the string cannot be resolved as a callable
      */
     protected function resolveCallable($callable)
     {
@@ -40,7 +41,7 @@ trait CallableResolverAwareTrait
                 throw new RuntimeException('Cannot resolve callable string');
             }
             /** @var CallableResolver $resolver */
-            $resolver = $container->get('callableResolver');
+            $resolver = clone($container->get('callableResolver')); // we need a new one each time
             $resolver->setToResolve($callable);
             $callable = $resolver;
         }

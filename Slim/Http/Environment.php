@@ -23,6 +23,7 @@ class Environment extends Collection implements EnvironmentInterface
      * Create mock environment
      *
      * @param  array $userData Array of custom environment keys and values
+     *
      * @return self
      */
     public static function mock(array $userData = [])

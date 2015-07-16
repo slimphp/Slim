@@ -8,7 +8,10 @@
  */
 namespace Slim\Interfaces;
 
+use RuntimeException;
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\RouteGroup;
 
 /**
  * Router Interface
@@ -25,7 +28,7 @@ interface RouterInterface
      * @param string   $pattern The route pattern
      * @param callable $handler The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function map($methods, $pattern, $handler);
 
@@ -35,6 +38,7 @@ interface RouterInterface
      * @param  ServerRequestInterface $request The current HTTP request object
      *
      * @return array
+     *
      * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
      */
     public function dispatch(ServerRequestInterface $request);
@@ -42,12 +46,12 @@ interface RouterInterface
     /**
      * Add a route group to the array
      *
-     * @param string     $group      The group pattern prefix
-     * @param array|null $middleware Optional middleware
+     * @param string   $pattern The group pattern
+     * @param callable $callable A group callable
      *
-     * @return int The index of the new group
+     * @return RouteGroup
      */
-    public function pushGroup($group, $middleware = []);
+    public function pushGroup($pattern, $callable);
 
     /**
      * Removes the last route group from the array
@@ -57,15 +61,16 @@ interface RouterInterface
     public function popGroup();
 
     /**
-     * Build URL for named route
+     * Build the path for a named route
      *
      * @param string $name        Route name
-     * @param array  $data        Route URI segments replacement data
+     * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
-     * @throws \RuntimeException         If named route does not exist
-     * @throws \InvalidArgumentException If required data not provided
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, array $data = [], array $queryParams = []);
+    public function pathFor($name, array $data = [], array $queryParams = []);
 }

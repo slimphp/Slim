@@ -48,8 +48,9 @@ trait MiddlewareAwareTrait
      *                           1. A Request object
      *                           2. A Response object
      *                           3. A "next" middleware callable
-     * @return self
-     * @throws RuntimeException if middleware is added while the stack is dequeuing
+     * @return static
+     *
+     * @throws RuntimeException         If middleware is added while the stack is dequeuing
      * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
      */
     public function add(callable $callable)
@@ -63,7 +64,7 @@ trait MiddlewareAwareTrait
         }
         $next = $this->stack->top();
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
-            $result = $callable($req, $res, $next);
+            $result = call_user_func($callable, $req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
             }
@@ -78,6 +79,7 @@ trait MiddlewareAwareTrait
      * Seed middleware stack with first callable
      *
      * @param callable $kernel The last item to run as middleware
+     *
      * @throws RuntimeException if the stack is seeded more than once
      */
     protected function seedMiddlewareStack(callable $kernel = null)

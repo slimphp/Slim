@@ -18,6 +18,7 @@ use FastRoute\DataGenerator;
 use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\RouteInterface;
 
 /**
  * Router
@@ -53,15 +54,17 @@ class Router extends RouteCollector implements RouterInterface
     /**
      * Route groups
      *
-     * @var array
+     * @var RouteGroup[]
      */
     protected $routeGroups = [];
+
+    private $finalized = false;
 
     /**
      * Create new router
      *
-     * @param \FastRoute\RouteParser   $parser
-     * @param \FastRoute\DataGenerator $generator
+     * @param RouteParser   $parser
+     * @param DataGenerator $generator
      */
     public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
     {
@@ -78,32 +81,42 @@ class Router extends RouteCollector implements RouterInterface
      * @param  string   $pattern The route pattern
      * @param  callable $handler The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
+     *
      * @throws InvalidArgumentException if the route pattern isn't a string
      */
     public function map($methods, $pattern, $handler)
     {
-
         if (!is_string($pattern)) {
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
-        // Prepend group pattern
-        $groupMiddleware = [];
+        // Prepend parent group pattern(s)
         if ($this->routeGroups) {
-            list($groupPattern, $groupMiddleware) = $this->processGroups();
-            $pattern = $groupPattern . $pattern;
+            $pattern = $this->processGroups() . $pattern;
         }
 
         // Add route
-        $route = new Route($methods, $pattern, $handler);
-        foreach ($groupMiddleware as $middleware) {
-            $route->add($middleware);
-        }
-        $this->addRoute($methods, $pattern, [$route, 'run']);
+        $route = new Route($methods, $pattern, $handler, $this->routeGroups);
         $this->routes[] = $route;
 
         return $route;
+    }
+
+    /**
+     * Finalize registered routes in preparation for dispatching
+     *
+     * NOTE: The routes can only be finalized once.
+     */
+    public function finalize()
+    {
+        if (!$this->finalized) {
+            foreach ($this->getRoutes() as $route) {
+                $route->finalize();
+                $this->addRoute($route->getMethods(), $route->getPattern(), [$route, 'run']);
+            }
+            $this->finalized = true;
+        }
     }
 
     /**
@@ -112,10 +125,13 @@ class Router extends RouteCollector implements RouterInterface
      * @param  ServerRequestInterface $request The current HTTP request object
      *
      * @return array
+     *
      * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
      */
     public function dispatch(ServerRequestInterface $request)
     {
+        $this->finalize();
+
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
 
         return $dispatcher->dispatch(
@@ -125,59 +141,68 @@ class Router extends RouteCollector implements RouterInterface
     }
 
     /**
+     * Get route objects
+     *
+     * @return Route[]
+     */
+    public function getRoutes()
+    {
+        return $this->routes;
+    }
+
+    /**
      * Process route groups
      *
-     * @return array An array with two elements: pattern, middlewareArr
+     * @return string A group pattern to prefix routes with
      */
     protected function processGroups()
     {
         $pattern = "";
-        $middleware = [];
         foreach ($this->routeGroups as $group) {
-            $k = key($group);
-            $pattern .= $k;
-            if (is_array($group[$k])) {
-                $middleware = array_merge($middleware, $group[$k]);
-            }
+            $pattern .= $group->getPattern();
         }
-        return [$pattern, $middleware];
+        return $pattern;
     }
 
     /**
      * Add a route group to the array
      *
-     * @param string     $group      The group pattern prefix
-     * @param array|null $middleware Optional middleware
+     * @param string   $pattern
+     * @param callable $callable
      *
-     * @return int The index of the new group
+     * @return RouteGroup
      */
-    public function pushGroup($group, $middleware = [])
+    public function pushGroup($pattern, $callable)
     {
-        return array_push($this->routeGroups, [$group => $middleware]);
+        $group = new RouteGroup($pattern, $callable);
+        array_push($this->routeGroups, $group);
+        return $group;
     }
 
     /**
      * Removes the last route group from the array
      *
-     * @return bool True if successful, else False
+     * @return RouteGroup|bool The RouteGroup if successful, else False
      */
     public function popGroup()
     {
-        return (array_pop($this->routeGroups) !== null);
+        $group = array_pop($this->routeGroups);
+        return $group instanceof RouteGroup ? $group : false;
     }
 
     /**
-     * Build URL for named route
+     * Build the path for a named route
      *
-     * @param  string $name        Route name
-     * @param  array  $data        Route URI segments replacement data
-     * @param  array  $queryParams Optional query string parameters
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
      *
      * @return string
-     * @throws \RuntimeException         If named route does not exist
-     * @throws \InvalidArgumentException If required data not provided
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
      */
-    public function urlFor($name, array $data = [], array $queryParams = [])
+    public function pathFor($name, array $data = [], array $queryParams = [])
     {
         if (is_null($this->namedRoutes)) {
             $this->buildNameIndex();
@@ -232,6 +257,26 @@ class Router extends RouteCollector implements RouterInterface
         }
 
         return $url;
+    }
+
+    /**
+     * Build the path for a named route.
+     *
+     * This method is deprecated. Use pathFor() from now on.
+     *
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
+     */
+    public function urlFor($name, array $data = [], array $queryParams = [])
+    {
+        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
+        return $this->pathFor($name, $data, $queryParams);
     }
 
     /**

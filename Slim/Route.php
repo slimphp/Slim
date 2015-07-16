@@ -13,25 +13,18 @@ use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
+use Slim\Handlers\Strategies\RequestResponse;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
 
 /**
  * Route
  */
-class Route implements RouteInterface
+class Route extends Routable implements RouteInterface
 {
-    use CallableResolverAwareTrait;
     use MiddlewareAwareTrait {
         add as addMiddleware;
     }
-
-    /**
-     * Container
-     *
-     * @var ContainerInterface
-     */
-    private $container;
 
     /**
      * HTTP methods supported by this route
@@ -41,20 +34,6 @@ class Route implements RouteInterface
     protected $methods = [];
 
     /**
-     * Route pattern
-     *
-     * @var string
-     */
-    protected $pattern;
-
-    /**
-     * Route callable
-     *
-     * @var callable
-     */
-    protected $callable;
-
-    /**
      * Route name
      *
      * @var null|string
@@ -62,17 +41,42 @@ class Route implements RouteInterface
     protected $name;
 
     /**
+     * Parent route groups
+     *
+     * @var RouteGroup[]
+     */
+    protected $groups;
+
+    /**
+     * Output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @var boolean|string
+     */
+    protected $outputBuffering = 'append';
+
+    /**
+     * Route parameters
+     *
+     * @var array
+     */
+    protected $arguments = [];
+
+    /**
      * Create new route
      *
-     * @param string[] $methods       The route HTTP methods
-     * @param string   $pattern       The route pattern
-     * @param callable $callable      The route callable
+     * @param string[]     $methods The route HTTP methods
+     * @param string       $pattern The route pattern
+     * @param callable     $callable The route callable
+     * @param RouteGroup[] $groups The parent route groups
      */
-    public function __construct($methods, $pattern, $callable)
+    public function __construct($methods, $pattern, $callable, $groups = [])
     {
-        $this->methods = $methods;
-        $this->pattern = $pattern;
+        $this->methods  = $methods;
+        $this->pattern  = $pattern;
         $this->callable = $callable;
+        $this->groups   = $groups;
     }
 
     /**
@@ -91,27 +95,23 @@ class Route implements RouteInterface
             $callable = $callable->bindTo($this->container);
         }
 
-        return $this->addMiddleware($callable);
+        $this->middleware[] = $callable;
+        return $this;
     }
 
     /**
-     * Get route methods
-     *
-     * @return string[]
+     * Finalize the route in preparation for dispatching
      */
-    public function getMethods()
+    public function finalize()
     {
-        return $this->methods;
-    }
-
-    /**
-     * Get route pattern
-     *
-     * @return string
-     */
-    public function getPattern()
-    {
-        return $this->pattern;
+        foreach ($this->getGroups() as $group) {
+            foreach ($group->getMiddleware() as $middleware) {
+                array_unshift($this->middleware, $middleware);
+            }
+        }
+        foreach ($this->getMiddleware() as $middleware) {
+            $this->addMiddleware($middleware);
+        }
     }
 
     /**
@@ -125,15 +125,23 @@ class Route implements RouteInterface
     }
 
     /**
-     * Set route callable
+     * Get route methods
      *
-     * @param callable $callable
-     *
-     * @throws \InvalidArgumentException If argument is not callable
+     * @return string[]
      */
-    protected function setCallable(callable $callable)
+    public function getMethods()
     {
-        $this->callable = $callable;
+        return $this->methods;
+    }
+
+    /**
+     * Get parent route groups
+     *
+     * @return RouteGroup[]
+     */
+    public function getGroups()
+    {
+        return $this->groups;
     }
 
     /**
@@ -147,11 +155,49 @@ class Route implements RouteInterface
     }
 
     /**
+     * Get output buffering mode
+     *
+     * @return boolean|string
+     */
+    public function getOutputBuffering()
+    {
+        return $this->outputBuffering;
+    }
+
+    /**
+     * Set output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @param boolean|string $mode
+     *
+     * @throws InvalidArgumentException If an unknown buffering mode is specified
+     */
+    public function setOutputBuffering($mode)
+    {
+        if (!in_array($mode, [false, 'prepend', 'append'], true)) {
+            throw new InvalidArgumentException('Unknown output buffering mode');
+        }
+        $this->outputBuffering = $mode;
+    }
+
+    /**
+     * Set route callable
+     *
+     * @param callable $callable
+     */
+    protected function setCallable(callable $callable)
+    {
+        $this->callable = $callable;
+    }
+
+    /**
      * Set route name
      *
      * @param string $name
      *
-     * @return $this
+     * @return self
+     *
      * @throws InvalidArgumentException if the route name is not a string
      */
     public function setName($name)
@@ -164,16 +210,56 @@ class Route implements RouteInterface
     }
 
     /**
-     * Set container for use with resolveCallable
+     * Set a route argument
      *
-     * @param ContainerInterface $container
+     * @param string $name
+     * @param string $value
      *
-     * @return $this
+     * @return self
      */
-    public function setContainer(ContainerInterface $container)
+    public function setArgument($name, $value)
     {
-        $this->container = $container;
+        $this->arguments[$name] = $value;
         return $this;
+    }
+
+    /**
+     * Replace route arguments
+     *
+     * @param array $arguments
+     *
+     * @return self
+     */
+    public function setArguments(array $arguments)
+    {
+        $this->arguments = $arguments;
+        return $this;
+    }
+
+    /**
+     * Retrieve route arguments
+     *
+     * @return array
+     */
+    public function getArguments()
+    {
+        return $this->arguments;
+    }
+
+    /**
+     * Retrieve a specific route argument
+     *
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
+     */
+    public function getArgument($name, $default = null)
+    {
+        if (array_key_exists($name, $this->arguments)) {
+            return $this->arguments[$name];
+        }
+        return $default;
     }
 
     /********************************************************************************
@@ -189,11 +275,19 @@ class Route implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
+     * @param array                  $arguments
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response)
+    public function run(ServerRequestInterface $request, ResponseInterface $response, array $arguments)
     {
+        foreach ($arguments as $k => $v) {
+            $this->setArgument($k, $v);
+        }
+
+        // add this route to the request's attributes in case route middleware needs access to route arguments
+        $request = $request->withAttribute('route', $this);
+
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }
@@ -212,30 +306,41 @@ class Route implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        /** @var InvocationStrategyInterface $handler */
+        $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
+
         // invoke route callable
-        try {
-            ob_start();
-            $function = $this->callable;
-            $newResponse = $function($request, $response, $request->getAttributes());
-            $output = ob_get_clean();
-        } catch (Exception $e) {
-            ob_end_clean();
-            throw $e;
+        if ($this->outputBuffering === false) {
+            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+        } else {
+            try {
+                ob_start();
+                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+                $output = ob_get_clean();
+            } catch (Exception $e) {
+                ob_end_clean();
+                throw $e;
+            }
         }
 
-        // if route callback returns a ResponseInterface, then use it
         if ($newResponse instanceof ResponseInterface) {
+            // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
-        }
-
-        // if route callback returns a string, then append it to the response
-        if (is_string($newResponse)) {
+        } elseif (is_string($newResponse)) {
+            // if route callback returns a string, then append it to the response
             $response->getBody()->write($newResponse);
         }
 
-        // append output buffer content if there is any
-        if ($output) {
-            $response->getBody()->write($output);
+        if (isset($output)) {
+            if ($this->outputBuffering === 'prepend') {
+                // prepend output buffer content
+                $body = new Http\Body(fopen('php://temp', 'r+'));
+                $body->write($output . $response->getBody());
+                $response = $response->withBody($body);
+            } elseif ($this->outputBuffering === 'append') {
+                // append output buffer content
+                $response->getBody()->write($output);
+            }
         }
 
         return $response;

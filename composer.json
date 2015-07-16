@@ -43,10 +43,5 @@
         "psr-4": {
             "Slim\\": "Slim"
         }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-develop": "3.0.x-dev"
-        }
     }
 }

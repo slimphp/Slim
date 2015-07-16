@@ -137,9 +137,9 @@ class Response implements ResponseInterface
     /**
      * Create new HTTP response.
      *
-     * @param int                      $status  The response status code.
-     * @param HeadersInterface|null    $headers The response headers.
-     * @param StreamInterface|null     $body    The response body.
+     * @param int                   $status  The response status code.
+     * @param HeadersInterface|null $headers The response headers.
+     * @param StreamInterface|null  $body    The response body.
      */
     public function __construct($status = 200, HeadersInterface $headers = null, StreamInterface $body = null)
     {

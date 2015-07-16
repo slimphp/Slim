@@ -45,7 +45,8 @@ class Headers extends Collection implements HeadersInterface
      * Create new headers collection with data extracted from
      * the application Environment object
      *
-     * @param  Environment $environment The Slim application Environment
+     * @param Environment $environment The Slim application Environment
+     *
      * @return self
      */
     public static function createFromEnvironment(Environment $environment)
@@ -156,6 +157,7 @@ class Headers extends Collection implements HeadersInterface
      * Does this collection have a given header?
      *
      * @param  string $key The case-insensitive header name
+     *
      * @return bool
      */
     public function has($key)
@@ -181,7 +183,8 @@ class Headers extends Collection implements HeadersInterface
      * header names in the other methods in this class.
      *
      * @param  string $key The case-insensitive header name
-     * @return string      Normalized header name
+     *
+     * @return string Normalized header name
      */
     public function normalizeKey($key)
     {

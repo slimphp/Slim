@@ -17,12 +17,14 @@ use Slim\Exception\NotFoundException;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
+use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
 
 /**
@@ -36,6 +38,7 @@ use Slim\Interfaces\RouterInterface;
  *  - request: an instance of \Psr\Http\Message\ServerRequestInterface
  *  - response: an instance of \Psr\Http\Message\ResponseInterface
  *  - router: an instance of \Slim\Interfaces\RouterInterface
+ *  - foundHandler: an instance of \Slim\Interfaces\InvocationStrategyInterface
  *  - errorHandler: a callable with the signature: function($request, $response, $exception)
  *  - notFoundHandler: a callable with the signature: function($request, $response)
  *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
@@ -55,13 +58,9 @@ final class Container extends PimpleContainer implements ContainerInterface
         'cookieSecure' => false,
         'cookieHttpOnly' => false,
         'httpVersion' => '1.1',
-        'responseChunkSize' => 4096
+        'responseChunkSize' => 4096,
+        'outputBuffering' => 'append',
     ];
-
-
-    /********************************************************************************
-     * Constructor sets up default Pimple services
-     *******************************************************************************/
 
     /**
      * Create new container
@@ -72,6 +71,21 @@ final class Container extends PimpleContainer implements ContainerInterface
     {
         parent::__construct();
 
+        $this->registerDefaultServices($userSettings);
+    }
+
+    /**
+     * This function registers the default services that Slim needs to work.
+     *
+     * All services are shared - that is, they are registered such that the
+     * same instance is returned on subsequent calls.
+     *
+     * @param array $userSettings Associative array of application settings
+     *
+     * @return void
+     */
+    private function registerDefaultServices($userSettings)
+    {
         $defaultSettings = $this->defaultSettings;
 
         /**
@@ -99,37 +113,29 @@ final class Container extends PimpleContainer implements ContainerInterface
         };
 
         /**
-         * This service MUST return a NEW instance
-         * of \Psr\Http\Message\ServerRequestInterface.
+         * PSR-7 Request object
+         *
+         * @param Container $c
+         *
+         * @return ServerRequestInterface
          */
-        $this['request'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return ServerRequestInterface
-             */
-            function ($c) {
-                return Request::createFromEnvironment($c['environment']);
-            }
-        );
+        $this['request'] = function ($c) {
+            return Request::createFromEnvironment($c['environment']);
+        };
 
         /**
-         * This service MUST return a NEW instance
-         * of \Psr\Http\Message\ResponseInterface.
+         * PSR-7 Response object
+         *
+         * @param Container $c
+         *
+         * @return ResponseInterface
          */
-        $this['response'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return ResponseInterface
-             */
-            function ($c) {
-                $headers = new Headers(['Content-Type' => 'text/html']);
-                $response = new Response(200, $headers);
+        $this['response'] = function ($c) {
+            $headers = new Headers(['Content-Type' => 'text/html']);
+            $response = new Response(200, $headers);
 
-                return $response->withProtocolVersion($c['settings']['httpVersion']);
-            }
-        );
+            return $response->withProtocolVersion($c['settings']['httpVersion']);
+        };
 
         /**
          * This service MUST return a SHARED instance
@@ -141,6 +147,18 @@ final class Container extends PimpleContainer implements ContainerInterface
          */
         $this['router'] = function ($c) {
             return new Router();
+        };
+
+        /**
+         * This service MUST return a SHARED instance
+         * of \Slim\Interfaces\InvocationStrategyInterface.
+         *
+         * @param Container $c
+         *
+         * @return InvocationStrategyInterface
+         */
+        $this['foundHandler'] = function ($c) {
+            return new RequestResponse();
         };
 
         /**
@@ -200,19 +218,15 @@ final class Container extends PimpleContainer implements ContainerInterface
         };
 
         /**
-         * This service MUST return a NEW instance of
-         * \Slim\Interfaces\CallableResolverInterface
+         * Instance of \Slim\Interfaces\CallableResolverInterface
+         *
+         * @param Container $c
+         *
+         * @return CallableResolverInterface
          */
-        $this['callableResolver'] = $this->factory(
-            /**
-             * @param Container $c
-             *
-             * @return CallableResolverInterface
-             */
-            function ($c) {
-                return new CallableResolver($c);
-            }
-        );
+        $this['callableResolver'] = function ($c) {
+            return new CallableResolver($c);
+        };
     }
 
     /********************************************************************************

@@ -31,7 +31,6 @@
  */
 
 use Slim\Route;
-use Slim\Http\Collection;
 use Slim\Container;
 
 class MiddlewareStub
@@ -85,6 +84,22 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_callable($callable));
     }
 
+    public function testArgumentSetting()
+    {
+        $route = $this->routeFactory();
+        $route->setArguments(['foo' => 'FOO', 'bar' => 'BAR']);
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'BAR']);
+        $route->setArgument('bar', 'bar');
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar']);
+        $route->setArgument('baz', 'BAZ');
+        $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar', 'baz' => 'BAZ']);
+        
+        $route->setArguments(['a' => 'b']);
+        $this->assertSame($route->getArguments(), ['a' => 'b']);
+        $this->assertSame($route->getArgument('a', 'default'), 'b');
+        $this->assertSame($route->getArgument('b', 'default'), 'default');
+    }
+
 
     public function testBottomMiddlewareIsRoute()
     {
@@ -93,6 +108,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $route->add($mw);
+        $route->finalize();
 
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
@@ -107,6 +123,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
             return $res;
         };
         $route->add($mw);
+        $route->finalize();
 
         $prop = new \ReflectionProperty($route, 'stack');
         $prop->setAccessible(true);
@@ -119,6 +136,38 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
         $this->assertEquals($route, $route->setName('foo'));
         $this->assertEquals('foo', $route->getName());
+    }
+
+    public function testSetInvalidName()
+    {
+        $route = $this->routeFactory();
+
+        $this->setExpectedException('InvalidArgumentException');
+        
+        $route->setName(false);
+    }
+
+    public function testSetOutputBuffering()
+    {
+        $route = $this->routeFactory();
+
+        $route->setOutputBuffering(false);
+        $this->assertFalse($route->getOutputBuffering());
+
+        $route->setOutputBuffering('append');
+        $this->assertSame('append', $route->getOutputBuffering());
+
+        $route->setOutputBuffering('prepend');
+        $this->assertSame('prepend', $route->getOutputBuffering());
+    }
+
+    public function testSetInvalidOutputBuffering()
+    {
+        $route = $this->routeFactory();
+
+        $this->setExpectedException('InvalidArgumentException');
+        
+        $route->setOutputBuffering('invalid');
     }
 
     public function testAddMiddlewareAsString()
@@ -157,6 +206,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $callable = function ($req, $res, $args) {
             return $res->write('foo');
         };
+        $c = new Container();
         $route = new Route(['GET'], '/', $callable);
 
         $env = \Slim\Http\Environment::mock();
@@ -223,5 +273,63 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $response = $route->__invoke($request, $response);
 
         $this->assertEquals('foo', (string)$response->getBody());
+    }
+
+    /**
+     * Ensure that if `outputBuffering` property is set to `prepend` correct response
+     * body is returned by __invoke().
+     */
+    public function testInvokeWhenPrependingOutputBuffer()
+    {
+        $callable = function ($req, $res, $args) {
+            echo 'foo';
+            return $res->write('bar');
+        };
+        $route = new Route(['GET'], '/', $callable);
+        $route->setOutputBuffering('prepend');
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('foobar', (string)$response->getBody());
+    }
+
+    /**
+     * Ensure that if `outputBuffering` property is set to `false` correct response
+     * body is returned by __invoke().
+     */
+    public function testInvokeWhenDisablingOutputBuffer()
+    {
+        ob_start();
+        $callable = function ($req, $res, $args) {
+            echo 'foo';
+            return $res->write('bar');
+        };
+        $route = new Route(['GET'], '/', $callable);
+        $route->setOutputBuffering(false);
+
+        $env = \Slim\Http\Environment::mock();
+        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
+        $headers = new \Slim\Http\Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
+        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new \Slim\Http\Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $this->assertEquals('bar', (string)$response->getBody());
+
+        $output = ob_get_clean();
+        $this->assertEquals('foo', $output);
     }
 }

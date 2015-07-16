@@ -43,7 +43,7 @@ $ php -S localhost:8000
 
 Going to http://localhost:8000/hello/world will now display "Hello, world".
 
-For more information on how to configure your web server, see the [Documentation](http://docs.slimframework.com).
+For more information on how to configure your web server, see the [Documentation](http://www.slimframework.com/docs/start/web-servers.html).
 
 ## Tests
 
@@ -62,7 +62,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 Learn more at these links:
 
 - [Website](http://www.slimframework.com)
-- [Documentation](http://docs-new.slimframework.com)
+- [Documentation](http://www.slimframework.com/docs/start/installation.html)
 - [Support Forum](http://help.slimframework.com)
 - [Twitter](https://twitter.com/slimphp)
 

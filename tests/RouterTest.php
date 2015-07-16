@@ -32,6 +32,7 @@
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
+    /** @var \Slim\Router */
     protected $router;
 
     public function setUp()
@@ -60,14 +61,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
 
-        $this->router->pushGroup('/prefix', []);
+        $this->router->pushGroup('/prefix', function() {});
         $route = $this->router->map($methods, $pattern, $callable);
         $this->router->popGroup();
 
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
     }
 
-    public function testUrlFor()
+    public function testPathFor()
     {
         $methods = ['GET'];
         $pattern = '/hello/{first:\w+}/{last}';
@@ -79,11 +80,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             '/hello/josh/lockhart',
-            $this->router->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+            $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
 
-    public function testUrlForWithOptionalParameters()
+    public function testPathForWithOptionalParameters()
     {
         $methods = ['GET'];
         $pattern = '/archive/{year}[/{month:[\d:{2}]}[/d/{day}]]';
@@ -95,19 +96,19 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             '/archive/2015',
-            $this->router->urlFor('foo', ['year' => '2015'])
+            $this->router->pathFor('foo', ['year' => '2015'])
         );
         $this->assertEquals(
             '/archive/2015/07',
-            $this->router->urlFor('foo', ['year' => '2015', 'month' => '07'])
+            $this->router->pathFor('foo', ['year' => '2015', 'month' => '07'])
         );
         $this->assertEquals(
             '/archive/2015/07/d/19',
-            $this->router->urlFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
+            $this->router->pathFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
         );
     }
 
-    public function testUrlForWithQueryParameters()
+    public function testPathForWithQueryParameters()
     {
         $methods = ['GET'];
         $pattern = '/hello/{name}';
@@ -119,14 +120,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             '/hello/josh?a=b&c=d',
-            $this->router->urlFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
+            $this->router->pathFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
         );
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testUrlForWithMissingSegmentData()
+    public function testPathForWithMissingSegmentData()
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
@@ -136,13 +137,13 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->router->urlFor('foo', ['last' => 'lockhart']);
+        $this->router->pathFor('foo', ['last' => 'lockhart']);
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testUrlForRouteNotExists()
+    public function testPathForRouteNotExists()
     {
         $methods = ['GET'];
         $pattern = '/hello/{first}/{last}';
@@ -152,6 +153,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->router->urlFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
+        $this->router->pathFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
     }
 }

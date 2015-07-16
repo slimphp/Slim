@@ -446,4 +446,48 @@ class UriTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('example3.com', $uri->getHost());
     }
+
+    public function testGetBaseUrl()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => 'example.com:80',
+            'SERVER_PORT' => 80
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('http://example.com/foo', $uri->getBaseUrl());
+    }
+
+    public function testGetBaseUrlWithNoBasePath()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => 'example.com:80',
+            'SERVER_PORT' => 80
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('http://example.com', $uri->getBaseUrl());
+    }
+
+    public function testGetBaseUrlWithAuthority()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'PHP_AUTH_USER' => 'josh',
+            'PHP_AUTH_PW' => 'sekrit',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => 'example.com:8080',
+            'SERVER_PORT' => 8080
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('http://josh:sekrit@example.com:8080/foo', $uri->getBaseUrl());
+    }
 }

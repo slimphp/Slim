@@ -70,7 +70,7 @@ class Cookies implements CookiesInterface
      * @param  string $name    Cookie name
      * @param  mixed  $default Cookie default value
      *
-     * @return mixed  Cookie value if present, else default
+     * @return mixed Cookie value if present, else default
      */
     public function get($name, $default = null)
     {
@@ -153,7 +153,9 @@ class Cookies implements CookiesInterface
      * into a PHP associative array.
      *
      * @param  string $header The raw HTTP request `Cookie:` header
-     * @return array          Associative array of cookie names and values
+     *
+     * @return array Associative array of cookie names and values
+     *
      * @throws InvalidArgumentException if the cookie data cannot be parsed
      */
     public static function parseHeader($header)
