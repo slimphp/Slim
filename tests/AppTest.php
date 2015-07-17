@@ -31,6 +31,23 @@ class MockAction
 
 class AppTest extends PHPUnit_Framework_TestCase
 {
+    public function testContainerInterfaceException()
+    {
+        $this->setExpectedException('Exception');
+        try {
+            $container = '';
+            $app = new App($container);
+        } catch (Exception $e) {
+            $this->assertEquals('Expected a ContainerInterface', $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function testIssetInContainer()
+    {
+        $app = new App();
+        $this->assertTrue(isset($app->router));
+    }
     /********************************************************************************
      * Router proxy methods
      *******************************************************************************/
