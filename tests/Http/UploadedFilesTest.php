@@ -91,7 +91,23 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         return $uploadedFile;
     }
 
+    /**
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
+     * @return UploadedFile
+     */
+    public function testMoveTo(UploadedFile $uploadedFile)
+    {
+        $tempName = uniqid('file-');
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
+        $uploadedFile->moveTo($path);
 
+        $this->assertFileExists($path);
+
+        unlink($path);
+
+        return $uploadedFile;
+    }
 
     public function providerCreateFromEnvironment()
     {
