@@ -39,19 +39,19 @@ You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `m
 ### Hello World Tutorial
 
 Instantiate a Slim application:
-
-    $app = new \Slim\Slim();
-
+```php
+$app = new \Slim\Slim();
+```
 Define a HTTP GET route:
-
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name";
-    });
-
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name";
+});
+```
 Run the Slim application:
-
-    $app->run();
-
+```php
+$app->run();
+```
 ### Setup your web server
 
 #### Apache
@@ -113,25 +113,25 @@ This assumes that Slim's `index.php` is in the root folder of your project (www 
 #### IIS
 
 Ensure the `Web.config` and `index.php` files are in the same public-accessible directory. The `Web.config` file should contain this code:
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <configuration>
-        <system.webServer>
-            <rewrite>
-                <rules>
-                    <rule name="slim" patternSyntax="Wildcard">
-                        <match url="*" />
-                        <conditions>
-                            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-                            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-                        </conditions>
-                        <action type="Rewrite" url="index.php" />
-                    </rule>
-                </rules>
-            </rewrite>
-        </system.webServer>
-    </configuration>
-
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <rule name="slim" patternSyntax="Wildcard">
+                    <match url="*" />
+                    <conditions>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="index.php" />
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+```
 #### Google App Engine
 
 Two steps are required to successfully run your Slim application on Google App Engine. First, ensure the `app.yaml` file includes a default handler to `index.php`:
@@ -147,15 +147,15 @@ Two steps are required to successfully run your Slim application on Google App E
       script: public_html/index.php
 
 Next, edit your `index.php` file so Slim knows about the incoming URI:
+```php
+$app = new Slim();
 
-    $app = new Slim();
-    
-    // Google App Engine doesn't set $_SERVER['PATH_INFO']
-    $app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
-    
-    // ...
-    $app->run();
+// Google App Engine doesn't set $_SERVER['PATH_INFO']
+$app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
 
+// ...
+$app->run();
+```
    
 ## Documentation
 
