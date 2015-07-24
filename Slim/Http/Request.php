@@ -819,7 +819,7 @@ class Request implements ServerRequestInterface
             return strtolower($contentTypeParts[0]);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -859,7 +859,7 @@ class Request implements ServerRequestInterface
             return $mediaTypeParams['charset'];
         }
 
-        return;
+        return null;
     }
 
     /**
