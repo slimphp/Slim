@@ -373,12 +373,14 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        if (null === $request->getAttribute('routeInfo')) {
-            $request = $this->dispatchRouterAndPrepareRoute($request);
-        }
-
         // Get the route info
         $routeInfo = $request->getAttribute('routeInfo');
+
+        // If router hasn't been dispatched or the URI changed then dispatch
+        if (null === $routeInfo || ($routeInfo['uri'] !== (string)$request->getUri())) {
+            $request = $this->dispatchRouterAndPrepareRoute($request);
+            $routeInfo = $request->getAttribute('routeInfo');
+        }
 
         if ($routeInfo[0] === Dispatcher::FOUND) {
             return $routeInfo[1]($request, $response);
@@ -444,6 +446,8 @@ class App
             }
             $request = $routeInfo[1][0]->prepare($request, $routeArguments);
         }
+
+        $routeInfo['uri'] = (string) $request->getUri();
 
         return $request->withAttribute('routeInfo', $routeInfo);
     }
