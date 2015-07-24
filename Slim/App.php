@@ -377,7 +377,7 @@ class App
         $routeInfo = $request->getAttribute('routeInfo');
 
         // If router hasn't been dispatched or the URI changed then dispatch
-        if (null === $routeInfo || ($routeInfo['uri'] !== (string)$request->getUri())) {
+        if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
             $request = $this->dispatchRouterAndPrepareRoute($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }
@@ -447,7 +447,7 @@ class App
             $request = $routeInfo[1][0]->prepare($request, $routeArguments);
         }
 
-        $routeInfo['uri'] = (string) $request->getUri();
+        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
 
         return $request->withAttribute('routeInfo', $routeInfo);
     }
