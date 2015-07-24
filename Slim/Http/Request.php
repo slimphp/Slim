@@ -624,7 +624,7 @@ class Request implements ServerRequestInterface
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ((!$this->hasHeader('Host') || $this->getHeader('Host') === null) && $this->uri->getHost() !== '') {
+            if ($this->uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeader('Host') === null)) {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }
