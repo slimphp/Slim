@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -1274,7 +1275,9 @@ class Request implements ServerRequestInterface
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
-        $callable = $callable->bindTo($this);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this);
+        }
         $this->bodyParsers[(string)$mediaType] = $callable;
     }
 
