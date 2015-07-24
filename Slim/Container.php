@@ -60,6 +60,7 @@ final class Container extends PimpleContainer implements ContainerInterface
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
         'outputBuffering' => 'append',
+        'dispatchBeforeAppMiddleware' => false,
     ];
 
     /**

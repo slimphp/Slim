@@ -340,7 +340,11 @@ class App
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
-        $request = $this->dispatchRouterAndPrepareRoute($request);
+        // Dispatch the Router first if the setting for this is on
+        if ($this->container->get('settings')['dispatchBeforeAppMiddleware'] === true) {
+            // Dispatch router (note: you won't be able to alter routes after this)
+            $request = $this->dispatchRouterAndPrepareRoute($request);
+        }
 
         // Traverse middleware stack
         try {
