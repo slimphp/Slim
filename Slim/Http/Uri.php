@@ -105,6 +105,7 @@ class Uri implements UriInterface
      * @param int    $port     Uri port number.
      * @param string $path     Uri path.
      * @param string $query    Uri query string.
+     * @param string $fragment Uri fragment.
      * @param string $user     Uri user.
      * @param string $password Uri password.
      */
