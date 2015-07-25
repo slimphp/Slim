@@ -182,16 +182,6 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
-     * Set route callable
-     *
-     * @param callable $callable
-     */
-    protected function setCallable(callable $callable)
-    {
-        $this->callable = $callable;
-    }
-
-    /**
      * Set route name
      *
      * @param string $name
