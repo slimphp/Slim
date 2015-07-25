@@ -52,11 +52,13 @@ class Error
             $html
         );
 
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
+
         return $response
                 ->withStatus(500)
                 ->withHeader('Content-type', 'text/html')
-                ->withBody(new Body(fopen('php://temp', 'r+')))
-                ->write($output);
+                ->withBody($body);
     }
 
     /**

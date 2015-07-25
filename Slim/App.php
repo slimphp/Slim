@@ -10,6 +10,7 @@ namespace Slim;
 
 use Exception;
 use Closure;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -70,7 +71,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
-     * @throws Exception when no container is provided that implements ContainerInterface
+     * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
     {
@@ -78,7 +79,7 @@ class App
             $container = new Container($container);
         }
         if (!$container instanceof ContainerInterface) {
-            throw new Exception("Expected a ContainerInterface");
+            throw new InvalidArgumentException('Expected a ContainerInterface');
         }
         $this->container = $container;
     }
