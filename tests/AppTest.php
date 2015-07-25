@@ -31,6 +31,23 @@ class MockAction
 
 class AppTest extends PHPUnit_Framework_TestCase
 {
+    public function testContainerInterfaceException()
+    {
+        $this->setExpectedException('Exception');
+        try {
+            $container = '';
+            $app = new App($container);
+        } catch (Exception $e) {
+            $this->assertEquals('Expected a ContainerInterface', $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function testIssetInContainer()
+    {
+        $app = new App();
+        $this->assertTrue(isset($app->router));
+    }
     /********************************************************************************
      * Router proxy methods
      *******************************************************************************/
@@ -201,6 +218,38 @@ class AppTest extends PHPUnit_Framework_TestCase
     /********************************************************************************
      * Runner
      *******************************************************************************/
+
+    public function testInvokeReturnMethodNotAllowed()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(405, (string)$resOut->getStatusCode());
+        $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
+        $this->assertEquals('<p>Method not allowed. Must be one of: GET</p>', (string)$resOut->getBody());
+    }
 
     public function testInvokeWithMatchingRoute()
     {
