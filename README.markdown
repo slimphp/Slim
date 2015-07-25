@@ -39,123 +39,123 @@ You need **PHP >= 5.3.0**. If you use encrypted cookies, you'll also need the `m
 ### Hello World Tutorial
 
 Instantiate a Slim application:
-
-    $app = new \Slim\Slim();
-
+```php
+$app = new \Slim\Slim();
+```
 Define a HTTP GET route:
-
-    $app->get('/hello/:name', function ($name) {
-        echo "Hello, $name";
-    });
-
+```php
+$app->get('/hello/:name', function ($name) {
+    echo "Hello, $name";
+});
+```
 Run the Slim application:
-
-    $app->run();
-
+```php
+$app->run();
+```
 ### Setup your web server
 
 #### Apache
 
 Ensure the `.htaccess` and `index.php` files are in the same public-accessible directory. The `.htaccess` file
 should contain this code:
-
-    RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [QSA,L]
-
+```
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [QSA,L]
+```
 Additionally, make sure your virtual host is configured with the AllowOverride option so that the .htaccess rewrite rules can be used:
-
-   AllowOverride All
-
+```
+AllowOverride All
+```
 #### Nginx
 
 The nginx configuration file should contain this code (along with other settings you may need) in your `location` block:
-
-    try_files $uri $uri/ /index.php?$args;
-
+```
+try_files $uri $uri/ /index.php?$args;
+```
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
 #### HipHop Virtual Machine for PHP
 
 Your HipHop Virtual Machine configuration file should contain this code (along with other settings you may need).
 Be sure you change the `ServerRoot` setting to point to your Slim app's document root directory.
+```
+Server {
+    SourceRoot = /path/to/public/directory
+}
 
-    Server {
-        SourceRoot = /path/to/public/directory
-    }
+ServerVariables {
+    SCRIPT_NAME = /index.php
+}
 
-    ServerVariables {
-        SCRIPT_NAME = /index.php
-    }
-
-    VirtualHost {
-        * {
-            Pattern = .*
-            RewriteRules {
-                    * {
-                            pattern = ^(.*)$
-                            to = index.php/$1
-                            qsa = true
-                    }
-            }
+VirtualHost {
+    * {
+        Pattern = .*
+        RewriteRules {
+                * {
+                        pattern = ^(.*)$
+                        to = index.php/$1
+                        qsa = true
+                }
         }
     }
-
+}
+```
 #### lighttpd ####
 
 Your lighttpd configuration file should contain this code (along with other settings you may need). This code requires
 lighttpd >= 1.4.24.
-
-    url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
-
+```
+url.rewrite-if-not-file = ("(.*)" => "/index.php/$0")
+```
 This assumes that Slim's `index.php` is in the root folder of your project (www root).
 
 #### IIS
 
 Ensure the `Web.config` and `index.php` files are in the same public-accessible directory. The `Web.config` file should contain this code:
-
-    <?xml version="1.0" encoding="UTF-8"?>
-    <configuration>
-        <system.webServer>
-            <rewrite>
-                <rules>
-                    <rule name="slim" patternSyntax="Wildcard">
-                        <match url="*" />
-                        <conditions>
-                            <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
-                            <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
-                        </conditions>
-                        <action type="Rewrite" url="index.php" />
-                    </rule>
-                </rules>
-            </rewrite>
-        </system.webServer>
-    </configuration>
-
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <system.webServer>
+        <rewrite>
+            <rules>
+                <rule name="slim" patternSyntax="Wildcard">
+                    <match url="*" />
+                    <conditions>
+                        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                    </conditions>
+                    <action type="Rewrite" url="index.php" />
+                </rule>
+            </rules>
+        </rewrite>
+    </system.webServer>
+</configuration>
+```
 #### Google App Engine
 
 Two steps are required to successfully run your Slim application on Google App Engine. First, ensure the `app.yaml` file includes a default handler to `index.php`:
+```
+application: your-app-name
+version: 1
+runtime: php
+api_version: 1
 
-    application: your-app-name
-    version: 1
-    runtime: php
-    api_version: 1
-    
-    handlers:
-    # ...
-    - url: /.*
-      script: public_html/index.php
-
+handlers:
+# ...
+- url: /.*
+  script: public_html/index.php
+```
 Next, edit your `index.php` file so Slim knows about the incoming URI:
+```php
+$app = new Slim();
 
-    $app = new Slim();
-    
-    // Google App Engine doesn't set $_SERVER['PATH_INFO']
-    $app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
-    
-    // ...
-    $app->run();
+// Google App Engine doesn't set $_SERVER['PATH_INFO']
+$app->environment['PATH_INFO'] = $_SERVER['REQUEST_URI'];
 
+// ...
+$app->run();
+```
    
 ## Documentation
 
