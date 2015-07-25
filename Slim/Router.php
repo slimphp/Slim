@@ -49,7 +49,7 @@ class Router
     protected $currentRoute;
 
     /**
-     * @var array Lookup hash of all route objects
+     * @var Route[] Lookup hash of all route objects
      */
     protected $routes;
 
@@ -99,7 +99,7 @@ class Router
      * @param  string               $httpMethod   The HTTP method to match against
      * @param  string               $resourceUri  The resource URI to match against
      * @param  bool                 $reload       Should matching routes be re-parsed?
-     * @return array[\Slim\Route]
+     * @return \Slim\Route[]
      */
     public function getMatchedRoutes($httpMethod, $resourceUri, $reload = false)
     {
