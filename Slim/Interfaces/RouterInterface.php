@@ -61,6 +61,17 @@ interface RouterInterface
     public function popGroup();
 
     /**
+     * Get named route object
+     *
+     * @param string $name        Route name
+     *
+     * @return Route
+     *
+     * @throws RuntimeException   If named route does not exist
+     */
+    public function getNamedRoute($name);
+
+    /**
      * Build the path for a named route
      *
      * @param string $name        Route name
