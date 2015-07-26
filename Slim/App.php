@@ -341,7 +341,7 @@ class App
         $response = $this->container->get('response');
 
         // Dispatch the Router first if the setting for this is on
-        if ($this->container->get('settings')['dispatchBeforeAppMiddleware'] === true) {
+        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
             // Dispatch router (note: you won't be able to alter routes after this)
             $request = $this->dispatchRouterAndPrepareRoute($request);
         }
