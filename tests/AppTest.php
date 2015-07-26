@@ -129,7 +129,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
-    
+
     public function testAnyRoute()
     {
         $path = '/foo';
@@ -138,7 +138,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         };
         $app = new App();
         $route = $app->any($path, $callable);
-        
+
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
@@ -615,7 +615,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $resOut = $app($req, $res);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
-    
+
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
         $c = new \Slim\Container();
@@ -663,7 +663,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('foo', (string)$subReq->getBody());
         $this->assertEquals(200, $newResponse->getStatusCode());
     }
-    
+
     public function testInvokeSubRequestWithQuery()
     {
         $app = new App();
@@ -697,6 +697,39 @@ class AppTest extends PHPUnit_Framework_TestCase
     // TODO: Test finalize()
 
     // TODO: Test run()
+
+    public function testRespondNoContent()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res = $res->withStatus(204);
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals([], $resOut->getHeader('Content-Type'));
+        $this->assertEquals([], $resOut->getHeader('Content-Length'));
+        $this->expectOutputString('');
+    }
 
     public function testRespond()
     {
