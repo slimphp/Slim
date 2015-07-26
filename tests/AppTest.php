@@ -730,6 +730,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('Hello');
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testRespondNoContent()
     {
         $app = new App();
@@ -763,6 +766,9 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('');
     }
 
+    /**
+     * @runInSeparateProcess
+     */
     public function testExceptionErrorHandler()
     {
         $app = new App();
