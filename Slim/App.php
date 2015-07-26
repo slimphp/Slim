@@ -264,7 +264,9 @@ class App
      */
     public function group($pattern, $callable)
     {
+        /** @var RouteGroup $group */
         $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group->setContainer($this->container);
         $group($this);
         $this->container->get('router')->popGroup();
         return $group;
