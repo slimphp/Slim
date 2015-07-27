@@ -145,34 +145,6 @@ class App
     }
 
     /**
-     * Add route with multiple methods
-     *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  mixed    $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function map(array $methods, $pattern, $callable)
-    {
-        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this);
-        }
-
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
-        }
-
-        if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
-        }
-
-        return $route;
-    }
-
-    /**
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
@@ -248,6 +220,34 @@ class App
     public function any($pattern, $callable)
     {
         return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+    }
+
+    /**
+     * Add route with multiple methods
+     *
+     * @param  string[] $methods  Numeric array of HTTP method names
+     * @param  string   $pattern  The route URI pattern
+     * @param  mixed    $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function map(array $methods, $pattern, $callable)
+    {
+        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this);
+        }
+
+        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        if (is_callable([$route, 'setContainer'])) {
+            $route->setContainer($this->container);
+        }
+
+        if (is_callable([$route, 'setOutputBuffering'])) {
+            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+        }
+
+        return $route;
     }
 
     /**
