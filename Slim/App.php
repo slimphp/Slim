@@ -17,6 +17,7 @@ use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
 use Slim\Exception\Exception as SlimException;
+use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
@@ -145,6 +146,34 @@ class App
     }
 
     /**
+     * Add route with multiple methods
+     *
+     * @param  string[] $methods  Numeric array of HTTP method names
+     * @param  string   $pattern  The route URI pattern
+     * @param  mixed    $callable The route callback routine
+     *
+     * @return RouteInterface
+     */
+    public function map(array $methods, $pattern, $callable)
+    {
+        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this);
+        }
+
+        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        if (is_callable([$route, 'setContainer'])) {
+            $route->setContainer($this->container);
+        }
+
+        if (is_callable([$route, 'setOutputBuffering'])) {
+            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+        }
+
+        return $route;
+    }
+
+    /**
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
@@ -223,34 +252,6 @@ class App
     }
 
     /**
-     * Add route with multiple methods
-     *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  mixed    $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function map(array $methods, $pattern, $callable)
-    {
-        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this);
-        }
-
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
-        }
-
-        if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
-        }
-
-        return $route;
-    }
-
-    /**
      * Route Groups
      *
      * This method accepts a route pattern and a callback. All route
@@ -277,6 +278,43 @@ class App
      *******************************************************************************/
 
     /**
+     * Run application
+     *
+     * This method traverses the application middleware stack and then sends the
+     * resultant Response object to the HTTP client.
+     *
+     * @param bool|false $silent
+     * @return ResponseInterface
+     */
+    public function run($silent = false)
+    {
+        // Finalize routes here for middleware stack
+        $this->container->get('router')->finalize();
+
+        $request = $this->container->get('request');
+        $response = $this->container->get('response');
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (SlimException $e) {
+            $response = $e->getResponse();
+        } catch (Exception $e) {
+            /** @var callable $errorHandler */
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
+        }
+
+        $response = $this->finalize($response);
+
+        if (!$silent) {
+            $this->respond($response);
+        }
+
+        return $response;
+    }
+
+    /**
      * Send the response the client
      *
      * @param ResponseInterface $response
@@ -286,18 +324,6 @@ class App
         static $responded = false;
 
         if (!$responded) {
-            // Finalize response
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
-                $size = $response->getBody()->getSize();
-                if ($size !== null) {
-                    $response = $response->withHeader('Content-Length', (string) $size);
-                }
-            } else {
-                $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-            }
-
             // Send response
             if (!headers_sent()) {
                 // Status
@@ -317,6 +343,8 @@ class App
             }
 
             // Body
+            $statusCode = $response->getStatusCode();
+            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
             if ($hasBody) {
                 $body = $response->getBody();
                 $body->rewind();
@@ -327,36 +355,6 @@ class App
             }
             $responded = true;
         }
-    }
-
-    /**
-     * Run application
-     *
-     * This method traverses the application middleware stack and then sends the
-     * resultant Response object to the HTTP client.
-     */
-    public function run()
-    {
-        // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
-
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
-        } catch (Exception $e) {
-            /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
-        }
-
-        $this->respond($response);
-
-        return $response;
     }
 
     /**
@@ -425,5 +423,27 @@ class App
         }
 
         return $this($request, $response);
+    }
+
+    /**
+     * Finalize response
+     *
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function finalize(ResponseInterface $response)
+    {
+        $statusCode = $response->getStatusCode();
+        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+        if ($hasBody) {
+            $size = $response->getBody()->getSize();
+            if ($size !== null) {
+                $response = $response->withHeader('Content-Length', (string) $size);
+            }
+        } else {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+
+        return $response;
     }
 }
