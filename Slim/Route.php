@@ -182,16 +182,6 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
-     * Set route callable
-     *
-     * @param callable $callable
-     */
-    protected function setCallable(callable $callable)
-    {
-        $this->callable = $callable;
-    }
-
-    /**
      * Set route name
      *
      * @param string $name
@@ -343,7 +333,7 @@ class Route extends Routable implements RouteInterface
             $response->getBody()->write($newResponse);
         }
 
-        if (isset($output)) {
+        if (!empty($output)) {
             if ($this->outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));

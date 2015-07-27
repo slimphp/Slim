@@ -151,6 +151,26 @@ class Router extends RouteCollector implements RouterInterface
     }
 
     /**
+     * Get named route object
+     *
+     * @param string $name        Route name
+     *
+     * @return Route
+     *
+     * @throws RuntimeException   If named route does not exist
+     */
+    public function getNamedRoute($name)
+    {
+        if (is_null($this->namedRoutes)) {
+            $this->buildNameIndex();
+        }
+        if (!isset($this->namedRoutes[$name])) {
+            throw new RuntimeException('Named route does not exist for name: ' . $name);
+        }
+        return $this->namedRoutes[$name];
+    }
+
+    /**
      * Process route groups
      *
      * @return string A group pattern to prefix routes with
@@ -204,13 +224,7 @@ class Router extends RouteCollector implements RouterInterface
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
-        if (is_null($this->namedRoutes)) {
-            $this->buildNameIndex();
-        }
-        if (!isset($this->namedRoutes[$name])) {
-            throw new RuntimeException('Named route does not exist for name: ' . $name);
-        }
-        $route = $this->namedRoutes[$name];
+        $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
 
         $routeDatas = $this->routeParser->parse($pattern);

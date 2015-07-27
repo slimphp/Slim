@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -623,7 +624,7 @@ class Request implements ServerRequestInterface
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ((!$this->hasHeader('Host') || $this->getHeader('Host') === null) && $this->uri->getHost() !== '') {
+            if ($this->uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeader('Host') === null)) {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }
@@ -818,7 +819,7 @@ class Request implements ServerRequestInterface
             return strtolower($contentTypeParts[0]);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -858,7 +859,7 @@ class Request implements ServerRequestInterface
             return $mediaTypeParams['charset'];
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -1274,7 +1275,9 @@ class Request implements ServerRequestInterface
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
-        $callable = $callable->bindTo($this);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this);
+        }
         $this->bodyParsers[(string)$mediaType] = $callable;
     }
 

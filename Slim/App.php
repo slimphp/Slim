@@ -10,6 +10,7 @@ namespace Slim;
 
 use Exception;
 use Closure;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -70,7 +71,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
-     * @throws Exception when no container is provided that implements ContainerInterface
+     * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
     {
@@ -78,7 +79,7 @@ class App
             $container = new Container($container);
         }
         if (!$container instanceof ContainerInterface) {
-            throw new Exception("Expected a ContainerInterface");
+            throw new InvalidArgumentException('Expected a ContainerInterface');
         }
         $this->container = $container;
     }
@@ -263,7 +264,9 @@ class App
      */
     public function group($pattern, $callable)
     {
+        /** @var RouteGroup $group */
         $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group->setContainer($this->container);
         $group($this);
         $this->container->get('router')->popGroup();
         return $group;
@@ -274,65 +277,15 @@ class App
      *******************************************************************************/
 
     /**
-     * Send the response the client
-     *
-     * @param ResponseInterface $response
-     */
-    public function respond(ResponseInterface $response)
-    {
-        static $responded = false;
-
-        if (!$responded) {
-            // Finalize response
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
-                $size = $response->getBody()->getSize();
-                if ($size !== null) {
-                    $response = $response->withHeader('Content-Length', (string) $size);
-                }
-            } else {
-                $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-            }
-
-            // Send response
-            if (!headers_sent()) {
-                // Status
-                header(sprintf(
-                    'HTTP/%s %s %s',
-                    $response->getProtocolVersion(),
-                    $response->getStatusCode(),
-                    $response->getReasonPhrase()
-                ));
-
-                // Headers
-                foreach ($response->getHeaders() as $name => $values) {
-                    foreach ($values as $value) {
-                        header(sprintf('%s: %s', $name, $value), false);
-                    }
-                }
-            }
-
-            // Body
-            if ($hasBody) {
-                $body = $response->getBody();
-                $body->rewind();
-                $settings = $this->container->get('settings');
-                while (!$body->eof()) {
-                    echo $body->read($settings['responseChunkSize']);
-                }
-            }
-            $responded = true;
-        }
-    }
-
-    /**
      * Run application
      *
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
+     *
+     * @param bool|false $silent
+     * @return ResponseInterface
      */
-    public function run()
+    public function run($silent = false)
     {
         // Finalize routes here for middleware stack
         $this->container->get('router')->finalize();
@@ -357,9 +310,60 @@ class App
             $response = $errorHandler($request, $response, $e);
         }
 
-        $this->respond($response);
+        $response = $this->finalize($response);
+
+        if (!$silent) {
+            $this->respond($response);
+        }
 
         return $response;
+    }
+
+    /**
+     * Send the response the client
+     *
+     * @param ResponseInterface $response
+     */
+    public function respond(ResponseInterface $response)
+    {
+        static $responded = false;
+
+        if (!$responded) {
+            // Send response
+            if (!headers_sent()) {
+                // Status
+                header(sprintf(
+                    'HTTP/%s %s %s',
+                    $response->getProtocolVersion(),
+                    $response->getStatusCode(),
+                    $response->getReasonPhrase()
+                ));
+
+                // Headers
+                foreach ($response->getHeaders() as $name => $values) {
+                    foreach ($values as $value) {
+                        header(sprintf('%s: %s', $name, $value), false);
+                    }
+                }
+            }
+
+            // Body
+            $statusCode = $response->getStatusCode();
+            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+            if ($hasBody) {
+                $body = $response->getBody();
+                $body->rewind();
+                $settings = $this->container->get('settings');
+                while (!$body->eof()) {
+                    echo $body->read($settings['responseChunkSize']);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
+                }
+            }
+
+            $responded = true;
+        }
     }
 
     /**
@@ -440,7 +444,8 @@ class App
      * @param ServerRequestInterface $request
      * @return ServerRequestInterface
      */
-    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request) {
+    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request)
+    {
         $routeInfo = $this->container->get('router')->dispatch($request);
 
         if ($routeInfo[0] === Dispatcher::FOUND) {
@@ -454,5 +459,27 @@ class App
         $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
 
         return $request->withAttribute('routeInfo', $routeInfo);
+    }
+
+    /**
+     * Finalize response
+     *
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function finalize(ResponseInterface $response)
+    {
+        $statusCode = $response->getStatusCode();
+        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+        if ($hasBody) {
+            $size = $response->getBody()->getSize();
+            if ($size !== null) {
+                $response = $response->withHeader('Content-Length', (string) $size);
+            }
+        } else {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+
+        return $response;
     }
 }

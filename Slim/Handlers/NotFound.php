@@ -64,9 +64,11 @@ class NotFound
 </html>
 END;
 
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
+
         return $response->withStatus(404)
                         ->withHeader('Content-Type', 'text/html')
-                        ->withBody(new Body(fopen('php://temp', 'r+')))
-                        ->write($output);
+                        ->withBody($body);
     }
 }
