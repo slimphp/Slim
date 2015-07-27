@@ -280,6 +280,7 @@ class App
      * Send the response the client
      *
      * @param ResponseInterface $response
+     * @return ResponseInterface
      */
     public function respond(ResponseInterface $response)
     {
@@ -331,6 +332,8 @@ class App
 
             $responded = true;
         }
+
+        return $response;
     }
 
     /**
@@ -358,7 +361,7 @@ class App
             $response = $errorHandler($request, $response, $e);
         }
 
-        $this->respond($response);
+        $response = $this->respond($response);
 
         return $response;
     }
