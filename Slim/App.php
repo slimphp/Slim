@@ -280,6 +280,7 @@ class App
      * Send the response the client
      *
      * @param ResponseInterface $response
+     * @return ResponseInterface
      */
     public function respond(ResponseInterface $response)
     {
@@ -326,9 +327,9 @@ class App
                 }
             }
             $responded = true;
-
-            return $response;
         }
+
+        return $response;
     }
 
     /**
