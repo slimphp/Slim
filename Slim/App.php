@@ -277,6 +277,43 @@ class App
      *******************************************************************************/
 
     /**
+     * Run application
+     *
+     * This method traverses the application middleware stack and then sends the
+     * resultant Response object to the HTTP client.
+     *
+     * @param bool|false $silent
+     * @return ResponseInterface
+     */
+    public function run($silent = false)
+    {
+        // Finalize routes here for middleware stack
+        $this->container->get('router')->finalize();
+
+        $request = $this->container->get('request');
+        $response = $this->container->get('response');
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (SlimException $e) {
+            $response = $e->getResponse();
+        } catch (Exception $e) {
+            /** @var callable $errorHandler */
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
+        }
+
+        $response = $this->finalize($response);
+
+        if (!$silent) {
+            $this->respond($response);
+        }
+
+        return $response;
+    }
+
+    /**
      * Send the response the client
      *
      * @param ResponseInterface $response
@@ -286,18 +323,6 @@ class App
         static $responded = false;
 
         if (!$responded) {
-            // Finalize response
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
-                $size = $response->getBody()->getSize();
-                if ($size !== null) {
-                    $response = $response->withHeader('Content-Length', (string) $size);
-                }
-            } else {
-                $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-            }
-
             // Send response
             if (!headers_sent()) {
                 // Status
@@ -317,6 +342,8 @@ class App
             }
 
             // Body
+            $statusCode = $response->getStatusCode();
+            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
             if ($hasBody) {
                 $body = $response->getBody();
                 $body->rewind();
@@ -331,36 +358,6 @@ class App
 
             $responded = true;
         }
-    }
-
-    /**
-     * Run application
-     *
-     * This method traverses the application middleware stack and then sends the
-     * resultant Response object to the HTTP client.
-     */
-    public function run()
-    {
-        // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
-
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
-        } catch (Exception $e) {
-            /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
-        }
-
-        $this->respond($response);
-
-        return $response;
     }
 
     /**
@@ -429,5 +426,27 @@ class App
         }
 
         return $this($request, $response);
+    }
+
+    /**
+     * Finalize response
+     *
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function finalize(ResponseInterface $response)
+    {
+        $statusCode = $response->getStatusCode();
+        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+        if ($hasBody) {
+            $size = $response->getBody()->getSize();
+            if ($size !== null) {
+                $response = $response->withHeader('Content-Length', (string) $size);
+            }
+        } else {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+
+        return $response;
     }
 }
