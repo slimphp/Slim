@@ -327,8 +327,8 @@ class App
                         break;
                     }
                 }
-                $body->close();
             }
+
             $responded = true;
         }
     }
