@@ -323,7 +323,11 @@ class App
                 $settings = $this->container->get('settings');
                 while (!$body->eof()) {
                     echo $body->read($settings['responseChunkSize']);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
+                $body->close();
             }
             $responded = true;
         }

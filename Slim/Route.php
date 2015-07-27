@@ -321,7 +321,7 @@ class Route extends Routable implements RouteInterface
             $response->getBody()->write($newResponse);
         }
 
-        if (isset($output)) {
+        if (!empty($output)) {
             if ($this->outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));
