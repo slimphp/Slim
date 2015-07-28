@@ -191,7 +191,6 @@ class Request implements ServerRequestInterface
         $this->cookies = $cookies;
         $this->serverParams = $serverParams;
         $this->attributes = new Collection();
-        // #1386 hotfix: cache the php://input, since it can be read only once
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
 
