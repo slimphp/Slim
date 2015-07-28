@@ -155,7 +155,8 @@ class Request implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new Body(fopen('php://input', 'r'));
+        $bodyContents = stream_get_contents(fopen('php://input', 'r'));
+        $body = new Body(fopen('data://text/plain,' . $bodyContents,'r'));
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
@@ -190,6 +191,7 @@ class Request implements ServerRequestInterface
         $this->cookies = $cookies;
         $this->serverParams = $serverParams;
         $this->attributes = new Collection();
+        // #1386 hotfix: cache the php://input, since it can be read only once
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
 
