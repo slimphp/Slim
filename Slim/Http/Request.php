@@ -155,7 +155,8 @@ class Request implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new Body(fopen('php://input', 'r'));
+        $bodyContents = stream_get_contents(fopen('php://input', 'r'));
+        $body = new Body(fopen('data://text/plain,' . $bodyContents,'r'));
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
