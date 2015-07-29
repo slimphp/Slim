@@ -122,7 +122,7 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
 
         // Invoke call stack
-        $res = $stack->callMiddlewareStack($request, $response);
+        $stack->callMiddlewareStack($request, $response);
     }
 
     public function testAlternativeSeedMiddlewareStack()

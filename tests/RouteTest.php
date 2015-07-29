@@ -183,7 +183,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $callable = function ($req, $res, $args) {
             return $res->write('foo');
         };
-        $c = new Container();
         $route = new Route(['GET'], '/', $callable);
 
         $env = Environment::mock();

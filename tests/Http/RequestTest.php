@@ -73,7 +73,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithProtocolInvalid()
     {
-        $clone = $this->requestFactory()->withProtocolVersion('foo');
+        $this->requestFactory()->withProtocolVersion('foo');
     }
 
     /*******************************************************************************
@@ -103,7 +103,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithMethodInvalid()
     {
-        $request = $this->requestFactory()->withMethod('FOO');
+        $this->requestFactory()->withMethod('FOO');
     }
 
     public function testWithMethodNull()
@@ -317,7 +317,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithRequestTargetThatHasSpaces()
     {
-        $clone = $this->requestFactory()->withRequestTarget('/test/m ore/stuff?user=1');
+        $this->requestFactory()->withRequestTarget('/test/m ore/stuff?user=1');
     }
 
     public function testGetUri()

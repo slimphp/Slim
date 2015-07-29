@@ -25,14 +25,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerInterfaceException()
     {
-        $this->setExpectedException('Exception');
-        try {
-            $container = '';
-            $app = new App($container);
-        } catch (Exception $e) {
-            $this->assertEquals('Expected a ContainerInterface', $e->getMessage());
-            throw $e;
-        }
+        $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
+        $app = new App('');
     }
 
     public function testIssetInContainer()
@@ -156,10 +150,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testGroup()
     {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
         $app = new App();
         $app->group('/foo', function () use ($app) {
             $route = $app->get('/bar', function ($req, $res) {
@@ -575,7 +565,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $app($req, $res);
 
         $this->assertEquals('foo', (string)$res->getBody());
     }
@@ -767,7 +757,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
-            return $res;
         };
 
         $app->add($mw);

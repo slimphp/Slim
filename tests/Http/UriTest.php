@@ -67,7 +67,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithSchemeInvalid()
     {
-        $uri = $this->uriFactory()->withScheme('ftp');
+        $this->uriFactory()->withScheme('ftp');
     }
 
     /********************************************************************************
@@ -246,7 +246,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithPortInvalidInt()
     {
-        $uri = $this->uriFactory()->withPort(70000);
+        $this->uriFactory()->withPort(70000);
     }
 
     /**
@@ -254,7 +254,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
      */
     public function testWithPortInvalidString()
     {
-        $uri = $this->uriFactory()->withPort('Foo');
+        $this->uriFactory()->withPort('Foo');
     }
 
     /********************************************************************************

@@ -8,6 +8,8 @@
  */
 namespace Slim\Tests\Mocks;
 
+use InvalidArgumentException;
+
 /**
  * Mock object for Slim\Tests\AppTest
  */
