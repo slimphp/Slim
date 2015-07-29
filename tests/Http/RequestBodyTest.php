@@ -2,17 +2,22 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
-class RequestBodyTest extends PHPUnit_Framework_TestCase
+namespace Slim\Tests\Http;
+
+use ReflectionProperty;
+use Slim\Http\RequestBody;
+
+class RequestBodyTest extends \PHPUnit_Framework_TestCase
 {
     /** @var string */
     protected $text = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
     /** @var resource */
     protected $stream;
-    /** @var \Slim\Http\RequestBody */
+    /** @var RequestBody */
     protected $body;
 
     /**
@@ -21,7 +26,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->body = new \Slim\Http\RequestBody();
+        $this->body = new RequestBody();
         $this->body->write($this->text);
         $this->body->rewind();
     }
@@ -54,7 +59,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorAttachesStream()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
 
         $this->assertInternalType('resource', $bodyStream->getValue($this->body));
@@ -62,7 +67,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testConstructorSetsMetadata()
     {
-        $bodyMetadata = new \ReflectionProperty($this->body, 'meta');
+        $bodyMetadata = new ReflectionProperty($this->body, 'meta');
         $bodyMetadata->setAccessible(true);
 
         $this->assertTrue(is_array($bodyMetadata->getValue($this->body)));
@@ -85,19 +90,19 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testDetach()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
 
-        $bodyMetadata = new \ReflectionProperty($this->body, 'meta');
+        $bodyMetadata = new ReflectionProperty($this->body, 'meta');
         $bodyMetadata->setAccessible(true);
 
-        $bodyReadable = new \ReflectionProperty($this->body, 'readable');
+        $bodyReadable = new ReflectionProperty($this->body, 'readable');
         $bodyReadable->setAccessible(true);
 
-        $bodyWritable = new \ReflectionProperty($this->body, 'writable');
+        $bodyWritable = new ReflectionProperty($this->body, 'writable');
         $bodyWritable->setAccessible(true);
 
-        $bodySeekable = new \ReflectionProperty($this->body, 'seekable');
+        $bodySeekable = new ReflectionProperty($this->body, 'seekable');
         $bodySeekable->setAccessible(true);
 
         $result = $this->body->detach();
@@ -124,7 +129,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testToStringDetached()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 
@@ -151,7 +156,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testGetSizeDetached()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 
@@ -167,7 +172,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testTellDetachedThrowsRuntimeException()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 
@@ -193,7 +198,7 @@ class RequestBodyTest extends PHPUnit_Framework_TestCase
 
     public function testEofDetached()
     {
-        $bodyStream = new \ReflectionProperty($this->body, 'stream');
+        $bodyStream = new ReflectionProperty($this->body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 

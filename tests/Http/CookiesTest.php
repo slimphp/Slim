@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use ReflectionProperty;
 use Slim\Http\Cookies;
 
 class CookiesTest extends \PHPUnit_Framework_TestCase
@@ -105,7 +106,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
 
         $cookies = new Cookies;
 
-        $prop = new \ReflectionProperty($cookies, 'defaults');
+        $prop = new ReflectionProperty($cookies, 'defaults');
         $prop->setAccessible(true);
 
         $origDefaults = $prop->getValue($cookies);

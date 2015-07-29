@@ -1,46 +1,23 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
+namespace Slim\Tests;
 
-use Slim\Route;
 use Slim\Container;
+use Slim\Http\Body;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Response;
+use Slim\Http\Uri;
+use Slim\Route;
 
-class MiddlewareStub
-{
-    public function run($request, $response, $next) {
-        return $response; //$next($request, $response);
-    }
-}
-
-class RouteTest extends PHPUnit_Framework_TestCase
+class RouteTest extends \PHPUnit_Framework_TestCase
 {
     public function routeFactory()
     {
@@ -93,7 +70,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar']);
         $route->setArgument('baz', 'BAZ');
         $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar', 'baz' => 'BAZ']);
-        
+
         $route->setArguments(['a' => 'b']);
         $this->assertSame($route->getArguments(), ['a' => 'b']);
         $this->assertSame($route->getArgument('a', 'default'), 'b');
@@ -143,7 +120,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
 
         $this->setExpectedException('InvalidArgumentException');
-        
+
         $route->setName(false);
     }
 
@@ -166,7 +143,7 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
 
         $this->setExpectedException('InvalidArgumentException');
-        
+
         $route->setOutputBuffering('invalid');
     }
 
@@ -178,18 +155,18 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route->setContainer($container);
         $route->add('MiddlewareStub:run');
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [
             'user' => 'john',
             'id' => '123',
         ];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
-        $response = new \Slim\Http\Response;
+        $response = new Response;
         $result = $route->callMiddlewareStack($request, $response);
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
@@ -209,14 +186,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $c = new Container();
         $route = new Route(['GET'], '/', $callable);
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new \Slim\Http\Response;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
 
         $response = $route->__invoke($request, $response);
 
@@ -235,14 +212,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
         };
         $route = new Route(['GET'], '/', $callable);
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new \Slim\Http\Response;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
 
         $response = $route->__invoke($request, $response);
 
@@ -261,14 +238,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
         };
         $route = new Route(['GET'], '/', $callable);
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new \Slim\Http\Response;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
 
         $response = $route->__invoke($request, $response);
 
@@ -288,14 +265,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new Route(['GET'], '/', $callable);
         $route->setOutputBuffering('prepend');
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new \Slim\Http\Response;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
 
         $response = $route->__invoke($request, $response);
 
@@ -316,14 +293,14 @@ class RouteTest extends PHPUnit_Framework_TestCase
         $route = new Route(['GET'], '/', $callable);
         $route->setOutputBuffering(false);
 
-        $env = \Slim\Http\Environment::mock();
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:80');
-        $headers = new \Slim\Http\Headers();
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = $env->all();
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new \Slim\Http\Response;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
 
         $response = $route->__invoke($request, $response);
 

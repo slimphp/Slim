@@ -2,35 +2,26 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 
-use \Slim\App;
-use \Slim\Http\Environment;
-use \Slim\Http\Uri;
-use \Slim\Http\Body;
-use \Slim\Http\RequestBody;
-use \Slim\Http\Headers;
-use \Slim\Http\Request;
-use \Slim\Http\Response;
+namespace Slim\Tests;
 
-class MockAction
-{
-    public function __call($name, array $arguments)
-    {
-        if (count($arguments) !== 3) {
-            throw new InvalidArgumentException("Not a Slim call");
-        }
+use Slim\App;
+use Slim\Container;
+use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Http\Body;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\RequestBody;
+use Slim\Http\Response;
+use Slim\Http\Uri;
+use Slim\Tests\Mocks\MockAction;
 
-        $arguments[1]->write(json_encode(compact('name') + ['arguments' => $arguments[2]]));
-
-        return $arguments[1];
-    }
-}
-
-class AppTest extends PHPUnit_Framework_TestCase
+class AppTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerInterfaceException()
     {
@@ -368,9 +359,9 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
-        $c = new \Slim\Container();
+        $c = new Container();
         $c['foundHandler'] = function($c) {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
+            return new RequestResponseArgs();
         };
 
         $app = new App($c);
@@ -567,7 +558,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
             return $res;
         }
-        $app->get('/foo', 'handle');
+        $app->get('/foo', __NAMESPACE__ . '\handle');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -619,9 +610,9 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
-        $c = new \Slim\Container();
+        $c = new Container();
         $c['foundHandler'] = function() {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
+            return new RequestResponseArgs();
         };
 
         $app = new App($c);

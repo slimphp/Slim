@@ -1,32 +1,22 @@
 <?php
+/**
+ * Slim Framework (http://slimframework.com)
+ *
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ */
 namespace Slim\Tests;
 
-require_once __DIR__ . '/_files/StaticCallable.php';
+use ReflectionProperty;
+use Slim\Http\Body;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Response;
+use Slim\Http\Uri;
+use Slim\Tests\Mocks\Stackable;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
-function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $res)
-{
-    return $res->write('hello from testMiddlewareKernel');
-}
-
-class Stackable
-{
-    use \Slim\MiddlewareAwareTrait;
-
-    public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
-    {
-        return $res->write('Center');
-    }
-
-    public function alternativeSeed()
-    {
-        $this->seedMiddlewareStack('Slim\Tests\testMiddlewareKernel');
-    }
-}
-
-class MiddlewareTest extends \PHPUnit_Framework_TestCase
+class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
 {
     public function testSeedsMiddlewareStack()
     {
@@ -34,7 +24,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         $stack->add(function ($req, $res, $next) {
             return $res->write('Hi');
         });
-        $prop = new \ReflectionProperty($stack, 'stack');
+        $prop = new ReflectionProperty($stack, 'stack');
         $prop->setAccessible(true);
 
         $this->assertSame($stack, $prop->getValue($stack)->bottom());
@@ -59,15 +49,15 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         });
 
         // Request
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new \Slim\Http\Headers();
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         // Response
-        $response = new \Slim\Http\Response();
+        $response = new Response();
 
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
@@ -79,7 +69,7 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         // Build middleware stack
         $stack = new Stackable;
-        $stack->add('StaticCallable::run')
+        $stack->add('Slim\Tests\Mocks\StaticCallable::run')
             ->add(function ($req, $res, $next) {
                 $res->write('In2');
                 $res = $next($req, $res);
@@ -89,15 +79,15 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
             });
 
         // Request
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new \Slim\Http\Headers();
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         // Response
-        $response = new \Slim\Http\Response();
+        $response = new Response();
 
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
@@ -121,15 +111,15 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
         });
 
         // Request
-        $uri = \Slim\Http\Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new \Slim\Http\Headers();
+        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
+        $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new \Slim\Http\Body(fopen('php://temp', 'r+'));
-        $request = new \Slim\Http\Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         // Response
-        $response = new \Slim\Http\Response();
+        $response = new Response();
 
         // Invoke call stack
         $res = $stack->callMiddlewareStack($request, $response);
@@ -139,10 +129,10 @@ class MiddlewareTest extends \PHPUnit_Framework_TestCase
     {
         $stack = new Stackable;
         $stack->alternativeSeed();
-        $prop = new \ReflectionProperty($stack, 'stack');
+        $prop = new ReflectionProperty($stack, 'stack');
         $prop->setAccessible(true);
 
-        $this->assertSame('Slim\Tests\testMiddlewareKernel', $prop->getValue($stack)->bottom());
+        $this->assertSame([$stack, 'testMiddlewareKernel'], $prop->getValue($stack)->bottom());
     }
 
 

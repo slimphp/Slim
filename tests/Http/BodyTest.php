@@ -1,35 +1,17 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
-class BodyTest extends PHPUnit_Framework_TestCase
+namespace Slim\Tests\Http;
+
+use ReflectionProperty;
+use Slim\Http\Body;
+
+class BodyTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var string
@@ -68,8 +50,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testConstructorAttachesStream()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $body = new Body($this->stream);
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
 
         $this->assertSame($this->stream, $bodyStream->getValue($body));
@@ -81,15 +63,15 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testConstructorInvalidStream()
     {
         $this->stream = 'foo';
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
     }
 
     public function testConstructorSetsMetadata()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
-        $bodyMetadata = new \ReflectionProperty($body, 'meta');
+        $bodyMetadata = new ReflectionProperty($body, 'meta');
         $bodyMetadata->setAccessible(true);
 
         $this->assertTrue(is_array($bodyMetadata->getValue($body)));
@@ -98,7 +80,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetMetadata()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertTrue(is_array($body->getMetadata()));
     }
@@ -106,7 +88,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetMetadataKey()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertEquals('php://temp', $body->getMetadata('uri'));
     }
@@ -114,7 +96,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetMetadataKeyNotFound()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertNull($body->getMetadata('foo'));
     }
@@ -122,21 +104,21 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testDetach()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
 
-        $bodyMetadata = new \ReflectionProperty($body, 'meta');
+        $bodyMetadata = new ReflectionProperty($body, 'meta');
         $bodyMetadata->setAccessible(true);
 
-        $bodyReadable = new \ReflectionProperty($body, 'readable');
+        $bodyReadable = new ReflectionProperty($body, 'readable');
         $bodyReadable->setAccessible(true);
 
-        $bodyWritable = new \ReflectionProperty($body, 'writable');
+        $bodyWritable = new ReflectionProperty($body, 'writable');
         $bodyWritable->setAccessible(true);
 
-        $bodySeekable = new \ReflectionProperty($body, 'seekable');
+        $bodySeekable = new ReflectionProperty($body, 'seekable');
         $bodySeekable->setAccessible(true);
 
         $result = $body->detach();
@@ -152,7 +134,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testToStringAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertEquals($this->text, (string)$body);
     }
@@ -160,7 +142,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testToStringAttachedRewindsFirst()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertEquals($this->text, (string)$body);
         $this->assertEquals($this->text, (string)$body);
@@ -170,8 +152,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testToStringDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $body = new Body($this->stream);
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
@@ -181,7 +163,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testClose()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->close();
 
         $this->assertAttributeEquals(null, 'stream', $body);
@@ -191,7 +173,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetSizeAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertEquals(mb_strlen($this->text), $body->getSize());
     }
@@ -199,8 +181,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetSizeDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $body = new Body($this->stream);
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
@@ -210,7 +192,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testTellAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         fseek($this->stream, 10);
 
         $this->assertEquals(10, $body->tell());
@@ -219,8 +201,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testTellDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $body = new Body($this->stream);
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
@@ -231,7 +213,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testEofAttachedFalse()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         fseek($this->stream, 10);
 
         $this->assertFalse($body->eof());
@@ -240,7 +222,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testEofAttachedTrue()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         while (feof($this->stream) === false) {
             fread($this->stream, 1024);
         }
@@ -251,8 +233,8 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testEofDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
-        $bodyStream = new \ReflectionProperty($body, 'stream');
+        $body = new Body($this->stream);
+        $bodyStream = new ReflectionProperty($body, 'stream');
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($body, null);
 
@@ -262,7 +244,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function isReadableAttachedTrue()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertTrue($body->isReadable());
     }
@@ -270,7 +252,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function isReadableAttachedFalse()
     {
         $stream = fopen('php://temp', 'w');
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertFalse($body->isReadable());
         fclose($stream);
@@ -279,7 +261,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testIsReadableDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->assertFalse($body->isReadable());
@@ -288,7 +270,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function isWritableAttachedTrue()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertTrue($body->isWritable());
     }
@@ -296,7 +278,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function isWritableAttachedFalse()
     {
         $stream = fopen('php://temp', 'r');
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertFalse($body->isWritable());
         fclose($stream);
@@ -305,7 +287,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testIsWritableDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->assertFalse($body->isWritable());
@@ -314,7 +296,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function isSeekableAttachedTrue()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertTrue($body->isSeekable());
     }
@@ -324,7 +306,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testIsSeekableDetached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->assertFalse($body->isSeekable());
@@ -333,7 +315,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testSeekAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->seek(10);
 
         $this->assertEquals(10, ftell($this->stream));
@@ -342,7 +324,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testSeekDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->setExpectedException('\RuntimeException');
@@ -352,7 +334,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testRewindAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         fseek($this->stream, 10);
         $body->rewind();
 
@@ -362,7 +344,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testRewindDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->setExpectedException('\RuntimeException');
@@ -372,7 +354,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testReadAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
 
         $this->assertEquals(substr($this->text, 0, 10), $body->read(10));
     }
@@ -380,7 +362,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testReadDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->setExpectedException('\RuntimeException');
@@ -390,7 +372,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testWriteAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         while (feof($this->stream) === false) {
             fread($this->stream, 1024);
         }
@@ -402,7 +384,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testWriteDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->setExpectedException('\RuntimeException');
@@ -412,7 +394,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetContentsAttached()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         fseek($this->stream, 10);
 
         $this->assertEquals(substr($this->text, 10), $body->getContents());
@@ -421,7 +403,7 @@ class BodyTest extends PHPUnit_Framework_TestCase
     public function testGetContentsDetachedThrowsRuntimeException()
     {
         $this->stream = $this->resourceFactory();
-        $body = new \Slim\Http\Body($this->stream);
+        $body = new Body($this->stream);
         $body->detach();
 
         $this->setExpectedException('\RuntimeException');
