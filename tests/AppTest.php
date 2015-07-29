@@ -10,7 +10,7 @@
 use \Slim\App;
 use \Slim\Http\Environment;
 use \Slim\Http\Uri;
-use \Slim\Http\Body;
+use \Slim\Http\RequestBody;
 use \Slim\Http\Headers;
 use \Slim\Http\Request;
 use \Slim\Http\Response;
@@ -238,7 +238,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -270,7 +270,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -298,7 +298,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -326,7 +326,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -354,7 +354,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -387,7 +387,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -415,7 +415,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -445,7 +445,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -468,7 +468,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -505,7 +505,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -537,7 +537,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -578,7 +578,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
@@ -605,7 +605,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $req = $req->withAttribute("one", 1);
         $res = new Response();
@@ -638,7 +638,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $req = $req->withAttribute("one", 1);
         $res = new Response();
@@ -717,7 +717,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 

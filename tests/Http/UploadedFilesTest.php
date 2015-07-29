@@ -8,7 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
-use Slim\Http\Body;
+use Slim\Http\RequestBody;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -184,7 +184,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($env);
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 

@@ -32,7 +32,7 @@
 use \Slim\Http\Uri;
 use \Slim\Http\Headers;
 use \Slim\Http\Collection;
-use \Slim\Http\Body;
+use \Slim\Http\RequestBody;
 use \Slim\Http\Request;
 
 class RequestTest extends PHPUnit_Framework_TestCase
@@ -48,7 +48,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'id' => '123',
         ];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($env);
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
@@ -62,7 +62,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(property_exists($request, 'foo'));
     }
-    
+
     public function testAddsHostHeaderFromUri()
     {
         $request = $this->requestFactory();
@@ -138,7 +138,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('PUT', $request->getMethod());
@@ -153,7 +153,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -170,7 +170,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('_METHOD=PUT');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -191,7 +191,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
     }
 
@@ -204,7 +204,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request(10, $uri, $headers, $cookies, $serverParams, $body);
     }
 
@@ -287,7 +287,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertTrue($request->isXhr());
@@ -343,7 +343,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertSame($uri, $request->getUri());
@@ -359,7 +359,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
         $clone = $request->withUri($uri2);
 
@@ -742,7 +742,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetBody()
     {
-        $bodyNew = new Body(fopen('php://temp', 'r+'));
+        $bodyNew = new RequestBody(fopen('php://temp', 'r+'));
         $request = $this->requestFactory();
         $bodyProp = new \ReflectionProperty($request, 'body');
         $bodyProp->setAccessible(true);
@@ -753,7 +753,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testWithBody()
     {
-        $bodyNew = new Body(fopen('php://temp', 'r+'));
+        $bodyNew = new RequestBody(fopen('php://temp', 'r+'));
         $request = $this->requestFactory()->withBody($bodyNew);
 
         $this->assertAttributeSame($bodyNew, 'body', $request);
@@ -767,7 +767,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('foo=bar');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
         $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
@@ -781,7 +781,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/json;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
@@ -796,7 +796,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/xml;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
@@ -834,7 +834,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('{"foo": "bar"}');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -865,7 +865,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterFromBody()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('foo=bar');
         $body->rewind();
         $request = $this->requestFactory()
@@ -884,7 +884,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterFromBodyOverQuery()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -895,7 +895,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterWithDefaultFromBodyOverQuery()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -907,7 +907,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameters()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('foo=bar');
         $body->rewind();
         $request = $this->requestFactory()
@@ -919,7 +919,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParametersWithBodyPriority()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $body->write('foo=bar&abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -942,7 +942,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'REMOTE_ADDR' => '192.168.1.1'
         ]);
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('192.168.1.1', $request->getIp());
@@ -956,7 +956,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $env = Slim\Http\Environment::mock();
         $serverParams = $env->all();
         unset($serverParams['REMOTE_ADDR']);
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertNull($request->getIp());
@@ -971,7 +971,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('192.168.1.3', $request->getIp());
