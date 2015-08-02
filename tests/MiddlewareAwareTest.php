@@ -139,8 +139,8 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
     public function testAddMiddlewareWhileStackIsRunningThrowException()
     {
         $stack = new Stackable;
-        $stack->add(function($req, $resp) use($stack) {
-            $stack->add(function($req, $resp){
+        $stack->add(function ($req, $resp) use ($stack) {
+            $stack->add(function ($req, $resp) {
                 return $resp;
             });
             return $resp;

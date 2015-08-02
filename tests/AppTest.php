@@ -350,7 +350,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
         $c = new Container();
-        $c['foundHandler'] = function($c) {
+        $c['foundHandler'] = function ($c) {
             return new RequestResponseArgs();
         };
 
@@ -458,7 +458,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             $mock->method('bar')
                 ->willReturn(
                     $res->write('Hello')
@@ -495,7 +495,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             return $mock;
         };
 
@@ -527,7 +527,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             return $mock;
         };
 
@@ -543,7 +543,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testInvokeFunctionName()
     {
         $app = new App();
-        function handle($req, $res) {
+        function handle($req, $res)
+        {
             $res->write('foo');
 
             return $res;
@@ -601,7 +602,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
         $c = new Container();
-        $c['foundHandler'] = function() {
+        $c['foundHandler'] = function () {
             return new RequestResponseArgs();
         };
 
@@ -785,5 +786,4 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->expectOutputRegex('/.*middleware exception.*/');
     }
-
 }

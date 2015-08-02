@@ -13,7 +13,8 @@ namespace Slim\Tests\Mocks;
  */
 class MiddlewareStub
 {
-    public function run($request, $response, $next) {
+    public function run($request, $response, $next)
+    {
         return $response; //$next($request, $response);
     }
 }

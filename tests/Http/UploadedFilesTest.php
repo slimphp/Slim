@@ -8,10 +8,10 @@
  */
 namespace Slim\Tests\Http;
 
-use Slim\Http\RequestBody;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\RequestBody;
 use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
@@ -66,7 +66,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
             'error'    => 0,
         ];
 
-        $uploadedFile = new UploadedFile($attr['tmp_name'], $attr['name'], $attr['type'], $attr['size'], $attr['error'], $sapi = false);
+        $uploadedFile = new UploadedFile($attr['tmp_name'], $attr['name'], $attr['type'], $attr['size'], $attr['error'], false);
 
 
         $this->assertEquals($attr['name'], $uploadedFile->getClientFilename());
@@ -112,63 +112,63 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     public function providerCreateFromEnvironment()
     {
         return [
-                    [
-                        [
-                            'files' => [
-                                'tmp_name' => [
-                                    0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
-                                    1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
-                                ],
-                                'name'     => [
-                                    0 => 'file0.txt',
-                                    1 => 'file1.html',
-                                ],
-                                'type'     => [
-                                    0 => 'text/plain',
-                                    1 => 'text/html',
-                                ],
-                                'error'    => [
-                                    0 => 0,
-                                    1 => 0
-                                ]
-                            ],
+            [
+                [
+                    'files' => [
+                        'tmp_name' => [
+                            0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                            1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
                         ],
-                        [
-                            'files' => [
-                                0 => new UploadedFile(
-                                    __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
-                                    'file0.txt',
-                                    'text/plain',
-                                    null,
-                                    UPLOAD_ERR_OK,
-                                    true
-                                ),
-                                1 => new UploadedFile(
-                                    __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
-                                    'file1.html',
-                                    'text/html',
-                                    null,
-                                    UPLOAD_ERR_OK,
-                                    true
-                                ),
-                            ],
+                        'name'     => [
+                            0 => 'file0.txt',
+                            1 => 'file1.html',
+                        ],
+                        'type'     => [
+                            0 => 'text/plain',
+                            1 => 'text/html',
+                        ],
+                        'error'    => [
+                            0 => 0,
+                            1 => 0
                         ]
                     ],
-                    [
-                        [
-                            'avatar' => [
-                                'tmp_name' => 'phpUxcOty',
-                                'name'     => 'my-avatar.png',
-                                'size'     => 90996,
-                                'type'     => 'image/png',
-                                'error'    => 0,
-                            ],
-                        ],
-                        [
-                            'avatar' => new UploadedFile('phpUxcOty', 'my-avatar.png', 'image/png', 90996, UPLOAD_ERR_OK, true)
-                        ]
-                    ]
-                ];
+                ],
+                [
+                    'files' => [
+                        0 => new UploadedFile(
+                            __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                            'file0.txt',
+                            'text/plain',
+                            null,
+                            UPLOAD_ERR_OK,
+                            true
+                        ),
+                        1 => new UploadedFile(
+                            __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                            'file1.html',
+                            'text/html',
+                            null,
+                            UPLOAD_ERR_OK,
+                            true
+                        ),
+                    ],
+                ]
+            ],
+            [
+                [
+                    'avatar' => [
+                        'tmp_name' => 'phpUxcOty',
+                        'name'     => 'my-avatar.png',
+                        'size'     => 90996,
+                        'type'     => 'image/png',
+                        'error'    => 0,
+                    ],
+                ],
+                [
+                    'avatar' => new UploadedFile('phpUxcOty', 'my-avatar.png', 'image/png', 90996, UPLOAD_ERR_OK, true)
+                ]
+            ]
+        ];
     }
 
     /**

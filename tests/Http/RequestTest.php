@@ -648,9 +648,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $serverParams = $request->getServerParams();
         foreach ($serverParams as $key => $value) {
             if ($key == 'REQUEST_TIME' || $key == 'REQUEST_TIME_FLOAT') {
-                $this->assertGreaterThanOrEqual($mockEnv[$key], $value, sprintf("%s value of %s was less than expected value of %s", $key, $value, $mockEnv[$key]));
+                $this->assertGreaterThanOrEqual(
+                    $mockEnv[$key],
+                    $value,
+                    sprintf("%s value of %s was less than expected value of %s", $key, $value, $mockEnv[$key])
+                );
             } else {
-                $this->assertEquals($mockEnv[$key], $value, sprintf("%s value of %s did not equal expected value of %s", $key, $value, $mockEnv[$key]));
+                $this->assertEquals(
+                    $mockEnv[$key],
+                    $value,
+                    sprintf("%s value of %s did not equal expected value of %s", $key, $value, $mockEnv[$key])
+                );
             }
         }
     }
