@@ -1,49 +1,25 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
+namespace Slim\Tests;
 
 use Slim\CallableResolver;
 use Slim\Container;
+use Slim\Tests\Mocks\CallableTest;
 
-class CallableTest
+class CallableResolverTest extends \PHPUnit_Framework_TestCase
 {
-    public static $CalledCount = 0;
-    public function toCall()
-    {
-        return static::$CalledCount++;
-    }
-}
 
-class CallableResolverTest extends PHPUnit_Framework_TestCase
-{
+    /**
+     * @var Container
+     */
+    private $container;
+
 
     public function setUp()
     {
@@ -64,14 +40,14 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
 
     public function testFunctionName()
     {
-        function test_callable()
+        function testCallable()
         {
             static $called_count = 0;
             return $called_count++;
         };
-        $resolver = new CallableResolver($this->container, 'test_callable');
+        $resolver = new CallableResolver($this->container, __NAMESPACE__ . '\testCallable');
         $resolver();
-        $this->assertEquals(1, test_callable());
+        $this->assertEquals(1, testCallable());
     }
 
     public function testObjMethodArray()
@@ -84,7 +60,7 @@ class CallableResolverTest extends PHPUnit_Framework_TestCase
 
     public function testSlimCallable()
     {
-        $resolver = new CallableResolver($this->container, 'CallableTest:toCall');
+        $resolver = new CallableResolver($this->container, 'Slim\Tests\Mocks\CallableTest:toCall');
         $resolver();
         $this->assertEquals(1, CallableTest::$CalledCount);
     }

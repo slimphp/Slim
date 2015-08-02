@@ -2,46 +2,31 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 
-use \Slim\App;
-use \Slim\Http\Environment;
-use \Slim\Http\Uri;
-use \Slim\Http\Body;
-use \Slim\Http\RequestBody;
-use \Slim\Http\Headers;
-use \Slim\Http\Request;
-use \Slim\Http\Response;
+namespace Slim\Tests;
 
-class MockAction
-{
-    public function __call($name, array $arguments)
-    {
-        if (count($arguments) !== 3) {
-            throw new InvalidArgumentException("Not a Slim call");
-        }
+use Slim\App;
+use Slim\Container;
+use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Http\Body;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\RequestBody;
+use Slim\Http\Response;
+use Slim\Http\Uri;
+use Slim\Tests\Mocks\MockAction;
 
-        $arguments[1]->write(json_encode(compact('name') + ['arguments' => $arguments[2]]));
-
-        return $arguments[1];
-    }
-}
-
-class AppTest extends PHPUnit_Framework_TestCase
+class AppTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerInterfaceException()
     {
-        $this->setExpectedException('Exception');
-        try {
-            $container = '';
-            $app = new App($container);
-        } catch (Exception $e) {
-            $this->assertEquals('Expected a ContainerInterface', $e->getMessage());
-            throw $e;
-        }
+        $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
+        $app = new App('');
     }
 
     public function testIssetInContainer()
@@ -165,10 +150,6 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testGroup()
     {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
         $app = new App();
         $app->group('/foo', function () use ($app) {
             $route = $app->get('/bar', function ($req, $res) {
@@ -368,9 +349,9 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
-        $c = new \Slim\Container();
-        $c['foundHandler'] = function($c) {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
+        $c = new Container();
+        $c['foundHandler'] = function ($c) {
+            return new RequestResponseArgs();
         };
 
         $app = new App($c);
@@ -477,7 +458,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             $mock->method('bar')
                 ->willReturn(
                     $res->write('Hello')
@@ -514,7 +495,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             return $mock;
         };
 
@@ -546,7 +527,7 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['foo'] = function() use ($mock, $res) {
+        $container['foo'] = function () use ($mock, $res) {
             return $mock;
         };
 
@@ -562,12 +543,13 @@ class AppTest extends PHPUnit_Framework_TestCase
     public function testInvokeFunctionName()
     {
         $app = new App();
-        function handle($req, $res) {
+        function handle($req, $res)
+        {
             $res->write('foo');
 
             return $res;
         }
-        $app->get('/foo', 'handle');
+        $app->get('/foo', __NAMESPACE__ . '\handle');
 
         // Prepare request and response objects
         $env = Environment::mock([
@@ -584,7 +566,7 @@ class AppTest extends PHPUnit_Framework_TestCase
         $res = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $app($req, $res);
 
         $this->assertEquals('foo', (string)$res->getBody());
     }
@@ -619,9 +601,9 @@ class AppTest extends PHPUnit_Framework_TestCase
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
-        $c = new \Slim\Container();
-        $c['foundHandler'] = function() {
-            return new \Slim\Handlers\Strategies\RequestResponseArgs();
+        $c = new Container();
+        $c['foundHandler'] = function () {
+            return new RequestResponseArgs();
         };
 
         $app = new App($c);
@@ -776,7 +758,6 @@ class AppTest extends PHPUnit_Framework_TestCase
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
-            return $res;
         };
 
         $app->add($mw);
@@ -805,5 +786,4 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->expectOutputRegex('/.*middleware exception.*/');
     }
-
 }
