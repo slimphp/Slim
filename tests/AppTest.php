@@ -10,6 +10,7 @@
 use \Slim\App;
 use \Slim\Http\Environment;
 use \Slim\Http\Uri;
+use \Slim\Http\Body;
 use \Slim\Http\RequestBody;
 use \Slim\Http\Headers;
 use \Slim\Http\Request;
