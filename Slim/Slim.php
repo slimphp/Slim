@@ -1372,6 +1372,7 @@ class Slim
             $this->response()->write(ob_get_clean());
         } catch (\Exception $e) {
             if ($this->config('debug')) {
+                ob_end_clean();
                 throw $e;
             } else {
                 try {
