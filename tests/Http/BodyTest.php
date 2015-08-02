@@ -51,6 +51,10 @@ class BodyTest extends PHPUnit_Framework_TestCase
      * This method creates a new resource, and it seeds
      * the resource with lorem ipsum text. The returned
      * resource is readable, writable, and seekable.
+     *
+     * @param string $mode
+     *
+     * @return resource
      */
     public function resourceFactory($mode = 'r+')
     {
@@ -153,7 +157,15 @@ class BodyTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->text, (string)$body);
     }
 
+    public function testToStringAttachedRewindsFirst()
+    {
+        $this->stream = $this->resourceFactory();
+        $body = new \Slim\Http\Body($this->stream);
 
+        $this->assertEquals($this->text, (string)$body);
+        $this->assertEquals($this->text, (string)$body);
+        $this->assertEquals($this->text, (string)$body);
+    }
 
     public function testToStringDetached()
     {

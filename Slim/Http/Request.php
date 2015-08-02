@@ -155,12 +155,12 @@ class Request implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new Body(fopen('php://input', 'r'));
+        $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
-        if ($request->isPost() &&
+        if ($method === 'POST' &&
             in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
         ) {
             // parsed body must be $_POST
@@ -302,6 +302,10 @@ class Request implements ServerRequestInterface
                     $this->method = $this->filterMethod($body->_METHOD);
                 } elseif (is_array($body) && isset($body['_METHOD'])) {
                     $this->method = $this->filterMethod($body['_METHOD']);
+                }
+
+                if ($this->getBody()->eof()) {
+                    $this->getBody()->rewind();
                 }
             }
         }
