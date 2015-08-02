@@ -13,11 +13,6 @@ use Slim\Http\Cookies;
 
 class CookiesTest extends \PHPUnit_Framework_TestCase
 {
-    public function testExample()
-    {
-        $this->assertTrue(true);
-    }
-
     // public function testArrayToString()
     // {
     //     $expiresAt = time();
