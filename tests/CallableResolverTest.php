@@ -90,4 +90,11 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException');
         $resolver();
     }
+
+    public function testClassNotFoundThrowException()
+    {
+        $resolver = new CallableResolver($this->container, 'Unknown:notFound');
+        $this->setExpectedException('\RuntimeException', 'Callable Unknown does not exist');
+        $resolver();
+    }
 }

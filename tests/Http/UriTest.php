@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
 use Slim\Http\Environment;
 use Slim\Http\Uri;
 
@@ -63,11 +64,21 @@ class UriTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri scheme must be one of: "", "https", "http"
      */
     public function testWithSchemeInvalid()
     {
         $this->uriFactory()->withScheme('ftp');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri scheme must be a string
+     */
+    public function testWithSchemeInvalidType()
+    {
+        $this->uriFactory()->withScheme([]);
     }
 
     /********************************************************************************
@@ -242,7 +253,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithPortInvalidInt()
     {
@@ -250,7 +261,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithPortInvalidString()
     {
@@ -271,6 +282,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri = $this->uriFactory()->withBasePath('/base');
 
         $this->assertAttributeEquals('/base', 'basePath', $uri);
+    }
+
+    /**
+     * @covers Slim\Http\Uri::withBasePath
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri path must be a string
+     */
+    public function testWithBasePathInvalidType()
+    {
+        $this->uriFactory()->withBasePath(['foo']);
     }
 
     public function testWithBasePathAddsPrefix()
@@ -320,6 +341,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/include%25s/new', 'path', $uri);
     }
 
+    /**
+     * @covers Slim\Http\Uri::withPath
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri path must be a string
+     */
+    public function testWithPathInvalidType()
+    {
+        $this->uriFactory()->withPath(['foo']);
+    }
+
     /********************************************************************************
      * Query
      *******************************************************************************/
@@ -348,6 +379,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri = $this->uriFactory()->withQuery('');
 
         $this->assertAttributeEquals('', 'query', $uri);
+    }
+
+    /**
+     * @covers Slim\Http\Uri::withQuery
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri query must be a string
+     */
+    public function testWithQueryInvalidType()
+    {
+        $this->uriFactory()->withQuery(['foo']);
     }
 
     /********************************************************************************
@@ -380,6 +421,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('', 'fragment', $uri);
     }
 
+    /**
+     * @covers Slim\Http\Uri::withFragment
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri fragment must be a string
+     */
+    public function testWithFragmentInvalidType()
+    {
+        $this->uriFactory()->withFragment(['foo']);
+    }
+
     /********************************************************************************
      * Helpers
      *******************************************************************************/
@@ -398,6 +449,30 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
         $uri = $uri->withPath('/bar');
         $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
+    }
+
+    /**
+     * @covers Slim\Http\Uri::createFromString
+     */
+    public function testCreateFromString()
+    {
+        $uri = Uri::createFromString('https://example.com:8080/foo/bar?abc=123');
+
+        $this->assertEquals('https', $uri->getScheme());
+        $this->assertEquals('example.com', $uri->getHost());
+        $this->assertEquals('8080', $uri->getPort());
+        $this->assertEquals('/foo/bar', $uri->getPath());
+        $this->assertEquals('abc=123', $uri->getQuery());
+    }
+
+    /**
+     * @covers Slim\Http\Uri::createFromString
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Uri must be a string
+     */
+    public function testCreateFromStringWithInvalidType()
+    {
+        Uri::createFromString(['https://example.com:8080/foo/bar?abc=123']);
     }
 
     public function testCreateEnvironment()

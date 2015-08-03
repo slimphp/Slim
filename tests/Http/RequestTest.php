@@ -113,6 +113,63 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals(null, 'originalMethod', $request);
     }
 
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironment()
+    {
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals($env->all(), $request->getServerParams());
+    }
+
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironmentWithMultipart()
+    {
+        $_POST['foo'] = 'bar';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironmentWithMultipartMethodOverride()
+    {
+        $_POST['_METHOD'] = 'PUT';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        $this->assertEquals('POST', $request->getOriginalMethod());
+        $this->assertEquals('PUT', $request->getMethod());
+    }
+
     public function testGetMethodWithOverrideHeader()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
@@ -634,6 +691,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $prop->setValue($request, null);
 
         $this->assertEquals([], $request->getQueryParams());
+    }
+
+    /*******************************************************************************
+     * Uploaded files
+     ******************************************************************************/
+
+    /**
+     * @covers Slim\Http\Request::withUploadedFiles
+     * @covers Slim\Http\Request::getUploadedFiles
+     */
+    public function testWithUploadedFiles()
+    {
+        $files = [new UploadedFile('foo.txt'), new UploadedFile('bar.txt')];
+
+        $request = $this->requestFactory();
+        $clone = $request->withUploadedFiles($files);
+
+        $this->assertEquals([], $request->getUploadedFiles());
+        $this->assertEquals($files, $clone->getUploadedFiles());
     }
 
     /*******************************************************************************

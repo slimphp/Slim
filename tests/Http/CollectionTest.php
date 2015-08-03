@@ -13,7 +13,14 @@ use Slim\Http\Collection;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Collection
+     */
     protected $bag;
+
+    /**
+     * @var ReflectionProperty
+     */
     protected $property;
 
     public function setUp()
@@ -37,6 +44,14 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->bag->set('foo', 'bar');
         $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
         $bag =  $this->property->getValue($this->bag);
+        $this->assertEquals('bar', $bag['foo']);
+    }
+
+    public function testOffsetSet()
+    {
+        $this->bag['foo'] = 'bar';
+        $this->assertArrayHasKey('foo', $this->property->getValue($this->bag));
+        $bag = $this->property->getValue($this->bag);
         $this->assertEquals('bar', $bag['foo']);
     }
 
@@ -92,6 +107,12 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->bag->has('abc'));
     }
 
+    public function testOffsetExists()
+    {
+        $this->property->setValue($this->bag, ['foo' => 'bar']);
+        $this->assertTrue(isset($this->bag['foo']));
+    }
+
     public function testRemove()
     {
         $data = [
@@ -100,6 +121,18 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         ];
         $this->property->setValue($this->bag, $data);
         $this->bag->remove('foo');
+        $this->assertEquals(['abc' => '123'], $this->property->getValue($this->bag));
+    }
+
+    public function testOffsetUnset()
+    {
+        $data = [
+            'abc' => '123',
+            'foo' => 'bar',
+        ];
+        $this->property->setValue($this->bag, $data);
+
+        unset($this->bag['foo']);
         $this->assertEquals(['abc' => '123'], $this->property->getValue($this->bag));
     }
 

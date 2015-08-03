@@ -238,6 +238,22 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($shouldBe, $clone->getHeaders());
     }
 
+    /**
+     * @covers Slim\Http\Response::withRedirect
+     */
+    public function testWithRedirect()
+    {
+        $response = new Response(200);
+        $clone = $response->withRedirect('/foo', 301);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
+
+        $this->assertSame(301, $clone->getStatusCode());
+        $this->assertTrue($clone->hasHeader('Location'));
+        $this->assertEquals('/foo', $clone->getHeaderLine('Location'));
+    }
+
     /*******************************************************************************
      * Body
      ******************************************************************************/
