@@ -41,7 +41,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             echo sprintf('Hello %s %s', $args['first'], $args['last']);
         };
 
-        $this->router->pushGroup('/prefix', function () {});
+        $this->router->pushGroup('/prefix', function () {
+
+        });
         $route = $this->router->map($methods, $pattern, $callable);
         $this->router->popGroup();
 

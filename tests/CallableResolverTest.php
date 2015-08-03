@@ -40,11 +40,14 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testFunctionName()
     {
+        // @codingStandardsIgnoreStart
         function testCallable()
         {
             static $called_count = 0;
             return $called_count++;
         };
+        // @codingStandardsIgnoreEnd
+
         $resolver = new CallableResolver($this->container, __NAMESPACE__ . '\testCallable');
         $resolver();
         $this->assertEquals(1, testCallable());

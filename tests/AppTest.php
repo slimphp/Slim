@@ -543,12 +543,16 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testInvokeFunctionName()
     {
         $app = new App();
+
+        // @codingStandardsIgnoreStart
         function handle($req, $res)
         {
             $res->write('foo');
 
             return $res;
         }
+        // @codingStandardsIgnoreEnd
+
         $app->get('/foo', __NAMESPACE__ . '\handle');
 
         // Prepare request and response objects

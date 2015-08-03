@@ -54,7 +54,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
      *
      * @param App $app The App to bind the callable to.
      */
-    function __invoke(App $app)
+    public function __invoke(App $app)
     {
         $callable = $this->resolveCallable($this->callable);
         if ($callable instanceof Closure) {
