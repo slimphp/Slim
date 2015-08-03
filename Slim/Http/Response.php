@@ -12,8 +12,6 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Interfaces\Http\HeadersInterface;
-use Slim\Http\Headers;
-use Slim\Http\Body;
 
 /**
  * Response
@@ -533,13 +531,13 @@ class Response implements ResponseInterface
     {
         return $this->withStatus($status)->withHeader('Location', $url);
     }
-    
+
     /**
      * Json.
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * This method prepares the response object to return an HTTP Json 
+     * This method prepares the response object to return an HTTP Json
      * response to the client.
      *
      * @param  mixed  $data   The data
@@ -548,12 +546,12 @@ class Response implements ResponseInterface
      * @return self
      */
     public function withJson($data, $status = 200, $encodingOptions = 0)
-    {        
+    {
         $body = $this->getBody();
         $body->rewind();
-        $body->write(json_encode($data,$encodingOptions));
-        
-        return $this->withStatus($status)->withHeader('Content-Type','application/json;charset=utf-8');
+        $body->write(json_encode($data, $encodingOptions));
+
+        return $this->withStatus($status)->withHeader('Content-Type', 'application/json;charset=utf-8');
     }
 
     /**
