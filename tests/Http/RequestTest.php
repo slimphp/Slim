@@ -967,4 +967,34 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('192.168.1.3', $request->getIp());
     }
+
+    /**
+     * @covers Slim\Http\Request::getRouteName
+     */
+    public function testGetRouteName()
+    {
+        $route = $this->getMockBuilder('Slim\Route')->disableOriginalConstructor()->getMock();
+        $route->expects($this->once())->method('getName')->will($this->returnValue('phpunit'));
+
+        $routeInfo = [
+            0 => 1,
+            1 => [
+                0 => $route,
+                1 => 'run',
+            ],
+            2 => [],
+            'request' => ['GET', '/foo']
+        ];
+
+        $request = $this->requestFactory()->withAttribute('routeInfo', $routeInfo);
+        $this->assertEquals('phpunit', $request->getRouteName());
+    }
+
+    /**
+     * @covers Slim\Http\Request::getRouteName
+     */
+    public function testGetRouteNameWithoutRoute()
+    {
+        $this->assertNull($this->requestFactory()->getRouteName());
+    }
 }

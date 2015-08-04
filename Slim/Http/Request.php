@@ -1350,4 +1350,21 @@ class Request implements ServerRequestInterface
 
         return isset($this->serverParams['REMOTE_ADDR']) ? $this->serverParams['REMOTE_ADDR'] : null;
     }
+
+    /**
+     * Get the route name.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @return string|null Route name or null if none found.
+     */
+    public function getRouteName()
+    {
+        $routeInfo = $this->getAttribute('routeInfo');
+        if (is_array($routeInfo) && isset($routeInfo[1][0])) {
+            return $routeInfo[1][0]->getName();
+        }
+
+        return null;
+    }
 }
