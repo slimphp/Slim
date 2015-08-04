@@ -35,9 +35,7 @@
         "container-interop/container-interop": "~1.1"
     },
     "require-dev": {
-        "mockery/mockery": "dev-master@dev",
-        "phpunit/phpunit": "*",
-        "satooshi/php-coveralls": "dev-master"
+        "phpunit/phpunit": "^4.0"
     },
     "autoload": {
         "psr-4": {
