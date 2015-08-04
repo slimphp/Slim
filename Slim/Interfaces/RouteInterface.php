@@ -82,6 +82,15 @@ interface RouteInterface
     public function setName($name);
 
     /**
+     * Prepare the route for use
+     *
+     * @param ServerRequestInterface $request
+     * @param array $arguments
+     * @return ServerRequestInterface
+     */
+    public function prepare(ServerRequestInterface $request, array $arguments);
+
+    /**
      * Dispatch route callable against current Request and Response objects
      *
      * This method invokes the route object's callable. If middleware is

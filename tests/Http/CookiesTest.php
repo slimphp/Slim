@@ -8,15 +8,11 @@
  */
 namespace Slim\Tests\Http;
 
+use ReflectionProperty;
 use Slim\Http\Cookies;
 
 class CookiesTest extends \PHPUnit_Framework_TestCase
 {
-    public function testExample()
-    {
-        $this->assertTrue(true);
-    }
-
     // public function testArrayToString()
     // {
     //     $expiresAt = time();
@@ -91,4 +87,28 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
 
     //     $this->assertEquals([], Cookies::parseHeader($value));
     // }
+
+    public function testSetDefaults()
+    {
+        $defaults = [
+            'value' => 'toast',
+            'domain' => null,
+            'path' => null,
+            'expires' => null,
+            'secure' => true,
+            'httponly' => true
+        ];
+
+        $cookies = new Cookies;
+
+        $prop = new ReflectionProperty($cookies, 'defaults');
+        $prop->setAccessible(true);
+
+        $origDefaults = $prop->getValue($cookies);
+
+        $cookies->setDefaults($defaults);
+
+        $this->assertEquals($defaults, $prop->getValue($cookies));
+        $this->assertNotEquals($origDefaults, $prop->getValue($cookies));
+    }
 }

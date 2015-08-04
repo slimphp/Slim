@@ -2,16 +2,16 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
 
-use Slim\Http\Response;
-use Slim\Http\Headers;
-use Slim\Http\Cookies;
+use ReflectionProperty;
 use Slim\Http\Body;
+use Slim\Http\Headers;
+use Slim\Http\Response;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -67,7 +67,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testGetProtocolVersion()
     {
         $response = new Response();
-        $responseProto = new \ReflectionProperty($response, 'protocolVersion');
+        $responseProto = new ReflectionProperty($response, 'protocolVersion');
         $responseProto->setAccessible(true);
         $responseProto->setValue($response, '1.0');
 
@@ -98,7 +98,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testGetStatusCode()
     {
         $response = new Response();
-        $responseStatus = new \ReflectionProperty($response, 'status');
+        $responseStatus = new ReflectionProperty($response, 'status');
         $responseStatus->setAccessible(true);
         $responseStatus->setValue($response, '404');
 
@@ -134,7 +134,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testGetReasonPhrase()
     {
         $response = new Response();
-        $responseStatus = new \ReflectionProperty($response, 'status');
+        $responseStatus = new ReflectionProperty($response, 'status');
         $responseStatus->setAccessible(true);
         $responseStatus->setValue($response, '404');
 
@@ -269,7 +269,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsEmpty()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 201);
 
@@ -279,7 +279,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsInformational()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 100);
 
@@ -289,7 +289,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsOk()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 200);
 
@@ -299,7 +299,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsSuccessful()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 201);
 
@@ -309,7 +309,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsRedirect()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 302);
 
@@ -319,7 +319,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsRedirection()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 308);
 
@@ -329,7 +329,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsForbidden()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 403);
 
@@ -339,7 +339,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsNotFound()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 404);
 
@@ -349,7 +349,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsClientError()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 400);
 
@@ -359,7 +359,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testIsServerError()
     {
         $response = new Response();
-        $prop = new \ReflectionProperty($response, 'status');
+        $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
         $prop->setValue($response, 503);
 
@@ -377,31 +377,32 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         echo $response;
     }
-    function testWithJson()
+
+    public function testWithJson()
     {
         $data = ['foo' => 'bar1&bar2'];
-        
+
         $response = new Response();
-        $response = $response->withJson($data,201);
-        
-        $this->assertEquals(201,$response->getStatusCode());
-        $this->assertEquals('application/json;charset=utf-8',$response->getHeaderLine('Content-Type'));
-        
+        $response = $response->withJson($data, 201);
+
+        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals('application/json;charset=utf-8', $response->getHeaderLine('Content-Type'));
+
         $body = $response->getBody();
         $body->rewind();
-        $dataJson = $body->getContents(); //json_decode($body->getContents(),true);
-        
-        $this->assertEquals('{"foo":"bar1&bar2"}',$dataJson);
-        $this->assertEquals($data['foo'],json_decode($dataJson,true)['foo']);
-        
+        $dataJson = $body->getContents(); //json_decode($body->getContents(), true);
+
+        $this->assertEquals('{"foo":"bar1&bar2"}', $dataJson);
+        $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
+
         // Test encoding option
-        $response = $response->withJson($data,200,JSON_HEX_AMP);
-        
+        $response = $response->withJson($data, 200, JSON_HEX_AMP);
+
         $body = $response->getBody();
         $body->rewind();
         $dataJson = $body->getContents();
-        
-        $this->assertEquals('{"foo":"bar1\u0026bar2"}',$dataJson);
-        $this->assertEquals($data['foo'],json_decode($dataJson,true)['foo']);
+
+        $this->assertEquals('{"foo":"bar1\u0026bar2"}', $dataJson);
+        $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
     }
 }

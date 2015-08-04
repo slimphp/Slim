@@ -178,7 +178,16 @@ class Stream implements StreamInterface
      */
     public function __toString()
     {
-        return $this->isAttached() ? (string)stream_get_contents($this->stream, -1, 0) : '';
+        if (!$this->isAttached()) {
+            return '';
+        }
+
+        try {
+            $this->rewind();
+            return $this->getContents();
+        } catch (RuntimeException $e) {
+            return '';
+        }
     }
 
     /**

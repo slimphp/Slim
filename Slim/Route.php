@@ -182,16 +182,6 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
-     * Set route callable
-     *
-     * @param callable $callable
-     */
-    protected function setCallable(callable $callable)
-    {
-        $this->callable = $callable;
-    }
-
-    /**
      * Set route name
      *
      * @param string $name
@@ -267,6 +257,26 @@ class Route extends Routable implements RouteInterface
      *******************************************************************************/
 
     /**
+     * Prepare the route for use
+     *
+     * @param ServerRequestInterface $request
+     * @param array $arguments
+     * @return ServerRequestInterface
+     */
+    public function prepare(ServerRequestInterface $request, array $arguments)
+    {
+        // Add the arguments
+        foreach ($arguments as $k => $v) {
+            $this->setArgument($k, $v);
+        }
+
+        // add this route to the request's attributes in case route middleware needs access to route arguments
+        $request = $request->withAttribute('route', $this);
+
+        return $request;
+    }
+
+    /**
      * Run route
      *
      * This method traverses the middleware stack, including the route's callable
@@ -275,19 +285,11 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface      $response
-     * @param array                  $arguments
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response, array $arguments)
+    public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
-        foreach ($arguments as $k => $v) {
-            $this->setArgument($k, $v);
-        }
-
-        // add this route to the request's attributes in case route middleware needs access to route arguments
-        $request = $request->withAttribute('route', $this);
-
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }
@@ -331,7 +333,7 @@ class Route extends Routable implements RouteInterface
             $response->getBody()->write($newResponse);
         }
 
-        if (isset($output)) {
+        if (!empty($output)) {
             if ($this->outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));

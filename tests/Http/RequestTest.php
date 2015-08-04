@@ -1,45 +1,28 @@
 <?php
 /**
- * Slim - a micro PHP 5 framework
+ * Slim Framework (http://slimframework.com)
  *
- * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
- * @link        http://www.slimframework.com
- * @license     http://www.slimframework.com/license
- * @version     2.3.5
- *
- * MIT LICENSE
- *
- * Permission is hereby granted, free of charge, to any person obtaining
- * a copy of this software and associated documentation files (the
- * "Software"), to deal in the Software without restriction, including
- * without limitation the rights to use, copy, modify, merge, publish,
- * distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to
- * the following conditions:
- *
- * The above copyright notice and this permission notice shall be
- * included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
- * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
-use \Slim\Http\Uri;
-use \Slim\Http\Headers;
-use \Slim\Http\Collection;
-use \Slim\Http\Body;
-use \Slim\Http\Request;
 
-class RequestTest extends PHPUnit_Framework_TestCase
+namespace Slim\Tests\Http;
+
+use ReflectionProperty;
+use Slim\Http\Collection;
+use Slim\Http\Environment;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\RequestBody;
+use Slim\Http\UploadedFile;
+use Slim\Http\Uri;
+
+class RequestTest extends \PHPUnit_Framework_TestCase
 {
     public function requestFactory()
     {
-        $env = Slim\Http\Environment::mock();
+        $env = Environment::mock();
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = Headers::createFromEnvironment($env);
@@ -48,8 +31,8 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'id' => '123',
         ];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $uploadedFiles = \Slim\Http\UploadedFile::createFromEnvironment($env);
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         return $request;
@@ -62,7 +45,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(property_exists($request, 'foo'));
     }
-    
+
     public function testAddsHostHeaderFromUri()
     {
         $request = $this->requestFactory();
@@ -90,7 +73,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
      */
     public function testWithProtocolInvalid()
     {
-        $clone = $this->requestFactory()->withProtocolVersion('foo');
+        $this->requestFactory()->withProtocolVersion('foo');
     }
 
     /*******************************************************************************
@@ -120,7 +103,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
      */
     public function testWithMethodInvalid()
     {
-        $request = $this->requestFactory()->withMethod('FOO');
+        $this->requestFactory()->withMethod('FOO');
     }
 
     public function testWithMethodNull()
@@ -138,7 +121,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('PUT', $request->getMethod());
@@ -153,7 +136,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('_METHOD=PUT');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -170,7 +153,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('_METHOD=PUT');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -191,7 +174,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
     }
 
@@ -204,14 +187,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request(10, $uri, $headers, $cookies, $serverParams, $body);
     }
 
     public function testIsGet()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'GET');
 
@@ -221,7 +204,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsPost()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'POST');
 
@@ -231,7 +214,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsPut()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'PUT');
 
@@ -241,7 +224,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsPatch()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'PATCH');
 
@@ -251,7 +234,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsDelete()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'DELETE');
 
@@ -261,7 +244,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsHead()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'HEAD');
 
@@ -271,7 +254,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testIsOptions()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'originalMethod');
+        $prop = new ReflectionProperty($request, 'originalMethod');
         $prop->setAccessible(true);
         $prop->setValue($request, 'OPTIONS');
 
@@ -287,7 +270,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertTrue($request->isXhr());
@@ -305,7 +288,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetRequestTargetAlreadySet()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'requestTarget');
+        $prop = new ReflectionProperty($request, 'requestTarget');
         $prop->setAccessible(true);
         $prop->setValue($request, '/foo/bar?abc=123');
 
@@ -315,7 +298,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetRequestTargetIfNoUri()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'uri');
+        $prop = new ReflectionProperty($request, 'uri');
         $prop->setAccessible(true);
         $prop->setValue($request, null);
 
@@ -334,7 +317,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
      */
     public function testWithRequestTargetThatHasSpaces()
     {
-        $clone = $this->requestFactory()->withRequestTarget('/test/m ore/stuff?user=1');
+        $this->requestFactory()->withRequestTarget('/test/m ore/stuff?user=1');
     }
 
     public function testGetUri()
@@ -343,7 +326,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertSame($uri, $request->getUri());
@@ -359,7 +342,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers = new Headers();
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
         $clone = $request->withUri($uri2);
 
@@ -376,7 +359,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -390,7 +373,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $headers = new Headers(['X-Foo' => ['one']]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -404,7 +387,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -418,7 +401,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'X-Foo' => ['one', 'two', 'three'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -440,7 +423,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'X-Foo' => ['one'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
         $clone = $request->withAddedHeader('X-Foo', 'two');
@@ -455,7 +438,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'X-Bar' => ['two'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
         $clone = $request->withoutHeader('X-Foo');
@@ -472,7 +455,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -492,7 +475,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -512,7 +495,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json;charset=utf8;foo=bar'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -525,7 +508,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -545,7 +528,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json;charset=utf8'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -558,7 +541,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Type' => ['application/json'],
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -578,7 +561,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
             'Content-Length' => '150', // <-- Note we define as a string
         ]);
         $request = $this->requestFactory();
-        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp = new ReflectionProperty($request, 'headers');
         $headersProp->setAccessible(true);
         $headersProp->setValue($request, $headers);
 
@@ -626,7 +609,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetQueryParamsAlreadySet()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'queryParams');
+        $prop = new ReflectionProperty($request, 'queryParams');
         $prop->setAccessible(true);
         $prop->setValue($request, ['foo' => 'bar']);
 
@@ -646,7 +629,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetQueryParamsWithoutUri()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'uri');
+        $prop = new ReflectionProperty($request, 'uri');
         $prop->setAccessible(true);
         $prop->setValue($request, null);
 
@@ -659,15 +642,23 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetServerParams()
     {
-        $mockEnv = Slim\Http\Environment::mock();
+        $mockEnv = Environment::mock();
         $request = $this->requestFactory();
 
         $serverParams = $request->getServerParams();
         foreach ($serverParams as $key => $value) {
             if ($key == 'REQUEST_TIME' || $key == 'REQUEST_TIME_FLOAT') {
-                $this->assertGreaterThanOrEqual($mockEnv[$key], $value, sprintf("%s value of %s was less than expected value of %s", $key, $value, $mockEnv[$key]));
+                $this->assertGreaterThanOrEqual(
+                    $mockEnv[$key],
+                    $value,
+                    sprintf("%s value of %s was less than expected value of %s", $key, $value, $mockEnv[$key])
+                );
             } else {
-                $this->assertEquals($mockEnv[$key], $value, sprintf("%s value of %s did not equal expected value of %s", $key, $value, $mockEnv[$key]));
+                $this->assertEquals(
+                    $mockEnv[$key],
+                    $value,
+                    sprintf("%s value of %s did not equal expected value of %s", $key, $value, $mockEnv[$key])
+                );
             }
         }
     }
@@ -683,7 +674,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetAttributes()
     {
         $request = $this->requestFactory();
-        $attrProp = new \ReflectionProperty($request, 'attributes');
+        $attrProp = new ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
@@ -693,7 +684,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetAttribute()
     {
         $request = $this->requestFactory();
-        $attrProp = new \ReflectionProperty($request, 'attributes');
+        $attrProp = new ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
 
@@ -705,7 +696,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testWithAttribute()
     {
         $request = $this->requestFactory();
-        $attrProp = new \ReflectionProperty($request, 'attributes');
+        $attrProp = new ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withAttribute('test', '123');
@@ -716,7 +707,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testWithAttributes()
     {
         $request = $this->requestFactory();
-        $attrProp = new \ReflectionProperty($request, 'attributes');
+        $attrProp = new ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withAttributes(['test' => '123']);
@@ -728,7 +719,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testWithoutAttribute()
     {
         $request = $this->requestFactory();
-        $attrProp = new \ReflectionProperty($request, 'attributes');
+        $attrProp = new ReflectionProperty($request, 'attributes');
         $attrProp->setAccessible(true);
         $attrProp->setValue($request, new Collection(['foo' => 'bar']));
         $clone = $request->withoutAttribute('foo');
@@ -742,9 +733,9 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetBody()
     {
-        $bodyNew = new Body(fopen('php://temp', 'r+'));
+        $bodyNew = new RequestBody();
         $request = $this->requestFactory();
-        $bodyProp = new \ReflectionProperty($request, 'body');
+        $bodyProp = new ReflectionProperty($request, 'body');
         $bodyProp->setAccessible(true);
         $bodyProp->setValue($request, $bodyNew);
 
@@ -753,7 +744,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testWithBody()
     {
-        $bodyNew = new Body(fopen('php://temp', 'r+'));
+        $bodyNew = new RequestBody();
         $request = $this->requestFactory()->withBody($bodyNew);
 
         $this->assertAttributeSame($bodyNew, 'body', $request);
@@ -767,7 +758,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('foo=bar');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
         $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
@@ -781,7 +772,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/json;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
@@ -796,7 +787,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $headers->set('Content-Type', 'application/xml;charset=utf8');
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('<person><name>Josh</name></person>');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
@@ -806,7 +797,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyWhenAlreadyParsed()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'bodyParsed');
+        $prop = new ReflectionProperty($request, 'bodyParsed');
         $prop->setAccessible(true);
         $prop->setValue($request, ['foo' => 'bar']);
 
@@ -816,7 +807,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetParsedBodyWhenBodyDoesNotExist()
     {
         $request = $this->requestFactory();
-        $prop = new \ReflectionProperty($request, 'body');
+        $prop = new ReflectionProperty($request, 'body');
         $prop->setAccessible(true);
         $prop->setValue($request, null);
 
@@ -834,7 +825,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         ]);
         $cookies = [];
         $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('{"foo": "bar"}');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
@@ -865,7 +856,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterFromBody()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('foo=bar');
         $body->rewind();
         $request = $this->requestFactory()
@@ -884,7 +875,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterFromBodyOverQuery()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -895,7 +886,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameterWithDefaultFromBodyOverQuery()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -907,7 +898,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParameters()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('foo=bar');
         $body->rewind();
         $request = $this->requestFactory()
@@ -919,7 +910,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testGetParametersWithBodyPriority()
     {
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $body->write('foo=bar&abc=xyz');
         $body->rewind();
         $request = $this->requestFactory()
@@ -938,11 +929,11 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
         $cookies = [];
-        $env = Slim\Http\Environment::mock([
+        $env = Environment::mock([
             'REMOTE_ADDR' => '192.168.1.1'
         ]);
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('192.168.1.1', $request->getIp());
@@ -953,10 +944,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
         $cookies = [];
-        $env = Slim\Http\Environment::mock();
+        $env = Environment::mock();
         $serverParams = $env->all();
         unset($serverParams['REMOTE_ADDR']);
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertNull($request->getIp());
@@ -965,13 +956,13 @@ class RequestTest extends PHPUnit_Framework_TestCase
     public function testGetForwardedIp()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $env = Slim\Http\Environment::mock([
+        $env = Environment::mock([
             'HTTP_X_FORWARDED_FOR' => '192.168.1.3, 192.168.1.2, 192.168.1.1'
         ]);
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals('192.168.1.3', $request->getIp());

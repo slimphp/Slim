@@ -75,7 +75,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public static function createFromEnvironment(Environment $env)
     {
-        if ($env->has('slim.files') && is_array($env['slim.files'])) {
+        if (is_array($env['slim.files']) && $env->has('slim.files')) {
             return $env['slim.files'];
         } elseif (isset($_FILES)) {
             return static::parseUploadedFiles($_FILES);
@@ -216,15 +216,14 @@ class UploadedFile implements UploadedFileInterface
             throw new RuntimeException('Uploaded file already moved');
         }
 
-        if (!is_writable($targetPath)) {
+        if (!is_writable(dirname($targetPath))) {
             throw new InvalidArgumentException('Upload target path is not writable');
         }
 
         $targetIsStream = strpos($targetPath, '://') > 0;
         if ($targetIsStream) {
-            $target = rtrim($targetPath, '/') . '/' . $this->name;
-            if (!copy($this->file, $target)) {
-                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $target));
+            if (!copy($this->file, $targetPath)) {
+                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
             if (!unlink($this->file)) {
                 throw new RuntimeException(sprintf('Error removing uploaded file %1s', $this->name));
@@ -238,9 +237,8 @@ class UploadedFile implements UploadedFileInterface
                 throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         } else {
-            $target = rtrim($targetPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->name;
-            if (!rename($this->file, $target)) {
-                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $target));
+            if (!rename($this->file, $targetPath)) {
+                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         }
 

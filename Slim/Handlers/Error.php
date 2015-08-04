@@ -9,8 +9,8 @@
 namespace Slim\Handlers;
 
 use Exception;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 
 /**
@@ -38,7 +38,6 @@ class Error
         $html .= $this->renderException($exception);
 
         while ($exception = $exception->getPrevious()) {
-
             $html .= '<h2>Previous exception</h2>';
             $html .= $this->renderException($exception);
         }
@@ -52,11 +51,13 @@ class Error
             $html
         );
 
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
+
         return $response
                 ->withStatus(500)
                 ->withHeader('Content-type', 'text/html')
-                ->withBody(new Body(fopen('php://temp', 'r+')))
-                ->write($output);
+                ->withBody($body);
     }
 
     /**

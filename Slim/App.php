@@ -10,6 +10,7 @@ namespace Slim;
 
 use Exception;
 use Closure;
+use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -70,7 +71,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
-     * @throws Exception when no container is provided that implements ContainerInterface
+     * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
     {
@@ -78,7 +79,7 @@ class App
             $container = new Container($container);
         }
         if (!$container instanceof ContainerInterface) {
-            throw new Exception("Expected a ContainerInterface");
+            throw new InvalidArgumentException('Expected a ContainerInterface');
         }
         $this->container = $container;
     }
@@ -263,7 +264,9 @@ class App
      */
     public function group($pattern, $callable)
     {
+        /** @var RouteGroup $group */
         $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group->setContainer($this->container);
         $group($this);
         $this->container->get('router')->popGroup();
         return $group;
@@ -272,6 +275,49 @@ class App
     /********************************************************************************
      * Runner
      *******************************************************************************/
+
+    /**
+     * Run application
+     *
+     * This method traverses the application middleware stack and then sends the
+     * resultant Response object to the HTTP client.
+     *
+     * @param bool|false $silent
+     * @return ResponseInterface
+     */
+    public function run($silent = false)
+    {
+        // Finalize routes here for middleware stack
+        $this->container->get('router')->finalize();
+
+        $request = $this->container->get('request');
+        $response = $this->container->get('response');
+
+        // Dispatch the Router first if the setting for this is on
+        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
+            // Dispatch router (note: you won't be able to alter routes after this)
+            $request = $this->dispatchRouterAndPrepareRoute($request);
+        }
+
+        // Traverse middleware stack
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (SlimException $e) {
+            $response = $e->getResponse();
+        } catch (Exception $e) {
+            /** @var callable $errorHandler */
+            $errorHandler = $this->container->get('errorHandler');
+            $response = $errorHandler($request, $response, $e);
+        }
+
+        $response = $this->finalize($response);
+
+        if (!$silent) {
+            $this->respond($response);
+        }
+
+        return $response;
+    }
 
     /**
      * Send the response the client
@@ -283,18 +329,6 @@ class App
         static $responded = false;
 
         if (!$responded) {
-            // Finalize response
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
-                $size = $response->getBody()->getSize();
-                if ($size !== null) {
-                    $response = $response->withHeader('Content-Length', (string) $size);
-                }
-            } else {
-                $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-            }
-
             // Send response
             if (!headers_sent()) {
                 // Status
@@ -314,46 +348,22 @@ class App
             }
 
             // Body
+            $statusCode = $response->getStatusCode();
+            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
             if ($hasBody) {
                 $body = $response->getBody();
                 $body->rewind();
                 $settings = $this->container->get('settings');
                 while (!$body->eof()) {
                     echo $body->read($settings['responseChunkSize']);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
             }
+
             $responded = true;
         }
-    }
-
-    /**
-     * Run application
-     *
-     * This method traverses the application middleware stack and then sends the
-     * resultant Response object to the HTTP client.
-     */
-    public function run()
-    {
-        // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
-
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
-        } catch (Exception $e) {
-            /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
-        }
-
-        $this->respond($response);
-
-        return $response;
     }
 
     /**
@@ -371,13 +381,17 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $routeInfo = $this->container->get('router')->dispatch($request);
+        // Get the route info
+        $routeInfo = $request->getAttribute('routeInfo');
+
+        // If router hasn't been dispatched or the URI changed then dispatch
+        if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
+            $request = $this->dispatchRouterAndPrepareRoute($request);
+            $routeInfo = $request->getAttribute('routeInfo');
+        }
+
         if ($routeInfo[0] === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
-            return $routeInfo[1]($request, $response, $routeArguments);
+            return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
@@ -422,5 +436,50 @@ class App
         }
 
         return $this($request, $response);
+    }
+
+    /**
+     * Dispatch the router to find the route. Prepare the route for use.
+     *
+     * @param ServerRequestInterface $request
+     * @return ServerRequestInterface
+     */
+    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request)
+    {
+        $routeInfo = $this->container->get('router')->dispatch($request);
+
+        if ($routeInfo[0] === Dispatcher::FOUND) {
+            $routeArguments = [];
+            foreach ($routeInfo[2] as $k => $v) {
+                $routeArguments[$k] = urldecode($v);
+            }
+            $request = $routeInfo[1][0]->prepare($request, $routeArguments);
+        }
+
+        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
+
+        return $request->withAttribute('routeInfo', $routeInfo);
+    }
+
+    /**
+     * Finalize response
+     *
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function finalize(ResponseInterface $response)
+    {
+        $statusCode = $response->getStatusCode();
+        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
+        if ($hasBody) {
+            $size = $response->getBody()->getSize();
+            if ($size !== null) {
+                $response = $response->withHeader('Content-Length', (string) $size);
+            }
+        } else {
+            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+
+        return $response;
     }
 }

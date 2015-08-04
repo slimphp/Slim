@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use Closure;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -154,12 +155,12 @@ class Request implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new Body(fopen('php://input', 'r'));
+        $body = new RequestBody();
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
-        if ($request->isPost() &&
+        if ($method === 'POST' &&
             in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
         ) {
             // parsed body must be $_POST
@@ -301,6 +302,10 @@ class Request implements ServerRequestInterface
                     $this->method = $this->filterMethod($body->_METHOD);
                 } elseif (is_array($body) && isset($body['_METHOD'])) {
                     $this->method = $this->filterMethod($body['_METHOD']);
+                }
+
+                if ($this->getBody()->eof()) {
+                    $this->getBody()->rewind();
                 }
             }
         }
@@ -623,7 +628,7 @@ class Request implements ServerRequestInterface
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ((!$this->hasHeader('Host') || $this->getHeader('Host') === null) && $this->uri->getHost() !== '') {
+            if ($this->uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeader('Host') === null)) {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }
@@ -818,7 +823,7 @@ class Request implements ServerRequestInterface
             return strtolower($contentTypeParts[0]);
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -858,7 +863,7 @@ class Request implements ServerRequestInterface
             return $mediaTypeParams['charset'];
         }
 
-        return;
+        return null;
     }
 
     /**
@@ -1274,7 +1279,9 @@ class Request implements ServerRequestInterface
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
-        $callable = $callable->bindTo($this);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this);
+        }
         $this->bodyParsers[(string)$mediaType] = $callable;
     }
 
