@@ -790,4 +790,29 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->expectOutputRegex('/.*middleware exception.*/');
     }
+
+    public function testFinalize()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response->write('foo');
+
+        $response = $method->invoke(new App(), $response);
+
+        $this->assertTrue($response->hasHeader('Content-Length'));
+        $this->assertEquals('3', $response->getHeaderLine('Content-Length'));
+    }
+
+    public function testFinalizeWithoutBody()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = $method->invoke(new App(), new Response(304));
+
+        $this->assertFalse($response->hasHeader('Content-Length'));
+        $this->assertFalse($response->hasHeader('Content-Type'));
+    }
 }

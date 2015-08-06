@@ -348,9 +348,7 @@ class App
             }
 
             // Body
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
+            if (!$this->isEmptyResponse($response)) {
                 $body = $response->getBody();
                 $body->rewind();
                 $settings = $this->container->get('settings');
@@ -469,17 +467,29 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
-        $statusCode = $response->getStatusCode();
-        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-        if ($hasBody) {
-            $size = $response->getBody()->getSize();
-            if ($size !== null) {
-                $response = $response->withHeader('Content-Length', (string) $size);
-            }
-        } else {
-            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        if ($this->isEmptyResponse($response)) {
+            return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+        
+        $size = $response->getBody()->getSize();
+        if ($size !== null) {
+            $response = $response->withHeader('Content-Length', (string) $size);
         }
 
         return $response;
+    }
+
+    /**
+     * Helper method, which returns true if the provided response must not output a body and false
+     * if the response could have a body.
+     *
+     * @see https://tools.ietf.org/html/rfc7231
+     *
+     * @param ResponseInterface $response
+     * @return bool
+     */
+    protected function isEmptyResponse(ResponseInterface $response)
+    {
+        return in_array($response->getStatusCode(), [204, 205, 304]);
     }
 }

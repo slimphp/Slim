@@ -563,7 +563,7 @@ class Response implements ResponseInterface
      */
     public function isEmpty()
     {
-        return in_array($this->getStatusCode(), [201, 204, 304]);
+        return in_array($this->getStatusCode(), [204, 205, 304]);
     }
 
     /**

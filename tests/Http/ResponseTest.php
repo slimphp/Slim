@@ -271,7 +271,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
         $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
-        $prop->setValue($response, 201);
+        $prop->setValue($response, 204);
 
         $this->assertTrue($response->isEmpty());
     }
