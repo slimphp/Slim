@@ -22,17 +22,17 @@ final class CallableResolver implements CallableResolverInterface
     /**
      * @var ContainerInterface
      */
-    protected $container;
+    private $container;
 
     /**
      * @var string
      */
-    protected $toResolve;
+    private $toResolve;
 
     /**
      * @var callable
      */
-    protected $resolved;
+    private $resolved;
 
     /**
      * @param ContainerInterface $container
