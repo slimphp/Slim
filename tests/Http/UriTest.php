@@ -527,6 +527,24 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('example3.com', $uri->getHost());
     }
 
+    /**
+     * @covers Slim\Http\Uri::createFromEnvironment
+     * @ticket 1375
+     */
+    public function testCreateEnvironmentWithBasePath()
+    {
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/bar',
+        ]);
+        $uri = Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('/foo', $uri->getBasePath());
+        $this->assertEquals('bar', $uri->getPath());
+
+        $this->assertEquals('http://localhost/foo/bar', (string) $uri);
+    }
+
     public function testGetBaseUrl()
     {
         $environment = Environment::mock([
