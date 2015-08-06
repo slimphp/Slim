@@ -50,6 +50,21 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Route pattern must be a string
+     */
+    public function testMapWithInvalidPatternType()
+    {
+        $methods = ['GET'];
+        $pattern = ['foo'];
+        $callable = function ($request, $response, $args) {
+
+        };
+
+        $this->router->map($methods, $pattern, $callable);
+    }
+
     public function testPathFor()
     {
         $methods = ['GET'];
