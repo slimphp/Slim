@@ -589,6 +589,10 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://josh:sekrit@example.com:8080/foo', $uri->getBaseUrl());
     }
 
+    /**
+     * @covers Slim\Http\Uri::createFromEnvironment
+     * @ticket 1380
+     */
     public function testWithPathWhenBaseRootIsEmpty()
     {
         $environment = \Slim\Http\Environment::mock([
