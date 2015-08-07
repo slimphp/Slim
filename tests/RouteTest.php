@@ -110,6 +110,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($route));
     }
 
+    public function testIdentifier()
+    {
+        $route = $this->routeFactory();
+        $this->assertEquals('route0', $route->getIdentifier());
+    }
+
     public function testSetName()
     {
         $route = $this->routeFactory();

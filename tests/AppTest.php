@@ -161,7 +161,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupDefaultSlash()
@@ -175,7 +175,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo', 'pattern', $router->getRoutes()[0]);
+        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
         
         $app = new App();
         $app->group('/foo', function () use ($app) {
@@ -186,7 +186,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
         
         $app = new App();
         $app->group('/foo', function () use ($app) {
@@ -199,7 +199,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/baz', 'pattern', $router->getRoutes()[0]);
+        $this->assertAttributeEquals('/foo/baz', 'pattern', $router->lookupRoute('route0'));
         
         $app = new App();
         $app->group('/foo', function () use ($app) {
@@ -210,7 +210,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->getRoutes()[0]);
+        $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->lookupRoute('route0'));
     }
 
     /********************************************************************************
