@@ -261,7 +261,6 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
-     * @return ServerRequestInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments)
     {
@@ -269,11 +268,6 @@ class Route extends Routable implements RouteInterface
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v);
         }
-
-        // add this route to the request's attributes in case route middleware needs access to route arguments
-        $request = $request->withAttribute('route', $this);
-
-        return $request;
     }
 
     /**
