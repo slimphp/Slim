@@ -451,7 +451,11 @@ class App
             foreach ($routeInfo[2] as $k => $v) {
                 $routeArguments[$k] = urldecode($v);
             }
-            $request = $routeInfo[1][0]->prepare($request, $routeArguments);
+
+            $routeInfo[1][0]->prepare($request, $routeArguments);
+
+            // add route to the request's attributes in case a middleware or handler needs access to the route
+            $request = $request->withAttribute('route', $routeInfo[1][0]);
         }
 
         $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
@@ -470,7 +474,7 @@ class App
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
-        
+
         $size = $response->getBody()->getSize();
         if ($size !== null) {
             $response = $response->withHeader('Content-Length', (string) $size);
