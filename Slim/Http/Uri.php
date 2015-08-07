@@ -577,7 +577,10 @@ class Uri implements UriInterface
             $basePath = '/' . trim($basePath, '/'); // <-- Trim on both sides
         }
         $clone = clone $this;
-        $clone->basePath = $this->filterPath($basePath);
+
+        if ($basePath !== '/') {
+            $clone->basePath = $this->filterPath($basePath);
+        }
 
         return $clone;
     }

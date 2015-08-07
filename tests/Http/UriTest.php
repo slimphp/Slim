@@ -301,6 +301,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/base', 'basePath', $uri);
     }
 
+    public function testWithBasePathIgnoresSlash()
+    {
+        $uri = $this->uriFactory()->withBasePath('/');
+
+        $this->assertAttributeEquals('', 'basePath', $uri);
+    }
+
     public function testGetPath()
     {
         $this->assertEquals('/foo/bar', $this->uriFactory()->getPath());
