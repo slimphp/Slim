@@ -301,6 +301,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/base', 'basePath', $uri);
     }
 
+    public function testWithBasePathIgnoresSlash()
+    {
+        $uri = $this->uriFactory()->withBasePath('/');
+
+        $this->assertAttributeEquals('', 'basePath', $uri);
+    }
+
     public function testGetPath()
     {
         $this->assertEquals('/foo/bar', $this->uriFactory()->getPath());
@@ -527,6 +534,24 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('example3.com', $uri->getHost());
     }
 
+    /**
+     * @covers Slim\Http\Uri::createFromEnvironment
+     * @ticket 1375
+     */
+    public function testCreateEnvironmentWithBasePath()
+    {
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/bar',
+        ]);
+        $uri = Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('/foo', $uri->getBasePath());
+        $this->assertEquals('bar', $uri->getPath());
+
+        $this->assertEquals('http://localhost/foo/bar', (string) $uri);
+    }
+
     public function testGetBaseUrl()
     {
         $environment = Environment::mock([
@@ -569,5 +594,20 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri = Uri::createFromEnvironment($environment);
 
         $this->assertEquals('http://josh:sekrit@example.com:8080/foo', $uri->getBaseUrl());
+    }
+
+    /**
+     * @covers Slim\Http\Uri::createFromEnvironment
+     * @ticket 1380
+     */
+    public function testWithPathWhenBaseRootIsEmpty()
+    {
+        $environment = \Slim\Http\Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/bar',
+        ]);
+        $uri = \Slim\Http\Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('http://localhost/test', (string) $uri->withPath('test'));
     }
 }
