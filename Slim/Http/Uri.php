@@ -765,7 +765,7 @@ class Uri implements UriInterface
             $path = $basePath . '/' . $path;
         }
         if (!$authority && substr($path, 0, 2) === '//') {
-            $path = '/' . ltrim($path);
+            $path = '/' . ltrim($path, '/');
         }
 
         return ($scheme ? $scheme . ':' : '')
