@@ -384,6 +384,9 @@ class Stream implements StreamInterface
             throw new RuntimeException('Could not write to stream');
         }
 
+        // reset size so that it will be recalculated on next call to getSize()
+        $this->size = null;
+
         return $written;
     }
 
