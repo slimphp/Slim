@@ -100,6 +100,7 @@ class Stream implements StreamInterface
      */
     public function getMetadata($key = null)
     {
+        $this->meta = stream_get_meta_data($this->stream);
         if (is_null($key) === true) {
             return $this->meta;
         }
@@ -139,7 +140,6 @@ class Stream implements StreamInterface
         }
 
         $this->stream = $newStream;
-        $this->meta = stream_get_meta_data($newStream);
     }
 
     /**
@@ -253,8 +253,9 @@ class Stream implements StreamInterface
         if ($this->readable === null) {
             $this->readable = false;
             if ($this->isAttached()) {
+                $meta = $this->getMetadata();
                 foreach (self::$modes['readable'] as $mode) {
-                    if (strpos($this->meta['mode'], $mode) === 0) {
+                    if (strpos($meta['mode'], $mode) === 0) {
                         $this->readable = true;
                         break;
                     }
@@ -275,8 +276,9 @@ class Stream implements StreamInterface
         if ($this->writable === null) {
             $this->writable = false;
             if ($this->isAttached()) {
+                $meta = $this->getMetadata();
                 foreach (self::$modes['writable'] as $mode) {
-                    if (strpos($this->meta['mode'], $mode) === 0) {
+                    if (strpos($meta['mode'], $mode) === 0) {
                         $this->writable = true;
                         break;
                     }
@@ -297,7 +299,8 @@ class Stream implements StreamInterface
         if ($this->seekable === null) {
             $this->seekable = false;
             if ($this->isAttached()) {
-                $this->seekable = $this->meta['seekable'];
+                $meta = $this->getMetadata();
+                $this->seekable = $meta['seekable'];
             }
         }
 
