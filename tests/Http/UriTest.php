@@ -456,6 +456,17 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
         $uri = $uri->withPath('/bar');
         $this->assertEquals('https://josh:sekrit@example.com/bar?abc=123#section3', (string) $uri);
+
+        // ensure that a Uri with just a base path correctly converts to a string
+        // (This occurs via createFromEnvironment when index.php is in a subdirectory)
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/foo/index.php',
+            'REQUEST_URI' => '/foo/',
+            'HTTP_HOST' => 'example.com',
+        ]);
+        $uri = Uri::createFromEnvironment($environment);
+        $this->assertEquals('http://example.com/foo/', (string) $uri);
+
     }
 
     /**
