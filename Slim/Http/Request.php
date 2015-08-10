@@ -953,7 +953,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         if (!$this->body) {
-            return;
+            return null;
         }
 
         $mediaType = $this->getMediaType();
