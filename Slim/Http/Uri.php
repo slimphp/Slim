@@ -542,6 +542,11 @@ class Uri implements UriInterface
         $clone = clone $this;
         $clone->path = $this->filterPath($path);
 
+        // if the path is absolute, then clear basePath
+        if (substr($path, 0, 1) == '/') {
+            $clone->basePath = '';
+        }
+
         return $clone;
     }
 
