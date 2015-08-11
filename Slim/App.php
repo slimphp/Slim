@@ -233,7 +233,6 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this);
         }
