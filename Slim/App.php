@@ -349,7 +349,9 @@ class App
             // Body
             if (!$this->isEmptyResponse($response)) {
                 $body = $response->getBody();
-                $body->rewind();
+                if ($body->isSeekable()) {
+                    $body->rewind();
+                }
                 $settings = $this->container->get('settings');
                 while (!$body->eof()) {
                     echo $body->read($settings['responseChunkSize']);
