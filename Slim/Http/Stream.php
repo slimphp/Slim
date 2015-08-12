@@ -406,4 +406,18 @@ class Stream implements StreamInterface
 
         return $contents;
     }
+    
+    /**
+     * Clear the stream/contents
+     *
+     * @throws RuntimeException if unable to write or an error occurs while
+     *     clearing.
+     */
+    public function clear()
+    {
+        if (!$this->isWritable() || ($success = ftruncate($this->stream, 0)) === false) {
+            throw new RuntimeException('Could not clear contents of stream');
+        }
+    }
+    
 }
