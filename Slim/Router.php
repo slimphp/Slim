@@ -61,6 +61,13 @@ class Router extends RouteCollector implements RouterInterface
     private $finalized = false;
 
     /**
+     * Base path for addding on to pathFor() and removing from Uri's path on dispatch
+     *
+     * @var string
+     */
+    private $basePath = '';
+
+    /**
      * Create new router
      *
      * @param RouteParser   $parser
@@ -133,9 +140,32 @@ class Router extends RouteCollector implements RouterInterface
         $this->finalize();
 
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
-        $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-        
-        return $dispatcher->dispatch($request->getMethod(), $uri);
+
+        $uri = $request->getUri();
+        $path = $uri->getPath();
+        if (method_exists($uri, 'getBasePath')) {
+            $this->basePath = $uri->getBasePath();
+        }
+
+        if ($this->basePath && strpos($path, $this->basePath) === 0) {
+            $path = str_replace($this->basePath, '', $path);
+        }
+
+        $path = '/' . ltrim($path, '/');
+        return $dispatcher->dispatch($request->getMethod(), $path);
+    }
+
+    /**
+     * Allow setting the base path
+     *
+     * This is useful if the request object doesn't have a getBasePath() method
+     *
+     * @return self
+     */
+    public function setBasePath($basePath)
+    {
+        $this->basePath = $basePath;
+        return $this;
     }
 
     /**
@@ -263,6 +293,10 @@ class Router extends RouteCollector implements RouterInterface
             throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
+        }
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
