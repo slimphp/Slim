@@ -11,6 +11,7 @@ namespace Slim\Http;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use \Psr\Http\Message\UriInterface;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
@@ -259,13 +260,13 @@ class Response extends Message implements ResponseInterface
      * This method prepares the response object to return an HTTP Redirect
      * response to the client.
      *
-     * @param  string $url    The redirect destination.
-     * @param  int    $status The redirect HTTP status code.
+     * @param  string|UriInterface $url    The redirect destination.
+     * @param  int                 $status The redirect HTTP status code.
      * @return self
      */
     public function withRedirect($url, $status = 302)
     {
-        return $this->withStatus($status)->withHeader('Location', $url);
+        return $this->withStatus($status)->withHeader('Location', (string)$url);
     }
 
     /**
