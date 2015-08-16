@@ -760,16 +760,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
     {
         $app = new App();
 
-        $mw = function ($req, $res, $next) {
-            throw new \Exception('middleware exception');
-        };
-
-        $app->add($mw);
-
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
-
         // Prepare request and response objects
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
@@ -785,6 +775,17 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = new Response();
         $app->getContainer()['request'] = $req;
         $app->getContainer()['response'] = $res;
+
+        $mw = function ($req, $res, $next) {
+            throw new \Exception('middleware exception');
+        };
+
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
         $resOut = $app->run();
 
         $this->assertEquals(500, $resOut->getStatusCode());
