@@ -147,7 +147,15 @@ final class Container extends PimpleContainer implements ContainerInterface
          * @return RouterInterface
          */
         $this['router'] = function ($c) {
-            return new Router();
+            $router = new Router();
+
+            $uri = $c['request']->getUri();
+
+            if (is_callable([$uri, 'getBasePath'])) {
+                $router->setBasePath($uri->getBasePath());
+            }
+
+            return $router;
         };
 
         /**
