@@ -80,6 +80,23 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
+    
+    public function testPathForWithBasePath()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first:\w+}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $this->router->setBasePath('/base/path');
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/base/path/hello/josh/lockhart',
+            $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+        );
+    }
 
     public function testPathForWithOptionalParameters()
     {
@@ -151,5 +168,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $route->setName('foo');
 
         $this->router->pathFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSettingInvalidBasePath()
+    {
+        $this->router->setBasePath(['invalid']);
     }
 }
