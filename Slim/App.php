@@ -106,9 +106,6 @@ class App
     public function add($callable)
     {
         $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
 
         return $this->addMiddleware($callable);
     }

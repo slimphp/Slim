@@ -17,6 +17,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\MiddlewareStub;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
@@ -153,6 +154,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
 
         $container = new Container();
+        $container['MiddlewareStub'] = new MiddlewareStub();
+
         $route->setContainer($container);
         $route->add('MiddlewareStub:run');
 
