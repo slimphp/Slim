@@ -52,11 +52,6 @@ final class Container extends PimpleContainer implements ContainerInterface
      * @var array
      */
     private $defaultSettings = [
-        'cookieLifetime' => '20 minutes',
-        'cookiePath' => '/',
-        'cookieDomain' => null,
-        'cookieSecure' => false,
-        'cookieHttpOnly' => false,
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
         'outputBuffering' => 'append',
