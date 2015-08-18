@@ -29,7 +29,7 @@ class RequestResponse implements InvocationStrategyInterface
      * @return mixed
      */
     public function __invoke(
-        callable $callable,
+        $callable,
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $routeArguments
