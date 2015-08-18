@@ -193,9 +193,9 @@ class Uri implements UriInterface
         $requestUri = parse_url($env->get('REQUEST_URI'), PHP_URL_PATH);
         $basePath = '';
         $virtualPath = $requestUri;
-        if (strpos($requestUri, $requestScriptName) === 0) {
+        if (stripos($requestUri, $requestScriptName) === 0) {
             $basePath = $requestScriptName;
-        } elseif ($requestScriptDir !== '/' && strpos($requestUri, $requestScriptDir) === 0) {
+        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
             $basePath = $requestScriptDir;
         }
 
