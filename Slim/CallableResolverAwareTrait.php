@@ -35,7 +35,7 @@ trait CallableResolverAwareTrait
      */
     protected function resolveCallable($callable)
     {
-        if (is_callable($callable) || !$this->container instanceof ContainerInterface) {
+        if (!$this->container instanceof ContainerInterface) {
             return $callable;
         }
 
