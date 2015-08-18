@@ -409,28 +409,15 @@ class Request extends Message implements ServerRequestInterface
     }
 
     /**
-     * Is this an AJAX request?
-     *
-     * Note: This method is not part of the PSR-7 standard.
-     *
-     * @return bool
-     */
-    public function isAjax()
-    {
-        return $this->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
-    }
-
-    /**
      * Is this an XHR request?
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @see    isAjax()
      * @return bool
      */
     public function isXhr()
     {
-        return $this->isAjax();
+        return $this->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
 
     /*******************************************************************************
