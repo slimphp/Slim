@@ -70,8 +70,6 @@ final class CallableResolver implements CallableResolverInterface
 
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf('%s is not resolvable', $toResolve));
-        } elseif ($resolved instanceof \Closure) {
-            $resolved = $resolved->bindTo($this->container);
         }
 
         return $resolved;
