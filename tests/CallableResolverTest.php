@@ -11,6 +11,7 @@ namespace Slim\Tests;
 use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\InvokableTest;
 
 class CallableResolverTest extends \PHPUnit_Framework_TestCase
 {
@@ -22,6 +23,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         CallableTest::$CalledCount = 0;
+        InvokableTest::$CalledCount = 0;
         $this->container = new Container();
     }
 
@@ -77,6 +79,25 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $callable = $resolver->resolve('callable_service:toCall');
         $callable();
         $this->assertEquals(1, CallableTest::$CalledCount);
+    }
+
+    public function testResolutionToAnInvokableClassInContainer()
+    {
+        $this->container['an_invokable'] = function ($c) {
+            return new InvokableTest();
+        };
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('an_invokable');
+        $callable();
+        $this->assertEquals(1, InvokableTest::$CalledCount);
+    }
+
+    public function testResolutionToAnInvokableClass()
+    {
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('Slim\Tests\Mocks\InvokableTest');
+        $callable();
+        $this->assertEquals(1, InvokableTest::$CalledCount);
     }
 
     public function testMethodNotFoundThrowException()
