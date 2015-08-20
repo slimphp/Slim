@@ -61,12 +61,13 @@ final class Container extends PimpleContainer implements ContainerInterface
     /**
      * Create new container
      *
-     * @param array $userSettings Associative array of application settings
+     * @param array $values The parameters or objects.
      */
-    public function __construct(array $userSettings = [])
+    public function __construct(array $values = [])
     {
-        parent::__construct();
+        parent::__construct($values);
 
+        $userSettings = isset($values['settings']) ? $values['settings'] : [];
         $this->registerDefaultServices($userSettings);
     }
 
@@ -104,9 +105,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return EnvironmentInterface
          */
-        $this['environment'] = function ($c) {
-            return new Environment($_SERVER);
-        };
+        if (!isset($this['environment'])) {
+            $this['environment'] = function ($c) {
+                return new Environment($_SERVER);
+            };
+        }
 
         /**
          * PSR-7 Request object
@@ -115,9 +118,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return ServerRequestInterface
          */
-        $this['request'] = function ($c) {
-            return Request::createFromEnvironment($c['environment']);
-        };
+        if (!isset($this['request'])) {
+            $this['request'] = function ($c) {
+                return Request::createFromEnvironment($c['environment']);
+            };
+        }
 
         /**
          * PSR-7 Response object
@@ -126,12 +131,14 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return ResponseInterface
          */
-        $this['response'] = function ($c) {
-            $headers = new Headers(['Content-Type' => 'text/html']);
-            $response = new Response(200, $headers);
+        if (!isset($this['response'])) {
+            $this['response'] = function ($c) {
+                $headers = new Headers(['Content-Type' => 'text/html']);
+                $response = new Response(200, $headers);
 
-            return $response->withProtocolVersion($c['settings']['httpVersion']);
-        };
+                return $response->withProtocolVersion($c['settings']['httpVersion']);
+            };
+        }
 
         /**
          * This service MUST return a SHARED instance
@@ -141,17 +148,19 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return RouterInterface
          */
-        $this['router'] = function ($c) {
-            $router = new Router();
+        if (!isset($this['router'])) {
+            $this['router'] = function ($c) {
+                $router = new Router();
 
-            $uri = $c['request']->getUri();
+                $uri = $c['request']->getUri();
 
-            if (is_callable([$uri, 'getBasePath'])) {
-                $router->setBasePath($uri->getBasePath());
-            }
+                if (is_callable([$uri, 'getBasePath'])) {
+                    $router->setBasePath($uri->getBasePath());
+                }
 
-            return $router;
-        };
+                return $router;
+            };
+        }
 
         /**
          * This service MUST return a SHARED instance
@@ -161,9 +170,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return InvocationStrategyInterface
          */
-        $this['foundHandler'] = function ($c) {
-            return new RequestResponse();
-        };
+        if (!isset($this['foundHandler'])) {
+            $this['foundHandler'] = function ($c) {
+                return new RequestResponse();
+            };
+        }
 
         /**
          * This service MUST return a callable
@@ -180,9 +191,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return callable
          */
-        $this['errorHandler'] = function ($c) {
-            return new Error();
-        };
+        if (!isset($this['errorHandler'])) {
+            $this['errorHandler'] = function ($c) {
+                return new Error();
+            };
+        }
 
         /**
          * This service MUST return a callable
@@ -198,9 +211,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return callable
          */
-        $this['notFoundHandler'] = function ($c) {
-            return new NotFound();
-        };
+        if (!isset($this['notFoundHandler'])) {
+            $this['notFoundHandler'] = function ($c) {
+                return new NotFound();
+            };
+        }
 
         /**
          * This service MUST return a callable
@@ -217,9 +232,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return callable
          */
-        $this['notAllowedHandler'] = function ($c) {
-            return new NotAllowed;
-        };
+        if (!isset($this['notAllowedHandler'])) {
+            $this['notAllowedHandler'] = function ($c) {
+                return new NotAllowed;
+            };
+        }
 
         /**
          * Instance of \Slim\Interfaces\CallableResolverInterface
@@ -228,9 +245,11 @@ final class Container extends PimpleContainer implements ContainerInterface
          *
          * @return CallableResolverInterface
          */
-        $this['callableResolver'] = function ($c) {
-            return new CallableResolver($c);
-        };
+        if (!isset($this['callableResolver'])) {
+            $this['callableResolver'] = function ($c) {
+                return new CallableResolver($c);
+            };
+        }
     }
 
     /********************************************************************************
