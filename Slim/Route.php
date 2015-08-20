@@ -84,7 +84,7 @@ class Route extends Routable implements RouteInterface
      *
      * This method prepends new middleware to the route's middleware stack.
      *
-     * @param  mixed    $callable The callback routine
+     * @param mixed $callable The callback routine
      *
      * @return RouteInterface
      */
