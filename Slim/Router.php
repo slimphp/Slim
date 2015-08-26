@@ -42,7 +42,7 @@ class Router extends RouteCollector implements RouterInterface
      *
      * @var string
      */
-    protected $basePath = '';
+    protected $basePath = null;
 
     /**
      * Routes
@@ -155,6 +155,10 @@ class Router extends RouteCollector implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
+        if (null === $this->basePath) {
+            $this->setBasePath($request->getUri()->getBasePath());
+        }
+
         $this->finalize();
 
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
