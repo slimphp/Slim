@@ -286,11 +286,16 @@ class App
      */
     public function run($silent = false)
     {
-        // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
-
         $request = $this->container->get('request');
         $response = $this->container->get('response');
+
+        // Finalize routes here for middleware stack & ensure basePath is set
+        $router = $this->container->get('router');
+        $router->finalize();
+        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
+            $router->setBasePath($request->getUri()->getBasePath());
+        }
+
 
         // Dispatch the Router first if the setting for this is on
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
