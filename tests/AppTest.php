@@ -164,6 +164,67 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
     }
 
+    public function testGroupDefaultSlash()
+    {
+        $app = new App();
+        $app->group('/', function () use ($app) {
+            $route = $app->get('/bar', function ($req, $res) {
+                // Do something
+            });
+
+        });
+
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/bar', 'pattern', $router->getRoutes()[0]);
+
+        $app = new App();
+        $app->group('/foo/bar', function () use ($app) {
+            $app->get('/',
+                function ($req, $res) {
+                    // Do something
+                });
+        });
+
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
+
+
+        $app = new App();
+        $app->group('/foo', function () use ($app) {
+            $app->group('/bar', function () use ($app) {
+                $app->get('/',
+                    function ($req, $res) {
+                        // Do something
+                    });
+            });
+        });
+
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
+
+
+
+        $app = new App();
+        $app->group('/foo/bar', function () use ($app) {
+            $app->get('/baz',
+                function ($req, $res) {
+                    // Do something
+                });
+        });
+
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/bar/baz', 'pattern', $router->getRoutes()[0]);
+
+    }
+
     /********************************************************************************
      * Middleware
      *******************************************************************************/
