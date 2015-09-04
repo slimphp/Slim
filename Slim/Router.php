@@ -118,6 +118,10 @@ class Router extends RouteCollector implements RouterInterface
 
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
+            // If any route in the group only has / we remove it
+            if ($pattern === '/') {
+                $pattern = '';
+            }
             $pattern = $this->processGroups() . $pattern;
         }
 
