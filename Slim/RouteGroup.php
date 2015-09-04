@@ -26,7 +26,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
      */
     public function __construct($pattern, $callable)
     {
-        $this->pattern = $pattern;
+        $this->pattern = rtrim($pattern, '/');
         $this->callable = $callable;
     }
 
