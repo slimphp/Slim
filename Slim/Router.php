@@ -122,7 +122,7 @@ class Router extends RouteCollector implements RouterInterface
         }
 
         // Add route
-        $route = new Route($methods, rtrim($pattern, '/'), $handler, $this->routeGroups);
+        $route = new Route($methods, $pattern, $handler, $this->routeGroups);
         $this->routes[] = $route;
 
         return $route;
