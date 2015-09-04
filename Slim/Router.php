@@ -118,6 +118,9 @@ class Router extends RouteCollector implements RouterInterface
 
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
+            if (strlen($pattern) === 1 && strpos($pattern, '/') === 0) {
+                $pattern = ltrim($pattern, '/');
+            }
             $pattern = $this->processGroups() . $pattern;
         }
 
