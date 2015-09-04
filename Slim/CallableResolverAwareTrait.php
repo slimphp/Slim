@@ -10,6 +10,7 @@ namespace Slim;
 
 use RuntimeException;
 use Interop\Container\ContainerInterface;
+use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * ResolveCallable
@@ -26,7 +27,7 @@ trait CallableResolverAwareTrait
      * Resolve a string of the format 'class:method' into a closure that the
      * router can dispatch.
      *
-     * @param string $callable
+     * @param mixed $callable
      *
      * @return \Closure
      *
@@ -34,18 +35,13 @@ trait CallableResolverAwareTrait
      */
     protected function resolveCallable($callable)
     {
-        if (is_string($callable) && !is_callable($callable)) {
-            if ($this->container instanceof ContainerInterface) {
-                $container = $this->container;
-            } else {
-                throw new RuntimeException('Cannot resolve callable string');
-            }
-            /** @var CallableResolver $resolver */
-            $resolver = clone($container->get('callableResolver')); // we need a new one each time
-            $resolver->setToResolve($callable);
-            $callable = $resolver;
+        if (!$this->container instanceof ContainerInterface) {
+            return $callable;
         }
 
-        return $callable;
+        /** @var CallableResolverInterface $resolver */
+        $resolver = $this->container->get('callableResolver');
+
+        return $resolver->resolve($callable);
     }
 }

@@ -760,16 +760,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
     {
         $app = new App();
 
-        $mw = function ($req, $res, $next) {
-            throw new \Exception('middleware exception');
-        };
-
-        $app->add($mw);
-
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
-
         // Prepare request and response objects
         $env = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
@@ -785,9 +775,45 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = new Response();
         $app->getContainer()['request'] = $req;
         $app->getContainer()['response'] = $res;
+
+        $mw = function ($req, $res, $next) {
+            throw new \Exception('middleware exception');
+        };
+
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
         $resOut = $app->run();
 
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->expectOutputRegex('/.*middleware exception.*/');
+    }
+
+    public function testFinalize()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response->write('foo');
+
+        $response = $method->invoke(new App(), $response);
+
+        $this->assertTrue($response->hasHeader('Content-Length'));
+        $this->assertEquals('3', $response->getHeaderLine('Content-Length'));
+    }
+
+    public function testFinalizeWithoutBody()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = $method->invoke(new App(), new Response(304));
+
+        $this->assertFalse($response->hasHeader('Content-Length'));
+        $this->assertFalse($response->hasHeader('Content-Type'));
     }
 }

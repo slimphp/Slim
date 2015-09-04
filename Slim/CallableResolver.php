@@ -14,45 +14,21 @@ use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure
- * that can be dispatched. It is itself invokable as it lazily resolves the string
- * when it is invoked.
+ * that can be dispatched.
  */
 final class CallableResolver implements CallableResolverInterface
 {
     /**
      * @var ContainerInterface
      */
-    protected $container;
-
-    /**
-     * @var string
-     */
-    protected $toResolve;
-
-    /**
-     * @var callable
-     */
-    protected $resolved;
+    private $container;
 
     /**
      * @param ContainerInterface $container
-     * @param string             $toResolve
      */
-    public function __construct(ContainerInterface $container, $toResolve = null)
+    public function __construct(ContainerInterface $container)
     {
-        $this->toResolve = $toResolve;
         $this->container = $container;
-    }
-
-
-    /**
-     * Receive a string that is to be resolved to a callable
-     *
-     * @param  string $toResolve
-     */
-    public function setToResolve($toResolve)
-    {
-        $this->toResolve = $toResolve;
     }
 
     /**
@@ -61,51 +37,54 @@ final class CallableResolver implements CallableResolverInterface
      * If toResolve is of the format 'class:method', then try to extract 'class'
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
-     * @return \Closure
+     * @param mixed $toResolve
+     *
+     * @return callable
      *
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
      */
-    private function resolve()
+    public function resolve($toResolve)
     {
-        // if it's callable, then it's already resolved
-        if (is_callable($this->toResolve)) {
-            $this->resolved = $this->toResolve;
-
-        // check for slim callable as "class:method"
-        } elseif (is_string($this->toResolve)) {
-            $callable_pattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
-            if (preg_match($callable_pattern, $this->toResolve, $matches)) {
+        if (!is_callable($toResolve) && is_string($toResolve)) {
+            // check for slim callable as "class:method"
+            $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
+            if (preg_match($callablePattern, $toResolve, $matches)) {
                 $class = $matches[1];
                 $method = $matches[2];
 
                 if ($this->container->has($class)) {
-                    $this->resolved = [$this->container->get($class), $method];
+                    $resolved = [$this->container->get($class), $method];
                 } else {
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                     }
-                    $this->resolved = [new $class, $method];
-                }
-                if (!is_callable($this->resolved)) {
-                    throw new RuntimeException(sprintf('%s is not resolvable', $this->toResolve));
+                    $resolved = [new $class, $method];
                 }
             } else {
-                throw new RuntimeException(sprintf('%s is not resolvable', $this->toResolve));
+                // check if string is something in the DIC that's callable or is a class name which
+                // has an __invoke() method
+                $class = $toResolve;
+                if ($this->container->has($class)) {
+                    $resolved = $this->container->get($class);
+                } else {
+                    if (!class_exists($class)) {
+                        throw new RuntimeException(sprintf('Callable %s does not exist', $class));
+                    }
+                    $resolved = new $class;
+                }
             }
+            if (!is_callable($resolved)) {
+                throw new RuntimeException(sprintf('%s is not resolvable', $toResolve));
+            }
+        } else {
+            $resolved = $toResolve;
         }
-    }
 
-    /**
-     * Invoke the resolved callable.
-     *
-     * @return \Psr\Http\Message\ResponseInterface
-     */
-    public function __invoke()
-    {
-        if (!isset($this->resolved)) {
-            $this->resolve();
+        if (!is_callable($resolved)) {
+            throw new RuntimeException(sprintf('%s is not resolvable', $toResolve));
         }
-        return call_user_func_array($this->resolved, func_get_args());
+
+        return $resolved;
     }
 }

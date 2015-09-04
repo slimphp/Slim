@@ -8,10 +8,8 @@
  */
 namespace Slim\Interfaces;
 
-use Psr\Http\Message\ResponseInterface;
-
 /**
- * Callable Resolver Interface
+ * Resolves a callable.
  *
  * @package Slim
  * @since 3.0.0
@@ -19,16 +17,11 @@ use Psr\Http\Message\ResponseInterface;
 interface CallableResolverInterface
 {
     /**
-     * Receive a string that is to be resolved to a callable
-     *
-     * @param string $toResolve
-     */
-    public function setToResolve($toResolve);
-
-    /**
      * Invoke the resolved callable.
      *
-     * @return ResponseInterface
+     * @param mixed $toResolve
+     *
+     * @return callable
      */
-    public function __invoke();
+    public function resolve($toResolve);
 }

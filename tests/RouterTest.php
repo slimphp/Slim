@@ -50,6 +50,21 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Route pattern must be a string
+     */
+    public function testMapWithInvalidPatternType()
+    {
+        $methods = ['GET'];
+        $pattern = ['foo'];
+        $callable = function ($request, $response, $args) {
+
+        };
+
+        $this->router->map($methods, $pattern, $callable);
+    }
+
     public function testPathFor()
     {
         $methods = ['GET'];
@@ -62,6 +77,23 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             '/hello/josh/lockhart',
+            $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+        );
+    }
+    
+    public function testPathForWithBasePath()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first:\w+}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $this->router->setBasePath('/base/path');
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/base/path/hello/josh/lockhart',
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
@@ -136,5 +168,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $route->setName('foo');
 
         $this->router->pathFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSettingInvalidBasePath()
+    {
+        $this->router->setBasePath(['invalid']);
     }
 }

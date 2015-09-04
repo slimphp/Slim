@@ -53,30 +53,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /*******************************************************************************
-     * Protocol
-     ******************************************************************************/
-
-    public function testGetProtocol()
-    {
-        $this->assertEquals('1.1', $this->requestFactory()->getProtocolVersion());
-    }
-
-    public function testWithProtocol()
-    {
-        $clone = $this->requestFactory()->withProtocolVersion('1.0');
-
-        $this->assertAttributeEquals('1.0', 'protocolVersion', $clone);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testWithProtocolInvalid()
-    {
-        $this->requestFactory()->withProtocolVersion('foo');
-    }
-
-    /*******************************************************************************
      * Method
      ******************************************************************************/
 
@@ -111,6 +87,63 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $request = $this->requestFactory()->withMethod(null);
 
         $this->assertAttributeEquals(null, 'originalMethod', $request);
+    }
+
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironment()
+    {
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        $this->assertEquals('POST', $request->getMethod());
+        $this->assertEquals($env->all(), $request->getServerParams());
+    }
+
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironmentWithMultipart()
+    {
+        $_POST['foo'] = 'bar';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
+    /**
+     * @covers Slim\Http\Request::createFromEnvironment
+     */
+    public function testCreateFromEnvironmentWithMultipartMethodOverride()
+    {
+        $_POST['_METHOD'] = 'PUT';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        $this->assertEquals('POST', $request->getOriginalMethod());
+        $this->assertEquals('PUT', $request->getMethod());
     }
 
     public function testGetMethodWithOverrideHeader()
@@ -349,106 +382,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeSame($uri2, 'uri', $clone);
     }
 
-    /*******************************************************************************
-     * Headers
-     ******************************************************************************/
-
-    public function testGetHeaders()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-
-        $shouldBe = [
-            'X-Foo' => ['one', 'two', 'three'],
-        ];
-        $this->assertEquals($shouldBe, $request->getHeaders());
-    }
-
-    public function testHasHeader()
-    {
-        $headers = new Headers(['X-Foo' => ['one']]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-
-        $this->assertTrue($request->hasHeader('X-Foo'));
-        $this->assertFalse($request->hasHeader('X-Bar'));
-    }
-
-    public function testGetHeaderLine()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-
-        $this->assertEquals('one,two,three', $request->getHeaderLine('X-Foo'));
-        $this->assertEquals('', $request->getHeaderLine('X-Bar'));
-    }
-
-    public function testGetHeader()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one', 'two', 'three'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-
-        $this->assertEquals(['one', 'two', 'three'], $request->getHeader('X-Foo'));
-        $this->assertEquals([], $request->getHeader('X-Bar'));
-    }
-
-    public function testWithHeader()
-    {
-        $request = $this->requestFactory();
-        $clone = $request->withHeader('X-Foo', 'bar');
-
-        $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
-    }
-
-    public function testWithAddedHeader()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-        $clone = $request->withAddedHeader('X-Foo', 'two');
-
-        $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
-    }
-
-    public function testWithoutHeader()
-    {
-        $headers = new Headers([
-            'X-Foo' => ['one'],
-            'X-Bar' => ['two'],
-        ]);
-        $request = $this->requestFactory();
-        $headersProp = new ReflectionProperty($request, 'headers');
-        $headersProp->setAccessible(true);
-        $headersProp->setValue($request, $headers);
-        $clone = $request->withoutHeader('X-Foo');
-        $shouldBe = [
-            'X-Bar' => ['two'],
-        ];
-
-        $this->assertEquals($shouldBe, $clone->getHeaders());
-    }
-
     public function testGetContentType()
     {
         $headers = new Headers([
@@ -637,6 +570,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /*******************************************************************************
+     * Uploaded files
+     ******************************************************************************/
+
+    /**
+     * @covers Slim\Http\Request::withUploadedFiles
+     * @covers Slim\Http\Request::getUploadedFiles
+     */
+    public function testWithUploadedFiles()
+    {
+        $files = [new UploadedFile('foo.txt'), new UploadedFile('bar.txt')];
+
+        $request = $this->requestFactory();
+        $clone = $request->withUploadedFiles($files);
+
+        $this->assertEquals([], $request->getUploadedFiles());
+        $this->assertEquals($files, $clone->getUploadedFiles());
+    }
+
+    /*******************************************************************************
      * Server Params
      ******************************************************************************/
 
@@ -730,25 +682,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     /*******************************************************************************
      * Body
      ******************************************************************************/
-
-    public function testGetBody()
-    {
-        $bodyNew = new RequestBody();
-        $request = $this->requestFactory();
-        $bodyProp = new ReflectionProperty($request, 'body');
-        $bodyProp->setAccessible(true);
-        $bodyProp->setValue($request, $bodyNew);
-
-        $this->assertSame($bodyNew, $request->getBody());
-    }
-
-    public function testWithBody()
-    {
-        $bodyNew = new RequestBody();
-        $request = $this->requestFactory()->withBody($bodyNew);
-
-        $this->assertAttributeSame($bodyNew, 'body', $request);
-    }
 
     public function testGetParsedBodyForm()
     {

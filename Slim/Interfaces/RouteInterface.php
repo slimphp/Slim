@@ -86,7 +86,6 @@ interface RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
-     * @return ServerRequestInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments);
 

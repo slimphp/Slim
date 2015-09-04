@@ -84,7 +84,7 @@ class Route extends Routable implements RouteInterface
      *
      * This method prepends new middleware to the route's middleware stack.
      *
-     * @param  mixed    $callable The callback routine
+     * @param mixed $callable The callback routine
      *
      * @return RouteInterface
      */
@@ -261,7 +261,6 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
-     * @return ServerRequestInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments)
     {
@@ -269,11 +268,6 @@ class Route extends Routable implements RouteInterface
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v);
         }
-
-        // add this route to the request's attributes in case route middleware needs access to route arguments
-        $request = $request->withAttribute('route', $this);
-
-        return $request;
     }
 
     /**
@@ -308,6 +302,8 @@ class Route extends Routable implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $this->callable = $this->resolveCallable($this->callable);
+
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 

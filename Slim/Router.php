@@ -38,6 +38,13 @@ class Router extends RouteCollector implements RouterInterface
     private $routeParser;
 
     /**
+     * Base path used in pathFor()
+     *
+     * @var string
+     */
+    protected $basePath = '';
+
+    /**
      * Routes
      *
      * @var Route[]
@@ -72,6 +79,24 @@ class Router extends RouteCollector implements RouterInterface
         $generator = $generator ? $generator : new GroupCountBasedGenerator;
         parent::__construct($parser, $generator);
         $this->routeParser = $parser;
+    }
+
+    /**
+     * Set the base path used in pathFor()
+     *
+     * @param string $basePath
+     *
+     * @return self
+     */
+    public function setBasePath($basePath)
+    {
+        if (!is_string($basePath)) {
+            throw new InvalidArgumentException('Router basePath must be a string');
+        }
+
+        $this->basePath = $basePath;
+
+        return $this;
     }
 
     /**
@@ -133,11 +158,9 @@ class Router extends RouteCollector implements RouterInterface
         $this->finalize();
 
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
-
-        return $dispatcher->dispatch(
-            $request->getMethod(),
-            $request->getUri()->getPath()
-        );
+        $uri = '/' . ltrim($request->getUri()->getPath(), '/');
+        
+        return $dispatcher->dispatch($request->getMethod(), $uri);
     }
 
     /**
@@ -265,6 +288,10 @@ class Router extends RouteCollector implements RouterInterface
             throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
+        }
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);

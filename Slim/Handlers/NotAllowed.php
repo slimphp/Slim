@@ -31,13 +31,23 @@ class NotAllowed
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
     {
+        $allow = implode(', ', $methods);
         $body = new Body(fopen('php://temp', 'r+'));
-        $body->write('<p>Method not allowed. Must be one of: ' . implode(', ', $methods) . '</p>');
+
+        if ($request->getMethod() === 'OPTIONS') {
+            $status = 200;
+            $contentType = 'text/plain';
+            $body->write('Allowed methods: ' . $allow);
+        } else {
+            $status = 405;
+            $contentType = 'text/html';
+            $body->write('<p>Method not allowed. Must be one of: ' . $allow . '</p>');
+        }
 
         return $response
-                ->withStatus(405)
-                ->withHeader('Content-type', 'text/html')
-                ->withHeader('Allow', implode(', ', $methods))
+                ->withStatus($status)
+                ->withHeader('Content-type', $contentType)
+                ->withHeader('Allow', $allow)
                 ->withBody($body);
     }
 }

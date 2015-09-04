@@ -66,17 +66,6 @@ class BodyTest extends \PHPUnit_Framework_TestCase
         $body = new Body($this->stream);
     }
 
-    public function testConstructorSetsMetadata()
-    {
-        $this->stream = $this->resourceFactory();
-        $body = new Body($this->stream);
-
-        $bodyMetadata = new ReflectionProperty($body, 'meta');
-        $bodyMetadata->setAccessible(true);
-
-        $this->assertTrue(is_array($bodyMetadata->getValue($body)));
-    }
-
     public function testGetMetadata()
     {
         $this->stream = $this->resourceFactory();

@@ -30,6 +30,8 @@ class NotFound
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
+        $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+
         $output = <<<END
 <html>
     <head>
@@ -59,7 +61,7 @@ class NotFound
             to ensure your URL is spelled correctly. If all else fails, you can
             visit our home page at the link below.
         </p>
-        <a href='{$request->getUri()->getBasePath()}'>Visit the Home Page</a>
+        <a href='$homeUrl'>Visit the Home Page</a>
     </body>
 </html>
 END;

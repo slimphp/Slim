@@ -233,7 +233,6 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        $callable = is_string($callable) ? $this->resolveCallable($callable) : $callable;
         if ($callable instanceof Closure) {
             $callable = $callable->bindTo($this);
         }
@@ -287,11 +286,16 @@ class App
      */
     public function run($silent = false)
     {
-        // Finalize routes here for middleware stack
-        $this->container->get('router')->finalize();
-
         $request = $this->container->get('request');
         $response = $this->container->get('response');
+
+        // Finalize routes here for middleware stack & ensure basePath is set
+        $router = $this->container->get('router');
+        $router->finalize();
+        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
+            $router->setBasePath($request->getUri()->getBasePath());
+        }
+
 
         // Dispatch the Router first if the setting for this is on
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
@@ -348,11 +352,11 @@ class App
             }
 
             // Body
-            $statusCode = $response->getStatusCode();
-            $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-            if ($hasBody) {
+            if (!$this->isEmptyResponse($response)) {
                 $body = $response->getBody();
-                $body->rewind();
+                if ($body->isSeekable()) {
+                    $body->rewind();
+                }
                 $settings = $this->container->get('settings');
                 while (!$body->eof()) {
                     echo $body->read($settings['responseChunkSize']);
@@ -453,7 +457,11 @@ class App
             foreach ($routeInfo[2] as $k => $v) {
                 $routeArguments[$k] = urldecode($v);
             }
-            $request = $routeInfo[1][0]->prepare($request, $routeArguments);
+
+            $routeInfo[1][0]->prepare($request, $routeArguments);
+
+            // add route to the request's attributes in case a middleware or handler needs access to the route
+            $request = $request->withAttribute('route', $routeInfo[1][0]);
         }
 
         $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
@@ -469,17 +477,29 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
-        $statusCode = $response->getStatusCode();
-        $hasBody = ($statusCode !== 204 && $statusCode !== 304);
-        if ($hasBody) {
-            $size = $response->getBody()->getSize();
-            if ($size !== null) {
-                $response = $response->withHeader('Content-Length', (string) $size);
-            }
-        } else {
-            $response = $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        if ($this->isEmptyResponse($response)) {
+            return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
+        }
+
+        $size = $response->getBody()->getSize();
+        if ($size !== null) {
+            $response = $response->withHeader('Content-Length', (string) $size);
         }
 
         return $response;
+    }
+
+    /**
+     * Helper method, which returns true if the provided response must not output a body and false
+     * if the response could have a body.
+     *
+     * @see https://tools.ietf.org/html/rfc7231
+     *
+     * @param ResponseInterface $response
+     * @return bool
+     */
+    protected function isEmptyResponse(ResponseInterface $response)
+    {
+        return in_array($response->getStatusCode(), [204, 205, 304]);
     }
 }

@@ -61,37 +61,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /*******************************************************************************
-     * Protocol
-     ******************************************************************************/
-
-    public function testGetProtocolVersion()
-    {
-        $response = new Response();
-        $responseProto = new ReflectionProperty($response, 'protocolVersion');
-        $responseProto->setAccessible(true);
-        $responseProto->setValue($response, '1.0');
-
-        $this->assertEquals('1.0', $response->getProtocolVersion());
-    }
-
-    public function testWithProtocolVersion()
-    {
-        $response = new Response();
-        $clone = $response->withProtocolVersion('1.0');
-
-        $this->assertAttributeEquals('1.0', 'protocolVersion', $clone);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testWithProtocolVersionInvalidThrowsException()
-    {
-        $response = new Response();
-        $response->withProtocolVersion('3.0');
-    }
-
-    /*******************************************************************************
      * Status
      ******************************************************************************/
 
@@ -149,117 +118,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Custom Phrase', $clone->getReasonPhrase());
     }
 
-    /*******************************************************************************
-     * Headers
-     ******************************************************************************/
-
-    public function testGetHeaders()
+    /**
+     * @covers Slim\Http\Response::withRedirect
+     */
+    public function testWithRedirect()
     {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $headers->add('X-Foo', 'two');
-        $headers->add('X-Foo', 'three');
-        $response = new Response(200, $headers);
-        $shouldBe = [
-            'X-Foo' => [
-                'one',
-                'two',
-                'three',
-            ],
-        ];
-        $this->assertEquals($shouldBe, $response->getHeaders());
-    }
+        $response = new Response(200);
+        $clone = $response->withRedirect('/foo', 301);
 
-    public function testHasHeader()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $response = new Response(200, $headers);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertFalse($response->hasHeader('Location'));
 
-        $this->assertTrue($response->hasHeader('X-Foo'));
-        $this->assertFalse($response->hasHeader('X-Bar'));
-    }
-
-    public function testGetHeaderLine()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $headers->add('X-Foo', 'two');
-        $headers->add('X-Foo', 'three');
-        $response = new Response(200, $headers);
-
-        $this->assertEquals('one,two,three', $response->getHeaderLine('X-Foo'));
-        $this->assertEquals('', $response->getHeaderLine('X-Bar'));
-    }
-
-    public function testGetHeader()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $headers->add('X-Foo', 'two');
-        $headers->add('X-Foo', 'three');
-        $response = new Response(200, $headers);
-
-        $this->assertEquals(['one', 'two', 'three'], $response->getHeader('X-Foo'));
-        $this->assertEquals([], $response->getHeader('X-Bar'));
-    }
-
-    public function testWithHeader()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $response = new Response(200, $headers);
-        $clone = $response->withHeader('X-Foo', 'bar');
-
-        $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
-    }
-
-    public function testWithAddedHeader()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $response = new Response(200, $headers);
-        $clone = $response->withAddedHeader('X-Foo', 'two');
-
-        $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
-    }
-
-    public function testWithoutHeader()
-    {
-        $headers = new Headers();
-        $headers->add('X-Foo', 'one');
-        $headers->add('X-Bar', 'two');
-        $response = new Response(200, $headers);
-        $clone = $response->withoutHeader('X-Foo');
-        $shouldBe = [
-            'X-Bar' => ['two'],
-        ];
-
-        $this->assertEquals($shouldBe, $clone->getHeaders());
-    }
-
-    /*******************************************************************************
-     * Body
-     ******************************************************************************/
-
-    public function testGetBody()
-    {
-        $headers = new Headers();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $body);
-
-        $this->assertSame($body, $response->getBody());
-    }
-
-    public function testWithBody()
-    {
-        $headers = new Headers();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body2 = new Body(fopen('php://temp', 'r+'));
-        $response = new Response(404, $headers, $body);
-        $clone = $response->withBody($body2);
-
-        $this->assertAttributeSame($body2, 'body', $clone);
+        $this->assertSame(301, $clone->getStatusCode());
+        $this->assertTrue($clone->hasHeader('Location'));
+        $this->assertEquals('/foo', $clone->getHeaderLine('Location'));
     }
 
     /*******************************************************************************
@@ -271,7 +143,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
         $prop = new ReflectionProperty($response, 'status');
         $prop->setAccessible(true);
-        $prop->setValue($response, 201);
+        $prop->setValue($response, 204);
 
         $this->assertTrue($response->isEmpty());
     }

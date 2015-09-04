@@ -16,6 +16,8 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Route;
+use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\MiddlewareStub;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
@@ -152,6 +154,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route = $this->routeFactory();
 
         $container = new Container();
+        $container['MiddlewareStub'] = new MiddlewareStub();
+
         $route->setContainer($container);
         $route->add('MiddlewareStub:run');
 
@@ -172,7 +176,25 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Slim\Http\Response', $result);
     }
 
-    // TODO: Test adding controller callables with "Foo:bar" syntax
+    public function testControllerInContainer()
+    {
+        $route = new Route(['GET'], '/', 'CallableTest:toCall');
+
+        $container = new Container();
+        $container['CallableTest'] = new CallableTest;
+        $route->setContainer($container);
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+
+        CallableTest::$CalledCount = 0;
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals(1, CallableTest::$CalledCount);
+    }
 
     /**
      * Ensure that the response returned by a route callable is the response
