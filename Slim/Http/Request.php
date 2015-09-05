@@ -182,7 +182,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $this->registerMediaTypeParser('application/json', function ($input) {
-            return json_decode($input);
+            return json_decode($input, true);
         });
 
         $this->registerMediaTypeParser('application/xml', function ($input) {
@@ -191,7 +191,7 @@ class Request extends Message implements ServerRequestInterface
 
         $this->registerMediaTypeParser('application/x-www-form-urlencoded', function ($input) {
             parse_str($input, $data);
-            return (object)$data;
+            return $data;
         });
     }
 
