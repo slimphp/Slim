@@ -309,6 +309,9 @@ class App
         } catch (SlimException $e) {
             $response = $e->getResponse();
         } catch (Exception $e) {
+            if (!$this->container->has('errorHandler')) {
+                throw $e;
+            }
             /** @var callable $errorHandler */
             $errorHandler = $this->container->get('errorHandler');
             $response = $errorHandler($request, $response, $e);
