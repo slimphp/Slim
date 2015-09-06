@@ -279,7 +279,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
-        $this->assertEquals('<p>Method not allowed. Must be one of: GET</p>', (string)$resOut->getBody());
+        $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRoute()

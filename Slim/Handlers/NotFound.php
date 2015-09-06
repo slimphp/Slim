@@ -13,10 +13,10 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
 
 /**
- * Default not found handler
+ * Default Slim application not found handler.
  *
- * This is the default Slim application not found handler. All it does is output
- * a clean and simple HTML page with diagnostic information.
+ * It outputs a simple message in either JSON, XML or HTML based on the
+ * Accept header.
  */
 class NotFound
 {
@@ -30,9 +30,22 @@ class NotFound
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
 
-        $output = <<<END
+        $contentType = $this->determineContentType($request->getHeaderLine('Accept'));
+        switch ($contentType) {
+            case 'application/json':
+                $output = '{"message":"Not found"}';
+                break;
+
+            case 'application/xml':
+                $output = '<root><message>Not found</message></root>';
+                break;
+
+            case 'text/html':
+            default:
+                $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+                $contentType = 'text/html';
+                $output = <<<END
 <html>
     <head>
         <title>Page Not Found</title>
@@ -65,12 +78,35 @@ class NotFound
     </body>
 </html>
 END;
+                break;
+        }
 
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write($output);
 
         return $response->withStatus(404)
-                        ->withHeader('Content-Type', 'text/html')
+                        ->withHeader('Content-Type', $contentType)
                         ->withBody($body);
+    }
+
+    /**
+     * Read the accept header and determine which content type we know about
+     * is wanted.
+     *
+     * @param  string $acceptHeader Accept header from request
+     * @return string
+     */
+    private function determineContentType($acceptHeader)
+    {
+        $list = explode(',', $acceptHeader);
+        $known = ['application/json', 'application/xml', 'text/html'];
+        
+        foreach ($list as $type) {
+            if (in_array($type, $known)) {
+                return $type;
+            }
+        }
+
+        return 'text/html';
     }
 }
