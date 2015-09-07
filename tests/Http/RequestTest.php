@@ -694,7 +694,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $body = new RequestBody();
         $body->write('foo=bar');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
-        $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyJson()
@@ -709,7 +709,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $body->write('{"foo":"bar"}');
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
-        $this->assertEquals((object)['foo' => 'bar'], $request->getParsedBody());
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyXml()
