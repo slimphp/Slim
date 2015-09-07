@@ -14,10 +14,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 
 /**
- * Default error handler
+ * Default Slim application error handler
  *
- * This is the default Slim application error handler. All it does is output
- * a clean and simple HTML page with diagnostic information.
+ * It outputs the error message and diagnostic information in either JSON, XML,
+ * or HTML based on the Accept header.
  */
 class Error
 {
@@ -32,14 +32,48 @@ class Error
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
     {
+        $contentType = $this->determineContentType($request->getHeaderLine('Accept'));
+        switch ($contentType) {
+            case 'application/json':
+                $output = $this->renderJsonErrorMessage($exception);
+                break;
+
+            case 'application/xml':
+                $output = $this->renderXmlErrorMessage($exception);
+                break;
+
+            case 'text/html':
+            default:
+                $contentType = 'text/html';
+                $output = $this->renderHtmlErrorMessage($exception);
+                break;
+        }
+
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
+
+        return $response
+                ->withStatus(500)
+                ->withHeader('Content-type', $contentType)
+                ->withBody($body);
+    }
+
+    /**
+     * Render HTML error page
+     *
+     * @param  Exception $exception
+     * @return string
+     */
+    private function renderHtmlErrorMessage(Exception $exception)
+    {
         $title = 'Slim Application Error';
         $html = '<p>The application could not run because of the following error:</p>';
         $html .= '<h2>Details</h2>';
-        $html .= $this->renderException($exception);
+        $html .= $this->renderHtmlException($exception);
 
         while ($exception = $exception->getPrevious()) {
             $html .= '<h2>Previous exception</h2>';
-            $html .= $this->renderException($exception);
+            $html .= $this->renderHtmlException($exception);
         }
 
         $output = sprintf(
@@ -52,23 +86,17 @@ class Error
             $html
         );
 
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($output);
-
-        return $response
-                ->withStatus(500)
-                ->withHeader('Content-type', 'text/html')
-                ->withBody($body);
+        return $output;
     }
 
     /**
-     * Render exception as html.
+     * Render exception as HTML.
      *
      * @param Exception $exception
      *
      * @return string
      */
-    private function renderException(Exception $exception)
+    private function renderHtmlException(Exception $exception)
     {
         $code = $exception->getCode();
         $message = $exception->getMessage();
@@ -94,5 +122,93 @@ class Error
             $html .= sprintf('<pre>%s</pre>', $trace);
         }
         return $html;
+    }
+
+    /**
+     * Render JSON error
+     *
+     * @param  Exception $exception
+     * @return string
+     */
+    private function renderJsonErrorMessage(Exception $exception)
+    {
+        $error = ['message' => 'Slim Application Error'];
+        $error['exception'][] = [
+            'code' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => explode("\n", $exception->getTraceAsString()),
+        ];
+
+        while ($exception = $exception->getPrevious()) {
+            $error['exception'][] = [
+                'code' => $exception->getCode(),
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => explode("\n", $exception->getTraceAsString()),
+            ];
+        }
+
+        return json_encode($error);
+    }
+
+    /**
+     * Render XML error
+     *
+     * @param  Exception $exception
+     * @return string
+     */
+    private function renderXmlErrorMessage(Exception $exception)
+    {
+        $xml = "<root>\n  <message>Slim Application Error</message>\n";
+
+        $xml .= <<<EOT
+  <exception>
+    <code>{$exception->getCode()}</code>
+    <message>{$exception->getMessage()}</message>
+    <file>{$exception->getFile()}</file>
+    <line>{$exception->getLine()}</line>
+    <trace>{$exception->getTraceAsString()}</trace>
+  </exception>
+
+EOT;
+
+        while ($exception = $exception->getPrevious()) {
+            $xml .= <<<EOT
+  <exception>
+    <code>{$exception->getCode()}</code>
+    <message>{$exception->getMessage()}</message>
+    <file>{$exception->getFile()}</file>
+    <line>{$exception->getLine()}</line>
+    <trace>{$exception->getTraceAsString()}</trace>
+  </exception>
+
+EOT;
+        }
+        $xml .="</root>";
+        return $xml;
+    }
+
+    /**
+     * Read the accept header and determine which content type we know about
+     * is wanted.
+     *
+     * @param  string $acceptHeader Accept header from request
+     * @return string
+     */
+    private function determineContentType($acceptHeader)
+    {
+        $list = explode(',', $acceptHeader);
+        $known = ['application/json', 'application/xml', 'text/html'];
+        
+        foreach ($list as $type) {
+            if (in_array($type, $known)) {
+                return $type;
+            }
+        }
+
+        return 'text/html';
     }
 }

@@ -8,12 +8,13 @@
  */
 namespace Slim\Tests\Handlers;
 
-use Slim\Handlers\NotAllowed;
+use Slim\Handlers\NotFound;
 use Slim\Http\Response;
+use Slim\Http\Uri;
 
-class NotAllowedTest extends \PHPUnit_Framework_TestCase
+class NotFoundTest extends \PHPUnit_Framework_TestCase
 {
-    public function invalidMethodProvider()
+    public function notFoundProvider()
     {
         return [
             ['application/json', '{'],
@@ -25,32 +26,18 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
     /**
      * Test invalid method returns the correct code and content type
      *
-     * @dataProvider invalidMethodProvider
+     * @dataProvider notFoundProvider
      */
-    public function testInvalidMethod($contentType, $startOfBody)
+    public function testNotFound($contentType, $startOfBody)
     {
-        $notAllowed = new NotAllowed();
+        $notAllowed = new NotFound();
 
         /** @var Response $res */
         $res = $notAllowed->__invoke($this->getRequest('GET', $contentType), new Response(), ['POST', 'PUT']);
 
-        $this->assertSame(405, $res->getStatusCode());
-        $this->assertTrue($res->hasHeader('Allow'));
+        $this->assertSame(404, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
-        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
-    }
-
-    public function testOptions()
-    {
-        $notAllowed = new NotAllowed();
-
-        /** @var Response $res */
-        $res = $notAllowed->__invoke($this->getRequest('OPTIONS'), new Response(), ['POST', 'PUT']);
-
-        $this->assertSame(200, $res->getStatusCode());
-        $this->assertTrue($res->hasHeader('Allow'));
-        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
     }
 
     /**
@@ -59,9 +46,11 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
      */
     protected function getRequest($method, $contentType = 'text/html')
     {
+        $uri = new Uri('http', 'example.com', 80, '/notfound');
+
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->once())->method('getMethod')->will($this->returnValue($method));
-        $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue($contentType));
+        $req->expects($this->once())->method('getHeaderLine')->will($this->returnValue($contentType));
+        $req->expects($this->any())->method('getUri')->will($this->returnValue($uri));
 
         return $req;
     }
