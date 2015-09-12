@@ -185,10 +185,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $method->setAccessible(true);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
     }
+
     public function testSetDispatcher()
     {
         $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r) {
-            $r->addRoute('GET', '/', function () {});
+            $r->addRoute('GET', '/', function () {
+            });
         }));
         $class = new \ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
