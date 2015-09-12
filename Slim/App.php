@@ -25,6 +25,7 @@ use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\ServiceConfigInterface;
 
 /**
  * App
@@ -63,6 +64,11 @@ class App
      */
     private $container;
 
+    /**
+     * @var \Slim\Interfaces\ServiceConfigInterface
+     */
+    private $service;
+
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -71,9 +77,9 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
-     * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
+     * @param \Slim\Interfaces\ServiceConfigInterface $service
      */
-    public function __construct($container = [])
+    public function __construct($container = [], ServiceConfigInterface $service = null)
     {
         if (is_array($container)) {
             $container = new Container($container);
@@ -82,6 +88,14 @@ class App
             throw new InvalidArgumentException('Expected a ContainerInterface');
         }
         $this->container = $container;
+
+        if ($service === null) {
+            $service = new ServiceConfig($this->container, $this->container->get('settings'));
+        }
+        if (!$service instanceof ServiceConfigInterface) {
+            throw new InvalidArgumentException('Expected a ServiceConfigInterface');
+        }
+        $this->service = $service;
     }
 
     /**
@@ -92,6 +106,16 @@ class App
     public function getContainer()
     {
         return $this->container;
+    }
+
+    /**
+     * Enable access to the ServiceConfig by consumers of $app
+     *
+     * @return \Slim\Interfaces\ServiceConfigInterface
+     */
+    public function getService()
+    {
+        return $this->service;
     }
 
     /**
@@ -237,10 +261,7 @@ class App
             $callable = $callable->bindTo($this);
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
-        }
+        $route = $this->service->getRouter()->map($methods, $pattern, $callable);
 
         if (is_callable([$route, 'setOutputBuffering'])) {
             $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
@@ -264,10 +285,9 @@ class App
     public function group($pattern, $callable)
     {
         /** @var RouteGroup $group */
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
-        $group->setContainer($this->container);
+        $group = $this->service->getRouter()->pushGroup($pattern, $callable);
         $group($this);
-        $this->container->get('router')->popGroup();
+        $this->service->getRouter()->popGroup();
         return $group;
     }
 
@@ -286,11 +306,11 @@ class App
      */
     public function run($silent = false)
     {
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
+        $request = $this->service->newRequest();
+        $response = $this->service->newResponse();
 
         // Finalize routes here for middleware stack & ensure basePath is set
-        $router = $this->container->get('router');
+        $router = $this->service->getRouter();
         $router->finalize();
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
@@ -313,7 +333,7 @@ class App
                 throw $e;
             }
             /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
+            $errorHandler = $this->service->newErrorHandler();
             $response = $errorHandler($request, $response, $e);
         }
 
@@ -400,12 +420,10 @@ class App
         if ($routeInfo[0] === Dispatcher::FOUND) {
             return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            $notAllowedHandler = $this->service->newNotAllowedHandler();
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
-        /** @var callable $notFoundHandler */
-        $notFoundHandler = $this->container->get('notFoundHandler');
+        $notFoundHandler = $this->service->newNotFoundHandler();
         return $notFoundHandler($request, $response);
     }
 
@@ -429,7 +447,7 @@ class App
      */
     public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
     {
-        $env = $this->container->get('environment');
+        $env = $this->service->getEnvironment();
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -439,7 +457,7 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $response = $this->service->newResponse();
         }
 
         return $this($request, $response);
@@ -453,7 +471,7 @@ class App
      */
     protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request)
     {
-        $routeInfo = $this->container->get('router')->dispatch($request);
+        $routeInfo = $this->service->getRouter()->dispatch($request);
 
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeArguments = [];

@@ -121,7 +121,7 @@ class ServiceConfig implements ServiceConfigInterface
      */
     public function newRouter()
     {
-        return new Router();
+        return new Router($this);
     }
 
     /**

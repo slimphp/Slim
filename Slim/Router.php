@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,6 +20,7 @@ use FastRoute\DataGenerator\GroupCountBased as GroupCountBasedGenerator;
 use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\ServiceConfigInterface;
 
 /**
  * Router
@@ -68,17 +70,28 @@ class Router extends RouteCollector implements RouterInterface
     private $finalized = false;
 
     /**
+     * @var \Interop\Container\ContainerInterface
+     */
+    private $container;
+    /**
+     * @var \Slim\Interfaces\ServiceConfigInterface
+     */
+    private $service;
+
+    /**
      * Create new router
      *
-     * @param RouteParser   $parser
+     * @param \Slim\Interfaces\ServiceConfigInterface $service
+     * @param RouteParser $parser
      * @param DataGenerator $generator
      */
-    public function __construct(RouteParser $parser = null, DataGenerator $generator = null)
+    public function __construct(ServiceConfigInterface $service, RouteParser $parser = null, DataGenerator $generator = null)
     {
         $parser = $parser ? $parser : new StdParser;
         $generator = $generator ? $generator : new GroupCountBasedGenerator;
         parent::__construct($parser, $generator);
         $this->routeParser = $parser;
+        $this->service = $service;
     }
 
     /**
@@ -126,7 +139,7 @@ class Router extends RouteCollector implements RouterInterface
         }
 
         // Add route
-        $route = new Route($methods, $pattern, $handler, $this->routeGroups);
+        $route = new Route($this->service, $methods, $pattern, $handler, $this->routeGroups);
         $this->routes[] = $route;
 
         return $route;

@@ -8,7 +8,9 @@
  */
 namespace Slim\Tests;
 
+use Slim\Container;
 use Slim\Router;
+use Slim\ServiceConfig;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
@@ -17,7 +19,9 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->router = new Router;
+        $c = new Container();
+        $s = new ServiceConfig($c, $c['settings']);
+        $this->router = new Router($s);
     }
 
     public function testMap()
