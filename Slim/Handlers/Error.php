@@ -132,16 +132,12 @@ class Error
      */
     private function renderJsonErrorMessage(Exception $exception)
     {
-        $error = ['message' => 'Slim Application Error'];
-        $error['exception'][] = [
-            'code' => $exception->getCode(),
-            'message' => $exception->getMessage(),
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => explode("\n", $exception->getTraceAsString()),
+        $error = [
+            'message' => 'Slim Application Error',
+            'exception' => [],
         ];
 
-        while ($exception = $exception->getPrevious()) {
+        do {
             $error['exception'][] = [
                 'code' => $exception->getCode(),
                 'message' => $exception->getMessage(),
@@ -149,7 +145,7 @@ class Error
                 'line' => $exception->getLine(),
                 'trace' => explode("\n", $exception->getTraceAsString()),
             ];
-        }
+        } while ($exception = $exception->getPrevious());
 
         return json_encode($error);
     }
@@ -164,18 +160,7 @@ class Error
     {
         $xml = "<root>\n  <message>Slim Application Error</message>\n";
 
-        $xml .= <<<EOT
-  <exception>
-    <code>{$exception->getCode()}</code>
-    <message>{$exception->getMessage()}</message>
-    <file>{$exception->getFile()}</file>
-    <line>{$exception->getLine()}</line>
-    <trace>{$exception->getTraceAsString()}</trace>
-  </exception>
-
-EOT;
-
-        while ($exception = $exception->getPrevious()) {
+        do {
             $xml .= <<<EOT
   <exception>
     <code>{$exception->getCode()}</code>
@@ -186,8 +171,10 @@ EOT;
   </exception>
 
 EOT;
-        }
+        } while ($exception = $exception->getPrevious());
+
         $xml .="</root>";
+
         return $xml;
     }
 
@@ -202,7 +189,7 @@ EOT;
     {
         $list = explode(',', $acceptHeader);
         $known = ['application/json', 'application/xml', 'text/html'];
-        
+
         foreach ($list as $type) {
             if (in_array($type, $known)) {
                 return $type;
