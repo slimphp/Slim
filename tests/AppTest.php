@@ -20,6 +20,7 @@ use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Mocks\ServiceConfigStub;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
@@ -32,7 +33,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testIssetInContainer()
     {
         $app = new App();
-        $this->assertTrue(isset($app->router));
+        $app->getContainer()['foo'] = function () {
+
+        };
+        $this->assertTrue(isset($app->foo));
     }
     /********************************************************************************
      * Router proxy methods
@@ -159,7 +163,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         });
 
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getService()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
     }
@@ -173,7 +177,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getService()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo', 'pattern', $router->getRoutes()[0]);
         
@@ -184,7 +188,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getService()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->getRoutes()[0]);
         
@@ -197,7 +201,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getService()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo/baz', 'pattern', $router->getRoutes()[0]);
         
@@ -208,7 +212,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getService()->getRouter();
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->getRoutes()[0]);
     }
@@ -399,11 +403,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
         $c = new Container();
-        $c['foundHandler'] = function ($c) {
-            return new RequestResponseArgs();
-        };
+        $service = new ServiceConfigStub($c);
 
-        $app = new App($c);
+        $app = new App($c, $service);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write("Hello {$name}");
         });
@@ -655,11 +657,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
         $c = new Container();
-        $c['foundHandler'] = function () {
-            return new RequestResponseArgs();
-        };
+        $service = new ServiceConfigStub($c);
 
-        $app = new App($c);
+        $app = new App($c, $service);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write($req->getAttribute('one') . $name);
         });

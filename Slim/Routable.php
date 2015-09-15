@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\ServiceConfigInterface;
 
 /**
  * A routable, middleware-aware object
@@ -28,11 +28,11 @@ abstract class Routable
     protected $callable;
 
     /**
-     * Container
+     * Services Config Registry
      *
-     * @var ContainerInterface
+     * @var ServiceConfigInterface
      */
-    protected $container;
+    protected $service;
 
     /**
      * Route middleware
@@ -66,18 +66,5 @@ abstract class Routable
     public function getPattern()
     {
         return $this->pattern;
-    }
-
-    /**
-     * Set container for use with resolveCallable
-     *
-     * @param ContainerInterface $container
-     *
-     * @return self
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-        return $this;
     }
 }

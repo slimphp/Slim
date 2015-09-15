@@ -16,6 +16,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Route;
+use Slim\ServiceConfig;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 
@@ -23,23 +24,28 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 {
     public function routeFactory()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
         $callable = function ($req, $res, $args) {
             // Do something
         };
 
-        return new Route($methods, $pattern, $callable);
+        return new Route($service, $methods, $pattern, $callable);
     }
 
     public function testConstructor()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
         $callable = function ($req, $res, $args) {
             // Do something
         };
-        $route = new Route($methods, $pattern, $callable);
+        $route = new Route($service, $methods, $pattern, $callable);
 
         $this->assertAttributeEquals($methods, 'methods', $route);
         $this->assertAttributeEquals($pattern, 'pattern', $route);
@@ -151,12 +157,18 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function testAddMiddlewareAsString()
     {
-        $route = $this->routeFactory();
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
 
-        $container = new Container();
-        $container['MiddlewareStub'] = new MiddlewareStub();
+        $methods = ['GET', 'POST'];
+        $pattern = '/hello/{name}';
+        $callable = function ($req, $res, $args) {
+            // Do something
+        };
 
-        $route->setContainer($container);
+        $c['MiddlewareStub'] = new MiddlewareStub();
+
+        $route = new Route($service, $methods, $pattern, $callable);
         $route->add('MiddlewareStub:run');
 
         $env = Environment::mock();
@@ -178,11 +190,11 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function testControllerInContainer()
     {
-        $route = new Route(['GET'], '/', 'CallableTest:toCall');
+        $c = new Container();
+        $c['CallableTest'] = new CallableTest;
 
-        $container = new Container();
-        $container['CallableTest'] = new CallableTest;
-        $route->setContainer($container);
+        $service = new ServiceConfig($c, $c['settings']);
+        $route = new Route($service, ['GET'], '/', 'CallableTest:toCall');
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -202,10 +214,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvokeWhenReturningAResponse()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $callable = function ($req, $res, $args) {
             return $res->write('foo');
         };
-        $route = new Route(['GET'], '/', $callable);
+        $route = new Route($service, ['GET'], '/', $callable);
 
         $env = Environment::mock();
         $uri = Uri::createFromString('https://example.com:80');
@@ -227,11 +242,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvokeWhenEchoingOutput()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $callable = function ($req, $res, $args) {
             echo "foo";
             return $res->withStatus(201);
         };
-        $route = new Route(['GET'], '/', $callable);
+        $route = new Route($service, ['GET'], '/', $callable);
 
         $env = Environment::mock();
         $uri = Uri::createFromString('https://example.com:80');
@@ -254,10 +272,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvokeWhenReturningAString()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $callable = function ($req, $res, $args) {
             return "foo";
         };
-        $route = new Route(['GET'], '/', $callable);
+        $route = new Route($service, ['GET'], '/', $callable);
 
         $env = Environment::mock();
         $uri = Uri::createFromString('https://example.com:80');
@@ -279,11 +300,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvokeWhenPrependingOutputBuffer()
     {
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $callable = function ($req, $res, $args) {
             echo 'foo';
             return $res->write('bar');
         };
-        $route = new Route(['GET'], '/', $callable);
+        $route = new Route($service, ['GET'], '/', $callable);
         $route->setOutputBuffering('prepend');
 
         $env = Environment::mock();
@@ -307,11 +331,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testInvokeWhenDisablingOutputBuffer()
     {
         ob_start();
+        $c = new Container();
+        $service = new ServiceConfig($c, $c['settings']);
+
         $callable = function ($req, $res, $args) {
             echo 'foo';
             return $res->write('bar');
         };
-        $route = new Route(['GET'], '/', $callable);
+        $route = new Route($service, ['GET'], '/', $callable);
         $route->setOutputBuffering(false);
 
         $env = Environment::mock();

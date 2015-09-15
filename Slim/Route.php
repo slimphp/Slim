@@ -8,14 +8,13 @@
  */
 namespace Slim;
 
-use Closure;
 use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Handlers\Strategies\RequestResponse;
-use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\ServiceConfigInterface;
 
 /**
  * Route
@@ -64,19 +63,26 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
+     * @var \Slim\Interfaces\ServiceConfigInterface
+     */
+    protected $service;
+
+    /**
      * Create new route
      *
-     * @param string[]     $methods The route HTTP methods
-     * @param string       $pattern The route pattern
-     * @param callable     $callable The route callable
+     * @param \Slim\Interfaces\ServiceConfigInterface $service
+     * @param string[] $methods The route HTTP methods
+     * @param string $pattern The route pattern
+     * @param callable $callable The route callable
      * @param RouteGroup[] $groups The parent route groups
      */
-    public function __construct($methods, $pattern, $callable, $groups = [])
+    public function __construct(ServiceConfigInterface $service, $methods, $pattern, $callable, $groups = [])
     {
         $this->methods  = $methods;
         $this->pattern  = $pattern;
         $this->callable = $callable;
         $this->groups   = $groups;
+        $this->service = $service;
     }
 
     /**
@@ -91,10 +97,6 @@ class Route extends Routable implements RouteInterface
     public function add($callable)
     {
         $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
         $this->middleware[] = $callable;
         return $this;
     }
@@ -304,8 +306,7 @@ class Route extends Routable implements RouteInterface
     {
         $this->callable = $this->resolveCallable($this->callable);
 
-        /** @var InvocationStrategyInterface $handler */
-        $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
+        $handler = isset($this->service) ? $this->service->getFoundHandler() : new RequestResponse();
 
         // invoke route callable
         if ($this->outputBuffering === false) {

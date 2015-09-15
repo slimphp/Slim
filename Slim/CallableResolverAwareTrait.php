@@ -9,8 +9,7 @@
 namespace Slim;
 
 use RuntimeException;
-use Interop\Container\ContainerInterface;
-use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\ServiceConfigInterface;
 
 /**
  * ResolveCallable
@@ -19,7 +18,7 @@ use Slim\Interfaces\CallableResolverInterface;
  * into a closure. This class is an implementation detail and is used only inside
  * of the Slim application.
  *
- * @property ContainerInterface $container
+ * @property ServiceConfigInterface $service
  */
 trait CallableResolverAwareTrait
 {
@@ -35,12 +34,11 @@ trait CallableResolverAwareTrait
      */
     protected function resolveCallable($callable)
     {
-        if (!$this->container instanceof ContainerInterface) {
+        if (!$this->service instanceof ServiceConfigInterface) {
             return $callable;
         }
 
-        /** @var CallableResolverInterface $resolver */
-        $resolver = $this->container->get('callableResolver');
+        $resolver = $this->service->newCallableResolver();
 
         return $resolver->resolve($callable);
     }
