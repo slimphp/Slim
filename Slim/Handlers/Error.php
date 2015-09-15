@@ -159,7 +159,7 @@ class Error
      */
     private function renderXmlErrorMessage(Exception $exception)
     {
-        $xml = "<root>\n  <message>Slim Application Error</message>\n";
+        $xml = "<error>\n  <message>Slim Application Error</message>\n";
 
         do {
             $xml .= "  <exception>\n";
@@ -172,7 +172,7 @@ class Error
             $xml .= "  </exception>\n";
         } while ($exception = $exception->getPrevious());
 
-        $xml .= "<root>";
+        $xml .= "<error>";
 
         return $xml;
     }

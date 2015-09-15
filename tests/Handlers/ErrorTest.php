@@ -17,7 +17,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ['application/json', '{'],
-            ['application/xml', '<root>'],
+            ['application/xml', '<error>'],
             ['text/html', '<html>'],
         ];
     }
