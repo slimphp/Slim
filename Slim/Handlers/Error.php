@@ -139,6 +139,7 @@ class Error
 
         do {
             $error['exception'][] = [
+                'type' => get_class($exception),
                 'code' => $exception->getCode(),
                 'message' => $exception->getMessage(),
                 'file' => $exception->getFile(),
@@ -161,8 +162,10 @@ class Error
         $xml = "<root>\n  <message>Slim Application Error</message>\n";
 
         do {
+            $type = get_class($exception);
             $xml .= <<<EOT
   <exception>
+    <type>{$type}</type>
     <code>{$exception->getCode()}</code>
     <message>{$exception->getMessage()}</message>
     <file>{$exception->getFile()}</file>
