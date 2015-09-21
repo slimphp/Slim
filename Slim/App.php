@@ -496,7 +496,7 @@ class App
         }
 
         $size = $response->getBody()->getSize();
-        if ($size !== null) {
+        if ($size !== null && !$response->hasHeader('Content-Length')) {
             $response = $response->withHeader('Content-Length', (string) $size);
         }
 
