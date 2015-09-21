@@ -360,9 +360,20 @@ class App
                 if ($body->isSeekable()) {
                     $body->rewind();
                 }
-                $settings = $this->container->get('settings');
-                while (!$body->eof()) {
-                    echo $body->read($settings['responseChunkSize']);
+                $settings       = $this->container->get('settings');
+                $chunkSize      = $settings['responseChunkSize'];
+                $contentLength  = $response->getHeaderLine('Content-Length');
+                if (!$contentLength) {
+                    $contentLength = $body->getSize();
+                }
+                $totalChunks    = ceil($contentLength / $chunkSize);
+                $lastChunkSize  = $contentLength % $chunkSize;
+                $currentChunk   = 0;
+                while (!$body->eof() && $currentChunk < $totalChunks) {
+                    if (++$currentChunk == $totalChunks) {
+                        $chunkSize = $lastChunkSize;
+                    }
+                    echo $body->read($chunkSize);
                     if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }
