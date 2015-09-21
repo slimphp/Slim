@@ -165,16 +165,27 @@ class Error
             $xml .= "  <exception>\n";
             $xml .= "    <type>" . get_class($exception) . "</type>\n";
             $xml .= "    <code>" . $exception->getCode() . "</code>\n";
-            $xml .= "    <message>" . $exception->getMessage() . "</message>\n";
+            $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
             $xml .= "    <file>" . $exception->getFile() . "</file>\n";
             $xml .= "    <line>" . $exception->getLine() . "</line>\n";
-            $xml .= "    <trace>" . $exception->getTraceAsString() . "</trace>\n";
+            $xml .= "    <trace>" . $this->createCdataSection($exception->getTraceAsString()) . "</trace>\n";
             $xml .= "  </exception>\n";
         } while ($exception = $exception->getPrevious());
 
         $xml .= "<error>";
 
         return $xml;
+    }
+
+    /**
+     * Returns a CDATA section with the given content.
+     *
+     * @param  string $content
+     * @return string
+     */
+    private function createCdataSection($content)
+    {
+        return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
     }
 
     /**
