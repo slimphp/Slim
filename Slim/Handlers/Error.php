@@ -162,21 +162,17 @@ class Error
         $xml = "<root>\n  <message>Slim Application Error</message>\n";
 
         do {
-            $type = get_class($exception);
-            $xml .= <<<EOT
-  <exception>
-    <type>{$type}</type>
-    <code>{$exception->getCode()}</code>
-    <message>{$exception->getMessage()}</message>
-    <file>{$exception->getFile()}</file>
-    <line>{$exception->getLine()}</line>
-    <trace>{$exception->getTraceAsString()}</trace>
-  </exception>
-
-EOT;
+            $xml .= "  <exception>\n";
+            $xml .= "    <type>" . get_class($exception) . "</type>\n";
+            $xml .= "    <code>" . $exception->getCode() . "</code>\n";
+            $xml .= "    <message>" . $exception->getMessage() . "</message>\n";
+            $xml .= "    <file>" . $exception->getFile() . "</file>\n";
+            $xml .= "    <line>" . $exception->getLine() . "</line>\n";
+            $xml .= "    <trace>" . $exception->getTraceAsString() . "</trace>\n";
+            $xml .= "  </exception>\n";
         } while ($exception = $exception->getPrevious());
 
-        $xml .="</root>";
+        $xml .= "<root>";
 
         return $xml;
     }
