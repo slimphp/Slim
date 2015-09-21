@@ -148,7 +148,7 @@ class Error
             ];
         } while ($exception = $exception->getPrevious());
 
-        return json_encode($error);
+        return json_encode($error, JSON_PRETTY_PRINT);
     }
 
     /**
