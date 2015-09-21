@@ -98,29 +98,29 @@ class Error
      */
     private function renderHtmlException(Exception $exception)
     {
-        $code = $exception->getCode();
-        $message = $exception->getMessage();
-        $file = $exception->getFile();
-        $line = $exception->getLine();
-        $trace = str_replace(['#', '\n'], ['<div>#', '</div>'], $exception->getTraceAsString());
-
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
-        if ($code) {
+
+        if (($code = $exception->getCode())) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
-        if ($message) {
-            $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
+
+        if (($message = $exception->getMessage())) {
+            $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
         }
-        if ($file) {
+
+        if (($file = $exception->getFile())) {
             $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
-        if ($line) {
+
+        if (($line = $exception->getLine())) {
             $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
-        if ($trace) {
+
+        if (($trace = $exception->getTraceAsString())) {
             $html .= '<h2>Trace</h2>';
-            $html .= sprintf('<pre>%s</pre>', $trace);
+            $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
         }
+
         return $html;
     }
 
