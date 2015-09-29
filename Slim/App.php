@@ -370,7 +370,7 @@ class App
                 $lastChunkSize  = $contentLength % $chunkSize;
                 $currentChunk   = 0;
                 while (!$body->eof() && $currentChunk < $totalChunks) {
-                    if (++$currentChunk == $totalChunks) {
+                    if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
                         $chunkSize = $lastChunkSize;
                     }
                     echo $body->read($chunkSize);
