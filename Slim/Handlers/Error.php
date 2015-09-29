@@ -90,7 +90,7 @@ class Error
                 $html .= $this->renderHtmlException($exception);
             }
         } else {
-            $html = '<p>A website error has occurred.</p>';
+            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
         $output = sprintf(
