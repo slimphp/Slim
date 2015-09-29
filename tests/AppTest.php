@@ -864,9 +864,52 @@ class AppTest extends \PHPUnit_Framework_TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testExceptionErrorHandler()
+    public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $mw = function ($req, $res, $next) {
+            throw new \Exception('middleware exception');
+        };
+
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
+        $resOut = $app->run();
+
+        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->expectOutputRegex('/(?!.*middleware exception.*).*/');
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testExceptionErrorHandlerDisplaysErrorDetails()
+    {
+        $app = new App([
+            'settings' => [
+                'displayErrorDetails' => true
+            ],
+        ]);
 
         // Prepare request and response objects
         $env = Environment::mock([
