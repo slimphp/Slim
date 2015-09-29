@@ -805,6 +805,65 @@ class AppTest extends \PHPUnit_Framework_TestCase
     /**
      * @runInSeparateProcess
      */
+    public function testRespondWithPaddedStreamFilterOutput()
+    {
+        $availableFilter = stream_get_filters();
+        if (in_array('mcrypt.*', $availableFilter) && in_array('mdecrypt.*', $availableFilter)) {
+            $app = new App();
+            $app->get('/foo', function ($req, $res) {
+                $key = base64_decode('xxxxxxxxxxxxxxxx');
+                $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
+
+                $data = 'Hello';
+                $length = strlen($data);
+
+                $stream = fopen('php://temp', 'r+');
+
+                $filter = stream_filter_append($stream, 'mcrypt.rijndael-128', STREAM_FILTER_WRITE, [
+                    'key' => $key,
+                    'iv' => $iv
+                ]);
+
+                fwrite($stream, $data);
+                rewind($stream);
+                stream_filter_remove($filter);
+
+                stream_filter_append($stream, 'mdecrypt.rijndael-128', STREAM_FILTER_READ, [
+                    'key' => $key,
+                    'iv' => $iv
+                ]);
+
+                return $res->withHeader('Content-Length', $length)->withBody(new Body($stream));
+            });
+
+            // Prepare request and response objects
+            $env = Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+            ]);
+            $uri = Uri::createFromEnvironment($env);
+            $headers = Headers::createFromEnvironment($env);
+            $cookies = [];
+            $serverParams = $env->all();
+            $body = new RequestBody();
+            $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+            $res = new Response();
+
+            // Invoke app
+            $resOut = $app($req, $res);
+            $app->respond($resOut);
+
+            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+            $this->expectOutputString('Hello');
+        } else {
+            $this->assertTrue(true);
+        }
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
     public function testExceptionErrorHandler()
     {
         $app = new App();
