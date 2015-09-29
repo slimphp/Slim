@@ -192,7 +192,7 @@ class Error
                 $xml .= "  </exception>\n";
             } while ($exception = $exception->getPrevious());
         }
-        $xml .= "<error>";
+        $xml .= "</error>";
 
         return $xml;
     }
