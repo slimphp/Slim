@@ -56,6 +56,7 @@ final class Container extends PimpleContainer implements ContainerInterface
         'responseChunkSize' => 4096,
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
+        'displayErrorDetails' => false,
     ];
 
     /**
@@ -185,7 +186,8 @@ final class Container extends PimpleContainer implements ContainerInterface
          */
         if (!isset($this['errorHandler'])) {
             $this['errorHandler'] = function ($c) {
-                return new Error();
+                $displayDetails = $c->get('settings')['displayErrorDetails'];
+                return new Error($displayDetails);
             };
         }
 

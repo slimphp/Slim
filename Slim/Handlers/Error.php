@@ -21,6 +21,18 @@ use Slim\Http\Body;
  */
 class Error
 {
+    protected $displayErrorDetails;
+
+    /**
+     * Constructor
+     *
+     * @param boolean $displayErrorDetails Set to true to display full details
+     */
+    public function __construct($displayErrorDetails = false)
+    {
+        $this->displayErrorDetails = (bool)$displayErrorDetails;
+    }
+
     /**
      * Invoke error handler
      *
@@ -67,13 +79,18 @@ class Error
     private function renderHtmlErrorMessage(Exception $exception)
     {
         $title = 'Slim Application Error';
-        $html = '<p>The application could not run because of the following error:</p>';
-        $html .= '<h2>Details</h2>';
-        $html .= $this->renderHtmlException($exception);
 
-        while ($exception = $exception->getPrevious()) {
-            $html .= '<h2>Previous exception</h2>';
+        if ($this->displayErrorDetails) {
+            $html = '<p>The application could not run because of the following error:</p>';
+            $html .= '<h2>Details</h2>';
             $html .= $this->renderHtmlException($exception);
+
+            while ($exception = $exception->getPrevious()) {
+                $html .= '<h2>Previous exception</h2>';
+                $html .= $this->renderHtmlException($exception);
+            }
+        } else {
+            $html = '<p>A website error has occurred.</p>';
         }
 
         $output = sprintf(
@@ -134,19 +151,22 @@ class Error
     {
         $error = [
             'message' => 'Slim Application Error',
-            'exception' => [],
         ];
 
-        do {
-            $error['exception'][] = [
-                'type' => get_class($exception),
-                'code' => $exception->getCode(),
-                'message' => $exception->getMessage(),
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => explode("\n", $exception->getTraceAsString()),
-            ];
-        } while ($exception = $exception->getPrevious());
+        if ($this->displayErrorDetails) {
+            $error['exception'] = [];
+
+            do {
+                $error['exception'][] = [
+                    'type' => get_class($exception),
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                    'trace' => explode("\n", $exception->getTraceAsString()),
+                ];
+            } while ($exception = $exception->getPrevious());
+        }
 
         return json_encode($error, JSON_PRETTY_PRINT);
     }
@@ -160,18 +180,18 @@ class Error
     private function renderXmlErrorMessage(Exception $exception)
     {
         $xml = "<error>\n  <message>Slim Application Error</message>\n";
-
-        do {
-            $xml .= "  <exception>\n";
-            $xml .= "    <type>" . get_class($exception) . "</type>\n";
-            $xml .= "    <code>" . $exception->getCode() . "</code>\n";
-            $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
-            $xml .= "    <file>" . $exception->getFile() . "</file>\n";
-            $xml .= "    <line>" . $exception->getLine() . "</line>\n";
-            $xml .= "    <trace>" . $this->createCdataSection($exception->getTraceAsString()) . "</trace>\n";
-            $xml .= "  </exception>\n";
-        } while ($exception = $exception->getPrevious());
-
+        if ($this->displayErrorDetails) {
+            do {
+                $xml .= "  <exception>\n";
+                $xml .= "    <type>" . get_class($exception) . "</type>\n";
+                $xml .= "    <code>" . $exception->getCode() . "</code>\n";
+                $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
+                $xml .= "    <file>" . $exception->getFile() . "</file>\n";
+                $xml .= "    <line>" . $exception->getLine() . "</line>\n";
+                $xml .= "    <trace>" . $this->createCdataSection($exception->getTraceAsString()) . "</trace>\n";
+                $xml .= "  </exception>\n";
+            } while ($exception = $exception->getPrevious());
+        }
         $xml .= "<error>";
 
         return $xml;
