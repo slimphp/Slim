@@ -46,6 +46,8 @@ final class CallableResolver implements CallableResolverInterface
      */
     public function resolve($toResolve)
     {
+        $resolved = $toResolve;
+
         if (!is_callable($toResolve) && is_string($toResolve)) {
             // check for slim callable as "class:method"
             $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
@@ -74,8 +76,6 @@ final class CallableResolver implements CallableResolverInterface
                     $resolved = new $class;
                 }
             }
-        } else {
-            $resolved = $toResolve;
         }
 
         if (!is_callable($resolved)) {
