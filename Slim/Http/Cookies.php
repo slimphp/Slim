@@ -85,8 +85,8 @@ class Cookies implements CookiesInterface
      */
     public function set($name, $value)
     {
-        if (!is_array($value)) {
-            $value = ['value' => (string)$value];
+        if (is_string($value)) {
+            $value = ['value' => (string) $value];
         }
         $this->responseCookies[$name] = array_replace($this->defaults, $value);
     }
