@@ -8,7 +8,7 @@
  */
 namespace Slim\Exception;
 
-use Exception as BaseException;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class SlimException extends BaseException
+class SlimException extends Exception
 {
     /**
      * A response object to send to the HTTP client
