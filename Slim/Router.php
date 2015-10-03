@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
@@ -163,7 +163,7 @@ class Router extends RouteCollector implements RouterInterface
 
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-        
+
         return $dispatcher->dispatch($request->getMethod(), $uri);
     }
 
