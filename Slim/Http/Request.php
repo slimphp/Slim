@@ -474,10 +474,14 @@ class Request
     public function getHost()
     {
         if (isset($this->env['HTTP_HOST'])) {
-            if (strpos($this->env['HTTP_HOST'], ':') !== false) {
-                $hostParts = explode(':', $this->env['HTTP_HOST']);
+            if(preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $this->env['HTTP_HOST'], $matches)) {
+                return $matches[1];
+            } else {
+                if (strpos($this->env['HTTP_HOST'], ':') !== false) {
+                    $hostParts = explode(':', $this->env['HTTP_HOST']);
 
-                return $hostParts[0];
+                    return $hostParts[0];
+                }
             }
 
             return $this->env['HTTP_HOST'];
