@@ -260,6 +260,26 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test fetch POST params with arrays
+     */
+    public function testPostArray()
+    {
+        $env = \Slim\Environment::mock(array(
+            'REQUEST_METHOD' => 'POST',
+            'slim.input' => 'foo[]=bar&foo[]=baz&abc=123',
+            'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
+            'CONTENT_LENGTH' => 27
+        ));
+        $req = new \Slim\Http\Request($env);
+
+        $this->assertEquals(2, count($req->post()));
+        $this->assertEquals(2, count($req->post('foo')));
+        $this->assertContains('bar', $req->post('foo'));
+        $this->assertContains('baz', $req->post('foo'));
+        $this->assertEquals(123, $req->post('abc'));
+    }
+
+    /**
      * Test fetch POST params without multibyte
      */
     public function testPostWithoutMultibyte()
