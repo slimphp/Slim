@@ -672,6 +672,34 @@ class RequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test get host if HTTP_HOST is an IPv6 address.
+     */
+    public function testGetIPv6Host()
+    {
+        $env = \Slim\Environment::mock(array(
+            'SERVER_NAME' => 'slim',
+            'HTTP_HOST' => '[2001:db8::1]'
+        ));
+
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals('[2001:db8::1]', $req->getHost()); //Uses HTTP_HOST if available
+    }
+
+    /**
+     * Test get host if HTTP_HOST is an IPv6 address with appended port.
+     */
+    public function testGetIPv6HostWithoutPortIfPortAppended()
+    {
+        $env = \Slim\Environment::mock(array(
+            'SERVER_NAME' => 'slim',
+            'HTTP_HOST' => '[2001:db8::1]:80'
+        ));
+
+        $req = new \Slim\Http\Request($env);
+        $this->assertEquals('[2001:db8::1]', $req->getHost()); //Uses HTTP_HOST if available
+    }
+
+    /**
      * Test get host when it has a port number
      */
     public function testGetHostAndStripPort()
