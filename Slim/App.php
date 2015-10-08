@@ -309,10 +309,16 @@ class App
         try {
             $response = $this->callMiddlewareStack($request, $response);
         } catch (MethodNotAllowedException $e) {
+            if (!$this->container->has('notAllowedHandler')) {
+                throw $e;
+            }
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
             $response = $notAllowedHandler($request, $e->getResponse(), $e->getAllowedMethods());
         } catch (NotFoundException $e) {
+            if (!$this->container->has('notFoundHandler')) {
+                throw $e;
+            }
             /** @var callable $notFoundHandler */
             $notFoundHandler = $this->container->get('notFoundHandler');
             $response = $notFoundHandler($request, $e->getResponse());
