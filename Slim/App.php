@@ -428,7 +428,7 @@ class App
             return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             if (!$this->container->has('notAllowedHandler')) {
-                new MethodNotAllowedException($response, $routeInfo[1]);
+                throw new MethodNotAllowedException($response, $routeInfo[1]);
             }
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
