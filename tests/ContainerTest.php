@@ -24,7 +24,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Slim\Exception\NotFoundException
+     * @expectedException \Slim\Exception\ContainerValueNotFoundException
      */
     public function testGetWithError()
     {

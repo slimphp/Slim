@@ -13,7 +13,7 @@ use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\NotFoundException;
+use Slim\Exception\ContainerValueNotFoundException;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
@@ -255,15 +255,15 @@ final class Container extends PimpleContainer implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @throws NotFoundException  No entry was found for this identifier.
-     * @throws ContainerException Error while retrieving the entry.
+     * @throws ContainerValueNotFoundException  No entry was found for this identifier.
+     * @throws ContainerException               Error while retrieving the entry.
      *
      * @return mixed Entry.
      */
     public function get($id)
     {
         if (!$this->offsetExists($id)) {
-            throw new NotFoundException(sprintf('Identifier "%s" is not defined.', $id));
+            throw new ContainerValueNotFoundException(sprintf('Identifier "%s" is not defined.', $id));
         }
         return $this->offsetGet($id);
     }

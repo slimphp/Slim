@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class Exception extends BaseException
+class SlimException extends BaseException
 {
     /**
      * A response object to send to the HTTP client

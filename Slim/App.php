@@ -16,7 +16,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
-use Slim\Exception\Exception as SlimException;
+use Slim\Exception\SlimException;
+use Slim\Exception\MethodNotAllowedException;
+use Slim\Exception\NotFoundException;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
@@ -306,6 +308,14 @@ class App
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
+        } catch (MethodNotAllowedException $e) {
+            /** @var callable $notAllowedHandler */
+            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            $response = $notAllowedHandler($request, $e->getResponse(), $e->getAllowedMethods());
+        } catch (NotFoundException $e) {
+            /** @var callable $notFoundHandler */
+            $notFoundHandler = $this->container->get('notFoundHandler');
+            $response = $notFoundHandler($request, $e->getResponse());
         } catch (SlimException $e) {
             $response = $e->getResponse();
         } catch (Exception $e) {
@@ -411,13 +421,10 @@ class App
         if ($routeInfo[0] === Dispatcher::FOUND) {
             return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
-            return $notAllowedHandler($request, $response, $routeInfo[1]);
+            throw new MethodNotAllowedException($response, $routeInfo[1]);
         }
-        /** @var callable $notFoundHandler */
-        $notFoundHandler = $this->container->get('notFoundHandler');
-        return $notFoundHandler($request, $response);
+
+        throw new NotFoundException($response);
     }
 
     /**
