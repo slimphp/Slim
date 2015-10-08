@@ -280,6 +280,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
+
+        // now test that exception is raised if the handler isn't registered
+        unset($app->getContainer()['notAllowedHandler']);
+        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
+        $app($req, $res);
     }
 
     public function testInvokeWithMatchingRoute()
@@ -485,6 +490,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
+
+        // now test that exception is raised if the handler isn't registered
+        unset($app->getContainer()['notFoundHandler']);
+        $this->setExpectedException('Slim\Exception\NotFoundException');
+        $app($req, $res);
     }
 
     public function testInvokeWithPimpleCallable()
