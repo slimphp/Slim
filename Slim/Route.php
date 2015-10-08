@@ -326,22 +326,20 @@ class Route extends Routable implements RouteInterface
             $response = $newResponse;
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response
-            $response->getBody()->write($newResponse);
+            if ($response->getBody()->isWritable()) {
+                $response->getBody()->write($newResponse);
+            }
         }
 
-        if (!empty($output)) {
+        if (!empty($output) && $response->getBody()->isWritable()) {
             if ($this->outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));
-                if ($body->isWritable()) {
-                    $body->write($output . $response->getBody());
-                }
+                $body->write($output . $response->getBody());
                 $response = $response->withBody($body);
             } elseif ($this->outputBuffering === 'append') {
                 // append output buffer content
-                if ($response->getBody()->isWritable()) {
-                    $response->getBody()->write($output);
-                }
+                $response->getBody()->write($output);
             }
         }
 
