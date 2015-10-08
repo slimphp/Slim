@@ -101,7 +101,7 @@ END;
     {
         $list = explode(',', $acceptHeader);
         $known = ['application/json', 'application/xml', 'text/html'];
-
+        
         foreach ($list as $type) {
             if (in_array($type, $known)) {
                 return $type;

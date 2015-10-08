@@ -163,7 +163,7 @@ class Router extends RouteCollector implements RouterInterface
 
         $dispatcher = new GroupCountBasedDispatcher($this->getData());
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-
+        
         return $dispatcher->dispatch($request->getMethod(), $uri);
     }
 
