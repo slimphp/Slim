@@ -427,10 +427,20 @@ class App
         if ($routeInfo[0] === Dispatcher::FOUND) {
             return $routeInfo[1]($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            throw new MethodNotAllowedException($response, $routeInfo[1]);
+            if (!$this->container->has('notAllowedHandler')) {
+                new MethodNotAllowedException($response, $routeInfo[1]);
+            }
+            /** @var callable $notAllowedHandler */
+            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
 
-        throw new NotFoundException($response);
+        if (!$this->container->has('notFoundHandler')) {
+            throw new NotFoundException($response);
+        }
+        /** @var callable $notFoundHandler */
+        $notFoundHandler = $this->container->get('notFoundHandler');
+        return $notFoundHandler($request, $response);
     }
 
     /**
