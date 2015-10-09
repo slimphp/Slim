@@ -180,10 +180,10 @@ class Uri implements UriInterface
 
         // Authority: Port
         $port = (int)$env->get('SERVER_PORT', 80);
-        if(preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
+        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
 
-            if($matches[2]) {
+            if ($matches[2]) {
                 $port = (int) substr($matches[2], 1);
             }
         } else {
