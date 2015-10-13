@@ -95,6 +95,15 @@ class Router
     }
 
     /**
+     * Sets the current route to the given route
+     * @param Route|null $route
+     */
+    public function setCurrentRoute(Route $route = null)
+    {
+        $this->currentRoute = $route;
+    }
+
+    /**
      * Return route objects that match the given HTTP method and URI
      * @param  string               $httpMethod   The HTTP method to match against
      * @param  string               $resourceUri  The resource URI to match against

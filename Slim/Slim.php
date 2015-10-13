@@ -1352,6 +1352,7 @@ class Slim
             $dispatched = false;
             $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
             foreach ($matchedRoutes as $route) {
+                $this->router->setCurrentRoute($route);
                 try {
                     $this->applyHook('slim.before.dispatch');
                     $dispatched = $route->dispatch();
@@ -1367,6 +1368,7 @@ class Slim
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
+            $this->router->setCurrentRoute(null);
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
