@@ -61,7 +61,7 @@ final class CallableResolver implements CallableResolverInterface
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                     }
-                    $resolved = [new $class, $method];
+                    $resolved = [new $class($this->container), $method];
                 }
             } else {
                 // check if string is something in the DIC that's callable or is a class name which
@@ -73,7 +73,7 @@ final class CallableResolver implements CallableResolverInterface
                     if (!class_exists($class)) {
                         throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                     }
-                    $resolved = new $class;
+                    $resolved = new $class($this->container);
                 }
             }
         }

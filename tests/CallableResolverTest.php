@@ -72,6 +72,13 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
+    public function testSlimCallableContainer()
+    {
+        $resolver = new CallableResolver($this->container);
+        $resolver->resolve('Slim\Tests\Mocks\CallableTest:toCall');
+        $this->assertEquals($this->container, CallableTest::$CalledContainer);
+    }
+
     public function testContainer()
     {
         $this->container['callable_service'] = new CallableTest();
