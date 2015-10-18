@@ -189,6 +189,10 @@ class Request extends Message implements ServerRequestInterface
             return simplexml_load_string($input);
         });
 
+        $this->registerMediaTypeParser('text/xml', function ($input) {
+            return simplexml_load_string($input);
+        });
+
         $this->registerMediaTypeParser('application/x-www-form-urlencoded', function ($input) {
             parse_str($input, $data);
             return $data;
