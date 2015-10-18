@@ -45,6 +45,7 @@ class NotAllowed
                     $output = '{"message":"Method not allowed. Must be one of: ' . $allow . '"}';
                     break;
 
+                case 'text/xml':
                 case 'application/xml':
                     $output = "<root><message>Method not allowed. Must be one of: $allow</message></root>";
                     break;
@@ -100,7 +101,7 @@ END;
     private function determineContentType($acceptHeader)
     {
         $list = explode(',', $acceptHeader);
-        $known = ['application/json', 'application/xml', 'text/html'];
+        $known = ['application/json', 'application/xml', 'text/xml', 'text/html'];
         
         foreach ($list as $type) {
             if (in_array($type, $known)) {
