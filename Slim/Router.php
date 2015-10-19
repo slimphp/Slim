@@ -243,6 +243,7 @@ class Router extends RouteCollector implements RouterInterface
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
+     * @param boolean $fullPath   Optional param to return the full path or the last part for subRequests
      *
      * @return string
      *
