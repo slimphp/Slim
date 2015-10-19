@@ -959,7 +959,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $method->setAccessible(true);
 
         $response = new Response();
-        $response->write('foo');
+        $response->getBody()->write('foo');
 
         $response = $method->invoke(new App(), $response);
 
