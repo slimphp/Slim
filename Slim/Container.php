@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
@@ -13,7 +13,7 @@ use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\NotFoundException;
+use Slim\Exception\ContainerValueNotFoundException;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
@@ -56,6 +56,7 @@ final class Container extends PimpleContainer implements ContainerInterface
         'responseChunkSize' => 4096,
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
+        'displayErrorDetails' => false,
     ];
 
     /**
@@ -185,7 +186,8 @@ final class Container extends PimpleContainer implements ContainerInterface
          */
         if (!isset($this['errorHandler'])) {
             $this['errorHandler'] = function ($c) {
-                return new Error();
+                $displayDetails = $c->get('settings')['displayErrorDetails'];
+                return new Error($displayDetails);
             };
         }
 
@@ -253,15 +255,15 @@ final class Container extends PimpleContainer implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @throws NotFoundException  No entry was found for this identifier.
-     * @throws ContainerException Error while retrieving the entry.
+     * @throws ContainerValueNotFoundException  No entry was found for this identifier.
+     * @throws ContainerException               Error while retrieving the entry.
      *
      * @return mixed Entry.
      */
     public function get($id)
     {
         if (!$this->offsetExists($id)) {
-            throw new NotFoundException(sprintf('Identifier "%s" is not defined.', $id));
+            throw new ContainerValueNotFoundException(sprintf('Identifier "%s" is not defined.', $id));
         }
         return $this->offsetGet($id);
     }

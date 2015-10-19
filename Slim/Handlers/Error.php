@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Handlers;
 
@@ -21,6 +21,18 @@ use Slim\Http\Body;
  */
 class Error
 {
+    protected $displayErrorDetails;
+
+    /**
+     * Constructor
+     *
+     * @param boolean $displayErrorDetails Set to true to display full details
+     */
+    public function __construct($displayErrorDetails = false)
+    {
+        $this->displayErrorDetails = (bool)$displayErrorDetails;
+    }
+
     /**
      * Invoke error handler
      *
@@ -38,6 +50,7 @@ class Error
                 $output = $this->renderJsonErrorMessage($exception);
                 break;
 
+            case 'text/xml':
             case 'application/xml':
                 $output = $this->renderXmlErrorMessage($exception);
                 break;
@@ -67,13 +80,18 @@ class Error
     private function renderHtmlErrorMessage(Exception $exception)
     {
         $title = 'Slim Application Error';
-        $html = '<p>The application could not run because of the following error:</p>';
-        $html .= '<h2>Details</h2>';
-        $html .= $this->renderHtmlException($exception);
 
-        while ($exception = $exception->getPrevious()) {
-            $html .= '<h2>Previous exception</h2>';
+        if ($this->displayErrorDetails) {
+            $html = '<p>The application could not run because of the following error:</p>';
+            $html .= '<h2>Details</h2>';
             $html .= $this->renderHtmlException($exception);
+
+            while ($exception = $exception->getPrevious()) {
+                $html .= '<h2>Previous exception</h2>';
+                $html .= $this->renderHtmlException($exception);
+            }
+        } else {
+            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
         $output = sprintf(
@@ -98,29 +116,29 @@ class Error
      */
     private function renderHtmlException(Exception $exception)
     {
-        $code = $exception->getCode();
-        $message = $exception->getMessage();
-        $file = $exception->getFile();
-        $line = $exception->getLine();
-        $trace = str_replace(['#', '\n'], ['<div>#', '</div>'], $exception->getTraceAsString());
-
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
-        if ($code) {
+
+        if (($code = $exception->getCode())) {
             $html .= sprintf('<div><strong>Code:</strong> %s</div>', $code);
         }
-        if ($message) {
-            $html .= sprintf('<div><strong>Message:</strong> %s</div>', $message);
+
+        if (($message = $exception->getMessage())) {
+            $html .= sprintf('<div><strong>Message:</strong> %s</div>', htmlentities($message));
         }
-        if ($file) {
+
+        if (($file = $exception->getFile())) {
             $html .= sprintf('<div><strong>File:</strong> %s</div>', $file);
         }
-        if ($line) {
+
+        if (($line = $exception->getLine())) {
             $html .= sprintf('<div><strong>Line:</strong> %s</div>', $line);
         }
-        if ($trace) {
+
+        if (($trace = $exception->getTraceAsString())) {
             $html .= '<h2>Trace</h2>';
-            $html .= sprintf('<pre>%s</pre>', $trace);
+            $html .= sprintf('<pre>%s</pre>', htmlentities($trace));
         }
+
         return $html;
     }
 
@@ -134,20 +152,24 @@ class Error
     {
         $error = [
             'message' => 'Slim Application Error',
-            'exception' => [],
         ];
 
-        do {
-            $error['exception'][] = [
-                'code' => $exception->getCode(),
-                'message' => $exception->getMessage(),
-                'file' => $exception->getFile(),
-                'line' => $exception->getLine(),
-                'trace' => explode("\n", $exception->getTraceAsString()),
-            ];
-        } while ($exception = $exception->getPrevious());
+        if ($this->displayErrorDetails) {
+            $error['exception'] = [];
 
-        return json_encode($error);
+            do {
+                $error['exception'][] = [
+                    'type' => get_class($exception),
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
+                    'trace' => explode("\n", $exception->getTraceAsString()),
+                ];
+            } while ($exception = $exception->getPrevious());
+        }
+
+        return json_encode($error, JSON_PRETTY_PRINT);
     }
 
     /**
@@ -158,24 +180,33 @@ class Error
      */
     private function renderXmlErrorMessage(Exception $exception)
     {
-        $xml = "<root>\n  <message>Slim Application Error</message>\n";
-
-        do {
-            $xml .= <<<EOT
-  <exception>
-    <code>{$exception->getCode()}</code>
-    <message>{$exception->getMessage()}</message>
-    <file>{$exception->getFile()}</file>
-    <line>{$exception->getLine()}</line>
-    <trace>{$exception->getTraceAsString()}</trace>
-  </exception>
-
-EOT;
-        } while ($exception = $exception->getPrevious());
-
-        $xml .="</root>";
+        $xml = "<error>\n  <message>Slim Application Error</message>\n";
+        if ($this->displayErrorDetails) {
+            do {
+                $xml .= "  <exception>\n";
+                $xml .= "    <type>" . get_class($exception) . "</type>\n";
+                $xml .= "    <code>" . $exception->getCode() . "</code>\n";
+                $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
+                $xml .= "    <file>" . $exception->getFile() . "</file>\n";
+                $xml .= "    <line>" . $exception->getLine() . "</line>\n";
+                $xml .= "    <trace>" . $this->createCdataSection($exception->getTraceAsString()) . "</trace>\n";
+                $xml .= "  </exception>\n";
+            } while ($exception = $exception->getPrevious());
+        }
+        $xml .= "</error>";
 
         return $xml;
+    }
+
+    /**
+     * Returns a CDATA section with the given content.
+     *
+     * @param  string $content
+     * @return string
+     */
+    private function createCdataSection($content)
+    {
+        return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
     }
 
     /**
@@ -188,7 +219,7 @@ EOT;
     private function determineContentType($acceptHeader)
     {
         $list = explode(',', $acceptHeader);
-        $known = ['application/json', 'application/xml', 'text/html'];
+        $known = ['application/json', 'application/xml', 'text/xml', 'text/html'];
 
         foreach ($list as $type) {
             if (in_array($type, $known)) {

@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Http;
 
@@ -179,12 +179,19 @@ class Uri implements UriInterface
         }
 
         // Authority: Port
-        $pos = strpos($host, ':');
-        if ($pos !== false) {
-            $port = (int)substr($host, $pos + 1);
-            $host = strstr($host, ':', true);
+        $port = (int)$env->get('SERVER_PORT', 80);
+        if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
+            $host = $matches[1];
+
+            if ($matches[2]) {
+                $port = (int) substr($matches[2], 1);
+            }
         } else {
-            $port = (int)$env->get('SERVER_PORT', 80);
+            $pos = strpos($host, ':');
+            if ($pos !== false) {
+                $port = (int) substr($host, $pos + 1);
+                $host = strstr($host, ':', true);
+            }
         }
 
         // Path

@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
 
@@ -326,10 +326,12 @@ class Route extends Routable implements RouteInterface
             $response = $newResponse;
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response
-            $response->getBody()->write($newResponse);
+            if ($response->getBody()->isWritable()) {
+                $response->getBody()->write($newResponse);
+            }
         }
 
-        if (!empty($output)) {
+        if (!empty($output) && $response->getBody()->isWritable()) {
             if ($this->outputBuffering === 'prepend') {
                 // prepend output buffer content
                 $body = new Http\Body(fopen('php://temp', 'r+'));

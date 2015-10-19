@@ -2,9 +2,9 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Handlers;
 
@@ -37,6 +37,7 @@ class NotFound
                 $output = '{"message":"Not found"}';
                 break;
 
+            case 'text/xml':
             case 'application/xml':
                 $output = '<root><message>Not found</message></root>';
                 break;
@@ -99,7 +100,7 @@ END;
     private function determineContentType($acceptHeader)
     {
         $list = explode(',', $acceptHeader);
-        $known = ['application/json', 'application/xml', 'text/html'];
+        $known = ['application/json', 'application/xml', 'text/xml', 'text/html'];
         
         foreach ($list as $type) {
             if (in_array($type, $known)) {

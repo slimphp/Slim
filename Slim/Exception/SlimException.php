@@ -2,13 +2,13 @@
 /**
  * Slim Framework (http://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Exception;
 
-use Exception as BaseException;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -17,7 +17,7 @@ use Psr\Http\Message\ResponseInterface;
  * This Exception is thrown when the Slim application needs to abort
  * processing and return control flow to the outer PHP script.
  */
-class Exception extends BaseException
+class SlimException extends Exception
 {
     /**
      * A response object to send to the HTTP client
