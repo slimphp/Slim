@@ -977,4 +977,28 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->hasHeader('Content-Length'));
         $this->assertFalse($response->hasHeader('Content-Type'));
     }
+
+    public function testCallingAContainerCallable()
+    {
+        $settings = [
+            'foo' => function ($c) {
+                return function ($a) {
+                    return $a;
+                };
+            }
+        ];
+        $app = new App($settings);
+
+        $result = $app->foo('bar');
+        $this->assertSame('bar', $result);
+
+        $headers = new Headers();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', Uri::createFromString(''), $headers, [], [], $body);
+        $response = new Response();
+
+        $response = $app->notFoundHandler($request, $response);
+
+        $this->assertSame(404, $response->getStatusCode());
+    }
 }
