@@ -249,7 +249,7 @@ class Router extends RouteCollector implements RouterInterface
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function pathFor($name, array $data = [], array $queryParams = [])
+    public function pathFor($name, array $data = [], array $queryParams = [], $fullPath = true)
     {
         $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
@@ -299,6 +299,11 @@ class Router extends RouteCollector implements RouterInterface
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
+        }
+
+        if(!$fullPath) {
+            $url = explode('/', $url);
+            $url = array_pop($url);
         }
 
         return $url;
