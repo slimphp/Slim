@@ -177,4 +177,24 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     {
         $this->router->setBasePath(['invalid']);
     }
+
+    public function testCreateDispatcher()
+    {
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+    }
+
+    public function testSetDispatcher()
+    {
+        $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r) {
+            $r->addRoute('GET', '/', function () {
+            });
+        }));
+        $class = new \ReflectionClass($this->router);
+        $prop = $class->getProperty('dispatcher');
+        $prop->setAccessible(true);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
+    }
 }

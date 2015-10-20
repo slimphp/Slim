@@ -34,6 +34,13 @@ class Route extends Routable implements RouteInterface
     protected $methods = [];
 
     /**
+     * Route identifier
+     *
+     * @var string
+     */
+    protected $identifier;
+
+    /**
      * Route name
      *
      * @var null|string
@@ -71,12 +78,13 @@ class Route extends Routable implements RouteInterface
      * @param callable     $callable The route callable
      * @param RouteGroup[] $groups The parent route groups
      */
-    public function __construct($methods, $pattern, $callable, $groups = [])
+    public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)
     {
         $this->methods  = $methods;
         $this->pattern  = $pattern;
         $this->callable = $callable;
         $this->groups   = $groups;
+        $this->identifier = 'route' . $identifier;
     }
 
     /**
@@ -152,6 +160,16 @@ class Route extends Routable implements RouteInterface
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Get route identifier
+     *
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
     }
 
     /**
