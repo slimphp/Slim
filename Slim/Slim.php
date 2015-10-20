@@ -1385,9 +1385,8 @@ class Slim
                     // Do nothing
                 }
             }
-        } finally {
-            $this->router->setCurrentRoute(null);
         }
+        $this->router->setCurrentRoute(null);
     }
 
     /********************************************************************************
