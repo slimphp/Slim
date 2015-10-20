@@ -49,6 +49,11 @@ class Router
     protected $currentRoute;
 
     /**
+     * @var Route The route that was dispatched
+     */
+    protected $dispatchedRoute;
+
+    /**
      * @var array Lookup hash of all route objects
      */
     protected $routes;
@@ -101,6 +106,22 @@ class Router
     public function setCurrentRoute(Route $route = null)
     {
         $this->currentRoute = $route;
+    }
+
+    /**
+     * @return Route The Route that was dispatched by Slim
+     */
+    public function getDispatchedRoute()
+    {
+        return $this->dispatchedRoute;
+    }
+
+    /**
+     * @param Route $dispatchedRoute
+     */
+    public function setDispatchedRoute($dispatchedRoute)
+    {
+        $this->dispatchedRoute = $dispatchedRoute;
     }
 
     /**
