@@ -284,13 +284,14 @@ class Router implements RouterInterface
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
+     * @param boolean $fullPath   Optional param to return the full path or the last part for subRequests
      *
      * @return string
      *
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function pathFor($name, array $data = [], array $queryParams = [])
+    public function pathFor($name, array $data = [], array $queryParams = [], $fullPath = true)
     {
         $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
@@ -340,6 +341,11 @@ class Router implements RouterInterface
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
+        }
+
+        if(!$fullPath) {
+            $url = explode('/', $url);
+            $url = array_pop($url);
         }
 
         return $url;

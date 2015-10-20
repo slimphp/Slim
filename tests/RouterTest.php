@@ -80,6 +80,22 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
+
+    public function testPathForFullPathParam()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first:\w+}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            'lockhart',
+            $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'], [], false)
+        );
+    }
     
     public function testPathForWithBasePath()
     {
