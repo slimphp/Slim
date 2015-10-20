@@ -1370,7 +1370,6 @@ class Slim
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
-            $this->router->setCurrentRoute(null);
             $this->stop();
         } catch (\Slim\Exception\Stop $e) {
             $this->response()->write(ob_get_clean());
@@ -1386,6 +1385,8 @@ class Slim
                     // Do nothing
                 }
             }
+        } finally {
+            $this->router->setCurrentRoute(null);
         }
     }
 
