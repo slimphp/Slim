@@ -65,6 +65,7 @@ Learn more at these links:
 - [Documentation](http://www.slimframework.com/docs/start/installation.html)
 - [Support Forum](http://help.slimframework.com)
 - [Twitter](https://twitter.com/slimphp)
+- [Resources](https://github.com/xssc/awesome-slim)
 
 ## Security
 
