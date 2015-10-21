@@ -2,6 +2,7 @@
 
 namespace Slim\Exception;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class MethodNotAllowedException extends SlimException
@@ -9,11 +10,13 @@ class MethodNotAllowedException extends SlimException
     /**
      * Create new exception
      *
+     * @param ServerRequestInterface $request
      * @param ResponseInterface $response
+     * @param array $allowedMethods
      */
-    public function __construct(ResponseInterface $response, array $allowedMethods)
+    public function __construct(ServerRequestInterface $request, ResponseInterface $response, array $allowedMethods)
     {
-        parent::__construct($response);
+        parent::__construct($request, $response);
         $this->allowedMethods = $allowedMethods;
     }
 
