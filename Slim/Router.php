@@ -279,7 +279,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * Build the path for a named route
+     * Build the path for a named route - without basePath so it can be passed to subRequest
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
@@ -290,7 +290,7 @@ class Router implements RouterInterface
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function pathFor($name, array $data = [], array $queryParams = [])
+    public function internalPathFor($name, array $data = [], array $queryParams = [])
     {
         $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
@@ -333,10 +333,6 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
-
-        if ($this->basePath) {
-            $url = $this->basePath . $url;
-        }
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
