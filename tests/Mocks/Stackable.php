@@ -17,7 +17,9 @@ use Slim\MiddlewareAwareTrait;
  */
 class Stackable
 {
-    use MiddlewareAwareTrait;
+    use MiddlewareAwareTrait {
+        add as addMiddleware;
+    }
 
     public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
     {
@@ -32,5 +34,11 @@ class Stackable
     public function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $res)
     {
         return $res->write('hello from testMiddlewareKernel');
+    }
+
+    public function add($callable)
+    {
+        $this->addMiddleware($callable);
+        return $this;
     }
 }
