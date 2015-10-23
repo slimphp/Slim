@@ -279,7 +279,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * Build the path for a named route
+     * Build the path for a named route excluding the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
@@ -290,7 +290,7 @@ class Router implements RouterInterface
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function pathFor($name, array $data = [], array $queryParams = [])
+    public function relativePathFor($name, array $data = [], array $queryParams = [])
     {
         $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
@@ -334,12 +334,32 @@ class Router implements RouterInterface
         }
         $url = implode('', $segments);
 
-        if ($this->basePath) {
-            $url = $this->basePath . $url;
-        }
-
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
+        }
+
+        return $url;
+    }
+
+
+    /**
+     * Build the path for a named route including the base path
+     *
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
+     */
+    public function pathFor($name, array $data = [], array $queryParams = [])
+    {
+        $url = $this->relativePathFor($name, $data, $queryParams);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
         }
 
         return $url;

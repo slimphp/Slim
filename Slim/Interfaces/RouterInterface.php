@@ -87,7 +87,21 @@ interface RouterInterface
     public function lookupRoute($identifier);
 
     /**
-     * Build the path for a named route
+     * Build the path for a named route excluding the base path
+     *
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
+     */
+    public function relativePathFor($name, array $data = [], array $queryParams = []);
+
+    /**
+     * Build the path for a named route including the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
