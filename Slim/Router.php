@@ -34,7 +34,7 @@ class Router implements RouterInterface
      *
      * @var \FastRoute\RouteParser
      */
-    private $routeParser;
+    protected $routeParser;
 
     /**
      * Base path used in pathFor()
@@ -75,7 +75,7 @@ class Router implements RouterInterface
     /**
      * @var \FastRoute\Dispatcher
      */
-    private $dispatcher;
+    protected $dispatcher;
 
     /**
      * Create new router
