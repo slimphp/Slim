@@ -17,9 +17,7 @@ use Slim\MiddlewareAwareTrait;
  */
 class Stackable
 {
-    use MiddlewareAwareTrait {
-        add as addMiddleware;
-    }
+    use MiddlewareAwareTrait;
 
     public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
     {

@@ -22,9 +22,7 @@ use Slim\Interfaces\RouteInterface;
  */
 class Route extends Routable implements RouteInterface
 {
-    use MiddlewareAwareTrait {
-        add as addMiddleware;
-    }
+    use MiddlewareAwareTrait;
 
     /**
      * HTTP methods supported by this route
