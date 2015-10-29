@@ -53,7 +53,7 @@ trait MiddlewareAwareTrait
      * @throws RuntimeException         If middleware is added while the stack is dequeuing
      * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
      */
-    public function add(callable $callable)
+    protected function addMiddleware(callable $callable)
     {
         if ($this->middlewareLock) {
             throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');

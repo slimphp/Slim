@@ -47,9 +47,7 @@ use Slim\Interfaces\RouterInterface;
 class App
 {
     use CallableResolverAwareTrait;
-    use MiddlewareAwareTrait {
-        add as addMiddleware;
-    }
+    use MiddlewareAwareTrait;
 
     /**
      * Current version

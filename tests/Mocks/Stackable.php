@@ -33,4 +33,10 @@ class Stackable
     {
         return $res->write('hello from testMiddlewareKernel');
     }
+
+    public function add($callable)
+    {
+        $this->addMiddleware($callable);
+        return $this;
+    }
 }
