@@ -330,14 +330,14 @@ class App
             }
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
-            $response = $notAllowedHandler($request, $e->getResponse(), $e->getAllowedMethods());
+            $response = $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
         } catch (NotFoundException $e) {
             if (!$this->container->has('notFoundHandler')) {
                 throw $e;
             }
             /** @var callable $notFoundHandler */
             $notFoundHandler = $this->container->get('notFoundHandler');
-            $response = $notFoundHandler($request, $e->getResponse());
+            $response = $notFoundHandler($e->getRequest(), $e->getResponse());
         } catch (SlimException $e) {
             $response = $e->getResponse();
         } catch (Exception $e) {
@@ -448,7 +448,7 @@ class App
             return $route->run($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             if (!$this->container->has('notAllowedHandler')) {
-                throw new MethodNotAllowedException($response, $routeInfo[1]);
+                throw new MethodNotAllowedException($request, $response, $routeInfo[1]);
             }
             /** @var callable $notAllowedHandler */
             $notAllowedHandler = $this->container->get('notAllowedHandler');
@@ -456,7 +456,7 @@ class App
         }
 
         if (!$this->container->has('notFoundHandler')) {
-            throw new NotFoundException($response);
+            throw new NotFoundException($request, $response);
         }
         /** @var callable $notFoundHandler */
         $notFoundHandler = $this->container->get('notFoundHandler');
