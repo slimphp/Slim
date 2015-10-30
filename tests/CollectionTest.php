@@ -6,10 +6,10 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
-namespace Slim\Tests\Http;
+namespace Slim\Tests;
 
 use ReflectionProperty;
-use Slim\Http\Collection;
+use Slim\Collection;
 
 class CollectionTest extends \PHPUnit_Framework_TestCase
 {

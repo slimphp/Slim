@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2011-2015 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
-namespace Slim\Interfaces\Http;
+namespace Slim\Interfaces;
 
 /**
  * Collection Interface

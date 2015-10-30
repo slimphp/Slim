@@ -8,7 +8,7 @@
  */
 namespace Slim\Http;
 
-use Slim\Http\Collection;
+use Slim\Collection;
 use Slim\Http\Environment;
 use Slim\Interfaces\Http\HeadersInterface;
 

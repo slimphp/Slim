@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use Slim\Collection;
 use Slim\Interfaces\Http\EnvironmentInterface;
 
 /**
