@@ -90,82 +90,74 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return an array or an
          * instance of \ArrayAccess.
          *
-         * @param Container $c
-         *
          * @return array|\ArrayAccess
          */
-        $this['settings'] = function ($c) use ($userSettings, $defaultSettings) {
+        $this['settings'] = function () use ($userSettings, $defaultSettings) {
             return array_merge($defaultSettings, $userSettings);
         };
 
-        /**
-         * This service MUST return a shared instance
-         * of \Slim\Interfaces\Http\EnvironmentInterface.
-         *
-         * @param Container $c
-         *
-         * @return EnvironmentInterface
-         */
         if (!isset($this['environment'])) {
-            $this['environment'] = function ($c) {
+            /**
+             * This service MUST return a shared instance
+             * of \Slim\Interfaces\Http\EnvironmentInterface.
+             *
+             * @return EnvironmentInterface
+             */
+            $this['environment'] = function () {
                 return new Environment($_SERVER);
             };
         }
 
-        /**
-         * PSR-7 Request object
-         *
-         * @param Container $c
-         *
-         * @return ServerRequestInterface
-         */
         if (!isset($this['request'])) {
+            /**
+             * PSR-7 Request object
+             *
+             * @param Container $c
+             *
+             * @return ServerRequestInterface
+             */
             $this['request'] = function ($c) {
-                return Request::createFromEnvironment($c['environment']);
+                return Request::createFromEnvironment($c->get('environment'));
             };
         }
 
-        /**
-         * PSR-7 Response object
-         *
-         * @param Container $c
-         *
-         * @return ResponseInterface
-         */
         if (!isset($this['response'])) {
+            /**
+             * PSR-7 Response object
+             *
+             * @param Container $c
+             *
+             * @return ResponseInterface
+             */
             $this['response'] = function ($c) {
                 $headers = new Headers(['Content-Type' => 'text/html']);
                 $response = new Response(200, $headers);
 
-                return $response->withProtocolVersion($c['settings']['httpVersion']);
+                return $response->withProtocolVersion($c->get('settings')['httpVersion']);
             };
         }
 
-        /**
-         * This service MUST return a SHARED instance
-         * of \Slim\Interfaces\RouterInterface.
-         *
-         * @param Container $c
-         *
-         * @return RouterInterface
-         */
         if (!isset($this['router'])) {
-            $this['router'] = function ($c) {
-                return new Router();
+            /**
+             * This service MUST return a SHARED instance
+             * of \Slim\Interfaces\RouterInterface.
+             *
+             * @return RouterInterface
+             */
+            $this['router'] = function () {
+                return new Router;
             };
         }
 
-        /**
-         * This service MUST return a SHARED instance
-         * of \Slim\Interfaces\InvocationStrategyInterface.
-         *
-         * @param Container $c
-         *
-         * @return InvocationStrategyInterface
-         */
         if (!isset($this['foundHandler'])) {
-            $this['foundHandler'] = function ($c) {
-                return new RequestResponse();
+            /**
+             * This service MUST return a SHARED instance
+             * of \Slim\Interfaces\InvocationStrategyInterface.
+             *
+             * @return InvocationStrategyInterface
+             */
+            $this['foundHandler'] = function () {
+                return new RequestResponse;
             };
         }
 
@@ -186,60 +178,55 @@ final class Container extends PimpleContainer implements ContainerInterface
          */
         if (!isset($this['errorHandler'])) {
             $this['errorHandler'] = function ($c) {
-                $displayDetails = $c->get('settings')['displayErrorDetails'];
-                return new Error($displayDetails);
+                return new Error($c->get('settings')['displayErrorDetails']);
             };
         }
 
-        /**
-         * This service MUST return a callable
-         * that accepts two arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         *
-         * @param Container $c
-         *
-         * @return callable
-         */
         if (!isset($this['notFoundHandler'])) {
-            $this['notFoundHandler'] = function ($c) {
-                return new NotFound();
+            /**
+             * This service MUST return a callable
+             * that accepts two arguments:
+             *
+             * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+             * 2. Instance of \Psr\Http\Message\ResponseInterface
+             *
+             * The callable MUST return an instance of
+             * \Psr\Http\Message\ResponseInterface.
+             *
+             * @return callable
+             */
+            $this['notFoundHandler'] = function () {
+                return new NotFound;
             };
         }
 
-        /**
-         * This service MUST return a callable
-         * that accepts three arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         * 3. Array of allowed HTTP methods
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         *
-         * @param Container $c
-         *
-         * @return callable
-         */
         if (!isset($this['notAllowedHandler'])) {
-            $this['notAllowedHandler'] = function ($c) {
+            /**
+             * This service MUST return a callable
+             * that accepts three arguments:
+             *
+             * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+             * 2. Instance of \Psr\Http\Message\ResponseInterface
+             * 3. Array of allowed HTTP methods
+             *
+             * The callable MUST return an instance of
+             * \Psr\Http\Message\ResponseInterface.
+             *
+             * @return callable
+             */
+            $this['notAllowedHandler'] = function () {
                 return new NotAllowed;
             };
         }
 
-        /**
-         * Instance of \Slim\Interfaces\CallableResolverInterface
-         *
-         * @param Container $c
-         *
-         * @return CallableResolverInterface
-         */
         if (!isset($this['callableResolver'])) {
+            /**
+             * Instance of \Slim\Interfaces\CallableResolverInterface
+             *
+             * @param Container $c
+             *
+             * @return CallableResolverInterface
+             */
             $this['callableResolver'] = function ($c) {
                 return new CallableResolver($c);
             };
