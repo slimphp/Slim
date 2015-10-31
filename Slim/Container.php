@@ -93,7 +93,7 @@ final class Container extends PimpleContainer implements ContainerInterface
          * @return array|\ArrayAccess
          */
         $this['settings'] = function () use ($userSettings, $defaultSettings) {
-            return array_merge($defaultSettings, $userSettings);
+            return new Collection(array_merge($defaultSettings, $userSettings));
         };
 
         if (!isset($this['environment'])) {

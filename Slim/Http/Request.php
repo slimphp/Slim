@@ -15,6 +15,7 @@ use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
+use Slim\Collection;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
@@ -82,7 +83,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request attributes (route segment names and values)
      *
-     * @var \Slim\Http\Collection
+     * @var \Slim\Collection
      */
     protected $attributes;
 

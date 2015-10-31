@@ -10,7 +10,7 @@
 namespace Slim\Tests\Http;
 
 use ReflectionProperty;
-use Slim\Http\Collection;
+use Slim\Collection;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;

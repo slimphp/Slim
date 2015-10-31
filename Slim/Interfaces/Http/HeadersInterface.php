@@ -8,6 +8,8 @@
  */
 namespace Slim\Interfaces\Http;
 
+use Slim\Interfaces\CollectionInterface;
+
 /**
  * Headers Interface
  *
