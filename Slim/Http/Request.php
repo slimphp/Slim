@@ -1066,24 +1066,4 @@ class Request extends Message implements ServerRequestInterface
 
         return $params;
     }
-
-    /*******************************************************************************
-     * Helpers
-     ******************************************************************************/
-
-    /**
-     * Get the client IP address.
-     *
-     * Note: This method is not part of the PSR-7 standard.
-     *
-     * @return string|null IP address or null if none found.
-     */
-    public function getIp()
-    {
-        if ($this->hasHeader('X-Forwarded-For')) {
-            return trim(current(explode(',', $this->getHeaderLine('X-Forwarded-For'))));
-        }
-
-        return isset($this->serverParams['REMOTE_ADDR']) ? $this->serverParams['REMOTE_ADDR'] : null;
-    }
 }
