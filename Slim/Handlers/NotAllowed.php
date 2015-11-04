@@ -21,6 +21,18 @@ use Slim\Http\Body;
 class NotAllowed
 {
     /**
+     * Known handled content types
+     *
+     * @var array
+     */
+    protected $knownContentTypes = [
+        'application/json',
+        'application/xml',
+        'text/xml',
+        'text/html',
+    ];
+
+    /**
      * Invoke error handler
      *
      * @param  ServerRequestInterface $request  The most recent Request object
@@ -51,7 +63,6 @@ class NotAllowed
                     break;
 
                 case 'text/html':
-                default:
                     $contentType = 'text/html';
                     $output = <<<END
 <html>
@@ -92,21 +103,17 @@ END;
     }
 
     /**
-     * Read the accept header and determine which content type we know about
-     * is wanted.
+     * Determine which content type we know about is wanted using Accept header
+     * content.
      *
      * @param  string $acceptHeader Accept header from request
      * @return string
      */
     private function determineContentType($acceptHeader)
     {
-        $list = explode(',', $acceptHeader);
-        $known = ['application/json', 'application/xml', 'text/xml', 'text/html'];
-        
-        foreach ($list as $type) {
-            if (in_array($type, $known)) {
-                return $type;
-            }
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+        if (count($selectedContentTypes)) {
+            return $selectedContentTypes[0];
         }
 
         return 'text/html';
