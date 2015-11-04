@@ -90,11 +90,17 @@ final class Container extends PimpleContainer implements ContainerInterface
          * This service MUST return an array or an
          * instance of \ArrayAccess.
          *
+         * @note that if the is already a 'settings' service that is a Closure
+         * (i.e. it's a Pimple factory), then we assume that the user knows what
+         * they are doing…
+         *
          * @return array|\ArrayAccess
          */
-        $this['settings'] = function () use ($userSettings, $defaultSettings) {
-            return new Collection(array_merge($defaultSettings, $userSettings));
-        };
+        if (!isset($this['settings']) || is_array($this['settings'])) {
+            $this['settings'] = function () use ($userSettings, $defaultSettings) {
+                return new Collection(array_merge($defaultSettings, $userSettings));
+            };
+        }
 
         if (!isset($this['environment'])) {
             /**
