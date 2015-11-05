@@ -56,7 +56,7 @@ class Error
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
     {
-        $contentType = $this->determineContentType($request->getHeaderLine('Accept'));
+        $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
                 $output = $this->renderJsonErrorMessage($exception);
@@ -221,14 +221,15 @@ class Error
 
     /**
      * Determine which content type we know about is wanted using Accept header
-     * content.
      *
-     * @param  string $acceptHeader Accept header from request
+     * @param ServerRequestInterface $request
      * @return string
      */
-    private function determineContentType($acceptHeader)
+    private function determineContentType(ServerRequestInterface $request)
     {
+        $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
         if (count($selectedContentTypes)) {
             return $selectedContentTypes[0];
         }

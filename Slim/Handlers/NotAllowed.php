@@ -51,7 +51,7 @@ class NotAllowed
             $output = 'Allowed methods: ' . $allow;
         } else {
             $status = 405;
-            $contentType = $this->determineContentType($request->getHeaderLine('Accept'));
+            $contentType = $this->determineContentType($request);
             switch ($contentType) {
                 case 'application/json':
                     $output = '{"message":"Method not allowed. Must be one of: ' . $allow . '"}';
@@ -104,14 +104,15 @@ END;
 
     /**
      * Determine which content type we know about is wanted using Accept header
-     * content.
      *
-     * @param  string $acceptHeader Accept header from request
+     * @param ServerRequestInterface $request
      * @return string
      */
-    private function determineContentType($acceptHeader)
+    private function determineContentType(ServerRequestInterface $request)
     {
+        $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
         if (count($selectedContentTypes)) {
             return $selectedContentTypes[0];
         }
