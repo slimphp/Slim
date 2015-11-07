@@ -149,6 +149,69 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /********************************************************************************
+     * Route Patterns
+     *******************************************************************************/
+    public function testSegmentRouteThatDoesNotEndInASlash()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            // Do something
+        });
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
+    }
+
+    public function testSegmentRouteThatEndsInASlash()
+    {
+        $app = new App();
+        $app->get('/foo/', function ($req, $res) {
+            // Do something
+        });
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
+    }
+
+    public function testSegmentRouteThatDoesNotStartWithASlash()
+    {
+        $app = new App();
+        $app->get('foo', function ($req, $res) {
+            // Do something
+        });
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
+    }
+
+    public function testSingleSlashRoute()
+    {
+        $app = new App();
+        $app->get('/', function ($req, $res) {
+            // Do something
+        });
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+    }
+
+    public function testEmptyRoute()
+    {
+        $app = new App();
+        $app->get('', function ($req, $res) {
+            // Do something
+        });
+        /** @var \Slim\Router $router */
+        $router = $app->router;
+        $router->finalize();
+        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+    }
+
+    /********************************************************************************
      * Route Groups
      *******************************************************************************/
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
