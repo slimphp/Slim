@@ -122,14 +122,18 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
+        // pattern must start with a / if not empty
+        if ($pattern) {
+            $pattern = '/' . ltrim($pattern, '/');
+        }
+
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
-            // If any route in the group only has / we remove it
-            if ($pattern === '/') {
-                $pattern = '';
-            }
             $pattern = $this->processGroups() . $pattern;
         }
+
+        // Complete pattern must start with a /
+        $pattern = '/' . ltrim($pattern, '/');
 
         // Add route
         $route = new Route($methods, $pattern, $handler, $this->routeGroups, $this->routeCounter);
@@ -235,7 +239,8 @@ class Router implements RouterInterface
     {
         $pattern = "";
         foreach ($this->routeGroups as $group) {
-            $pattern .= $group->getPattern();
+            // The route group's pattern doesn't end with a /
+            $pattern .= rtrim($group->getPattern(), '/');
         }
         return $pattern;
     }

@@ -582,7 +582,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
 
-//HERE
     public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash()
     {
         $app = new App();
