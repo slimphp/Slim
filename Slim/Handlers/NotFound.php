@@ -21,6 +21,18 @@ use Slim\Http\Body;
 class NotFound
 {
     /**
+     * Known handled content types
+     *
+     * @var array
+     */
+    protected $knownContentTypes = [
+        'application/json',
+        'application/xml',
+        'text/xml',
+        'text/html',
+    ];
+
+    /**
      * Invoke not found handler
      *
      * @param  ServerRequestInterface $request  The most recent Request object
@@ -31,7 +43,7 @@ class NotFound
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
 
-        $contentType = $this->determineContentType($request->getHeaderLine('Accept'));
+        $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
                 $output = '{"message":"Not found"}';
@@ -43,7 +55,6 @@ class NotFound
                 break;
 
             case 'text/html':
-            default:
                 $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
                 $contentType = 'text/html';
                 $output = <<<END
@@ -91,21 +102,18 @@ END;
     }
 
     /**
-     * Read the accept header and determine which content type we know about
-     * is wanted.
+     * Determine which content type we know about is wanted using Accept header
      *
-     * @param  string $acceptHeader Accept header from request
+     * @param ServerRequestInterface $request
      * @return string
      */
-    private function determineContentType($acceptHeader)
+    private function determineContentType(ServerRequestInterface $request)
     {
-        $list = explode(',', $acceptHeader);
-        $known = ['application/json', 'application/xml', 'text/xml', 'text/html'];
-        
-        foreach ($list as $type) {
-            if (in_array($type, $known)) {
-                return $type;
-            }
+        $acceptHeader = $request->getHeaderLine('Accept');
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
+        if (count($selectedContentTypes)) {
+            return $selectedContentTypes[0];
         }
 
         return 'text/html';
