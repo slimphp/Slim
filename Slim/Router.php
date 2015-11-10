@@ -134,6 +134,9 @@ class Router implements RouterInterface
 
         // Complete pattern must start with a /
         $pattern = '/' . ltrim($pattern, '/');
+        
+        // According to RFC methods are defined in uppercase (See RFC 7231)
+        $methods = array_map("strtoupper", $methods);
 
         // Add route
         $route = new Route($methods, $pattern, $handler, $this->routeGroups, $this->routeCounter);
