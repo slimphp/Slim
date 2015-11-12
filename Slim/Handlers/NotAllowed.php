@@ -20,17 +20,7 @@ use Slim\Http\Body;
  */
 class NotAllowed
 {
-    /**
-     * Known handled content types
-     *
-     * @var array
-     */
-    protected $knownContentTypes = [
-        'application/json',
-        'application/xml',
-        'text/xml',
-        'text/html',
-    ];
+    use DetermineContentTypeAwareTrait;
 
     /**
      * Invoke error handler
@@ -100,23 +90,5 @@ END;
                 ->withHeader('Content-type', $contentType)
                 ->withHeader('Allow', $allow)
                 ->withBody($body);
-    }
-
-    /**
-     * Determine which content type we know about is wanted using Accept header
-     *
-     * @param ServerRequestInterface $request
-     * @return string
-     */
-    private function determineContentType(ServerRequestInterface $request)
-    {
-        $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
-
-        if (count($selectedContentTypes)) {
-            return $selectedContentTypes[0];
-        }
-
-        return 'text/html';
     }
 }
