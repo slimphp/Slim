@@ -91,5 +91,4 @@ END;
                 ->withHeader('Allow', $allow)
                 ->withBody($body);
     }
-
 }

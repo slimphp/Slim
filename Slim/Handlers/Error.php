@@ -213,5 +213,4 @@ class Error
     {
         return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
     }
-
 }
