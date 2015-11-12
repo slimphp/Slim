@@ -21,19 +21,14 @@ use Slim\Http\Body;
  */
 class Error
 {
-    protected $displayErrorDetails;
+    use DetermineContentTypeAwareTrait;
 
     /**
-     * Known handled content types
+     * Display error details flag
      *
-     * @var array
+     * @var bool
      */
-    protected $knownContentTypes = [
-        'application/json',
-        'application/xml',
-        'text/xml',
-        'text/html',
-    ];
+    protected $displayErrorDetails;
 
     /**
      * Constructor
@@ -219,21 +214,4 @@ class Error
         return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
     }
 
-    /**
-     * Determine which content type we know about is wanted using Accept header
-     *
-     * @param ServerRequestInterface $request
-     * @return string
-     */
-    private function determineContentType(ServerRequestInterface $request)
-    {
-        $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
-
-        if (count($selectedContentTypes)) {
-            return $selectedContentTypes[0];
-        }
-
-        return 'text/html';
-    }
 }
