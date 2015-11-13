@@ -161,22 +161,22 @@ final class Container extends PimpleContainer implements ContainerInterface
             };
         }
 
-        /**
-         * This service MUST return a callable
-         * that accepts three arguments:
-         *
-         * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-         * 2. Instance of \Psr\Http\Message\ResponseInterface
-         * 3. Instance of \Exception
-         *
-         * The callable MUST return an instance of
-         * \Psr\Http\Message\ResponseInterface.
-         *
-         * @param Container $c
-         *
-         * @return callable
-         */
         if (!isset($this['errorHandler'])) {
+            /**
+             * This service MUST return a callable
+             * that accepts three arguments:
+             *
+             * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+             * 2. Instance of \Psr\Http\Message\ResponseInterface
+             * 3. Instance of \Exception
+             *
+             * The callable MUST return an instance of
+             * \Psr\Http\Message\ResponseInterface.
+             *
+             * @param Container $c
+             *
+             * @return callable
+             */
             $this['errorHandler'] = function ($c) {
                 return new Error($c->get('settings')['displayErrorDetails']);
             };
