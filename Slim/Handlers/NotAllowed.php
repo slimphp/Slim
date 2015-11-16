@@ -43,12 +43,10 @@ class NotAllowed
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
     {
-        $allow = implode(', ', $methods);
-
         if ($request->getMethod() === 'OPTIONS') {
             $status = 200;
             $contentType = 'text/plain';
-            $output = 'Allowed methods: ' . $allow;
+            $output = $this->renderPlainNotAllowedMessage($methods);
         } else {
             $status = 405;
             $contentType = $this->determineContentType($request);
@@ -72,6 +70,7 @@ class NotAllowed
 
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write($output);
+        $allow = implode(', ', $methods);
 
         return $response
                 ->withStatus($status)
