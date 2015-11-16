@@ -319,7 +319,7 @@ class Log
                 }
                 $message = $this->interpolate($message, $context);
             }
-            return $this->writer->write($message, $level);
+            return $this->writer->write($message, self::$levels[$level]);
         } else {
             return false;
         }
