@@ -54,40 +54,18 @@ class NotAllowed
             $contentType = $this->determineContentType($request);
             switch ($contentType) {
                 case 'application/json':
-                    $output = '{"message":"Method not allowed. Must be one of: ' . $allow . '"}';
+                    $output = $this->renderJsonNotAllowedMessage($methods);
                     break;
 
                 case 'text/xml':
                 case 'application/xml':
-                    $output = "<root><message>Method not allowed. Must be one of: $allow</message></root>";
+                    $output = $this->renderXmlNotAllowedMessage($methods);
                     break;
 
                 case 'text/html':
+                default:
                     $contentType = 'text/html';
-                    $output = <<<END
-<html>
-    <head>
-        <title>Method not allowed</title>
-        <style>
-            body{
-                margin:0;
-                padding:30px;
-                font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;
-            }
-            h1{
-                margin:0;
-                font-size:48px;
-                font-weight:normal;
-                line-height:48px;
-            }
-        </style>
-    </head>
-    <body>
-        <h1>Method not allowed</h1>
-        <p>Method not allowed. Must be one of: <strong>$allow</strong></p>
-    </body>
-</html>
-END;
+                    $output = $this->renderHtmlNotAllowedMessage($methods);
                     break;
             }
         }
@@ -118,5 +96,81 @@ END;
         }
 
         return 'text/html';
+    }
+
+    /**
+     * Render PLAIN not allowed message
+     *
+     * @param  array                  $methods
+     * @return string
+     */
+    protected function renderPlainNotAllowedMessage($methods)
+    {
+        $allow = implode(', ', $methods);
+
+        return 'Allowed methods: ' . $allow;
+    }
+
+    /**
+     * Render JSON not allowed message
+     *
+     * @param  array                  $methods
+     * @return string
+     */
+    protected function renderJsonNotAllowedMessage($methods)
+    {
+        $allow = implode(', ', $methods);
+
+        return '{"message":"Method not allowed. Must be one of: ' . $allow . '"}';
+    }
+
+    /**
+     * Render XML not allowed message
+     *
+     * @param  array                  $methods
+     * @return string
+     */
+    protected function renderXmlNotAllowedMessage($methods)
+    {
+        $allow = implode(', ', $methods);
+
+        return "<root><message>Method not allowed. Must be one of: $allow</message></root>";
+    }
+
+    /**
+     * Render HTML not allowed message
+     *
+     * @param  array                  $methods
+     * @return string
+     */
+    protected function renderHtmlNotAllowedMessage($methods)
+    {
+        $allow = implode(', ', $methods);
+        $output = <<<END
+<html>
+    <head>
+        <title>Method not allowed</title>
+        <style>
+            body{
+                margin:0;
+                padding:30px;
+                font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;
+            }
+            h1{
+                margin:0;
+                font-size:48px;
+                font-weight:normal;
+                line-height:48px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Method not allowed</h1>
+        <p>Method not allowed. Must be one of: <strong>$allow</strong></p>
+    </body>
+</html>
+END;
+
+        return $output;
     }
 }
