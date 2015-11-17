@@ -61,7 +61,6 @@ class NotAllowed
                     break;
 
                 case 'text/html':
-                default:
                     $contentType = 'text/html';
                     $output = $this->renderHtmlNotAllowedMessage($methods);
                     break;
