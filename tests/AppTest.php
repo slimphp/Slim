@@ -253,7 +253,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSegmentWithEmptyRoute()
@@ -283,7 +283,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/baz/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/foo/baz', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testTwoGroupSegmentsWithAnEmptyRoute()
@@ -350,22 +350,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
 
-    public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/', function () use ($app) {
-                $app->get('bar', function ($req, $res) {
-                    // Do something
-                });
-            });
-        });
-        /** @var \Slim\Router $router */
-        $router = $app->router;
-        $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
-    }
-
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute()
     {
         $app = new App();
@@ -382,20 +366,18 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
 
-    public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
+    public function testGroupSegmentWithOptionalSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
         $app->group('/foo', function () use ($app) {
-            $app->group('', function () use ($app) {
-                $app->get('bar', function ($req, $res) {
-                    // Do something
-                });
+            $app->get('[/{bar:[0-9]+}]', function ($req, $res) {
+                // Do something
             });
         });
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/foo[/{bar:[0-9]+}]', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
@@ -460,22 +442,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->group('/', function () use ($app) {
             $app->group('/baz', function () use ($app) {
                 $app->get('/', function ($req, $res) {
-                    // Do something
-                });
-            });
-        });
-        /** @var \Slim\Router $router */
-        $router = $app->router;
-        $router->finalize();
-        $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
-    }
-
-    public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
-    {
-        $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
-                $app->get('', function ($req, $res) {
                     // Do something
                 });
             });
@@ -651,7 +617,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/baz', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute()
