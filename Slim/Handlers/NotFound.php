@@ -42,22 +42,93 @@ class NotFound
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-
-        $contentType = $this->determineContentType($request);
+       $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
-                $output = '{"message":"Not found"}';
-                break;
+                return $this->renderJsonNotFoundOutput($request, $response);
 
             case 'text/xml':
             case 'application/xml':
-                $output = '<root><message>Not found</message></root>';
-                break;
+                return $this->renderXmlNotFoundOutput($request, $response);
 
             case 'text/html':
-                $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
-                $contentType = 'text/html';
-                $output = <<<END
+                return $this->renderHtmlNotFoundOutput($request, $response);
+        }
+    }
+
+    /**
+     * Determine which content type we know about is wanted using Accept header
+     *
+     * @param ServerRequestInterface $request
+     * @return string
+     */
+    private function determineContentType(ServerRequestInterface $request)
+    {
+        $acceptHeader = $request->getHeaderLine('Accept');
+        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+
+        if (count($selectedContentTypes)) {
+            return $selectedContentTypes[0];
+        }
+
+        return 'text/html';
+    }
+
+    /**
+     * Return a response for application/json content not found
+     *
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
+     *
+     * @return ResponseInterface
+     */
+    protected function renderJsonNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
+    {
+      $contentType = 'application/json';
+      $output = '{"message":"Not found"}';
+
+      $body = new Body(fopen('php://temp', 'r+'));
+      $body->write($output);
+
+      return $response->withStatus(404)
+                      ->withHeader('Content-Type', $contentType)
+                      ->withBody($body);
+    }
+
+    /**
+     * Return a response for xml content not found
+     *
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
+     *
+     * @return ResponseInterface
+     */
+    protected function renderXmlNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
+    {
+      $contentType = $this->determineContentType($request);
+      $output = '<root><message>Not found</message></root>';
+
+      $body = new Body(fopen('php://temp', 'r+'));
+      $body->write($output);
+
+      return $response->withStatus(404)
+                      ->withHeader('Content-Type', $contentType)
+                      ->withBody($body);
+    }
+
+    /**
+     * Return a response for text/html content not found
+     *
+     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ResponseInterface      $response The most recent Response object
+     *
+     * @return ResponseInterface
+     */
+    protected function renderHtmlNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
+    {
+      $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+      $contentType = 'text/html';
+      $output = <<<END
 <html>
     <head>
         <title>Page Not Found</title>
@@ -90,32 +161,12 @@ class NotFound
     </body>
 </html>
 END;
-                break;
-        }
 
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($output);
+      $body = new Body(fopen('php://temp', 'r+'));
+      $body->write($output);
 
-        return $response->withStatus(404)
-                        ->withHeader('Content-Type', $contentType)
-                        ->withBody($body);
-    }
-
-    /**
-     * Determine which content type we know about is wanted using Accept header
-     *
-     * @param ServerRequestInterface $request
-     * @return string
-     */
-    private function determineContentType(ServerRequestInterface $request)
-    {
-        $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
-
-        if (count($selectedContentTypes)) {
-            return $selectedContentTypes[0];
-        }
-
-        return 'text/html';
+      return $response->withStatus(404)
+                      ->withHeader('Content-Type', $contentType)
+                      ->withBody($body);
     }
 }
