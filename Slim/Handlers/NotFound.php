@@ -42,7 +42,7 @@ class NotFound
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-       $contentType = $this->determineContentType($request);
+        $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
                 return $this->renderJsonNotFoundOutput($request, $response);
@@ -84,15 +84,15 @@ class NotFound
      */
     protected function renderJsonNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
     {
-      $contentType = 'application/json';
-      $output = '{"message":"Not found"}';
+        $contentType = 'application/json';
+        $output = '{"message":"Not found"}';
 
-      $body = new Body(fopen('php://temp', 'r+'));
-      $body->write($output);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
 
-      return $response->withStatus(404)
-                      ->withHeader('Content-Type', $contentType)
-                      ->withBody($body);
+        return $response->withStatus(404)
+                        ->withHeader('Content-Type', $contentType)
+                        ->withBody($body);
     }
 
     /**
@@ -105,15 +105,15 @@ class NotFound
      */
     protected function renderXmlNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
     {
-      $contentType = $this->determineContentType($request);
-      $output = '<root><message>Not found</message></root>';
+        $contentType = $this->determineContentType($request);
+        $output = '<root><message>Not found</message></root>';
 
-      $body = new Body(fopen('php://temp', 'r+'));
-      $body->write($output);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
 
-      return $response->withStatus(404)
-                      ->withHeader('Content-Type', $contentType)
-                      ->withBody($body);
+        return $response->withStatus(404)
+                        ->withHeader('Content-Type', $contentType)
+                        ->withBody($body);
     }
 
     /**
@@ -126,9 +126,9 @@ class NotFound
      */
     protected function renderHtmlNotFoundOutput(ServerRequestInterface $request, ResponseInterface $response)
     {
-      $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
-      $contentType = 'text/html';
-      $output = <<<END
+        $homeUrl = (string)($request->getUri()->withPath('')->withQuery('')->withFragment(''));
+        $contentType = 'text/html';
+        $output = <<<END
 <html>
     <head>
         <title>Page Not Found</title>
@@ -162,11 +162,11 @@ class NotFound
 </html>
 END;
 
-      $body = new Body(fopen('php://temp', 'r+'));
-      $body->write($output);
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
 
-      return $response->withStatus(404)
-                      ->withHeader('Content-Type', $contentType)
-                      ->withBody($body);
+        return $response->withStatus(404)
+                        ->withHeader('Content-Type', $contentType)
+                        ->withBody($body);
     }
 }
