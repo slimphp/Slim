@@ -1,6 +1,11 @@
 <?php
 namespace Hawk\Middleware;
 
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Hawk\Exception\InvalidParameterException;
+use Hawk\Exception\NestedException;
+
 /**
  * ArgsMiddleware
  *
@@ -20,6 +25,37 @@ class ArgsMiddleware
      */
 	public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
 	{
+        $route = $request->getAttribute('route');
+        if ($route !== null)
+		{
+			$exceptions = [];
+
+			foreach ($route->getParams() as $param) {
+				try {
+					$param->checkRequest($request);
+
+                    $param->filter();
+
+                    $param->validate();
+				}
+				catch (InvalidParameterException $e) {
+					$exceptions[] = $e;
+				}
+			}
+
+			if (count($exceptions) === 1)
+				throw $exceptions[0];
+			else if (count($exceptions) > 1)
+				throw new NestedException($exceptions);
+
+            // If execution got here, all route's required parameters are filtered, valid and all optional
+			// parameters are either filtered and valid or were populated with their default value due to
+			// being invalid after filtering. Assemble all arguments received in this route in the array
+			// that will be passed to the route's handler
+			foreach ($route->getParams() as $param)
+				$route->setArgument($param->getName(), $param->getValue());
+		}
+
         return $next($request, $response);
     }
 }
