@@ -13,6 +13,6 @@ class FloatFilter implements FilterInterface
 	 */
 	public function filter($data)
 	{
-		return preg_replace('/[^\d.+-]/', '', $data);
+		return preg_replace('/[^eE\d.+-]/', '', $data);
 	}
 }

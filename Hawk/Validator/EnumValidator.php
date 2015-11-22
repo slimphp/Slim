@@ -1,7 +1,7 @@
 <?php
 namespace Hawk\Validator;
 
-use Hawk\Exception\InvalidParameterException;
+use Hawk\Exception\InvalidArgumentException;
 
 class EnumValidator implements ValidatorInterface
 {
@@ -17,6 +17,9 @@ class EnumValidator implements ValidatorInterface
 	public function validate($data)
 	{
 		if (!in_array($data, $this->enum, true))
-			throw new InvalidParameterException($this->paramName);
+		{
+			$allowedValues = implode(', ', $enum);
+			throw new InvalidArgumentException($this->paramName . "(not present in white-list: [$allowedValues])");
+		}
 	}
 }

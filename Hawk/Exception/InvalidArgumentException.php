@@ -3,6 +3,6 @@ namespace Hawk\Exception;
 
 use Exception;
 
-class InvalidParameterException extends Exception
+class InvalidArgumentException extends Exception
 {
 }

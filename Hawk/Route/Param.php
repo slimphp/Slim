@@ -3,10 +3,10 @@ namespace Hawk\Rest\Route;
 
 use Exception;
 use Psr\Http\Message\ServerRequestInterface;
-use Hawk\Exception\InvalidParameterException;
+use Hawk\Exception\InvalidArgumentException;
 
 /**
- * \Hawk\Route\Param
+ * Hawk\Route\Param
  */
 abstract class Param
 {
@@ -93,7 +93,7 @@ abstract class Param
 		if (trim($this->value) === '')
 		{
 			if ($this->required === self::REQUIRED)
-				throw new InvalidParameterException($this->name . '(null after filtering)');
+				throw new InvalidArgumentException($this->name . '(null after filtering)');
 			else
 				$this->value = $this->defaultValue;
 		}
@@ -119,26 +119,12 @@ abstract class Param
 	}
 
 	/**
-	 * [setValue description]
-	 * @param array $source [description]
+	 * [getName description]
+	 * @return [type] [description]
 	 */
-	public function setValue(array $source)
+	public function getName()
 	{
-		if (strpos($name, '[') !== false)
-		{
-			$name = str_replace(['[', ']'], '&', $name);
-
-			$keys = explode('&', $name);
-
-			foreach ($keys as $k => $v)
-				if ($v === '')
-					unset($keys[$k]);
-
-			foreach ($keys as $v)
-				$value = $source[$v];
-		}
-		else
-			$this->value = $source[$name];
+		return $this->name;
 	}
 
 	/**
@@ -148,14 +134,5 @@ abstract class Param
 	public function getValue()
 	{
 		return $this->value;
-	}
-
-	/**
-	 * [getName description]
-	 * @return [type] [description]
-	 */
-	public function getName()
-	{
-		return $this->name;
 	}
 }

@@ -2,7 +2,7 @@
 namespace Hawk\Rest\Route;
 
 use Psr\Http\Message\ServerRequestInterface;
-use Hawk\Exception\InvalidParameterException;
+use Hawk\Exception\InvalidArgumentException;
 
 /**
  *
@@ -20,17 +20,17 @@ class HeaderParam extends Param
 
 		if ($this->required === Param::REQUIRED)
 		{
-			if ($headerLine === '')
-				throw new InvalidParameterException($this->name . '(not present)');
-			else
+			if ($headerLine !== '')
 				$this->value = $headerLine;
+			else
+				throw new InvalidArgumentException($this->name . '(not present)');
 		}
 		else // $this->required === Param::OPTIONAL
 		{
-			if ($headerLine === '')
-				$this->value = $this->defaultValue;
-			else
+			if ($headerLine !== '')
 				$this->value = $headerLine;
+			else
+				$this->value = $this->defaultValue;
 		}
 	}
 }

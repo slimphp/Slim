@@ -315,7 +315,7 @@ class App
         }
 
         // Add both framework middlewares
-        $this->add(new AuthMiddleware()); // Only called for authenticated routes
+        $this->add(new AuthMiddleware($this->container->get('authHandler'))); // Only called for authenticated routes
         $this->add(new ArgsMiddleware()); // Called first
 
         // Dispatch the Router first if the setting for this is on
