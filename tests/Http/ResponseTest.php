@@ -100,6 +100,16 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $response->withStatus(200, null);
     }
 
+    public function testWithStatusEmptyReasonPhrase()
+    {
+        $response = new Response();
+        $clone = $response->withStatus(207);
+        $responsePhrase = new ReflectionProperty($response, 'reasonPhrase');
+        $responsePhrase->setAccessible(true);
+
+        $this->assertEquals('Multi-Status', $responsePhrase->getValue($clone));
+    }
+
     public function testGetReasonPhrase()
     {
         $response = new Response();
@@ -108,6 +118,16 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $responseStatus->setValue($response, '404');
 
         $this->assertEquals('Not Found', $response->getReasonPhrase());
+    }
+
+    public function testGetReasonPhraseForUnrecognisedCode()
+    {
+        $response = new Response();
+        $responseStatus = new ReflectionProperty($response, 'status');
+        $responseStatus->setAccessible(true);
+        $responseStatus->setValue($response, '499');
+
+        $this->assertEquals('', $response->getReasonPhrase());
     }
 
     public function testGetCustomReasonPhrase()

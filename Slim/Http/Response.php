@@ -185,6 +185,9 @@ class Response extends Message implements ResponseInterface
 
         $clone = clone $this;
         $clone->status = $code;
+        if ($reasonPhrase === '' && isset(static::$messages[$code])) {
+            $reasonPhrase = static::$messages[$code];
+        }
         $clone->reasonPhrase = $reasonPhrase;
 
         return $clone;
@@ -199,7 +202,7 @@ class Response extends Message implements ResponseInterface
      */
     protected function filterStatus($status)
     {
-        if (!is_integer($status) || !isset(static::$messages[$status])) {
+        if (!is_integer($status) || $status<100 || $status>599) {
             throw new InvalidArgumentException('Invalid HTTP status code');
         }
 
@@ -224,7 +227,10 @@ class Response extends Message implements ResponseInterface
         if ($this->reasonPhrase) {
             return $this->reasonPhrase;
         }
-        return static::$messages[$this->status];
+        if (isset(static::$messages[$this->status])) {
+            return static::$messages[$this->status];
+        }
+        return '';
     }
 
     /*******************************************************************************
