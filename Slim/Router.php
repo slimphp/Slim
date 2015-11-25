@@ -16,6 +16,7 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
 use FastRoute\DataGenerator;
+use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
 
@@ -254,7 +255,7 @@ class Router implements RouterInterface
      * @param string   $pattern
      * @param callable $callable
      *
-     * @return RouteGroup
+     * @return RouteGroupInterface
      */
     public function pushGroup($pattern, $callable)
     {
