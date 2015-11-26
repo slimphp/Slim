@@ -11,7 +11,6 @@ namespace Slim\Interfaces;
 use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\RouteGroup;
 
 /**
  * Router Interface
@@ -57,7 +56,7 @@ interface RouterInterface
      * @param string   $pattern The group pattern
      * @param callable $callable A group callable
      *
-     * @return RouteGroup
+     * @return RouteGroupInterface
      */
     public function pushGroup($pattern, $callable);
 
