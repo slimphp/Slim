@@ -44,8 +44,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
             $callable = $callable->bindTo($this->container);
         }
 
-        array_unshift($this->middleware, $callable);
-
+        $this->middleware[] = $callable;
         return $this;
     }
 
