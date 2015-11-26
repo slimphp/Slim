@@ -110,11 +110,15 @@ class Route extends Routable implements RouteInterface
      */
     public function finalize()
     {
+        $groupMiddleware = [];
         foreach ($this->getGroups() as $group) {
             foreach ($group->getMiddleware() as $middleware) {
-                array_unshift($this->middleware, $middleware);
+                array_unshift($groupMiddleware, $middleware);
             }
         }
+
+        $this->middleware = array_merge($this->middleware, $groupMiddleware);
+
         foreach ($this->getMiddleware() as $middleware) {
             $this->addMiddleware($middleware);
         }
