@@ -614,4 +614,21 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('http://localhost/test', (string) $uri->withPath('test'));
     }
+
+    /**
+     * Handle case when the URL is /foo/index.php/bar/baz
+     * @ticket 1590
+     */
+    public function testRequestURIContainsIndexDotPhp()
+    {
+        $uri = Uri::createFromEnvironment(
+            Environment::mock(
+                [
+                    'SCRIPT_NAME' => '/foo/index.php',
+                    'REQUEST_URI' => '/foo/index.php/bar/baz',
+                ]
+            )
+        );
+        $this->assertSame('/foo', $uri->getBasePath());
+    }
 }
