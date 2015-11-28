@@ -555,6 +555,9 @@ class App
      */
     protected function isEmptyResponse(ResponseInterface $response)
     {
+        if (method_exists($response, 'isEmpty')) {
+            return $response->isEmpty();
+        }
         return in_array($response->getStatusCode(), [204, 205, 304]);
     }
 }
