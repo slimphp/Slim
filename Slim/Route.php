@@ -52,6 +52,8 @@ class Route extends Routable implements RouteInterface
      */
     protected $groups;
 
+    private $finalized = false;
+
     /**
      * Output buffering mode
      *
@@ -110,15 +112,19 @@ class Route extends Routable implements RouteInterface
      */
     public function finalize()
     {
-        $groupMiddleware = [];
-        foreach ($this->getGroups() as $group) {
-            $groupMiddleware = array_merge($group->getMiddleware(), $groupMiddleware);
-        }
+        if (!$this->finalized) {
+            $groupMiddleware = [];
+            foreach ($this->getGroups() as $group) {
+                $groupMiddleware = array_merge($group->getMiddleware(), $groupMiddleware);
+            }
 
-        $this->middleware = array_merge($this->middleware, $groupMiddleware);
+            $this->middleware = array_merge($this->middleware, $groupMiddleware);
 
-        foreach ($this->getMiddleware() as $middleware) {
-            $this->addMiddleware($middleware);
+            foreach ($this->getMiddleware() as $middleware) {
+                $this->addMiddleware($middleware);
+            }
+
+            $this->finalized = true;
         }
     }
 
@@ -302,6 +308,9 @@ class Route extends Routable implements RouteInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
+        // Lazy Route Finalize
+        $this->finalize();
+
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }
