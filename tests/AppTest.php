@@ -1506,9 +1506,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString('Hello');
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testRespondNoContent()
     {
         $app = new App();
@@ -1542,9 +1539,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString('');
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testRespondWithPaddedStreamFilterOutput()
     {
         $availableFilter = stream_get_filters();
@@ -1601,9 +1595,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
@@ -1634,15 +1625,12 @@ class AppTest extends \PHPUnit_Framework_TestCase
             return $res;
         });
 
-        $resOut = $app->run();
+        $resOut = $app->run(true);
 
         $this->assertEquals(500, $resOut->getStatusCode());
-        $this->expectOutputRegex('/(?!.*middleware exception.*).*/');
+        $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
         $app = new App([
@@ -1668,7 +1656,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->getContainer()['response'] = $res;
 
         $mw = function ($req, $res, $next) {
-            throw new \Exception('middleware exception');
+            throw new \RuntimeException('middleware exception');
         };
 
         $app->add($mw);
@@ -1677,10 +1665,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
             return $res;
         });
 
-        $resOut = $app->run();
+        $resOut = $app->run(true);
 
         $this->assertEquals(500, $resOut->getStatusCode());
-        $this->expectOutputRegex('/.*middleware exception.*/');
+        $this->assertRegExp('/.*middleware exception.*/', (string)$resOut);
     }
 
     public function testFinalize()
