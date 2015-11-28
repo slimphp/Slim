@@ -529,6 +529,9 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
+        // stop PHP sending a Content-Type automatically
+        ini_set('default_mimetype', '');
+
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
