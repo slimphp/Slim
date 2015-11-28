@@ -188,6 +188,11 @@ class Response extends Message implements ResponseInterface
         if ($reasonPhrase === '' && isset(static::$messages[$code])) {
             $reasonPhrase = static::$messages[$code];
         }
+
+        if ($reasonPhrase === '') {
+            throw new InvalidArgumentException('ReasonPhrase must be supplied for this code');
+        }
+
         $clone->reasonPhrase = $reasonPhrase;
 
         return $clone;

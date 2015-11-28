@@ -93,6 +93,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage ReasonPhrase must be a string
      */
     public function testWithStatusInvalidReasonPhraseThrowsException()
     {
@@ -120,14 +121,22 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Not Found', $response->getReasonPhrase());
     }
 
-    public function testGetReasonPhraseForUnrecognisedCode()
+    /**
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage ReasonPhrase must be supplied for this code
+     */
+    public function testMustSetReasonPhraseForUnrecognisedCode()
     {
         $response = new Response();
-        $responseStatus = new ReflectionProperty($response, 'status');
-        $responseStatus->setAccessible(true);
-        $responseStatus->setValue($response, '499');
+        $response = $response->withStatus(499);
+    }
 
-        $this->assertEquals('', $response->getReasonPhrase());
+    public function testSetReasonPhraseForUnrecognisedCode()
+    {
+        $response = new Response();
+        $response = $response->withStatus(499, 'Authentication timeout');
+
+        $this->assertEquals('Authentication timeout', $response->getReasonPhrase());
     }
 
     public function testGetCustomReasonPhrase()
