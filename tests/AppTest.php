@@ -798,6 +798,183 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($app));
     }
 
+    public function testAddMiddlewareOnRoute()
+    {
+        $app = new App();
+
+        $app->get('/', function ($req, $res) {
+            return $res->write('Center');
+        })->add(function ($req, $res, $next) {
+            $res->write('In1');
+            $res = $next($req, $res);
+            $res->write('Out1');
+
+            return $res;
+        })->add(function ($req, $res, $next) {
+            $res->write('In2');
+            $res = $next($req, $res);
+            $res->write('Out2');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $app($req, $res);
+
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+    }
+
+
+    public function testAddMiddlewareOnRouteGroup()
+    {
+        $app = new App();
+
+        $app->group('/foo', function () use ($app) {
+            $app->get('/', function ($req, $res) {
+                return $res->write('Center');
+            });
+        })->add(function ($req, $res, $next) {
+            $res->write('In1');
+            $res = $next($req, $res);
+            $res->write('Out1');
+
+            return $res;
+        })->add(function ($req, $res, $next) {
+            $res->write('In2');
+            $res = $next($req, $res);
+            $res->write('Out2');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $app($req, $res);
+
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+    }
+
+    public function testAddMiddlewareOnTwoRouteGroup()
+    {
+        $app = new App();
+
+        $app->group('/foo', function () use ($app) {
+            $app->group('/baz', function () use ($app) {
+                $app->get('/', function ($req, $res) {
+                    return $res->write('Center');
+                });
+            })->add(function ($req, $res, $next) {
+                $res->write('In2');
+                $res = $next($req, $res);
+                $res->write('Out2');
+
+                return $res;
+            });
+        })->add(function ($req, $res, $next) {
+            $res->write('In1');
+            $res = $next($req, $res);
+            $res->write('Out1');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/baz/',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $app($req, $res);
+
+        $this->assertEquals('In1In2CenterOut2Out1', (string)$res->getBody());
+    }
+
+    public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
+    {
+        $app = new App();
+
+        $app->group('/foo', function () use ($app) {
+            $app->group('/baz', function () use ($app) {
+                $app->get('/', function ($req, $res) {
+                    return $res->write('Center');
+                })->add(function ($req, $res, $next) {
+                    $res->write('In3');
+                    $res = $next($req, $res);
+                    $res->write('Out3');
+
+                    return $res;
+                });
+            })->add(function ($req, $res, $next) {
+                $res->write('In2');
+                $res = $next($req, $res);
+                $res->write('Out2');
+
+                return $res;
+            });
+        })->add(function ($req, $res, $next) {
+            $res->write('In1');
+            $res = $next($req, $res);
+            $res->write('Out1');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/baz/',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $app($req, $res);
+
+        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
+    }
+
 
     /********************************************************************************
      * Runner
