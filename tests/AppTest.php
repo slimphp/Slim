@@ -184,7 +184,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('foo', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testSingleSlashRoute()
@@ -208,7 +208,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
 
     /********************************************************************************
@@ -347,7 +347,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/foo//bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
@@ -395,7 +395,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('/foobar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
@@ -409,7 +409,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash()
@@ -423,7 +423,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//bar/', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSingleSlashRoute()
@@ -437,7 +437,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithEmptyRoute()
@@ -467,7 +467,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//baz/', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
@@ -483,7 +483,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/baz', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//baz', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute()
@@ -499,7 +499,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/baz/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
@@ -515,7 +515,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/baz/bar/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute()
@@ -531,7 +531,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('///bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
@@ -547,7 +547,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute()
@@ -563,7 +563,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
@@ -635,7 +635,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute()
@@ -715,7 +715,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
@@ -763,7 +763,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         /** @var \Slim\Router $router */
         $router = $app->router;
         $router->finalize();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $this->assertAttributeEquals('bar', 'pattern', $router->lookupRoute('route0'));
     }
 
     /********************************************************************************

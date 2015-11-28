@@ -123,19 +123,11 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
-        // pattern must start with a / if not empty
-        if ($pattern) {
-            $pattern = '/' . ltrim($pattern, '/');
-        }
-
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
             $pattern = $this->processGroups() . $pattern;
         }
 
-        // Complete pattern must start with a /
-        $pattern = '/' . ltrim($pattern, '/');
-        
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
@@ -243,8 +235,7 @@ class Router implements RouterInterface
     {
         $pattern = "";
         foreach ($this->routeGroups as $group) {
-            // The route group's pattern doesn't end with a /
-            $pattern .= rtrim($group->getPattern(), '/');
+            $pattern .= $group->getPattern();
         }
         return $pattern;
     }
