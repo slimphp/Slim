@@ -365,54 +365,48 @@ class App
      */
     public function respond(ResponseInterface $response)
     {
-        static $responded = false;
+        // Send response
+        if (!headers_sent()) {
+            // Status
+            header(sprintf(
+                'HTTP/%s %s %s',
+                $response->getProtocolVersion(),
+                $response->getStatusCode(),
+                $response->getReasonPhrase()
+            ));
 
-        if (!$responded) {
-            // Send response
-            if (!headers_sent()) {
-                // Status
-                header(sprintf(
-                    'HTTP/%s %s %s',
-                    $response->getProtocolVersion(),
-                    $response->getStatusCode(),
-                    $response->getReasonPhrase()
-                ));
-
-                // Headers
-                foreach ($response->getHeaders() as $name => $values) {
-                    foreach ($values as $value) {
-                        header(sprintf('%s: %s', $name, $value), false);
-                    }
+            // Headers
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
                 }
             }
+        }
 
-            // Body
-            if (!$this->isEmptyResponse($response)) {
-                $body = $response->getBody();
-                if ($body->isSeekable()) {
-                    $body->rewind();
+        // Body
+        if (!$this->isEmptyResponse($response)) {
+            $body = $response->getBody();
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+            $settings       = $this->container->get('settings');
+            $chunkSize      = $settings['responseChunkSize'];
+            $contentLength  = $response->getHeaderLine('Content-Length');
+            if (!$contentLength) {
+                $contentLength = $body->getSize();
+            }
+            $totalChunks    = ceil($contentLength / $chunkSize);
+            $lastChunkSize  = $contentLength % $chunkSize;
+            $currentChunk   = 0;
+            while (!$body->eof() && $currentChunk < $totalChunks) {
+                if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
+                    $chunkSize = $lastChunkSize;
                 }
-                $settings       = $this->container->get('settings');
-                $chunkSize      = $settings['responseChunkSize'];
-                $contentLength  = $response->getHeaderLine('Content-Length');
-                if (!$contentLength) {
-                    $contentLength = $body->getSize();
-                }
-                $totalChunks    = ceil($contentLength / $chunkSize);
-                $lastChunkSize  = $contentLength % $chunkSize;
-                $currentChunk   = 0;
-                while (!$body->eof() && $currentChunk < $totalChunks) {
-                    if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
-                        $chunkSize = $lastChunkSize;
-                    }
-                    echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
+                echo $body->read($chunkSize);
+                if (connection_status() != CONNECTION_NORMAL) {
+                    break;
                 }
             }
-
-            $responded = true;
         }
     }
 
