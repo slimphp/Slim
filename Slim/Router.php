@@ -123,13 +123,12 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
-        // pattern must start with a / if not empty
-        if ($pattern) {
-            $pattern = '/' . ltrim($pattern, '/');
-        }
-
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
+            // If any route in the group only has / we remove it
+            if ($pattern === '/') {
+                $pattern = '';
+            }
             $pattern = $this->processGroups() . $pattern;
         }
 
