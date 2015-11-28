@@ -113,20 +113,6 @@ class App
         return $this->addMiddleware($callable);
     }
 
-    /********************************************************************************
-     * Container proxy methods
-     *******************************************************************************/
-
-    public function __get($name)
-    {
-        return $this->container->get($name);
-    }
-
-    public function __isset($name)
-    {
-        return $this->container->has($name);
-    }
-
     /**
      * Calling a non-existant method on App checks to see if there's an item
      * in the container than is callable and if so, calls it.
@@ -252,7 +238,7 @@ class App
     public function map(array $methods, $pattern, $callable)
     {
         if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this);
+            $callable = $callable->bindTo($this->container);
         }
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);

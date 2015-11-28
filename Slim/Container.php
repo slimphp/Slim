@@ -267,4 +267,19 @@ final class Container extends PimpleContainer implements ContainerInterface
     {
         return $this->offsetExists($id);
     }
+
+
+    /********************************************************************************
+     * Magic methods for convenience
+     *******************************************************************************/
+
+    public function __get($name)
+    {
+        return $this->get($name);
+    }
+
+    public function __isset($name)
+    {
+        return $this->has($name);
+    }
 }

@@ -32,7 +32,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testIssetInContainer()
     {
         $app = new App();
-        $this->assertTrue(isset($app->router));
+        $router = $app->getContainer()->get('router');
+        $this->assertTrue(isset($router));
     }
     /********************************************************************************
      * Router proxy methods
@@ -158,7 +159,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -170,7 +171,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -182,7 +183,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -194,7 +195,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -206,7 +207,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
@@ -223,7 +224,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -237,7 +238,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -251,7 +252,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -265,7 +266,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -281,7 +282,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -297,7 +298,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -313,7 +314,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -329,7 +330,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -345,7 +346,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -361,7 +362,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -377,7 +378,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -393,7 +394,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/foobar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -407,7 +408,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -421,7 +422,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -435,7 +436,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//', 'pattern', $router->lookupRoute('route0'));
     }
@@ -449,7 +450,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -465,7 +466,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -481,7 +482,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -497,7 +498,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -513,7 +514,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -529,7 +530,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('///bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -545,7 +546,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -561,7 +562,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -577,7 +578,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -591,7 +592,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -605,7 +606,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -619,7 +620,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -633,7 +634,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
@@ -649,7 +650,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -665,7 +666,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -681,7 +682,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -697,7 +698,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -713,7 +714,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -729,7 +730,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -745,7 +746,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -761,7 +762,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             });
         });
         /** @var \Slim\Router $router */
-        $router = $app->router;
+        $router = $app->getContainer()->get('router');
         $router->finalize();
         $this->assertAttributeEquals('bar', 'pattern', $router->lookupRoute('route0'));
     }
