@@ -130,7 +130,7 @@ final class Container extends PimpleContainer implements ContainerInterface
              * @return ResponseInterface
              */
             $this['response'] = function ($c) {
-                $headers = new Headers(['Content-Type' => 'text/html']);
+                $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
                 $response = new Response(200, $headers);
 
                 return $response->withProtocolVersion($c->get('settings')['httpVersion']);
