@@ -71,8 +71,6 @@ class Router implements RouterInterface
      */
     protected $routeGroups = [];
 
-    private $finalized = false;
-
     /**
      * @var \FastRoute\Dispatcher
      */
@@ -140,21 +138,6 @@ class Router implements RouterInterface
     }
 
     /**
-     * Finalize registered routes in preparation for dispatching
-     *
-     * NOTE: The routes can only be finalized once.
-     */
-    public function finalize()
-    {
-        if (!$this->finalized) {
-            foreach ($this->getRoutes() as $route) {
-                $route->finalize();
-            }
-            $this->finalized = true;
-        }
-    }
-
-    /**
      * Dispatch router for HTTP request
      *
      * @param  ServerRequestInterface $request The current HTTP request object
@@ -165,7 +148,6 @@ class Router implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
-        $this->finalize();
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
         
         return $this->createDispatcher()->dispatch(
