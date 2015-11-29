@@ -21,7 +21,7 @@ class LazyMiddleware
     public function __construct($name = 'default')
     {
         $this->name = $name;
-        echo 'Construct'.$this->name;
+        echo 'Construct' . $this->name;
     }
 
     /**
@@ -35,11 +35,11 @@ class LazyMiddleware
         ResponseInterface $response,
         callable $next
     ) {
-        $response->getBody()->write('In'.$this->name);
+        $response->getBody()->write('In' . $this->name);
 
         $next($requestInterface, $response);
 
-        $response->getBody()->write('Out'.$this->name);
+        $response->getBody()->write('Out' . $this->name);
 
         return $response;
     }
