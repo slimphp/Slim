@@ -310,7 +310,7 @@ class Route extends Routable implements RouteInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
-        // Lazy route finalize
+        // Finalise route now that we are about to run it
         $this->finalize();
 
         // Traverse middleware stack and fetch updated response
