@@ -19,6 +19,7 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Tests\Mocks\LazyMiddleware;
 use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
@@ -933,6 +934,48 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app($req, $res);
 
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
+    }
+
+    public function testLazyMiddlewareResolve()
+    {
+        $app = new App();
+
+        $c = $app->getContainer();
+        $c['Middleware1'] = function ($c) {
+            return new LazyMiddleware('Lazy1');
+        };
+        $c['Middleware2'] = function ($c) {
+            return new LazyMiddleware('Lazy2');
+        };
+
+        $app->get('/foo', function ($req, $res) {
+            return $res->write('Center');
+        })->add('Middleware1');
+
+        $app->get('/bar', function ($req, $res) {
+            return $res->write('Center');
+        })->add('Middleware2');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->expectOutputString('ConstructLazy2InLazy2CenterOutLazy2');
     }
 
 
