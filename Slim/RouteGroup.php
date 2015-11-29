@@ -31,24 +31,6 @@ class RouteGroup extends Routable implements RouteGroupInterface
     }
 
     /**
-     * Prepend middleware to the group middleware collection
-     *
-     * @param mixed $callable The callback routine
-     *
-     * @return static
-     */
-    public function add($callable)
-    {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        $this->middleware[] = $callable;
-        return $this;
-    }
-
-    /**
      * Invoke the group to register any Routable objects within it.
      *
      * @param App $app The App to bind the callable to.
