@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Closure;
 use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -83,26 +82,6 @@ class Route extends Routable implements RouteInterface
         $this->callable = $callable;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
-    }
-
-    /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the route's middleware stack.
-     *
-     * @param mixed $callable The callback routine
-     *
-     * @return RouteInterface
-     */
-    public function add($callable)
-    {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        $this->middleware[] = $callable;
-        return $this;
     }
 
     /**
