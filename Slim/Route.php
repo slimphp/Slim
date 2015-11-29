@@ -103,6 +103,8 @@ class Route extends Routable implements RouteInterface
         $this->middleware = array_merge($this->middleware, $groupMiddleware);
 
         foreach ($this->getMiddleware() as $middleware) {
+            $middleware = $this->resolveCallable($middleware);
+
             $this->addMiddleware($middleware);
         }
 
