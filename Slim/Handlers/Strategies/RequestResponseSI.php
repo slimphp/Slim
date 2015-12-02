@@ -37,6 +37,6 @@ class RequestResponseSI implements InvocationStrategyInterface
             $callable->setResponse($response);
         }
 
-        call_user_func_array($callable, $routeArguments);
+        return call_user_func_array($callable, $routeArguments);
     }
 }
