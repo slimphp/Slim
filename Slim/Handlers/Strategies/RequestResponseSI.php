@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 
-class RequestResponseSI implements  InvocationStrategyInterface
+class RequestResponseSI implements InvocationStrategyInterface
 {
     /**
      * Invoke a route callable with all route parameters as individual arguments and
@@ -28,12 +28,14 @@ class RequestResponseSI implements  InvocationStrategyInterface
     public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $routeArguments)
     {
         // Set request into the controller if we can
-        if (method_exists($callable, 'setRequest'))
+        if (method_exists($callable, 'setRequest')) {
             $callable->setRequest($request);
+        }
 
         // Set response into the controller if we can
-        if (method_exists($callable, 'setResponse'))
+        if (method_exists($callable, 'setResponse')) {
             $callable->setResponse($response);
+        }
 
         call_user_func_array($callable, $routeArguments);
     }
