@@ -616,8 +616,10 @@ class UriTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Handle case when the URL is /foo/index.php/bar/baz
-     * @ticket 1590
+     * When the URL is /foo/index.php/bar/baz, we need the baseURL to be
+     * /foo/index.php so that routing works correctly.
+     *
+     * @ticket 1639 as a fix to 1590 broke this.
      */
     public function testRequestURIContainsIndexDotPhp()
     {
@@ -629,6 +631,6 @@ class UriTest extends \PHPUnit_Framework_TestCase
                 ]
             )
         );
-        $this->assertSame('/foo', $uri->getBasePath());
+        $this->assertSame('/foo/index.php', $uri->getBasePath());
     }
 }
