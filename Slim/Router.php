@@ -11,7 +11,7 @@ namespace Slim;
 use FastRoute\Dispatcher;
 use InvalidArgumentException;
 use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;

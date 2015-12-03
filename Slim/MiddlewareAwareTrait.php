@@ -11,8 +11,8 @@ namespace Slim;
 use RuntimeException;
 use SplStack;
 use SplDoublyLinkedList;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 use UnexpectedValueException;
 
 /**
@@ -66,7 +66,7 @@ trait MiddlewareAwareTrait
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = call_user_func($callable, $req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
-                throw new UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
+                throw new UnexpectedValueException('Middleware must return instance of \Slim\Interfaces\Http\ResponseInterface');
             }
 
             return $result;

@@ -14,6 +14,8 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 use Slim\Tests\Mocks\Stackable;
 
 class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
@@ -145,10 +147,10 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
             });
             return $resp;
         });
-        $this->setExpectedException('RuntimeException');
+        $this->setExpectedException(\RuntimeException::class);
         $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\ServerRequestInterface'),
-            $this->getMock('Psr\Http\Message\ResponseInterface')
+            $this->getMock(ServerRequestInterface::class),
+            $this->getMock(ResponseInterface::class)
         );
     }
 
@@ -156,7 +158,7 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
     {
         $stack = new Stackable;
         $stack->alternativeSeed();
-        $this->setExpectedException('RuntimeException');
+        $this->setExpectedException(\RuntimeException::class);
         $stack->alternativeSeed();
     }
 }

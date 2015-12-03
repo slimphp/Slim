@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Slim\Interfaces\RouteInterface;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -29,7 +30,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         };
         $route = $this->router->map($methods, $pattern, $callable);
 
-        $this->assertInstanceOf('\Slim\Interfaces\RouteInterface', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains($route, 'routes', $this->router);
     }
 
@@ -207,7 +208,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $class = new \ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+        $this->assertInstanceOf(\FastRoute\Dispatcher::class, $method->invoke($this->router));
     }
 
     public function testSetDispatcher()
@@ -219,6 +220,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $class = new \ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
+        $this->assertInstanceOf(\FastRoute\Dispatcher::class, $prop->getValue($this->router));
     }
 }

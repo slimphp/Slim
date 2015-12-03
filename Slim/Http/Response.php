@@ -9,10 +9,10 @@
 namespace Slim\Http;
 
 use InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Slim\Interfaces\Http\HeadersInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 
 /**
  * Response

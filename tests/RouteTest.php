@@ -15,6 +15,7 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Interfaces\Http\ResponseInterface;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\MiddlewareStub;
@@ -127,7 +128,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = $this->routeFactory();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->setExpectedException(\InvalidArgumentException::class);
 
         $route->setName(false);
     }
@@ -150,7 +151,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = $this->routeFactory();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->setExpectedException(\InvalidArgumentException::class);
 
         $route->setOutputBuffering('invalid');
     }
@@ -198,7 +199,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $result = $route->callMiddlewareStack($request, new Response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 

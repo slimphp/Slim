@@ -9,9 +9,9 @@
 namespace Slim\Handlers;
 
 use Exception;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Default Slim application error handler

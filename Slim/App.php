@@ -11,9 +11,8 @@ namespace Slim;
 use Exception;
 use Closure;
 use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 use Interop\Container\ContainerInterface;
 use FastRoute\Dispatcher;
 use Slim\Exception\SlimException;
@@ -37,7 +36,7 @@ use Slim\Interfaces\RouterInterface;
  *
  * @property-read array $settings App settings
  * @property-read EnvironmentInterface $environment
- * @property-read RequestInterface $request
+ * @property-read ServerRequestInterface $request
  * @property-read ResponseInterface $response
  * @property-read RouterInterface $router
  * @property-read callable $errorHandler

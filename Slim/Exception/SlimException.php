@@ -9,8 +9,8 @@
 namespace Slim\Exception;
 
 use Exception;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Stop Exception
