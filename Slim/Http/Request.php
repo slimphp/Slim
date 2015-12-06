@@ -286,7 +286,7 @@ class Request extends Message implements ServerRequestInterface
         $method = $this->filterMethod($method);
         $clone = clone $this;
         $clone->originalMethod = $method;
-        $clone->method = null; // <-- Force method override recalculation
+        $clone->method = $method;
 
         return $clone;
     }
