@@ -9,7 +9,7 @@
 namespace Slim;
 
 use Closure;
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\ContainerInterface;
 
 /**
  * A routable, middleware-aware object
