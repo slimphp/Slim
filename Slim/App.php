@@ -407,7 +407,7 @@ class App
      * after compiling the routes registered in the Router and dispatching
      * the Request object to the appropriate Route callback routine.
      *
-     * @param  ServerRequestInterface $request The most recent Request object
+     * @param  ServerRequestInterface $request  The most recent Request object
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
