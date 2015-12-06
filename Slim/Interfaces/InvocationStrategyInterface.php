@@ -8,8 +8,8 @@
  */
 namespace Slim\Interfaces;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Defines a contract for invoking a route callable.

@@ -10,7 +10,7 @@ namespace Slim\Interfaces;
 
 use RuntimeException;
 use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Router Interface

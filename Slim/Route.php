@@ -10,8 +10,8 @@ namespace Slim;
 
 use Exception;
 use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -306,7 +306,7 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request  The current Request object
      * @param ResponseInterface      $response The current Response object
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      * @throws \Exception  if the route callable throws an exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)

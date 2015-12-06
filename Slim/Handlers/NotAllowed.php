@@ -8,9 +8,9 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Default Slim application not allowed handler

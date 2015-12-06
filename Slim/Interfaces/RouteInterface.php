@@ -9,8 +9,8 @@
 namespace Slim\Interfaces;
 
 use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
 
 /**
  * Route Interface

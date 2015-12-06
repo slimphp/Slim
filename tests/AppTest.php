@@ -11,6 +11,7 @@ namespace Slim\Tests;
 
 use Slim\App;
 use Slim\Container;
+use Slim\Exception\MethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -19,13 +20,15 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\RouteInterface;
 use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
     public function testContainerInterfaceException()
     {
-        $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
+        $this->setExpectedException(\InvalidArgumentException::class, 'Expected a ContainerInterface');
         $app = new App('');
     }
 
@@ -48,7 +51,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->get($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
     }
 
@@ -61,7 +64,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->post($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
@@ -74,7 +77,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->put($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
     }
 
@@ -87,7 +90,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->patch($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('PATCH', 'methods', $route);
     }
 
@@ -100,7 +103,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->delete($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('DELETE', 'methods', $route);
     }
 
@@ -113,7 +116,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->options($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
@@ -126,7 +129,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->any($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
@@ -144,7 +147,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app = new App();
         $route = $app->map(['GET', 'POST'], $path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
@@ -966,14 +969,14 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notAllowedHandler']);
-        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
+        $this->setExpectedException(MethodNotAllowedException::class);
         $app($req, $res);
     }
 
@@ -1003,7 +1006,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
@@ -1031,7 +1034,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello world!', (string)$res->getBody());
     }
 
@@ -1059,7 +1062,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello there world!', (string)$res->getBody());
     }
 
@@ -1087,7 +1090,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello test!', (string)$res->getBody());
     }
 
@@ -1120,7 +1123,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello test!', (string)$res->getBody());
     }
 
@@ -1148,7 +1151,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello there test!', (string)$res->getBody());
     }
 
@@ -1178,7 +1181,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
 
         // now test that exception is raised if the handler isn't registered
@@ -1220,7 +1223,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
@@ -1285,7 +1288,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // Invoke app
         $resOut = $app($req, $res);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 
@@ -1462,7 +1465,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->expectOutputString('Hello');
     }
 
@@ -1493,7 +1496,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app->respond($resOut);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals([], $resOut->getHeader('Content-Type'));
         $this->assertEquals([], $resOut->getHeader('Content-Length'));
         $this->expectOutputString('');
@@ -1548,7 +1551,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             $resOut = $app($req, $res);
             $app->respond($resOut);
 
-            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+            $this->assertInstanceOf(ResponseInterface::class, $resOut);
             $this->expectOutputString('Hello');
         } else {
             $this->assertTrue(true);

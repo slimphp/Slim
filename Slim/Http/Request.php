@@ -11,12 +11,12 @@ namespace Slim\Http;
 use Closure;
 use InvalidArgumentException;
 use Psr\Http\Message\UploadedFileInterface;
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Psr\Http\Message\StreamInterface;
 use Slim\Collection;
 use Slim\Interfaces\Http\HeadersInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 /**
  * Request
@@ -48,7 +48,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request URI object
      *
-     * @var \Psr\Http\Message\UriInterface
+     * @var UriInterface
      */
     protected $uri;
 

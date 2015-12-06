@@ -102,7 +102,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
     public function testResolutionToAnInvokableClass()
     {
         $resolver = new CallableResolver($this->container);
-        $callable = $resolver->resolve('Slim\Tests\Mocks\InvokableTest');
+        $callable = $resolver->resolve(\Slim\Tests\Mocks\InvokableTest::class);
         $callable();
         $this->assertEquals(1, InvokableTest::$CalledCount);
     }
@@ -111,21 +111,21 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->container['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
+        $this->setExpectedException(\RuntimeException::class);
         $resolver->resolve('callable_service:noFound');
     }
 
     public function testFunctionNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
+        $this->setExpectedException(\RuntimeException::class);
         $resolver->resolve('noFound');
     }
 
     public function testClassNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'Callable Unknown does not exist');
+        $this->setExpectedException(\RuntimeException::class, 'Callable Unknown does not exist');
         $resolver->resolve('Unknown:notFound');
     }
 }

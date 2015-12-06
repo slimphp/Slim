@@ -9,6 +9,12 @@
 namespace Slim\Tests;
 
 use Slim\Container;
+use Slim\Handlers\Error;
+use Slim\Handlers\NotAllowed;
+use Slim\Interfaces\Http\EnvironmentInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
+use Slim\Interfaces\RouterInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -18,7 +24,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Slim\Http\Environment', $c->get('environment'));
+        $this->assertInstanceOf(EnvironmentInterface::class, $c->get('environment'));
     }
 
     /**
@@ -38,7 +44,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetRequest()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $c['request']);
+        $this->assertInstanceOf(ServerRequestInterface::class, $c['request']);
     }
 
     /**
@@ -47,7 +53,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetResponse()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $c['response']);
+        $this->assertInstanceOf(ResponseInterface::class, $c['response']);
     }
 
     /**
@@ -56,7 +62,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetRouter()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Slim\Router', $c['router']);
+        $this->assertInstanceOf(RouterInterface::class, $c['router']);
     }
 
     /**
@@ -65,7 +71,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetErrorHandler()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\Error', $c['errorHandler']);
+        $this->assertInstanceOf(Error::class, $c['errorHandler']);
     }
 
     /**
@@ -74,7 +80,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetNotAllowedHandler()
     {
         $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $c['notAllowedHandler']);
+        $this->assertInstanceOf(NotAllowed::class, $c['notAllowedHandler']);
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace Slim\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 
 class MethodNotAllowedException extends SlimException
 {

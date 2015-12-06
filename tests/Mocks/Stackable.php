@@ -8,8 +8,8 @@
  */
 namespace Slim\Tests\Mocks;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Interfaces\Http\ResponseInterface;
+use Slim\Interfaces\Http\ServerRequestInterface;
 use Slim\MiddlewareAwareTrait;
 
 /**
