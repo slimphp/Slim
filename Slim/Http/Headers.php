@@ -9,7 +9,6 @@
 namespace Slim\Http;
 
 use Slim\Collection;
-use Slim\Http\Environment;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
