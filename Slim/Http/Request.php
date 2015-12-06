@@ -240,9 +240,9 @@ class Request extends Message implements ServerRequestInterface
                 $body = $this->getParsedBody();
 
                 if (is_object($body) && property_exists($body, '_METHOD')) {
-                    $this->method = $this->filterMethod($body->_METHOD);
+                    $this->method = $this->filterMethod((string)$body->_METHOD);
                 } elseif (is_array($body) && isset($body['_METHOD'])) {
-                    $this->method = $this->filterMethod($body['_METHOD']);
+                    $this->method = $this->filterMethod((string)$body['_METHOD']);
                 }
 
                 if ($this->getBody()->eof()) {
