@@ -75,6 +75,7 @@ class Route extends Routable implements RouteInterface
      * @param string[]     $methods The route HTTP methods
      * @param string       $pattern The route pattern
      * @param callable     $callable The route callable
+     * @param int          $identifier
      * @param RouteGroup[] $groups The parent route groups
      */
     public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)

@@ -287,6 +287,10 @@ class App
      *
      * @param bool|false $silent
      * @return ResponseInterface
+     *
+     * @throws Exception
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
      */
     public function run($silent = false)
     {
@@ -403,10 +407,12 @@ class App
      * after compiling the routes registered in the Router and dispatching
      * the Request object to the appropriate Route callback routine.
      *
-     * @param  ServerRequestInterface $request  The most recent Request object
+     * @param  ServerRequestInterface $request The most recent Request object
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -482,6 +488,7 @@ class App
      * Dispatch the router to find the route. Prepare the route for use.
      *
      * @param ServerRequestInterface $request
+     * @param RouterInterface        $router
      * @return ServerRequestInterface
      */
     protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request, RouterInterface $router)
