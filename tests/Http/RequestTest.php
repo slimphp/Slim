@@ -70,7 +70,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $request = $this->requestFactory()->withMethod('PUT');
 
-        $this->assertAttributeEquals(null, 'method', $request);
+        $this->assertAttributeEquals('PUT', 'method', $request);
         $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
