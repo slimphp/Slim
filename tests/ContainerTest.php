@@ -24,11 +24,27 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Slim\Exception\ContainerValueNotFoundException
+     * @expectedException \Interop\Container\Exception\NotFoundException
      */
-    public function testGetWithError()
+    public function testGetWithValueNotFoundError()
     {
         $c = new Container;
+        $c->get('foo');
+    }
+
+    /**
+     * Test `get()` recasts errors as ContainerInterop-compliant exceptions when an error occurs in the container
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithGenericError()
+    {
+        $c = new Container;
+        $c['foo'] =
+            function () {
+                throw new \Exception();
+            }
+        ;
         $c->get('foo');
     }
 
