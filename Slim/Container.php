@@ -14,6 +14,7 @@ use Pimple\Container as PimpleContainer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\ContainerValueNotFoundException;
+use Slim\Exception\ContainerException as SlimContainerException;
 
 /**
  * Slim's default DI container is Pimple.
@@ -118,7 +119,11 @@ class Container extends PimpleContainer implements ContainerInterface
         if (!$this->offsetExists($id)) {
             throw new ContainerValueNotFoundException(sprintf('Identifier "%s" is not defined.', $id));
         }
-        return $this->offsetGet($id);
+        try {
+            return $this->offsetGet($id);
+        } catch (\Exception $exception) {
+            throw new SlimContainerException(sprintf('Container error while retrieving "%s"', $id), null, $exception);
+        }
     }
 
     /**
