@@ -55,6 +55,19 @@ final class CallableResolver implements CallableResolverInterface
         return $resolved;
     }
 
+    /**
+     * Resolve toResolve into a closure that that the router can dispatch.
+     *
+     * If toResolve is of the format 'class:method', then try to extract 'class'
+     * from the container otherwise instantiate it and then dispatch 'method'.
+     *
+     * @param mixed $toResolve
+     *
+     * @return callable
+     *
+     * @throws RuntimeException if the callable does not exist
+     * @throws RuntimeException if the callable is not resolvable
+     */
     private function getResolved($toResolve)
     {
         if (is_callable($toResolve) || !is_string($toResolve)) {
