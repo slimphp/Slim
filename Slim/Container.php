@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
@@ -266,9 +267,28 @@ final class Container extends PimpleContainer implements ContainerInterface
         }
         try {
             return $this->offsetGet($id);
-        } catch (\Exception $exception) {
-            throw new SlimContainerException(sprintf('Container error while retrieving "%s"', $id), null, $exception);
+        } catch (\InvalidArgumentException $exception) {
+            if ($this->exceptionThrownByContainer($exception)) {
+                throw new SlimContainerException(
+                    sprintf('Container error while retrieving "%s"', $id),
+                    null,
+                    $exception
+                );
+            }
         }
+    }
+
+    /**
+     * Tests whether an exception needs to be recast for compliance with Container-Interop.  This will be if the
+     * exception was thrown by Pimple.
+     *
+     * @param \InvalidArgumentException $exception
+     *
+     * @return bool
+     */
+    private function exceptionThrownByContainer(\InvalidArgumentException $exception)
+    {
+        return preg_match('/^Identifier ".*" is not defined.$/', $exception->getMessage());
     }
 
     /**

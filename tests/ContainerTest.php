@@ -9,6 +9,7 @@
 namespace Slim\Tests;
 
 use Slim\Container;
+use Interop\Container\ContainerInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -33,19 +34,53 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test `get()` recasts errors as ContainerInterop-compliant exceptions when an error occurs in the container
+     * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
+     * config error
      *
      * @expectedException \Interop\Container\Exception\ContainerException
      */
-    public function testGetWithGenericError()
+    public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
     {
-        $c = new Container;
-        $c['foo'] =
-            function () {
-                throw new \Exception();
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container->get('doesnt-exist');
             }
         ;
-        $c->get('foo');
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * in the DI config
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container['doesnt-exist'];
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` does not recast exceptions which are thrown in a factory closure
+     *
+     * @expectedException \UnexpectedValueException
+     */
+    public function testGetWithErrorThrownByFactoryClosure()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                throw new \UnexpectedValueException();
+            }
+        ;
+        $container->get('foo');
     }
 
     /**
