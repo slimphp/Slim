@@ -156,4 +156,24 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->container->get('settings')['httpVersion'] = '1.2';
         $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
+
+    public function testGetMagicMethod()
+    {
+        $container = new Container();
+        $container['dependency'] = function () {
+            return new \stdClass;
+        };
+        $result = $container->dependency;
+        $this->assertInstanceOf('\stdClass', $result);
+    }
+
+    public function testIssetMagicMethod()
+    {
+        $container = new Container();
+        $container['dependency'] = function () {
+            return new \stdClass;
+        };
+        $result = isset($container->dependency);
+        $this->assertTrue($result);
+    }
 }
