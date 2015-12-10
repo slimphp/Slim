@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Doctrine\Instantiator\Exception\InvalidArgumentException;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
