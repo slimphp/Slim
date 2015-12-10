@@ -55,7 +55,7 @@ use Slim\Interfaces\RouterInterface;
  * @property-read callable notAllowedHandler
  * @property-read \Slim\Interfaces\CallableResolverInterface callableResolver
  */
-final class Container extends PimpleContainer implements ContainerInterface
+class Container extends PimpleContainer implements ContainerInterface
 {
     /**
      * Default settings
