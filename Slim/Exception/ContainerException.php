@@ -8,13 +8,13 @@
  */
 namespace Slim\Exception;
 
-use RuntimeException;
+use InvalidArgumentException;
 use Interop\Container\Exception\ContainerException as InteropContainerException;
 
 /**
  * Container Exception
  */
-class ContainerException extends RuntimeException implements InteropContainerException
+class ContainerException extends InvalidArgumentException implements InteropContainerException
 {
 
 }
