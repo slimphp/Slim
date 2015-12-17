@@ -11,6 +11,9 @@ namespace Slim\Tests;
 
 use Slim\App;
 use Slim\Container;
+use Slim\Exception\MethodNotAllowedException;
+use Slim\Exception\NotFoundException;
+use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -1434,6 +1437,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     // TODO: Test run()
 
+
     public function testRespond()
     {
         $app = new App();
@@ -1590,6 +1594,151 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
     }
+
+    public function appFactory()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        return $app;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Slim\Exception\MethodNotAllowedException
+     * @throws \Slim\Exception\NotFoundException
+     * @expectedException \Exception
+     */
+    public function testRunExceptionNoHandler()
+    {
+        $app = $this->appFactory();
+
+        $container = $app->getContainer();
+        unset($container['errorHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            throw new \Exception();
+        });
+        $res = $app->run(true);
+    }
+
+    public function testRunSlimException()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            $res->write("Failed");
+            throw new SlimException($req, $res);
+        });
+        $res = $app->run(true);
+
+        $res->getBody()->rewind();
+        $this->assertEquals(200, $res->getStatusCode());
+        $this->assertEquals("Failed", $res->getBody()->getContents());
+    }
+
+    public function testRunNotFound()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            throw new NotFoundException($req, $res);
+        });
+        $res = $app->run(true);
+
+        $this->assertEquals(404, $res->getStatusCode());
+    }
+
+    /**
+     * @expectedException \Slim\Exception\NotFoundException
+     */
+    public function testRunNotFoundWithoutHandler()
+    {
+        $app = $this->appFactory();
+        $container = $app->getContainer();
+        unset($container['notFoundHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            throw new NotFoundException($req, $res);
+        });
+        $res = $app->run(true);
+    }
+
+
+
+    public function testRunNotAllowed()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            throw new MethodNotAllowedException($req, $res, ['POST']);
+        });
+        $res = $app->run(true);
+
+        $this->assertEquals(405, $res->getStatusCode());
+    }
+
+    /**
+     * @expectedException \Slim\Exception\MethodNotAllowedException
+     */
+    public function testRunNotAllowedWithoutHandler()
+    {
+        $app = $this->appFactory();
+        $container = $app->getContainer();
+        unset($container['notAllowedHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add( function ($req, $res, $args) {
+            throw new MethodNotAllowedException($req, $res, ['POST']);
+        });
+        $res = $app->run(true);
+    }
+
+    public function testAppRunWithdetermineRouteBeforeAppMiddleware()
+    {
+        $app = $this->appFactory();
+
+        $app->get('/foo', function ($req, $res) {
+            return $res->write("Test");
+        });
+
+        $app->getContainer()['settings']['determineRouteBeforeAppMiddleware'] = true;
+
+        $resOut = $app->run(true);
+        $resOut->getBody()->rewind();
+        $this->assertEquals("Test", $resOut->getBody()->getContents());
+    }
+
+
 
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
