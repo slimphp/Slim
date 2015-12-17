@@ -94,12 +94,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     //Test __isset
-    public function testMagicIssetMethod() {
+    public function testMagicIssetMethod()
+    {
         $this->assertEquals(true, $this->container->__isset('settings'));
     }
 
     //test __get
-    public function testMagicGetMethod() {
+    public function testMagicGetMethod()
+    {
         $this->container->get('settings')['httpVersion'] = '1.2';
         $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
