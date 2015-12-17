@@ -110,6 +110,26 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($route));
     }
 
+    public function testRefinalizing()
+    {
+        $route = $this->routeFactory();
+
+        $mw = function ($req, $res, $next) {
+            return $res;
+        };
+        $route->add($mw);
+
+        $route->finalize();
+        $route->finalize();
+
+        $prop = new \ReflectionProperty($route, 'stack');
+        $prop->setAccessible(true);
+
+        $this->assertCount(2, $prop->getValue($route));
+    }
+
+
+
     public function testIdentifier()
     {
         $route = $this->routeFactory();
@@ -305,6 +325,30 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('foobar', (string)$response->getBody());
     }
+
+    /**
+     * @expectedException \Exception
+     */
+    public function testInvokeWithException()
+    {
+        $callable = function ($req, $res, $args) {
+            throw new \Exception();
+        };
+        $route = new Route(['GET'], '/', $callable);
+
+
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
+
+        $response = $route->__invoke($request, $response);
+    }
+
 
     /**
      * Ensure that if `outputBuffering` property is set to `false` correct response
