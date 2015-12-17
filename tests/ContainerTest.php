@@ -17,7 +17,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     protected $container;
 
-    public function setUp ()
+    public function setUp()
     {
         $this->container = new Container;
     }
