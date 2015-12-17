@@ -13,13 +13,24 @@ use Slim\Container;
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var Container
+     */
+    protected $container;
+
+    public function setUp ()
+    {
+        $this->container = new Container;
+    }
+
+    /**
      * Test `get()` returns existing item
      */
     public function testGet()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Http\Environment', $c->get('environment'));
+        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
     }
+
+
 
     /**
      * Test `get()` throws error if item does not exist
@@ -28,8 +39,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetWithError()
     {
-        $c = new Container;
-        $c->get('foo');
+        $this->container->get('foo');
     }
 
     /**
@@ -37,8 +47,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRequest()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $c['request']);
+        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
     }
 
     /**
@@ -46,8 +55,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetResponse()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $c['response']);
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
     }
 
     /**
@@ -55,8 +63,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRouter()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Router', $c['router']);
+        $this->assertInstanceOf('\Slim\Router', $this->container['router']);
     }
 
     /**
@@ -64,8 +71,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetErrorHandler()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\Error', $c['errorHandler']);
+        $this->assertInstanceOf('\Slim\Handlers\Error', $this->container['errorHandler']);
     }
 
     /**
@@ -73,8 +79,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNotAllowedHandler()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $c['notAllowedHandler']);
+        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $this->container['notAllowedHandler']);
     }
 
     /**
@@ -82,10 +87,20 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSettingsCanBeEdited()
     {
-        $c = new Container;
-        $this->assertSame('1.1', $c->get('settings')['httpVersion']);
+        $this->assertSame('1.1', $this->container->get('settings')['httpVersion']);
 
-        $c->get('settings')['httpVersion'] = '1.2';
-        $this->assertSame('1.2', $c->get('settings')['httpVersion']);
+        $this->container->get('settings')['httpVersion'] = '1.2';
+        $this->assertSame('1.2', $this->container->get('settings')['httpVersion']);
+    }
+
+    //Test __isset
+    public function testMagicIssetMethod() {
+        $this->assertEquals(true, $this->container->__isset('settings'));
+    }
+
+    //test __get
+    public function testMagicGetMethod() {
+        $this->container->get('settings')['httpVersion'] = '1.2';
+        $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
 }
