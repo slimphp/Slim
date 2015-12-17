@@ -301,7 +301,7 @@ class Response extends Message implements ResponseInterface
         $body->write(json_encode($data, $encodingOptions));
 
         // Ensure that the json encoding passed successfully
-        if( ($jsonLastError = json_last_error()) != JSON_ERROR_NONE ) {
+        if (($jsonLastError = json_last_error()) != JSON_ERROR_NONE) {
             throw new \RuntimeException(json_last_error_msg(), $jsonLastError);
         }
 
