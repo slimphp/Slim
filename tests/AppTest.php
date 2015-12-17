@@ -1634,7 +1634,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             throw new \Exception();
         });
         $res = $app->run(true);
@@ -1646,7 +1646,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             $res->write("Failed");
             throw new SlimException($req, $res);
         });
@@ -1663,7 +1663,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             throw new NotFoundException($req, $res);
         });
         $res = $app->run(true);
@@ -1683,7 +1683,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             throw new NotFoundException($req, $res);
         });
         $res = $app->run(true);
@@ -1697,7 +1697,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
         $res = $app->run(true);
@@ -1717,7 +1717,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
-        $app->add( function ($req, $res, $args) {
+        $app->add(function ($req, $res, $args) {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
         $res = $app->run(true);
