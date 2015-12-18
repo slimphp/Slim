@@ -297,12 +297,38 @@ class App
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
+        $response = $this->process($request, $response);
+
+        $response = $this->finalize($response);
+
+        if (!$silent) {
+            $this->respond($response);
+        }
+
+        return $response;
+    }
+
+    /**
+     * Process a request
+     *
+     * This method traverses the application middleware stack and then returns the
+     * resultant Response object.
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     *
+     * @throws Exception
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     */
+    public function process(ServerRequestInterface $request, ResponseInterface $response)
+    {
         // Ensure basePath is set
         $router = $this->container->get('router');
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
         }
-
 
         // Dispatch the Router first if the setting for this is on
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
@@ -336,12 +362,6 @@ class App
             /** @var callable $errorHandler */
             $errorHandler = $this->container->get('errorHandler');
             $response = $errorHandler($request, $response, $e);
-        }
-
-        $response = $this->finalize($response);
-
-        if (!$silent) {
-            $this->respond($response);
         }
 
         return $response;
