@@ -299,8 +299,6 @@ class App
 
         $response = $this->process($request, $response);
 
-        $response = $this->finalize($response);
-
         if (!$silent) {
             $this->respond($response);
         }
@@ -363,6 +361,8 @@ class App
             $errorHandler = $this->container->get('errorHandler');
             $response = $errorHandler($request, $response, $e);
         }
+
+        $response = $this->finalize($response);
 
         return $response;
     }
