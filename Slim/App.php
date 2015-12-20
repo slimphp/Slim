@@ -365,9 +365,16 @@ class App
             ));
 
             // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
+            if ($this->container->get('settings')['singleHeader'] === true) {
+                foreach ($response->getHeaders() as $name => $values) {
+                    header(sprintf('%s: %s', $name, $response->getHeaderLine($name)), false);
+                }
+            }
+            else {
+                foreach ($response->getHeaders() as $name => $values) {
+                    foreach ($values as $value) {
+                        header(sprintf('%s: %s', $name, $value), false);
+                    }
                 }
             }
         }
