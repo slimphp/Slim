@@ -298,11 +298,11 @@ class Response extends Message implements ResponseInterface
     {
         $body = $this->getBody();
         $body->rewind();
-        $body->write(json_encode($data, $encodingOptions));
+        $body->write($json = json_encode($data, $encodingOptions));
 
         // Ensure that the json encoding passed successfully
-        if (($jsonLastError = json_last_error()) != JSON_ERROR_NONE) {
-            throw new \RuntimeException(json_last_error_msg(), $jsonLastError);
+        if ($json === false) {
+            throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
         return $this->withStatus($status)->withHeader('Content-Type', 'application/json;charset=utf-8');
