@@ -867,4 +867,16 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
     }
+
+    /*******************************************************************************
+     * Protocol
+     ******************************************************************************/
+
+    public function testGetProtocolVersion()
+    {
+        $env = Environment::mock(['SERVER_PROTOCOL' => 'HTTP/1.0']);
+        $request = Request::createFromEnvironment($env);
+
+        $this->assertEquals('1.0', $request->getProtocolVersion());
+    }
 }
