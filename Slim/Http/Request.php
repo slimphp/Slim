@@ -178,6 +178,10 @@ class Request extends Message implements ServerRequestInterface
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
 
+        if (isset($serverParams['SERVER_PROTOCOL'])) {
+            $this->protocolVersion = str_replace('HTTP/', '', $serverParams['SERVER_PROTOCOL']);
+        }
+
         if (!$this->headers->has('Host') || $this->uri->getHost() !== '') {
             $this->headers->set('Host', $this->uri->getHost());
         }
