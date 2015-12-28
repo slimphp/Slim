@@ -1828,4 +1828,13 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(404, $response->getStatusCode());
     }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testCallingAnUnknownContainerCallableThrows()
+    {
+        $app = new App();
+        $app->foo('bar');
+    }
 }
