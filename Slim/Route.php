@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Closure;
 use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,6 +51,8 @@ class Route extends Routable implements RouteInterface
      */
     protected $groups;
 
+    private $finalized = false;
+
     /**
      * Output buffering mode
      *
@@ -86,30 +87,14 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the route's middleware stack.
-     *
-     * @param mixed $callable The callback routine
-     *
-     * @return RouteInterface
-     */
-    public function add($callable)
-    {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        $this->middleware[] = $callable;
-        return $this;
-    }
-
-    /**
      * Finalize the route in preparation for dispatching
      */
     public function finalize()
     {
+        if ($this->finalized) {
+            return;
+        }
+
         $groupMiddleware = [];
         foreach ($this->getGroups() as $group) {
             $groupMiddleware = array_merge($group->getMiddleware(), $groupMiddleware);
@@ -120,6 +105,8 @@ class Route extends Routable implements RouteInterface
         foreach ($this->getMiddleware() as $middleware) {
             $this->addMiddleware($middleware);
         }
+
+        $this->finalized = true;
     }
 
     /**
@@ -302,6 +289,9 @@ class Route extends Routable implements RouteInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response)
     {
+        // Finalise route now that we are about to run it
+        $this->finalize();
+
         // Traverse middleware stack and fetch updated response
         return $this->callMiddlewareStack($request, $response);
     }

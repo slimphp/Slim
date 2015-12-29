@@ -31,14 +31,6 @@ interface RouterInterface
      */
     public function map($methods, $pattern, $handler);
 
-
-    /**
-     * Finalize registered routes in preparation for dispatching
-     *
-     * NOTE: The routes can only be finalized once.
-     */
-    public function finalize();
-
     /**
      * Dispatch router for HTTP request
      *

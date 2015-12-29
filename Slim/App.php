@@ -293,9 +293,8 @@ class App
         $request = $this->container->get('request');
         $response = $this->container->get('response');
 
-        // Finalize routes here for middleware stack & ensure basePath is set
+        // Ensure basePath is set
         $router = $this->container->get('router');
-        $router->finalize();
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
         }
