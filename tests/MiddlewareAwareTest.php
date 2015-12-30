@@ -15,6 +15,7 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\Stackable;
+use Slim\Tests\Stack\StackUtils;
 
 class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
 {
@@ -24,10 +25,8 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
         $stack->add(function ($req, $res, $next) {
             return $res->write('Hi');
         });
-        $prop = new ReflectionProperty($stack, 'stack');
-        $prop->setAccessible(true);
 
-        $this->assertSame($stack, $prop->getValue($stack)->bottom());
+        $this->assertSame($stack, StackUtils::getBottom($stack));
     }
 
     public function testCallMiddlewareStack()
@@ -122,17 +121,19 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
         $response = new Response();
 
         // Invoke call stack
-        $stack->callMiddlewareStack($request, $response);
+        try {
+            $stack->callMiddlewareStack($request, $response);
+        } catch (\Slim\Stack\StackException $e) {
+            throw $e->getException();
+        }
     }
 
     public function testAlternativeSeedMiddlewareStack()
     {
         $stack = new Stackable;
         $stack->alternativeSeed();
-        $prop = new ReflectionProperty($stack, 'stack');
-        $prop->setAccessible(true);
 
-        $this->assertSame([$stack, 'testMiddlewareKernel'], $prop->getValue($stack)->bottom());
+        $this->assertSame([$stack, 'testMiddlewareKernel'], StackUtils::getBottom($stack));
     }
 
 
@@ -146,10 +147,15 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
             return $resp;
         });
         $this->setExpectedException('RuntimeException');
-        $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\ServerRequestInterface'),
-            $this->getMock('Psr\Http\Message\ResponseInterface')
-        );
+
+        try {
+            $stack->callMiddlewareStack(
+                $this->getMock('Psr\Http\Message\ServerRequestInterface'),
+                $this->getMock('Psr\Http\Message\ResponseInterface')
+            );
+        } catch (\Slim\Stack\StackException $e) {
+            throw $e->getException();
+        }
     }
 
     public function testSeedTwiceThrowException()

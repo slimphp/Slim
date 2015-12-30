@@ -27,6 +27,7 @@ use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Stack\StackException;
 
 /**
  * App
@@ -337,29 +338,8 @@ class App
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
-        } catch (MethodNotAllowedException $e) {
-            if (!$this->container->has('notAllowedHandler')) {
-                throw $e;
-            }
-            /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
-            $response = $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
-        } catch (NotFoundException $e) {
-            if (!$this->container->has('notFoundHandler')) {
-                throw $e;
-            }
-            /** @var callable $notFoundHandler */
-            $notFoundHandler = $this->container->get('notFoundHandler');
-            $response = $notFoundHandler($e->getRequest(), $e->getResponse());
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
         } catch (Exception $e) {
-            if (!$this->container->has('errorHandler')) {
-                throw $e;
-            }
-            /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
+            $response = $this->handleException($e, $request, $response);
         }
 
         $response = $this->finalize($response);
@@ -448,24 +428,19 @@ class App
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
+        // Run the route if it has been found
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $route = $router->lookupRoute($routeInfo[1]);
+
             return $route->run($request, $response);
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            if (!$this->container->has('notAllowedHandler')) {
-                throw new MethodNotAllowedException($request, $response, $routeInfo[1]);
-            }
-            /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
-            return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
 
-        if (!$this->container->has('notFoundHandler')) {
+        // Throw appropriate exception to break out of middleware stack
+        if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+            throw new MethodNotAllowedException($request, $response, $routeInfo[1]);
+        } else {
             throw new NotFoundException($request, $response);
         }
-        /** @var callable $notFoundHandler */
-        $notFoundHandler = $this->container->get('notFoundHandler');
-        return $notFoundHandler($request, $response);
     }
 
     /**
@@ -572,5 +547,45 @@ class App
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
+    }
+
+    /**
+    * Helper method, which handles stack exceptions
+    *
+    * @param Exception $e
+    * @param ServerRequestInterface $request
+    * @param ResponseInterface $response
+    */
+    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        if ($e instanceof StackException) {
+            // Unwrap the StackException and recurse with stored values
+            return $this->handleException($e->getException(), $e->getRequest(), $e->getResponse());
+        }
+
+        if ($e instanceof MethodNotAllowedException) {
+            $handler = 'notAllowedHandler';
+            $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
+        } elseif ($e instanceof NotFoundException) {
+            $handler = 'notFoundHandler';
+            $params = [$e->getRequest(), $e->getResponse()];
+        } elseif ($e instanceof SlimException) {
+            // SlimException contains the required response so return it
+            return $e->getResponse();
+        } else {
+            // Other exception, use $request and $response params
+            $handler = 'errorHandler';
+            $params = [$request, $response, $e];
+        }
+
+        if ($this->container->has($handler)) {
+            $callable = $this->container->get($handler);
+
+            // Call the registered handler
+            return call_user_func_array($callable, $params);
+        }
+
+        // No handlers found, so just throw the exception
+        throw $e;
     }
 }

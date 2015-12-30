@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use ReflectionProperty;
 use Slim\Container;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -18,6 +19,7 @@ use Slim\Http\Uri;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use Slim\Tests\Stack\StackUtils;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
 {
@@ -89,10 +91,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->add($mw);
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
-
-        $this->assertEquals($route, $prop->getValue($route)->bottom());
+        $this->assertEquals($route, StackUtils::getBottom($route));
     }
 
     public function testAddMiddleware()
@@ -104,10 +103,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->add($mw);
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
-
-        $this->assertCount(2, $prop->getValue($route));
+        $this->assertCount(2, StackUtils::getQueue($route));
     }
 
     public function testRefinalizing()
@@ -122,10 +118,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->finalize();
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
-
-        $this->assertCount(2, $prop->getValue($route));
+        $this->assertCount(2, StackUtils::getQueue($route));
     }
 
 
