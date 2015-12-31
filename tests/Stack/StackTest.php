@@ -34,7 +34,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
     public function testConstructSetsValues()
     {
         $kernel = 'callable';
-        $resolver = function($entry) {
+        $resolver = function ($entry) {
             return $entry;
         };
 
@@ -130,19 +130,19 @@ class StackTest extends \PHPUnit_Framework_TestCase
 
     public function testRun()
     {
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             $res->write('Kernel');
             return $res;
         };
 
-        $in1 = function($req, $res, $next) {
+        $in1 = function ($req, $res, $next) {
             $res->write('In1');
             $res = $next($req, $res);
             $res->write('Out1');
             return $res;
         };
 
-        $in2 = function($req, $res, $next) {
+        $in2 = function ($req, $res, $next) {
             $res->write('In2');
             $res = $next($req, $res);
             $res->write('Out2');
@@ -162,7 +162,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
 
     public function testRunWithMethod()
     {
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             $res->write('Kernel');
             return $res;
         };
@@ -183,7 +183,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
 
     public function testRunWithStatic()
     {
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             $res->write('Kernel');
             return $res;
         };
@@ -201,14 +201,14 @@ class StackTest extends \PHPUnit_Framework_TestCase
     public function testRunWithExceptionSavesMessageState()
     {
         // All middleware changes the status so we get a new response object
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             $res = $res->withStatus(200);
             $res->write('Kernel');
             throw new \RuntimeException('oops');
             return $res;
         };
 
-        $in1 = function($req, $res, $next) {
+        $in1 = function ($req, $res, $next) {
             $res = $res->withStatus(201);
             $res->write('In1');
             $res = $next($req, $res);
@@ -216,7 +216,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
             return $res;
         };
 
-        $in2 = function($req, $res, $next) {
+        $in2 = function ($req, $res, $next) {
             $res = $res->withStatus(202);
             $res->write('In2');
             $res = $next($req, $res);
@@ -249,7 +249,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('RuntimeException', Stack::ERR_RESPONSE);
 
         // This middleware does not return a ResponseInterface instance
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             return new \stdClass();
         };
 
@@ -267,7 +267,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
 
     public function testResolveReturnsCallable()
     {
-        $kernel = function($req, $res, $next) {
+        $kernel = function ($req, $res, $next) {
             return $res;
         };
 
@@ -286,7 +286,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
         $kernel = 'kernel';
 
         // This resolver will not resolve it...
-        $resolver1 = function($entry) {
+        $resolver1 = function ($entry) {
             if ($entry === 'MyMiddleware') {
                 return new $entry;
             }
@@ -295,9 +295,9 @@ class StackTest extends \PHPUnit_Framework_TestCase
         $stack = new Stack($kernel, [$resolver1]);
 
         // ...but this resolver will
-        $resolver2 = function($entry) {
+        $resolver2 = function ($entry) {
             if ($entry === 'kernel') {
-                return function() use ($entry) {
+                return function () use ($entry) {
                     return $entry;
                 };
             }
@@ -334,7 +334,7 @@ class StackTest extends \PHPUnit_Framework_TestCase
         $kernel = 'kernel';
 
         // ...but this resolver does not return a callable
-        $resolver = function($entry) {
+        $resolver = function ($entry) {
             return new \stdClass();
         };
 
