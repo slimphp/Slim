@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * Step 0: Copy this example directory to its own root and then run composer:
+ *
+ *      $ composer update
+ */
+
+/**
  * Step 1: Require the Slim Framework using Composer's autoloader
  *
  * If you are not using Composer, you need to load Slim Framework with your own
