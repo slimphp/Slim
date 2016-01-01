@@ -70,7 +70,7 @@ class App
     /**
      * Create new application
      *
-     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of application settings
+     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of app settings
      * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
@@ -488,8 +488,15 @@ class App
      * @param  ResponseInterface $response     The response object (optional)
      * @return ResponseInterface
      */
-    public function subRequest($method, $path, $query = '', array $headers = [], array $cookies = [], $bodyContent = '', ResponseInterface $response = null)
-    {
+    public function subRequest(
+        $method,
+        $path,
+        $query = '',
+        array $headers = [],
+        array $cookies = [],
+        $bodyContent = '',
+        ResponseInterface $response = null
+    ) {
         $env = $this->container->get('environment');
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);

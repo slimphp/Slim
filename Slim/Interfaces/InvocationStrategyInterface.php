@@ -26,5 +26,10 @@ interface InvocationStrategyInterface
      *
      * @return ResponseInterface|string The response from the callable.
      */
-    public function __invoke(callable $callable, ServerRequestInterface $request, ResponseInterface $response, array $routeArguments);
+    public function __invoke(
+        callable $callable,
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $routeArguments
+    );
 }
