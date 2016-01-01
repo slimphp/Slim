@@ -98,6 +98,7 @@ class Response extends Message implements ResponseInterface
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
+        451 => 'Unavailable For Legal Reasons',
         //Server Error 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -291,13 +292,19 @@ class Response extends Message implements ResponseInterface
      * @param  mixed  $data   The data
      * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
+     * @throws \RuntimeException
      * @return self
      */
     public function withJson($data, $status = 200, $encodingOptions = 0)
     {
         $body = $this->getBody();
         $body->rewind();
-        $body->write(json_encode($data, $encodingOptions));
+        $body->write($json = json_encode($data, $encodingOptions));
+
+        // Ensure that the json encoding passed successfully
+        if ($json === false) {
+            throw new \RuntimeException(json_last_error_msg(), json_last_error());
+        }
 
         return $this->withStatus($status)->withHeader('Content-Type', 'application/json;charset=utf-8');
     }

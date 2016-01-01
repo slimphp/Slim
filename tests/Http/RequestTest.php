@@ -814,11 +814,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $request->getParam('foo'));
     }
 
+    public function testGetParameterFromBodyWithBodyParemeterHelper()
+    {
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = $this->requestFactory()
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
+    }
+
     public function testGetParameterFromQuery()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         $this->assertEquals('123', $request->getParam('abc'));
+    }
+
+    public function testGetParameterFromQueryWithQueryParemeterHelper()
+    {
+        $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('123', $request->getQueryParam('abc'));
     }
 
     public function testGetParameterFromBodyOverQuery()
@@ -866,5 +885,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
+    }
+
+    /*******************************************************************************
+     * Protocol
+     ******************************************************************************/
+
+    public function testGetProtocolVersion()
+    {
+        $env = Environment::mock(['SERVER_PROTOCOL' => 'HTTP/1.0']);
+        $request = Request::createFromEnvironment($env);
+
+        $this->assertEquals('1.0', $request->getProtocolVersion());
     }
 }
