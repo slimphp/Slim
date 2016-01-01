@@ -129,6 +129,8 @@ class App
                 return call_user_func_array($obj, $args);
             }
         }
+
+        throw new \BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
