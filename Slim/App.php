@@ -561,10 +561,10 @@ class App
      *
      * @param  Exception $e
      * @param  ServerRequestInterface $request
-     * @param  Response $response
+     * @param  ResponseInterface $response
      *
-     * @return Response
-     * @throws Exception
+     * @return ResponseInterface
+     * @throws Exception if a handler is needed and not found
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
