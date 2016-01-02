@@ -311,8 +311,6 @@ class Route extends Routable implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $this->callable = $this->resolveCallable($this->callable);
-
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
