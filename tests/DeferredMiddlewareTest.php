@@ -3,7 +3,6 @@
 
 namespace Slim\Tests;
 
-
 use Slim\Container;
 use Slim\DeferredMiddleware;
 use Slim\Tests\Mocks\CallableTest;
@@ -32,7 +31,7 @@ class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
 
         $test = $this;
 
-        $closure = function() use($container, $test, $assertCalled){
+        $closure = function() use ($container, $test, $assertCalled) {
             $assertCalled->foo();
             $test->assertSame($container, $this);
         };
@@ -48,7 +47,7 @@ class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
         $foo = 'foo';
         $bar = 'bar';
 
-        $closure = function($param) use($test, $foo, $bar){
+        $closure = function ($param) use ($test, $foo, $bar) {
             $test->assertEquals($foo, $param);
             return $bar;
         };

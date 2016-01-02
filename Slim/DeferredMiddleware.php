@@ -3,7 +3,6 @@
 
 namespace Slim;
 
-
 use Closure;
 use Interop\Container\ContainerInterface;
 
