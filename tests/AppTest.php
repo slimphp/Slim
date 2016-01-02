@@ -23,6 +23,7 @@ use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Stack\StackUtils;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
@@ -741,10 +742,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         };
         $app->add($mw);
 
-        $prop = new \ReflectionProperty($app, 'stack');
-        $prop->setAccessible(true);
-
-        $this->assertEquals($app, $prop->getValue($app)->bottom());
+        $this->assertEquals($app, StackUtils::getBottom($app));
     }
 
     public function testAddMiddleware()
@@ -755,10 +753,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         };
         $app->add($mw);
 
-        $prop = new \ReflectionProperty($app, 'stack');
-        $prop->setAccessible(true);
-
-        $this->assertCount(2, $prop->getValue($app));
+        $this->assertCount(2, StackUtils::getQueue($app));
     }
 
     public function testAddMiddlewareOnRoute()
@@ -966,18 +961,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
+        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
+
         // Invoke app
         $resOut = $app($req, $res);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals(405, (string)$resOut->getStatusCode());
-        $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
-        $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
-
-        // now test that exception is raised if the handler isn't registered
-        unset($app->getContainer()['notAllowedHandler']);
-        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
-        $app($req, $res);
     }
 
     public function testInvokeWithMatchingRoute()
@@ -1178,16 +1165,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
+        $this->setExpectedException('Slim\Exception\NotFoundException');
+
         // Invoke app
         $resOut = $app($req, $res);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertAttributeEquals(404, 'status', $resOut);
-
-        // now test that exception is raised if the handler isn't registered
-        unset($app->getContainer()['notFoundHandler']);
-        $this->setExpectedException('Slim\Exception\NotFoundException');
-        $app($req, $res);
     }
 
     public function testInvokeWithPimpleCallable()
@@ -1256,7 +1237,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException');
 
         // Invoke app
-        $app($req, $res);
+        try {
+            $app($req, $res);
+        } catch (\Slim\Stack\StackException $e) {
+            throw $e->getException();
+        }
     }
 
     public function testInvokeWithPimpleCallableViaMagicMethod()
@@ -1703,6 +1688,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = $app->run(true);
 
         $this->assertEquals(405, $res->getStatusCode());
+        $this->assertEquals(['POST'], $res->getHeader('Allow'));
     }
 
     /**
