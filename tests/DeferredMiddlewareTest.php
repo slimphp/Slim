@@ -31,7 +31,7 @@ class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
 
         $test = $this;
 
-        $closure = function() use ($container, $test, $assertCalled) {
+        $closure = function () use ($container, $test, $assertCalled) {
             $assertCalled->foo();
             $test->assertSame($container, $this);
         };
