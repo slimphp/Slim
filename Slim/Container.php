@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
 use Psr\Http\Message\ResponseInterface;
@@ -43,17 +43,6 @@ use Slim\Interfaces\RouterInterface;
  *  - notFoundHandler: a callable with the signature: function($request, $response)
  *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
  *  - callableResolver: an instance of callableResolver
- *
- * @property-read array settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface environment
- * @property-read \Psr\Http\Message\ServerRequestInterface request
- * @property-read \Psr\Http\Message\ResponseInterface response
- * @property-read \Slim\Interfaces\RouterInterface router
- * @property-read \Slim\Interfaces\InvocationStrategyInterface foundHandler
- * @property-read callable errorHandler
- * @property-read callable notFoundHandler
- * @property-read callable notAllowedHandler
- * @property-read \Slim\Interfaces\CallableResolverInterface callableResolver
  */
 class Container extends PimpleContainer implements ContainerInterface
 {

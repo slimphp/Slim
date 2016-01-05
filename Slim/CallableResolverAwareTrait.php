@@ -9,7 +9,7 @@
 namespace Slim;
 
 use RuntimeException;
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\ContainerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**

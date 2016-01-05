@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\ContainerInterface;
 use FastRoute\Dispatcher;
 use Slim\Exception\SlimException;
 use Slim\Exception\MethodNotAllowedException;
@@ -35,14 +35,6 @@ use Slim\Interfaces\RouterInterface;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  *
- * @property-read array $settings App settings
- * @property-read EnvironmentInterface $environment
- * @property-read RequestInterface $request
- * @property-read ResponseInterface $response
- * @property-read RouterInterface $router
- * @property-read callable $errorHandler
- * @property-read callable $notFoundHandler function($request, $response)
- * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
 class App
 {
