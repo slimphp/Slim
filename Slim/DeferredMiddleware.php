@@ -16,10 +16,10 @@ class DeferredMiddleware
 
     /**
      * DeferredMiddleware constructor.
-     * @param $callable
-     * @param $container
+     * @param callable|string $callable
+     * @param ContainerInterface $container
      */
-    public function __construct($callable, $container)
+    public function __construct($callable, ContainerInterface $container = null)
     {
         $this->callable = $callable;
         $this->container = $container;
