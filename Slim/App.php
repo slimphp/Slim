@@ -339,29 +339,8 @@ class App
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
-        } catch (MethodNotAllowedException $e) {
-            if (!$this->container->has('notAllowedHandler')) {
-                throw $e;
-            }
-            /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
-            $response = $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
-        } catch (NotFoundException $e) {
-            if (!$this->container->has('notFoundHandler')) {
-                throw $e;
-            }
-            /** @var callable $notFoundHandler */
-            $notFoundHandler = $this->container->get('notFoundHandler');
-            $response = $notFoundHandler($e->getRequest(), $e->getResponse());
-        } catch (SlimException $e) {
-            $response = $e->getResponse();
         } catch (Exception $e) {
-            if (!$this->container->has('errorHandler')) {
-                throw $e;
-            }
-            /** @var callable $errorHandler */
-            $errorHandler = $this->container->get('errorHandler');
-            $response = $errorHandler($request, $response, $e);
+            $response = $this->handleException($e, $request, $response);
         }
 
         $response = $this->finalize($response);
@@ -574,5 +553,43 @@ class App
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
+    }
+
+    /**
+     * Call relevant handler from the Container if needed. If it doesn't exist,
+     * then just re-throw.
+     *
+     * @param  Exception $e
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface $response
+     *
+     * @return ResponseInterface
+     * @throws Exception if a handler is needed and not found
+     */
+    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        if ($e instanceof MethodNotAllowedException) {
+            $handler = 'notAllowedHandler';
+            $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
+        } elseif ($e instanceof NotFoundException) {
+            $handler = 'notFoundHandler';
+            $params = [$e->getRequest(), $e->getResponse()];
+        } elseif ($e instanceof SlimException) {
+            // This is a Stop exception and contains the response
+            return $e->getResponse();
+        } else {
+            // Other exception, use $request and $response params
+            $handler = 'errorHandler';
+            $params = [$request, $response, $e];
+        }
+
+        if ($this->container->has($handler)) {
+            $callable = $this->container->get($handler);
+            // Call the registered handler
+            return call_user_func_array($callable, $params);
+        }
+
+        // No handlers found, so just throw the exception
+        throw $e;
     }
 }
