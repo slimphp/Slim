@@ -25,7 +25,10 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
     //         'httponly' => true
     //     ]);
 
-    //     $this->assertEquals('bar; domain=example.com; path=/foo; expires=' . gmdate('D, d-M-Y H:i:s e', $expiresAt) . '; secure; HttpOnly', $result);
+    //     $this->assertEquals(
+    //         'bar; domain=example.com; path=/foo; expires='
+    //         . gmdate('D, d-M-Y H:i:s e', $expiresAt)
+    //         . '; secure; HttpOnly', $result);
     // }
 
     // /**

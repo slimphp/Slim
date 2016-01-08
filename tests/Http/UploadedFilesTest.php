@@ -66,7 +66,14 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
             'error'    => 0,
         ];
 
-        $uploadedFile = new UploadedFile($attr['tmp_name'], $attr['name'], $attr['type'], $attr['size'], $attr['error'], false);
+        $uploadedFile = new UploadedFile(
+            $attr['tmp_name'],
+            $attr['name'],
+            $attr['type'],
+            $attr['size'],
+            $attr['error'],
+            false
+        );
 
 
         $this->assertEquals($attr['name'], $uploadedFile->getClientFilename());

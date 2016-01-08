@@ -167,8 +167,15 @@ class Request extends Message implements ServerRequestInterface
      * @param StreamInterface  $body          The request body object
      * @param array            $uploadedFiles The request uploadedFiles collection
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, array $cookies, array $serverParams, StreamInterface $body, array $uploadedFiles = [])
-    {
+    public function __construct(
+        $method,
+        UriInterface $uri,
+        HeadersInterface $headers,
+        array $cookies,
+        array $serverParams,
+        StreamInterface $body,
+        array $uploadedFiles = []
+    ) {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
         $this->headers = $headers;
@@ -966,7 +973,9 @@ class Request extends Message implements ServerRequestInterface
             $parsed = $this->bodyParsers[$mediaType]($body);
 
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
-                throw new RuntimeException('Request body media type parser return value must be an array, an object, or null');
+                throw new RuntimeException(
+                    'Request body media type parser return value must be an array, an object, or null'
+                );
             }
             $this->bodyParsed = $parsed;
         }

@@ -109,8 +109,16 @@ class Uri implements UriInterface
      * @param string $user     Uri user.
      * @param string $password Uri password.
      */
-    public function __construct($scheme, $host, $port = null, $path = '/', $query = '', $fragment = '', $user = '', $password = '')
-    {
+    public function __construct(
+        $scheme,
+        $host,
+        $port = null,
+        $path = '/',
+        $query = '',
+        $fragment = '',
+        $user = '',
+        $password = ''
+    ) {
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
