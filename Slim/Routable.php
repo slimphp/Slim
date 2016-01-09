@@ -91,7 +91,7 @@ abstract class Routable
      */
     public function add($callable)
     {
-        foreach (func_get_args() As $callable) {
+        foreach (func_get_args() as $callable) {
             $callable = $this->resolveCallable($callable);
             if ($callable instanceof Closure) {
                 $callable = $callable->bindTo($this->container);
