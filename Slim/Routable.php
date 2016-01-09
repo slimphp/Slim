@@ -91,12 +91,14 @@ abstract class Routable
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
+        foreach (func_get_args() As $callable) {
+            $callable = $this->resolveCallable($callable);
+            if ($callable instanceof Closure) {
+                $callable = $callable->bindTo($this->container);
+            }
 
-        $this->middleware[] = $callable;
+            $this->middleware[] = $callable;
+        }
         return $this;
     }
 }
