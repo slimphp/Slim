@@ -42,6 +42,15 @@ class AppTest extends \PHPUnit_Framework_TestCase
      * Router proxy methods
      *******************************************************************************/
 
+    public function testAddMethod()
+    {
+        $app = new App();
+        $app->addMethod('FOO');
+
+        $customMethods = Request::getCustomMethods();
+        $this->assertContains('FOO', $customMethods);
+    }
+
     public function testGetRoute()
     {
         $path = '/foo';
@@ -127,6 +136,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         };
         $app = new App();
+        $app->addMethod('BAR');
         $route = $app->any($path, $callable);
 
         $this->assertInstanceOf('\Slim\Route', $route);
@@ -136,6 +146,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeContains('PATCH', 'methods', $route);
         $this->assertAttributeContains('DELETE', 'methods', $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
+        $this->assertAttributeContains('BAR', 'methods', $route);
     }
 
     public function testMapRoute()
@@ -145,11 +156,13 @@ class AppTest extends \PHPUnit_Framework_TestCase
             // Do something
         };
         $app = new App();
-        $route = $app->map(['GET', 'POST'], $path, $callable);
+        $app->addMethod('BAR');
+        $route = $app->map(['GET', 'POST', 'BAR'], $path, $callable);
 
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
+        $this->assertAttributeContains('BAR', 'methods', $route);
     }
 
     /********************************************************************************

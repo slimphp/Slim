@@ -126,6 +126,13 @@ class Request extends Message implements ServerRequestInterface
     ];
 
     /**
+     * Custom added HTTP valid methods in addition to $validMethods
+     *
+     * @var string[]
+     */
+    protected static $customMethods = [];
+
+    /**
      * Create new HTTP request with data extracted from the application
      * Environment object
      *
@@ -267,6 +274,30 @@ class Request extends Message implements ServerRequestInterface
     }
 
     /**
+     * Add a custom HTTP method other than default valid methods
+     *
+     * Custom methods are checked against supplied method while
+     * validating it in filterMethod()
+     *
+     * @param string $method
+     */
+    public static function addCustomMethod($method)
+    {
+        array_push(self::$customMethods, strtoupper($method));
+    }
+
+
+    /**
+     * Return custom defined HTTP methods
+     *
+     * @return string[]
+     */
+    public static function getCustomMethods()
+    {
+        return self::$customMethods;
+    }
+
+    /**
      * Return an instance with the provided HTTP method.
      *
      * While HTTP method names are typically all uppercase characters, HTTP
@@ -312,7 +343,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $method = strtoupper($method);
-        if (!isset($this->validMethods[$method])) {
+        if (!(isset($this->validMethods[$method]) || isset(self::$customMethods[$method]))) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method "%s" provided',
                 $method
