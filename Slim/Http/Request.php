@@ -958,7 +958,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        if ($this->bodyParsed) {
+        if (is_array($this->bodyParsed) || is_object($this->bodyParsed)) {
             return $this->bodyParsed;
         }
 
