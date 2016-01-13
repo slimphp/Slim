@@ -182,6 +182,8 @@ class Request extends Message implements ServerRequestInterface
             $this->headers->set('Host', $this->uri->getHost());
         }
 
+        parse_str($this->uri->getQuery(), $this->queryParams); // <-- URL decodes data
+
         $this->registerMediaTypeParser('application/json', function ($input) {
             return json_decode($input, true);
         });
@@ -716,16 +718,6 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        if ($this->queryParams) {
-            return $this->queryParams;
-        }
-
-        if ($this->uri === null) {
-            return [];
-        }
-
-        parse_str($this->uri->getQuery(), $this->queryParams); // <-- URL decodes data
-
         return $this->queryParams;
     }
 
