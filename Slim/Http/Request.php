@@ -459,10 +459,6 @@ class Request extends Message implements ServerRequestInterface
             return $this->requestTarget;
         }
 
-        if ($this->uri === null) {
-            return '/';
-        }
-
         $basePath = $this->uri->getBasePath();
         $path = $this->uri->getPath();
         $path = $basePath . '/' . ltrim($path, '/');
