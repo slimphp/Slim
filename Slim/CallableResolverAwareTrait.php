@@ -27,7 +27,7 @@ trait CallableResolverAwareTrait
      * Resolve a string of the format 'class:method' into a closure that the
      * router can dispatch.
      *
-     * @param mixed $callable
+     * @param callable|string $callable
      *
      * @return \Closure
      *

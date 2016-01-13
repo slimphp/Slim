@@ -86,7 +86,7 @@ interface RouteInterface
      *
      * This method prepends new middleware to the route's middleware stack.
      *
-     * @param mixed $callable The callback routine
+     * @param callable|string $callable The callback routine
      *
      * @return RouteInterface
      */

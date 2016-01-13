@@ -28,7 +28,7 @@ interface RouteGroupInterface
     /**
      * Prepend middleware to the group middleware collection
      *
-     * @param mixed $callable The callback routine
+     * @param callable|string $callable The callback routine
      *
      * @return RouteGroupInterface
      */
