@@ -199,7 +199,7 @@ class Router implements RouterInterface
      */
     public function getNamedRoute($name)
     {
-        if (is_null($this->namedRoutes)) {
+        if (count($this->namedRoutes) != count($this->routes)) {
             $this->buildNameIndex();
         }
         if (!isset($this->namedRoutes[$name])) {
