@@ -284,9 +284,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $data = ['foo' => 'bar1&bar2'];
 
         $response = new Response();
-        $response = $response->withJson($data, 201);
+        $response = $response->withJson($data);
 
-        $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json;charset=utf-8', $response->getHeaderLine('Content-Type'));
 
         $body = $response->getBody();
@@ -297,7 +296,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
 
         // Test encoding option
-        $response = $response->withJson($data, 200, JSON_HEX_AMP);
+        $response = $response->withJson($data, JSON_HEX_AMP);
 
         $body = $response->getBody();
         $body->rewind();
@@ -316,7 +315,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar'.chr(233), $data['foo']);
         
         $response = new Response();
-        $response->withJson($data, 200);
+        $response->withJson($data);
 
         // Safety net: this assertion should not occur, since the RuntimeException
         // must have been caught earlier by the test framework
