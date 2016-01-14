@@ -306,11 +306,11 @@ class Response extends Message implements ResponseInterface
             throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        $response_with_json = $this->withHeader('Content-Type', 'application/json;charset=utf-8');
+        $responseWithJson = $this->withHeader('Content-Type', 'application/json;charset=utf-8');
         if (isset($status)) {
-            return $response_with_json->withStatus($status);
+            return $responseWithJson->withStatus($status);
         }
-        return $response_with_json;
+        return $responseWithJson;
     }
 
     /**
