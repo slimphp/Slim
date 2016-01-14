@@ -290,11 +290,12 @@ class Response extends Message implements ResponseInterface
      * response to the client.
      *
      * @param  mixed  $data   The data
+     * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
      * @throws \RuntimeException
      * @return self
      */
-    public function withJson($data, $encodingOptions = 0)
+    public function withJson($data, $status = null, $encodingOptions = 0)
     {
         $body = $this->getBody();
         $body->rewind();
@@ -305,7 +306,11 @@ class Response extends Message implements ResponseInterface
             throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        return $this->withHeader('Content-Type', 'application/json;charset=utf-8');
+        $response_with_json = $this->withHeader('Content-Type', 'application/json;charset=utf-8');
+        if (isset($status)) {
+            return $response_with_json->withStatus($status);
+        }
+        return $response_with_json;
     }
 
     /**
