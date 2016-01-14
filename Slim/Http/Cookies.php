@@ -38,6 +38,7 @@ class Cookies implements CookiesInterface
     protected $defaults = [
         'value' => '',
         'domain' => null,
+        'hostonly' => null,
         'path' => null,
         'expires' => null,
         'secure' => false,
