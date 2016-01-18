@@ -385,16 +385,25 @@ class App
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
-            $totalChunks    = ceil($contentLength / $chunkSize);
-            $lastChunkSize  = $contentLength % $chunkSize;
-            $currentChunk   = 0;
-            while (!$body->eof() && $currentChunk < $totalChunks) {
-                if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
-                    $chunkSize = $lastChunkSize;
+            if (isset($contentLength)) {
+                $totalChunks    = ceil($contentLength / $chunkSize);
+                $lastChunkSize  = $contentLength % $chunkSize;
+                $currentChunk   = 0;
+                while (!$body->eof() && $currentChunk < $totalChunks) {
+                    if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
+                        $chunkSize = $lastChunkSize;
+                    }
+                    echo $body->read($chunkSize);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
-                echo $body->read($chunkSize);
-                if (connection_status() != CONNECTION_NORMAL) {
-                    break;
+            } else {
+                while (!$body->eof()) {
+                    echo $body->read($chunkSize);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
             }
         }

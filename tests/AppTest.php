@@ -1562,6 +1562,23 @@ class AppTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testRespondIndeterminateLength()
+    {
+        $app = new App();
+        $body_stream = fopen('php://temp', 'r+');
+        $response = new Response();
+        $body = $this->getMockBuilder("\Slim\Http\Body")
+            ->setMethods(["getSize"])
+            ->setConstructorArgs([$body_stream])
+            ->getMock();
+        fwrite($body_stream, "Hello");
+        rewind($body_stream);
+        $body->method("getSize")->willReturn(null);
+        $response = $response->withBody($body);
+        $app->respond($response);
+        $this->expectOutputString("Hello");
+    }
+
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
