@@ -58,6 +58,8 @@ class Container extends PimpleContainer implements ContainerInterface
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
         'addContentLengthHeader' => true,
+        'routerCacheDisabled' => true,
+        'routerCacheFile' => '',
     ];
 
     /**
