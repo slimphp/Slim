@@ -45,6 +45,13 @@ class Router implements RouterInterface
     protected $basePath = '';
 
     /**
+     * Path to fast route cache file
+     *
+     * @var string
+     */
+    protected $cacheFilePath;
+
+    /**
      * Routes
      *
      * @var Route[]
@@ -105,6 +112,28 @@ class Router implements RouterInterface
     }
 
     /**
+     * Set path to fast route cache file
+     *
+     * @param string $cacheFilePath
+     *
+     * @return self
+     */
+    public function setCacheFilePath($cacheFilePath)
+    {
+        if (!is_string($cacheFilePath)) {
+            throw new InvalidArgumentException('Router cacheFilePath must be a string');
+        }
+
+        if (!is_writable(dirname($cacheFilePath))) {
+            throw new RuntimeException('Router cacheFilePath directory must be writable');
+        }
+
+        $this->cacheFilePath = $cacheFilePath;
+
+        return $this;
+    }
+
+    /**
      * Add route
      *
      * @param  string[] $methods Array of HTTP methods
@@ -149,7 +178,7 @@ class Router implements RouterInterface
     public function dispatch(ServerRequestInterface $request)
     {
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-        
+
         return $this->createDispatcher()->dispatch(
             $request->getMethod(),
             $uri
@@ -161,13 +190,25 @@ class Router implements RouterInterface
      */
     protected function createDispatcher()
     {
-        return $this->dispatcher ?: \FastRoute\simpleDispatcher(function (RouteCollector $r) {
-            foreach ($this->getRoutes() as $route) {
-                $r->addRoute($route->getMethods(), $route->getPattern(), $route->getIdentifier());
-            }
-        }, [
-          'routeParser' => $this->routeParser
-        ]);
+        return $this->dispatcher ?: call_user_func_array(
+            '\FastRoute\\' . (isset($this->cacheFilePath) ? 'cachedDispatcher' : 'simpleDispatcher'),
+            [
+                function (RouteCollector $routeCollector) {
+                    foreach ($this->getRoutes() as $route) {
+                        $routeCollector->addRoute(
+                            $route->getMethods(),
+                            $route->getPattern(),
+                            $route->getIdentifier()
+                        );
+                    }
+                },
+                [
+                    'routeParser' => $this->routeParser,
+                    'cacheFile' => $this->cacheFilePath,
+                    'cacheDisabled' => !isset($this->cacheFilePath),
+                ],
+            ]
+        );
     }
 
     /**

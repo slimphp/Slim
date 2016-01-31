@@ -68,6 +68,8 @@ class Container extends PimpleContainer implements ContainerInterface
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
+        'routerCacheDisabled' => true,
+        'routerCacheFile' => '',
     ];
 
     /**
@@ -156,7 +158,11 @@ class Container extends PimpleContainer implements ContainerInterface
              * @return RouterInterface
              */
             $this['router'] = function () {
-                return new Router;
+                if ($this['settings']['routerCacheDisabled']) {
+                    return new Router;
+                } else {
+                    return (new Router)->setCacheFilePath($this['settings']['routerCacheFile']);
+                }
             };
         }
 
