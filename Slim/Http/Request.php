@@ -92,7 +92,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @var null|array|object
      */
-    protected $bodyParsed;
+    protected $bodyParsed = false;
 
     /**
      * List of request body parsers (e.g., url-encoded, JSON, XML, multipart)
@@ -958,7 +958,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        if (is_array($this->bodyParsed) || is_object($this->bodyParsed)) {
+        if ($this->bodyParsed !== false) {
             return $this->bodyParsed;
         }
 

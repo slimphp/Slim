@@ -834,6 +834,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->requestFactory()->withParsedBody(2);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithParsedBodyInvalidFalseValue()
+    {
+        $this->requestFactory()->withParsedBody(false);
+    }
+
     /*******************************************************************************
      * Parameters
      ******************************************************************************/
