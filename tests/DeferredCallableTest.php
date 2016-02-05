@@ -4,17 +4,17 @@
 namespace Slim\Tests;
 
 use Slim\Container;
-use Slim\DeferredMiddleware;
+use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
 
-class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
+class DeferredCallableTest extends \PHPUnit_Framework_TestCase
 {
     public function testItResolvesCallable()
     {
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
 
-        $deferred = new DeferredMiddleware('CallableTest:toCall', $container);
+        $deferred = new DeferredCallable('CallableTest:toCall', $container);
         $deferred();
 
         $this->assertEquals(1, CallableTest::$CalledCount);
@@ -36,7 +36,7 @@ class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
             $test->assertSame($container, $this);
         };
 
-        $deferred = new DeferredMiddleware($closure, $container);
+        $deferred = new DeferredCallable($closure, $container);
         $deferred();
     }
 
@@ -52,7 +52,7 @@ class DeferredMiddlewareTest extends \PHPUnit_Framework_TestCase
             return $bar;
         };
 
-        $deferred = new DeferredMiddleware($closure, $container);
+        $deferred = new DeferredCallable($closure, $container);
 
         $response = $deferred($foo);
         $this->assertEquals($bar, $response);

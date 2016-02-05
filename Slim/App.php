@@ -104,7 +104,7 @@ class App
      */
     public function add($callable)
     {
-        return $this->addMiddleware(new DeferredMiddleware($callable, $this->container));
+        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
     }
 
     /**
@@ -233,7 +233,7 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        $callable = new DeferredMiddleware($callable, $this->container);
+        $callable = new DeferredCallable($callable, $this->container);
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {

@@ -9,7 +9,7 @@
 namespace Slim\Tests;
 
 use Slim\Container;
-use Slim\DeferredMiddleware;
+use Slim\DeferredCallable;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -209,7 +209,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
 
-        $deferred = new DeferredMiddleware('CallableTest:toCall', $container);
+        $deferred = new DeferredCallable('CallableTest:toCall', $container);
 
         $route = new Route(['GET'], '/', $deferred);
         $route->setContainer($container);

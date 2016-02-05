@@ -6,7 +6,7 @@ namespace Slim;
 use Closure;
 use Interop\Container\ContainerInterface;
 
-class DeferredMiddleware
+class DeferredCallable
 {
     use CallableResolverAwareTrait;
 
