@@ -556,7 +556,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $cloneUri = $clone->getUri();
 
         $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
-        $this->assertAttributeEquals(['foo' => 'bar'], 'queryParams', $clone); // <-- Changed
+        $this->assertEquals(['foo' => 'bar'], $clone->getQueryParams()); // <-- Changed
+    }
+
+    public function testWithQueryParamsEmptyArray()
+    {
+        $request = $this->requestFactory();
+        $clone = $request->withQueryParams([]);
+        $cloneUri = $clone->getUri();
+
+        $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
+        $this->assertEquals([], $clone->getQueryParams()); // <-- Changed
     }
 
     public function testGetQueryParamsWithoutUri()
