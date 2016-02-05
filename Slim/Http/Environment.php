@@ -21,6 +21,13 @@ use Slim\Interfaces\Http\EnvironmentInterface;
 class Environment extends Collection implements EnvironmentInterface
 {
     /**
+     * List of trusted proxies
+     *
+     * @var array
+     */
+    protected $trustedProxies = [];
+
+    /**
      * Create mock environment
      *
      * @param  array $userData Array of custom environment keys and values
@@ -48,5 +55,43 @@ class Environment extends Collection implements EnvironmentInterface
         ], $userData);
 
         return new static($data);
+    }
+
+    /**
+     * Sets a list of trusted proxies.
+     *
+     * @param array $proxies A list of trusted proxies
+     */
+    public function setTrustedProxies(array $trustedProxies)
+    {
+        $this->trustedProxies = $trustedProxies;
+    }
+
+    /**
+     * Checks whether the request is secure or not.
+     *
+     * This method can read the client protocol from the "X-Forwarded-Proto" header
+     * when trusted proxies were set via "setTrustedProxies()".
+     *
+     * The "X-Forwarded-Proto" header must contain the protocol: "https" or "http".
+     *
+     * @return bool
+     */
+    public function isSecure()
+    {
+        if ($this->has('HTTP_X_FORWARDED_PROTO') && $this->isFromTrustedProxy()) {
+            return $this->get('HTTP_X_FORWARDED_PROTO') === 'https';
+        }
+
+        if ($this->has('HTTPS')) {
+            return !empty($this->get('HTTPS')) && $this->get('HTTPS') !== 'off';
+        }
+
+        return false;
+    }
+
+    protected function isFromTrustedProxy()
+    {
+        return $this->trustedProxies && IpUtils::checkIp($this->get('REMOTE_ADDR'), $this->trustedProxies);
     }
 }

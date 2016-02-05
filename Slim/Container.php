@@ -68,6 +68,7 @@ class Container extends PimpleContainer implements ContainerInterface
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
+        'trustedProxies' => [],
     ];
 
     /**
@@ -114,8 +115,11 @@ class Container extends PimpleContainer implements ContainerInterface
              *
              * @return EnvironmentInterface
              */
-            $this['environment'] = function () {
-                return new Environment($_SERVER);
+            $this['environment'] = function ($c) {
+                $env = new Environment($_SERVER);
+                $env->setTrustedProxies($c->get('settings')['trustedProxies']);
+
+                return $env;
             };
         }
 
