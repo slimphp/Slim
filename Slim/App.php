@@ -99,7 +99,7 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  mixed    $callable The callback routine
+     * @param  callable|string    $callable The callback routine
      *
      * @return static
      */
@@ -141,7 +141,7 @@ class App
      * Add GET route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -154,7 +154,7 @@ class App
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -167,7 +167,7 @@ class App
      * Add PUT route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -180,7 +180,7 @@ class App
      * Add PATCH route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -193,7 +193,7 @@ class App
      * Add DELETE route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -206,7 +206,7 @@ class App
      * Add OPTIONS route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -219,7 +219,7 @@ class App
      * Add route for any HTTP method
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -233,7 +233,7 @@ class App
      *
      * @param  string[] $methods  Numeric array of HTTP method names
      * @param  string   $pattern  The route URI pattern
-     * @param  mixed    $callable The route callback routine
+     * @param  callable|string    $callable The route callback routine
      *
      * @return RouteInterface
      */
