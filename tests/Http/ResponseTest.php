@@ -305,6 +305,9 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('{"foo":"bar1\u0026bar2"}', $dataJson);
         $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
+
+        $response = $response->withStatus(201)->withJson([]);
+        $this->assertEquals($response->getStatusCode(), 201);
     }
 
     /**
