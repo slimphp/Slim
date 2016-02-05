@@ -166,8 +166,7 @@ class Uri implements UriInterface
     public static function createFromEnvironment(Environment $env)
     {
         // Scheme
-        $isSecure = $env->get('HTTPS');
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+        $scheme = $env->isSecure() ? 'https' : 'http';
 
         // Authority: Username and password
         $username = $env->get('PHP_AUTH_USER', '');
