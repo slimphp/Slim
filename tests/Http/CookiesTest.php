@@ -96,6 +96,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $defaults = [
             'value' => 'toast',
             'domain' => null,
+            'hostonly' => null,
             'path' => null,
             'expires' => null,
             'secure' => true,
