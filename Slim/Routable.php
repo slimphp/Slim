@@ -85,7 +85,7 @@ abstract class Routable
     /**
      * Prepend middleware to the middleware collection
      *
-     * @param mixed $callable The callback routine
+     * @param mixed $callable The callback routine or an array of callback routines
      *
      * @return static
      */
