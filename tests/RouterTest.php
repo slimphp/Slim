@@ -308,30 +308,48 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cacheFilePath should be a string
+     * Test cacheFile should be a string
      */
-    public function testSettingInvalidCacheFilePathNotString()
+    public function testSettingInvalidCacheFileNotString()
     {
         $this->setExpectedException(
             '\InvalidArgumentException',
-            'Router cacheFilePath must be a string'
+            'Router cacheFile must be a string'
         );
-        $this->router->setCacheFilePath(['invalid']);
+        $this->router->setCacheFile(['invalid']);
     }
 
     /**
-     * Test if cacheFilePath is not a writable directory
+     * Test if cacheFile is not a writable directory
      */
-    public function testSettingInvalidCacheFilePathNotExisting()
+    public function testSettingInvalidCacheFileNotExisting()
     {
         $this->setExpectedException(
             '\RuntimeException',
-            'Router cacheFilePath directory must be writable'
+            'Router cacheFile directory must be writable'
         );
 
-        $this->router->setCacheFilePath(
+        $this->router->setCacheFile(
             dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
         );
+    }
+
+    /**
+     * Test if cache is enabled but cache file is not set
+     */
+    public function testCacheFileNotSetButCacheEnabled()
+    {
+        $this->setExpectedException(
+            '\RuntimeException',
+            'Router cache enabled but cacheFile not set'
+        );
+
+        $this->router->setCacheDisabled(false);
+
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+        $method->invoke($this->router);
     }
 
     /**
@@ -340,7 +358,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testCreateDispatcherWithRouteCache()
     {
         $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
-        $this->router->setCacheFilePath($cacheFile);
+        $this->router->setCacheDisabled(false);
+        $this->router->setCacheFile($cacheFile);
         $class = new \ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
