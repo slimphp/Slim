@@ -105,4 +105,48 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->container->get('settings')['httpVersion'] = '1.2';
         $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
+
+    public function testRouteCacheDisabledByDefault()
+    {
+        $this->assertTrue($this->container->get('settings')['routerCacheDisabled']);
+    }
+
+    /**
+     * Get cacheFilePath protected property from Route instance
+     *
+     * @return string
+     */
+    protected function getRouteCacheFilePath()
+    {
+        $router = $this->container['router'];
+        $getCacheFilePath = function ($router) {
+            return $router->cacheFilePath;
+        };
+        $getCacheFilePath = \Closure::bind(
+            $getCacheFilePath,
+            null,
+            $this->container['router']
+        );
+
+        return $getCacheFilePath($router);
+    }
+
+    /**
+     * Test no cache path is set to Route when option is disabled from config
+     */
+    public function testRouteCachePathNotSetWhenCacheDisabled()
+    {
+        $this->container->get('settings')['routerCacheDisabled'] = true;
+        $this->assertNull($this->getRouteCacheFilePath());
+    }
+
+    /**
+     * Test cache path is set to Route when cache is enabled in config
+     */
+    public function testRouteCachePathSetWhenCacheEnabled()
+    {
+        $this->container->get('settings')['routerCacheDisabled'] = false;
+        $this->container->get('settings')['routerCacheFile'] = 'slim';
+        $this->assertEquals('slim', $this->getRouteCacheFilePath());
+    }
 }
