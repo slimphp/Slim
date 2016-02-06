@@ -46,7 +46,6 @@ use Slim\Interfaces\RouterInterface;
  */
 class App
 {
-    use CallableResolverAwareTrait;
     use MiddlewareAwareTrait;
 
     /**
@@ -105,12 +104,7 @@ class App
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->addMiddleware($callable);
+        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
     }
 
     /**
@@ -239,9 +233,7 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
+        $callable = new DeferredCallable($callable, $this->container);
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {

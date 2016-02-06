@@ -18,6 +18,7 @@ use Slim\Interfaces\RouteGroupInterface;
  */
 class RouteGroup extends Routable implements RouteGroupInterface
 {
+    use CallableResolverAwareTrait;
     /**
      * Create a new RouteGroup
      *

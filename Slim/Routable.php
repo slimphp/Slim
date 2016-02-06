@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Closure;
 use Interop\Container\ContainerInterface;
 
 /**
@@ -19,8 +18,6 @@ use Interop\Container\ContainerInterface;
  */
 abstract class Routable
 {
-    use CallableResolverAwareTrait;
-
     /**
      * Route callable
      *
@@ -91,12 +88,7 @@ abstract class Routable
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        $this->middleware[] = $callable;
+        $this->middleware[] = new DeferredCallable($callable, $this->container);
         return $this;
     }
 }
