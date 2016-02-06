@@ -112,41 +112,55 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Get cacheFilePath protected property from Route instance
+     * Get cacheDisabled protected property from Route instance
      *
      * @return string
      */
-    protected function getRouteCacheFilePath()
+    protected function getRouteCacheDisabled()
     {
         $router = $this->container['router'];
-        $getCacheFilePath = function ($router) {
-            return $router->cacheFilePath;
+        $getCacheDisabled = function ($router) {
+            return $router->cacheDisabled;
         };
-        $getCacheFilePath = \Closure::bind(
-            $getCacheFilePath,
-            null,
-            $this->container['router']
-        );
-
-        return $getCacheFilePath($router);
+        $getCacheDisabled = \Closure::bind($getCacheDisabled, null, $this->container['router']);
+        return $getCacheDisabled($router);
     }
 
     /**
-     * Test no cache path is set to Route when option is disabled from config
+     * Get cacheFile protected property from Route instance
+     *
+     * @return string
      */
-    public function testRouteCachePathNotSetWhenCacheDisabled()
+    protected function getRouteCacheFile()
+    {
+        $router = $this->container['router'];
+        $getCacheFile = function ($router) {
+            return $router->cacheFile;
+        };
+        $getCacheFile = \Closure::bind($getCacheFile, null, $this->container['router']);
+        return $getCacheFile($router);
+    }
+
+    /**
+     * Test that cache is not enabled and no cache file is set to Router
+     * when option is disabled from config
+     */
+    public function testRouteCacheFileNotSetWhenCacheDisabled()
     {
         $this->container->get('settings')['routerCacheDisabled'] = true;
-        $this->assertNull($this->getRouteCacheFilePath());
+        $this->assertTrue($this->getRouteCacheDisabled());
+        $this->assertNull($this->getRouteCacheFile());
     }
 
     /**
-     * Test cache path is set to Route when cache is enabled in config
+     * Test that cache is enabled and cache file is set to Router
+     * when option is enabled from config
      */
-    public function testRouteCachePathSetWhenCacheEnabled()
+    public function testRouteCacheSetWhenCacheEnabled()
     {
         $this->container->get('settings')['routerCacheDisabled'] = false;
         $this->container->get('settings')['routerCacheFile'] = 'slim';
-        $this->assertEquals('slim', $this->getRouteCacheFilePath());
+        $this->assertFalse($this->getRouteCacheDisabled());
+        $this->assertEquals('slim', $this->getRouteCacheFile());
     }
 }

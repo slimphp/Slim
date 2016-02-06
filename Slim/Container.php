@@ -161,7 +161,9 @@ class Container extends PimpleContainer implements ContainerInterface
                 if ($this['settings']['routerCacheDisabled']) {
                     return new Router;
                 } else {
-                    return (new Router)->setCacheFilePath($this['settings']['routerCacheFile']);
+                    return (new Router)
+                        ->setCacheDisabled(false)
+                        ->setCacheFile($this['settings']['routerCacheFile']);
                 }
             };
         }
