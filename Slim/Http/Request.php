@@ -727,7 +727,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        if ($this->queryParams) {
+        if (is_array($this->queryParams)) {
             return $this->queryParams;
         }
 
