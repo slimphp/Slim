@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithNoBasePath()
     {
         $this->router->setBasePath('');
@@ -104,7 +104,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithBasePath()
     {
         $methods = ['GET'];
@@ -305,5 +305,46 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             '/hallo/josh/lockhart',
             $this->router->relativePathFor('foo', ['voornaam' => 'josh', 'achternaam' => 'lockhart'])
         );
+    }
+
+    /**
+     * Test cacheFilePath should be a string
+     */
+    public function testSettingInvalidCacheFilePathNotString()
+    {
+        $this->setExpectedException(
+            '\InvalidArgumentException',
+            'Router cacheFilePath must be a string'
+        );
+        $this->router->setCacheFilePath(['invalid']);
+    }
+
+    /**
+     * Test if cacheFilePath is not a writable directory
+     */
+    public function testSettingInvalidCacheFilePathNotExisting()
+    {
+        $this->setExpectedException(
+            '\RuntimeException',
+            'Router cacheFilePath directory must be writable'
+        );
+
+        $this->router->setCacheFilePath(
+            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+        );
+    }
+
+    /**
+     * Test route dispatcher is created in case of route cache
+     */
+    public function testCreateDispatcherWithRouteCache()
+    {
+        $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
+        $this->router->setCacheFilePath($cacheFile);
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+        unlink($cacheFile);
     }
 }
