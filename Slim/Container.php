@@ -155,15 +155,19 @@ class Container extends PimpleContainer implements ContainerInterface
              * This service MUST return a SHARED instance
              * of \Slim\Interfaces\RouterInterface.
              *
+             * @param Container $c
+             *
              * @return RouterInterface
              */
-            $this['router'] = function () {
-                if ($this['settings']['routerCacheDisabled']) {
+            $this['router'] = function ($c) {
+                if (is_null($c->get('settings')['routerCacheDisabled'])
+                    || $c->get('settings')['routerCacheDisabled']
+                ) {
                     return new Router;
                 } else {
                     return (new Router)
                         ->setCacheDisabled(false)
-                        ->setCacheFile($this['settings']['routerCacheFile']);
+                        ->setCacheFile($c->get('settings')['routerCacheFile']);
                 }
             };
         }
