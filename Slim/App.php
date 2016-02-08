@@ -99,18 +99,25 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  mixed    $callable The callback routine
+     * @param  mixed    $callable The callback routine which can be an array of multiple routines
      *
      * @return static
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
+        if (!is_array($callable) || is_callable($callable)) {
+            $callable = [$callable];
         }
 
-        return $this->addMiddleware($callable);
+        foreach ($callable as $closure) {
+            $closure = $this->resolveCallable($closure);
+            if ($closure instanceof Closure) {
+                $closure = $closure->bindTo($this->container);
+            }
+            $this->addMiddleware( $closure );
+        }
+
+        return $this;
     }
 
     /**
