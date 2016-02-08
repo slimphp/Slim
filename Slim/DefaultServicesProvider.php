@@ -8,8 +8,6 @@
  */
 namespace Slim;
 
-use Pimple\Container as PimpleContainer;
-use Pimple\ServiceProviderInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\ContainerValueNotFoundException;
@@ -29,14 +27,14 @@ use Slim\Interfaces\RouterInterface;
 /**
  * Slim's default Service Provider.
  */
-class ServiceProvider implements ServiceProviderInterface
+class DefaultServicesProvider
 {
     /**
      * Register Slim's default services.
      *
-     * @param Container $container
+     * @param Container $container A DI container implementing ArrayAccess and container-interop.
      */
-    public function register(PimpleContainer $container)
+    public function register($container)
     {
         if (!isset($container['environment'])) {
             /**

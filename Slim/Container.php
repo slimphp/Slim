@@ -95,7 +95,8 @@ class Container extends PimpleContainer implements ContainerInterface
             return new Collection(array_merge($defaultSettings, $userSettings));
         };
         
-        $this->register(new ServiceProvider());
+        $defaultProvider = new DefaultServicesProvider();
+        $defaultProvider->register($this);
     }
 
     /********************************************************************************
