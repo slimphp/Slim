@@ -99,7 +99,7 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  mixed    $callable The callback routine which can be an array of multiple routines
+     * @param mixed $callable The callback routine or an array of callback routines
      *
      * @return static
      */
