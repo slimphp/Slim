@@ -72,6 +72,8 @@ class Error
                 break;
         }
 
+        $this->writeToErrorLog($exception);
+
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write($output);
 
@@ -79,6 +81,66 @@ class Error
                 ->withStatus(500)
                 ->withHeader('Content-type', $contentType)
                 ->withBody($body);
+    }
+
+
+    /**
+     * Write to the error log if displayErrorDetails is false
+     *
+     * @param Exception $exception
+     * @return void
+     */
+    protected function writeToErrorLog($exception)
+    {
+        if ($this->displayErrorDetails) {
+            return;
+        }
+
+        $message = 'Slim Application Error:' . PHP_EOL;
+        $message .= $this->renderTextException($exception);
+        while ($exception = $exception->getPrevious()) {
+            $message .= PHP_EOL . 'Previous exception:' . PHP_EOL;
+            $message .= $this->renderTextException($exception);
+        }
+
+        $message .= 'View in rendered output by enabling the "displayErrrorDetails" setting.' . PHP_EOL;
+
+        error_log($message);
+    }
+
+    /**
+     * Render exception as Text.
+     *
+     * @param Exception $exception
+     *
+     * @return string
+     */
+    protected function renderTextException(Exception $exception)
+    {
+        $html = sprintf('Type: %s' . PHP_EOL, get_class($exception));
+
+        if (($code = $exception->getCode())) {
+            $html .= sprintf('Code: %s' . PHP_EOL, $code);
+        }
+
+        if (($message = $exception->getMessage())) {
+            $html .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
+        }
+
+        if (($file = $exception->getFile())) {
+            $html .= sprintf('File: %s' . PHP_EOL, $file);
+        }
+
+        if (($line = $exception->getLine())) {
+            $html .= sprintf('Line: %s' . PHP_EOL, $line);
+        }
+
+        if (($trace = $exception->getTraceAsString())) {
+            $html .= 'Trace: ';
+            $html .= sprintf('%s', $trace);
+        }
+
+        return $html;
     }
 
     /**
