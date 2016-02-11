@@ -117,30 +117,29 @@ class Error
      */
     protected function renderTextException(Exception $exception)
     {
-        $html = sprintf('Type: %s' . PHP_EOL, get_class($exception));
+        $text = sprintf('Type: %s' . PHP_EOL, get_class($exception));
 
         if (($code = $exception->getCode())) {
-            $html .= sprintf('Code: %s' . PHP_EOL, $code);
+            $text .= sprintf('Code: %s' . PHP_EOL, $code);
         }
 
         if (($message = $exception->getMessage())) {
-            $html .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
+            $text .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
         }
 
         if (($file = $exception->getFile())) {
-            $html .= sprintf('File: %s' . PHP_EOL, $file);
+            $text .= sprintf('File: %s' . PHP_EOL, $file);
         }
 
         if (($line = $exception->getLine())) {
-            $html .= sprintf('Line: %s' . PHP_EOL, $line);
+            $text .= sprintf('Line: %s' . PHP_EOL, $line);
         }
 
         if (($trace = $exception->getTraceAsString())) {
-            $html .= 'Trace: ';
-            $html .= sprintf('%s', $trace);
+            $text .= sprintf('Trace: %s', $trace);
         }
 
-        return $html;
+        return $text;
     }
 
     /**
