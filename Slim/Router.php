@@ -253,22 +253,18 @@ class Router implements RouterInterface
     }
 
     /**
-     * Build the path for a named route excluding the base path
+     * Build the path for a route pattern excluding the base path
      *
-     * @param string $name        Route name
+     * @param string $pattern     Route pattern
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function relativePathFor($name, array $data = [], array $queryParams = [])
+    public function parseRoutePattern($pattern, array $data = [], array $queryParams = [])
     {
-        $route = $this->getNamedRoute($name);
-        $pattern = $route->getPattern();
-
         $routeDatas = $this->routeParser->parse($pattern);
         // $routeDatas is an array of all possible routes that can be made. There is
         // one routedata for each optional parameter plus one for no optional parameters.
@@ -315,6 +311,27 @@ class Router implements RouterInterface
         return $url;
     }
 
+    /**
+     * Build the path for a named route excluding the base path
+     *
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
+     */
+    public function relativePathFor($name, array $data = [], array $queryParams = [])
+    {
+        $route = $this->getNamedRoute($name);
+        $pattern = $route->getPattern();
+
+        $url = $this->parseRoutePattern($pattern, $data, $queryParams);
+
+        return $url;
+    }
 
     /**
      * Build the path for a named route including the base path
