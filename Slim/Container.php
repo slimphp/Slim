@@ -9,10 +9,7 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\ContainerValueNotFoundException;
 
 /**
@@ -46,57 +43,20 @@ use Slim\Exception\ContainerValueNotFoundException;
 class Container extends PimpleContainer implements ContainerInterface
 {
     /**
-     * Default settings
-     *
-     * @var array
-     */
-    private $defaultSettings = [
-        'httpVersion' => '1.1',
-        'responseChunkSize' => 4096,
-        'outputBuffering' => 'append',
-        'determineRouteBeforeAppMiddleware' => false,
-        'displayErrorDetails' => false,
-    ];
-
-    /**
      * Create new container
      *
      * @param array $values The parameters or objects.
      */
     public function __construct(array $values = [])
     {
-        parent::__construct($values);
+        $userSettings = [];
+        if (isset($values['settings'])) {
+            $userSettings = $values['settings'];
 
-        $userSettings = isset($values['settings']) ? $values['settings'] : [];
-        $this->registerDefaultServices($userSettings);
-    }
+            unset($values['settings']);
+        }
 
-    /**
-     * This function registers the default services that Slim needs to work.
-     *
-     * All services are shared - that is, they are registered such that the
-     * same instance is returned on subsequent calls.
-     *
-     * @param array $userSettings Associative array of application settings
-     *
-     * @return void
-     */
-    private function registerDefaultServices($userSettings)
-    {
-        $defaultSettings = $this->defaultSettings;
-
-        /**
-         * This service MUST return an array or an
-         * instance of \ArrayAccess.
-         *
-         * @return array|\ArrayAccess
-         */
-        $this['settings'] = function () use ($userSettings, $defaultSettings) {
-            return new Collection(array_merge($defaultSettings, $userSettings));
-        };
-        
-        $defaultProvider = new DefaultServicesProvider();
-        $defaultProvider->register($this);
+        parent::__construct(array_merge(DefaultServicesProvider::getDefaultServices($userSettings), $values));
     }
 
     /********************************************************************************
@@ -108,8 +68,8 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @throws ContainerValueNotFoundException  No entry was found for this identifier.
-     * @throws ContainerException               Error while retrieving the entry.
+     * @throws \Slim\Exception\ContainerValueNotFoundException No entry was found for this identifier.
+     * @throws \Interop\Container\Exception\ContainerException Error while retrieving the entry.
      *
      * @return mixed Entry.
      */
