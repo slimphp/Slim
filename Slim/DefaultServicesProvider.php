@@ -11,6 +11,7 @@ namespace Slim;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\ContainerValueNotFoundException;
+use Slim\Handlers\PhpError;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
@@ -98,6 +99,27 @@ class DefaultServicesProvider
              */
             $container['foundHandler'] = function () {
                 return new RequestResponse;
+            };
+        }
+
+        if (!isset($container['phpErrorHandler'])) {
+            /**
+             * This service MUST return a callable
+             * that accepts three arguments:
+             *
+             * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+             * 2. Instance of \Psr\Http\Message\ResponseInterface
+             * 3. Instance of \Error
+             *
+             * The callable MUST return an instance of
+             * \Psr\Http\Message\ResponseInterface.
+             *
+             * @param Container $container
+             *
+             * @return callable
+             */
+            $container['phpErrorHandler'] = function ($container) {
+                return new PhpError($container->get('settings')['displayErrorDetails']);
             };
         }
 
