@@ -103,7 +103,7 @@ class Error
             $message .= $this->renderTextException($exception);
         }
 
-        $message .= 'View in rendered output by enabling the "displayErrrorDetails" setting.' . PHP_EOL;
+        $message .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
 
         error_log($message);
     }
