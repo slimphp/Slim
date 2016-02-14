@@ -11,3 +11,4 @@
 /.travis.yml        export-ignore
 /phpcs.xml          export-ignore
 /phpunit.xml.dist   export-ignore
+/.editorconfig      export-ignore
