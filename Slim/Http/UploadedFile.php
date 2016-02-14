@@ -24,6 +24,13 @@ use Psr\Http\Message\UploadedFileInterface;
 class UploadedFile implements UploadedFileInterface
 {
     /**
+     * The client-provided full path to the file
+     *
+     * @var string
+     */
+    protected $file;
+
+    /**
      * The client-provided file name.
      *
      * @var string
