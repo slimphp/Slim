@@ -29,7 +29,6 @@ class UploadedFile implements UploadedFileInterface
      * @var string
      */
     protected $file;
-
     /**
      * The client-provided file name.
      *
