@@ -9,8 +9,6 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Handlers\Error;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
@@ -19,10 +17,6 @@ use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
-use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\Http\EnvironmentInterface;
-use Slim\Interfaces\InvocationStrategyInterface;
-use Slim\Interfaces\RouterInterface;
 
 /**
  * Slim's default Service Provider.
