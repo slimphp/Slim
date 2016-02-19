@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Exception;
+use Throwable;
 use Closure;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
@@ -41,6 +42,7 @@ use Slim\Interfaces\RouterInterface;
  * @property-read ResponseInterface $response
  * @property-read RouterInterface $router
  * @property-read callable $errorHandler
+ * @property-read callable $phpErrorHandler
  * @property-read callable $notFoundHandler function($request, $response)
  * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
@@ -333,6 +335,8 @@ class App
             $response = $this->callMiddlewareStack($request, $response);
         } catch (Exception $e) {
             $response = $this->handleException($e, $request, $response);
+        } catch (Throwable $e) {
+            $response = $this->handlePhpError($e, $request, $response);
         }
 
         $response = $this->finalize($response);
@@ -590,6 +594,32 @@ class App
             $handler = 'errorHandler';
             $params = [$request, $response, $e];
         }
+
+        if ($this->container->has($handler)) {
+            $callable = $this->container->get($handler);
+            // Call the registered handler
+            return call_user_func_array($callable, $params);
+        }
+
+        // No handlers found, so just throw the exception
+        throw $e;
+    }
+
+    /**
+     * Call relevant handler from the Container if needed. If it doesn't exist,
+     * then just re-throw.
+     *
+     * @param  Throwable $e
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface $response
+     *
+     * @return ResponseInterface
+     * @throws Exception if a handler is needed and not found
+     */
+    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $handler = 'phpErrorHandler';
+        $params = [$request, $response, $e];
 
         if ($this->container->has($handler)) {
             $callable = $this->container->get($handler);
