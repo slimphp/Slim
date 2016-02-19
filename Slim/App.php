@@ -592,7 +592,7 @@ class App
         } else {
             // Determine if a handler is defined for the exception
             $handlers = $this->container->get('settings')['handlers'];
-            if (in_array(get_class($e, $handlers))
+            if (in_array(get_class($e), $handlers)
             {
               $handler = $settings['handlers'][get_class($e)];
             } else {
