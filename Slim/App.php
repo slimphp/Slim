@@ -590,8 +590,15 @@ class App
             // This is a Stop exception and contains the response
             return $e->getResponse();
         } else {
-            // Other exception, use $request and $response params
-            $handler = 'errorHandler';
+            // Determine if a handler is defined for the exception
+            $handlers = $this->container->get('settings')['handlers'];
+            if (in_array(get_class($e, $handlers))
+            {
+              $handler = $settings['handlers'][get_class($e)];
+            } else {
+              // Other exception, use $request and $response params
+              $handler = 'errorHandler';
+            }
             $params = [$request, $response, $e];
         }
 
