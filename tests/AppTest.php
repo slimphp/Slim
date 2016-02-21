@@ -26,6 +26,17 @@ use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setupBeforeClass()
+    {
+        // ini_set('log_errors', 0);
+        ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
+    }
+
+    public static function tearDownAfterClass()
+    {
+        // ini_set('log_errors', 1);
+    }
+
     public function testContainerInterfaceException()
     {
         $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
@@ -1560,6 +1571,23 @@ class AppTest extends \PHPUnit_Framework_TestCase
         } else {
             $this->assertTrue(true);
         }
+    }
+
+    public function testRespondIndeterminateLength()
+    {
+        $app = new App();
+        $body_stream = fopen('php://temp', 'r+');
+        $response = new Response();
+        $body = $this->getMockBuilder("\Slim\Http\Body")
+            ->setMethods(["getSize"])
+            ->setConstructorArgs([$body_stream])
+            ->getMock();
+        fwrite($body_stream, "Hello");
+        rewind($body_stream);
+        $body->method("getSize")->willReturn(null);
+        $response = $response->withBody($body);
+        $app->respond($response);
+        $this->expectOutputString("Hello");
     }
 
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()

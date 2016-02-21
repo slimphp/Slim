@@ -9,6 +9,7 @@
 namespace Slim\Tests;
 
 use Slim\Container;
+use Slim\DeferredCallable;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -204,10 +205,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function testControllerInContainer()
     {
-        $route = new Route(['GET'], '/', 'CallableTest:toCall');
 
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
+
+        $deferred = new DeferredCallable('CallableTest:toCall', $container);
+
+        $route = new Route(['GET'], '/', $deferred);
         $route->setContainer($container);
 
         $uri = Uri::createFromString('https://example.com:80');

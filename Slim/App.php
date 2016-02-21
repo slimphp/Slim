@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Exception;
+use Throwable;
 use Closure;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
@@ -41,12 +42,12 @@ use Slim\Interfaces\RouterInterface;
  * @property-read ResponseInterface $response
  * @property-read RouterInterface $router
  * @property-read callable $errorHandler
+ * @property-read callable $phpErrorHandler
  * @property-read callable $notFoundHandler function($request, $response)
  * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
 class App
 {
-    use CallableResolverAwareTrait;
     use MiddlewareAwareTrait;
 
     /**
@@ -99,18 +100,13 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  mixed    $callable The callback routine
+     * @param  callable|string    $callable The callback routine
      *
      * @return static
      */
     public function add($callable)
     {
-        $callable = $this->resolveCallable($callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->addMiddleware($callable);
+        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
     }
 
     /**
@@ -141,7 +137,7 @@ class App
      * Add GET route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -154,7 +150,7 @@ class App
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -167,7 +163,7 @@ class App
      * Add PUT route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -180,7 +176,7 @@ class App
      * Add PATCH route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -193,7 +189,7 @@ class App
      * Add DELETE route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -206,7 +202,7 @@ class App
      * Add OPTIONS route
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -219,7 +215,7 @@ class App
      * Add route for any HTTP method
      *
      * @param  string $pattern  The route URI pattern
-     * @param  mixed  $callable The route callback routine
+     * @param  callable|string  $callable The route callback routine
      *
      * @return \Slim\Interfaces\RouteInterface
      */
@@ -233,15 +229,13 @@ class App
      *
      * @param  string[] $methods  Numeric array of HTTP method names
      * @param  string   $pattern  The route URI pattern
-     * @param  mixed    $callable The route callback routine
+     * @param  callable|string    $callable The route callback routine
      *
      * @return RouteInterface
      */
     public function map(array $methods, $pattern, $callable)
     {
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
+        $callable = new DeferredCallable($callable, $this->container);
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
@@ -341,6 +335,8 @@ class App
             $response = $this->callMiddlewareStack($request, $response);
         } catch (Exception $e) {
             $response = $this->handleException($e, $request, $response);
+        } catch (Throwable $e) {
+            $response = $this->handlePhpError($e, $request, $response);
         }
 
         $response = $this->finalize($response);
@@ -385,16 +381,25 @@ class App
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
-            $totalChunks    = ceil($contentLength / $chunkSize);
-            $lastChunkSize  = $contentLength % $chunkSize;
-            $currentChunk   = 0;
-            while (!$body->eof() && $currentChunk < $totalChunks) {
-                if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
-                    $chunkSize = $lastChunkSize;
+            if (isset($contentLength)) {
+                $totalChunks    = ceil($contentLength / $chunkSize);
+                $lastChunkSize  = $contentLength % $chunkSize;
+                $currentChunk   = 0;
+                while (!$body->eof() && $currentChunk < $totalChunks) {
+                    if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
+                        $chunkSize = $lastChunkSize;
+                    }
+                    echo $body->read($chunkSize);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
-                echo $body->read($chunkSize);
-                if (connection_status() != CONNECTION_NORMAL) {
-                    break;
+            } else {
+                while (!$body->eof()) {
+                    echo $body->read($chunkSize);
+                    if (connection_status() != CONNECTION_NORMAL) {
+                        break;
+                    }
                 }
             }
         }
@@ -589,6 +594,32 @@ class App
             $handler = 'errorHandler';
             $params = [$request, $response, $e];
         }
+
+        if ($this->container->has($handler)) {
+            $callable = $this->container->get($handler);
+            // Call the registered handler
+            return call_user_func_array($callable, $params);
+        }
+
+        // No handlers found, so just throw the exception
+        throw $e;
+    }
+
+    /**
+     * Call relevant handler from the Container if needed. If it doesn't exist,
+     * then just re-throw.
+     *
+     * @param  Throwable $e
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface $response
+     *
+     * @return ResponseInterface
+     * @throws Exception if a handler is needed and not found
+     */
+    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $handler = 'phpErrorHandler';
+        $params = [$request, $response, $e];
 
         if ($this->container->has($handler)) {
             $callable = $this->container->get($handler);

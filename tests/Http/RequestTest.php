@@ -556,7 +556,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $cloneUri = $clone->getUri();
 
         $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
-        $this->assertAttributeEquals(['foo' => 'bar'], 'queryParams', $clone); // <-- Changed
+        $this->assertEquals(['foo' => 'bar'], $clone->getQueryParams()); // <-- Changed
+    }
+
+    public function testWithQueryParamsEmptyArray()
+    {
+        $request = $this->requestFactory();
+        $clone = $request->withQueryParams([]);
+        $cloneUri = $clone->getUri();
+
+        $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
+        $this->assertEquals([], $clone->getQueryParams()); // <-- Changed
     }
 
     public function testGetQueryParamsWithoutUri()
@@ -787,7 +797,43 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $clone = $this->requestFactory()->withParsedBody(['xyz' => '123']);
 
-        $this->assertAttributeEquals(['xyz' => '123'], 'bodyParsed', $clone);
+        $this->assertEquals(['xyz' => '123'], $clone->getParsedBody());
+    }
+
+    public function testWithParsedBodyEmptyArray()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+
+        $clone = $request->withParsedBody([]);
+
+        $this->assertEquals([], $clone->getParsedBody());
+    }
+
+    public function testWithParsedBodyNull()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+
+        $clone = $request->withParsedBody(null);
+
+        $this->assertNull($clone->getParsedBody());
     }
 
     /**
@@ -796,6 +842,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testWithParsedBodyInvalid()
     {
         $this->requestFactory()->withParsedBody(2);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithParsedBodyInvalidFalseValue()
+    {
+        $this->requestFactory()->withParsedBody(false);
     }
 
     /*******************************************************************************

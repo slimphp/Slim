@@ -38,6 +38,7 @@ class Cookies implements CookiesInterface
     protected $defaults = [
         'value' => '',
         'domain' => null,
+        'hostonly' => null,
         'path' => null,
         'expires' => null,
         'secure' => false,
@@ -139,6 +140,10 @@ class Cookies implements CookiesInterface
 
         if (isset($properties['secure']) && $properties['secure']) {
             $result .= '; secure';
+        }
+        
+        if (isset($properties['hostonly']) && $properties['hostonly']) {
+            $result .= '; HostOnly';
         }
 
         if (isset($properties['httponly']) && $properties['httponly']) {
