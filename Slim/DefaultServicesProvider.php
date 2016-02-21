@@ -83,10 +83,20 @@ class DefaultServicesProvider
              * This service MUST return a SHARED instance
              * of \Slim\Interfaces\RouterInterface.
              *
+             * @param Container $container
+             *
              * @return RouterInterface
              */
-            $container['router'] = function () {
-                return new Router;
+            $container['router'] = function ($container) {
+                if (is_null($container->get('settings')['routerCacheDisabled'])
+                    || $container->get('settings')['routerCacheDisabled']
+                ) {
+                    return new Router;
+                } else {
+                    return (new Router)
+                        ->setCacheDisabled(false)
+                        ->setCacheFile($container->get('settings')['routerCacheFile']);
+                }
             };
         }
 
