@@ -224,15 +224,15 @@ class PhpError
      */
     protected function renderJsonErrorMessage(Throwable $error)
     {
-        $error = [
+        $json = [
             'message' => 'Slim Application Error',
         ];
 
         if ($this->displayErrorDetails) {
-            $error['error'] = [];
+            $json['error'] = [];
 
             do {
-                $error['error'][] = [
+                $json['error'][] = [
                     'type' => get_class($error),
                     'code' => $error->getCode(),
                     'message' => $error->getMessage(),
@@ -243,7 +243,7 @@ class PhpError
             } while ($error = $error->getPrevious());
         }
 
-        return json_encode($error, JSON_PRETTY_PRINT);
+        return json_encode($json, JSON_PRETTY_PRINT);
     }
 
     /**
