@@ -23,7 +23,7 @@ use Slim\Interfaces\Http\HeadersInterface;
  *
  * This class represents an HTTP request. It manages
  * the request method, URI, headers, cookies, and body
- * according to the PRS-7 standard.
+ * according to the PSR-7 standard.
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
