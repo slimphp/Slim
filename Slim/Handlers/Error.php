@@ -30,6 +30,7 @@ class Error
      */
     protected $knownContentTypes = [
         'application/json',
+        'application/vnd.api+json',
         'application/xml',
         'text/xml',
         'text/html',
@@ -59,6 +60,7 @@ class Error
         $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
+            case 'application/vnd.api+json':
                 $output = $this->renderJsonErrorMessage($exception);
                 break;
 

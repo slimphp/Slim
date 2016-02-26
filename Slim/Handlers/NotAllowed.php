@@ -27,6 +27,7 @@ class NotAllowed
      */
     protected $knownContentTypes = [
         'application/json',
+        'application/vnd.api+json',
         'application/xml',
         'text/xml',
         'text/html',
@@ -52,6 +53,7 @@ class NotAllowed
             $contentType = $this->determineContentType($request);
             switch ($contentType) {
                 case 'application/json':
+                case 'application/vnd.api+json':
                     $output = $this->renderJsonNotAllowedMessage($methods);
                     break;
 

@@ -17,6 +17,7 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
     {
         return [
             ['application/json', '{'],
+            ['application/vnd.api+json', '{'],
             ['application/xml', '<root>'],
             ['text/xml', '<root>'],
             ['text/html', '<html>'],

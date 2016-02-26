@@ -197,6 +197,10 @@ class Request extends Message implements ServerRequestInterface
             return json_decode($input, true);
         });
 
+        $this->registerMediaTypeParser('application/vnd.api+json', function ($input) {
+            return json_decode($input, true);
+        });
+
         $this->registerMediaTypeParser('application/xml', function ($input) {
             $backup = libxml_disable_entity_loader(true);
             $result = simplexml_load_string($input);

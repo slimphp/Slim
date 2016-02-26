@@ -27,6 +27,7 @@ class NotFound
      */
     protected $knownContentTypes = [
         'application/json',
+        'application/vnd.api+json',
         'application/xml',
         'text/xml',
         'text/html',
@@ -45,6 +46,7 @@ class NotFound
         $contentType = $this->determineContentType($request);
         switch ($contentType) {
             case 'application/json':
+            case 'application/vnd.api+json':
                 $output = $this->renderJsonNotFoundOutput($request, $response);
                 break;
 
