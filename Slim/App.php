@@ -658,23 +658,26 @@ class App
             $environment = $this->container->get('environment');
         } else {
             $environment = new Environment($_SERVER);
-            // register our new environment with the Container for BC
-            if (!$this->container->has('environment')) {
-                $container['environment'] = function () {
-                    trigger_error(
-                        'Retrieving the environment from the container is deprecated; '
-                        . 'update your code to use the one within the Request object.',
-                        E_USER_DEPRECATED
-                    );
-                    return new Environment($_SERVER);
-                };
+
+            // register our new environment with the container for BC
+            if ($this->container instanceof \ArrayAccess) {
+                if (!$this->container->has('environment')) {
+                    $container['environment'] = function () {
+                        trigger_error(
+                            'Retrieving the environment from the container is deprecated; '
+                            . 'update your code to use the one within the Request object.',
+                            E_USER_DEPRECATED
+                        );
+                        return new Environment($_SERVER);
+                    };
+                }
             }
         }
 
         $request = Request::createFromEnvironment($environment);
 
+        // register our new request with the container for BC
         if ($this->container instanceof \ArrayAccess) {
-
             $container['request'] = function ($container) {
                 trigger_error(
                     'Retrieving the request from the container is deprecated; '
@@ -707,8 +710,8 @@ class App
         $response = new Response(200, $headers);
         $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
 
+        // register our new response with the container for BC
         if ($this->container instanceof \ArrayAccess) {
-            // register our new response with the Container for BC
             $container['response'] = function ($container) {
                 trigger_error(
                     'Retrieving the response from the container is deprecated; '
