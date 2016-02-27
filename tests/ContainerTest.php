@@ -27,7 +27,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet()
     {
-        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
+        $this->assertInstanceOf('\Slim\Router', $this->container->get('router'));
     }
 
 
