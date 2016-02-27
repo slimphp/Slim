@@ -662,13 +662,13 @@ class App
             // register our new environment with the container for BC
             if ($this->container instanceof \ArrayAccess) {
                 if (!$this->container->has('environment')) {
-                    $container['environment'] = function () {
+                    $container['environment'] = function () use ($environment) {
                         trigger_error(
                             'Retrieving the environment from the container is deprecated; '
                             . 'update your code to use the one within the Request object.',
                             E_USER_DEPRECATED
                         );
-                        return new Environment($_SERVER);
+                        return $environment;
                     };
                 }
             }
@@ -678,14 +678,14 @@ class App
 
         // register our new request with the container for BC
         if ($this->container instanceof \ArrayAccess) {
-            $container['request'] = function ($container) {
+            $container['request'] = function ($container) use ($request) {
                 trigger_error(
                     'Retrieving the request from the container is deprecated; '
                     . 'update your code to use the Request object that is passed through the middleware. '
                     . 'To use your own Request object, pass it in as the second parameter to run().',
                     E_USER_DEPRECATED
                 );
-                return Request::createFromEnvironment($container->get('environment'));
+                return $request;
             };
         }
 
@@ -712,7 +712,7 @@ class App
 
         // register our new response with the container for BC
         if ($this->container instanceof \ArrayAccess) {
-            $container['response'] = function ($container) {
+            $container['response'] = function ($container) use ($response) {
                 trigger_error(
                     'Retrieving the response from the container is deprecated; '
                     . 'update your code to use the Response object that is passed through the middleware. '
@@ -720,10 +720,7 @@ class App
                     E_USER_DEPRECATED
                 );
 
-                $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
-                $response = new Response(200, $headers);
-
-                return $response->withProtocolVersion($container->get('settings')['httpVersion']);
+                return $response;
             };
         }
     }
