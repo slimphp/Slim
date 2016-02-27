@@ -24,6 +24,8 @@ use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
+use Slim\Http\Response;
+use Slim\Http\Environment;
 use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -288,10 +290,17 @@ class App
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
-    public function run($silent = false)
+    public function run($silent = false, ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
+        if (!$request) {
+            $request = Request::createFromEnvironment(new Environment($_SERVER));
+        }
+
+        if (!$response) {
+            $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+            $response = new Response(200, $headers);
+            $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
+        }
 
         $response = $this->process($request, $response);
 
@@ -481,7 +490,7 @@ class App
         $bodyContent = '',
         ResponseInterface $response = null
     ) {
-        $env = $this->container->get('environment');
+        $env = new Environment($_SERVER);
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -491,7 +500,9 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+            $response = new Response(200, $headers);
+            $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
         }
 
         return $this($request, $response);
