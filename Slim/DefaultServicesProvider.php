@@ -45,6 +45,11 @@ class DefaultServicesProvider
              * @return EnvironmentInterface
              */
             $container['environment'] = function () {
+                trigger_error(
+                    'Retrieving the environment from the container is deprecated; '
+                    . 'update your code to use the one within the Request object.',
+                    E_USER_DEPRECATED
+                );
                 return new Environment($_SERVER);
             };
         }
@@ -58,6 +63,12 @@ class DefaultServicesProvider
              * @return ServerRequestInterface
              */
             $container['request'] = function ($container) {
+                trigger_error(
+                    'Retrieving the request from the container is deprecated; '
+                    . 'update your code to use the Request object that is passed through the middleware. '
+                    . 'To use your own Request object, pass it in as the second parameter to run().',
+                    E_USER_DEPRECATED
+                );
                 return Request::createFromEnvironment($container->get('environment'));
             };
         }
@@ -71,6 +82,13 @@ class DefaultServicesProvider
              * @return ResponseInterface
              */
             $container['response'] = function ($container) {
+                trigger_error(
+                    'Retrieving the response from the container is deprecated; '
+                    . 'update your code to use the Response object that is passed through the middleware. '
+                    . 'To use your own Response object, pass it in as the third parameter to run().',
+                    E_USER_DEPRECATED
+                );
+
                 $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
                 $response = new Response(200, $headers);
 
