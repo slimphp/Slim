@@ -47,7 +47,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRequest()
     {
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
+        @$this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
     }
 
     /**
@@ -55,7 +55,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetResponse()
     {
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
+        @$this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
     }
 
     /**
