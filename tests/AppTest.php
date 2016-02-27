@@ -1626,27 +1626,30 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
     }
 
-    public function appFactory()
+    /**
+     * Create a request object with default mock environment
+     *
+     * @param  Environment $env
+     * @return Request
+     */
+    public function requestFactory($env = null)
     {
-        $app = new App();
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
+        // Prepare request object
+        if (!$env) {
+            $env = Environment::mock([
+                'SCRIPT_NAME' => '/index.php',
+                'REQUEST_URI' => '/foo',
+                'REQUEST_METHOD' => 'GET',
+            ]);
+        }
         $uri = Uri::createFromEnvironment($env);
         $headers = Headers::createFromEnvironment($env);
         $cookies = [];
         $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
+        $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
 
-        return $app;
+        return $req;
     }
 
     /**
@@ -1657,7 +1660,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunExceptionNoHandler()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
 
         $container = $app->getContainer();
         unset($container['errorHandler']);
@@ -1668,12 +1673,15 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->add(function ($req, $res, $args) {
             throw new \Exception();
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
     }
 
     public function testRunSlimException()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
+
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
@@ -1681,7 +1689,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             $res->write("Failed");
             throw new SlimException($req, $res);
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
 
         $res->getBody()->rewind();
         $this->assertEquals(200, $res->getStatusCode());
@@ -1690,14 +1698,17 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testRunNotFound()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
+
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
         $app->add(function ($req, $res, $args) {
             throw new NotFoundException($req, $res);
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
 
         $this->assertEquals(404, $res->getStatusCode());
     }
@@ -1707,7 +1718,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunNotFoundWithoutHandler()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
+
         $container = $app->getContainer();
         unset($container['notFoundHandler']);
 
@@ -1717,21 +1731,24 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->add(function ($req, $res, $args) {
             throw new NotFoundException($req, $res);
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
     }
 
 
 
     public function testRunNotAllowed()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
+
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
         $app->add(function ($req, $res, $args) {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
 
         $this->assertEquals(405, $res->getStatusCode());
     }
@@ -1741,7 +1758,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
      */
     public function testRunNotAllowedWithoutHandler()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
+
         $container = $app->getContainer();
         unset($container['notAllowedHandler']);
 
@@ -1751,12 +1771,14 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->add(function ($req, $res, $args) {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
-        $res = $app->run(true);
+        $res = $app->run(true, $req, $res);
     }
 
     public function testAppRunWithdetermineRouteBeforeAppMiddleware()
     {
-        $app = $this->appFactory();
+        $app = new App();
+        $req = $this->requestFactory();
+        $res = new Response();
 
         $app->get('/foo', function ($req, $res) {
             return $res->write("Test");
@@ -1764,7 +1786,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app->getContainer()['settings']['determineRouteBeforeAppMiddleware'] = true;
 
-        $resOut = $app->run(true);
+        $resOut = $app->run(true, $req, $res);
         $resOut->getBody()->rewind();
         $this->assertEquals("Test", $resOut->getBody()->getContents());
     }
