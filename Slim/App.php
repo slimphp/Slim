@@ -293,13 +293,11 @@ class App
     public function run($silent = false, ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
         if (!$request) {
-            $request = Request::createFromEnvironment(new Environment($_SERVER));
+            $request = $this->createRequest();
         }
 
         if (!$response) {
-            $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
-            $response = new Response(200, $headers);
-            $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
+            $response = $this->createResponse();
         }
 
         $response = $this->process($request, $response);
@@ -640,5 +638,90 @@ class App
 
         // No handlers found, so just throw the exception
         throw $e;
+    }
+
+    /**
+     * Create request object. First look in the container. If one has been
+     * registered, then use it. Otherwise, create one and register it into
+     * the container with a deprecation notice.
+     *
+     * @return ServerRequestInterface
+     */
+    protected function createRequest()
+    {
+        if ($this->container->has('request')) {
+            // a request has been registered with the container, so use it.
+            return $this->container->get('request');
+        }
+
+        if ($this->container->has('environment')) {
+            $environment = $this->container->get('environment');
+        } else {
+            $environment = new Environment($_SERVER);
+            // register our new environment with the Container for BC
+            if (!$this->container->has('environment')) {
+                $container['environment'] = function () {
+                    trigger_error(
+                        'Retrieving the environment from the container is deprecated; '
+                        . 'update your code to use the one within the Request object.',
+                        E_USER_DEPRECATED
+                    );
+                    return new Environment($_SERVER);
+                };
+            }
+        }
+
+        $request = Request::createFromEnvironment($environment);
+
+        if ($this->container instanceof \ArrayAccess) {
+
+            $container['request'] = function ($container) {
+                trigger_error(
+                    'Retrieving the request from the container is deprecated; '
+                    . 'update your code to use the Request object that is passed through the middleware. '
+                    . 'To use your own Request object, pass it in as the second parameter to run().',
+                    E_USER_DEPRECATED
+                );
+                return Request::createFromEnvironment($container->get('environment'));
+            };
+        }
+
+        return $request;
+    }
+
+    /**
+     * Create response object. First look in the container. If one has been
+     * registered, then use it. Otherwise, create one and register it into
+     * the container with a deprecation notice.
+     *
+     * @return ServerRequestInterface
+     */
+    protected function createResponse()
+    {
+        if ($this->container->has('response')) {
+            // a response has been registered with the container, so use it.
+            return $this->container->get('response');
+        }
+
+        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $response = new Response(200, $headers);
+        $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
+
+        if ($this->container instanceof \ArrayAccess) {
+            // register our new response with the Container for BC
+            $container['response'] = function ($container) {
+                trigger_error(
+                    'Retrieving the response from the container is deprecated; '
+                    . 'update your code to use the Response object that is passed through the middleware. '
+                    . 'To use your own Response object, pass it in as the third parameter to run().',
+                    E_USER_DEPRECATED
+                );
+
+                $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+                $response = new Response(200, $headers);
+
+                return $response->withProtocolVersion($container->get('settings')['httpVersion']);
+            };
+        }
     }
 }

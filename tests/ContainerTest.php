@@ -43,22 +43,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test container has request
-     */
-    public function testGetRequest()
-    {
-        @$this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
-    }
-
-    /**
-     * Test container has response
-     */
-    public function testGetResponse()
-    {
-        @$this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
-    }
-
-    /**
      * Test container has router
      */
     public function testGetRouter()
