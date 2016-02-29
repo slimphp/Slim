@@ -18,6 +18,8 @@ use Interop\Container\ContainerInterface;
  */
 abstract class Routable
 {
+    use CallableResolverAwareTrait;
+    
     /**
      * Route callable
      *
