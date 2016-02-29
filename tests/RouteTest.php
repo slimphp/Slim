@@ -394,7 +394,9 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
-        $container['foundHandler'] = function () { return new InvocationStrategyTest(); };
+        $container['foundHandler'] = function () {
+            return new InvocationStrategyTest();
+        };
 
         $deferred = new DeferredCallable('CallableTest:toCall', $container);
 
