@@ -18,6 +18,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
@@ -383,5 +384,32 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $output = ob_get_clean();
         $this->assertEquals('foo', $output);
+    }
+
+
+    /**
+     * Ensure that `foundHandler` is called on actual callable if it's wrapped into DeferredCallable
+     */
+    public function testInvokeDeferredCallable()
+    {
+        $container = new Container();
+        $container['CallableTest'] = new CallableTest;
+        $container['foundHandler'] = function () {
+            return new InvocationStrategyTest();
+        };
+
+        $deferred = new DeferredCallable('CallableTest:toCall', $container);
+
+        $route = new Route(['GET'], '/', $deferred);
+        $route->setContainer($container);
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

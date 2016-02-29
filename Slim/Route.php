@@ -314,13 +314,19 @@ class Route extends Routable implements RouteInterface
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
+        if ($this->callable instanceof DeferredCallable) {
+            $callable = $this->callable->getResolvedCallable();
+        } else {
+            $callable = $this->callable;
+        }
+
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+            $newResponse = $handler($callable, $request, $response, $this->arguments);
         } else {
             try {
                 ob_start();
-                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+                $newResponse = $handler($callable, $request, $response, $this->arguments);
                 $output = ob_get_clean();
             } catch (Exception $e) {
                 ob_end_clean();
