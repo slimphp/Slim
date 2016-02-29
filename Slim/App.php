@@ -235,7 +235,9 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        $callable = new DeferredCallable($callable, $this->container);
+        if ($callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
 
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
