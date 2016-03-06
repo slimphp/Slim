@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithNoBasePath()
     {
         $this->router->setBasePath('');
@@ -104,7 +104,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithBasePath()
     {
         $methods = ['GET'];
@@ -159,6 +159,22 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             '/hello/josh?a=b&c=d',
             $this->router->pathFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
+        );
+    }
+
+    public function testPathForWithQueryParametersForPath()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{name}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s', $args['name']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/hello/josh?a=b',
+            $this->router->pathFor('foo', [], ['name' => 'josh', 'a' => 'b'])
         );
     }
 
