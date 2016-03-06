@@ -142,7 +142,7 @@ class Router implements RouterInterface
     public function dispatch(ServerRequestInterface $request)
     {
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-        
+
         return $this->createDispatcher()->dispatch(
             $request->getMethod(),
             $uri
@@ -276,7 +276,7 @@ class Router implements RouterInterface
         // The most specific is last, so we look for that first.
         $routeDatas = array_reverse($routeDatas);
 
-        $segments = [];
+        $segments = $params = [];
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {
@@ -286,15 +286,20 @@ class Router implements RouterInterface
                 }
 
                 // This segment has a parameter: first element is the name
-                if (!array_key_exists($item[0], $data)) {
+                if (array_key_exists($item[0], $data)) {
+                    $segments[] = $data[$item[0]];
+                } elseif (array_key_exists($item[0], $queryParams)) {
+                    $segments[] = $queryParams[$item[0]];
+                    $params[$item[0]] = null;
+                } else {
                     // we don't have a data element for this segment: cancel
                     // testing this routeData item, so that we can try a less
                     // specific routeData item.
-                    $segments = [];
+                    $segments = $params = [];
                     $segmentName = $item[0];
                     break;
                 }
-                $segments[] = $data[$item[0]];
+
             }
             if (!empty($segments)) {
                 // we found all the parameters for this route data, no need to check
@@ -307,6 +312,7 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
+        $queryParams = array_diff_key($queryParams, $params);
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
