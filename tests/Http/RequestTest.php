@@ -772,6 +772,29 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($request->getParsedBody());
     }
 
+    public function testGetParsedBodyAfterWithBody()
+    {
+        $uri = Uri::createFromString('https://example.com:443/?one=1');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded;charset=utf8',
+        ]);
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+
+        $newBody = new RequestBody();
+        $newBody->write('abc=123');
+        $newBody->rewind();
+        $request = $request->withBody($newBody);
+
+        $this->assertEquals(['abc' => '123'], $request->getParsedBody());
+    }
+
     /**
      * @expectedException \RuntimeException
      */
