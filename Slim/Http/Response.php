@@ -125,6 +125,7 @@ class Response extends Message implements ResponseInterface
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
         $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
+        $this->detect = new \Mobile_Detect;
     }
 
     /**
@@ -256,6 +257,114 @@ class Response extends Message implements ResponseInterface
     public function write($data)
     {
         $this->getBody()->write($data);
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for desktop calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writeDesktop($data)
+    {
+        if (!$this->detect->isMobile()) {
+            $this->getBody()->write($data);
+        }
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for mobile (phone and tablets) calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writeMobile($data)
+    {
+        if ($this->detect->isMobile()) {
+            $this->getBody()->write($data);
+        }
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for phone (no tablets) calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writePhone($data)
+    {
+        if ($this->detect->isMobile() && !$this->detect->isTablet()) {
+            $this->getBody()->write($data);
+        }
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for tablet (no phones) calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writeTablet($data)
+    {
+        if ($this->detect->isTablet()) {
+            $this->getBody()->write($data);
+        }
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for IOS calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writeIOS($data)
+    {
+        if ($this->detect->isiOS()) {
+            $this->getBody()->write($data);
+        }
+
+        return $this;
+    }
+    /**
+     * Write data to the response body only for Android calls.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * Proxies to the underlying stream and writes the provided data to it.
+     *
+     * @param string $data
+     * @return self
+     */
+    public function writeAndroidOS($data)
+    {
+        if ($this->detect->isAndroidOS()) {
+            $this->getBody()->write($data);
+        }
 
         return $this;
     }

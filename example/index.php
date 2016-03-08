@@ -32,8 +32,14 @@ $app->get('/', function ($request, $response, $args) {
 });
 
 $app->get('/hello[/{name}]', function ($request, $response, $args) {
-    $response->write("Hello, " . $args['name']);
-    return $response;
+	$response->write("Hello " . $args['name']);
+	$response->writeDesktop(" from desktop");
+	$response->writeMobile(" from mobile");
+	$response->writePhone(" on a phone");
+	$response->writeTablet(" on a tablet");
+	$response->writeIOS(" with iOS");
+	$response->writeAndroid(" with Android");
+	return $response;
 })->setArgument('name', 'World!');
 
 /**
