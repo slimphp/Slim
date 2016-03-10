@@ -498,9 +498,7 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
-            $response = new Response(200, $headers);
-            $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
+            $response = $this->createResponse();
         }
 
         return $this($request, $response);
