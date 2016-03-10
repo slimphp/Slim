@@ -721,5 +721,7 @@ class App
                 return $response;
             };
         }
+
+        return $response;
     }
 }
