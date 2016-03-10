@@ -978,9 +978,10 @@ class Request extends Message implements ServerRequestInterface
                 );
             }
             $this->bodyParsed = $parsed;
+            return $this->bodyParsed;
         }
 
-        return $this->bodyParsed;
+        return null;
     }
 
     /**
