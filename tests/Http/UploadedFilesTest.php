@@ -223,7 +223,6 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
             ],
             // nested array of files: <input name="files[details][avatar][]" type="file">
             [
-                // $_FILES array
                 [
                     'files' => [
                         'tmp_name' => [
