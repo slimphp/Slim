@@ -20,9 +20,9 @@ use Slim\Http\Uri;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function requestFactory()
+    public function requestFactory($envData = [])
     {
-        $env = Environment::mock();
+        $env = Environment::mock($envData);
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = Headers::createFromEnvironment($env);
@@ -834,6 +834,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $clone = $request->withParsedBody(null);
 
         $this->assertNull($clone->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoBodyData()
+    {
+        $request = $this->requestFactory(['REQUEST_METHOD' => 'POST']);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoMediaTypeParserRegistered()
+    {
+        $request = $this->requestFactory([
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'text/csv',
+        ]);
+        $request->getBody()->write('foo,bar,baz');
+
+        $this->assertNull($request->getParsedBody());
     }
 
     /**
