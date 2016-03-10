@@ -290,6 +290,10 @@ abstract class Message implements MessageInterface
         $clone = clone $this;
         $clone->body = $body;
 
+        if (property_exists($clone, 'bodyParsed')) {
+            $clone->bodyParsed = false;
+        }
+
         return $clone;
     }
 }
