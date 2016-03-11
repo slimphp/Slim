@@ -256,18 +256,19 @@ class Router implements RouterInterface
      * Build the path for a named route excluding the base path
      *
      * @param string $name        Route name
-     * @param array  $data        Named argument replacement data
-     * @param array  $queryParams Optional query string parameters
+     * @param array  $params      URL and query parameters
+     * @param array  $deprecated  Only for BC. Use $params instead
      *
      * @return string
      *
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function relativePathFor($name, array $data = [], array $queryParams = [])
+    public function relativePathFor($name, array $params = [], array $deprecated = [])
     {
         $route = $this->getNamedRoute($name);
         $pattern = $route->getPattern();
+        $params = $params + $deprecated;
 
         $routeDatas = $this->routeParser->parse($pattern);
         // $routeDatas is an array of all possible routes that can be made. There is
@@ -276,7 +277,8 @@ class Router implements RouterInterface
         // The most specific is last, so we look for that first.
         $routeDatas = array_reverse($routeDatas);
 
-        $segments = $params = [];
+        $args = [];
+        $segments = [];
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {
@@ -286,20 +288,19 @@ class Router implements RouterInterface
                 }
 
                 // This segment has a parameter: first element is the name
-                if (array_key_exists($item[0], $data)) {
-                    $segments[] = $data[$item[0]];
-                } elseif (array_key_exists($item[0], $queryParams)) {
-                    $segments[] = $queryParams[$item[0]];
-                    $params[$item[0]] = null;
-                } else {
-                    // we don't have a data element for this segment: cancel
-                    // testing this routeData item, so that we can try a less
-                    // specific routeData item.
-                    $segments = $params = [];
-                    $segmentName = $item[0];
-                    break;
+                if (array_key_exists($item[0], $params)) {
+                    $segments[] = $params[$item[0]];
+                    $args[$item[0]] = null;
+                    continue;
                 }
 
+                // we don't have a data element for this segment: cancel
+                // testing this routeData item, so that we can try a less
+                // specific routeData item.
+                $args = [];
+                $segments = [];
+                $segmentName = $item[0];
+                break;
             }
             if (!empty($segments)) {
                 // we found all the parameters for this route data, no need to check
@@ -312,7 +313,7 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
-        $queryParams = array_diff_key($queryParams, $params);
+        $queryParams = array_diff_key($params, $args);
 
         if ($queryParams) {
             $url .= '?' . http_build_query($queryParams);
