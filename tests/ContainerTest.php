@@ -27,7 +27,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGet()
     {
-        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
+        $this->assertInstanceOf('\Slim\Router', $this->container->get('router'));
     }
 
 
@@ -40,22 +40,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     public function testGetWithError()
     {
         $this->container->get('foo');
-    }
-
-    /**
-     * Test container has request
-     */
-    public function testGetRequest()
-    {
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
-    }
-
-    /**
-     * Test container has response
-     */
-    public function testGetResponse()
-    {
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
     }
 
     /**

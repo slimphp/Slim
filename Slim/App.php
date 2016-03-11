@@ -24,6 +24,8 @@ use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
+use Slim\Http\Response;
+use Slim\Http\Environment;
 use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -290,10 +292,15 @@ class App
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
-    public function run($silent = false)
+    public function run($silent = false, ServerRequestInterface $request = null, ResponseInterface $response = null)
     {
-        $request = $this->container->get('request');
-        $response = $this->container->get('response');
+        if (!$request) {
+            $request = $this->createRequest();
+        }
+
+        if (!$response) {
+            $response = $this->createResponse();
+        }
 
         $response = $this->process($request, $response);
 
@@ -483,7 +490,7 @@ class App
         $bodyContent = '',
         ResponseInterface $response = null
     ) {
-        $env = $this->container->get('environment');
+        $env = new Environment($_SERVER);
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -493,7 +500,7 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $response = $this->createResponse();
         }
 
         return $this($request, $response);
@@ -631,5 +638,92 @@ class App
 
         // No handlers found, so just throw the exception
         throw $e;
+    }
+
+    /**
+     * Create request object. First look in the container. If one has been
+     * registered, then use it. Otherwise, create one and register it into
+     * the container with a deprecation notice.
+     *
+     * @return ServerRequestInterface
+     */
+    protected function createRequest()
+    {
+        if ($this->container->has('request')) {
+            // a request has been registered with the container, so use it.
+            return $this->container->get('request');
+        }
+
+        if ($this->container->has('environment')) {
+            $environment = $this->container->get('environment');
+        } else {
+            $environment = new Environment($_SERVER);
+
+            // register our new environment with the container for BC
+            if ($this->container instanceof \ArrayAccess) {
+                if (!$this->container->has('environment')) {
+                    $container['environment'] = function () use ($environment) {
+                        trigger_error(
+                            'Retrieving the environment from the container is deprecated; '
+                            . 'update your code to use the one within the Request object.',
+                            E_USER_DEPRECATED
+                        );
+                        return $environment;
+                    };
+                }
+            }
+        }
+
+        $request = Request::createFromEnvironment($environment);
+
+        // register our new request with the container for BC
+        if ($this->container instanceof \ArrayAccess) {
+            $container['request'] = function ($container) use ($request) {
+                trigger_error(
+                    'Retrieving the request from the container is deprecated; '
+                    . 'update your code to use the Request object that is passed through the middleware. '
+                    . 'To use your own Request object, pass it in as the second parameter to run().',
+                    E_USER_DEPRECATED
+                );
+                return $request;
+            };
+        }
+
+        return $request;
+    }
+
+    /**
+     * Create response object. First look in the container. If one has been
+     * registered, then use it. Otherwise, create one and register it into
+     * the container with a deprecation notice.
+     *
+     * @return ServerRequestInterface
+     */
+    protected function createResponse()
+    {
+        if ($this->container->has('response')) {
+            // a response has been registered with the container, so use it.
+            return $this->container->get('response');
+        }
+
+        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $response = new Response(200, $headers);
+        $response = $response->withProtocolVersion($this->container->get('settings')['httpVersion']);
+
+        // register our new response with the container for BC
+        if ($this->container instanceof \ArrayAccess) {
+            $container['response'] = function ($container) use ($response) {
+                trigger_error(
+                    'Retrieving the response from the container is deprecated; '
+                    . 'update your code to use the Response object that is passed through the middleware. '
+                    . 'To use your own Response object, pass it in as the third parameter to run().',
+                    E_USER_DEPRECATED
+                );
+
+                return $response;
+            };
+        }
+
+        return $response;
     }
 }
