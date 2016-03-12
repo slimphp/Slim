@@ -128,6 +128,8 @@ class Container extends PimpleContainer implements ContainerInterface
                     null,
                     $exception
                 );
+            } else {
+                throw $exception;
             }
         }
     }
@@ -142,7 +144,7 @@ class Container extends PimpleContainer implements ContainerInterface
      */
     private function exceptionThrownByContainer(\InvalidArgumentException $exception)
     {
-        return preg_match('/^Identifier ".*" is not defined.$/', $exception->getMessage());
+        return preg_match('/^Identifier ".*" is not defined\.$/', $exception->getMessage());
     }
 
     /**
