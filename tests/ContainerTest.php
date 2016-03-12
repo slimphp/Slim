@@ -9,6 +9,7 @@
 namespace Slim\Tests;
 
 use Slim\Container;
+use Interop\Container\ContainerInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -35,11 +36,61 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Slim\Exception\ContainerValueNotFoundException
+     * @expectedException \Interop\Container\Exception\NotFoundException
      */
-    public function testGetWithError()
+    public function testGetWithValueNotFoundError()
     {
         $this->container->get('foo');
+    }
+
+    /**
+     * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
+     * config error
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container->get('doesnt-exist');
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * in the DI config
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container['doesnt-exist'];
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` does not recast exceptions which are thrown in a factory closure
+     *
+     * @expectedException \UnexpectedValueException
+     */
+    public function testGetWithErrorThrownByFactoryClosure()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                throw new \UnexpectedValueException();
+            }
+        ;
+        $container->get('foo');
     }
 
     /**
