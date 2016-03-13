@@ -659,16 +659,14 @@ class App
 
             // register our new environment with the container for BC
             if ($this->container instanceof \ArrayAccess) {
-                if (!$this->container->has('environment')) {
-                    $container['environment'] = function () use ($environment) {
-                        trigger_error(
-                            'Retrieving the environment from the container is deprecated; '
-                            . 'update your code to use the one within the Request object.',
-                            E_USER_DEPRECATED
-                        );
-                        return $environment;
-                    };
-                }
+                $container['environment'] = function () use ($environment) {
+                    trigger_error(
+                        'Retrieving the environment from the container is deprecated; '
+                        . 'update your code to use the one within the Request object.',
+                        E_USER_DEPRECATED
+                    );
+                    return $environment;
+                };
             }
         }
 
