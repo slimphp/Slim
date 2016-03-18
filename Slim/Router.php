@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
@@ -56,13 +56,6 @@ class Router implements RouterInterface
      * @var int
      */
     protected $routeCounter = 0;
-
-    /**
-     * Named routes
-     *
-     * @var null|Route[]
-     */
-    protected $namedRoutes;
 
     /**
      * Route groups
@@ -199,13 +192,12 @@ class Router implements RouterInterface
      */
     public function getNamedRoute($name)
     {
-        if (is_null($this->namedRoutes)) {
-            $this->buildNameIndex();
+        foreach ($this->routes as $route) {
+            if ($name == $route->getName()) {
+                return $route;
+            }
         }
-        if (!isset($this->namedRoutes[$name])) {
-            throw new RuntimeException('Named route does not exist for name: ' . $name);
-        }
-        return $this->namedRoutes[$name];
+        throw new RuntimeException('Named route does not exist for name: ' . $name);
     }
 
     /**
@@ -365,19 +357,5 @@ class Router implements RouterInterface
     {
         trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
         return $this->pathFor($name, $data, $queryParams);
-    }
-
-    /**
-     * Build index of named routes
-     */
-    protected function buildNameIndex()
-    {
-        $this->namedRoutes = [];
-        foreach ($this->routes as $route) {
-            $name = $route->getName();
-            if ($name) {
-                $this->namedRoutes[$name] = $route;
-            }
-        }
     }
 }

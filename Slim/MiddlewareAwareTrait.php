@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
@@ -51,7 +51,7 @@ trait MiddlewareAwareTrait
      * @return static
      *
      * @throws RuntimeException         If middleware is added while the stack is dequeuing
-     * @throws UnexpectedValueException If the middleware doesn't return an instance of \Psr\Http\Message\ResponseInterface
+     * @throws UnexpectedValueException If the middleware doesn't return a Psr\Http\Message\ResponseInterface
      */
     protected function addMiddleware(callable $callable)
     {
@@ -66,7 +66,9 @@ trait MiddlewareAwareTrait
         $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
             $result = call_user_func($callable, $req, $res, $next);
             if ($result instanceof ResponseInterface === false) {
-                throw new UnexpectedValueException('Middleware must return instance of \Psr\Http\Message\ResponseInterface');
+                throw new UnexpectedValueException(
+                    'Middleware must return instance of \Psr\Http\Message\ResponseInterface'
+                );
             }
 
             return $result;

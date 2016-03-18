@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 
@@ -20,9 +20,9 @@ use Slim\Http\Uri;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function requestFactory()
+    public function requestFactory($envData = [])
     {
-        $env = Environment::mock();
+        $env = Environment::mock($envData);
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = Headers::createFromEnvironment($env);
@@ -556,7 +556,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $cloneUri = $clone->getUri();
 
         $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
-        $this->assertAttributeEquals(['foo' => 'bar'], 'queryParams', $clone); // <-- Changed
+        $this->assertEquals(['foo' => 'bar'], $clone->getQueryParams()); // <-- Changed
+    }
+
+    public function testWithQueryParamsEmptyArray()
+    {
+        $request = $this->requestFactory();
+        $clone = $request->withQueryParams([]);
+        $cloneUri = $clone->getUri();
+
+        $this->assertEquals('abc=123', $cloneUri->getQuery()); // <-- Unchanged
+        $this->assertEquals([], $clone->getQueryParams()); // <-- Changed
     }
 
     public function testGetQueryParamsWithoutUri()
@@ -762,6 +772,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($request->getParsedBody());
     }
 
+    public function testGetParsedBodyAfterCallReparseBody()
+    {
+        $uri = Uri::createFromString('https://example.com:443/?one=1');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded;charset=utf8',
+        ]);
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+
+        $newBody = new RequestBody();
+        $newBody->write('abc=123');
+        $newBody->rewind();
+        $request = $request->withBody($newBody);
+        $request->reparseBody();
+
+        $this->assertEquals(['abc' => '123'], $request->getParsedBody());
+    }
+
     /**
      * @expectedException \RuntimeException
      */
@@ -787,7 +821,61 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $clone = $this->requestFactory()->withParsedBody(['xyz' => '123']);
 
-        $this->assertAttributeEquals(['xyz' => '123'], 'bodyParsed', $clone);
+        $this->assertEquals(['xyz' => '123'], $clone->getParsedBody());
+    }
+
+    public function testWithParsedBodyEmptyArray()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+
+        $clone = $request->withParsedBody([]);
+
+        $this->assertEquals([], $clone->getParsedBody());
+    }
+
+    public function testWithParsedBodyNull()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/x-www-form-urlencoded;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+
+        $clone = $request->withParsedBody(null);
+
+        $this->assertNull($clone->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoBodyData()
+    {
+        $request = $this->requestFactory(['REQUEST_METHOD' => 'POST']);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoMediaTypeParserRegistered()
+    {
+        $request = $this->requestFactory([
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'text/csv',
+        ]);
+        $request->getBody()->write('foo,bar,baz');
+
+        $this->assertNull($request->getParsedBody());
     }
 
     /**
@@ -796,6 +884,14 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     public function testWithParsedBodyInvalid()
     {
         $this->requestFactory()->withParsedBody(2);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithParsedBodyInvalidFalseValue()
+    {
+        $this->requestFactory()->withParsedBody(false);
     }
 
     /*******************************************************************************
@@ -814,11 +910,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $request->getParam('foo'));
     }
 
+    public function testGetParameterFromBodyWithBodyParemeterHelper()
+    {
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = $this->requestFactory()
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
+    }
+
     public function testGetParameterFromQuery()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         $this->assertEquals('123', $request->getParam('abc'));
+    }
+
+    public function testGetParameterFromQueryWithQueryParemeterHelper()
+    {
+        $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals('123', $request->getQueryParam('abc'));
     }
 
     public function testGetParameterFromBodyOverQuery()
@@ -866,5 +981,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                    ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
         $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
+    }
+
+    /*******************************************************************************
+     * Protocol
+     ******************************************************************************/
+
+    public function testGetProtocolVersion()
+    {
+        $env = Environment::mock(['SERVER_PROTOCOL' => 'HTTP/1.0']);
+        $request = Request::createFromEnvironment($env);
+
+        $this->assertEquals('1.0', $request->getProtocolVersion());
     }
 }

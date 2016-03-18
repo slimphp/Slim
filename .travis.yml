@@ -15,7 +15,7 @@ before_script:
 script:
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then mkdir -p build/logs && phpunit --coverage-clover build/logs/clover.xml ; fi
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then phpunit ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpcs --standard=PSR2 --ignore=vendor/* -n -p . ; fi
+  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpcs ; fi
 
 after_script:
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls -v ; fi

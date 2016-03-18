@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 
@@ -26,6 +26,17 @@ use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setupBeforeClass()
+    {
+        // ini_set('log_errors', 0);
+        ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
+    }
+
+    public static function tearDownAfterClass()
+    {
+        // ini_set('log_errors', 1);
+    }
+
     public function testContainerInterfaceException()
     {
         $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
@@ -972,7 +983,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
-        $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
+        $this->assertContains(
+            '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
+            (string)$resOut->getBody()
+        );
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notAllowedHandler']);
@@ -1559,6 +1573,23 @@ class AppTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testRespondIndeterminateLength()
+    {
+        $app = new App();
+        $body_stream = fopen('php://temp', 'r+');
+        $response = new Response();
+        $body = $this->getMockBuilder("\Slim\Http\Body")
+            ->setMethods(["getSize"])
+            ->setConstructorArgs([$body_stream])
+            ->getMock();
+        fwrite($body_stream, "Hello");
+        rewind($body_stream);
+        $body->method("getSize")->willReturn(null);
+        $response = $response->withBody($body);
+        $app->respond($response);
+        $this->expectOutputString("Hello");
+    }
+
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
@@ -1827,5 +1858,14 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response = $app->notFoundHandler($request, $response);
 
         $this->assertSame(404, $response->getStatusCode());
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testCallingAnUnknownContainerCallableThrows()
+    {
+        $app = new App();
+        $app->foo('bar');
     }
 }

@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
@@ -25,7 +25,10 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
     //         'httponly' => true
     //     ]);
 
-    //     $this->assertEquals('bar; domain=example.com; path=/foo; expires=' . gmdate('D, d-M-Y H:i:s e', $expiresAt) . '; secure; HttpOnly', $result);
+    //     $this->assertEquals(
+    //         'bar; domain=example.com; path=/foo; expires='
+    //         . gmdate('D, d-M-Y H:i:s e', $expiresAt)
+    //         . '; secure; HttpOnly', $result);
     // }
 
     // /**
@@ -93,6 +96,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $defaults = [
             'value' => 'toast',
             'domain' => null,
+            'hostonly' => null,
             'path' => null,
             'expires' => null,
             'secure' => true,
