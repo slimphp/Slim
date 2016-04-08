@@ -209,10 +209,10 @@ class Router implements RouterInterface
      */
     public function removeNamedRoute($name)
     {
-    	$route = $this->getNamedRoute($name);
-    	
-    	/* no exception, route exists, now remove by id */
-    	unset($this->routes[$route->getIdentifier()]);
+        $route = $this->getNamedRoute($name);
+
+        // no exception, route exists, now remove by id
+        unset($this->routes[$route->getIdentifier()]);
     }
 
     /**
