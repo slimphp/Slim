@@ -236,22 +236,22 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $route1 = $this->router->map($methods, '/foo', $callable);
         $route1->setName('foo');
-    	
+
         $route2 = $this->router->map($methods, '/bar', $callable);
         $route2->setName('bar');
-    	
+
         $route3 = $this->router->map($methods, '/fizz', $callable);
         $route3->setName('fizz');
-    	
+
         $route4 = $this->router->map($methods, '/buzz', $callable);
         $route4->setName('buzz');
    
         $routeToRemove = $this->router->getNamedRoute('fizz');
-    	
+
         $routeCountBefore = count($this->router->getRoutes());
         $this->router->removeNamedRoute($routeToRemove->getName());
         $routeCountAfter = count($this->router->getRoutes());
-    	
+
         // Assert number of routes is now less by 1
         $this->assertEquals(
             ($routeCountBefore - 1),
