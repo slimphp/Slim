@@ -230,7 +230,8 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $methods = ['GET'];
         $callable = function ($request, $response, $args) {
             echo sprintf('Hello ignore me');
-    };
+        };
+        
         $this->router->setBasePath('/base/path');
 
         $route1 = $this->router->map($methods, '/foo', $callable);
@@ -259,7 +260,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         // Simple test that the correct route was removed
         $this->assertEquals(
-        $this->router->getNamedRoute('foo')->getName(),
+            $this->router->getNamedRoute('foo')->getName(),
             'foo'
         );
 
