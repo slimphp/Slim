@@ -286,7 +286,7 @@ class Error
      * @param ServerRequestInterface $request
      * @return string
      */
-    private function determineContentType(ServerRequestInterface $request)
+    protected function determineContentType(ServerRequestInterface $request)
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
