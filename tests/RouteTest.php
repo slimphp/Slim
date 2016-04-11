@@ -408,4 +408,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Slim\Http\Response', $result);
         $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
+    
+    /**
+     * Ensure that the pattern can be dynamically changed
+     */
+    public function testPatternCanBeChanged()
+    {
+        $route = $this->routeFactory();
+        $route->setPattern('/hola/{nombre}');
+        $this->assertEquals('/hola/{nombre}', $route->getPattern());
+    }
 }

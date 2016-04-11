@@ -93,4 +93,14 @@ abstract class Routable
         $this->middleware[] = new DeferredCallable($callable, $this->container);
         return $this;
     }
+    
+    /**
+     * Set the route pattern
+     *
+     * @set string
+     */
+    public function setPattern($newPattern)
+    {
+        $this->pattern = $newPattern;
+    }
 }
