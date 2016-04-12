@@ -1596,6 +1596,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
             'settings' => ['responseChunkSize' => Mocks\SmallChunksStream::CHUNK_SIZE * 2]
         ]);
         $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+            
             return $res;
         });
 
