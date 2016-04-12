@@ -384,14 +384,13 @@ class App
                 $contentLength = $body->getSize();
             }
             if (isset($contentLength)) {
-                $totalChunks    = ceil($contentLength / $chunkSize);
-                $lastChunkSize  = $contentLength % $chunkSize;
-                $currentChunk   = 0;
-                while (!$body->eof() && $currentChunk < $totalChunks) {
-                    if (++$currentChunk == $totalChunks && $lastChunkSize > 0) {
-                        $chunkSize = $lastChunkSize;
-                    }
-                    echo $body->read($chunkSize);
+                $amountToRead = $contentLength;
+                while ($amountToRead > 0 && !$body->eof()) {
+                    $data = $body->read($chunkSize);
+                    echo $data;
+                    
+                    $amountToRead -= strlen($data);
+                                        
                     if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }

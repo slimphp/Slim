@@ -1589,6 +1589,38 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->respond($response);
         $this->expectOutputString("Hello");
     }
+    
+    public function testResponseWithStreamReadYieldingLessBytesThanAsked()
+    {
+        $app = new App([
+            'settings' => ['responseChunkSize' => Mocks\SmallChunksStream::CHUNK_SIZE * 2]
+        ]);
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Mocks\SmallChunksStream();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = (new Response())->withBody($body);
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
+    }
 
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
