@@ -14,8 +14,8 @@ use Psr\Http\Message\StreamInterface;
 /**
  * A mock stream interface that yields small chunks when reading
  */
-class SmallChunksStream implements StreamInterface {
-    
+class SmallChunksStream implements StreamInterface 
+{    
     const CHUNK_SIZE = 10;
     const SIZE = 40;
     
@@ -24,61 +24,62 @@ class SmallChunksStream implements StreamInterface {
      */
     private $amountToRead;
     
-    public function __construct() 
+    public function __construct()
     {
        $this->amountToRead = self::SIZE;
     }
     
-    public function __toString() 
+    public function __toString()
     {
         throw new \Exception('not implemented');
     }
 
-    public function close() 
+    public function close()
     {
         
     }
 
-    public function detach() 
+    public function detach()
     {
         throw new \Exception('not implemented');        
     }
 
-    public function eof() 
+    public function eof()
     {
         return $this->amountToRead === 0;
     }
 
-    public function getContents() 
+    public function getContents()
     {
         throw new \Exception('not implemented');        
     }
 
-    public function getMetadata($key = null) 
+    public function getMetadata($key = null)
     {
         throw new \Exception('not implemented');        
     }
 
-    public function getSize() 
+    public function getSize()
     {
         return self::SIZE;
     }
 
-    public function isReadable() 
+    public function isReadable()
     {
         return true;
     }
 
-    public function isSeekable() {
+    public function isSeekable()
+            {
         return false;
     }
 
-    public function isWritable() 
+    public function isWritable()
     {
         return false;
     }
 
-    public function read($length) 
+    public function read($length)
     {
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
@@ -86,23 +87,23 @@ class SmallChunksStream implements StreamInterface {
         return str_repeat('.', min($length, self::CHUNK_SIZE));
     }
 
-    public function rewind() 
+    public function rewind()
     {
         throw new \Exception('not implemented');
     }
 
-    public function seek($offset, $whence = SEEK_SET) 
+    public function seek($offset, $whence = SEEK_SET)
     {
         throw new \Exception('not implemented');        
     }
 
-    public function tell() 
+    public function tell()
     {
         throw new \Exception('not implemented');        
     }
 
-    public function write($string) 
+    public function write($string)
     {
-//        throw new \Exception('not implemented');        
+        return $string;
     }
 }
