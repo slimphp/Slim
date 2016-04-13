@@ -14,8 +14,8 @@ use Psr\Http\Message\StreamInterface;
 /**
  * A mock stream interface that yields small chunks when reading
  */
-class SmallChunksStream implements StreamInterface 
-{    
+class SmallChunksStream implements StreamInterface
+{
     const CHUNK_SIZE = 10;
     const SIZE = 40;
     
@@ -26,7 +26,7 @@ class SmallChunksStream implements StreamInterface
     
     public function __construct()
     {
-       $this->amountToRead = self::SIZE;
+        $this->amountToRead = self::SIZE;
     }
     
     public function __toString()
@@ -41,7 +41,7 @@ class SmallChunksStream implements StreamInterface
 
     public function detach()
     {
-        throw new \Exception('not implemented');        
+        throw new \Exception('not implemented');
     }
 
     public function eof()
@@ -51,12 +51,12 @@ class SmallChunksStream implements StreamInterface
 
     public function getContents()
     {
-        throw new \Exception('not implemented');        
+        throw new \Exception('not implemented');
     }
 
     public function getMetadata($key = null)
     {
-        throw new \Exception('not implemented');        
+        throw new \Exception('not implemented');
     }
 
     public function getSize()
@@ -70,7 +70,7 @@ class SmallChunksStream implements StreamInterface
     }
 
     public function isSeekable()
-            {
+    {
         return false;
     }
 
@@ -94,12 +94,12 @@ class SmallChunksStream implements StreamInterface
 
     public function seek($offset, $whence = SEEK_SET)
     {
-        throw new \Exception('not implemented');        
+        throw new \Exception('not implemented');
     }
 
     public function tell()
     {
-        throw new \Exception('not implemented');        
+        throw new \Exception('not implemented');
     }
 
     public function write($string)
