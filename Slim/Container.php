@@ -57,6 +57,8 @@ class Container extends PimpleContainer implements ContainerInterface
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
+        'routerCacheDisabled' => true,
+        'routerCacheFile' => '',
     ];
 
     /**
@@ -95,7 +97,7 @@ class Container extends PimpleContainer implements ContainerInterface
         $this['settings'] = function () use ($userSettings, $defaultSettings) {
             return new Collection(array_merge($defaultSettings, $userSettings));
         };
-        
+
         $defaultProvider = new DefaultServicesProvider();
         $defaultProvider->register($this);
     }

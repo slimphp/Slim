@@ -45,6 +45,20 @@ class Router implements RouterInterface
     protected $basePath = '';
 
     /**
+     * Fast route cache is disabled
+     *
+     * @var bool
+     */
+    protected $cacheDisabled = true;
+
+    /**
+     * Path to fast route cache file
+     *
+     * @var string
+     */
+    protected $cacheFile;
+
+    /**
      * Routes
      *
      * @var Route[]
@@ -98,6 +112,42 @@ class Router implements RouterInterface
     }
 
     /**
+     * Enable/disable route cache
+     *
+     * @param bool $cacheDisabled
+     *
+     * @return self
+     */
+    public function setCacheDisabled($cacheDisabled)
+    {
+        $this->cacheDisabled = $cacheDisabled;
+
+        return $this;
+    }
+
+    /**
+     * Set path to fast route cache file
+     *
+     * @param string $cacheFile
+     *
+     * @return self
+     */
+    public function setCacheFile($cacheFile)
+    {
+        if (!is_string($cacheFile)) {
+            throw new InvalidArgumentException('Router cacheFile must be a string');
+        }
+
+        if (!is_writable(dirname($cacheFile))) {
+            throw new RuntimeException('Router cacheFile directory must be writable');
+        }
+
+        $this->cacheFile = $cacheFile;
+
+        return $this;
+    }
+
+    /**
      * Add route
      *
      * @param  string[] $methods Array of HTTP methods
@@ -142,7 +192,7 @@ class Router implements RouterInterface
     public function dispatch(ServerRequestInterface $request)
     {
         $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-        
+
         return $this->createDispatcher()->dispatch(
             $request->getMethod(),
             $uri
@@ -154,13 +204,29 @@ class Router implements RouterInterface
      */
     protected function createDispatcher()
     {
-        return $this->dispatcher ?: \FastRoute\simpleDispatcher(function (RouteCollector $r) {
-            foreach ($this->getRoutes() as $route) {
-                $r->addRoute($route->getMethods(), $route->getPattern(), $route->getIdentifier());
-            }
-        }, [
-          'routeParser' => $this->routeParser
-        ]);
+        if (!$this->cacheDisabled && is_null($this->cacheFile)) {
+            throw new RuntimeException('Router cache enabled but cacheFile not set');
+        }
+
+        return $this->dispatcher ?: call_user_func_array(
+            '\FastRoute\\' . (!$this->cacheDisabled ? 'cachedDispatcher' : 'simpleDispatcher'),
+            [
+                function (RouteCollector $routeCollector) {
+                    foreach ($this->getRoutes() as $route) {
+                        $routeCollector->addRoute(
+                            $route->getMethods(),
+                            $route->getPattern(),
+                            $route->getIdentifier()
+                        );
+                    }
+                },
+                [
+                    'routeParser' => $this->routeParser,
+                    'cacheFile' => $this->cacheFile,
+                    'cacheDisabled' => $this->cacheDisabled,
+                ],
+            ]
+        );
     }
 
     /**

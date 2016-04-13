@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithNoBasePath()
     {
         $this->router->setBasePath('');
@@ -104,7 +104,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithBasePath()
     {
         $methods = ['GET'];
@@ -220,5 +220,65 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
+    }
+
+    /**
+     * Test cacheFile should be a string
+     */
+    public function testSettingInvalidCacheFileNotString()
+    {
+        $this->setExpectedException(
+            '\InvalidArgumentException',
+            'Router cacheFile must be a string'
+        );
+        $this->router->setCacheFile(['invalid']);
+    }
+
+    /**
+     * Test if cacheFile is not a writable directory
+     */
+    public function testSettingInvalidCacheFileNotExisting()
+    {
+        $this->setExpectedException(
+            '\RuntimeException',
+            'Router cacheFile directory must be writable'
+        );
+
+        $this->router->setCacheFile(
+            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+        );
+    }
+
+    /**
+     * Test if cache is enabled but cache file is not set
+     */
+    public function testCacheFileNotSetButCacheEnabled()
+    {
+        $this->setExpectedException(
+            '\RuntimeException',
+            'Router cache enabled but cacheFile not set'
+        );
+
+        $this->router->setCacheDisabled(false);
+
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+        $method->invoke($this->router);
+    }
+
+    /**
+     * Test route dispatcher is created in case of route cache
+     */
+    public function testCreateDispatcherWithRouteCache()
+    {
+        $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
+        $this->router->setCacheDisabled(false);
+        $this->router->setCacheFile($cacheFile);
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+        unlink($cacheFile);
     }
 }
