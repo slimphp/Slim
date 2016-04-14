@@ -16,10 +16,12 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
     public function invalidMethodProvider()
     {
         return [
-            ['application/json', '{'],
-            ['application/xml', '<root>'],
-            ['text/xml', '<root>'],
-            ['text/html', '<html>'],
+            ['application/json', 'application/json', '{'],
+            ['application/vnd.api+json', 'application/json', '{'],
+            ['application/xml', 'application/xml', '<root>'],
+            ['application/hal+xml', 'application/xml', '<root>'],
+            ['text/xml', 'text/xml', '<root>'],
+            ['text/html', 'text/html', '<html>'],
         ];
     }
 
@@ -28,12 +30,12 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider invalidMethodProvider
      */
-    public function testInvalidMethod($contentType, $startOfBody)
+    public function testInvalidMethod($acceptHeader, $contentType, $startOfBody)
     {
         $notAllowed = new NotAllowed();
 
         /** @var Response $res */
-        $res = $notAllowed->__invoke($this->getRequest('GET', $contentType), new Response(), ['POST', 'PUT']);
+        $res = $notAllowed->__invoke($this->getRequest('GET', $acceptHeader), new Response(), ['POST', 'PUT']);
 
         $this->assertSame(405, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
