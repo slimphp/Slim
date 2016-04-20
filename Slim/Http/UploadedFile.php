@@ -12,6 +12,7 @@ use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use Slim\Collection;
 
 /**
  * Represents Uploaded Files.
@@ -78,10 +79,11 @@ class UploadedFile implements UploadedFileInterface
      * Create a normalized tree of UploadedFile instances from the Environment.
      *
      * @param Environment $env The environment
+     * @param Collection $settings The settings
      *
      * @return array|null A normalized tree of UploadedFile instances or null if none are provided.
      */
-    public static function createFromEnvironment(Environment $env)
+    public static function createFromEnvironment(Environment $env, Collection $settings)
     {
         if (is_array($env['slim.files']) && $env->has('slim.files')) {
             return $env['slim.files'];
@@ -96,10 +98,11 @@ class UploadedFile implements UploadedFileInterface
      * Parse a non-normalized, i.e. $_FILES superglobal, tree of uploaded file data.
      *
      * @param array $uploadedFiles The non-normalized tree of uploaded file data.
+     * @param Collection $settings The $settings
      *
      * @return array A normalized tree of UploadedFile instances.
      */
-    private static function parseUploadedFiles(array $uploadedFiles)
+    private static function parseUploadedFiles(array $uploadedFiles, Collection $settings)
     {
         $parsed = [];
         foreach ($uploadedFiles as $field => $uploadedFile) {
