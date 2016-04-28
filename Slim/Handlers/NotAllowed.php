@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Handlers;
@@ -90,6 +90,14 @@ class NotAllowed
 
         if (count($selectedContentTypes)) {
             return $selectedContentTypes[0];
+        }
+
+        // handle +json and +xml specially
+        if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
+            $mediaType = 'application/' . $matches[1];
+            if (in_array($mediaType, $this->knownContentTypes)) {
+                return $mediaType;
+            }
         }
 
         return 'text/html';

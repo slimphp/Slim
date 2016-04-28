@@ -3,33 +3,94 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
 use Slim\Container;
+use Interop\Container\ContainerInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
+    public function setUp()
+    {
+        $this->container = new Container;
+    }
+
     /**
      * Test `get()` returns existing item
      */
     public function testGet()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Http\Environment', $c->get('environment'));
+        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
     }
+
+
 
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Slim\Exception\ContainerValueNotFoundException
+     * @expectedException \Interop\Container\Exception\NotFoundException
      */
-    public function testGetWithError()
+    public function testGetWithValueNotFoundError()
     {
-        $c = new Container;
-        $c->get('foo');
+        $this->container->get('foo');
+    }
+
+    /**
+     * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
+     * config error
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container->get('doesnt-exist');
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * in the DI config
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container['doesnt-exist'];
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` does not recast exceptions which are thrown in a factory closure
+     *
+     * @expectedException \UnexpectedValueException
+     */
+    public function testGetWithErrorThrownByFactoryClosure()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                throw new \UnexpectedValueException();
+            }
+        ;
+        $container->get('foo');
     }
 
     /**
@@ -37,8 +98,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRequest()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $c['request']);
+        $this->assertInstanceOf('\Psr\Http\Message\RequestInterface', $this->container['request']);
     }
 
     /**
@@ -46,8 +106,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetResponse()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $c['response']);
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $this->container['response']);
     }
 
     /**
@@ -55,8 +114,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetRouter()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Router', $c['router']);
+        $this->assertInstanceOf('\Slim\Router', $this->container['router']);
     }
 
     /**
@@ -64,8 +122,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetErrorHandler()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\Error', $c['errorHandler']);
+        $this->assertInstanceOf('\Slim\Handlers\Error', $this->container['errorHandler']);
     }
 
     /**
@@ -73,8 +130,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNotAllowedHandler()
     {
-        $c = new Container;
-        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $c['notAllowedHandler']);
+        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $this->container['notAllowedHandler']);
     }
 
     /**
@@ -82,10 +138,22 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testSettingsCanBeEdited()
     {
-        $c = new Container;
-        $this->assertSame('1.1', $c->get('settings')['httpVersion']);
+        $this->assertSame('1.1', $this->container->get('settings')['httpVersion']);
 
-        $c->get('settings')['httpVersion'] = '1.2';
-        $this->assertSame('1.2', $c->get('settings')['httpVersion']);
+        $this->container->get('settings')['httpVersion'] = '1.2';
+        $this->assertSame('1.2', $this->container->get('settings')['httpVersion']);
+    }
+
+    //Test __isset
+    public function testMagicIssetMethod()
+    {
+        $this->assertEquals(true, $this->container->__isset('settings'));
+    }
+
+    //test __get
+    public function testMagicGetMethod()
+    {
+        $this->container->get('settings')['httpVersion'] = '1.2';
+        $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
 }

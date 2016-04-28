@@ -3,12 +3,13 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
 use Slim\Container;
+use Slim\DeferredCallable;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -17,6 +18,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 
 class RouteTest extends \PHPUnit_Framework_TestCase
@@ -110,6 +112,25 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $prop->getValue($route));
     }
 
+    public function testRefinalizing()
+    {
+        $route = $this->routeFactory();
+
+        $mw = function ($req, $res, $next) {
+            return $res;
+        };
+        $route->add($mw);
+
+        $route->finalize();
+        $route->finalize();
+
+        $prop = new \ReflectionProperty($route, 'stack');
+        $prop->setAccessible(true);
+
+        $this->assertCount(2, $prop->getValue($route));
+    }
+
+
     public function testIdentifier()
     {
         $route = $this->routeFactory();
@@ -184,10 +205,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
     public function testControllerInContainer()
     {
-        $route = new Route(['GET'], '/', 'CallableTest:toCall');
 
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
+
+        $deferred = new DeferredCallable('CallableTest:toCall', $container);
+
+        $route = new Route(['GET'], '/', $deferred);
         $route->setContainer($container);
 
         $uri = Uri::createFromString('https://example.com:80');
@@ -307,6 +331,30 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @expectedException \Exception
+     */
+    public function testInvokeWithException()
+    {
+        $callable = function ($req, $res, $args) {
+            throw new \Exception();
+        };
+        $route = new Route(['GET'], '/', $callable);
+
+
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = new Response;
+
+        $response = $route->__invoke($request, $response);
+    }
+
+
+    /**
      * Ensure that if `outputBuffering` property is set to `false` correct response
      * body is returned by __invoke().
      */
@@ -335,5 +383,29 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $output = ob_get_clean();
         $this->assertEquals('foo', $output);
+    }
+
+    /**
+     * Ensure that `foundHandler` is called on actual callable
+     */
+    public function testInvokeDeferredCallable()
+    {
+        $container = new Container();
+        $container['CallableTest'] = new CallableTest;
+        $container['foundHandler'] = function () {
+            return new InvocationStrategyTest();
+        };
+
+        $route = new Route(['GET'], '/', 'CallableTest:toCall');
+        $route->setContainer($container);
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

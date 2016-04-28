@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="Slim coding standard">
+    <description>Slim coding standard</description>
+
+    <!-- display progress -->
+    <arg value="p"/>
+    <!-- use colors in output -->
+    <arg name="colors"/>
+
+    <!-- inherit rules from: -->
+    <rule ref="PSR2"/>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+    <!-- Paths to check -->
+    <file>Slim</file>
+    <file>tests</file>
+</ruleset>

@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
@@ -27,7 +27,7 @@ trait CallableResolverAwareTrait
      * Resolve a string of the format 'class:method' into a closure that the
      * router can dispatch.
      *
-     * @param mixed $callable
+     * @param callable|string $callable
      *
      * @return \Closure
      *

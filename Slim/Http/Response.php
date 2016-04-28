@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Http;
@@ -98,6 +98,7 @@ class Response extends Message implements ResponseInterface
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
+        451 => 'Unavailable For Legal Reasons',
         //Server Error 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -291,15 +292,25 @@ class Response extends Message implements ResponseInterface
      * @param  mixed  $data   The data
      * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
+     * @throws \RuntimeException
      * @return self
      */
-    public function withJson($data, $status = 200, $encodingOptions = 0)
+    public function withJson($data, $status = null, $encodingOptions = 0)
     {
         $body = $this->getBody();
         $body->rewind();
-        $body->write(json_encode($data, $encodingOptions));
+        $body->write($json = json_encode($data, $encodingOptions));
 
-        return $this->withStatus($status)->withHeader('Content-Type', 'application/json;charset=utf-8');
+        // Ensure that the json encoding passed successfully
+        if ($json === false) {
+            throw new \RuntimeException(json_last_error_msg(), json_last_error());
+        }
+
+        $responseWithJson = $this->withHeader('Content-Type', 'application/json;charset=utf-8');
+        if (isset($status)) {
+            return $responseWithJson->withStatus($status);
+        }
+        return $responseWithJson;
     }
 
     /**

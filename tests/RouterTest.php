@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
@@ -220,5 +220,70 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testRemoveRoute()
+    {
+        $methods = ['GET'];
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello ignore me');
+        };
+        
+        $this->router->setBasePath('/base/path');
+
+        $route1 = $this->router->map($methods, '/foo', $callable);
+        $route1->setName('foo');
+
+        $route2 = $this->router->map($methods, '/bar', $callable);
+        $route2->setName('bar');
+
+        $route3 = $this->router->map($methods, '/fizz', $callable);
+        $route3->setName('fizz');
+
+        $route4 = $this->router->map($methods, '/buzz', $callable);
+        $route4->setName('buzz');
+   
+        $routeToRemove = $this->router->getNamedRoute('fizz');
+
+        $routeCountBefore = count($this->router->getRoutes());
+        $this->router->removeNamedRoute($routeToRemove->getName());
+        $routeCountAfter = count($this->router->getRoutes());
+
+        // Assert number of routes is now less by 1
+        $this->assertEquals(
+            ($routeCountBefore - 1),
+            $routeCountAfter
+        );
+
+        // Simple test that the correct route was removed
+        $this->assertEquals(
+            $this->router->getNamedRoute('foo')->getName(),
+            'foo'
+        );
+
+        $this->assertEquals(
+            $this->router->getNamedRoute('bar')->getName(),
+            'bar'
+        );
+
+        $this->assertEquals(
+            $this->router->getNamedRoute('buzz')->getName(),
+            'buzz'
+        );
+
+        // Exception thrown here, route no longer exists
+        $this->router->getNamedRoute($routeToRemove->getName());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testRouteRemovalNotExists()
+    {
+        $this->router->setBasePath('/base/path');
+        $this->router->removeNamedRoute('non-existing-route-name');
     }
 }

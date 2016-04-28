@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
@@ -75,6 +75,7 @@ class Route extends Routable implements RouteInterface
      * @param string[]     $methods The route HTTP methods
      * @param string       $pattern The route pattern
      * @param callable     $callable The route callable
+     * @param int          $identifier The route identifier
      * @param RouteGroup[] $groups The parent route groups
      */
     public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)

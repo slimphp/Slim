@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Handlers;
@@ -16,10 +16,12 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     public function errorProvider()
     {
         return [
-            ['application/json', '{'],
-            ['application/xml', '<error>'],
-            ['text/xml', '<error>'],
-            ['text/html', '<html>'],
+            ['application/json', 'application/json', '{'],
+            ['application/vnd.api+json', 'application/json', '{'],
+            ['application/xml', 'application/xml', '<error>'],
+            ['application/hal+xml', 'application/xml', '<error>'],
+            ['text/xml', 'text/xml', '<error>'],
+            ['text/html', 'text/html', '<html>'],
         ];
     }
 
@@ -28,13 +30,13 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider errorProvider
      */
-    public function testError($contentType, $startOfBody)
+    public function testError($acceptHeader, $contentType, $startOfBody)
     {
-        $notAllowed = new Error();
-        $e  = new \Exception("Oops");
+        $error = new Error();
+        $e = new \Exception("Oops");
 
         /** @var Response $res */
-        $res = $notAllowed->__invoke($this->getRequest('GET', $contentType), new Response(), $e);
+        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -45,10 +47,10 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      * @param string $method
      * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
      */
-    protected function getRequest($method, $contentType = 'text/html')
+    protected function getRequest($method, $acceptHeader)
     {
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->once())->method('getHeaderLine')->will($this->returnValue($contentType));
+        $req->expects($this->once())->method('getHeaderLine')->will($this->returnValue($acceptHeader));
 
         return $req;
     }

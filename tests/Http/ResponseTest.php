@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
@@ -305,5 +305,24 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('{"foo":"bar1\u0026bar2"}', $dataJson);
         $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
+
+        $response = $response->withStatus(201)->withJson([]);
+        $this->assertEquals($response->getStatusCode(), 201);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testWithInvalidJsonThrowsException()
+    {
+        $data = ['foo' => 'bar'.chr(233)];
+        $this->assertEquals('bar'.chr(233), $data['foo']);
+        
+        $response = new Response();
+        $response->withJson($data, 200);
+
+        // Safety net: this assertion should not occur, since the RuntimeException
+        // must have been caught earlier by the test framework
+        $this->assertFalse(true);
     }
 }

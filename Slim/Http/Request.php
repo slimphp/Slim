@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Http;
@@ -23,7 +23,7 @@ use Slim\Interfaces\Http\HeadersInterface;
  *
  * This class represents an HTTP request. It manages
  * the request method, URI, headers, cookies, and body
- * according to the PRS-7 standard.
+ * according to the PSR-7 standard.
  *
  * @link https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php
@@ -92,7 +92,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @var null|array|object
      */
-    protected $bodyParsed;
+    protected $bodyParsed = false;
 
     /**
      * List of request body parsers (e.g., url-encoded, JSON, XML, multipart)
@@ -167,8 +167,15 @@ class Request extends Message implements ServerRequestInterface
      * @param StreamInterface  $body          The request body object
      * @param array            $uploadedFiles The request uploadedFiles collection
      */
-    public function __construct($method, UriInterface $uri, HeadersInterface $headers, array $cookies, array $serverParams, StreamInterface $body, array $uploadedFiles = [])
-    {
+    public function __construct(
+        $method,
+        UriInterface $uri,
+        HeadersInterface $headers,
+        array $cookies,
+        array $serverParams,
+        StreamInterface $body,
+        array $uploadedFiles = []
+    ) {
         $this->originalMethod = $this->filterMethod($method);
         $this->uri = $uri;
         $this->headers = $headers;
@@ -177,6 +184,10 @@ class Request extends Message implements ServerRequestInterface
         $this->attributes = new Collection();
         $this->body = $body;
         $this->uploadedFiles = $uploadedFiles;
+
+        if (isset($serverParams['SERVER_PROTOCOL'])) {
+            $this->protocolVersion = str_replace('HTTP/', '', $serverParams['SERVER_PROTOCOL']);
+        }
 
         if (!$this->headers->has('Host') || $this->uri->getHost() !== '') {
             $this->headers->set('Host', $this->uri->getHost());
@@ -240,9 +251,9 @@ class Request extends Message implements ServerRequestInterface
                 $body = $this->getParsedBody();
 
                 if (is_object($body) && property_exists($body, '_METHOD')) {
-                    $this->method = $this->filterMethod($body->_METHOD);
+                    $this->method = $this->filterMethod((string)$body->_METHOD);
                 } elseif (is_array($body) && isset($body['_METHOD'])) {
-                    $this->method = $this->filterMethod($body['_METHOD']);
+                    $this->method = $this->filterMethod((string)$body['_METHOD']);
                 }
 
                 if ($this->getBody()->eof()) {
@@ -286,7 +297,7 @@ class Request extends Message implements ServerRequestInterface
         $method = $this->filterMethod($method);
         $clone = clone $this;
         $clone->originalMethod = $method;
-        $clone->method = null; // <-- Force method override recalculation
+        $clone->method = $method;
 
         return $clone;
     }
@@ -716,7 +727,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getQueryParams()
     {
-        if ($this->queryParams) {
+        if (is_array($this->queryParams)) {
             return $this->queryParams;
         }
 
@@ -947,7 +958,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function getParsedBody()
     {
-        if ($this->bodyParsed) {
+        if ($this->bodyParsed !== false) {
             return $this->bodyParsed;
         }
 
@@ -956,18 +967,27 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $mediaType = $this->getMediaType();
-        $body = (string)$this->getBody();
+
+        // look for a media type with a structured syntax suffix (RFC 6839)
+        $parts = explode('+', $mediaType);
+        if (count($parts) >= 2) {
+            $mediaType = 'application/' . $parts[count($parts)-1];
+        }
 
         if (isset($this->bodyParsers[$mediaType]) === true) {
+            $body = (string)$this->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
-                throw new RuntimeException('Request body media type parser return value must be an array, an object, or null');
+                throw new RuntimeException(
+                    'Request body media type parser return value must be an array, an object, or null'
+                );
             }
             $this->bodyParsed = $parsed;
+            return $this->bodyParsed;
         }
 
-        return $this->bodyParsed;
+        return null;
     }
 
     /**
@@ -1008,6 +1028,20 @@ class Request extends Message implements ServerRequestInterface
         $clone->bodyParsed = $data;
 
         return $clone;
+    }
+
+    /**
+     * Force Body to be parsed again.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @return self
+     */
+    public function reparseBody()
+    {
+        $this->bodyParsed = false;
+
+        return $this;
     }
 
     /**
@@ -1059,7 +1093,53 @@ class Request extends Message implements ServerRequestInterface
     }
 
     /**
+     * Fetch parameter value from request body.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @param      $key
+     * @param null $default
+     *
+     * @return null
+     */
+    public function getParsedBodyParam($key, $default = null)
+    {
+        $postParams = $this->getParsedBody();
+        $result = $default;
+        if (is_array($postParams) && isset($postParams[$key])) {
+            $result = $postParams[$key];
+        } elseif (is_object($postParams) && property_exists($postParams, $key)) {
+            $result = $postParams->$key;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Fetch parameter value from query string.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @param      $key
+     * @param null $default
+     *
+     * @return null
+     */
+    public function getQueryParam($key, $default = null)
+    {
+        $getParams = $this->getQueryParams();
+        $result = $default;
+        if (isset($getParams[$key])) {
+            $result = $getParams[$key];
+        }
+
+        return $result;
+    }
+
+    /**
      * Fetch assocative array of body and query string parameters.
+     *
+     * Note: This method is not part of the PSR-7 standard.
      *
      * @return array
      */

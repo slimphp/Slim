@@ -3,7 +3,7 @@
  * Slim Framework (http://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2015 Josh Lockhart
+ * @copyright Copyright (c) 2011-2016 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
  */
 
@@ -11,6 +11,9 @@ namespace Slim\Tests;
 
 use Slim\App;
 use Slim\Container;
+use Slim\Exception\MethodNotAllowedException;
+use Slim\Exception\NotFoundException;
+use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -23,6 +26,17 @@ use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setupBeforeClass()
+    {
+        // ini_set('log_errors', 0);
+        ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
+    }
+
+    public static function tearDownAfterClass()
+    {
+        // ini_set('log_errors', 1);
+    }
+
     public function testContainerInterfaceException()
     {
         $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
@@ -969,7 +983,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
-        $this->assertContains('<p>Method not allowed. Must be one of: <strong>GET</strong></p>', (string)$resOut->getBody());
+        $this->assertContains(
+            '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
+            (string)$resOut->getBody()
+        );
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notAllowedHandler']);
@@ -1434,6 +1451,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     // TODO: Test run()
 
+
     public function testRespond()
     {
         $app = new App();
@@ -1555,6 +1573,57 @@ class AppTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testRespondIndeterminateLength()
+    {
+        $app = new App();
+        $body_stream = fopen('php://temp', 'r+');
+        $response = new Response();
+        $body = $this->getMockBuilder("\Slim\Http\Body")
+            ->setMethods(["getSize"])
+            ->setConstructorArgs([$body_stream])
+            ->getMock();
+        fwrite($body_stream, "Hello");
+        rewind($body_stream);
+        $body->method("getSize")->willReturn(null);
+        $response = $response->withBody($body);
+        $app->respond($response);
+        $this->expectOutputString("Hello");
+    }
+    
+    public function testResponseWithStreamReadYieldingLessBytesThanAsked()
+    {
+        $app = new App([
+            'settings' => ['responseChunkSize' => Mocks\SmallChunksStream::CHUNK_SIZE * 2]
+        ]);
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+            
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Mocks\SmallChunksStream();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = (new Response())->withBody($body);
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
+    }
+
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
@@ -1590,6 +1659,151 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
     }
+
+    public function appFactory()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        return $app;
+    }
+
+    /**
+     * @throws \Exception
+     * @throws \Slim\Exception\MethodNotAllowedException
+     * @throws \Slim\Exception\NotFoundException
+     * @expectedException \Exception
+     */
+    public function testRunExceptionNoHandler()
+    {
+        $app = $this->appFactory();
+
+        $container = $app->getContainer();
+        unset($container['errorHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new \Exception();
+        });
+        $res = $app->run(true);
+    }
+
+    public function testRunSlimException()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            $res->write("Failed");
+            throw new SlimException($req, $res);
+        });
+        $res = $app->run(true);
+
+        $res->getBody()->rewind();
+        $this->assertEquals(200, $res->getStatusCode());
+        $this->assertEquals("Failed", $res->getBody()->getContents());
+    }
+
+    public function testRunNotFound()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new NotFoundException($req, $res);
+        });
+        $res = $app->run(true);
+
+        $this->assertEquals(404, $res->getStatusCode());
+    }
+
+    /**
+     * @expectedException \Slim\Exception\NotFoundException
+     */
+    public function testRunNotFoundWithoutHandler()
+    {
+        $app = $this->appFactory();
+        $container = $app->getContainer();
+        unset($container['notFoundHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new NotFoundException($req, $res);
+        });
+        $res = $app->run(true);
+    }
+
+
+
+    public function testRunNotAllowed()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new MethodNotAllowedException($req, $res, ['POST']);
+        });
+        $res = $app->run(true);
+
+        $this->assertEquals(405, $res->getStatusCode());
+    }
+
+    /**
+     * @expectedException \Slim\Exception\MethodNotAllowedException
+     */
+    public function testRunNotAllowedWithoutHandler()
+    {
+        $app = $this->appFactory();
+        $container = $app->getContainer();
+        unset($container['notAllowedHandler']);
+
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new MethodNotAllowedException($req, $res, ['POST']);
+        });
+        $res = $app->run(true);
+    }
+
+    public function testAppRunWithdetermineRouteBeforeAppMiddleware()
+    {
+        $app = $this->appFactory();
+
+        $app->get('/foo', function ($req, $res) {
+            return $res->write("Test");
+        });
+
+        $app->getContainer()['settings']['determineRouteBeforeAppMiddleware'] = true;
+
+        $resOut = $app->run(true);
+        $resOut->getBody()->rewind();
+        $this->assertEquals("Test", $resOut->getBody()->getContents());
+    }
+
+
 
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
@@ -1678,5 +1892,14 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response = $app->notFoundHandler($request, $response);
 
         $this->assertSame(404, $response->getStatusCode());
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testCallingAnUnknownContainerCallableThrows()
+    {
+        $app = new App();
+        $app->foo('bar');
     }
 }
