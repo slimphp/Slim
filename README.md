@@ -73,6 +73,7 @@ $ phpunit
 
    ```
    open browser using localhost:8888
+   you can see 'Welcome to Slim!'
    ```
 
 ## Contributing
