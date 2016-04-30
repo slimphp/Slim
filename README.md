@@ -53,6 +53,28 @@ To execute the test suite, you'll need phpunit.
 $ phpunit
 ```
 
+## Run example
+
+ - Install composer
+
+   ```
+   $ cd Slim
+   $ composer install
+   ```
+
+ - Run php server
+
+   ```
+   $ cd Slim
+   $ php -S localhost:8888 -t example example/index.php
+   ```
+
+ - Open browser
+
+   ```
+   open browser using localhost:8888
+   ```
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
