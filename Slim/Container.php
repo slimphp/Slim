@@ -57,6 +57,7 @@ class Container extends PimpleContainer implements ContainerInterface
         'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
+        'omitContentLength' => false
     ];
 
     /**
