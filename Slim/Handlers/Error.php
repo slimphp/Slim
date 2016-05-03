@@ -295,6 +295,14 @@ class Error
             return $selectedContentTypes[0];
         }
 
+        // handle +json and +xml specially
+        if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
+            $mediaType = 'application/' . $matches[1];
+            if (in_array($mediaType, $this->knownContentTypes)) {
+                return $mediaType;
+            }
+        }
+
         return 'text/html';
     }
 }

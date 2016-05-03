@@ -45,8 +45,8 @@
     },
     "scripts": {
         "test": [
-            "php vendor/bin/phpcs",
-            "php vendor/bin/phpunit"
+            "@phpunit",
+            "@phpcs"
         ],
         "phpunit": "php vendor/bin/phpunit",
         "phpcs": "php vendor/bin/phpcs"

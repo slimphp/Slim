@@ -967,9 +967,15 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $mediaType = $this->getMediaType();
-        $body = (string)$this->getBody();
+
+        // look for a media type with a structured syntax suffix (RFC 6839)
+        $parts = explode('+', $mediaType);
+        if (count($parts) >= 2) {
+            $mediaType = 'application/' . $parts[count($parts)-1];
+        }
 
         if (isset($this->bodyParsers[$mediaType]) === true) {
+            $body = (string)$this->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {

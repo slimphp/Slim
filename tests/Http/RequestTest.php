@@ -722,12 +722,42 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
+    public function testGetParsedBodyWithJsonStructuredSuffix()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/vnd.api+json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{"foo":"bar"}');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
     public function testGetParsedBodyXml()
     {
         $method = 'GET';
         $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/xml;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></person>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals('Josh', $request->getParsedBody()->name);
+    }
+
+    public function testGetParsedBodyWithXmlStructuredSuffix()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/hal+xml;charset=utf8');
         $cookies = [];
         $serverParams = [];
         $body = new RequestBody();

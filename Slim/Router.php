@@ -199,6 +199,21 @@ class Router implements RouterInterface
         }
         throw new RuntimeException('Named route does not exist for name: ' . $name);
     }
+    
+    /**
+     * Remove named route
+     *
+     * @param string $name        Route name
+     *
+     * @throws RuntimeException   If named route does not exist
+     */
+    public function removeNamedRoute($name)
+    {
+        $route = $this->getNamedRoute($name);
+
+        // no exception, route exists, now remove by id
+        unset($this->routes[$route->getIdentifier()]);
+    }
 
     /**
      * Process route groups
