@@ -62,7 +62,8 @@ class CorsRouter extends Router
      * @param $pattern
      * @return mixed
      */
-    public function getMethods($pattern) {
+    public function getMethods($pattern)
+    {
         return $this->patternList[$pattern];
     }
 }
