@@ -273,12 +273,22 @@ class Response extends Message implements ResponseInterface
      * response to the client.
      *
      * @param  string|UriInterface $url    The redirect destination.
-     * @param  int                 $status The redirect HTTP status code.
+     * @param  int|null            $status The redirect HTTP status code.
      * @return self
      */
-    public function withRedirect($url, $status = 302)
+    public function withRedirect($url, $status = null)
     {
-        return $this->withStatus($status)->withHeader('Location', (string)$url);
+        $responseWithRedirect = $this->withHeader('Location', (string)$url);
+
+        if (is_null($status) && $this->getStatusCode() === 200) {
+            $status = 302;
+        }
+
+        if (!is_null($status)) {
+            return $responseWithRedirect->withStatus($status);
+        }
+
+        return $responseWithRedirect;
     }
 
     /**
