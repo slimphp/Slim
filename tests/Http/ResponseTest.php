@@ -154,6 +154,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $response = new Response(200);
         $clone = $response->withRedirect('/foo', 301);
+        $cloneWithDefaultStatus = $response->withRedirect('/foo');
         $cloneWithStatusMethod = $response->withStatus(301)->withRedirect('/foo');
 
         $this->assertSame(200, $response->getStatusCode());
@@ -162,6 +163,10 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(301, $clone->getStatusCode());
         $this->assertTrue($clone->hasHeader('Location'));
         $this->assertEquals('/foo', $clone->getHeaderLine('Location'));
+
+        $this->assertSame(302, $cloneWithDefaultStatus->getStatusCode());
+        $this->assertTrue($cloneWithDefaultStatus->hasHeader('Location'));
+        $this->assertEquals('/foo', $cloneWithDefaultStatus->getHeaderLine('Location'));
 
         $this->assertSame(301, $cloneWithStatusMethod->getStatusCode());
         $this->assertTrue($cloneWithStatusMethod->hasHeader('Location'));
