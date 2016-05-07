@@ -49,7 +49,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('1.1', 'protocolVersion', $clone);
         $this->assertAttributeEquals(404, 'status', $clone);
         $this->assertAttributeNotSame($headers, 'headers', $clone);
-        $this->assertAttributeNotSame($body, 'body', $clone);
+        $this->assertAttributeSame($body, 'body', $clone);
     }
 
     public function testDisableSetter()
