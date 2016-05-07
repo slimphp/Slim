@@ -115,4 +115,107 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($defaults, $prop->getValue($cookies));
         $this->assertNotEquals($origDefaults, $prop->getValue($cookies));
     }
+
+    public function testSetCookieValues()
+    {
+        $cookies = new Cookies;
+        $cookies->set('foo', 'bar');
+
+        $prop = new ReflectionProperty($cookies, 'responseCookies');
+        $prop->setAccessible(true);
+
+        //we expect all of these values with null/false defaults
+        $expectedValue = [
+            'foo' => [
+                'value' => 'bar',
+                'domain' => null,
+                'hostonly' => null,
+                'path' => null,
+                'expires' => null,
+                'secure' => false,
+                'httponly' => false
+            ]
+        ];
+
+        $this->assertEquals($expectedValue, $prop->getValue($cookies));
+    }
+
+    public function testSetCookieValuesContainDefaults()
+    {
+        $cookies = new Cookies;
+        $defaults = [
+            'value' => 'toast',
+            'domain' => null,
+            'hostonly' => null,
+            'path' => null,
+            'expires' => null,
+            'secure' => true,
+            'httponly' => true
+        ];
+
+        $cookies->setDefaults($defaults);
+        $cookies->set('foo', 'bar');
+
+        $prop = new ReflectionProperty($cookies, 'responseCookies');
+        $prop->setAccessible(true);
+
+        //we expect to have secure and httponly from defaults
+        $expectedValue = [
+            'foo' => [
+                'value' => 'bar',
+                'domain' => null,
+                'hostonly' => null,
+                'path' => null,
+                'expires' => null,
+                'secure' => true,
+                'httponly' => true
+            ]
+        ];
+
+        $this->assertEquals($expectedValue, $prop->getValue($cookies));
+    }
+
+    public function testSetCookieValuesCanOverrideDefaults()
+    {
+        $cookies = new Cookies;
+        $defaults = [
+            'value' => 'toast',
+            'domain' => null,
+            'hostonly' => null,
+            'path' => null,
+            'expires' => null,
+            'secure' => true,
+            'httponly' => true
+        ];
+
+        $cookies->setDefaults($defaults);
+
+        //default has secure true, lets override it to false
+        $cookies->set('foo', ['value' => 'bar', 'secure' => false]);
+
+        $prop = new ReflectionProperty($cookies, 'responseCookies');
+        $prop->setAccessible(true);
+
+        $expectedValue = [
+            'foo' => [
+                'value' => 'bar',
+                'domain' => null,
+                'hostonly' => null,
+                'path' => null,
+                'expires' => null,
+                'secure' => false,
+                'httponly' => true
+            ]
+        ];
+
+        $this->assertEquals($expectedValue, $prop->getValue($cookies));
+    }
+
+    public function testGet()
+    {
+        $cookies = new Cookies(['foo' => 'bar']);
+        $this->assertEquals('bar', $cookies->get('foo'));
+        $this->assertNull($cookies->get('missing'));
+        $this->assertEquals('defaultValue', $cookies->get('missing', 'defaultValue'));
+    }
 }
