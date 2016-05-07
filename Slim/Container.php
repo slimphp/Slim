@@ -144,7 +144,9 @@ class Container extends PimpleContainer implements ContainerInterface
      */
     private function exceptionThrownByContainer(\InvalidArgumentException $exception)
     {
-        return preg_match('/^Identifier ".*" is not defined\.$/', $exception->getMessage());
+        $trace = $exception->getTrace()[0];
+
+        return $trace['class'] === 'Pimple\Container' && $trace['function'] === 'offsetGet';
     }
 
     /**
