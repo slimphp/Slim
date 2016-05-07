@@ -286,4 +286,24 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->setBasePath('/base/path');
         $this->router->removeNamedRoute('non-existing-route-name');
     }
+    
+    public function testPathForWithModifiedRoutePattern()
+    {
+        $this->router->setBasePath('/base/path');
+
+        $methods = ['GET'];
+        $pattern = '/hello/{first:\w+}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['voornaam'], $args['achternaam']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+        
+        $route->setPattern('/hallo/{voornaam:\w+}/{achternaam}');
+
+        $this->assertEquals(
+            '/hallo/josh/lockhart',
+            $this->router->relativePathFor('foo', ['voornaam' => 'josh', 'achternaam' => 'lockhart'])
+        );
+    }
 }
