@@ -42,10 +42,10 @@ abstract class AbstractError extends AbstractHandler
         }
 
         $message = 'Slim Application Error:' . PHP_EOL;
-        $message .= $this->renderTextThrowable($throwable);
+        $message .= $this->renderThrowableAsText($throwable);
         while ($error = $throwable->getPrevious()) {
             $message .= PHP_EOL . 'Previous error:' . PHP_EOL;
-            $message .= $this->renderTextThrowable($throwable);
+            $message .= $this->renderThrowableAsText($throwable);
         }
 
         $message .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
@@ -54,13 +54,13 @@ abstract class AbstractError extends AbstractHandler
     }
 
     /**
-     * Render exception as Text.
+     * Render error as Text.
      *
      * @param \Exception|\Throwable $throwable
      *
      * @return string
      */
-    protected function renderTextThrowable($throwable)
+    protected function renderThrowableAsText($throwable)
     {
         $text = sprintf('Type: %s' . PHP_EOL, get_class($throwable));
 
