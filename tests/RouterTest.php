@@ -349,10 +349,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test route dispatcher is created in case of route cache
+     * Test cached routes file is created & that it holds our routes.
      */
-    public function testCreateDispatcherWithRouteCache()
+    public function testRouteCacheFileCanBeDispatched()
     {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable)->setName('foo');
+
         $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
         $this->router->setCacheFile($cacheFile);
         $class = new \ReflectionClass($this->router);
@@ -362,6 +369,19 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $dispatcher = $method->invoke($this->router);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $dispatcher);
         $this->assertFileExists($cacheFile, 'cache file was not created');
+
+        // instantiate a new router & load the cached routes file & see if
+        // we can dispatch to the route we cached.
+        $router2 = new Router();
+        $router2->setCacheFile($cacheFile);
+
+        $class = new \ReflectionClass($router2);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+
+        $dispatcher2 = $method->invoke($this->router);
+        $result = $dispatcher2->dispatch('GET', '/hello/josh/lockhart');
+        $this->assertSame(\FastRoute\Dispatcher::FOUND, $result[0]);
 
         unlink($cacheFile);
     }
