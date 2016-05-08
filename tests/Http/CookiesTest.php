@@ -9,87 +9,22 @@
 namespace Slim\Tests\Http;
 
 use ReflectionProperty;
+use ReflectionClass;
+use InvalidArgumentException;
 use Slim\Http\Cookies;
 
 class CookiesTest extends \PHPUnit_Framework_TestCase
 {
-    // public function testArrayToString()
-    // {
-    //     $expiresAt = time();
-    //     $result = Cookies::arrayToString([
-    //         'value' => 'bar',
-    //         'expires' => $expiresAt,
-    //         'path' => '/foo',
-    //         'domain' => 'example.com',
-    //         'secure' => true,
-    //         'httponly' => true
-    //     ]);
-
-    //     $this->assertEquals(
-    //         'bar; domain=example.com; path=/foo; expires='
-    //         . gmdate('D, d-M-Y H:i:s e', $expiresAt)
-    //         . '; secure; HttpOnly', $result);
-    // }
-
-    // /**
-    //  * @expectedException \InvalidArgumentException
-    //  */
-    // public function testArrayToStringWithoutValue()
-    // {
-    //     $result = Cookies::arrayToString([
-    //         'expires' => time(),
-    //         'path' => '/foo',
-    //         'domain' => 'example.com',
-    //         'secure' => true,
-    //         'httponly' => true
-    //     ]);
-    // }
-
-    // public function testParseHeader()
-    // {
-    //     $value = 'Abc=One;Def=Two;Ghi=Three';
-    //     $shouldBe = [
-    //         'Abc' => 'One',
-    //         'Def' => 'Two',
-    //         'Ghi' => 'Three',
-    //     ];
-
-    //     $this->assertEquals($shouldBe, Cookies::parseHeader($value));
-    // }
-
-    // public function testParseHeaderWithOneValue()
-    // {
-    //     $value = 'Abc=One';
-
-    //     $this->assertEquals(['Abc' => 'One'], Cookies::parseHeader($value));
-    // }
-
-    // public function testParseHeaderArray()
-    // {
-    //     $value = ['Abc=One;Def=Two;Ghi=Three'];
-    //     $shouldBe = [
-    //         'Abc' => 'One',
-    //         'Def' => 'Two',
-    //         'Ghi' => 'Three',
-    //     ];
-
-    //     $this->assertEquals($shouldBe, Cookies::parseHeader($value));
-    // }
-
-    // /**
-    //  * @expectedException \InvalidArgumentException
-    //  */
-    // public function testParseHeaderInvalid()
-    // {
-    //     Cookies::parseHeader(100);
-    // }
-
-    // public function testParseEmptyHeader()
-    // {
-    //     $value = '';
-
-    //     $this->assertEquals([], Cookies::parseHeader($value));
-    // }
+    public function testConstructor()
+    {
+        $cookies = new Cookies([
+            'test' => 'Works',
+        ]);
+        $prop = new ReflectionProperty($cookies, 'requestCookies');
+        $prop->setAccessible(true);
+        $this->assertNotEmpty($prop->getValue($cookies)['test']);
+        $this->assertEquals('Works', $prop->getValue($cookies)['test']);
+    }
 
     public function testSetDefaults()
     {
@@ -217,5 +152,57 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $cookies->get('foo'));
         $this->assertNull($cookies->get('missing'));
         $this->assertEquals('defaultValue', $cookies->get('missing', 'defaultValue'));
+    }
+
+    public function testParseHeader()
+    {
+        $cookies = Cookies::parseHeader('foo=bar; name=Josh');
+        $this->assertEquals('bar', $cookies['foo']);
+        $this->assertEquals('Josh', $cookies['name']);
+    }
+
+    public function testToHeaders()
+    {
+        $cookies = new Cookies;
+        $cookies->set('test', 'Works');
+        $cookies->set('test_array', ['value' => 'bar', 'domain' => 'example.com']);
+        $this->assertEquals('test=Works', $cookies->toHeaders()[0]);
+        $this->assertEquals('test_array=bar; domain=example.com', $cookies->toHeaders()[1]);
+    }
+
+    public function testToHeader()
+    {
+        $cookies = new Cookies();
+        $class = new ReflectionClass($cookies);
+        $method = $class->getMethod('toHeader');
+        $method->setAccessible(true);
+        $properties = [
+            'name' => 'test',
+            'properties' => [
+                'value' => 'Works'
+            ]
+        ];
+        $time = time();
+        $propertiesComplex = [
+            'name' => 'test_complex',
+            'properties' => [
+                'value' => 'Works',
+                'domain' => 'example.com',
+                'expires' => $time,
+            ]
+        ];
+        $cookie = $method->invokeArgs($cookies, $properties);
+        $cookieComplex = $method->invokeArgs($cookies, $propertiesComplex);
+        $this->assertEquals('test=Works', $cookie);
+        $this->assertEquals(
+            'test_complex=Works; domain=example.com; expires='.gmdate('D, d-M-Y H:i:s e', $time),
+            $cookieComplex
+        );
+    }
+
+    public function testParseHeaderException()
+    {
+        $this->setExpectedException(InvalidArgumentException::class);
+        Cookies::parseHeader(new \StdClass);
     }
 }
