@@ -308,9 +308,23 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test cacheFile should be a string
+     * Test cacheFile may be set to false
      */
-    public function testSettingInvalidCacheFileNotString()
+    public function testSettingCacheFileToFalse()
+    {
+        $this->router->setCacheFile(false);
+
+        $class = new \ReflectionClass($this->router);
+        $property = $class->getProperty('cacheFile');
+        $property->setAccessible(true);
+
+        $this->assertFalse($property->getValue($this->router));
+    }
+
+    /**
+     * Test cacheFile should be a string or false
+     */
+    public function testSettingInvalidCacheFileValue()
     {
         $this->setExpectedException(
             '\InvalidArgumentException',
@@ -335,35 +349,35 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if cache is enabled but cache file is not set
-     */
-    public function testCacheFileNotSetButCacheEnabled()
-    {
-        $this->setExpectedException(
-            '\RuntimeException',
-            'Router cache enabled but cacheFile not set'
-        );
-
-        $this->router->setCacheDisabled(false);
-
-        $class = new \ReflectionClass($this->router);
-        $method = $class->getMethod('createDispatcher');
-        $method->setAccessible(true);
-        $method->invoke($this->router);
-    }
-
-    /**
      * Test route dispatcher is created in case of route cache
      */
     public function testCreateDispatcherWithRouteCache()
     {
         $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
-        $this->router->setCacheDisabled(false);
         $this->router->setCacheFile($cacheFile);
         $class = new \ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
-        $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
+
+        $dispatcher = $method->invoke($this->router);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $dispatcher);
+        $this->assertFileExists($cacheFile, 'cache file was not created');
+
         unlink($cacheFile);
+    }
+
+    /**
+     * Calling createDispatcher as second time should give you back the same
+     * dispatcher as when you called it the first time.
+     */
+    public function testCreateDispatcherReturnsSameDispatcherASecondTime()
+    {
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+
+        $dispatcher = $method->invoke($this->router);
+        $dispatcher2 = $method->invoke($this->router);
+        $this->assertSame($dispatcher2, $dispatcher);
     }
 }

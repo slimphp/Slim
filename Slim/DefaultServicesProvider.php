@@ -88,15 +88,12 @@ class DefaultServicesProvider
              * @return RouterInterface
              */
             $container['router'] = function ($container) {
-                if (is_null($container->get('settings')['routerCacheDisabled'])
-                    || $container->get('settings')['routerCacheDisabled']
-                ) {
-                    return new Router;
-                } else {
-                    return (new Router)
-                        ->setCacheDisabled(false)
-                        ->setCacheFile($container->get('settings')['routerCacheFile']);
+                $routerCacheFile = false;
+                if (isset($container->get('settings')['routerCacheFile'])) {
+                    $routerCacheFile = $container->get('settings')['routerCacheFile'];
                 }
+                
+                return (new Router)->setCacheFile($routerCacheFile);
             };
         }
 

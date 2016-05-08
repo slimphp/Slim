@@ -45,18 +45,11 @@ class Router implements RouterInterface
     protected $basePath = '';
 
     /**
-     * Fast route cache is disabled
+     * Path to fast route cache file. Set to false to disable route caching
      *
-     * @var bool
+     * @var string|False
      */
-    protected $cacheDisabled = true;
-
-    /**
-     * Path to fast route cache file
-     *
-     * @var string
-     */
-    protected $cacheFile;
+    protected $cacheFile = false;
 
     /**
      * Routes
@@ -112,37 +105,24 @@ class Router implements RouterInterface
     }
 
     /**
-     * Enable/disable route cache
+     * Set path to fast route cache file. If this is false then route caching is disabled.
      *
-     * @param bool $cacheDisabled
-     *
-     * @return self
-     */
-    public function setCacheDisabled($cacheDisabled)
-    {
-        $this->cacheDisabled = $cacheDisabled;
-
-        return $this;
-    }
-
-    /**
-     * Set path to fast route cache file
-     *
-     * @param string $cacheFile
+     * @param string|false $cacheFile
      *
      * @return self
      */
     public function setCacheFile($cacheFile)
     {
-        if (!is_string($cacheFile)) {
-            throw new InvalidArgumentException('Router cacheFile must be a string');
-        }
-
-        if (!is_writable(dirname($cacheFile))) {
-            throw new RuntimeException('Router cacheFile directory must be writable');
+        if (!is_string($cacheFile) && $cacheFile !== false) {
+            throw new InvalidArgumentException('Router cacheFile must be a string or false');
         }
 
         $this->cacheFile = $cacheFile;
+
+        if ($cacheFile !== false && !is_writable(dirname($cacheFile))) {
+            throw new RuntimeException('Router cacheFile directory must be writable');
+        }
+
 
         return $this;
     }
@@ -204,29 +184,28 @@ class Router implements RouterInterface
      */
     protected function createDispatcher()
     {
-        if (!$this->cacheDisabled && is_null($this->cacheFile)) {
-            throw new RuntimeException('Router cache enabled but cacheFile not set');
+        if ($this->dispatcher) {
+            return $this->dispatcher;
         }
 
-        return $this->dispatcher ?: call_user_func_array(
-            '\FastRoute\\' . (!$this->cacheDisabled ? 'cachedDispatcher' : 'simpleDispatcher'),
-            [
-                function (RouteCollector $routeCollector) {
-                    foreach ($this->getRoutes() as $route) {
-                        $routeCollector->addRoute(
-                            $route->getMethods(),
-                            $route->getPattern(),
-                            $route->getIdentifier()
-                        );
-                    }
-                },
-                [
-                    'routeParser' => $this->routeParser,
-                    'cacheFile' => $this->cacheFile,
-                    'cacheDisabled' => $this->cacheDisabled,
-                ],
-            ]
-        );
+        $routeDefinitionCallback = function (RouteCollector $r) {
+            foreach ($this->getRoutes() as $route) {
+                $r->addRoute($route->getMethods(), $route->getPattern(), $route->getIdentifier());
+            }
+        };
+
+        if ($this->cacheFile) {
+            $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+                'routeParser' => $this->routeParser,
+                'cacheFile' => $this->cacheFile,
+            ]);
+        } else {
+            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+                'routeParser' => $this->routeParser,
+            ]);
+        }
+
+        return $this->dispatcher;
     }
 
     /**

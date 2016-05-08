@@ -159,59 +159,6 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testRouteCacheDisabledByDefault()
     {
-        $this->assertTrue($this->container->get('settings')['routerCacheDisabled']);
-    }
-
-    /**
-     * Get cacheDisabled protected property from Route instance
-     *
-     * @return string
-     */
-    protected function getRouteCacheDisabled()
-    {
-        $router = $this->container['router'];
-        $getCacheDisabled = function ($router) {
-            return $router->cacheDisabled;
-        };
-        $getCacheDisabled = \Closure::bind($getCacheDisabled, null, $this->container['router']);
-        return $getCacheDisabled($router);
-    }
-
-    /**
-     * Get cacheFile protected property from Route instance
-     *
-     * @return string
-     */
-    protected function getRouteCacheFile()
-    {
-        $router = $this->container['router'];
-        $getCacheFile = function ($router) {
-            return $router->cacheFile;
-        };
-        $getCacheFile = \Closure::bind($getCacheFile, null, $this->container['router']);
-        return $getCacheFile($router);
-    }
-
-    /**
-     * Test that cache is not enabled and no cache file is set to Router
-     * when option is disabled from config
-     */
-    public function testRouteCacheFileNotSetWhenCacheDisabled()
-    {
-        $this->container->get('settings')['routerCacheDisabled'] = true;
-        $this->assertTrue($this->getRouteCacheDisabled());
-        $this->assertNull($this->getRouteCacheFile());
-    }
-
-    /**
-     * Test that cache is enabled and cache file is set to Router
-     * when option is enabled from config
-     */
-    public function testRouteCacheSetWhenCacheEnabled()
-    {
-        $this->container->get('settings')['routerCacheDisabled'] = false;
-        $this->container->get('settings')['routerCacheFile'] = 'slim';
-        $this->assertFalse($this->getRouteCacheDisabled());
-        $this->assertEquals('slim', $this->getRouteCacheFile());
+        $this->assertFalse($this->container->get('settings')['routerCacheFile']);
     }
 }
