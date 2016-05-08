@@ -1919,10 +1919,12 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($response->hasHeader('Content-Length'));
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Unexpected data in output buffer
+     */
     public function testForUnexpectedDataInOutputBuffer()
     {
-        $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('Unexpected data in output buffer');
         $this->expectOutputString('test'); // needed to avoid risky test warning
         echo "test";
         $method = new \ReflectionMethod('Slim\App', 'finalize');
