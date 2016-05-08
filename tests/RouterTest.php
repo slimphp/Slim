@@ -86,7 +86,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithNoBasePath()
     {
         $this->router->setBasePath('');
@@ -104,7 +104,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $this->router->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
-    
+
     public function testPathForWithBasePath()
     {
         $methods = ['GET'];
@@ -305,5 +305,99 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             '/hallo/josh/lockhart',
             $this->router->relativePathFor('foo', ['voornaam' => 'josh', 'achternaam' => 'lockhart'])
         );
+    }
+
+    /**
+     * Test cacheFile may be set to false
+     */
+    public function testSettingCacheFileToFalse()
+    {
+        $this->router->setCacheFile(false);
+
+        $class = new \ReflectionClass($this->router);
+        $property = $class->getProperty('cacheFile');
+        $property->setAccessible(true);
+
+        $this->assertFalse($property->getValue($this->router));
+    }
+
+    /**
+     * Test cacheFile should be a string or false
+     */
+    public function testSettingInvalidCacheFileValue()
+    {
+        $this->setExpectedException(
+            '\InvalidArgumentException',
+            'Router cacheFile must be a string'
+        );
+        $this->router->setCacheFile(['invalid']);
+    }
+
+    /**
+     * Test if cacheFile is not a writable directory
+     */
+    public function testSettingInvalidCacheFileNotExisting()
+    {
+        $this->setExpectedException(
+            '\RuntimeException',
+            'Router cacheFile directory must be writable'
+        );
+
+        $this->router->setCacheFile(
+            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+        );
+    }
+
+    /**
+     * Test cached routes file is created & that it holds our routes.
+     */
+    public function testRouteCacheFileCanBeDispatched()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{first}/{last}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s %s', $args['first'], $args['last']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable)->setName('foo');
+
+        $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
+        $this->router->setCacheFile($cacheFile);
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+
+        $dispatcher = $method->invoke($this->router);
+        $this->assertInstanceOf('\FastRoute\Dispatcher', $dispatcher);
+        $this->assertFileExists($cacheFile, 'cache file was not created');
+
+        // instantiate a new router & load the cached routes file & see if
+        // we can dispatch to the route we cached.
+        $router2 = new Router();
+        $router2->setCacheFile($cacheFile);
+
+        $class = new \ReflectionClass($router2);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+
+        $dispatcher2 = $method->invoke($this->router);
+        $result = $dispatcher2->dispatch('GET', '/hello/josh/lockhart');
+        $this->assertSame(\FastRoute\Dispatcher::FOUND, $result[0]);
+
+        unlink($cacheFile);
+    }
+
+    /**
+     * Calling createDispatcher as second time should give you back the same
+     * dispatcher as when you called it the first time.
+     */
+    public function testCreateDispatcherReturnsSameDispatcherASecondTime()
+    {
+        $class = new \ReflectionClass($this->router);
+        $method = $class->getMethod('createDispatcher');
+        $method->setAccessible(true);
+
+        $dispatcher = $method->invoke($this->router);
+        $dispatcher2 = $method->invoke($this->router);
+        $this->assertSame($dispatcher2, $dispatcher);
     }
 }

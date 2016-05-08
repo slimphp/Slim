@@ -156,4 +156,9 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->container->get('settings')['httpVersion'] = '1.2';
         $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
     }
+
+    public function testRouteCacheDisabledByDefault()
+    {
+        $this->assertFalse($this->container->get('settings')['routerCacheFile']);
+    }
 }
