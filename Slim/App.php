@@ -379,10 +379,13 @@ class App
             }
             $settings       = $this->container->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
+
             $contentLength  = $response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
+
+
             if (isset($contentLength)) {
                 $amountToRead = $contentLength;
                 while ($amountToRead > 0 && !$body->eof()) {
@@ -542,9 +545,17 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
-        $size = $response->getBody()->getSize();
-        if ($size !== null && !$response->hasHeader('Content-Length')) {
-            $response = $response->withHeader('Content-Length', (string) $size);
+        // Add Content-Length header if `addContentLengthHeader` setting is set
+        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
+            $this->container->get('settings')['addContentLengthHeader'] == true) {
+            if (ob_get_length() > 0) {
+                throw new \RuntimeException("Unexpected data in output buffer. " .
+                    "Maybe you have characters before an opening <?php tag?");
+            }
+            $size = $response->getBody()->getSize();
+            if ($size !== null && !$response->hasHeader('Content-Length')) {
+                $response = $response->withHeader('Content-Length', (string) $size);
+            }
         }
 
         return $response;
@@ -613,9 +624,8 @@ class App
      * @param  Throwable $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
-     *
      * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
+     * @throws Throwable
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
