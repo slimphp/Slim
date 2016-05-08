@@ -548,6 +548,10 @@ class App
         // Add Content-Length header if `addContentLengthHeader` setting is set
         if (isset($this->container->get('settings')['addContentLengthHeader']) &&
             $this->container->get('settings')['addContentLengthHeader'] == true) {
+            if (ob_get_length() > 0) {
+                throw new \RuntimeException("Unexpected data in output buffer. " .
+                    "Maybe you have characters before an opening <?php tag?");
+            }
             $size = $response->getBody()->getSize();
             if ($size !== null && !$response->hasHeader('Content-Length')) {
                 $response = $response->withHeader('Content-Length', (string) $size);
