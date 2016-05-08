@@ -1903,8 +1903,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->foo('bar');
     }
 
-
-    //Tests for Omitting Content Length
     public function testOmittingContentLength()
     {
         $method = new \ReflectionMethod('Slim\App', 'finalize');
@@ -1915,7 +1913,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app = new App();
         $container = $app->getContainer();
-        $container['settings']['omitContentLength'] = true;
+        $container['settings']['addContentLengthHeader'] = false;
         $response = $method->invoke($app, $response);
 
         $this->assertFalse($response->hasHeader('Content-Length'));

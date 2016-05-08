@@ -545,16 +545,12 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
-        //If omitContentLength is false
-        if (!$this->container->get('settings')['omitContentLength']) {
+        // Add Content-Length header if `addContentLengthHeader` setting is set
+        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
+            $this->container->get('settings')['addContentLengthHeader'] == true) {
             $size = $response->getBody()->getSize();
             if ($size !== null && !$response->hasHeader('Content-Length')) {
                 $response = $response->withHeader('Content-Length', (string) $size);
-            }
-        } else { //else if omitContentLength is true
-
-            if ($response->hasHeader('Content-Length')) {
-                $response = $response->withoutHeader('Content-Length');
             }
         }
 
