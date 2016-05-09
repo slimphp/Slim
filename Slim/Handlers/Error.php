@@ -11,6 +11,7 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
+use UnexpectedValueException;
 
 /**
  * Default Slim application error handler
@@ -28,6 +29,7 @@ class Error extends AbstractError
      * @param \Exception             $exception The caught Exception object
      *
      * @return ResponseInterface
+     * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Exception $exception)
     {
@@ -45,6 +47,9 @@ class Error extends AbstractError
             case 'text/html':
                 $output = $this->renderHtmlErrorMessage($exception);
                 break;
+            
+            default:
+                throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
         }
 
         $this->writeToErrorLog($exception);
