@@ -345,6 +345,36 @@ class Stream implements StreamInterface
             throw new RuntimeException('Could not seek in stream');
         }
     }
+    
+    /**
+     * Returns whether or not the stream is seekable forward.
+     *
+     * Note: This method is not part of the PSR-7 standard
+     * and is provided for Stream's compatibility with pipes.
+     *
+     * @return bool
+     */
+    public function isSeekableForward()
+    {
+        return $this->isSeekable() || $this->isPipe();
+    }
+
+    /**
+     * Seek forward in the stream.
+     *
+     * Note: This method is not part of the PSR-7 standard
+     * and is provided for Stream's compatibility with pipes.
+     *
+     * @param int $offset Stream offset
+     * @throws RuntimeException on failure.
+     */
+    public function seekForward($offset)
+    {
+        // Note that fseek returns 0 on success!
+        if (!$this->isSeekableForward() || fseek($this->stream, $offset, SEEK_CUR) === -1) {
+            throw new RuntimeException('Could not seek forward in stream');
+        }
+    }
 
     /**
      * Seek to the beginning of the stream.

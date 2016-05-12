@@ -113,11 +113,35 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->pipeStream->isPipe());
     }
     
+    /**
+     * @covers Slim\Http\Stream::__toString
+     */
     public function testPipeToString()
     {
         $this->openPipeStream();
 
         $this->assertSame('', (string) $this->pipeStream);
+    }
+    
+    /**
+     * @covers Slim\Http\Stream::isSeekableForward
+     */
+    public function testPipeIsSeekableForward()
+    {
+        $this->openPipeStream();
+
+        $this->assertTrue($this->pipeStream->isSeekableForward());
+    }
+    
+    /**
+     * @covers Slim\Http\Stream::seekForward
+     */
+    public function testPipeSeekForward()
+    {
+        $this->openPipeStream();
+
+        $this->pipeStream->seekForward(1);
+        $this->assertSame('2', $this->pipeStream->read(1));
     }
 
     /**
@@ -127,7 +151,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
      */
     private function openPipeStream()
     {
-        $this->pipeFh = popen('echo 1', 'r');
+        $this->pipeFh = popen('echo 12', 'r');
         $this->pipeStream = new Stream($this->pipeFh);
     }
 }
