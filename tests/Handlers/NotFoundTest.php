@@ -43,6 +43,18 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
     }
 
+    public function testNotFoundContentType()
+    {
+        $errorMock = $this->getMock(NotFound::class, ['determineContentType']);
+        $errorMock->method('determineContentType')
+            ->will($this->returnValue('unknown/type'));
+
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+
+        $this->setExpectedException('\UnexpectedValueException');
+        $errorMock->__invoke($req, new Response(), ['POST']);
+    }
+
     /**
      * @param string $method
      * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
