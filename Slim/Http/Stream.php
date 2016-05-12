@@ -20,6 +20,11 @@ use RuntimeException;
 class Stream implements StreamInterface
 {
     /**
+     * This is octal as per header stat.h
+     */
+    const FSTAT_MODE_S_IFIFO = 0010000;
+    
+    /**
      * Resource modes
      *
      * @var  array
@@ -71,6 +76,13 @@ class Stream implements StreamInterface
      * @var null|int
      */
     protected $size;
+    
+    /**
+     * Is this stream a pipe?
+     *
+     * @var type
+     */
+    protected $pipe;
 
     /**
      * Create a new Stream.
@@ -158,6 +170,7 @@ class Stream implements StreamInterface
         $this->writable = null;
         $this->seekable = null;
         $this->size = null;
+        $this->pipe = null;
 
         return $oldResource;
     }
@@ -196,7 +209,11 @@ class Stream implements StreamInterface
     public function close()
     {
         if ($this->isAttached() === true) {
-            fclose($this->stream);
+            if ($this->isPipe()) {
+                pclose($this->stream);
+            } else {
+                fclose($this->stream);
+            }
         }
 
         $this->detach();
@@ -211,7 +228,7 @@ class Stream implements StreamInterface
     {
         if (!$this->size && $this->isAttached() === true) {
             $stats = fstat($this->stream);
-            $this->size = isset($stats['size']) ? $stats['size'] : null;
+            $this->size = isset($stats['size']) && !$this->isPipe() ? $stats['size'] : null;
         }
 
         return $this->size;
@@ -226,7 +243,7 @@ class Stream implements StreamInterface
      */
     public function tell()
     {
-        if (!$this->isAttached() || ($position = ftell($this->stream)) === false) {
+        if (!$this->isAttached() || ($position = ftell($this->stream)) === false || $this->isPipe()) {
             throw new RuntimeException('Could not get the position of the pointer in stream');
         }
 
@@ -300,7 +317,7 @@ class Stream implements StreamInterface
             $this->seekable = false;
             if ($this->isAttached()) {
                 $meta = $this->getMetadata();
-                $this->seekable = $meta['seekable'];
+                $this->seekable = $meta['seekable'] && !$this->isPipe();
             }
         }
 
@@ -405,5 +422,15 @@ class Stream implements StreamInterface
         }
 
         return $contents;
+    }
+    
+    public function isPipe()
+    {
+        if ($this->pipe === null) {
+            $mode = fstat($this->stream)['mode'];
+            $this->pipe = ($mode & self::FSTAT_MODE_S_IFIFO) !== 0;
+        }
+        
+        return $this->pipe;
     }
 }
