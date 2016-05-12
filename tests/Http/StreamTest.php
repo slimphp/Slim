@@ -38,6 +38,9 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($this->pipeStream->isPipe());
 
+        $this->pipeStream->detach();
+        $this->assertFalse($this->pipeStream->isPipe());
+        
         $fhFile = fopen(__FILE__, 'r');
         $fileStream = new Stream($fhFile);
         $this->assertFalse($fileStream->isPipe());
@@ -94,6 +97,27 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->openPipeStream();
         
         $this->assertNull($this->pipeStream->getSize());
+    }
+    
+    /**
+     * @covers Slim\Http\Stream::close
+     */
+    public function testClosePipe()
+    {
+        $this->openPipeStream();
+        
+        stream_get_contents($this->pipeFh); // prevent broken pipe error message
+        $this->pipeStream->close();
+        $this->pipeFh = null;
+        
+        $this->assertFalse($this->pipeStream->isPipe());
+    }
+    
+    public function testPipeToString()
+    {
+        $this->openPipeStream();
+
+        $this->assertSame('', (string) $this->pipeStream);
     }
 
     /**

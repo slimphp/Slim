@@ -424,11 +424,19 @@ class Stream implements StreamInterface
         return $contents;
     }
     
+    /**
+     * Returns whether or not the stream is a pipe.
+     *
+     * @return bool
+     */
     public function isPipe()
     {
         if ($this->pipe === null) {
-            $mode = fstat($this->stream)['mode'];
-            $this->pipe = ($mode & self::FSTAT_MODE_S_IFIFO) !== 0;
+            $this->pipe = false;
+            if ($this->isAttached()) {
+                $mode = fstat($this->stream)['mode'];
+                $this->pipe = ($mode & self::FSTAT_MODE_S_IFIFO) !== 0;
+            }
         }
         
         return $this->pipe;
