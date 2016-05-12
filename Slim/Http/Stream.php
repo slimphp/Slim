@@ -317,7 +317,7 @@ class Stream implements StreamInterface
             $this->seekable = false;
             if ($this->isAttached()) {
                 $meta = $this->getMetadata();
-                $this->seekable = $meta['seekable'] && !$this->isPipe();
+                $this->seekable = $meta['seekable'];
             }
         }
 
