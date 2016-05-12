@@ -43,14 +43,14 @@ abstract class AbstractError extends AbstractHandler
 
         $message = 'Slim Application Error:' . PHP_EOL;
         $message .= $this->renderThrowableAsText($throwable);
-        while ($error = $throwable->getPrevious()) {
+        while ($throwable = $throwable->getPrevious()) {
             $message .= PHP_EOL . 'Previous error:' . PHP_EOL;
             $message .= $this->renderThrowableAsText($throwable);
         }
 
         $message .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
 
-        error_log($message);
+        $this->logError($message);
     }
 
     /**
@@ -85,5 +85,15 @@ abstract class AbstractError extends AbstractHandler
         }
 
         return $text;
+    }
+
+    /**
+     * Wraps the error_log function so that this can be easily tested
+     *
+     * @param $message
+     */
+    protected function logError($message)
+    {
+        error_log($message);
     }
 }
