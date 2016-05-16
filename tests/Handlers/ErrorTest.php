@@ -10,6 +10,7 @@ namespace Slim\Tests\Handlers;
 
 use Slim\Handlers\Error;
 use Slim\Http\Response;
+use UnexpectedValueException;
 
 class ErrorTest extends \PHPUnit_Framework_TestCase
 {
@@ -41,6 +42,20 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+    }
+
+    public function testNotFoundContentType()
+    {
+        $errorMock = $this->getMock(Error::class, ['determineContentType']);
+        $errorMock->method('determineContentType')
+            ->will($this->returnValue('unknown/type'));
+
+        $e = new \Exception("Oops");
+
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+
+        $this->setExpectedException('\UnexpectedValueException');
+        $errorMock->__invoke($req, new Response(), $e);
     }
 
     /**

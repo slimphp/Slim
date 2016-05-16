@@ -11,6 +11,7 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
+use UnexpectedValueException;
 
 /**
  * Default Slim application not found handler.
@@ -27,6 +28,7 @@ class NotFound extends AbstractHandler
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -43,6 +45,10 @@ class NotFound extends AbstractHandler
 
             case 'text/html':
                 $output = $this->renderHtmlNotFoundOutput($request);
+                break;
+            
+            default:
+                throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
         }
 
         $body = new Body(fopen('php://temp', 'r+'));
