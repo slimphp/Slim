@@ -34,7 +34,25 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     public function testError($acceptHeader, $contentType, $startOfBody)
     {
         $error = new Error();
-        $e = new \Exception("Oops");
+        $e = new \Exception("Oops", 1, new \Exception('Previous oops'));
+
+        /** @var Response $res */
+        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+    }
+
+    /**
+     * Test invalid method returns the correct code and content type with details
+     *
+     * @dataProvider errorProvider
+     */
+    public function testErrorDisplayDetails($acceptHeader, $contentType, $startOfBody)
+    {
+        $error = new Error(true);
+        $e = new \Exception('Oops', 1, new \Exception('Opps before'));
 
         /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
