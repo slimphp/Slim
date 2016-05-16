@@ -44,6 +44,26 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test that an exception with a previous exception provides correct output
+     * to the error log
+     */
+    public function testPreviousException()
+    {
+        $error = $this->getMock('\Slim\Handlers\Error', ['logError']);
+        $error->expects($this->once())->method('logError')->with(
+            $this->logicalAnd(
+                $this->stringContains("Type: Exception\nMessage: Second Oops"),
+                $this->stringContains("Previous Error:\nType: Exception\nMessage: First Oops")
+            )
+        );
+
+        $first = new \Exception("First Oops");
+        $second = new \Exception("Second Oops", 0, $first);
+
+        $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second);
+    }
+
+    /**
      * @param string $method
      * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
      */
