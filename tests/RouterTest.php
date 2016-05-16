@@ -400,4 +400,40 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $dispatcher2 = $method->invoke($this->router);
         $this->assertSame($dispatcher2, $dispatcher);
     }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testLookupRouteThrowsExceptionIfRouteNotFound()
+    {
+        $this->router->lookupRoute("thisIsMissing");
+    }
+
+    /**
+     * PHPUnit will convert the triggered error into a Framework error,
+     *
+     * @expectedException \PHPUnit_Framework_Error
+     */
+    public function testUrlForTriggersError()
+    {
+        $this->router->urlFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd']);
+    }
+
+    /**
+     * Test that the router urlFor will proxy into a pathFor method.
+     */
+    public function testUrlForAliasesPathFor()
+    {
+        //create the parameters we expect
+        $name = 'foo';
+        $data = [ 'name' => 'josh' ];
+        $queryParams = [ 'a' => 'b', 'c' => 'd' ];
+
+        //create a router that mocks the pathFor with expected args
+        $router = $this->getMock('\Slim\Router', ['pathFor']);
+        $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
+
+        //suppress the error so phpunit will not convert into exception
+        @$router->urlFor($name, $data, $queryParams);
+    }
 }
