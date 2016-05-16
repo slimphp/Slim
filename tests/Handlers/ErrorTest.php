@@ -44,6 +44,25 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test the exception rendering runs to completion (no infinite loop)
+     *
+     * @dataProvider errorProvider
+     */
+    public function testErrorExceptionWithPrevious($acceptHeader, $contentType, $startOfBody)
+    {
+        $error = new Error();
+        $e = new \Exception("Oops", 1, new \Exception());
+
+        /** @var Response $res */
+        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+        // if we have reached this point, there is no infinite loop, otherwise an out of memory error will occur
+    }
+
+    /**
      * @param string $method
      * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
      */
