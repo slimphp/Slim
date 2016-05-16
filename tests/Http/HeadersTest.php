@@ -112,6 +112,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('testValue', reset($value));
         $this->assertEquals('http-test_key', $h->getOriginalKey('test-key'));
+        $this->assertNull($h->getOriginalKey('test-non-existing'));
     }
 
     public function testGetNotExists()
