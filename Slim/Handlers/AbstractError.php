@@ -43,7 +43,7 @@ abstract class AbstractError extends AbstractHandler
 
         $message = 'Slim Application Error:' . PHP_EOL;
         $message .= $this->renderThrowableAsText($throwable);
-        while ($error = $throwable->getPrevious()) {
+        while ($throwable = $throwable->getPrevious()) {
             $message .= PHP_EOL . 'Previous error:' . PHP_EOL;
             $message .= $this->renderThrowableAsText($throwable);
         }
