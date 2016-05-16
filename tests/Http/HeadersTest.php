@@ -102,6 +102,18 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['GET', 'POST'], $h->get('Allow'));
     }
 
+    public function testGetOriginalKey()
+    {
+        $h = new Headers();
+        $h->set('http-test_key', 'testValue');
+        $h->get('test-key');
+
+        $value = $h->get('test-key');
+
+        $this->assertEquals('testValue', reset($value));
+        $this->assertEquals('http-test_key', $h->getOriginalKey('test-key'));
+    }
+
     public function testGetNotExists()
     {
         $h = new Headers();
