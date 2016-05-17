@@ -103,20 +103,14 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testWithStatusEmptyReasonPhrase()
     {
-        $response = new Response();
-        $clone = $response->withStatus(207);
-        $responsePhrase = new ReflectionProperty($response, 'reasonPhrase');
-        $responsePhrase->setAccessible(true);
+        $responseWithNoMessage = new Response(310);
 
-        $this->assertEquals('Multi-Status', $responsePhrase->getValue($clone));
+        $this->assertEquals('', $responseWithNoMessage->getReasonPhrase());
     }
 
     public function testGetReasonPhrase()
     {
-        $response = new Response();
-        $responseStatus = new ReflectionProperty($response, 'status');
-        $responseStatus->setAccessible(true);
-        $responseStatus->setValue($response, '404');
+        $response = new Response(404);
 
         $this->assertEquals('Not Found', $response->getReasonPhrase());
     }
