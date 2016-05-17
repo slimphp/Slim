@@ -80,14 +80,20 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` does not recast exceptions which are thrown in a factory closure
      *
-     * @expectedException \UnexpectedValueException
+     * @expectedException \InvalidArgumentException
      */
     public function testGetWithErrorThrownByFactoryClosure()
     {
+        $invokable = $this->getMockBuilder('TestClass')->setMethods(['__invoke'])->getMock();
+        /** @var \Callable $invokable */
+        $invokable->expects($this->any())
+            ->method('__invoke')
+            ->will($this->throwException(new \InvalidArgumentException()));
+
         $container = new Container;
         $container['foo'] =
-            function (ContainerInterface $container) {
-                throw new \UnexpectedValueException();
+            function (ContainerInterface $container) use ($invokable) {
+                call_user_func($invokable);
             }
         ;
         $container->get('foo');
