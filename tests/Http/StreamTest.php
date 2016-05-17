@@ -16,19 +16,19 @@ class StreamTest extends \PHPUnit_Framework_TestCase
      * @var resource pipe stream file handle
      */
     private $pipeFh;
-    
+
     /**
      * @var Stream
      */
     private $pipeStream;
-        
+
     public function tearDown()
     {
         if ($this->pipeFh != null) {
             stream_get_contents($this->pipeFh); // prevent broken pipe error message
         }
     }
-    
+
     /**
      * @covers Slim\Http\Stream::isPipe
      */
@@ -40,22 +40,32 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
         $this->pipeStream->detach();
         $this->assertFalse($this->pipeStream->isPipe());
-        
+
         $fhFile = fopen(__FILE__, 'r');
         $fileStream = new Stream($fhFile);
         $this->assertFalse($fileStream->isPipe());
     }
-    
+
+    /**
+     * @covers Slim\Http\Stream::isReadable
+     */
+    public function testIsPipeReadable()
+    {
+        $this->openPipeStream();
+
+        $this->assertTrue($this->pipeStream->isReadable());
+    }
+
     /**
      * @covers Slim\Http\Stream::isSeekable
      */
     public function testPipeIsNotSeekable()
     {
         $this->openPipeStream();
-        
+
         $this->assertFalse($this->pipeStream->isSeekable());
     }
-    
+
     /**
      * @covers Slim\Http\Stream::seek
      * @expectedException \RuntimeException
@@ -77,7 +87,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
         $this->pipeStream->tell();
     }
-    
+
     /**
      * @covers Slim\Http\Stream::rewind
      * @expectedException \RuntimeException
@@ -85,7 +95,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
     public function testCannotRewindPipe()
     {
         $this->openPipeStream();
-        
+
         $this->pipeStream->rewind();
     }
 
@@ -95,24 +105,24 @@ class StreamTest extends \PHPUnit_Framework_TestCase
     public function testPipeGetSizeYieldsNull()
     {
         $this->openPipeStream();
-        
+
         $this->assertNull($this->pipeStream->getSize());
     }
-    
+
     /**
      * @covers Slim\Http\Stream::close
      */
     public function testClosePipe()
     {
         $this->openPipeStream();
-        
+
         stream_get_contents($this->pipeFh); // prevent broken pipe error message
         $this->pipeStream->close();
         $this->pipeFh = null;
-        
+
         $this->assertFalse($this->pipeStream->isPipe());
     }
-    
+
     /**
      * @covers Slim\Http\Stream::__toString
      */
@@ -122,26 +132,17 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame('', (string) $this->pipeStream);
     }
-    
+
     /**
-     * @covers Slim\Http\Stream::isSeekableForward
+     * @covers Slim\Http\Stream::getContents
      */
-    public function testPipeIsSeekableForward()
+
+    public function testPipeGetContents()
     {
         $this->openPipeStream();
 
-        $this->assertTrue($this->pipeStream->isSeekableForward());
-    }
-    
-    /**
-     * @covers Slim\Http\Stream::seekForward
-     */
-    public function testPipeSeekForward()
-    {
-        $this->openPipeStream();
-
-        $this->pipeStream->seekForward(1);
-        $this->assertSame('2', $this->pipeStream->read(1));
+        $contents = trim($this->pipeStream->getContents());
+        $this->assertSame('12', $contents);
     }
 
     /**

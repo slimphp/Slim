@@ -23,7 +23,7 @@ class Stream implements StreamInterface
      * This is octal as per header stat.h
      */
     const FSTAT_MODE_S_IFIFO = 0010000;
-    
+
     /**
      * Resource modes
      *
@@ -76,7 +76,7 @@ class Stream implements StreamInterface
      * @var null|int
      */
     protected $size;
-    
+
     /**
      * Is this stream a pipe?
      *
@@ -268,13 +268,17 @@ class Stream implements StreamInterface
     public function isReadable()
     {
         if ($this->readable === null) {
-            $this->readable = false;
-            if ($this->isAttached()) {
-                $meta = $this->getMetadata();
-                foreach (self::$modes['readable'] as $mode) {
-                    if (strpos($meta['mode'], $mode) === 0) {
-                        $this->readable = true;
-                        break;
+            if ($this->isPipe()) {
+                $this->readable = true;
+            } else {
+                $this->readable = false;
+                if ($this->isAttached()) {
+                    $meta = $this->getMetadata();
+                    foreach (self::$modes['readable'] as $mode) {
+                        if (strpos($meta['mode'], $mode) === 0) {
+                            $this->readable = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -317,7 +321,7 @@ class Stream implements StreamInterface
             $this->seekable = false;
             if ($this->isAttached()) {
                 $meta = $this->getMetadata();
-                $this->seekable = $meta['seekable'];
+                $this->seekable = !$this->isPipe() && $meta['seekable'];
             }
         }
 
@@ -343,36 +347,6 @@ class Stream implements StreamInterface
         // Note that fseek returns 0 on success!
         if (!$this->isSeekable() || fseek($this->stream, $offset, $whence) === -1) {
             throw new RuntimeException('Could not seek in stream');
-        }
-    }
-    
-    /**
-     * Returns whether or not the stream is seekable forward.
-     *
-     * Note: This method is not part of the PSR-7 standard
-     * and is provided for Stream's compatibility with pipes.
-     *
-     * @return bool
-     */
-    public function isSeekableForward()
-    {
-        return $this->isSeekable() || $this->isPipe();
-    }
-
-    /**
-     * Seek forward in the stream.
-     *
-     * Note: This method is not part of the PSR-7 standard
-     * and is provided for Stream's compatibility with pipes.
-     *
-     * @param int $offset Stream offset
-     * @throws RuntimeException on failure.
-     */
-    public function seekForward($offset)
-    {
-        // Note that fseek returns 0 on success!
-        if (!$this->isSeekableForward() || fseek($this->stream, $offset, SEEK_CUR) === -1) {
-            throw new RuntimeException('Could not seek forward in stream');
         }
     }
 
