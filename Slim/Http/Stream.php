@@ -20,6 +20,8 @@ use RuntimeException;
 class Stream implements StreamInterface
 {
     /**
+     * Bit mask to determine if the stream is a pipe
+     *
      * This is octal as per header stat.h
      */
     const FSTAT_MODE_S_IFIFO = 0010000;
@@ -82,7 +84,7 @@ class Stream implements StreamInterface
      *
      * @var bool
      */
-    protected $pipe;
+    protected $isPipe;
 
     /**
      * Create a new Stream.
@@ -170,7 +172,7 @@ class Stream implements StreamInterface
         $this->writable = null;
         $this->seekable = null;
         $this->size = null;
-        $this->pipe = null;
+        $this->isPipe = null;
 
         return $oldResource;
     }
@@ -427,7 +429,7 @@ class Stream implements StreamInterface
 
         return $contents;
     }
-    
+
     /**
      * Returns whether or not the stream is a pipe.
      *
@@ -435,14 +437,14 @@ class Stream implements StreamInterface
      */
     public function isPipe()
     {
-        if ($this->pipe === null) {
-            $this->pipe = false;
+        if ($this->isPipe === null) {
+            $this->isPipe = false;
             if ($this->isAttached()) {
                 $mode = fstat($this->stream)['mode'];
-                $this->pipe = ($mode & self::FSTAT_MODE_S_IFIFO) !== 0;
+                $this->isPipe = ($mode & self::FSTAT_MODE_S_IFIFO) !== 0;
             }
         }
-        
-        return $this->pipe;
+
+        return $this->isPipe;
     }
 }
