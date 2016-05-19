@@ -604,8 +604,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetServerParams()
     {
-        $mockEnv = Environment::mock();
-        $request = $this->requestFactory();
+        $mockEnv = Environment::mock(["HTTP_AUTHORIZATION" => "test"]);
+        $request = $this->requestFactory(["HTTP_AUTHORIZATION" => "test"]);
 
         $serverParams = $request->getServerParams();
         foreach ($serverParams as $key => $value) {

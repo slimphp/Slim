@@ -214,4 +214,14 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo-bar', $h->normalizeKey('http_foo_bar'));
         $this->assertEquals('foo-bar', $h->normalizeKey('http-foo-bar'));
     }
+
+    public function testDetermineAuthorization()
+    {
+        $e = Environment::mock([]);
+        $en = Headers::determineAuthorization($e);
+        $h = Headers::createFromEnvironment($e);
+
+        $this->assertEquals('electrolytes', $en->get('HTTP_AUTHORIZATION'));
+        $this->assertEquals(['electrolytes'], $h->get('Authorization'));
+    }
 }
