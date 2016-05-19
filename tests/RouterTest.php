@@ -231,7 +231,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $callable = function ($request, $response, $args) {
             echo sprintf('Hello ignore me');
         };
-        
+
         $this->router->setBasePath('/base/path');
 
         $route1 = $this->router->map($methods, '/foo', $callable);
@@ -245,7 +245,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $route4 = $this->router->map($methods, '/buzz', $callable);
         $route4->setName('buzz');
-   
+
         $routeToRemove = $this->router->getNamedRoute('fizz');
 
         $routeCountBefore = count($this->router->getRoutes());
@@ -286,7 +286,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->setBasePath('/base/path');
         $this->router->removeNamedRoute('non-existing-route-name');
     }
-    
+
     public function testPathForWithModifiedRoutePattern()
     {
         $this->router->setBasePath('/base/path');
@@ -298,7 +298,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         };
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
-        
+
         $route->setPattern('/hallo/{voornaam:\w+}/{achternaam}');
 
         $this->assertEquals(
@@ -399,5 +399,42 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $dispatcher = $method->invoke($this->router);
         $dispatcher2 = $method->invoke($this->router);
         $this->assertSame($dispatcher2, $dispatcher);
+    }
+
+    /**
+     * Test that the router urlFor will proxy into a pathFor method, and trigger
+     * the user deprecated warning
+     */
+    public function testUrlForAliasesPathFor()
+    {
+        //create a temporary error handler, store the error str in this value
+        $errorString = null;
+
+        set_error_handler(function ($no, $str) use (&$errorString) {
+            $errorString = $str;
+        }, E_USER_DEPRECATED);
+
+        //create the parameters we expect
+        $name = 'foo';
+        $data = ['name' => 'josh'];
+        $queryParams = ['a' => 'b', 'c' => 'd'];
+
+        //create a router that mocks the pathFor with expected args
+        $router = $this->getMock('\Slim\Router', ['pathFor']);
+        $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
+        $router->urlFor($name, $data, $queryParams);
+
+        //check that our error was triggered
+        $this->assertEquals($errorString, 'urlFor() is deprecated. Use pathFor() instead.');
+
+        restore_error_handler();
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testLookupRouteThrowsExceptionIfRouteNotFound()
+    {
+        $this->router->lookupRoute("thisIsMissing");
     }
 }
