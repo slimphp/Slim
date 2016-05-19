@@ -80,7 +80,7 @@ class Stream implements StreamInterface
     /**
      * Is this stream a pipe?
      *
-     * @var type
+     * @var bool
      */
     protected $pipe;
 
