@@ -51,7 +51,7 @@ class Headers extends Collection implements HeadersInterface
     public static function createFromEnvironment(Environment $environment)
     {
         $data = [];
-        $environment = self::normalizeEnvironment($environment);
+        $environment = self::determineAuthorization($environment);
         foreach ($environment as $key => $value) {
             $key = strtoupper($key);
             if (isset(static::$special[$key]) || strpos($key, 'HTTP_') === 0) {
@@ -73,7 +73,7 @@ class Headers extends Collection implements HeadersInterface
      * @return Environment
      */
 
-    public static function normalizeEnvironment(Environment $environment)
+    public static function determineAuthorization(Environment $environment)
     {
         $authorization = $environment->get('HTTP_AUTHORIZATION');
 
