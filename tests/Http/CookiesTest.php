@@ -183,21 +183,38 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
             ]
         ];
         $time = time();
+        $formattedDate = gmdate('D, d-M-Y H:i:s e', $time);
         $propertiesComplex = [
             'name' => 'test_complex',
             'properties' => [
                 'value' => 'Works',
                 'domain' => 'example.com',
                 'expires' => $time,
+                'path' => '/',
+                'secure' => true,
+                'hostonly' => true,
+                'httponly' => true
+            ]
+        ];
+        $stringDate = '2016-01-01 12:00:00';
+        $formattedStringDate = gmdate('D, d-M-Y H:i:s e', strtotime($stringDate));
+        $propertiesStringDate = [
+            'name' => 'test_date',
+            'properties' => [
+                'value' => 'Works',
+                'expires' => $stringDate,
             ]
         ];
         $cookie = $method->invokeArgs($cookies, $properties);
         $cookieComplex = $method->invokeArgs($cookies, $propertiesComplex);
+        $cookieStringDate = $method->invokeArgs($cookies, $propertiesStringDate);
         $this->assertEquals('test=Works', $cookie);
         $this->assertEquals(
-            'test_complex=Works; domain=example.com; expires='.gmdate('D, d-M-Y H:i:s e', $time),
+            'test_complex=Works; domain=example.com; path=/; expires='
+            . $formattedDate . '; secure; HostOnly; HttpOnly',
             $cookieComplex
         );
+        $this->assertEquals('test_date=Works; expires=' . $formattedStringDate, $cookieStringDate);
     }
 
     public function testParseHeaderException()
