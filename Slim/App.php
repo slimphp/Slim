@@ -353,10 +353,12 @@ class App
      */
     public function respond(ResponseInterface $response)
     {
+        $globalUtil = $this->container->get('globalUtil');
+
         // Send response
-        if (!headers_sent()) {
+        if (!$globalUtil->headersSent()) {
             // Status
-            header(sprintf(
+            $globalUtil->header(sprintf(
                 'HTTP/%s %s %s',
                 $response->getProtocolVersion(),
                 $response->getStatusCode(),
@@ -366,7 +368,7 @@ class App
             // Headers
             foreach ($response->getHeaders() as $name => $values) {
                 foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
+                    $globalUtil->header(sprintf('%s: %s', $name, $value), false);
                 }
             }
         }
@@ -394,14 +396,14 @@ class App
                     
                     $amountToRead -= strlen($data);
                                         
-                    if (connection_status() != CONNECTION_NORMAL) {
+                    if ($globalUtil->connectionStatus() != CONNECTION_NORMAL) {
                         break;
                     }
                 }
             } else {
                 while (!$body->eof()) {
                     echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
+                    if ($globalUtil->connectionStatus() != CONNECTION_NORMAL) {
                         break;
                     }
                 }
