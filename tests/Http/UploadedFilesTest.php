@@ -115,6 +115,22 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
         return $uploadedFile;
     }
+    
+    /**
+     * @depends testMoveTo
+     * @param UploadedFile $uploadedFile
+     * @expectedException RuntimeException
+     */
+    public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
+    {
+        $tempName = uniqid('file-');
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
+        $uploadedFile->moveTo($path);
+        $this->assertFileExists($path);
+        unlink($path);
+
+        $uploadedFile->moveTo($path);
+    }
 
     public function providerCreateFromEnvironment()
     {
@@ -136,6 +152,31 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
                     'avatar' => new UploadedFile('phpUxcOty', 'my-avatar.png', 'image/png', 90996, UPLOAD_ERR_OK, true)
                 ]
             ],
+            // no nest, with error: <input name="avatar" type="file">
+            [
+                // $_FILES array
+                [
+                    'avatar' => [
+                        'tmp_name' => 'phpUxcOty',
+                        'name'     => 'my-avatar.png',
+                        'size'     => 90996,
+                        'type'     => 'image/png',
+                        'error'    => 7,
+                    ],
+                ],
+                // expected format of array
+                [
+                    'avatar' => new UploadedFile(
+                        'phpUxcOty',
+                        'my-avatar.png',
+                        'image/png',
+                        90996,
+                        UPLOAD_ERR_CANT_WRITE,
+                        true
+                    )
+                ]
+            ],
+
             // array of files: <input name="avatars[]" type="file">
             [
                 // $_FILES array
