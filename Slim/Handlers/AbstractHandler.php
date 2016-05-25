@@ -43,7 +43,7 @@ abstract class AbstractHandler
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
 
         if (count($selectedContentTypes)) {
-            return $selectedContentTypes[0];
+            return current($selectedContentTypes);
         }
 
         // handle +json and +xml specially
