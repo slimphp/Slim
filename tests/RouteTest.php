@@ -418,4 +418,29 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->setPattern('/hola/{nombre}');
         $this->assertEquals('/hola/{nombre}', $route->getPattern());
     }
+
+    public function testAddTag()
+    {
+        $route = $this->routeFactory();
+        $route->addTag('TestTag');
+        $this->assertEquals(['TestTag'], $route->getTags());
+    }
+
+    public function testHasTag()
+    {
+        $route = $this->routeFactory();
+        $route->addTag('TestTag');
+        $this->assertTrue($route->hasTag('TestTag'));
+        $this->assertFalse($route->hasTag('MissingTag'));
+    }
+
+    public function testAddTags()
+    {
+        $route = $this->routeFactory();
+        $route->addTags(['TagA','TagB']);
+        $this->assertTrue($route->hasTag('TagA'));
+        $this->assertTrue($route->hasTag('TagB'));
+        $this->assertFalse($route->hasTag('MissingTag'));
+        $this->assertEquals(['TagA','TagB'], $route->getTags());
+    }
 }
