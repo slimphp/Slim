@@ -443,4 +443,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($route->hasTag('MissingTag'));
         $this->assertEquals(['TagA','TagB'], $route->getTags());
     }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testAddTagWithoutStringThrowsError()
+    {
+        $route = $this->routeFactory();
+        $route->addTag(42);
+    }
 }
