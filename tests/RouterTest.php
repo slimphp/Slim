@@ -441,14 +441,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     public function testGetRoutesWithTag()
     {
         $router = new Router();
-        $route1 = $router->map(['GET'], '/route1', function(){});
+        $route1 = $router->map(['GET'], '/route1', function () {
+        });
         $route1->addTag('A');
         $route1->addTag('B');
 
-        $route2 = $router->map(['GET'], '/route2', function(){});
+        $route2 = $router->map(['GET'], '/route2', function () {
+        });
         $route2->addTag('A');
 
-        $route3 = $router->map(['GET'], '/route3', function(){});
+        $route3 = $router->map(['GET'], '/route3', function () {
+        });
         $route3->addTag('B');
 
         $routesWithTagA = $router->getRoutesWithTag('A');

@@ -238,8 +238,8 @@ class Router implements RouterInterface
             throw new \InvalidArgumentException("Tag must be a string");
         }
 
-        $routes = array_filter($this->routes, function($route) use ($tag) {
-           return $route->hasTag($tag);
+        $routes = array_filter($this->routes, function ($route) use ($tag) {
+            return $route->hasTag($tag);
         });
 
 
