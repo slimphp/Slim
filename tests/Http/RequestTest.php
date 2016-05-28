@@ -32,7 +32,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         ];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+        $uploadedFiles = UploadedFile::createFromGlobals();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         return $request;
