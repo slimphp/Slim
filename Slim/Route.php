@@ -338,6 +338,9 @@ class Route extends Routable implements RouteInterface
             if ($response->getBody()->isWritable()) {
                 $response->getBody()->write($newResponse);
             }
+        } else if (is_array($newResponse) || is_object($newResponse)) {
+            // if route callback returns an array or an object, then alter the response into json
+            $response = $response->withJson($newResponse);
         }
 
         if (!empty($output) && $response->getBody()->isWritable()) {
