@@ -276,7 +276,7 @@ class Router implements RouterInterface
         // The most specific is last, so we look for that first.
         $routeDatas = array_reverse($routeDatas);
 
-        $segments = [];
+        $segments = $segmentKeys = [];
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {
@@ -295,6 +295,7 @@ class Router implements RouterInterface
                     break;
                 }
                 $segments[] = $data[$item[0]];
+                $segmentKeys[$item[0]] = true;
             }
             if (!empty($segments)) {
                 // we found all the parameters for this route data, no need to check
@@ -308,7 +309,7 @@ class Router implements RouterInterface
         }
         $url = implode('', $segments);
 
-        $params = array_merge(array_diff($data, $segments), $queryParams);
+        $params = array_merge(array_diff_key($data, $segmentKeys), $queryParams);
         if ($params) {
             $url .= '?' . http_build_query($params);
         }
