@@ -8,22 +8,19 @@
  */
 namespace Slim;
 
-use Exception;
-use Throwable;
-use Closure;
+use FastRoute\Dispatcher;
+use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
-use FastRoute\Dispatcher;
-use Slim\Exception\SlimException;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Http\Uri;
-use Slim\Http\Headers;
+use Slim\Exception\SlimException;
 use Slim\Http\Body;
+use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\Uri;
 use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -110,7 +107,7 @@ class App
     }
 
     /**
-     * Calling a non-existant method on App checks to see if there's an item
+     * Calling a non-existent method on App checks to see if there's an item
      * in the container that is callable and if so, calls it.
      *
      * @param  string $method
@@ -235,7 +232,7 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        if ($callable instanceof Closure) {
+        if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
@@ -286,7 +283,7 @@ class App
      * @param bool|false $silent
      * @return ResponseInterface
      *
-     * @throws Exception
+     * @throws \Exception
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
@@ -314,7 +311,7 @@ class App
      * @param ResponseInterface $response
      * @return ResponseInterface
      *
-     * @throws Exception
+     * @throws \Exception
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
@@ -335,9 +332,9 @@ class App
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $response = $this->handlePhpError($e, $request, $response);
         }
 
@@ -583,14 +580,14 @@ class App
      * Call relevant handler from the Container if needed. If it doesn't exist,
      * then just re-throw.
      *
-     * @param  Exception $e
+     * @param  \Exception $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      *
      * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
+     * @throws \Exception if a handler is needed and not found
      */
-    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
+    protected function handleException(\Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
         if ($e instanceof MethodNotAllowedException) {
             $handler = 'notAllowedHandler';
@@ -621,13 +618,13 @@ class App
      * Call relevant handler from the Container if needed. If it doesn't exist,
      * then just re-throw.
      *
-     * @param  Throwable $e
+     * @param  \Throwable $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      * @return ResponseInterface
-     * @throws Throwable
+     * @throws \Throwable
      */
-    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
+    protected function handlePhpError(\Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
         $handler = 'phpErrorHandler';
         $params = [$request, $response, $e];

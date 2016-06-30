@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use RuntimeException;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
@@ -41,8 +40,8 @@ final class CallableResolver implements CallableResolverInterface
      *
      * @return callable
      *
-     * @throws RuntimeException if the callable does not exist
-     * @throws RuntimeException if the callable is not resolvable
+     * @throws \RuntimeException if the callable does not exist
+     * @throws \RuntimeException if the callable is not resolvable
      */
     public function resolve($toResolve)
     {
@@ -59,7 +58,7 @@ final class CallableResolver implements CallableResolverInterface
                     $resolved = [$this->container->get($class), $method];
                 } else {
                     if (!class_exists($class)) {
-                        throw new RuntimeException(sprintf('Callable %s does not exist', $class));
+                        throw new \RuntimeException(sprintf('Callable %s does not exist', $class));
                     }
                     $resolved = [new $class($this->container), $method];
                 }
@@ -71,7 +70,7 @@ final class CallableResolver implements CallableResolverInterface
                     $resolved = $this->container->get($class);
                 } else {
                     if (!class_exists($class)) {
-                        throw new RuntimeException(sprintf('Callable %s does not exist', $class));
+                        throw new \RuntimeException(sprintf('Callable %s does not exist', $class));
                     }
                     $resolved = new $class($this->container);
                 }
@@ -79,7 +78,7 @@ final class CallableResolver implements CallableResolverInterface
         }
 
         if (!is_callable($resolved)) {
-            throw new RuntimeException(sprintf('%s is not resolvable', $toResolve));
+            throw new \RuntimeException(sprintf('%s is not resolvable', $toResolve));
         }
 
         return $resolved;

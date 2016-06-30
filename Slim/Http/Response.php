@@ -8,7 +8,6 @@
  */
 namespace Slim\Http;
 
-use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -180,7 +179,7 @@ class Response extends Message implements ResponseInterface
         $code = $this->filterStatus($code);
 
         if (!is_string($reasonPhrase) && !method_exists($reasonPhrase, '__toString')) {
-            throw new InvalidArgumentException('ReasonPhrase must be a string');
+            throw new \InvalidArgumentException('ReasonPhrase must be a string');
         }
 
         $clone = clone $this;
@@ -190,7 +189,7 @@ class Response extends Message implements ResponseInterface
         }
 
         if ($reasonPhrase === '') {
-            throw new InvalidArgumentException('ReasonPhrase must be supplied for this code');
+            throw new \InvalidArgumentException('ReasonPhrase must be supplied for this code');
         }
 
         $clone->reasonPhrase = $reasonPhrase;
@@ -208,7 +207,7 @@ class Response extends Message implements ResponseInterface
     protected function filterStatus($status)
     {
         if (!is_integer($status) || $status<100 || $status>599) {
-            throw new InvalidArgumentException('Invalid HTTP status code');
+            throw new \InvalidArgumentException('Invalid HTTP status code');
         }
 
         return $status;

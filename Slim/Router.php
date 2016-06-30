@@ -8,17 +8,15 @@
  */
 namespace Slim;
 
+use FastRoute\DataGenerator;
 use FastRoute\Dispatcher;
-use InvalidArgumentException;
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
-use FastRoute\DataGenerator;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Interfaces\RouteGroupInterface;
-use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * Router
@@ -96,7 +94,7 @@ class Router implements RouterInterface
     public function setBasePath($basePath)
     {
         if (!is_string($basePath)) {
-            throw new InvalidArgumentException('Router basePath must be a string');
+            throw new \InvalidArgumentException('Router basePath must be a string');
         }
 
         $this->basePath = $basePath;
@@ -114,13 +112,13 @@ class Router implements RouterInterface
     public function setCacheFile($cacheFile)
     {
         if (!is_string($cacheFile) && $cacheFile !== false) {
-            throw new InvalidArgumentException('Router cacheFile must be a string or false');
+            throw new \InvalidArgumentException('Router cacheFile must be a string or false');
         }
 
         $this->cacheFile = $cacheFile;
 
         if ($cacheFile !== false && !is_writable(dirname($cacheFile))) {
-            throw new RuntimeException('Router cacheFile directory must be writable');
+            throw new \RuntimeException('Router cacheFile directory must be writable');
         }
 
 
@@ -136,12 +134,12 @@ class Router implements RouterInterface
      *
      * @return RouteInterface
      *
-     * @throws InvalidArgumentException if the route pattern isn't a string
+     * @throws \InvalidArgumentException if the route pattern isn't a string
      */
     public function map($methods, $pattern, $handler)
     {
         if (!is_string($pattern)) {
-            throw new InvalidArgumentException('Route pattern must be a string');
+            throw new \InvalidArgumentException('Route pattern must be a string');
         }
 
         // Prepend parent group pattern(s)
@@ -233,7 +231,7 @@ class Router implements RouterInterface
      *
      * @return Route
      *
-     * @throws RuntimeException   If named route does not exist
+     * @throws \RuntimeException   If named route does not exist
      */
     public function getNamedRoute($name)
     {
@@ -242,7 +240,7 @@ class Router implements RouterInterface
                 return $route;
             }
         }
-        throw new RuntimeException('Named route does not exist for name: ' . $name);
+        throw new \RuntimeException('Named route does not exist for name: ' . $name);
     }
     
     /**
@@ -250,7 +248,7 @@ class Router implements RouterInterface
      *
      * @param string $name        Route name
      *
-     * @throws RuntimeException   If named route does not exist
+     * @throws \RuntimeException   If named route does not exist
      */
     public function removeNamedRoute($name)
     {
@@ -307,7 +305,7 @@ class Router implements RouterInterface
     public function lookupRoute($identifier)
     {
         if (!isset($this->routes[$identifier])) {
-            throw new RuntimeException('Route not found, looks like your route cache is stale.');
+            throw new \RuntimeException('Route not found, looks like your route cache is stale.');
         }
         return $this->routes[$identifier];
     }
@@ -321,8 +319,8 @@ class Router implements RouterInterface
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
      */
     public function relativePathFor($name, array $data = [], array $queryParams = [])
     {
@@ -364,7 +362,7 @@ class Router implements RouterInterface
         }
 
         if (empty($segments)) {
-            throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
+            throw new \InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
         }
         $url = implode('', $segments);
 
@@ -385,8 +383,8 @@ class Router implements RouterInterface
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
@@ -410,8 +408,8 @@ class Router implements RouterInterface
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {

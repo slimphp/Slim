@@ -8,9 +8,8 @@
  */
 namespace Slim\Interfaces;
 
-use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Route Interface
@@ -77,7 +76,7 @@ interface RouteInterface
      * @param string $name
      *
      * @return static
-     * @throws InvalidArgumentException if the route name is not a string
+     * @throws \InvalidArgumentException if the route name is not a string
      */
     public function setName($name);
 

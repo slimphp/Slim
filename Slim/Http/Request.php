@@ -8,13 +8,11 @@
  */
 namespace Slim\Http;
 
-use Closure;
 use InvalidArgumentException;
-use Psr\Http\Message\UploadedFileInterface;
-use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\Collection;
 use Slim\Interfaces\Http\HeadersInterface;
 
@@ -954,7 +952,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
-     * @throws RuntimeException if the request body media type parser returns an invalid value
+     * @throws \RuntimeException if the request body media type parser returns an invalid value
      */
     public function getParsedBody()
     {
@@ -979,7 +977,7 @@ class Request extends Message implements ServerRequestInterface
             $parsed = $this->bodyParsers[$mediaType]($body);
 
             if (!is_null($parsed) && !is_object($parsed) && !is_array($parsed)) {
-                throw new RuntimeException(
+                throw new \RuntimeException(
                     'Request body media type parser return value must be an array, an object, or null'
                 );
             }
@@ -1056,7 +1054,7 @@ class Request extends Message implements ServerRequestInterface
      */
     public function registerMediaTypeParser($mediaType, callable $callable)
     {
-        if ($callable instanceof Closure) {
+        if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this);
         }
         $this->bodyParsers[(string)$mediaType] = $callable;

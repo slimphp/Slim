@@ -10,11 +10,10 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\ContainerValueNotFoundException;
-use Slim\Handlers\PhpError;
 use Slim\Handlers\Error;
-use Slim\Handlers\NotFound;
 use Slim\Handlers\NotAllowed;
+use Slim\Handlers\NotFound;
+use Slim\Handlers\PhpError;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Http\Environment;
 use Slim\Http\Headers;

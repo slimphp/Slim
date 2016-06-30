@@ -97,6 +97,7 @@ abstract class Routable
     /**
      * Set the route pattern
      *
+     * @param $newPattern string
      * @set string
      */
     public function setPattern($newPattern)
