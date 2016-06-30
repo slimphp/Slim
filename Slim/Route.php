@@ -8,10 +8,8 @@
  */
 namespace Slim;
 
-use Exception;
-use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -177,12 +175,12 @@ class Route extends Routable implements RouteInterface
      *
      * @param boolean|string $mode
      *
-     * @throws InvalidArgumentException If an unknown buffering mode is specified
+     * @throws \InvalidArgumentException If an unknown buffering mode is specified
      */
     public function setOutputBuffering($mode)
     {
         if (!in_array($mode, [false, 'prepend', 'append'], true)) {
-            throw new InvalidArgumentException('Unknown output buffering mode');
+            throw new \InvalidArgumentException('Unknown output buffering mode');
         }
         $this->outputBuffering = $mode;
     }
@@ -194,12 +192,12 @@ class Route extends Routable implements RouteInterface
      *
      * @return self
      *
-     * @throws InvalidArgumentException if the route name is not a string
+     * @throws \InvalidArgumentException if the route name is not a string
      */
     public function setName($name)
     {
         if (!is_string($name)) {
-            throw new InvalidArgumentException('Route name must be a string');
+            throw new \InvalidArgumentException('Route name must be a string');
         }
         $this->name = $name;
         return $this;
@@ -324,7 +322,7 @@ class Route extends Routable implements RouteInterface
                 ob_start();
                 $newResponse = $handler($this->callable, $request, $response, $this->arguments);
                 $output = ob_get_clean();
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 ob_end_clean();
                 throw $e;
             }

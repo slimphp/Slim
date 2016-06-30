@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use RuntimeException;
 use Interop\Container\ContainerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
@@ -31,7 +30,7 @@ trait CallableResolverAwareTrait
      *
      * @return \Closure
      *
-     * @throws RuntimeException If the string cannot be resolved as a callable
+     * @throws \RuntimeException If the string cannot be resolved as a callable
      */
     protected function resolveCallable($callable)
     {

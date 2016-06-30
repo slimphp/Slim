@@ -8,9 +8,7 @@
  */
 namespace Slim\Http;
 
-use InvalidArgumentException;
-use \Psr\Http\Message\UriInterface;
-use Slim\Http\Environment;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Value object representing a URI.
@@ -140,7 +138,7 @@ class Uri implements UriInterface
     public static function createFromString($uri)
     {
         if (!is_string($uri) && !method_exists($uri, '__toString')) {
-            throw new InvalidArgumentException('Uri must be a string');
+            throw new \InvalidArgumentException('Uri must be a string');
         }
 
         $parts = parse_url($uri);
@@ -284,8 +282,8 @@ class Uri implements UriInterface
      * @param  string $scheme Raw Uri scheme.
      * @return string
      *
-     * @throws InvalidArgumentException If the Uri scheme is not a string.
-     * @throws InvalidArgumentException If Uri scheme is not "", "https", or "http".
+     * @throws \InvalidArgumentException If the Uri scheme is not a string.
+     * @throws \InvalidArgumentException If Uri scheme is not "", "https", or "http".
      */
     protected function filterScheme($scheme)
     {
@@ -296,12 +294,12 @@ class Uri implements UriInterface
         ];
 
         if (!is_string($scheme) && !method_exists($scheme, '__toString')) {
-            throw new InvalidArgumentException('Uri scheme must be a string');
+            throw new \InvalidArgumentException('Uri scheme must be a string');
         }
 
         $scheme = str_replace('://', '', strtolower((string)$scheme));
         if (!isset($valid[$scheme])) {
-            throw new InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
+            throw new \InvalidArgumentException('Uri scheme must be one of: "", "https", "http"');
         }
 
         return $scheme;
@@ -479,7 +477,7 @@ class Uri implements UriInterface
      * @param  null|int $port The Uri port number.
      * @return null|int
      *
-     * @throws InvalidArgumentException If the port is invalid.
+     * @throws \InvalidArgumentException If the port is invalid.
      */
     protected function filterPort($port)
     {
@@ -487,7 +485,7 @@ class Uri implements UriInterface
             return $port;
         }
 
-        throw new InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
+        throw new \InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
     }
 
     /********************************************************************************
@@ -549,7 +547,7 @@ class Uri implements UriInterface
     public function withPath($path)
     {
         if (!is_string($path)) {
-            throw new InvalidArgumentException('Uri path must be a string');
+            throw new \InvalidArgumentException('Uri path must be a string');
         }
 
         $clone = clone $this;
@@ -589,7 +587,7 @@ class Uri implements UriInterface
     public function withBasePath($basePath)
     {
         if (!is_string($basePath)) {
-            throw new InvalidArgumentException('Uri path must be a string');
+            throw new \InvalidArgumentException('Uri path must be a string');
         }
         if (!empty($basePath)) {
             $basePath = '/' . trim($basePath, '/'); // <-- Trim on both sides
@@ -673,7 +671,7 @@ class Uri implements UriInterface
     public function withQuery($query)
     {
         if (!is_string($query) && !method_exists($query, '__toString')) {
-            throw new InvalidArgumentException('Uri query must be a string');
+            throw new \InvalidArgumentException('Uri query must be a string');
         }
         $query = ltrim((string)$query, '?');
         $clone = clone $this;
@@ -741,7 +739,7 @@ class Uri implements UriInterface
     public function withFragment($fragment)
     {
         if (!is_string($fragment) && !method_exists($fragment, '__toString')) {
-            throw new InvalidArgumentException('Uri fragment must be a string');
+            throw new \InvalidArgumentException('Uri fragment must be a string');
         }
         $fragment = ltrim((string)$fragment, '#');
         $clone = clone $this;

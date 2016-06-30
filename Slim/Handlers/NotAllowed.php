@@ -8,10 +8,9 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
-use UnexpectedValueException;
 
 /**
  * Default Slim application not allowed handler
@@ -29,7 +28,7 @@ class NotAllowed extends AbstractHandler
      * @param  string[]               $methods  Allowed HTTP methods
      *
      * @return ResponseInterface
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
     {
@@ -54,7 +53,7 @@ class NotAllowed extends AbstractHandler
                     $output = $this->renderHtmlNotAllowedMessage($methods);
                     break;
                 default:
-                    throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
+                    throw new \UnexpectedValueException('Cannot render unknown content type ' . $contentType);
             }
         }
 

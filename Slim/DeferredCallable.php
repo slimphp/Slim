@@ -9,7 +9,6 @@
 
 namespace Slim;
 
-use Closure;
 use Interop\Container\ContainerInterface;
 
 class DeferredCallable
@@ -34,7 +33,7 @@ class DeferredCallable
     public function __invoke()
     {
         $callable = $this->resolveCallable($this->callable);
-        if ($callable instanceof Closure) {
+        if ($callable instanceof \Closure) {
             $callable = $callable->bindTo($this->container);
         }
 

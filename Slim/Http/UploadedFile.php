@@ -8,8 +8,6 @@
  */
 namespace Slim\Http;
 
-use RuntimeException;
-use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -216,39 +214,39 @@ class UploadedFile implements UploadedFileInterface
      *
      * @param string $targetPath Path to which to move the uploaded file.
      *
-     * @throws InvalidArgumentException if the $path specified is invalid.
-     * @throws RuntimeException on any error during the move operation, or on
+     * @throws \InvalidArgumentException if the $path specified is invalid.
+     * @throws \RuntimeException on any error during the move operation, or on
      *     the second or subsequent call to the method.
      */
     public function moveTo($targetPath)
     {
         if ($this->moved) {
-            throw new RuntimeException('Uploaded file already moved');
+            throw new \RuntimeException('Uploaded file already moved');
         }
 
         if (!is_writable(dirname($targetPath))) {
-            throw new InvalidArgumentException('Upload target path is not writable');
+            throw new \InvalidArgumentException('Upload target path is not writable');
         }
 
         $targetIsStream = strpos($targetPath, '://') > 0;
         if ($targetIsStream) {
             if (!copy($this->file, $targetPath)) {
-                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
             if (!unlink($this->file)) {
-                throw new RuntimeException(sprintf('Error removing uploaded file %1s', $this->name));
+                throw new \RuntimeException(sprintf('Error removing uploaded file %1s', $this->name));
             }
         } elseif ($this->sapi) {
             if (!is_uploaded_file($this->file)) {
-                throw new RuntimeException(sprintf('%1s is not a valid uploaded file', $this->file));
+                throw new \RuntimeException(sprintf('%1s is not a valid uploaded file', $this->file));
             }
 
             if (!move_uploaded_file($this->file, $targetPath)) {
-                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         } else {
             if (!rename($this->file, $targetPath)) {
-                throw new RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
+                throw new \RuntimeException(sprintf('Error moving uploaded file %1s to %2s', $this->name, $targetPath));
             }
         }
 

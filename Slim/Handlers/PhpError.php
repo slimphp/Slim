@@ -11,7 +11,6 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
-use UnexpectedValueException;
 
 /**
  * Default Slim application error handler for PHP 7+ Throwables
@@ -29,7 +28,7 @@ class PhpError extends AbstractError
      * @param \Throwable             $error     The caught Throwable object
      *
      * @return ResponseInterface
-     * @throws UnexpectedValueException
+     * @throws \UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Throwable $error)
     {
@@ -48,7 +47,7 @@ class PhpError extends AbstractError
                 $output = $this->renderHtmlErrorMessage($error);
                 break;
             default:
-                throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
+                throw new \UnexpectedValueException('Cannot render unknown content type ' . $contentType);
         }
 
         $this->writeToErrorLog($error);

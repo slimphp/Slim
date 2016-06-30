@@ -8,8 +8,6 @@
  */
 namespace Slim\Interfaces;
 
-use RuntimeException;
-use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -66,7 +64,7 @@ interface RouterInterface
      *
      * @return \Slim\Interfaces\RouteInterface
      *
-     * @throws RuntimeException   If named route does not exist
+     * @throws \RuntimeException   If named route does not exist
      */
     public function getNamedRoute($name);
 
@@ -86,8 +84,8 @@ interface RouterInterface
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
      */
     public function relativePathFor($name, array $data = [], array $queryParams = []);
 
@@ -100,8 +98,8 @@ interface RouterInterface
      *
      * @return string
      *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
+     * @throws \RuntimeException         If named route does not exist
+     * @throws \InvalidArgumentException If required data not provided
      */
     public function pathFor($name, array $data = [], array $queryParams = []);
 }

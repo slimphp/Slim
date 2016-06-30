@@ -8,7 +8,6 @@
  */
 namespace Slim\Http;
 
-use InvalidArgumentException;
 use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -82,7 +81,7 @@ abstract class Message implements MessageInterface
      *
      * @param string $version HTTP protocol version
      * @return static
-     * @throws InvalidArgumentException if the http version is an invalid number
+     * @throws \InvalidArgumentException if the http version is an invalid number
      */
     public function withProtocolVersion($version)
     {
@@ -92,7 +91,7 @@ abstract class Message implements MessageInterface
             '2.0' => true,
         ];
         if (!isset($valid[$version])) {
-            throw new InvalidArgumentException('Invalid HTTP version. Must be one of: 1.0, 1.1, 2.0');
+            throw new \InvalidArgumentException('Invalid HTTP version. Must be one of: 1.0, 1.1, 2.0');
         }
         $clone = clone $this;
         $clone->protocolVersion = $version;

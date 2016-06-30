@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use ArrayIterator;
 use Slim\Interfaces\CollectionInterface;
 
 /**
@@ -199,6 +198,6 @@ class Collection implements CollectionInterface
      */
     public function getIterator()
     {
-        return new ArrayIterator($this->data);
+        return new \ArrayIterator($this->data);
     }
 }
