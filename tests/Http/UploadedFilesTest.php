@@ -19,6 +19,8 @@ use Slim\Http\Uri;
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 {
     static private $filename = './phpUxcOty';
+
+    static private $tmpFiles = ['./phpUxcOty'];
     /**
      * @beforeClass
      */
@@ -34,9 +36,27 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public static function tearDownAfterClass()
     {
-        if (file_exists(self::$filename)) {
-            unlink(self::$filename);
+        foreach (self::$tmpFiles as $filename) {
+            if (file_exists($filename)) {
+                unlink($filename);
+            }
         }
+    }
+
+    /**
+     * @return UploadedFile
+     */
+    protected function generateNewTmpFile()
+    {
+        $filename = './php'.microtime();
+
+        $fh = fopen($filename, "w");
+        fwrite($fh, "12345678");
+        fclose($fh);
+
+        self::$tmpFiles[] = $filename;
+
+        return new UploadedFile($filename);
     }
 
     /**
@@ -51,6 +71,28 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
         $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock());
         $this->assertEquals($expected, $uploadedFile);
+    }
+
+    /**
+     * @param array $input The input array to parse.
+     *
+     * @dataProvider providerCreateFromEnvironment
+     */
+    public function testCreateFromEnvironmentFromUserData(array $input)
+    {
+        //If slim.files provided - it will return what was provided
+        $userData['slim.files'] = $input;
+
+        $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock($userData));
+        $this->assertEquals($input, $uploadedFile);
+    }
+
+    public function testCreateFromEnvironmentWithoutFile()
+    {
+        unset($_FILES);
+
+        $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock());
+        $this->assertEquals([], $uploadedFile);
     }
 
     /**
@@ -101,6 +143,18 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
+     */
+    public function testMoveToNotWritable(UploadedFile $uploadedFile)
+    {
+        $tempName = uniqid('file-');
+        $path = 'some_random_dir' . DIRECTORY_SEPARATOR . $tempName;
+        $this->setExpectedException('\InvalidArgumentException');
+        $uploadedFile->moveTo($path);
+    }
+
+    /**
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
      * @return UploadedFile
      */
     public function testMoveTo(UploadedFile $uploadedFile)
@@ -114,6 +168,43 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         unlink($path);
 
         return $uploadedFile;
+    }
+
+    /**
+     * This test must run after testMoveTo
+     *
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
+     */
+    public function testMoveToAgain(UploadedFile $uploadedFile)
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $tempName = uniqid('file-');
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
+        $uploadedFile->moveTo($path);
+    }
+
+    /**
+     * This test must run after testMoveTo
+     *
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
+     */
+    public function testMovedStream($uploadedFile)
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $uploadedFile->getStream();
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMoveToStream()
+    {
+        $uploadedFile = $this->generateNewTmpFile();
+        $uploadedFile->moveTo('php://temp');
     }
 
     public function providerCreateFromEnvironment()
@@ -184,6 +275,45 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
                         ),
                     ],
                 ]
+            ],
+            // array of files as multidimensional array: <input name="avatars[]" type="file">
+            [
+                // $_FILES array
+                [
+                    [
+                        'avatars' => [
+                            'tmp_name' => [
+                                0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                                1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                            ],
+                            'name'     => [
+                                0 => 'file0.txt',
+                                1 => 'file1.html',
+                            ],
+                            'type'     => [
+                                0 => 'text/plain',
+                                1 => 'text/html',
+                            ],
+                            'size'     => [
+                                0 => 0,
+                                1 => 0,
+                            ],
+                        ],
+                    ],
+                ],
+                // expected format of array
+                [
+                    0 =>
+                        [
+                            'avatars' =>
+                                [
+                                    'tmp_name' => [],
+                                    'name'     => [],
+                                    'type'     => [],
+                                    'size'     => [],
+                                ],
+                        ],
+                ],
             ],
             // single nested file: <input name="details[avatar]" type="file">
             [
