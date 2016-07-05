@@ -37,8 +37,8 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     public static function tearDownAfterClass()
     {
         foreach (self::$tmpFiles as $filename) {
-            if (file_exists(self::$filename)) {
-                unlink(self::$filename);
+            if (file_exists($filename)) {
+                unlink($filename);
             }
         }
     }
@@ -196,6 +196,15 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException('\RuntimeException');
 
         $uploadedFile->getStream();
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testMoveToStream()
+    {
+        $uploadedFile = $this->generateNewTmpFile();
+        $uploadedFile->moveTo('php://temp');
     }
 
     public function providerCreateFromEnvironment()
