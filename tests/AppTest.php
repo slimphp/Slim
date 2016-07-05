@@ -1452,6 +1452,36 @@ class AppTest extends \PHPUnit_Framework_TestCase
     // TODO: Test finalize()
 
     // TODO: Test run()
+    public function testRun()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $app->get('/foo', function ($req, $res) {
+            echo 'bar';
+        });
+
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+
+        $this->assertEquals('bar', (string)$resOut);
+    }
 
 
     public function testRespond()
@@ -1763,6 +1793,49 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("Failed", $res->getBody()->getContents());
     }
 
+    /**
+     * @requires PHP 7.0
+     */
+    public function testRunThrowable()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new \Error('Failed');
+        });
+
+        $res = $app->run(true);
+
+        $res->getBody()->rewind();
+        $this->assertEquals("Failed", $res->getBody()->getContents());
+    }
+    
+    public function testRunThrowablePhp5()
+    {
+        $this->skipIfPhp70();
+
+        /** @var \Throwable $throwable */
+        $throwable = $this->getMock(
+            '\Throwable',
+            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
+        );
+
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new \Error('Failed');
+        });
+
+        $res = $app->run(true);
+
+        $res->getBody()->rewind();
+        $this->assertEquals("Failed", $res->getBody()->getContents());
+    }
+
     public function testRunNotFound()
     {
         $app = $this->appFactory();
@@ -1944,6 +2017,16 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->foo('bar');
     }
 
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testCallingAnUncallableContainerKeyThrows()
+    {
+        $app = new App();
+        $app->getContainer()['bar'] = 'foo';
+        $app->foo('bar');
+    }
+
     public function testOmittingContentLength()
     {
         $method = new \ReflectionMethod('Slim\App', 'finalize');
@@ -2015,5 +2098,15 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function skipIfPhp70()
+    {
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            $this->markTestSkipped();
+        }
     }
 }
