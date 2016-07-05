@@ -670,27 +670,6 @@ class Request extends Message implements ServerRequestInterface
      ******************************************************************************/
 
     /**
-     * Fetch cookie value from cookies sent by the client to the server.
-     *
-     * Note: This method is not part of the PSR-7 standard.
-     *
-     * @param      $key
-     * @param null $default
-     *
-     * @return null
-     */
-    public function getCookieParam($key, $default = null)
-    {
-        $getCookies = $this->getCookieParams();
-        $result = $default;
-        if (isset($getCookies[$key])) {
-            $result = $getCookies[$key];
-        }
-
-        return $result;
-    }
-    
-    /**
      * Retrieve cookies.
      *
      * Retrieves cookies sent by the client to the server.
@@ -704,6 +683,27 @@ class Request extends Message implements ServerRequestInterface
     {
         return $this->cookies;
     }
+
+   /**
+    * Fetch cookie value from cookies sent by the client to the server.
+    *
+    * Note: This method is not part of the PSR-7 standard.
+    *
+    * @param      $key
+    * @param null $default
+    *
+    * @return null
+    */
+   public function getCookieParam($key, $default = null)
+   {
+       $getCookies = $this->getCookieParams();
+       $result = $default;
+       if (isset($getCookies[$key])) {
+           $result = $getCookies[$key];
+       }
+
+       return $result;
+   }
 
     /**
      * Return an instance with the specified cookies.
