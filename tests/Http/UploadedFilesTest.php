@@ -198,9 +198,6 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         $uploadedFile->getStream();
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testMoveToStream()
     {
         $uploadedFile = $this->generateNewTmpFile();
