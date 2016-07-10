@@ -23,6 +23,7 @@ use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Mocks\MockGlobalUtil;
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
@@ -1937,6 +1938,57 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $container = $app->getContainer();
         $container['settings']['addContentLengthHeader'] = true;
         $response = $method->invoke($app, $response);
+    }
 
+    public function testStatusHeaderAndAdditionalHeadersAreSet()
+    {
+        $app = new App();
+        $container = $app->getContainer();
+
+        //create a mock global until with a normal connection status when no headers have been sent
+        $mock = new MockGlobalUtil();
+        $mock->setConnectionStatus(CONNECTION_NORMAL);
+        $mock->setHeadersSent(false);
+
+        $container['globalUtil'] = function () use ($mock) {
+            return $mock;
+        };
+
+        $response = (new Response)->withProtocolVersion('2.0')
+                                  ->withStatus(418, "I'm a teapot")
+                                  ->withHeader('Content-Type', 'application/json');
+
+        $app->respond($response);
+
+        //expect that we set a status header and content type header
+        $expectedStatusHeader = ["HTTP/2.0 418 I'm a teapot", true];
+        $expectedContentType = ["Content-Type: application/json", false];
+
+        $this->assertEquals(2, count($mock->getHeaders()));
+        $this->assertEquals($expectedStatusHeader, $mock->getHeaders()[0]);
+        $this->assertEquals($expectedContentType, $mock->getHeaders()[1]);
+    }
+
+    public function testNoAdditionalHeadersWillBeSet()
+    {
+        $app = new App();
+        $container = $app->getContainer();
+
+        //create a mock global until with a normal connection but headers have already been sent
+        $mock = new MockGlobalUtil();
+        $mock->setConnectionStatus(CONNECTION_NORMAL);
+        $mock->setHeadersSent(true);
+
+        $container['globalUtil'] = function () use ($mock) {
+            return $mock;
+        };
+
+        $response = (new Response)->withProtocolVersion('2.0')
+                                  ->withStatus(418, "I'm a teapot")
+                                  ->withHeader('Content-Type', 'application/json');
+        $app->respond($response);
+
+        //expect that the mock received no headers to be set
+        $this->assertEquals(0, count($mock->getHeaders()));
     }
 }

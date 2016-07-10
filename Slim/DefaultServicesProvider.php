@@ -200,5 +200,16 @@ class DefaultServicesProvider
                 return new CallableResolver($container);
             };
         }
+
+        if (!isset($container['globalUtil'])) {
+            /**
+             * Instance of \Slim\GlobalUtil
+             *
+             * @return GlobalUtil
+             */
+            $container['globalUtil'] = function () {
+                return new GlobalUtil;
+            };
+        }
     }
 }
