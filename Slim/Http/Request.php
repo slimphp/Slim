@@ -689,17 +689,17 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param     $key
-     * @param null $default
+     * @param string $name    The attribute name.
+     * @param mixed  $default Default value to return if the attribute does not exist.
      *
-     * @return null
+     * @return mixed
      */
     public function getCookieParam($key, $default = null)
     {
-        $getCookies = $this->getCookieParams();
+        $cookies = $this->getCookieParams();
         $result = $default;
-        if (isset($getCookies[$key])) {
-            $result = $getCookies[$key];
+        if (isset($cookies[$key])) {
+            $result = $cookies[$key];
         }
 
         return $result;
