@@ -11,8 +11,6 @@ namespace Slim;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\ContainerValueNotFoundException;
 use Slim\Exception\ContainerException as SlimContainerException;
 
