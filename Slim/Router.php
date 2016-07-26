@@ -152,7 +152,7 @@ class Router implements RouterInterface
         $methods = array_map("strtoupper", $methods);
 
         // Add route
-        $route = new Route($methods, $pattern, $handler, $this->routeGroups, $this->routeCounter);
+        $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -176,6 +176,20 @@ class Router implements RouterInterface
             $request->getMethod(),
             $uri
         );
+    }
+
+    /**
+     * Create a new Route object
+     *
+     * @param  string[] $methods Array of HTTP methods
+     * @param  string   $pattern The route pattern
+     * @param  callable $handler The route callable
+     *
+     * @return Slim\Interfaces\RouteInterface
+     */
+    protected function createRoute($methods, $pattern, $callable)
+    {
+        return new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
     }
 
     /**
@@ -243,7 +257,7 @@ class Router implements RouterInterface
         }
         throw new RuntimeException('Named route does not exist for name: ' . $name);
     }
-    
+
     /**
      * Remove named route
      *
