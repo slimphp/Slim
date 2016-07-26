@@ -466,7 +466,6 @@ class UriTest extends \PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
         $this->assertEquals('http://example.com/foo/', (string) $uri);
-
     }
 
     /**

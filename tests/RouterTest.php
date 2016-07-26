@@ -42,7 +42,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         };
 
         $this->router->pushGroup('/prefix', function () {
-
         });
         $route = $this->router->map($methods, $pattern, $callable);
         $this->router->popGroup();
@@ -59,7 +58,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $methods = ['GET'];
         $pattern = ['foo'];
         $callable = function ($request, $response, $args) {
-
         };
 
         $this->router->map($methods, $pattern, $callable);

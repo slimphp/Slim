@@ -1937,6 +1937,5 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $container = $app->getContainer();
         $container['settings']['addContentLengthHeader'] = true;
         $response = $method->invoke($app, $response);
-
     }
 }

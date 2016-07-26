@@ -36,7 +36,6 @@ class SmallChunksStream implements StreamInterface
 
     public function close()
     {
-        
     }
 
     public function detach()
