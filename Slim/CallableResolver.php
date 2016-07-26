@@ -79,9 +79,9 @@ final class CallableResolver implements CallableResolverInterface
         }
 
         if (!is_callable($resolved)) {
-            throw new RuntimeException(sprintf('%s is not resolvable', $toResolve));
+            throw new RuntimeException(sprintf('%s is not resolvable', is_array($toResolve) || is_object($toResolve) ? json_encode($toResolve) : $toResolve));
         }
-
+        
         return $resolved;
     }
 }
