@@ -512,6 +512,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      * Cookies
      ******************************************************************************/
 
+    public function testGetCookieParam()
+    {
+        $shouldBe = 'john';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('user'));
+    }
+
+    public function testGetCookieParamWithDefault()
+    {
+        $shouldBe = 'bar';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('foo', 'bar'));
+    }
+
     public function testGetCookieParams()
     {
         $shouldBe = [
