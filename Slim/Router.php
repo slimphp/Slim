@@ -180,7 +180,13 @@ class Router implements RouterInterface
     }
 
     /**
-     * @return Slim\Route
+     * Create a new Route object
+     *
+     * @param  string[] $methods Array of HTTP methods
+     * @param  string   $pattern The route pattern
+     * @param  callable $handler The route callable
+     *
+     * @return Slim\Interfaces\RouteInterface
      */
     protected function createRoute($methods, $pattern, $callable)
     {
