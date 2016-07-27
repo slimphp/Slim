@@ -19,3 +19,6 @@ script:
 
 after_script:
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls --coverage_clover=clover.xml -v ; fi
+
+notifications:
+  slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
