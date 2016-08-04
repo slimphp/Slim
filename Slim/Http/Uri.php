@@ -197,7 +197,8 @@ class Uri implements UriInterface
         }
 
         // Path
-        $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
+        $envScriptName = str_replace(' ', '%20', $env->get('SCRIPT_NAME'));
+        $requestScriptName = parse_url($envScriptName, PHP_URL_PATH);
         $requestScriptDir = dirname($requestScriptName);
 
         // parse_url() requires a full URL. As we don't extract the domain name or scheme,

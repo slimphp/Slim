@@ -555,6 +555,20 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://localhost/foo/bar', (string) $uri);
     }
 
+    public function testCreateEnvironmentWithBasePathContainingSpace()
+    {
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/foo bar/index.php',
+            'REQUEST_URI' => '/foo%20bar/baz',
+        ]);
+        $uri = Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('/foo%20bar', $uri->getBasePath());
+        $this->assertEquals('baz', $uri->getPath());
+
+        $this->assertEquals('http://localhost/foo%20bar/baz', (string) $uri);
+    }
+
     public function testGetBaseUrl()
     {
         $environment = Environment::mock([
