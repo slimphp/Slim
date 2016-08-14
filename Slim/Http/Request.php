@@ -689,7 +689,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param string $name    The attribute name.
+     * @param string $key     The attribute name.
      * @param mixed  $default Default value to return if the attribute does not exist.
      *
      * @return mixed
