@@ -31,6 +31,13 @@ class Route extends Routable implements RouteInterface
     protected $methods = [];
 
     /**
+     * A list of tags for this route
+     *
+     * @var array
+     */
+    protected $tags = [];
+
+    /**
      * Route identifier
      *
      * @var string
@@ -274,6 +281,57 @@ class Route extends Routable implements RouteInterface
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v);
         }
+    }
+
+    /**
+     * Add a list of tags to the route
+     *
+     * @param array $tags
+     * @return self
+     */
+    public function addTags(array $tags)
+    {
+        foreach ($tags as $tag) {
+            $this->addTag($tag);
+        }
+        return $this;
+    }
+
+    /**
+     * Add a tag to the route
+     *
+     * @param $tag
+     * @return $this
+     */
+    public function addTag($tag)
+    {
+        if (!is_string($tag)) {
+            throw new InvalidArgumentException('Route tag must be a string');
+        }
+
+        $this->tags[] = $tag;
+        return $this;
+    }
+
+    /**
+     * Retrieve a list of tags
+     *
+     * @return array
+     */
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    /**
+     * Determine whether a tag is in the route
+     *
+     * @param $tag
+     * @return bool
+     */
+    public function hasTag($tag)
+    {
+        return in_array($tag, $this->tags);
     }
 
     /**

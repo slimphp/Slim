@@ -114,6 +114,37 @@ interface RouteInterface
     public function run(ServerRequestInterface $request, ResponseInterface $response);
 
     /**
+     * Add a tag to the route
+     *
+     * @param  $tag
+     * @return self
+     */
+    public function addTag($tag);
+
+    /**
+     * Add a list of tags to the route
+     *
+     * @param $tags
+     * @return $this
+     */
+    public function addTags(array $tags);
+
+    /**
+     * Retrieve a list of tags
+     *
+     * @return array
+     */
+    public function getTags();
+
+    /**
+     * Determine whether a tag is in the route
+     *
+     * @param $tag
+     * @return bool
+     */
+    public function hasTag($tag);
+
+    /**
      * Dispatch route callable against current Request and Response objects
      *
      * This method invokes the route object's callable. If middleware is

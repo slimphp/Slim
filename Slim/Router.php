@@ -240,6 +240,26 @@ class Router implements RouterInterface
     }
 
     /**
+     * Get route objects with tag
+     *
+     * @param $tag
+     * @return Route[]
+     */
+    public function getRoutesWithTag($tag)
+    {
+        if (!is_string($tag)) {
+            throw new \InvalidArgumentException("Tag must be a string");
+        }
+
+        $routes = array_filter($this->routes, function ($route) use ($tag) {
+            return $route->hasTag($tag);
+        });
+
+
+        return array_values($routes);
+    }
+
+    /**
      * Get named route object
      *
      * @param string $name        Route name
