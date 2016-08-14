@@ -639,6 +639,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testGetServerParam()
+    {
+        $shouldBe = 'HTTP/1.1';
+        $request = $this->requestFactory(['SERVER_PROTOCOL' => 'HTTP/1.1']);
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('SERVER_PROTOCOL'));
+    }
+
+    public function testGetServerParamWithDefault()
+    {
+        $shouldBe = 'bar';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('HTTP_NOT_EXIST', 'bar'));
+    }
+
     /*******************************************************************************
      * File Params
      ******************************************************************************/
