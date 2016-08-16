@@ -12,6 +12,7 @@ use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -353,5 +354,15 @@ class Route extends Routable implements RouteInterface
         }
 
         return $response;
+    }
+
+    /**
+     * This method enables you to override the Route's callable
+     *
+     * @param string|\Closure $callable
+     */
+    public function setCallable($callable)
+    {
+        $this->callable = $callable;
     }
 }
