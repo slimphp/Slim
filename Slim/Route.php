@@ -71,6 +71,13 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
+     * The callable payload
+     *
+     * @var callable
+     */
+    protected $callable;
+
+    /**
      * Create new route
      *
      * @param string|string[]   $methods The route HTTP methods
