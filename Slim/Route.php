@@ -122,6 +122,16 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
+     * This method enables you to override the Route's callable
+     *
+     * @param string|\Closure $callable
+     */
+    public function setCallable($callable)
+    {
+        $this->callable = $callable;
+    }
+
+    /**
      * Get route methods
      *
      * @return string[]
@@ -354,15 +364,5 @@ class Route extends Routable implements RouteInterface
         }
 
         return $response;
-    }
-
-    /**
-     * This method enables you to override the Route's callable
-     *
-     * @param string|\Closure $callable
-     */
-    public function setCallable($callable)
-    {
-        $this->callable = $callable;
     }
 }
