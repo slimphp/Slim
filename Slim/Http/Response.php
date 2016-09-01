@@ -306,16 +306,16 @@ class Response extends Message implements ResponseInterface
      */
     public function withJson($data, $status = null, $encodingOptions = 0)
     {
-        $body = $this->getBody();
-        $body->rewind();
-        $body->write($json = json_encode($data, $encodingOptions));
+        $clone = clone $this;
+        $clone->body = new Body(fopen('php://temp', 'w+'));
+        $clone->body->write($json = json_encode($data, $encodingOptions));
 
         // Ensure that the json encoding passed successfully
         if ($json === false) {
             throw new \RuntimeException(json_last_error_msg(), json_last_error());
         }
 
-        $responseWithJson = $this->withHeader('Content-Type', 'application/json;charset=utf-8');
+        $responseWithJson = $clone->withHeader('Content-Type', 'application/json;charset=utf-8');
         if (isset($status)) {
             return $responseWithJson->withStatus($status);
         }
