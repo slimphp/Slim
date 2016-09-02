@@ -69,7 +69,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
      */
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMock(PhpError::class, ['determineContentType']);
+        $errorMock = $this->getMockBuilder(PhpError::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 

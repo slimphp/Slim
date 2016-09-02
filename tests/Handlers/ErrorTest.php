@@ -64,7 +64,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
 
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMock(Error::class, ['determineContentType']);
+        $errorMock = $this->getMockBuilder(Error::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
@@ -82,7 +82,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      */
     public function testPreviousException()
     {
-        $error = $this->getMock('\Slim\Handlers\Error', ['logError']);
+        $error = $this->getMockBuilder('\Slim\Handlers\Error')->setMethods(['logError'])->getMock();
         $error->expects($this->once())->method('logError')->with(
             $this->logicalAnd(
                 $this->stringContains("Type: Exception\nMessage: Second Oops"),

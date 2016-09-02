@@ -1220,7 +1220,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
-        $mock = $this->getMock('StdClass', ['bar']);
+        $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
 
         $app = new App();
         $container = $app->getContainer();
@@ -1257,7 +1257,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
-        $mock = $this->getMock('StdClass');
+        $mock = $this->getMockBuilder('StdClass')->getMock();
 
         $app = new App();
         $container = $app->getContainer();
@@ -1589,7 +1589,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->respond($response);
         $this->expectOutputString("Hello");
     }
-    
+
     public function testResponseWithStreamReadYieldingLessBytesThanAsked()
     {
         $app = new App([
@@ -1597,7 +1597,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         ]);
         $app->get('/foo', function ($req, $res) {
             $res->write('Hello');
-            
+
             return $res;
         });
 
