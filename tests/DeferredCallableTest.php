@@ -22,7 +22,7 @@ class DeferredCallableTest extends \PHPUnit_Framework_TestCase
 
     public function testItBindsClosuresToContainer()
     {
-        $assertCalled = $this->getMock('fooClass', ['foo']);
+        $assertCalled = $this->getMock('stdClass', ['foo']);
         $assertCalled
             ->expects($this->once())
             ->method('foo');

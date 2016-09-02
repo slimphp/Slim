@@ -84,7 +84,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetWithErrorThrownByFactoryClosure()
     {
-        $invokable = $this->getMockBuilder('TestClass')->setMethods(['__invoke'])->getMock();
+        $invokable = $this->getMockBuilder('stdClass')->setMethods(['__invoke'])->getMock();
         /** @var \Callable $invokable */
         $invokable->expects($this->any())
             ->method('__invoke')
