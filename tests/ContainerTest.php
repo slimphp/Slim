@@ -132,6 +132,14 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test container has a phpErrorHandler
+     */
+    public function testGetPhpErrorHandler()
+    {
+        $this->assertInstanceOf('\Slim\Handlers\PhpError', $this->container['phpErrorHandler']);
+    }
+
+    /**
      * Test container has error handler
      */
     public function testGetNotAllowedHandler()
