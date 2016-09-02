@@ -165,14 +165,17 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers([
-            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Content-Type' => 'application/json',
         ]);
         $cookies = [];
         $serverParams = [];
         $body = new RequestBody();
-        $body->write('_METHOD=PUT');
+        $body->write('{"_METHOD": "PUT"}');
         $body->rewind();
         $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+        $request->registerMediaTypeParser('application/json', function ($input) {
+            return json_decode($input, false);  // make sure json data is returned as an object.
+        });
 
         $this->assertEquals('PUT', $request->getMethod());
         $this->assertEquals('POST', $request->getOriginalMethod());
