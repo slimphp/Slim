@@ -981,6 +981,22 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
     }
 
+    public function testGetParameterFromBodyWithBodyParemeterHelperWhenParametersAreAnObject()
+    {
+        $body = new RequestBody();
+        $body->write('{"foo": "bar"}');
+        $body->rewind();
+        $request = $this->requestFactory()
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/json;charset=utf8');
+        $request->registerMediaTypeParser('application/json', function ($input) {
+            return json_decode($input, false);  // make sure json data is returned as an object.
+        });
+
+        $this->assertEquals('bar', $request->getParsedBodyParam('foo'));
+        $this->assertEquals('bar', $request->getParam('foo'));
+    }
+
     public function testGetParameterFromQuery()
     {
         $request = $this->requestFactory()->withHeader('Content-Type', 'application/x-www-form-urlencoded');
