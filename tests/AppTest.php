@@ -1589,7 +1589,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->respond($response);
         $this->expectOutputString("Hello");
     }
-    
+
     public function testResponseWithStreamReadYieldingLessBytesThanAsked()
     {
         $app = new App([
@@ -1597,7 +1597,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         ]);
         $app->get('/foo', function ($req, $res) {
             $res->write('Hello');
-            
+
             return $res;
         });
 
@@ -1646,6 +1646,45 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
+        };
+
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
+        $resOut = $app->run(true);
+
+        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
+    }
+
+    /**
+     * @requires PHP 7.0
+     */
+    public function testExceptionPhpErrorHandlerDoesNotDisplayErrorDetails()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $mw = function ($req, $res, $next) {
+            dumpFonction();
         };
 
         $app->add($mw);
