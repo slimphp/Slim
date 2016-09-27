@@ -515,7 +515,7 @@ class App
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeArguments = [];
             foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
+                $routeArguments[$k] = rawurldecode($v);
             }
 
             $route = $router->lookupRoute($routeInfo[1]);
