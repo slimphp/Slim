@@ -9,6 +9,7 @@
 
 namespace Slim\Tests;
 
+use Interop\Container\ContainerInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -22,6 +23,7 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
@@ -1937,5 +1939,41 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $container = $app->getContainer();
         $container['settings']['addContentLengthHeader'] = true;
         $response = $method->invoke($app, $response);
+    }
+
+
+    public function testContainerSetToRoute()
+    {
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        $mock = new MockAction();
+
+        $app = new App();
+        $container = $app->getContainer();
+        $container['foo'] = function () use ($mock, $res) {
+            return $mock;
+        };
+
+        /** @var $router Router */
+        $router = $container['router'];
+        $router->map(['get'], '/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 }

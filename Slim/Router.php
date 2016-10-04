@@ -9,6 +9,7 @@
 namespace Slim;
 
 use FastRoute\Dispatcher;
+use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -29,6 +30,13 @@ use Slim\Interfaces\RouteInterface;
  */
 class Router implements RouterInterface
 {
+    /**
+     * Container Interface
+     *
+     * @var ContainerInterface
+     */
+    protected $container;
+
     /**
      * Parser
      *
@@ -127,6 +135,24 @@ class Router implements RouterInterface
     }
 
     /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+
+
+    /**
      * Add route
      *
      * @param  string[] $methods Array of HTTP methods
@@ -189,7 +215,12 @@ class Router implements RouterInterface
      */
     protected function createRoute($methods, $pattern, $callable)
     {
-        return new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
+        $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
+        if (!empty($this->container)) {
+            $route->setContainer($this->container);
+        }
+
+        return $route;
     }
 
     /**
