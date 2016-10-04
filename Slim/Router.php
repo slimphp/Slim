@@ -143,16 +143,6 @@ class Router implements RouterInterface
     }
 
     /**
-     * @return ContainerInterface
-     */
-    public function getContainer()
-    {
-        return $this->container;
-    }
-
-
-
-    /**
      * Add route
      *
      * @param  string[] $methods Array of HTTP methods

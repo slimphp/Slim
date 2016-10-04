@@ -1968,6 +1968,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         /** @var $router Router */
         $router = $container['router'];
+
         $router->map(['get'], '/foo', 'foo:bar');
 
         // Invoke app

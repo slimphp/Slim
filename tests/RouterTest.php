@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Slim\Container;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
