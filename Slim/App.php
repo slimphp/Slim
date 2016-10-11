@@ -36,11 +36,6 @@ use Slim\Interfaces\RouterInterface;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  *
- * @property-read array $settings App settings
- * @property-read EnvironmentInterface $environment
- * @property-read RequestInterface $request
- * @property-read ResponseInterface $response
- * @property-read RouterInterface $router
  * @property-read callable $errorHandler
  * @property-read callable $phpErrorHandler
  * @property-read callable $notFoundHandler function($request, $response)
