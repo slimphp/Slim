@@ -147,8 +147,8 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\ServerRequestInterface'),
-            $this->getMock('Psr\Http\Message\ResponseInterface')
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
         );
     }
 

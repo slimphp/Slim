@@ -55,10 +55,10 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($res->hasHeader('Allow'));
         $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
     }
-    
+
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMock(NotAllowed::class, ['determineContentType']);
+        $errorMock = $this->getMockBuilder(NotAllowed::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 

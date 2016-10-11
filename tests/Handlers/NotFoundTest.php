@@ -45,7 +45,7 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
 
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMock(NotFound::class, ['determineContentType']);
+        $errorMock = $this->getMockBuilder(NotFound::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
