@@ -287,15 +287,23 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $data = ['foo' => 'bar1&bar2'];
 
-        $response = new Response();
-        $response = $response->withJson($data, 201);
+        $originalResponse = new Response();
+        $response = $originalResponse->withJson($data, 201);
 
+        $this->assertNotEquals($response->getStatusCode(), $originalResponse->getStatusCode());
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('application/json;charset=utf-8', $response->getHeaderLine('Content-Type'));
 
         $body = $response->getBody();
         $body->rewind();
         $dataJson = $body->getContents(); //json_decode($body->getContents(), true);
+
+        $originalBody = $originalResponse->getBody();
+        $originalBody->rewind();
+        $originalContents = $originalBody->getContents();
+
+        // test the original body hasn't be replaced
+        $this->assertNotEquals($dataJson, $originalContents);
 
         $this->assertEquals('{"foo":"bar1&bar2"}', $dataJson);
         $this->assertEquals($data['foo'], json_decode($dataJson, true)['foo']);
@@ -321,7 +329,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     {
         $data = ['foo' => 'bar'.chr(233)];
         $this->assertEquals('bar'.chr(233), $data['foo']);
-        
+
         $response = new Response();
         $response->withJson($data, 200);
 
