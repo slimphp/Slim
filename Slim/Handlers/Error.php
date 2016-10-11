@@ -47,7 +47,7 @@ class Error extends AbstractError
             case 'text/html':
                 $output = $this->renderHtmlErrorMessage($exception);
                 break;
-            
+
             default:
                 throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
         }

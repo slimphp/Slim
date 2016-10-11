@@ -18,17 +18,17 @@ class SmallChunksStream implements StreamInterface
 {
     const CHUNK_SIZE = 10;
     const SIZE = 40;
-    
+
     /**
      * @var int
      */
     private $amountToRead;
-    
+
     public function __construct()
     {
         $this->amountToRead = self::SIZE;
     }
-    
+
     public function __toString()
     {
         throw new \Exception('not implemented');
@@ -82,7 +82,7 @@ class SmallChunksStream implements StreamInterface
     {
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
-        
+
         return str_repeat('.', min($length, $size));
     }
 

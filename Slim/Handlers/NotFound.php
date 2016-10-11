@@ -46,7 +46,7 @@ class NotFound extends AbstractHandler
             case 'text/html':
                 $output = $this->renderHtmlNotFoundOutput($request);
                 break;
-            
+
             default:
                 throw new UnexpectedValueException('Cannot render unknown content type ' . $contentType);
         }

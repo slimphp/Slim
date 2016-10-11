@@ -169,7 +169,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
         return $uploadedFile;
     }
-    
+
     /**
      * @depends testMoveTo
      * @param UploadedFile $uploadedFile
