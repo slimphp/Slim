@@ -10,6 +10,7 @@ namespace Slim\Tests;
 
 use Slim\Container;
 use Slim\DeferredCallable;
+use Slim\Exception\BadRouteReturnException;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -452,5 +453,34 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
         $this->assertEquals([$container['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+
+    /**
+     * @expectedException \Slim\Exception\BadRouteReturnException
+     */
+    public function testEnforceReturn()
+    {
+        $callable = function ($req, $res, $args) {
+        };
+
+        $route = new Route(['GET'], '/', $callable);
+        $route->setEnforceReturn(true);
+        $route->setOutputBuffering(false);
+
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $response = new Response;
+
+        $response = $route->__invoke($request, $response);
+
+        $response->getBody()->rewind();
+        $this->assertEquals('foo', (string)$response->getBody());
     }
 }

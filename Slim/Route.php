@@ -9,6 +9,8 @@
 namespace Slim;
 
 use Exception;
+use FastRoute\BadRouteException;
+use Slim\Exception\BadRouteReturnException;
 use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -63,6 +65,11 @@ class Route extends Routable implements RouteInterface
      * @var boolean|string
      */
     protected $outputBuffering = 'append';
+
+    /**
+     * @var bool
+     */
+    protected $enforceReturn = false;
 
     /**
      * Route parameters
@@ -207,6 +214,26 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
+     * @return boolean
+     */
+    public function isEnforceReturn()
+    {
+        return $this->enforceReturn;
+    }
+
+    /**
+     * @param boolean $enforceReturn
+     */
+    public function setEnforceReturn($enforceReturn)
+    {
+        $this->enforceReturn = $enforceReturn;
+    }
+
+
+
+
+
+    /**
      * Set route name
      *
      * @param string $name
@@ -323,10 +350,12 @@ class Route extends Routable implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param ServerRequestInterface $request  The current Request object
-     * @param ResponseInterface      $response The current Response object
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Exception  if the route callable throws an exception
+     * @param ServerRequestInterface $request The current Request object
+     * @param ResponseInterface $response The current Response object
+     * @return ResponseInterface
+     * @throws BadRouteReturnException
+     * @throws Exception if the route callable throws an exception
+     * @throws Throwable
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -357,6 +386,8 @@ class Route extends Routable implements RouteInterface
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
+        } elseif ($this->enforceReturn) {
+            throw new BadRouteReturnException("Route does not return a response");
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response
             if ($response->getBody()->isWritable()) {
