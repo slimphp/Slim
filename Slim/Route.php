@@ -65,9 +65,12 @@ class Route extends Routable implements RouteInterface
     protected $outputBuffering = 'append';
 
     /**
+     * Enforce Return
+     *
+     * Forces a return value from a callable when true
      * @var bool
      */
-    protected $enforceReturn = false;
+    protected $enforceReturnOfResponse = false;
 
     /**
      * Route parameters
@@ -212,24 +215,14 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
-     * @return boolean
+     * Set the value of enforceReturn
+     *
+     * @param boolean $enforceReturnOfResponse
      */
-    public function isEnforceReturn()
+    public function setEnforceReturnOfResponse($enforceReturnOfResponse)
     {
-        return $this->enforceReturn;
+        $this->enforceReturnOfResponse = (bool)$enforceReturnOfResponse;
     }
-
-    /**
-     * @param boolean $enforceReturn
-     */
-    public function setEnforceReturn($enforceReturn)
-    {
-        $this->enforceReturn = $enforceReturn;
-    }
-
-
-
-
 
     /**
      * Set route name
@@ -384,7 +377,7 @@ class Route extends Routable implements RouteInterface
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
-        } elseif ($this->enforceReturn) {
+        } elseif ($this->enforceReturnOfResponse) {
             throw new MissingResponseFromRouteException("Route does not return a response");
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response

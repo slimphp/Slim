@@ -465,7 +465,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         };
 
         $route = new Route(['GET'], '/', $callable);
-        $route->setEnforceReturn(true);
+        $route->setEnforceReturnOfResponse(true);
         $route->setOutputBuffering(false);
 
         $env = Environment::mock();
@@ -479,8 +479,30 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $response = new Response;
 
         $response = $route->__invoke($request, $response);
+    }
 
-        $response->getBody()->rewind();
-        $this->assertEquals('foo', (string)$response->getBody());
+    /**
+     * @expectedException \Slim\Exception\MissingResponseFromRouteException
+     */
+    public function testEnforceReturnWithOutputBuffering()
+    {
+        $callable = function ($req, $res, $args) {
+        };
+
+        $route = new Route(['GET'], '/', $callable);
+        $route->setEnforceReturnOfResponse(true);
+        $route->setOutputBuffering(true);
+
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $response = new Response;
+
+        $response = $route->__invoke($request, $response);
     }
 }
