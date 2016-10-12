@@ -234,6 +234,7 @@ class App
             $callable = $callable->bindTo($this->container);
         }
 
+
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
             $route->setContainer($this->container);
@@ -241,6 +242,10 @@ class App
 
         if (is_callable([$route, 'setOutputBuffering'])) {
             $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+        }
+
+        if (is_callable([$route, 'setEnforceReturn'])) {
+            $route->setEnforceReturn($this->container->get('settings')['enforceReturn']);
         }
 
         return $route;

@@ -57,6 +57,7 @@ class Container extends PimpleContainer implements ContainerInterface
         'displayErrorDetails' => false,
         'addContentLengthHeader' => true,
         'routerCacheFile' => false,
+        'enforceReturn' => false
     ];
 
     /**
