@@ -63,7 +63,7 @@ Learn more at these links:
 
 - [Website](http://www.slimframework.com)
 - [Documentation](http://www.slimframework.com/docs/start/installation.html)
-- [Support Forum](http://help.slimframework.com)
+- [Support Forum](http://discourse.slimframework.com)
 - [Twitter](https://twitter.com/slimphp)
 - [Resources](https://github.com/xssc/awesome-slim)
 
