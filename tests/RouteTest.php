@@ -491,7 +491,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route = new Route(['GET'], '/', $callable);
         $route->setEnforceReturnOfResponse(true);
-        $route->setOutputBuffering(true);
+        $route->setOutputBuffering('prepend');
 
         $env = Environment::mock();
         $uri = Uri::createFromString('https://example.com:80');
