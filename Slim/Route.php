@@ -10,7 +10,7 @@ namespace Slim;
 
 use Exception;
 use FastRoute\BadRouteException;
-use Slim\Exception\BadRouteReturnException;
+use Slim\Exception\MissingResponseFromRouteException;
 use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -353,7 +353,7 @@ class Route extends Routable implements RouteInterface
      * @param ServerRequestInterface $request The current Request object
      * @param ResponseInterface $response The current Response object
      * @return ResponseInterface
-     * @throws BadRouteReturnException
+     * @throws MissingResponseFromRouteException
      * @throws Exception if the route callable throws an exception
      * @throws Throwable
      */
@@ -387,7 +387,7 @@ class Route extends Routable implements RouteInterface
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
         } elseif ($this->enforceReturn) {
-            throw new BadRouteReturnException("Route does not return a response");
+            throw new MissingResponseFromRouteException("Route does not return a response");
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response
             if ($response->getBody()->isWritable()) {

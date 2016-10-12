@@ -10,7 +10,7 @@ namespace Slim\Tests;
 
 use Slim\Container;
 use Slim\DeferredCallable;
-use Slim\Exception\BadRouteReturnException;
+use Slim\Exception\MissingResponseFromRouteException;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -457,7 +457,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
 
     /**
-     * @expectedException \Slim\Exception\BadRouteReturnException
+     * @expectedException \Slim\Exception\MissingResponseFromRouteException
      */
     public function testEnforceReturn()
     {
