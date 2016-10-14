@@ -487,6 +487,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testEnforceReturnWithOutputBuffering()
     {
         $callable = function ($req, $res, $args) {
+            echo 'test';
         };
 
         $route = new Route(['GET'], '/', $callable);

@@ -234,7 +234,6 @@ class App
             $callable = $callable->bindTo($this->container);
         }
 
-
         $route = $this->container->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
             $route->setContainer($this->container);
