@@ -122,15 +122,15 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     public function testMustSetReasonPhraseForUnrecognisedCode()
     {
         $response = new Response();
-        $response = $response->withStatus(499);
+        $response = $response->withStatus(199);
     }
 
     public function testSetReasonPhraseForUnrecognisedCode()
     {
         $response = new Response();
-        $response = $response->withStatus(499, 'Authentication timeout');
+        $response = $response->withStatus(199, 'Random Message');
 
-        $this->assertEquals('Authentication timeout', $response->getReasonPhrase());
+        $this->assertEquals('Random Message', $response->getReasonPhrase());
     }
 
     public function testGetCustomReasonPhrase()
