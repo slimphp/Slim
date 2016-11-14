@@ -248,12 +248,9 @@ class Request extends Message implements ServerRequestInterface
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
             } elseif ($this->originalMethod === 'POST') {
-                $body = $this->getParsedBody();
-
-                if (is_object($body) && property_exists($body, '_METHOD')) {
-                    $this->method = $this->filterMethod((string)$body->_METHOD);
-                } elseif (is_array($body) && isset($body['_METHOD'])) {
-                    $this->method = $this->filterMethod((string)$body['_METHOD']);
+                $overrideMethod = $this->getParsedBodyParam('_METHOD');
+                if ($overrideMethod !== null) {
+                    $this->method = $overrideMethod;
                 }
 
                 if ($this->getBody()->eof()) {
