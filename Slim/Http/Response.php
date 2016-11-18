@@ -91,6 +91,7 @@ class Response extends Message implements ResponseInterface
         416 => 'Requested Range Not Satisfiable',
         417 => 'Expectation Failed',
         418 => 'I\'m a teapot',
+        421 => 'Misdirected Request',
         422 => 'Unprocessable Entity',
         423 => 'Locked',
         424 => 'Failed Dependency',
@@ -98,7 +99,9 @@ class Response extends Message implements ResponseInterface
         428 => 'Precondition Required',
         429 => 'Too Many Requests',
         431 => 'Request Header Fields Too Large',
+        444 => 'Connection Closed Without Response',
         451 => 'Unavailable For Legal Reasons',
+        499 => 'Client Closed Request',
         //Server Error 5xx
         500 => 'Internal Server Error',
         501 => 'Not Implemented',
@@ -111,6 +114,7 @@ class Response extends Message implements ResponseInterface
         508 => 'Loop Detected',
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
+        599 => 'Network Connect Timeout Error',
     ];
 
     /**
