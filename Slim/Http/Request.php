@@ -248,7 +248,7 @@ class Request extends Message implements ServerRequestInterface
             if ($customMethod) {
                 $this->method = $this->filterMethod($customMethod);
             } elseif ($this->originalMethod === 'POST') {
-                $overrideMethod = $this->getParsedBodyParam('_METHOD');
+                $overrideMethod = $this->filterMethod($this->getParsedBodyParam('_METHOD'));
                 if ($overrideMethod !== null) {
                     $this->method = $overrideMethod;
                 }
