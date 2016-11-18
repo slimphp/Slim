@@ -1980,13 +1980,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response = $method->invoke($app, $response);
     }
 
-
-    /**
-     * If the client provides an unsupported HTTP method (outside the HTTP spec scope), the server should by default respond with 400.
-     * ... and not 405 since that implies the server knows the request method but that it is not allowed on the resource.
-     */
-    public function testUnsupportedMethodUsedByClient() {
-
+    public function testUnsupportedMethodUsedByClient()
+    {
         // Prepare request and response objects
         $env = Environment::mock([
             'REQUEST_URI' => '/',
@@ -2002,7 +1997,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(400, $resOut->getStatusCode());
-
     }
 
     public function testContainerSetToRoute()
