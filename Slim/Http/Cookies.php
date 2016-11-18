@@ -141,7 +141,7 @@ class Cookies implements CookiesInterface
         if (isset($properties['secure']) && $properties['secure']) {
             $result .= '; secure';
         }
-        
+
         if (isset($properties['hostonly']) && $properties['hostonly']) {
             $result .= '; HostOnly';
         }

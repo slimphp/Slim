@@ -53,15 +53,15 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route = new Route('GET', '/hello', function ($req, $res, $args) {
             // Do something
         });
-        
+
         $this->assertEquals(['GET'], $route->getMethods());
     }
-    
+
     public function testGetMethods()
     {
         $this->assertEquals(['GET', 'POST'], $this->routeFactory()->getMethods());
     }
-    
+
     public function testGetPattern()
     {
         $this->assertEquals('/hello/{name}', $this->routeFactory()->getPattern());
@@ -417,7 +417,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Slim\Http\Response', $result);
         $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
-    
+
     /**
      * Ensure that the pattern can be dynamically changed
      */

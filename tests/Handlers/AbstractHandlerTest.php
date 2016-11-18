@@ -15,7 +15,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
     public function testHalfValidContentType()
     {
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        
+
         $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue('unknown/+json'));
 
         $abstractHandler = $this->getMockForAbstractClass(AbstractHandler::class);
@@ -49,7 +49,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
         $request = $this->getMockBuilder('Slim\Http\Request')
             ->disableOriginalConstructor()
             ->getMock();
-        
+
         $request->expects($this->any())
             ->method('getHeaderLine')
             ->willReturn('text/plain,text/html');
@@ -61,7 +61,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
 
         // use a mock object here as AbstractHandler cannot be directly instantiated
         $abstractHandler = $this->getMockForAbstractClass(AbstractHandler::class);
-        
+
         // call determineContentType()
         $return = $method->invoke($abstractHandler, $request);
 
