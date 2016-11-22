@@ -85,8 +85,8 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $error = $this->getMockBuilder('\Slim\Handlers\Error')->setMethods(['logError'])->getMock();
         $error->expects($this->once())->method('logError')->with(
             $this->logicalAnd(
-                $this->stringContains("Type: Exception".PHP_EOL."Message: Second Oops"),
-                $this->stringContains("Previous Error:".PHP_EOL."Type: Exception".PHP_EOL."Message: First Oops")
+                $this->stringContains("Type: Exception" . PHP_EOL . "Message: Second Oops"),
+                $this->stringContains("Previous Error:" . PHP_EOL . "Type: Exception" . PHP_EOL . "Message: First Oops")
             )
         );
 
