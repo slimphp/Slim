@@ -16,7 +16,8 @@
         "php": ">=5.3.0"
     },
     "suggest": {
-        "ext-mcrypt": "Required for HTTP cookie encryption"
+        "ext-mcrypt": "Required for HTTP cookie encryption",
+        "phpseclib/mcrypt_compat": "Polyfil for mcrypt extension"
     },
     "autoload": {
         "psr-0": { "Slim": "." }
