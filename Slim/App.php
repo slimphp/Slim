@@ -46,13 +46,6 @@ class App
     use MiddlewareAwareTrait;
 
     /**
-     * Current version
-     *
-     * @var string
-     */
-    const VERSION = '3.7.0-dev';
-
-    /**
      * Container
      *
      * @var ContainerInterface
