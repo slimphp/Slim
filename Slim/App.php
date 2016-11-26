@@ -454,49 +454,6 @@ class App
     }
 
     /**
-     * Perform a sub-request from within an application route
-     *
-     * This method allows you to prepare and initiate a sub-request, run within
-     * the context of the current request. This WILL NOT issue a remote HTTP
-     * request. Instead, it will route the provided URL, method, headers,
-     * cookies, body, and server variables against the set of registered
-     * application routes. The result response object is returned.
-     *
-     * @param  string            $method      The request method (e.g., GET, POST, PUT, etc.)
-     * @param  string            $path        The request URI path
-     * @param  string            $query       The request URI query string
-     * @param  array             $headers     The request headers (key-value array)
-     * @param  array             $cookies     The request cookies (key-value array)
-     * @param  string            $bodyContent The request body
-     * @param  ResponseInterface $response     The response object (optional)
-     * @return ResponseInterface
-     */
-    public function subRequest(
-        $method,
-        $path,
-        $query = '',
-        array $headers = [],
-        array $cookies = [],
-        $bodyContent = '',
-        ResponseInterface $response = null
-    ) {
-        $env = $this->container->get('environment');
-        $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
-        $headers = new Headers($headers);
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($bodyContent);
-        $body->rewind();
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
-
-        if (!$response) {
-            $response = $this->container->get('response');
-        }
-
-        return $this($request, $response);
-    }
-
-    /**
      * Dispatch the router to find the route. Prepare the route for use.
      *
      * @param ServerRequestInterface $request
