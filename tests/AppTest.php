@@ -1404,51 +1404,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
-    public function testInvokeSubRequest()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('foo');
-
-            return $res;
-        });
-
-        $newResponse = $subReq = $app->subRequest('GET', '/foo');
-
-        $this->assertEquals('foo', (string)$subReq->getBody());
-        $this->assertEquals(200, $newResponse->getStatusCode());
-    }
-
-    public function testInvokeSubRequestWithQuery()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write("foo {$req->getParam('bar')}");
-
-            return $res;
-        });
-
-        $subReq = $app->subRequest('GET', '/foo', 'bar=bar');
-
-        $this->assertEquals('foo bar', (string)$subReq->getBody());
-    }
-
-    public function testInvokeSubRequestUsesResponseObject()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write("foo {$req->getParam('bar')}");
-
-            return $res;
-        });
-
-        $resp = new Response(201);
-        $newResponse = $subReq = $app->subRequest('GET', '/foo', 'bar=bar', [], [], '', $resp);
-
-        $this->assertEquals('foo bar', (string)$subReq->getBody());
-        $this->assertEquals(201, $newResponse->getStatusCode());
-    }
-
     // TODO: Test finalize()
 
     // TODO: Test run()
