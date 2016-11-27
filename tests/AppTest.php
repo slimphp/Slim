@@ -10,6 +10,7 @@
 namespace Slim\Tests;
 
 use Interop\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -1516,6 +1517,38 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString('Hello');
     }
 
+    public function testRespondWithHeaderNotSent()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString('Hello');
+    }
+
     public function testRespondNoContent()
     {
         $app = new App();
@@ -1809,31 +1842,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = $app->run(true);
 
         $res->getBody()->rewind();
-        $this->assertEquals("Failed", $res->getBody()->getContents());
-    }
-    
-    public function testRunThrowablePhp5()
-    {
-        $this->skipIfPhp70();
 
-        /** @var \Throwable $throwable */
-        $throwable = $this->getMock(
-            '\Throwable',
-            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
-        );
-
-        $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            throw new \Error('Failed');
-        });
-
-        $res = $app->run(true);
-
-        $res->getBody()->rewind();
-        $this->assertEquals("Failed", $res->getBody()->getContents());
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
     public function testRunNotFound()
@@ -2011,6 +2023,20 @@ class AppTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \BadMethodCallException
      */
+    public function testCallingFromContainerNotCallable()
+    {
+        $settings = [
+            'foo' => function ($c) {
+                return null;
+            }
+        ];
+        $app = new App($settings);
+        $app->foo('bar');
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
     public function testCallingAnUnknownContainerCallableThrows()
     {
         $app = new App();
@@ -2100,9 +2126,52 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
     }
 
-    /**
-     * @return mixed
-     */
+    public function testIsEmptyResponseWithEmptyMethod()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response = $response->withStatus(204);
+
+        $result = $method->invoke(new App(), $response);
+        $this->assertTrue($result);
+    }
+
+    public function testIsEmptyResponseWithoutEmptyMethod()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method->setAccessible(true);
+
+        /** @var Response $response */
+        $response = $this->getMock(ResponseInterface::class);
+        $response->method('getStatusCode')
+            ->willReturn(204);
+
+        $result = $method->invoke(new App(), $response);
+        $this->assertTrue($result);
+    }
+
+    public function testHandlePhpError()
+    {
+        $this->skipIfPhp70();
+        $method = new \ReflectionMethod('Slim\App', 'handlePhpError');
+        $method->setAccessible(true);
+
+        $throwable = $this->getMock(
+            '\Throwable',
+            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
+        );
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $res = new Response();
+
+        $res = $method->invoke(new App(), $throwable, $req, $res);
+
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
+    }
+
     protected function skipIfPhp70()
     {
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
