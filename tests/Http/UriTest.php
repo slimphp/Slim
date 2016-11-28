@@ -388,6 +388,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('', 'query', $uri);
     }
 
+    public function testWithQueryEncodesUnsafeCharacters()
+    {
+        $uri = $this->uriFactory()->withQuery('xyz=a space');
+
+        $this->assertAttributeEquals('xyz=a%20space', 'query', $uri);
+    }
+
     /**
      * @covers Slim\Http\Uri::withQuery
      * @expectedException InvalidArgumentException
