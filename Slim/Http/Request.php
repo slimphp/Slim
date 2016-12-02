@@ -465,10 +465,6 @@ class Request extends Message implements ServerRequestInterface
             return $this->requestTarget;
         }
 
-        if ($this->uri === null) {
-            return '/';
-        }
-
         $basePath = $this->uri->getBasePath();
         $path = $this->uri->getPath();
         $path = $basePath . '/' . ltrim($path, '/');
@@ -747,10 +743,6 @@ class Request extends Message implements ServerRequestInterface
     {
         if (is_array($this->queryParams)) {
             return $this->queryParams;
-        }
-
-        if ($this->uri === null) {
-            return [];
         }
 
         parse_str($this->uri->getQuery(), $this->queryParams); // <-- URL decodes data

@@ -583,16 +583,6 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([], $clone->getQueryParams()); // <-- Changed
     }
 
-    public function testGetQueryParamsWithoutUri()
-    {
-        $request = $this->requestFactory();
-        $prop = new ReflectionProperty($request, 'uri');
-        $prop->setAccessible(true);
-        $prop->setValue($request, null);
-
-        $this->assertEquals([], $request->getQueryParams());
-    }
-
     /*******************************************************************************
      * Uploaded files
      ******************************************************************************/
