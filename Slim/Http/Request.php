@@ -140,7 +140,7 @@ class Request extends Message implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new RequestBody();
+        $body = new RequestBody($environment);
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);

@@ -15,11 +15,17 @@ class RequestBody extends Body
 {
     /**
      * Create a new RequestBody.
+     *
+     * @param Environment $environment The Slim application Environment
      */
-    public function __construct()
+    public function __construct(Environment $environment = null)
     {
         $stream = fopen('php://temp', 'w+');
-        stream_copy_to_stream(fopen('php://input', 'r'), $stream);
+        if ($environment != null && $environment["MOCK_POST_DATA"] != null) {
+            fwrite($stream, $environment["MOCK_POST_DATA"]);
+        } else {
+            stream_copy_to_stream(fopen('php://input', 'r'), $stream);
+        }
         rewind($stream);
 
         parent::__construct($stream);

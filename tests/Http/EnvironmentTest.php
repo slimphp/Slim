@@ -9,6 +9,7 @@
 namespace Slim\Tests\Http;
 
 use Slim\Http\Environment;
+use Slim\Http\Request;
 
 class EnvironmentTest extends \PHPUnit_Framework_TestCase
 {
@@ -54,5 +55,18 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/bar/index.php', $env->get('SCRIPT_NAME'));
         $this->assertEquals('/foo/bar?abc=123', $env->get('REQUEST_URI'));
         $this->assertEquals('localhost', $env->get('HTTP_HOST'));
+    }
+
+    /**
+     * Test mock post data
+     */
+    public function testMockPostData()
+    {
+        $env = Environment::mock([
+            'MOCK_POST_DATA' => 'data'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        $this->assertEquals($request->getBody(),"data");
     }
 }
