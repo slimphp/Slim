@@ -67,6 +67,6 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $request = Request::createFromEnvironment($env);
-        $this->assertEquals($request->getBody(),"data");
+        $this->assertEquals($request->getBody(), "data");
     }
 }
