@@ -310,9 +310,6 @@ class App
     {
         // Ensure basePath is set
         $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
 
         // Dispatch the Router first if the setting for this is on
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
