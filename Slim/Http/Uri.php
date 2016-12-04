@@ -70,13 +70,6 @@ class Uri implements UriInterface
     protected $port;
 
     /**
-     * Uri base path
-     *
-     * @var string
-     */
-    protected $basePath = '';
-
-    /**
      * Uri path
      *
      * @var string
@@ -227,9 +220,6 @@ class Uri implements UriInterface
 
         // Build Uri
         $uri = new static($scheme, $host, $port, $virtualPath, $queryString, $fragment, $username, $password);
-        if ($basePath) {
-            $uri = $uri->withBasePath($basePath);
-        }
 
         return $uri;
     }
@@ -558,51 +548,6 @@ class Uri implements UriInterface
         $clone = clone $this;
         $clone->path = $this->filterPath($path);
 
-        // if the path is absolute, then clear basePath
-        if (substr($path, 0, 1) == '/') {
-            $clone->basePath = '';
-        }
-
-        return $clone;
-    }
-
-    /**
-     * Retrieve the base path segment of the URI.
-     *
-     * Note: This method is not part of the PSR-7 standard.
-     *
-     * This method MUST return a string; if no path is present it MUST return
-     * an empty string.
-     *
-     * @return string The base path segment of the URI.
-     */
-    public function getBasePath()
-    {
-        return $this->basePath;
-    }
-
-    /**
-     * Set base path.
-     *
-     * Note: This method is not part of the PSR-7 standard.
-     *
-     * @param  string $basePath
-     * @return self
-     */
-    public function withBasePath($basePath)
-    {
-        if (!is_string($basePath)) {
-            throw new InvalidArgumentException('Uri path must be a string');
-        }
-        if (!empty($basePath)) {
-            $basePath = '/' . trim($basePath, '/'); // <-- Trim on both sides
-        }
-        $clone = clone $this;
-
-        if ($basePath !== '/') {
-            $clone->basePath = $this->filterPath($basePath);
-        }
-
         return $clone;
     }
 
@@ -784,12 +729,11 @@ class Uri implements UriInterface
     {
         $scheme = $this->getScheme();
         $authority = $this->getAuthority();
-        $basePath = $this->getBasePath();
         $path = $this->getPath();
         $query = $this->getQuery();
         $fragment = $this->getFragment();
 
-        $path = $basePath . '/' . ltrim($path, '/');
+        $path = '/' . ltrim($path, '/');
 
         return ($scheme ? $scheme . ':' : '')
             . ($authority ? '//' . $authority : '')
@@ -811,14 +755,8 @@ class Uri implements UriInterface
     {
         $scheme = $this->getScheme();
         $authority = $this->getAuthority();
-        $basePath = $this->getBasePath();
-
-        if ($authority && substr($basePath, 0, 1) !== '/') {
-            $basePath = $basePath . '/' . $basePath;
-        }
 
         return ($scheme ? $scheme . ':' : '')
-            . ($authority ? '//' . $authority : '')
-            . rtrim($basePath, '/');
+            . ($authority ? '//' . $authority : '');
     }
 }
