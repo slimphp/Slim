@@ -1130,10 +1130,10 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param      $key
-     * @param null $default
+     * @param string $key
+     * @param mixed $default
      *
-     * @return null
+     * @return mixed
      */
     public function getParsedBodyParam($key, $default = null)
     {
@@ -1153,10 +1153,10 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param      $key
-     * @param null $default
+     * @param string $key
+     * @param mixed $default
      *
-     * @return null
+     * @return mixed
      */
     public function getQueryParam($key, $default = null)
     {
