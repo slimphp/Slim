@@ -1134,7 +1134,7 @@ class Request extends Message implements ServerRequestInterface
      * @param      $key
      * @param null $default
      *
-     * @return null
+     * @return mixed
      */
     public function getParsedBodyParam($key, $default = null)
     {
@@ -1157,7 +1157,7 @@ class Request extends Message implements ServerRequestInterface
      * @param      $key
      * @param null $default
      *
-     * @return null
+     * @return mixed
      */
     public function getQueryParam($key, $default = null)
     {
