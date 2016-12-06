@@ -2144,7 +2144,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $method->setAccessible(true);
 
         /** @var Response $response */
-        $response = $this->getMock(ResponseInterface::class);
+        $response = $this->getMockBuilder(ResponseInterface::class)->getMock();
         $response->method('getStatusCode')
             ->willReturn(204);
 
