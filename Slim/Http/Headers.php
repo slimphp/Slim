@@ -56,7 +56,7 @@ class Headers extends Collection implements HeadersInterface
             $key = strtoupper($key);
             if (isset(static::$special[$key]) || strpos($key, 'HTTP_') === 0) {
                 if ($key !== 'HTTP_CONTENT_LENGTH') {
-                    $data[static::reconstructOriginalKey($key)] =  $value;
+                    $data[self::reconstructOriginalKey($key)] = $value;
                 }
             }
         }
