@@ -56,7 +56,7 @@ class Headers extends Collection implements HeadersInterface
             $key = strtoupper($key);
             if (isset(static::$special[$key]) || strpos($key, 'HTTP_') === 0) {
                 if ($key !== 'HTTP_CONTENT_LENGTH') {
-                    $data[$key] =  $value;
+                    $data[static::reconstructOriginalKey($key)] =  $value;
                 }
             }
         }
@@ -218,5 +218,27 @@ class Headers extends Collection implements HeadersInterface
         }
 
         return $key;
+    }
+
+    /**
+     * Reconstruct original header name
+     *
+     * This method takes an HTTP header name from the Environment
+     * and returns it as it was probably formatted by the actual client.
+     *
+     * @param string $key An HTTP header key from the $_SERVER global variable
+     *
+     * @return string The reconstructed key
+     *
+     * @example CONTENT_TYPE => Content-Type
+     * @example HTTP_USER_AGENT => User-Agent
+     */
+    private static function reconstructOriginalKey($key)
+    {
+        if (strpos($key, 'HTTP_') === 0) {
+            $key = substr($key, 5);
+        }
+
+        return strtr(ucwords(strtr(strtolower($key), '_', ' ')), ' ', '-');
     }
 }
