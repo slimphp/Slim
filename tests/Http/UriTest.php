@@ -352,6 +352,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('', 'query', $uri);
     }
 
+    public function testFilterQuery()
+    {
+        $uri = $this->uriFactory()->withQuery('?foobar=%match');
+
+        $this->assertAttributeEquals('foobar=%25match', 'query', $uri);
+    }
+
     /**
      * @covers Slim\Http\Uri::withQuery
      * @expectedException InvalidArgumentException
