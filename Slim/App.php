@@ -58,6 +58,11 @@ class App
      */
     protected $callableResolver;
 
+    /**
+     * @var \Slim\Interfaces\RouterInterface
+     */
+    protected $router;
+
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -163,6 +168,48 @@ class App
         }
 
         return $this->callableResolver;
+    }
+
+    /**
+     * Set router
+     *
+     * @param RouterInterface $router
+     */
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $router;
+    }
+
+    /**
+     * Get router
+     *
+     * @return RouterInterface
+     */
+    public function getRouter()
+    {
+        if (! $this->router instanceof RouterInterface) {
+            $router = null;
+
+            // Fetch router from container if container is set
+            if ($this->container instanceof ContainerInterface) {
+                $router = $this->container->get('router');
+            }
+
+            // If router is invalid, use default
+            if (! $router instanceof RouterInterface) {
+                $router = new Router();
+                if ($this->container instanceof ContainerInterface) {
+                    $router->setContainer($this->container);
+                }
+                if ($this->callableResolver instanceof CallableResolverInterface) {
+                    $router->setCallableResolver($this->callableResolver);
+                }
+            }
+
+            $this->router = $router;
+        }
+
+        return $this->router;
     }
 
     /********************************************************************************
@@ -271,18 +318,21 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        if ($callable instanceof Closure) {
+        // TODO: Should we bind route callable to container elsewhere?
+        if ($this->container instanceof ContainerInterface && $callable instanceof \Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
-        if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
-        }
+        $router = $this->getRouter();
+        $route = $router->map($methods, $pattern, $callable);
 
+        // TODO: Set route output buffering without a container
+        // TODO: Refactor app settings out of container
         if (is_callable([$route, 'setOutputBuffering'])) {
             $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
         }
+
+        // TODO: Route callable binding and output buffering should be handled within router
 
         return $route;
     }
@@ -302,10 +352,18 @@ class App
     public function group($pattern, $callable)
     {
         /** @var RouteGroup $group */
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
-        $group->setContainer($this->container);
+        $router = $this->getRouter();
+        $group = $router->pushGroup($pattern, $callable);
+        // TODO: Set group container and resolver inside Router
+        if ($this->container instanceof ContainerInterface) {
+            $group->setContainer($this->container);
+        }
+        if ($this->callableResolver instanceof CallableResolverInterface) {
+            $group->setCallableResolver($this->callableResolver);
+        }
         $group($this);
-        $this->container->get('router')->popGroup();
+        $router->popGroup();
+
         return $group;
     }
 
@@ -356,10 +414,10 @@ class App
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
-        // Ensure basePath is set
-        $router = $this->container->get('router');
+        $router = $this->getRouter();
 
         // Dispatch the Router first if the setting for this is on
+        // TODO: Refactor settings out of container
         if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
             // Dispatch router (note: you won't be able to alter routes after this)
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
@@ -410,6 +468,7 @@ class App
             if ($body->isSeekable()) {
                 $body->rewind();
             }
+            // TODO: Refactor settings out of container
             $settings       = $this->container->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
 
@@ -463,7 +522,7 @@ class App
         $routeInfo = $request->getAttribute('routeInfo');
 
         /** @var \Slim\Interfaces\RouterInterface $router */
-        $router = $this->container->get('router');
+        $router = $this->getRouter();
 
         // If router hasn't been dispatched or the URI changed then dispatch
         if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
@@ -535,6 +594,7 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
+        // TODO: Refactor settings out of container
         // Add Content-Length header if `addContentLengthHeader` setting is set
         if (isset($this->container->get('settings')['addContentLengthHeader']) &&
             $this->container->get('settings')['addContentLengthHeader'] == true) {
