@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Exception;
+use Slim\Interfaces\CallableResolverInterface;
 use Throwable;
 use Closure;
 use InvalidArgumentException;
@@ -51,6 +52,11 @@ class App
      * @var ContainerInterface
      */
     private $container;
+
+    /**
+     * @var \Slim\CallableResolver
+     */
+    protected $callableResolver;
 
     /********************************************************************************
      * Constructor
@@ -115,6 +121,30 @@ class App
         }
 
         throw new \BadMethodCallException("Method $method is not a valid method");
+    }
+
+    /********************************************************************************
+     * Setter and getter methods
+     *******************************************************************************/
+
+    /**
+     * Set callable resolver
+     *
+     * @param CallableResolverInterface $resolver
+     */
+    public function setCallableResolver(CallableResolverInterface $resolver)
+    {
+        $this->callableResolver = $resolver;
+    }
+
+    /**
+     * Get callable resolver
+     *
+     * @return CallableResolver|null
+     */
+    public function getCallableResolver()
+    {
+        return $this->callableResolver;
     }
 
     /********************************************************************************
