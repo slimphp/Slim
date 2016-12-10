@@ -176,23 +176,21 @@ class App
     public function getRouter()
     {
         if (! $this->router instanceof RouterInterface) {
-            $router = null;
-
-            // Fetch router from container if container is set
-            if ($this->container instanceof ContainerInterface) {
-                $router = $this->container->get('router');
+            $router = new Router();
+            $container = $this->getContainer();
+            if ($container instanceof ContainerInterface) {
+                $router->setContainer($container);
             }
-
-            // If router is invalid, use default
-            if (! $router instanceof RouterInterface) {
-                $router = new Router();
-                if ($this->container instanceof ContainerInterface) {
-                    $router->setContainer($this->container);
-                }
-                if ($this->callableResolver instanceof CallableResolverInterface) {
-                    $router->setCallableResolver($this->callableResolver);
-                }
+            $resolver = $this->getCallableResolver();
+            if ($resolver instanceof CallableResolverInterface) {
+                $router->setCallableResolver($resolver);
             }
+            // TODO: Refactor settings out of container
+            $routerCacheFile = false;
+            if (isset($this->container->get('settings')['routerCacheFile'])) {
+                $routerCacheFile = $this->container->get('settings')['routerCacheFile'];
+            }
+            $router->setCacheFile($routerCacheFile);
 
             $this->router = $router;
         }
