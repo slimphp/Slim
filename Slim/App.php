@@ -152,19 +152,7 @@ class App
     public function getCallableResolver()
     {
         if (! $this->callableResolver instanceof CallableResolverInterface) {
-            $resolver = null;
-
-            // Fetch resolver from container if container is set
-            if ($this->container instanceof ContainerInterface) {
-                $resolver = $this->container->get('callableResolver');
-            }
-
-            // If resolver is invalid, use default
-            if (! $resolver instanceof CallableResolverInterface) {
-                $resolver = new CallableResolver($this->container);
-            }
-
-            $this->callableResolver = $resolver;
+            $this->callableResolver = new CallableResolver($this->container);
         }
 
         return $this->callableResolver;
