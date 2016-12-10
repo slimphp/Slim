@@ -54,7 +54,7 @@ class App
     private $container;
 
     /**
-     * @var \Slim\CallableResolver
+     * @var \Slim\Interfaces\CallableResolverInterface
      */
     protected $callableResolver;
 
@@ -100,7 +100,9 @@ class App
      */
     public function add($callable)
     {
-        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
+        return $this->addMiddleware(
+            new DeferredCallable($callable, $this->getCallableResolver())
+        );
     }
 
     /**
@@ -144,6 +146,22 @@ class App
      */
     public function getCallableResolver()
     {
+        if (! $this->callableResolver instanceof CallableResolverInterface) {
+            $resolver = null;
+
+            // Fetch resolver from container if container is set
+            if ($this->container instanceof ContainerInterface) {
+                $resolver = $this->container->get('callableResolver');
+            }
+
+            // If resolver is invalid, use default
+            if (! $resolver instanceof CallableResolverInterface) {
+                $resolver = new CallableResolver($this->container);
+            }
+
+            $this->callableResolver = $resolver;
+        }
+
         return $this->callableResolver;
     }
 
