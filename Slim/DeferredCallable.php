@@ -9,35 +9,38 @@
 
 namespace Slim;
 
-use Closure;
-use Interop\Container\ContainerInterface;
+use Slim\Interfaces\CallableResolverInterface;
 
 class DeferredCallable
 {
-    use CallableResolverAwareTrait;
+    /**
+     * @var callable|string
+     */
+    protected $callable;
 
-    private $callable;
-    /** @var  ContainerInterface */
-    private $container;
+    /**
+     * @var CallableResolverInterface|null
+     */
+    protected $callableResolver;
 
     /**
      * DeferredMiddleware constructor.
+     *
      * @param callable|string $callable
-     * @param ContainerInterface $container
+     * @param CallableResolverInterface|null $resolver
      */
-    public function __construct($callable, ContainerInterface $container = null)
+    public function __construct($callable, CallableResolverInterface $resolver = null)
     {
         $this->callable = $callable;
-        $this->container = $container;
+        $this->callableResolver = $resolver;
     }
 
     public function __invoke()
     {
-        $callable = $this->resolveCallable($this->callable);
-        if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
+        $callable = $this->callable;
+        if ($this->callableResolver) {
+            $callable = $this->callableResolver->resolve($callable);
         }
-
         $args = func_get_args();
 
         return call_user_func_array($callable, $args);

@@ -3,6 +3,7 @@
 
 namespace Slim\Tests;
 
+use Slim\CallableResolver;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
@@ -13,8 +14,9 @@ class DeferredCallableTest extends \PHPUnit_Framework_TestCase
     {
         $container = new Container();
         $container['CallableTest'] = new CallableTest;
+        $resolver = new CallableResolver($container);
 
-        $deferred = new DeferredCallable('CallableTest:toCall', $container);
+        $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $deferred();
 
         $this->assertEquals(1, CallableTest::$CalledCount);
@@ -28,7 +30,7 @@ class DeferredCallableTest extends \PHPUnit_Framework_TestCase
             ->method('foo');
 
         $container = new Container();
-
+        $resolver = new CallableResolver($container);
         $test = $this;
 
         $closure = function () use ($container, $test, $assertCalled) {
@@ -36,13 +38,14 @@ class DeferredCallableTest extends \PHPUnit_Framework_TestCase
             $test->assertSame($container, $this);
         };
 
-        $deferred = new DeferredCallable($closure, $container);
+        $deferred = new DeferredCallable($closure, $resolver);
         $deferred();
     }
 
     public function testItReturnsInvokedCallableResponse()
     {
         $container = new Container;
+        $resolver = new CallableResolver($container);
         $test = $this;
         $foo = 'foo';
         $bar = 'bar';
@@ -52,7 +55,7 @@ class DeferredCallableTest extends \PHPUnit_Framework_TestCase
             return $bar;
         };
 
-        $deferred = new DeferredCallable($closure, $container);
+        $deferred = new DeferredCallable($closure, $resolver);
 
         $response = $deferred($foo);
         $this->assertEquals($bar, $response);
