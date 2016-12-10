@@ -329,11 +329,6 @@ class Route extends Routable implements RouteInterface
         if ($this->callableResolver) {
             $callable = $this->callableResolver->resolve($callable);
         }
-        /*if (is_string($callable)) {
-            var_dump($callable);
-            var_dump($this->callableResolver);
-            exit;
-        }*/
 
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
