@@ -24,9 +24,9 @@ final class CallableResolver implements CallableResolverInterface
     private $container;
 
     /**
-     * @param ContainerInterface $container
+     * @param ContainerInterface|null $container
      */
-    public function __construct(ContainerInterface $container)
+    public function __construct(ContainerInterface $container = null)
     {
         $this->container = $container;
     }
@@ -55,7 +55,8 @@ final class CallableResolver implements CallableResolverInterface
                 $class = $matches[1];
                 $method = $matches[2];
 
-                if ($this->container->has($class)) {
+                if ($this->container instanceof ContainerInterface &&
+                    $this->container->has($class)) {
                     $resolved = [$this->container->get($class), $method];
                 } else {
                     if (!class_exists($class)) {
@@ -67,7 +68,8 @@ final class CallableResolver implements CallableResolverInterface
                 // check if string is something in the DIC that's callable or is a class name which
                 // has an __invoke() method
                 $class = $toResolve;
-                if ($this->container->has($class)) {
+                if ($this->container instanceof ContainerInterface &&
+                    $this->container->has($class)) {
                     $resolved = $this->container->get($class);
                 } else {
                     if (!class_exists($class)) {

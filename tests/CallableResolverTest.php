@@ -33,7 +33,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
             static $called_count = 0;
             return $called_count++;
         };
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve($test);
         $callable();
         $this->assertEquals(1, $callable());
@@ -49,7 +49,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         };
         // @codingStandardsIgnoreEnd
 
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
         $callable();
         $this->assertEquals(1, $callable());
@@ -58,7 +58,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
     public function testObjMethodArray()
     {
         $obj = new CallableTest();
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve([$obj, 'toCall']);
         $callable();
         $this->assertEquals(1, CallableTest::$CalledCount);
@@ -66,7 +66,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testSlimCallable()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve('Slim\Tests\Mocks\CallableTest:toCall');
         $callable();
         $this->assertEquals(1, CallableTest::$CalledCount);
@@ -101,7 +101,7 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
 
     public function testResolutionToAnInvokableClass()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve('Slim\Tests\Mocks\InvokableTest');
         $callable();
         $this->assertEquals(1, InvokableTest::$CalledCount);
