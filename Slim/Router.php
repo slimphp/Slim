@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
@@ -43,6 +44,13 @@ class Router implements RouterInterface
      * @var \FastRoute\RouteParser
      */
     protected $routeParser;
+
+    /**
+     * Callable resolver
+     *
+     * @var \Slim\Interfaces\CallableResolverInterface
+     */
+    protected $callableResolver;
 
     /**
      * Base path used in pathFor()
@@ -135,6 +143,16 @@ class Router implements RouterInterface
     }
 
     /**
+     * Set callable resolver
+     *
+     * @param CallableResolverInterface $resolver
+     */
+    public function setCallableResolver(CallableResolverInterface $resolver)
+    {
+        $this->callableResolver = $resolver;
+    }
+
+    /**
      * @param ContainerInterface $container
      */
     public function setContainer(ContainerInterface $container)
@@ -199,14 +217,17 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $handler The route callable
+     * @param  callable $callable The route callable
      *
      * @return \Slim\Interfaces\RouteInterface
      */
     protected function createRoute($methods, $pattern, $callable)
     {
         $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
-        if (!empty($this->container)) {
+        if ($this->callableResolver) {
+            $route->setCallableResolver($this->callableResolver);
+        }
+        if ($this->container) {
             $route->setContainer($this->container);
         }
 
