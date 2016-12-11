@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**
@@ -30,13 +29,6 @@ abstract class Routable
      * @var \Slim\Interfaces\CallableResolverInterface
      */
     protected $callableResolver;
-
-    /**
-     * Container
-     *
-     * @var ContainerInterface
-     */
-    //protected $container;
 
     /**
      * Route middleware
@@ -91,19 +83,6 @@ abstract class Routable
     {
         return $this->callableResolver;
     }
-
-    /**
-     * Set container for use with resolveCallable
-     *
-     * @param ContainerInterface $container
-     *
-     * @return self
-     */
-    /*public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-        return $this;
-    }*/
 
     /**
      * Prepend middleware to the middleware collection
