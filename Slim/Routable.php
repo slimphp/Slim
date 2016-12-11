@@ -36,7 +36,7 @@ abstract class Routable
      *
      * @var ContainerInterface
      */
-    protected $container;
+    //protected $container;
 
     /**
      * Route middleware
@@ -99,11 +99,11 @@ abstract class Routable
      *
      * @return self
      */
-    public function setContainer(ContainerInterface $container)
+    /*public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
         return $this;
-    }
+    }*/
 
     /**
      * Prepend middleware to the middleware collection

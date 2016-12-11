@@ -335,9 +335,9 @@ class App
         $router = $this->getRouter();
         $group = $router->pushGroup($pattern, $callable);
         // TODO: Set group container and resolver inside Router
-        if ($this->container instanceof ContainerInterface) {
+        /*if ($this->container instanceof ContainerInterface) {
             $group->setContainer($this->container);
-        }
+        }*/
         if ($this->callableResolver instanceof CallableResolverInterface) {
             $group->setCallableResolver($this->callableResolver);
         }
