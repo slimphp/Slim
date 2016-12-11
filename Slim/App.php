@@ -207,9 +207,7 @@ class App
      */
     public function removeSetting($key)
     {
-        if ($this->hasSetting($key)) {
-            unset($this->settings[$key]);
-        }
+        unset($this->settings[$key]);
     }
 
     /********************************************************************************
