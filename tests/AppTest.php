@@ -1119,6 +1119,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         };
 
         $app = new App($c);
+        $app->getRouter()->setDefaultInvocationStrategy($c['foundHandler']);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write("Hello {$name}");
         });
@@ -1380,6 +1381,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         };
 
         $app = new App($c);
+        $app->getRouter()->setDefaultInvocationStrategy($c['foundHandler']);
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write($req->getAttribute('one') . $name);
         });

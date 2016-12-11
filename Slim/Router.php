@@ -9,7 +9,6 @@
 namespace Slim;
 
 use FastRoute\Dispatcher;
-use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -17,6 +16,7 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
@@ -32,13 +32,6 @@ use Slim\Interfaces\RouteInterface;
 class Router implements RouterInterface
 {
     /**
-     * Container Interface
-     *
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
      * Parser
      *
      * @var \FastRoute\RouteParser
@@ -51,6 +44,11 @@ class Router implements RouterInterface
      * @var \Slim\Interfaces\CallableResolverInterface
      */
     protected $callableResolver;
+
+    /**
+     * @var \Slim\Interfaces\InvocationStrategyInterface
+     */
+    protected $routeInvocationStrategy;
 
     /**
      * Base path used in pathFor()
@@ -102,6 +100,26 @@ class Router implements RouterInterface
     }
 
     /**
+     * Set default route invocation strategy
+     *
+     * @param InvocationStrategyInterface $strategy
+     */
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy)
+    {
+        $this->routeInvocationStrategy = $strategy;
+    }
+
+    /**
+     * Get default route invocation strategy
+     *
+     * @return InvocationStrategyInterface|null
+     */
+    public function getDefaultInvocationStrategy()
+    {
+        return $this->routeInvocationStrategy;
+    }
+
+    /**
      * Set the base path used in pathFor()
      *
      * @param string $basePath
@@ -150,14 +168,6 @@ class Router implements RouterInterface
     public function setCallableResolver(CallableResolverInterface $resolver)
     {
         $this->callableResolver = $resolver;
-    }
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
     }
 
     /**
@@ -227,8 +237,8 @@ class Router implements RouterInterface
         if ($this->callableResolver) {
             $route->setCallableResolver($this->callableResolver);
         }
-        if ($this->container) {
-            $route->setContainer($this->container);
+        if ($this->routeInvocationStrategy) {
+            $route->setInvocationStrategy($this->routeInvocationStrategy);
         }
 
         return $route;

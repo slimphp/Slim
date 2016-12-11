@@ -104,4 +104,11 @@ interface RouterInterface
      * @throws InvalidArgumentException If required data not provided
      */
     public function pathFor($name, array $data = [], array $queryParams = []);
+
+    /**
+     * Set default route invocation strategy
+     *
+     * @param InvocationStrategyInterface $strategy
+     */
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy);
 }
