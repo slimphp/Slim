@@ -52,6 +52,51 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $router = $app->getRouter();
         $this->assertTrue(isset($router));
     }
+
+    /********************************************************************************
+     * Settings management methods
+     *******************************************************************************/
+
+    public function testHasSetting()
+    {
+        $app = new App();
+        $this->assertTrue($app->hasSetting('httpVersion'));
+        $this->assertFalse($app->hasSetting('foo'));
+    }
+
+    public function testGetSettings()
+    {
+        $app = new App();
+        $appSettings = $app->getSettings();
+        $this->assertAttributeEquals($appSettings, 'settings', $app);
+    }
+
+    public function testGetSettingExists()
+    {
+        $app = new App();
+        $this->assertEquals('1.1', $app->getSetting('httpVersion'));
+    }
+
+    public function testGetSettingNotExists()
+    {
+        $app = new App();
+        $this->assertNull($app->getSetting('foo'));
+    }
+
+    public function testAddSettings()
+    {
+        $app = new App();
+        $app->addSettings(['foo' => 'bar']);
+        $this->assertAttributeContains('foo', 'settings', $app);
+    }
+
+    public function testAddSetting()
+    {
+        $app = new App();
+        $app->addSetting('foo', 'bar');
+        $this->assertAttributeContains('foo', 'settings', $app);
+    }
+
     /********************************************************************************
      * Router proxy methods
      *******************************************************************************/

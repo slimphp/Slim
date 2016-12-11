@@ -200,16 +200,6 @@ class App
         $this->settings[$key] = $value;
     }
 
-    /**
-     * Remove/unset app setting
-     *
-     * @param $key
-     */
-    public function removeSetting($key)
-    {
-        unset($this->settings[$key]);
-    }
-
     /********************************************************************************
      * Setter and getter methods
      *******************************************************************************/
