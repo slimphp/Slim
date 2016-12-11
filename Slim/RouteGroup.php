@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use Closure;
 use Slim\Interfaces\RouteGroupInterface;
 
 /**
@@ -37,8 +36,14 @@ class RouteGroup extends Routable implements RouteGroupInterface
      */
     public function __invoke(App $app = null)
     {
-        $callable = $this->resolveCallable($this->callable);
-        if ($callable instanceof Closure && $app !== null) {
+        // Resolve route callable
+        $callable = $this->callable;
+        if ($this->callableResolver) {
+            $callable = $this->callableResolver->resolve($callable);
+        }
+
+        // Bind RouteGroup to app instance
+        if ($callable instanceof \Closure && $app !== null) {
             $callable = $callable->bindTo($app);
         }
 

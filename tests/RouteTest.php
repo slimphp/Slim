@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Slim\CallableResolver;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Http\Body;
@@ -216,12 +217,14 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
 
         $container = new Container();
+        $resolver = new CallableResolver($container);
         $container['CallableTest'] = new CallableTest;
 
-        $deferred = new DeferredCallable('CallableTest:toCall', $container);
+        $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
 
         $route = new Route(['GET'], '/', $deferred);
         $route->setContainer($container);
+        $route->setCallableResolver($resolver);
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -400,6 +403,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testInvokeDeferredCallable()
     {
         $container = new Container();
+        $resolver = new CallableResolver($container);
         $container['CallableTest'] = new CallableTest;
         $container['foundHandler'] = function () {
             return new InvocationStrategyTest();
@@ -407,6 +411,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall');
         $route->setContainer($container);
+        $route->setCallableResolver($resolver);
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -434,6 +439,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testChangingCallable()
     {
         $container = new Container();
+        $resolver = new CallableResolver($container);
         $container['CallableTest2'] = new CallableTest;
         $container['foundHandler'] = function () {
             return new InvocationStrategyTest();
@@ -441,6 +447,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall'); //Note that this doesn't actually exist
         $route->setContainer($container);
+        $route->setCallableResolver($resolver);
 
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 

@@ -87,6 +87,10 @@ final class CallableResolver implements CallableResolverInterface
             ));
         }
 
+        if ($this->container instanceof ContainerInterface && $resolved instanceof \Closure) {
+            $resolved = $resolved->bindTo($this->container);
+        }
+
         return $resolved;
     }
 }

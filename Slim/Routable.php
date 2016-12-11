@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Interop\Container\ContainerInterface;
+use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * A routable, middleware-aware object
@@ -18,14 +19,17 @@ use Interop\Container\ContainerInterface;
  */
 abstract class Routable
 {
-    use CallableResolverAwareTrait;
-
     /**
      * Route callable
      *
      * @var callable
      */
     protected $callable;
+
+    /**
+     * @var \Slim\Interfaces\CallableResolverInterface
+     */
+    protected $callableResolver;
 
     /**
      * Container
@@ -69,6 +73,26 @@ abstract class Routable
     }
 
     /**
+     * Set callable resolver
+     *
+     * @param CallableResolverInterface $resolver
+     */
+    public function setCallableResolver(CallableResolverInterface $resolver)
+    {
+        $this->callableResolver = $resolver;
+    }
+
+    /**
+     * Get callable resolver
+     *
+     * @return CallableResolverInterface|null
+     */
+    public function getCallableResolver()
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * Set container for use with resolveCallable
      *
      * @param ContainerInterface $container
@@ -90,7 +114,7 @@ abstract class Routable
      */
     public function add($callable)
     {
-        $this->middleware[] = new DeferredCallable($callable, $this->container);
+        $this->middleware[] = new DeferredCallable($callable, $this->callableResolver);
         return $this;
     }
 

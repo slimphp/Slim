@@ -97,6 +97,9 @@ class DefaultServicesProvider
                 if (method_exists($router, 'setContainer')) {
                     $router->setContainer($container);
                 }
+                if (method_exists($router, 'setCallableResolver')) {
+                    $router->setCallableResolver($container['callableResolver']);
+                }
 
                 return $router;
             };

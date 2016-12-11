@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Exception;
+use Slim\Interfaces\CallableResolverInterface;
 use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -70,13 +71,6 @@ class Route extends Routable implements RouteInterface
      * @var array
      */
     protected $arguments = [];
-
-    /**
-     * The callable payload
-     *
-     * @var callable
-     */
-    protected $callable;
 
     /**
      * Create new route
@@ -330,18 +324,22 @@ class Route extends Routable implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $this->callable = $this->resolveCallable($this->callable);
+        // Resolve route callable
+        $callable = $this->callable;
+        if ($this->callableResolver) {
+            $callable = $this->callableResolver->resolve($callable);
+        }
 
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
         // invoke route callable
         if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+            $newResponse = $handler($callable, $request, $response, $this->arguments);
         } else {
             try {
                 ob_start();
-                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
+                $newResponse = $handler($callable, $request, $response, $this->arguments);
                 $output = ob_get_clean();
             // @codeCoverageIgnoreStart
             } catch (Throwable $e) {
