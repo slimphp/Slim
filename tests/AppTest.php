@@ -83,6 +83,12 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($app->getSetting('foo'));
     }
 
+    public function testGetSettingNotExistsWithDefault()
+    {
+        $app = new App();
+        $this->assertEquals('what', $app->getSetting('foo', 'what'));
+    }
+
     public function testAddSettings()
     {
         $app = new App();

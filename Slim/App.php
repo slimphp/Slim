@@ -172,11 +172,12 @@ class App
      * Get app setting with given key
      *
      * @param string $key
-     * @return mixed|null
+     * @param mixed $defaultValue
+     * @return mixed
      */
-    public function getSetting($key)
+    public function getSetting($key, $defaultValue = null)
     {
-        return $this->hasSetting($key) ? $this->settings[$key] : null;
+        return $this->hasSetting($key) ? $this->settings[$key] : $defaultValue;
     }
 
     /**
