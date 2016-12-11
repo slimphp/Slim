@@ -63,6 +63,19 @@ class App
      */
     protected $router;
 
+    /**
+     * @var array
+     */
+    protected $settings = [
+        'httpVersion' => '1.1',
+        'responseChunkSize' => 4096,
+        'outputBuffering' => 'append',
+        'determineRouteBeforeAppMiddleware' => false,
+        'displayErrorDetails' => false,
+        'addContentLengthHeader' => true,
+        'routerCacheFile' => false,
+    ];
+
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -128,6 +141,75 @@ class App
         }
 
         throw new \BadMethodCallException("Method $method is not a valid method");
+    }
+
+    /********************************************************************************
+     * Settings management
+     *******************************************************************************/
+
+    /**
+     * Does app have a setting with given key?
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function hasSetting($key)
+    {
+        return isset($this->settings[$key]);
+    }
+
+    /**
+     * Get app settings
+     *
+     * @return array
+     */
+    public function getSettings()
+    {
+        return $this->settings;
+    }
+
+    /**
+     * Get app setting with given key
+     *
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getSetting($key)
+    {
+        return $this->hasSetting($key) ? $this->settings[$key] : null;
+    }
+
+    /**
+     * Merge a key-value array with existing app settings
+     *
+     * @param array $settings
+     */
+    public function addSettings(array $settings)
+    {
+        $this->settings = array_merge($this->settings, $settings);
+    }
+
+    /**
+     * Add single app setting
+     *
+     * @param string $key
+     * @param mixed $value
+     */
+    public function addSetting($key, $value)
+    {
+        $this->settings[$key] = $value;
+    }
+
+    /**
+     * Remove/unset app setting
+     *
+     * @param $key
+     */
+    public function removeSetting($key)
+    {
+        if ($this->hasSetting($key)) {
+            unset($this->settings[$key]);
+        }
     }
 
     /********************************************************************************
