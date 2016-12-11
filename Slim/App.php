@@ -256,11 +256,7 @@ class App
             if ($resolver instanceof CallableResolverInterface) {
                 $router->setCallableResolver($resolver);
             }
-            // TODO: Refactor settings out of container
-            $routerCacheFile = false;
-            if (isset($this->container->get('settings')['routerCacheFile'])) {
-                $routerCacheFile = $this->container->get('settings')['routerCacheFile'];
-            }
+            $routerCacheFile = $this->getSetting('routerCacheFile', false);
             $router->setCacheFile($routerCacheFile);
 
             $this->router = $router;
@@ -383,10 +379,9 @@ class App
         $router = $this->getRouter();
         $route = $router->map($methods, $pattern, $callable);
 
-        // TODO: Set route output buffering without a container
-        // TODO: Refactor app settings out of container
+        // TODO: Do we keep output buffering?
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+            $route->setOutputBuffering($this->getSetting('outputBuffering', 'append'));
         }
 
         // TODO: Route callable binding and output buffering should be handled within router
@@ -474,8 +469,7 @@ class App
         $router = $this->getRouter();
 
         // Dispatch the Router first if the setting for this is on
-        // TODO: Refactor settings out of container
-        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
+        if ($this->getSetting('determineRouteBeforeAppMiddleware') === true) {
             // Dispatch router (note: you won't be able to alter routes after this)
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         }
@@ -525,10 +519,7 @@ class App
             if ($body->isSeekable()) {
                 $body->rewind();
             }
-            // TODO: Refactor settings out of container
-            $settings       = $this->container->get('settings');
-            $chunkSize      = $settings['responseChunkSize'];
-
+            $chunkSize = $this->getSetting('responseChunkSize', 4096);
             $contentLength  = $response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
@@ -651,10 +642,8 @@ class App
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
-        // TODO: Refactor settings out of container
         // Add Content-Length header if `addContentLengthHeader` setting is set
-        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
-            $this->container->get('settings')['addContentLengthHeader'] == true) {
+        if ($this->getSetting('addContentLengthHeader') == true) {
             if (ob_get_length() > 0) {
                 throw new \RuntimeException("Unexpected data in output buffer. " .
                     "Maybe you have characters before an opening <?php tag?");

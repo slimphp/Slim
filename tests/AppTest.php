@@ -2068,8 +2068,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response->getBody()->write('foo');
 
         $app = new App();
-        $container = $app->getContainer();
-        $container['settings']['addContentLengthHeader'] = false;
+        $app->addSetting('addContentLengthHeader', false);
         $response = $method->invoke($app, $response);
 
         $this->assertFalse($response->hasHeader('Content-Length'));
