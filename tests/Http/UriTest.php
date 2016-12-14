@@ -1,6 +1,6 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2016 Josh Lockhart
@@ -386,6 +386,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $uri = $this->uriFactory()->withQuery('');
 
         $this->assertAttributeEquals('', 'query', $uri);
+    }
+
+    public function testFilterQuery()
+    {
+        $uri = $this->uriFactory()->withQuery('?foobar=%match');
+
+        $this->assertAttributeEquals('foobar=%25match', 'query', $uri);
     }
 
     /**

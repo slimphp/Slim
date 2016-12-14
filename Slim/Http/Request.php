@@ -1,6 +1,6 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2016 Josh Lockhart
@@ -1132,10 +1132,10 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param      $key
-     * @param null $default
+     * @param string $key
+     * @param mixed $default
      *
-     * @return null
+     * @return mixed
      */
     public function getParsedBodyParam($key, $default = null)
     {
@@ -1155,10 +1155,10 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @param      $key
-     * @param null $default
+     * @param string $key
+     * @param mixed $default
      *
-     * @return null
+     * @return mixed
      */
     public function getQueryParam($key, $default = null)
     {

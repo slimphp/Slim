@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Slim is a PHP micro framework that helps you quickly write simple yet powerful web applications and APIs",
     "keywords": ["framework","micro","api","router"],
-    "homepage": "http://slimframework.com",
+    "homepage": "https://slimframework.com",
     "license": "MIT",
     "authors": [
         {
