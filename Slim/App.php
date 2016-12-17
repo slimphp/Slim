@@ -11,11 +11,9 @@ namespace Slim;
 use Exception;
 use Slim\Handlers\NotAllowed;
 use Slim\Handlers\NotFound;
+use Slim\Handlers\PhpError;
 use Slim\Interfaces\CallableResolverInterface;
 use Throwable;
-use Closure;
-use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Interop\Container\ContainerInterface;
@@ -23,11 +21,6 @@ use FastRoute\Dispatcher;
 use Slim\Exception\SlimException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Http\Uri;
-use Slim\Http\Headers;
-use Slim\Http\Body;
-use Slim\Http\Request;
-use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
@@ -39,11 +32,6 @@ use Slim\Handlers\Error;
  * This is the primary class with which you instantiate,
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
- *
- * @property-read callable $errorHandler
- * @property-read callable $phpErrorHandler
- * @property-read callable $notFoundHandler function($request, $response)
- * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
  */
 class App
 {
@@ -80,6 +68,11 @@ class App
      * @var callable
      */
     protected $errorHandler;
+
+    /**
+     * @var callable
+     */
+    protected $phpErrorHandler;
 
     /**
      * @var array
@@ -387,6 +380,41 @@ class App
         }
 
         return $this->errorHandler;
+    }
+
+    /**
+     * Set callable to handle scenarios where a PHP error
+     * occurs when processing the current request.
+     *
+     * This service MUST return a callable that accepts three arguments:
+     *
+     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+     * 2. Instance of \Psr\Http\Message\ResponseInterface
+     * 3. Instance of \Error
+     *
+     * The callable MUST return an instance of
+     * \Psr\Http\Message\ResponseInterface.
+     *
+     * @param callable $handler
+     */
+    public function setPhpErrorHandler(callable $handler)
+    {
+        $this->phpErrorHandler = $handler;
+    }
+
+    /**
+     * Get callable to handle scenarios where a PHP error
+     * occurs when processing the current request.
+     *
+     * @return callable|Error
+     */
+    public function getPhpErrorHandler()
+    {
+        if (!$this->phpErrorHandler) {
+            $this->phpErrorHandler = new PhpError($this->getSetting('displayErrorDetails'));
+        }
+
+        return $this->phpErrorHandler;
     }
 
     /********************************************************************************
@@ -703,7 +731,7 @@ class App
         }
 
         $notFoundHandler = $this->getNotFoundHandler();
-        return $notFoundHandler($request, $response, $routeInfo[1]);
+        return $notFoundHandler($request, $response);
     }
 
     /**
@@ -826,17 +854,9 @@ class App
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
-        // TODO: Why does this exist in addition to normal error handler?
-        $handler = 'phpErrorHandler';
+        $handler = $this->getPhpErrorHandler();
         $params = [$request, $response, $e];
 
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
-            // Call the registered handler
-            return call_user_func_array($callable, $params);
-        }
-
-        // No handlers found, so just throw the exception
-        throw $e;
+        return call_user_func_array($handler, $params);
     }
 }
