@@ -192,8 +192,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $container = new Container();
         $container['MiddlewareStub'] = new MiddlewareStub();
-
-        $route->setContainer($container);
+        $resolver = new CallableResolver($container);
+        $route->setCallableResolver($resolver);
         $route->add('MiddlewareStub:run');
 
         $env = Environment::mock();
@@ -223,7 +223,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
 
         $route = new Route(['GET'], '/', $deferred);
-        $route->setContainer($container);
         $route->setCallableResolver($resolver);
 
         $uri = Uri::createFromString('https://example.com:80');
@@ -410,8 +409,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         };
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall');
-        $route->setContainer($container);
         $route->setCallableResolver($resolver);
+        $route->setInvocationStrategy($container['foundHandler']);
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -446,8 +445,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         };
 
         $route = new Route(['GET'], '/', 'CallableTest:toCall'); //Note that this doesn't actually exist
-        $route->setContainer($container);
         $route->setCallableResolver($resolver);
+        $route->setInvocationStrategy($container['foundHandler']);
 
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 

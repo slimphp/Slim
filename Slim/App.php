@@ -270,11 +270,6 @@ class App
     {
         if (! $this->router instanceof RouterInterface) {
             $router = new Router();
-            $container = $this->getContainer();
-            if ($container instanceof ContainerInterface) {
-                $router->setContainer($container);
-            }
-
             $resolver = $this->getCallableResolver();
             if ($resolver instanceof CallableResolverInterface) {
                 $router->setCallableResolver($resolver);
@@ -500,20 +495,18 @@ class App
      */
     public function map(array $methods, $pattern, $callable)
     {
-        // TODO: Should we bind route callable to container elsewhere?
+        // Bind route callable to container, if present
         if ($this->container instanceof ContainerInterface && $callable instanceof \Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
-        $router = $this->getRouter();
-        $route = $router->map($methods, $pattern, $callable);
+        // Create route
+        $route = $this->getRouter()->map($methods, $pattern, $callable);
 
         // TODO: Do we keep output buffering?
         if (is_callable([$route, 'setOutputBuffering'])) {
             $route->setOutputBuffering($this->getSetting('outputBuffering', 'append'));
         }
-
-        // TODO: Route callable binding and output buffering should be handled within router
 
         return $route;
     }
@@ -535,10 +528,6 @@ class App
         /** @var RouteGroup $group */
         $router = $this->getRouter();
         $group = $router->pushGroup($pattern, $callable);
-        // TODO: Set group container and resolver inside Router
-        if ($this->container instanceof ContainerInterface) {
-            $group->setContainer($this->container);
-        }
         if ($this->callableResolver instanceof CallableResolverInterface) {
             $group->setCallableResolver($this->callableResolver);
         }

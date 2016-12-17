@@ -9,12 +9,10 @@
 namespace Slim;
 
 use Exception;
-use Slim\Interfaces\CallableResolverInterface;
 use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -66,6 +64,11 @@ class Route extends Routable implements RouteInterface
     protected $outputBuffering = 'append';
 
     /**
+     * @var \Slim\Interfaces\InvocationStrategyInterface
+     */
+    protected $routeInvocationStrategy;
+
+    /**
      * Route parameters
      *
      * @var array
@@ -88,6 +91,27 @@ class Route extends Routable implements RouteInterface
         $this->callable = $callable;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
+        $this->routeInvocationStrategy = new RequestResponse();
+    }
+
+    /**
+     * Set route invocation strategy
+     *
+     * @param InvocationStrategyInterface $strategy
+     */
+    public function setInvocationStrategy(InvocationStrategyInterface $strategy)
+    {
+        $this->routeInvocationStrategy = $strategy;
+    }
+
+    /**
+     * Get route invocation strategy
+     *
+     * @return InvocationStrategyInterface
+     */
+    public function getInvocationStrategy()
+    {
+        return $this->routeInvocationStrategy;
     }
 
     /**
@@ -331,7 +355,7 @@ class Route extends Routable implements RouteInterface
         }
 
         /** @var InvocationStrategyInterface $handler */
-        $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
+        $handler = $this->routeInvocationStrategy;
 
         // invoke route callable
         if ($this->outputBuffering === false) {
