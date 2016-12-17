@@ -40,19 +40,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         // ini_set('log_errors', 1);
     }
 
-    public function testContainerInterfaceException()
-    {
-        $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
-        $app = new App('');
-    }
-
-    public function testIssetInContainer()
-    {
-        $app = new App();
-        $router = $app->getRouter();
-        $this->assertTrue(isset($router));
-    }
-
     /********************************************************************************
      * Settings management methods
      *******************************************************************************/
@@ -1164,12 +1151,10 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
-        $c = new Container();
-        $c['foundHandler'] = function ($c) {
+        $app = new App();
+        $app->setNotFoundHandler(function ($c) {
             return new RequestResponseArgs();
-        };
-
-        $app = new App($c);
+        });
         $app->get('/foo/{name}', function ($req, $res, $name) {
             return $res->write("Hello {$name}");
         });
@@ -1940,9 +1925,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
         $app = new App([
-            'settings' => [
-                'displayErrorDetails' => true
-            ],
+            'displayErrorDetails' => true
         ]);
 
         // Prepare request and response objects
