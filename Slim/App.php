@@ -592,7 +592,7 @@ class App
             $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
         } elseif ($e instanceof NotFoundException) {
             $handler = 'notFoundHandler';
-            $params = [$e->getRequest(), $e->getResponse()];
+            $params = [$e->getRequest(), $e->getResponse(), $e];
         } elseif ($e instanceof SlimException) {
             // This is a Stop exception and contains the response
             return $e->getResponse();
