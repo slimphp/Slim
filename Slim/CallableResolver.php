@@ -52,20 +52,35 @@ final class CallableResolver implements CallableResolverInterface
             return $toResolve;
         }
 
-        // check for slim callable as "class:method"
-        if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
-            $resolved = $this->resolveMethod($matches[1], $matches[2]);
+        if (!is_string($toResolve)) {
+            $this->assertCallable($toResolve);
         }
 
-        $resolved = $this->resolveClass($toResolve);
+        // check for slim callable as "class:method"
+        if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
+            $resolved = $this->resolveCallable($matches[1], $matches[2]);
+            $this->assertCallable($resolved);
+
+            return $resolved;
+        }
+
+        $resolved = $this->resolveCallable($toResolve);
+        $this->assertCallable($resolved);
+
+        return $resolved;
     }
 
     /**
+     * Check if string is something in the DIC
+     * that's callable or is a class name which has an __invoke() method.
+     *
      * @param string $class
      * @param string $method
      * @return callable
+     *
+     * @throws \RuntimeException if the callable does not exist
      */
-    protected function resolveMethod($class, $method)
+    protected function resolveCallable($class, $method = '__invoke')
     {
         if ($this->container->has($class)) {
             return [$this->container->get($class), $method];
@@ -79,22 +94,17 @@ final class CallableResolver implements CallableResolverInterface
     }
 
     /**
-     * Check if string is something in the DIC
-     * that's callable or is a class name which has an __invoke() method.
+     * @param Callable $callable
      *
-     * @param string $class
-     * @return callable
+     * @throws \RuntimeException if the callable is not resolvable
      */
-    protected function resolveClass($class)
+    protected function assertCallable($callable)
     {
-        if ($this->container->has($class)) {
-            return $this->container->get($class);
+        if (!is_callable($callable)) {
+            throw new RuntimeException(sprintf(
+                '%s is not resolvable',
+                is_array($callable) || is_object($callable) ? json_encode($callable) : $callable
+            ));
         }
-
-        if (!class_exists($class)) {
-            throw new RuntimeException(sprintf('Callable %s does not exist', $class));
-        }
-
-        return new $class($this->container);
     }
 }
