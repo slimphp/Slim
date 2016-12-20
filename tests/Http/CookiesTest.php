@@ -161,6 +161,13 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Josh', $cookies['name']);
     }
 
+    public function testParseHeaderWithJsonArray()
+    {
+        $cookies = Cookies::parseHeader('foo=bar; testarray=["someVar1","someVar2","someVar3"]');
+        $this->assertEquals('bar', $cookies['foo']);
+        $this->assertContains( 'someVar3', json_decode($cookies['testarray']) );
+    }
+
     public function testToHeaders()
     {
         $cookies = new Cookies;
