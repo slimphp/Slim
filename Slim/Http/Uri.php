@@ -201,7 +201,7 @@ class Uri implements UriInterface
         $virtualPath = $requestUri;
         if (stripos($requestUri, $requestScriptName) === 0) {
             $basePath = $requestScriptName;
-        } elseif ($requestScriptDir !== '/' && stripos($requestUri, $requestScriptDir) === 0) {
+        } elseif (stripos($requestUri, $requestScriptDir) === 0) {
             $basePath = $requestScriptDir;
         }
 
