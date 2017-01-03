@@ -2,9 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
+ * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE (MIT License)
  */
 namespace Slim\Exception;
 
