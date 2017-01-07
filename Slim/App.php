@@ -216,7 +216,9 @@ class App
      */
     public function any($pattern, $callable)
     {
-        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+        // Make sure that both default and custom HTTP methods are included
+        $allMethods = array_merge(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], Request::getCustomMethods());
+        return $this->map($allMethods, $pattern, $callable);
     }
 
     /**
@@ -244,6 +246,17 @@ class App
         }
 
         return $route;
+    }
+
+
+    /**
+     * Add a custom HTTP method to Request
+     *
+     * @param string $method
+     */
+    public function addMethod($method)
+    {
+        Request::addCustomMethod($method);
     }
 
     /**

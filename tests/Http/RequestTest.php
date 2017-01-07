@@ -74,6 +74,16 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
+    public function testAddCustomMethod()
+    {
+        Request::addCustomMethod('FOO');
+        Request::addCustomMethod('bar');
+
+        $customMethods = Request::getCustomMethods();
+        $this->assertContains('FOO', $customMethods);
+        $this->assertContains('BAR', $customMethods);
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
