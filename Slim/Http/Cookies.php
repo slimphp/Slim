@@ -174,7 +174,7 @@ class Cookies implements CookiesInterface
         }
 
         $header = rtrim($header, "\r\n");
-        $pieces = preg_split('@\s*[;,]\s*@', $header);
+        $pieces = preg_split('@[;]\s*@', $header);
         $cookies = [];
 
         foreach ($pieces as $cookie) {

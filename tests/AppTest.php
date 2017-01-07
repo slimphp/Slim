@@ -1542,9 +1542,22 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testRespondWithPaddedStreamFilterOutput()
     {
         $availableFilter = stream_get_filters();
-        if (in_array('mcrypt.*', $availableFilter) && in_array('mdecrypt.*', $availableFilter)) {
+
+        if (version_compare(phpversion(), '7.0.0', '>=')) {
+            $filterName           = 'string.rot13';
+            $unfilterName         = 'string.rot13';
+            $specificFilterName   = 'string.rot13';
+            $specificUnfilterName = 'string.rot13';
+        } else {
+            $filterName           = 'mcrypt.*';
+            $unfilterName         = 'mdecrypt.*';
+            $specificFilterName   = 'mcrypt.rijndael-128';
+            $specificUnfilterName = 'mdecrypt.rijndael-128';
+        }
+
+        if (in_array($filterName, $availableFilter) && in_array($unfilterName, $availableFilter)) {
             $app = new App();
-            $app->get('/foo', function ($req, $res) {
+            $app->get('/foo', function ($req, $res) use ($specificFilterName, $specificUnfilterName) {
                 $key = base64_decode('xxxxxxxxxxxxxxxx');
                 $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
 
@@ -1553,7 +1566,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
                 $stream = fopen('php://temp', 'r+');
 
-                $filter = stream_filter_append($stream, 'mcrypt.rijndael-128', STREAM_FILTER_WRITE, [
+                $filter = stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
                     'key' => $key,
                     'iv' => $iv
                 ]);
@@ -1562,7 +1575,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
                 rewind($stream);
                 stream_filter_remove($filter);
 
-                stream_filter_append($stream, 'mdecrypt.rijndael-128', STREAM_FILTER_READ, [
+                stream_filter_append($stream, $specificUnfilterName, STREAM_FILTER_READ, [
                     'key' => $key,
                     'iv' => $iv
                 ]);
