@@ -6,7 +6,7 @@
  * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     2.6.3
+ * @version     2.6.4
  * @package     Slim
  *
  * MIT LICENSE
