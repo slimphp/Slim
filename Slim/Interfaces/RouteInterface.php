@@ -25,16 +25,16 @@ interface RouteInterface
      * Retrieve a specific route argument
      *
      * @param string $name
-     * @param mixed $default
+     * @param string|null $default
      *
-     * @return mixed
+     * @return string|null
      */
     public function getArgument($name, $default = null);
 
     /**
      * Get route arguments
      *
-     * @return array
+     * @return string[]
      */
     public function getArguments();
 
@@ -58,16 +58,16 @@ interface RouteInterface
      * @param string $name
      * @param string $value
      *
-     * @return static
+     * @return self
      */
     public function setArgument($name, $value);
 
     /**
      * Replace route arguments
      *
-     * @param array $arguments
+     * @param string[] $arguments
      *
-     * @return static
+     * @return self
      */
     public function setArguments(array $arguments);
 
