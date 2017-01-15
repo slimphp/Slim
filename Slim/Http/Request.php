@@ -77,6 +77,22 @@ class Request
     public $cookies;
 
     /**
+     * Add custom form data media type
+     * @param string $formDataMediaType
+     */
+    public static function appendFormDataMediaType($formDataMediaType)
+    {
+        $result = false;
+        
+        if (($formDataMediaType != '') && !in_array($formDataMediaType, self::$formDataMediaTypes)) {
+            self::$formDataMediaTypes[] = $formDataMediaType;
+            $result = true;
+        }
+        
+        return $result;
+    }
+    
+    /**
      * Constructor
      * @param \Slim\Environment $env
      */
