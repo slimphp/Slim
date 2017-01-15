@@ -36,7 +36,6 @@ class NotFoundException extends Exception
      */
     public function __construct(ServerRequestInterface $request, ResponseInterface $response)
     {
-        parent::__construct();
         $this->request = $request;
         $this->response = $response;
     }
