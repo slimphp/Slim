@@ -185,8 +185,20 @@ class Slim
         // Default log writer
         $this->container->singleton('logWriter', function ($c) {
             $logWriter = $c['settings']['log.writer'];
+            
+            $ret = null;
 
-            return is_object($logWriter) ? $logWriter : new \Slim\LogWriter($c['environment']['slim.errors']);
+            if (is_object($logWriter)) {
+                $ret = $logWriter;
+            } elseif (isset($c['settings']['slim.errors']) && is_resource($c['settings']['slim.errors'])) {
+                # Added in to take in to account parameters passed at
+                # time of instantiation.
+                $ret = new \Slim\LogWriter($c['settings']['slim.errors']);
+            } else {
+                $ret = new \Slim\LogWriter($c['environment']['slim.errors']);
+            }
+
+            return $ret;
         });
 
         // Default log
