@@ -70,6 +70,7 @@ class LogWriter
      */
     public function write($message, $level = null)
     {
-        return fwrite($this->resource, (string) $message . PHP_EOL);
+        $_level = (is_null($level)) ? '':$level;
+        return fwrite($this->resource, (string) $_level . $message . PHP_EOL);
     }
 }
