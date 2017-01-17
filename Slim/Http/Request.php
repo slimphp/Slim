@@ -567,7 +567,7 @@ class Request extends Message implements ServerRequestInterface
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ($this->uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeader('Host') === null)) {
+            if ($this->uri->getHost() == '' && $uri->getHost()) {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }
