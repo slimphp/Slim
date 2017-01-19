@@ -91,7 +91,7 @@ class ContentTypes extends \Slim\Middleware
      * @param  string $contentType
      * @return mixed
      */
-    protected function parse ($input, $contentType)
+    protected function parse($input, $contentType)
     {
         if (isset($this->contentTypes[$contentType]) && is_callable($this->contentTypes[$contentType])) {
             $result = call_user_func($this->contentTypes[$contentType], $input);
@@ -109,17 +109,20 @@ class ContentTypes extends \Slim\Middleware
      * This method converts the raw JSON input
      * into an associative array.
      *
-     * @param  string       $input
-     * @return array|string
+     * @param  string            $input
+     * @return array|string|null
      */
     protected function parseJson($input)
     {
-        if (function_exists('json_decode')) {
-            $result = json_decode($input, true);
-            if(json_last_error() === JSON_ERROR_NONE) {
-                return $result;
-            }
+        if (!function_exists('json_decode')) {
+            return null;
         }
+        $result = json_decode($input, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+
+        return $result;
     }
 
     /**
