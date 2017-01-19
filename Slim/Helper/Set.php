@@ -219,7 +219,7 @@ class Set implements \ArrayAccess, \Countable, \IteratorAggregate
      * @param  \Closure $value The closure that defines the object
      * @return mixed
      */
-    public function singleton($key, $value)
+    public function singleton($key, \Closure $value)
     {
         $this->set($key, function ($c) use ($value) {
             static $object;
