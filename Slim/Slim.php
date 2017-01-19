@@ -1350,6 +1350,8 @@ class Slim
             $dispatched = false;
             $matchedRoutes = $this->router->getMatchedRoutes($this->request->getMethod(), $this->request->getResourceUri());
             foreach ($matchedRoutes as $route) {
+                $this->router->setCurrentRoute($route);
+                $this->router->setDispatchedRoute($route);
                 try {
                     $this->applyHook('slim.before.dispatch');
                     $dispatched = $route->dispatch();
@@ -1362,6 +1364,7 @@ class Slim
                 }
             }
             if (!$dispatched) {
+                $this->router->setDispatchedRoute(null);
                 $this->notFound();
             }
             $this->applyHook('slim.after.router');
@@ -1381,6 +1384,7 @@ class Slim
                 }
             }
         }
+        $this->router->setCurrentRoute(null);
     }
 
     /********************************************************************************
