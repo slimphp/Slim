@@ -413,7 +413,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
         // - If a Host header is present and non-empty, this method MUST NOT update
         //   the Host header in the returned request.
-        $request = $request->withUri(Uri::createFromString('http://example.com'));
+        $request = $request->withHeader('Host', 'example.com');
         $clone = $request->withUri($uri2, true);
         $this->assertSame('example.com', $clone->getHeaderLine('Host'));
     }
