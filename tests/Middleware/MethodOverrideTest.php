@@ -3,10 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     2.6.4
  *
  * MIT LICENSE
  *
@@ -30,44 +30,45 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Slim.php';
-
 /**
  * We use a mock application, instead of a Slim application.
  * so that we may easily test the Method Override middleware
  * in isolation.
  */
-class CustomAppMethod {
+class CustomAppMethod
+{
     protected $environment;
 
-    public function __construct() {
-        $this->environment = Slim_Environment::getInstance();
+    public function __construct()
+    {
+        $this->environment = \Slim\Environment::getInstance();
     }
 
     public function &environment() {
         return $this->environment;
     }
 
-    function call() {
+    public function call()
+    {
         //Do nothing
     }
 }
 
-class MethodOverrideTest extends PHPUnit_Framework_TestCase {
+class MethodOverrideTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Test overrides method as POST
      */
-    public function testOverrideMethodAsPost() {
-        Slim_Environment::mock(array(
+    public function testOverrideMethodAsPost()
+    {
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/x-www-form-urlencoded',
-            'CONENT_LENGTH' => 11,
+            'CONTENT_LENGTH' => 11,
             'slim.input' => '_METHOD=PUT'
         ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride();
+        $mw = new \Slim\Middleware\MethodOverride();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -80,13 +81,14 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test does not override method if not POST
      */
-    public function testDoesNotOverrideMethodIfNotPost() {
-        Slim_Environment::mock(array(
+    public function testDoesNotOverrideMethodIfNotPost()
+    {
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'GET',
             'slim.input' => ''
         ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride();
+        $mw = new \Slim\Middleware\MethodOverride();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -96,10 +98,11 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test does not override method if no method ovveride parameter
+     * Test does not override method if no method override parameter
      */
-    public function testDoesNotOverrideMethodAsPostWithoutParameter() {
-        Slim_Environment::mock(array(
+    public function testDoesNotOverrideMethodAsPostWithoutParameter()
+    {
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'REMOTE_ADDR' => '127.0.0.1',
             'SCRIPT_NAME' => '/foo/index.php', //<-- Physical
@@ -112,7 +115,7 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
             'slim.errors' => fopen('php://stderr', 'w')
         ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride();
+        $mw = new \Slim\Middleware\MethodOverride();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();
@@ -124,16 +127,17 @@ class MethodOverrideTest extends PHPUnit_Framework_TestCase {
     /**
      * Test overrides method with X-Http-Method-Override header
      */
-    public function testOverrideMethodAsHeader() {
-        Slim_Environment::mock(array(
+    public function testOverrideMethodAsHeader()
+    {
+        \Slim\Environment::mock(array(
             'REQUEST_METHOD' => 'POST',
             'CONTENT_TYPE' => 'application/json',
-            'CONENT_LENGTH' => 0,
+            'CONTENT_LENGTH' => 0,
             'slim.input' => '',
-            'X_HTTP_METHOD_OVERRIDE' => 'DELETE'
+            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE'
         ));
         $app = new CustomAppMethod();
-        $mw = new Slim_Middleware_MethodOverride();
+        $mw = new \Slim\Middleware\MethodOverride();
         $mw->setApplication($app);
         $mw->setNextMiddleware($app);
         $mw->call();

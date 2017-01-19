@@ -3,10 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.0
+ * @version     2.6.4
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,12 +30,13 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Middleware;
 
  /**
   * HTTP Method Override
   *
   * This is middleware for a Slim application that allows traditional
-  * desktop browsers to submit psuedo PUT and DELETE requests by relying
+  * desktop browsers to submit pseudo PUT and DELETE requests by relying
   * on a pre-determined request parameter. Without this middleware,
   * desktop browsers are only able to submit GET and POST requests.
   *
@@ -43,9 +44,10 @@
   *
   * @package    Slim
   * @author     Josh Lockhart
-  * @since      1.5.2
+  * @since      1.6.0
   */
-class Slim_Middleware_MethodOverride extends Slim_Middleware {
+class MethodOverride extends \Slim\Middleware
+{
     /**
      * @var array
      */
@@ -53,11 +55,10 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
 
     /**
      * Constructor
-     * @param   Slim    $app
-     * @param   array   $settings
-     * @return  void
+     * @param  array  $settings
      */
-    public function __construct( $settings = array() ) {
+    public function __construct($settings = array())
+    {
         $this->settings = array_merge(array('key' => '_METHOD'), $settings);
     }
 
@@ -65,25 +66,25 @@ class Slim_Middleware_MethodOverride extends Slim_Middleware {
      * Call
      *
      * Implements Slim middleware interface. This method is invoked and passed
-     * an array of environemnt variables. This middleware inspects the environment
+     * an array of environment variables. This middleware inspects the environment
      * variables for the HTTP method override parameter; if found, this middleware
      * modifies the environment settings so downstream middleware and/or the Slim
      * application will treat the request with the desired HTTP method.
      *
-     * @param   array $env
-     * @return  array[status, header, body]
+     * @return array[status, header, body]
      */
-    public function call() {
+    public function call()
+    {
         $env = $this->app->environment();
-        if ( isset($env['X_HTTP_METHOD_OVERRIDE']) ) {
+        if (isset($env['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
             // Header commonly used by Backbone.js and others
             $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
-            $env['REQUEST_METHOD'] = strtoupper($env['X_HTTP_METHOD_OVERRIDE']);
-        } else if ( isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST' ) {
+            $env['REQUEST_METHOD'] = strtoupper($env['HTTP_X_HTTP_METHOD_OVERRIDE']);
+        } elseif (isset($env['REQUEST_METHOD']) && $env['REQUEST_METHOD'] === 'POST') {
             // HTML Form Override
-            $req = new Slim_Http_Request($env);
+            $req = new \Slim\Http\Request($env);
             $method = $req->post($this->settings['key']);
-            if ( $method ) {
+            if ($method) {
                 $env['slim.method_override.original_method'] = $env['REQUEST_METHOD'];
                 $env['REQUEST_METHOD'] = strtoupper($method);
             }

@@ -3,10 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.0
+ * @version     2.6.4
  * @package     Slim
  *
  * MIT LICENSE
@@ -30,6 +30,7 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+namespace Slim\Http;
 
 /**
  * Response
@@ -42,17 +43,22 @@
  * @author  Josh Lockhart
  * @since   1.0.0
  */
-class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
+class Response implements \ArrayAccess, \Countable, \IteratorAggregate
+{
     /**
      * @var int HTTP status code
      */
     protected $status;
 
     /**
-     * @var Slim_Http_Headers List of HTTP response headers
-     * @see Slim_Http_Headers
+     * @var \Slim\Http\Headers
      */
-    protected $header;
+    public $headers;
+
+    /**
+     * @var \Slim\Http\Cookies
+     */
+    public $cookies;
 
     /**
      * @var string HTTP response body
@@ -79,6 +85,7 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
         204 => '204 No Content',
         205 => '205 Reset Content',
         206 => '206 Partial Content',
+        226 => '226 IM Used',
         //Redirection 3xx
         300 => '300 Multiple Choices',
         301 => '301 Moved Permanently',
@@ -107,105 +114,157 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
         415 => '415 Unsupported Media Type',
         416 => '416 Requested Range Not Satisfiable',
         417 => '417 Expectation Failed',
+        418 => '418 I\'m a teapot',
         422 => '422 Unprocessable Entity',
         423 => '423 Locked',
+        426 => '426 Upgrade Required',
+        428 => '428 Precondition Required',
+        429 => '429 Too Many Requests',
+        431 => '431 Request Header Fields Too Large',
         //Server Error 5xx
         500 => '500 Internal Server Error',
         501 => '501 Not Implemented',
         502 => '502 Bad Gateway',
         503 => '503 Service Unavailable',
         504 => '504 Gateway Timeout',
-        505 => '505 HTTP Version Not Supported'
+        505 => '505 HTTP Version Not Supported',
+        506 => '506 Variant Also Negotiates',
+        510 => '510 Not Extended',
+        511 => '511 Network Authentication Required'
     );
 
     /**
      * Constructor
-     * @param   string                      $body       The HTTP response body
-     * @param   int                         $status     The HTTP response status
-     * @param   Slim_Http_Headers|array     $header     The HTTP response headers
+     * @param string                   $body   The HTTP response body
+     * @param int                      $status The HTTP response status
+     * @param \Slim\Http\Headers|array $headers The HTTP response headers
      */
-    public function __construct( $body = '', $status = 200, $header = array() ) {
-        $this->status = (int)$status;
-        $headers = array();
-        foreach ( $header as $key => $value ) {
-            $headers[$key] = $value;
-        }
-        $this->header = new Slim_Http_Headers(array_merge(array('Content-Type' => 'text/html'), $headers));
-        $this->body = '';
+    public function __construct($body = '', $status = 200, $headers = array())
+    {
+        $this->setStatus($status);
+        $this->headers = new \Slim\Http\Headers(array('Content-Type' => 'text/html'));
+        $this->headers->replace($headers);
+        $this->cookies = new \Slim\Http\Cookies();
         $this->write($body);
     }
 
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    public function setStatus($status)
+    {
+        $this->status = (int)$status;
+    }
+
     /**
+     * DEPRECATION WARNING! Use `getStatus` or `setStatus` instead.
+     *
      * Get and set status
-     * @param   int|null $status
-     * @return  int
+     * @param  int|null $status
+     * @return int
      */
-    public function status( $status = null ) {
-        if ( !is_null($status) ) {
-            $this->status = (int)$status;
+    public function status($status = null)
+    {
+        if (!is_null($status)) {
+            $this->status = (int) $status;
         }
+
         return $this->status;
     }
 
     /**
+     * DEPRECATION WARNING! Access `headers` property directly.
+     *
      * Get and set header
-     * @param   string          $name   Header name
-     * @param   string|null     $value  Header value
-     * @return  string                  Header value
+     * @param  string      $name  Header name
+     * @param  string|null $value Header value
+     * @return string      Header value
      */
-    public function header( $name, $value = null ) {
-        if ( !is_null($value) ) {
-            $this[$name] = $value;
+    public function header($name, $value = null)
+    {
+        if (!is_null($value)) {
+            $this->headers->set($name, $value);
         }
-        return $this[$name];
+
+        return $this->headers->get($name);
     }
 
     /**
+     * DEPRECATION WARNING! Access `headers` property directly.
+     *
      * Get headers
-     * @return  Slim_Http_Headers
+     * @return \Slim\Http\Headers
      */
-    public function headers() {
-        return $this->header;
+    public function headers()
+    {
+        return $this->headers;
+    }
+
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    public function setBody($content)
+    {
+        $this->write($content, true);
     }
 
     /**
+     * DEPRECATION WARNING! use `getBody` or `setBody` instead.
+     *
      * Get and set body
-     * @param   string|null  $body   Content of HTTP response body
-     * @return  string
+     * @param  string|null $body Content of HTTP response body
+     * @return string
      */
-    public function body( $body = null ) {
-        if ( !is_null($body) ) {
+    public function body($body = null)
+    {
+        if (!is_null($body)) {
             $this->write($body, true);
         }
+
         return $this->body;
     }
 
     /**
-     * Get and set length
-     * @param   int|null     $length
-     * @return  int
-     */
-    public function length( $length = null ) {
-        if ( !is_null($length) ) {
-            $this->length = (int)$length;
-        }
-        return $this->length;
-    }
-
-    /**
      * Append HTTP response body
-     * @param   string  $body       Content to append to the current HTTP response body
-     * @param   bool    $replace    Overwrite existing response body?
-     * @return  string              The updated HTTP response body
+     * @param  string   $body       Content to append to the current HTTP response body
+     * @param  bool     $replace    Overwrite existing response body?
+     * @return string               The updated HTTP response body
      */
-    public function write( $body, $replace = false ) {
-        if ( $replace ) {
+    public function write($body, $replace = false)
+    {
+        if ($replace) {
             $this->body = $body;
         } else {
             $this->body .= (string)$body;
         }
         $this->length = strlen($this->body);
+
         return $this->body;
+    }
+
+    public function getLength()
+    {
+        return $this->length;
+    }
+
+    /**
+     * DEPRECATION WARNING! Use `getLength` or `write` or `body` instead.
+     *
+     * Get and set length
+     * @param  int|null $length
+     * @return int
+     */
+    public function length($length = null)
+    {
+        if (!is_null($length)) {
+            $this->length = (int) $length;
+        }
+
+        return $this->length;
     }
 
     /**
@@ -217,16 +276,21 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      *
      * @return array[int status, array headers, string body]
      */
-    public function finalize() {
-        if ( in_array($this->status, array(204, 304)) ) {
-            unset($this['Content-Type'], $this['Content-Length']);
-            return array($this->status, $this->header, '');
-        } else {
-            return array($this->status, $this->header, $this->body);
+    public function finalize()
+    {
+        // Prepare response
+        if (in_array($this->status, array(204, 304))) {
+            $this->headers->remove('Content-Type');
+            $this->headers->remove('Content-Length');
+            $this->setBody('');
         }
+
+        return array($this->status, $this->headers, $this->body);
     }
 
     /**
+     * DEPRECATION WARNING! Access `cookies` property directly.
+     *
      * Set cookie
      *
      * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
@@ -235,15 +299,19 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * relying on PHP's native implementation, Slim allows middleware the opportunity to massage or
      * analyze the raw header before the response is ultimately delivered to the HTTP client.
      *
-     * @param   string          $name   The name of the cookie
-     * @param   string|array    $value  If string, the value of cookie; if array, properties for
-     *                                  cookie including: value, expire, path, domain, secure, httponly
+     * @param string        $name    The name of the cookie
+     * @param string|array  $value   If string, the value of cookie; if array, properties for
+     *                               cookie including: value, expire, path, domain, secure, httponly
      */
-    public function setCookie( $name, $value ) {
-        Slim_Http_Util::setCookieHeader($this->header, $name, $value);
+    public function setCookie($name, $value)
+    {
+        // Util::setCookieHeader($this->header, $name, $value);
+        $this->cookies->set($name, $value);
     }
 
     /**
+     * DEPRECATION WARNING! Access `cookies` property directly.
+     *
      * Delete cookie
      *
      * Instead of using PHP's `setcookie()` function, Slim manually constructs the HTTP `Set-Cookie`
@@ -258,11 +326,13 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * array, only the Cookie with the given name AND domain will be removed. The invalidating cookie
      * sent with this response will adopt all properties of the second argument.
      *
-     * @param   string  $name   The name of the cookie
-     * @param   array   $value  Properties for cookie including: value, expire, path, domain, secure, httponly
+     * @param string $name     The name of the cookie
+     * @param array  $settings Properties for cookie including: value, expire, path, domain, secure, httponly
      */
-    public function deleteCookie( $name, $value = array() ) {
-        Slim_Http_Util::deleteCookieHeader($this->header, $name, $value);
+    public function deleteCookie($name, $settings = array())
+    {
+        $this->cookies->remove($name, $settings);
+        // Util::deleteCookieHeader($this->header, $name, $value);
     }
 
     /**
@@ -271,19 +341,21 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * This method prepares this response to return an HTTP Redirect response
      * to the HTTP client.
      *
-     * @param   string  $url        The redirect destination
-     * @param   int     $status     The redirect HTTP status code
+     * @param string $url    The redirect destination
+     * @param int    $status The redirect HTTP status code
      */
-    public function redirect ( $url, $status = 302 ) {
-        $this->status = $status;
-        $this['Location'] = $url;
+    public function redirect ($url, $status = 302)
+    {
+        $this->setStatus($status);
+        $this->headers->set('Location', $url);
     }
 
     /**
      * Helpers: Empty?
      * @return bool
      */
-    public function isEmpty() {
+    public function isEmpty()
+    {
         return in_array($this->status, array(201, 204, 304));
     }
 
@@ -291,7 +363,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Informational?
      * @return bool
      */
-    public function isInformational() {
+    public function isInformational()
+    {
         return $this->status >= 100 && $this->status < 200;
     }
 
@@ -299,7 +372,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: OK?
      * @return bool
      */
-    public function isOk() {
+    public function isOk()
+    {
         return $this->status === 200;
     }
 
@@ -307,7 +381,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Successful?
      * @return bool
      */
-    public function isSuccessful() {
+    public function isSuccessful()
+    {
         return $this->status >= 200 && $this->status < 300;
     }
 
@@ -315,7 +390,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Redirect?
      * @return bool
      */
-    public function isRedirect() {
+    public function isRedirect()
+    {
         return in_array($this->status, array(301, 302, 303, 307));
     }
 
@@ -323,7 +399,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Redirection?
      * @return bool
      */
-    public function isRedirection() {
+    public function isRedirection()
+    {
         return $this->status >= 300 && $this->status < 400;
     }
 
@@ -331,7 +408,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Forbidden?
      * @return bool
      */
-    public function isForbidden() {
+    public function isForbidden()
+    {
         return $this->status === 403;
     }
 
@@ -339,7 +417,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Not Found?
      * @return bool
      */
-    public function isNotFound() {
+    public function isNotFound()
+    {
         return $this->status === 404;
     }
 
@@ -347,7 +426,8 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Client error?
      * @return bool
      */
-    public function isClientError() {
+    public function isClientError()
+    {
         return $this->status >= 400 && $this->status < 500;
     }
 
@@ -355,67 +435,83 @@ class Slim_Http_Response implements ArrayAccess, Countable, IteratorAggregate {
      * Helpers: Server Error?
      * @return bool
      */
-    public function isServerError() {
+    public function isServerError()
+    {
         return $this->status >= 500 && $this->status < 600;
     }
 
     /**
+     * DEPRECATION WARNING! ArrayAccess interface will be removed from \Slim\Http\Response.
+     * Iterate `headers` or `cookies` properties directly.
+     */
+
+    /**
      * Array Access: Offset Exists
      */
-    public function offsetExists( $offset ) {
-        return isset($this->header[$offset]);
+    public function offsetExists($offset)
+    {
+        return isset($this->headers[$offset]);
     }
 
     /**
      * Array Access: Offset Get
      */
-    public function offsetGet( $offset ) {
-        if ( isset($this->header[$offset]) ) {
-            return $this->header[$offset];
-        } else {
-            return null;
-        }
+    public function offsetGet($offset)
+    {
+        return $this->headers[$offset];
     }
 
     /**
      * Array Access: Offset Set
      */
-    public function offsetSet( $offset, $value ) {
-        $this->header[$offset] = $value;
+    public function offsetSet($offset, $value)
+    {
+        $this->headers[$offset] = $value;
     }
 
     /**
      * Array Access: Offset Unset
      */
-    public function offsetUnset( $offset ) {
-        unset($this->header[$offset]);
+    public function offsetUnset($offset)
+    {
+        unset($this->headers[$offset]);
     }
 
     /**
+     * DEPRECATION WARNING! Countable interface will be removed from \Slim\Http\Response.
+     * Call `count` on `headers` or `cookies` properties directly.
+     *
      * Countable: Count
      */
-    public function count() {
-        return count($this->header);
+    public function count()
+    {
+        return count($this->headers);
     }
 
     /**
+     * DEPRECATION WARNING! IteratorAggregate interface will be removed from \Slim\Http\Response.
+     * Iterate `headers` or `cookies` properties directly.
+     *
      * Get Iterator
      *
-     * This returns the contained `Slim_Http_Headers` instance which
+     * This returns the contained `\Slim\Http\Headers` instance which
      * is itself iterable.
      *
-     * @return Slim_Http_Headers
+     * @return \Slim\Http\Headers
      */
-    public function getIterator() {
-        return $this->header;
+    public function getIterator()
+    {
+        return $this->headers->getIterator();
     }
 
     /**
      * Get message for HTTP status code
+     * @param  int         $status
      * @return string|null
      */
-    public static function getMessageForCode( $status ) {
-        if ( isset(self::$messages[$status]) ) {
+    public static function getMessageForCode($status)
+    {
+        if (isset(self::$messages[$status])) {
             return self::$messages[$status];
         } else {
             return null;

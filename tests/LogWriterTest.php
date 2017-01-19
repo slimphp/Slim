@@ -3,11 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.6.0
- * @package     Slim
+ * @version     2.6.4
  *
  * MIT LICENSE
  *
@@ -31,17 +30,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- * Request Slash Exception
- *
- * This Exception is thrown when Slim detects a matching route
- * (defined with a trailing slash) and the HTTP request
- * matches the route but does not have a trailing slash. This
- * exception will be caught in `Slim::run` and trigger a 301 redirect
- * to the same resource URI with a trailing slash.
- *
- * @package Slim
- * @author  Josh Lockhart
- * @since   1.0.0
- */
-class Slim_Exception_RequestSlash extends Exception {}
+class LogWriterTest extends PHPUnit_Framework_TestCase
+{
+    public function testInstantiation()
+    {
+        $this->expectOutputString('Hello!' . PHP_EOL);
+        $handle = fopen('php://output', 'w');
+        $fw = new \Slim\LogWriter($handle);
+        $this->assertTrue($fw->write('Hello!') > 0); //<-- Returns number of bytes written if successful
+    }
+
+    public function testInstantiationWithNonResource()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+        $fw = new \Slim\LogWriter(@fopen('/foo/bar.txt', 'w'));
+    }
+}

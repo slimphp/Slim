@@ -3,10 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     2.6.4
  *
  * MIT LICENSE
  *
@@ -30,147 +30,251 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
+class LazyInitializeTestClass {
+    public static $initialized = false;
 
-require_once 'Slim/Route.php';
-require_once 'Slim/Router.php';
-require_once 'Slim/Environment.php';
-require_once 'Slim/Http/Headers.php';
-require_once 'Slim/Http/Request.php';
-require_once 'Slim/Http/Response.php';
-require_once 'Slim/Exception/RequestSlash.php';
-
-/**
- * Router Mock
- *
- * This is a mock for the Router class so that it,
- * A) provides the necessary features for this test and
- * B) removes dependencies on the Request class.
- */
-class RouterMock extends Slim_Router {
-
-    public $cache = array();
-
-    public function __construct() {}
-
-    public function addNamedRoute($name, Slim_Route $route) {
-        $this->cache[$name] = $route;
+    public function __construct() {
+        self::$initialized = true;
     }
 
+    public function foo() {
+    }
 }
 
-class RouteTest extends PHPUnit_Framework_TestCase {
+class FooTestClass {
+    public static $foo_invoked = false;
+    public static $foo_invoked_args = array();
 
-    /**
-     * Route should set name and be cached by Router
-     */
-    public function testRouteSetsNameAndIsCached() {
-        $router = new RouterMock();
-        $route = new Slim_Route('/foo/bar', function () {});
-        $route->setRouter($router);
-        $route->name('foo');
-        $cacheKeys = array_keys($router->cache);
-        $cacheValues = array_values($router->cache);
+    public function foo() {
+        self::$foo_invoked = true;
+        self::$foo_invoked_args = func_get_args();
+    }
+}
+
+class RouteTest extends PHPUnit_Framework_TestCase
+{
+    public function testGetPattern()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertEquals('/foo', $route->getPattern());
+    }
+
+    public function testGetName()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'name');
+        $property->setAccessible(true);
+        $property->setValue($route, 'foo');
+
         $this->assertEquals('foo', $route->getName());
-        $this->assertSame($router, $route->getRouter());
-        $this->assertEquals($cacheKeys[0], 'foo');
-        $this->assertSame($cacheValues[0], $route);
     }
 
-    /**
-     * Route should set pattern
-     */
-    public function testRouteSetsPattern() {
-        $route1 = new Slim_Route('/foo/bar', function () {});
-        $this->assertEquals('/foo/bar', $route1->getPattern());
+    public function testSetName()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $route->name('foo'); // <-- Alias for `setName()`
+
+        $this->assertAttributeEquals('foo', 'name', $route);
     }
 
-    /**
-     * Route should store a reference to the callable
-     * anonymous function.
-     */
-    public function testRouteSetsCallableAsFunction() {
-        $callable = function () { echo "Foo!"; };
-        $route = new Slim_Route('/foo/bar', $callable);
+    public function testGetCallable()
+    {
+        $callable = function () {
+            echo 'Foo';
+        };
+        $route = new \Slim\Route('/foo', $callable);
+
         $this->assertSame($callable, $route->getCallable());
     }
 
-    /**
-     * Route should store a reference to the callable
-     * regular function (for PHP 5 < 5.3)
-     */
-    public function testRouteSetsCallableAsString() {
-        $route = new Slim_Route('/foo/bar', 'testCallable');
-        $this->assertEquals('testCallable', $route->getCallable());
+    public function testGetCallableAsClass()
+    {
+        FooTestClass::$foo_invoked = false;
+        FooTestClass::$foo_invoked_args = array();
+        $route = new \Slim\Route('/foo', '\FooTestClass:foo');
+        $route->setParams(array('bar' => '1234'));
+
+        $this->assertFalse(FooTestClass::$foo_invoked);
+        $this->assertTrue($route->dispatch());
+        $this->assertTrue(FooTestClass::$foo_invoked);
+        $this->assertEquals(array('1234'), FooTestClass::$foo_invoked_args);
     }
 
-    /**
-     * If route matches a resource URI, param should be extracted.
-     */
-    public function testRouteMatchesAndParamExtracted() {
-        $resource = '/hello/Josh';
-        $route = new Slim_Route('/hello/:name', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('name' => 'Josh'), $route->getParams());
+    public function testGetCallableAsClassLazyInitialize()
+    {
+        LazyInitializeTestClass::$initialized = false;
+
+        $route = new \Slim\Route('/foo', '\LazyInitializeTestClass:foo');
+        $this->assertFalse(LazyInitializeTestClass::$initialized);
+
+        $route->dispatch();
+        $this->assertTrue(LazyInitializeTestClass::$initialized);
     }
 
-    /**
-     * If route matches a resource URI, multiple params should be extracted.
-     */
-    public function testRouteMatchesAndMultipleParamsExtracted() {
-        $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
+    public function testGetCallableAsStaticMethod()
+    {
+        $route = new \Slim\Route('/bar', '\Slim\Slim::getInstance');
+
+        $callable = $route->getCallable();
+        $this->assertEquals('\Slim\Slim::getInstance', $callable);
     }
 
-    /**
-     * If route does not match a resource URI, params remain an empty array
-     */
-    public function testRouteDoesNotMatchAndParamsNotExtracted() {
-        $resource = '/foo/bar';
-        $route = new Slim_Route('/hello/:name', function () {});
-        $result = $route->matches($resource);
-        $this->assertFalse($result);
-        $this->assertEquals(array(), $route->getParams());
+    public function example_càllâble_wïth_wéird_chars()
+    {
+        return 'test';
     }
 
-    /**
-     * Route matches URI with trailing slash
-     *
-     */
-    public function testRouteMatchesWithTrailingSlash() {
-        $resource1 = '/foo/bar/';
-        $resource2 = '/foo/bar';
-        $route = new Slim_Route('/foo/:one/', function () {});
-        $this->assertTrue($route->matches($resource1));
-        $this->assertTrue($route->matches($resource2));
+    public function testGetCallableWithOddCharsAsClass()
+    {
+        $route = new \Slim\Route('/foo', '\RouteTest:example_càllâble_wïth_wéird_chars');
+        $callable = $route->getCallable();
+
+        $this->assertEquals('test', $callable());
     }
 
-    /**
-     * Route matches URI with conditions
-     */
-    public function testRouteMatchesResourceWithConditions() {
-        $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
-        $route->conditions(array('first' => '[a-zA-Z]{3,}'));
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('first' => 'Josh', 'second' => 'John'), $route->getParams());
+    public function testSetCallable()
+    {
+        $callable = function () {
+            echo 'Foo';
+        };
+        $route = new \Slim\Route('/foo', $callable); // <-- Called inside __construct()
+
+        $this->assertAttributeSame($callable, 'callable', $route);
     }
 
-    /**
-     * Route does not match URI with conditions
-     */
-    public function testRouteDoesNotMatchResourceWithConditions() {
-        $resource = '/hello/Josh/and/John';
-        $route = new Slim_Route('/hello/:first/and/:second', function () {});
-        $route->conditions(array('first' => '[a-z]{3,}'));
-        $result = $route->matches($resource);
-        $this->assertFalse($result);
-        $this->assertEquals(array(), $route->getParams());
+    public function testSetCallableWithInvalidArgument()
+    {
+        $this->setExpectedException('\InvalidArgumentException');
+        $route = new \Slim\Route('/foo', 'doesNotExist'); // <-- Called inside __construct()
+    }
+
+    public function testGetParams()
+    {
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+
+        $this->assertEquals(array(
+            'first' => 'mr',
+            'last' => 'anderson'
+        ), $route->getParams());
+    }
+
+    public function testSetParams()
+    {
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+        $route->setParams(array(
+            'first' => 'agent',
+            'last' => 'smith'
+        ));
+
+        $this->assertAttributeEquals(array(
+            'first' => 'agent',
+            'last' => 'smith'
+        ), 'params', $route);
+    }
+
+    public function testGetParam()
+    {
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+
+        $property = new \ReflectionProperty($route, 'params');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'first' => 'foo',
+            'last' => 'bar'
+        ));
+
+        $this->assertEquals('foo', $route->getParam('first'));
+    }
+
+    public function testGetParamThatDoesNotExist()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+
+        $property = new \ReflectionProperty($route, 'params');
+        $property->setAccessible(true);
+        $property->setValue($route, array(
+            'first' => 'foo',
+            'last' => 'bar'
+        ));
+
+        $route->getParam('middle');
+    }
+
+    public function testSetParam()
+    {
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+        $route->setParam('last', 'smith');
+
+        $this->assertAttributeEquals(array(
+            'first' => 'mr',
+            'last' => 'smith'
+        ), 'params', $route);
+    }
+
+    public function testSetParamThatDoesNotExist()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/hello/:first/:last', function () {});
+        $route->matches('/hello/mr/anderson'); // <-- Parses params from argument
+        $route->setParam('middle', 'smith'); // <-- Should trigger InvalidArgumentException
+    }
+
+    public function testMatches()
+    {
+        $route = new \Slim\Route('/hello/:name', function () {});
+
+        $this->assertTrue($route->matches('/hello/josh'));
+    }
+
+    public function testMatchesIsFalse()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertFalse($route->matches('/bar'));
+    }
+
+    public function testMatchesPatternWithTrailingSlash()
+    {
+        $route = new \Slim\Route('/foo/', function () {});
+
+        $this->assertTrue($route->matches('/foo/'));
+        $this->assertTrue($route->matches('/foo'));
+    }
+
+    public function testMatchesPatternWithoutTrailingSlash()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertFalse($route->matches('/foo/'));
+        $this->assertTrue($route->matches('/foo'));
+    }
+
+    public function testMatchesWithConditions()
+    {
+        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
+        $route->conditions(array(
+            'first' => '[a-zA-Z]{3,}'
+        ));
+
+        $this->assertTrue($route->matches('/hello/Josh/and/John'));
+    }
+
+    public function testMatchesWithConditionsIsFalse()
+    {
+        $route = new \Slim\Route('/hello/:first/and/:second', function () {});
+        $route->conditions(array(
+            'first' => '[a-z]{3,}'
+        ));
+
+        $this->assertFalse($route->matches('/hello/Josh/and/John'));
     }
 
     /*
@@ -180,13 +284,12 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      *
      * Excludes "+" which is valid but decodes into a space character
      */
-    public function testRouteMatchesResourceWithValidRfc2396PathComponent() {
+    public function testMatchesWithValidRfc2396PathComponent()
+    {
         $symbols = ':@&=$,';
-        $resource = '/rfc2386/' . $symbols;
-        $route = new Slim_Route('/rfc2386/:symbols', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('symbols' => $symbols), $route->getParams());
+        $route = new \Slim\Route('/rfc2386/:symbols', function () {});
+
+        $this->assertTrue($route->matches('/rfc2386/' . $symbols));
     }
 
     /*
@@ -194,251 +297,321 @@ class RouteTest extends PHPUnit_Framework_TestCase {
      *
      * "Uniform Resource Identifiers (URI): Generic Syntax" http://www.ietf.org/rfc/rfc2396.txt
      */
-    public function testRouteMatchesResourceWithUnreservedMarks() {
+    public function testMatchesWithUnreservedMarks()
+    {
         $marks = "-_.!~*'()";
-        $resource = '/marks/' . $marks;
-        $route = new Slim_Route('/marks/:marks', function () {});
-        $result = $route->matches($resource);
-        $this->assertTrue($result);
-        $this->assertEquals(array('marks' => $marks), $route->getParams());
+        $route = new \Slim\Route('/marks/:marks', function () {});
+
+        $this->assertTrue($route->matches('/marks/' . $marks));
     }
 
-    /**
-     * Route optional parameters
-     *
-     * Pre-conditions:
-     * Route pattern requires :year, optionally accepts :month and :day
-     *
-     * Post-conditions:
-     * All: Year is 2010
-     * Case A: Month and day default values are used
-     * Case B: Month is "05" and day default value is used
-     * Case C: Month is "05" and day is "13"
-     */
-    public function testRouteOptionalParameters() {
+    public function testMatchesOptionalParameters()
+    {
         $pattern = '/archive/:year(/:month(/:day))';
 
-        //Case A
-        $routeA = new Slim_Route($pattern, function () {});
-        $resourceA = '/archive/2010';
-        $resultA = $routeA->matches($resourceA);
-        $this->assertTrue($resultA);
-        $this->assertEquals(array('year' => '2010'), $routeA->getParams());
+        $route1 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route1->matches('/archive/2010'));
+        $this->assertEquals(array('year' => '2010'), $route1->getParams());
 
-        //Case B
-        $routeB = new Slim_Route($pattern, function () {});
-        $resourceB = '/archive/2010/05';
-        $resultB = $routeB->matches($resourceB);
-        $this->assertTrue($resultB);
-        $this->assertEquals(array('year' => '2010', 'month' => '05'), $routeB->getParams());
+        $route2 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route2->matches('/archive/2010/05'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05'), $route2->getParams());
 
-        //Case C
-        $routeC = new Slim_Route($pattern, function () {});
-        $resourceC = '/archive/2010/05/13';
-        $resultC = $routeC->matches($resourceC);
-        $this->assertTrue($resultC);
-        $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $routeC->getParams());
+        $route3 = new \Slim\Route($pattern, function () {});
+        $this->assertTrue($route3->matches('/archive/2010/05/13'));
+        $this->assertEquals(array('year' => '2010', 'month' => '05', 'day' => '13'), $route3->getParams());
     }
 
-    /**
-     * Test route default conditions
-     *
-     * Pre-conditions:
-     * Route class has default conditions;
-     *
-     * Post-conditions:
-     * Case A: Route instance has default conditions;
-     * Case B: Route instance has newly merged conditions;
-     */
-    public function testRouteDefaultConditions() {
-        Slim_Route::setDefaultConditions(array('id' => '\d+'));
-        $r = new Slim_Route('/foo', function () {});
-        //Case A
-        $this->assertEquals(Slim_Route::getDefaultConditions(), $r->getConditions());
-        //Case B
-        $r->conditions(array('name' => '[a-z]{2,5}'));
-        $c = $r->getConditions();
-        $this->assertArrayHasKey('id', $c);
-        $this->assertArrayHasKey('name', $c);
+    public function testMatchesIsCaseSensitiveByDefault()
+    {
+        $route = new \Slim\Route('/case/sensitive', function () {});
+        $this->assertTrue($route->matches('/case/sensitive'));
+        $this->assertFalse($route->matches('/CaSe/SensItiVe'));
     }
 
-    /**
-     * Test route sets and gets middleware
-     *
-     * Pre-conditions:
-     * Route instantiated
-     *
-     * Post-conditions:
-     * Case A: Middleware set as callable, not array
-     * Case B: Middleware set after other middleware already set
-     * Case C: Middleware set as array of callables
-     * Case D: Middleware set as a callable array
-     * Case E: Middleware is invalid; throws InvalidArgumentException
-     */
-    public function testRouteMiddleware() {
-        $callable1 = function () {};
-        $callable2 = function () {};
-        //Case A
-        $r1 = new Slim_Route('/foo', function () {});
-        $r1->setMiddleware($callable1);
-        $mw = $r1->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(1, count($mw));
-        //Case B
-        $r1->setMiddleware($callable2);
-        $mw = $r1->getMiddleware();
-        $this->assertEquals(2, count($mw));
-        //Case C
-        $r2 = new Slim_Route('/foo', function () {});
-        $r2->setMiddleware(array($callable1, $callable2));
-        $mw = $r2->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(2, count($mw));
-        //Case D
-        $r3 = new Slim_Route('/foo', function () {});
-        $r3->setMiddleware(array($this, 'callableTestFunction'));
-        $mw = $r3->getMiddleware();
-        $this->assertInternalType('array', $mw);
-        $this->assertEquals(1, count($mw));
-        //Case E
-        try {
-            $r3->setMiddleware('sdjfsoi788');
-            $this->fail('Did not catch InvalidArgumentException when setting invalid route middleware');
-        } catch ( InvalidArgumentException $e ) {}
+    public function testMatchesCanBeCaseInsensitive()
+    {
+        $route = new \Slim\Route('/Case/Insensitive', function () {}, false);
+        $this->assertTrue($route->matches('/Case/Insensitive'));
+        $this->assertTrue($route->matches('/CaSe/iNSensItiVe'));
     }
 
-    public function callableTestFunction() {}
+    public function testGetConditions()
+    {
+        $route = new \Slim\Route('/foo', function () {});
 
-    /**
-     * Test that a Route manages the HTTP methods that it supports
-     *
-     * Case A: Route initially supports no HTTP methods
-     * Case B: Route can set its supported HTTP methods
-     * Case C: Route can append supported HTTP methods
-     * Case D: Route can test if it supports an HTTP method
-     * Case E: Route can lazily declare supported HTTP methods with `via`
-     */
-    public function testHttpMethods() {
-        //Case A
-        $r = new Slim_Route('/foo', function () {});
-        $this->assertEmpty($r->getHttpMethods());
-        //Case B
-        $r->setHttpMethods('GET');
-        $this->assertEquals(array('GET'), $r->getHttpMethods());
-        //Case C
-        $r->appendHttpMethods('POST', 'PUT');
-        $this->assertEquals(array('GET', 'POST', 'PUT'), $r->getHttpMethods());
-        //Case D
-        $this->assertTrue($r->supportsHttpMethod('GET'));
-        $this->assertFalse($r->supportsHttpMethod('DELETE'));
-        //Case E
-        $viaResult = $r->via('DELETE');
-        $this->assertTrue($viaResult instanceof Slim_Route);
-        $this->assertTrue($r->supportsHttpMethod('DELETE'));
+        $property = new \ReflectionProperty($route, 'conditions');
+        $property->setAccessible(true);
+        $property->setValue($route, array('foo' => '\d{3}'));
+
+        $this->assertEquals(array('foo' => '\d{3}'), $route->getConditions());
     }
 
-    public function testDispatch() {
-        $this->expectOutputString('Hello josh');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
+    public function testSetDefaultConditions()
+    {
+        \Slim\Route::setDefaultConditions(array(
+            'id' => '\d+'
         ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+
+        $property = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $property->setAccessible(true);
+
+        $this->assertEquals(array(
+            'id' => '\d+'
+        ), $property->getValue());
+    }
+
+    public function testGetDefaultConditions()
+    {
+        $property = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $property->setAccessible(true);
+        $property->setValue(array(
+            'id' => '\d+'
+        ));
+
+        $this->assertEquals(array(
+            'id' => '\d+'
+        ), \Slim\Route::getDefaultConditions());
+    }
+
+    public function testDefaultConditionsAssignedToInstance()
+    {
+        $staticProperty = new \ReflectionProperty('\Slim\Route', 'defaultConditions');
+        $staticProperty->setAccessible(true);
+        $staticProperty->setValue(array(
+            'id' => '\d+'
+        ));
+        $route = new \Slim\Route('/foo', function () {});
+
+        $this->assertAttributeEquals(array(
+            'id' => '\d+'
+        ), 'conditions', $route);
+    }
+
+    public function testMatchesWildcard()
+    {
+        $route = new \Slim\Route('/hello/:path+/world', function () {});
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar')
+        ), 'params', $route);
+    }
+
+    public function testMatchesMultipleWildcards()
+    {
+        $route = new \Slim\Route('/hello/:path+/world/:date+', function () {});
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'date' => array('2012', '03', '10')
+        ), 'params', $route);
+    }
+
+    public function testMatchesParamsAndWildcards()
+    {
+        $route = new \Slim\Route('/hello/:path+/world/:year/:month/:day/:path2+', function () {});
+
+        $this->assertTrue($route->matches('/hello/foo/bar/world/2012/03/10/first/second'));
+        $this->assertAttributeEquals(array(
+            'path' => array('foo', 'bar'),
+            'year' => '2012',
+            'month' => '03',
+            'day' => '10',
+            'path2' => array('first', 'second')
+        ), 'params', $route);
+    }
+
+    public function testMatchesParamsWithOptionalWildcard()
+    {
+        $route = new \Slim\Route('/hello(/:foo(/:bar+))', function () {});
+
+        $this->assertTrue($route->matches('/hello'));
+        $this->assertTrue($route->matches('/hello/world'));
+        $this->assertTrue($route->matches('/hello/world/foo'));
+        $this->assertTrue($route->matches('/hello/world/foo/bar'));
+    }
+
+    public function testSetMiddleware()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $mw = function () {
+            echo 'Foo';
+        };
+        $route->setMiddleware($mw);
+
+        $this->assertAttributeContains($mw, 'middleware', $route);
+    }
+
+    public function testSetMiddlewareMultipleTimes()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $mw1 = function () {
+            echo 'Foo';
+        };
+        $mw2 = function () {
+            echo 'Bar';
+        };
+        $route->setMiddleware($mw1);
+        $route->setMiddleware($mw2);
+
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
+    }
+
+    public function testSetMiddlewareWithArray()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $mw1 = function () {
+            echo 'Foo';
+        };
+        $mw2 = function () {
+            echo 'Bar';
+        };
+        $route->setMiddleware(array($mw1, $mw2));
+
+        $this->assertAttributeContains($mw1, 'middleware', $route);
+        $this->assertAttributeContains($mw2, 'middleware', $route);
+    }
+
+    public function testSetMiddlewareWithInvalidArgument()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setMiddleware('doesNotExist'); // <-- Should throw InvalidArgumentException
+    }
+
+    public function testSetMiddlewareWithArrayWithInvalidArgument()
+    {
+        $this->setExpectedException('InvalidArgumentException');
+
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setMiddleware(array('doesNotExist'));
+    }
+
+    public function testGetMiddleware()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'middleware');
+        $property->setAccessible(true);
+        $property->setValue($route, array('foo' => 'bar'));
+
+        $this->assertEquals(array('foo' => 'bar'), $route->getMiddleware());
+    }
+
+    public function testSetHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $route->setHttpMethods('GET', 'POST');
+
+        $this->assertAttributeEquals(array('GET', 'POST'), 'methods', $route);
+    }
+
+    public function testGetHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('GET', 'POST'));
+
+        $this->assertEquals(array('GET', 'POST'), $route->getHttpMethods());
+    }
+
+    public function testAppendHttpMethods()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('GET', 'POST'));
+
+        $route->appendHttpMethods('PUT');
+
+        $this->assertAttributeEquals(array('GET', 'POST', 'PUT'), 'methods', $route);
+    }
+
+    public function testAppendArrayOfHttpMethods()
+    {
+        $arrayOfMethods = array('GET','POST','PUT');
+        $route = new \Slim\Route('/foo', function () {});
+        $route->appendHttpMethods($arrayOfMethods);
+
+        $this->assertAttributeEquals($arrayOfMethods,'methods',$route);
+    }
+
+    public function testAppendHttpMethodsWithVia()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+        $route->via('PUT');
+
+        $this->assertAttributeContains('PUT', 'methods', $route);
+    }
+
+    public function testAppendArrayOfHttpMethodsWithVia()
+    {
+        $arrayOfMethods = array('GET','POST','PUT');
+        $route = new \Slim\Route('/foo', function () {});
+        $route->via($arrayOfMethods);
+
+        $this->assertAttributeEquals($arrayOfMethods,'methods',$route);
+    }
+
+    public function testSupportsHttpMethod()
+    {
+        $route = new \Slim\Route('/foo', function () {});
+
+        $property = new \ReflectionProperty($route, 'methods');
+        $property->setAccessible(true);
+        $property->setValue($route, array('POST'));
+
+        $this->assertTrue($route->supportsHttpMethod('POST'));
+        $this->assertFalse($route->supportsHttpMethod('PUT'));
+    }
+
+    /**
+     * Test dispatch with params
+     */
+    public function testDispatch()
+    {
+        $this->expectOutputString('Hello josh');
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route->matches('/hello/josh'); //<-- Extracts params from resource URI
         $route->dispatch();
     }
 
-    public function testDispatchWithMiddlware() {
+    /**
+     * Test dispatch with middleware
+     */
+    public function testDispatchWithMiddleware()
+    {
         $this->expectOutputString('First! Second! Hello josh');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', function ($name) { echo "Hello $name"; });
+        $route = new \Slim\Route('/hello/:name', function ($name) { echo "Hello $name"; });
         $route->setMiddleware(function () {
             echo "First! ";
         });
         $route->setMiddleware(function () {
             echo "Second! ";
         });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+        $route->matches('/hello/josh'); //<-- Extracts params from resource URI
         $route->dispatch();
     }
 
-    public function testDispatchWithRequestSlash() {
-        $this->setExpectedException('Slim_Exception_RequestSlash');
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name/', function ($name) { echo "Hello $name"; });
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
+    /**
+     * Test middleware with arguments
+     */
+    public function testRouteMiddlwareArguments()
+    {
+        $this->expectOutputString('foobar');
+        $route = new \Slim\Route('/foo', function () { echo "bar"; });
+        $route->setName('foo');
+        $route->setMiddleware(function ($route) {
+            echo $route->getName();
+        });
+        $route->matches('/foo'); //<-- Extracts params from resource URI
         $route->dispatch();
-    }
-
-    public function testDispatchWithoutCallable() {
-        Slim_Environment::mock(array(
-            'REQUEST_METHOD' => 'GET',
-            'REMOTE_ADDR' => '127.0.0.1',
-            'SCRIPT_NAME' => '', //<-- Physical
-            'PATH_INFO' => '/hello/josh', //<-- Virtual
-            'QUERY_STRING' => 'one=1&two=2&three=3',
-            'SERVER_NAME' => 'slim',
-            'SERVER_PORT' => 80,
-            'slim.url_scheme' => 'http',
-            'slim.input' => '',
-            'slim.errors' => fopen('php://stderr', 'w'),
-            'HTTP_HOST' => 'slim'
-        ));
-        $env = Slim_Environment::getInstance();
-        $req = new Slim_Http_Request($env);
-        $res = new Slim_Http_Response();
-        $router = new Slim_Router($req, $res);
-        $route = new Slim_Route('/hello/:name', 'foo');
-        $route->setRouter($router);
-        $route->matches($req->getResourceUri()); //<-- Extracts params from resource URI
-        $this->assertFalse($route->dispatch());
     }
 }

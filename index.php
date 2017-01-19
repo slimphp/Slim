@@ -1,43 +1,40 @@
 <?php
 /**
- * Step 1: Require the Slim PHP 5 Framework
+ * Step 1: Require the Slim Framework
  *
- * If using the default file layout, the `Slim/` directory
- * will already be on your include path. If you move the `Slim/`
- * directory elsewhere, ensure that it is added to your include path
- * or update this file path as needed.
+ * If you are not using Composer, you need to require the
+ * Slim Framework and register its PSR-0 autoloader.
+ *
+ * If you are using Composer, you can skip this step.
  */
 require 'Slim/Slim.php';
 
+\Slim\Slim::registerAutoloader();
+
 /**
- * Step 2: Instantiate the Slim application
+ * Step 2: Instantiate a Slim application
  *
- * Here we instantiate the Slim application with its default settings.
- * However, we could also pass a key-value array of settings.
- * Refer to the online documentation for available settings.
+ * This example instantiates a Slim application using
+ * its default settings. However, you will usually configure
+ * your Slim application now by passing an associative array
+ * of setting names and values into the application constructor.
  */
-$app = new Slim();
+$app = new \Slim\Slim();
 
 /**
  * Step 3: Define the Slim application routes
  *
  * Here we define several Slim application routes that respond
  * to appropriate HTTP request methods. In this example, the second
- * argument for `Slim::get`, `Slim::post`, `Slim::put`, and `Slim::delete`
- * is an anonymous function. If you are using PHP < 5.3, the
- * second argument should be any variable that returns `true` for
- * `is_callable()`. An example GET route for PHP < 5.3 is:
- *
- * $app = new Slim();
- * $app->get('/hello/:name', 'myFunction');
- * function myFunction($name) { echo "Hello, $name"; }
- *
- * The routes below work with PHP >= 5.3.
+ * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
+ * is an anonymous function.
  */
 
-//GET route
-$app->get('/', function () {
-    $template = <<<EOT
+// GET route
+$app->get(
+    '/',
+    function () {
+        $template = <<<EOT
 <!DOCTYPE html>
     <html>
         <head>
@@ -93,13 +90,13 @@ $app->get('/', function () {
             <h1>Welcome to Slim!</h1>
             <p>
                 Congratulations! Your Slim application is running. If this is
-                your first time using Slim, start with this <a href="http://www.slimframework.com/learn" target="_blank">"Hello World" Tutorial</a>.
+                your first time using Slim, start with this <a href="http://docs.slimframework.com/#Hello-World" target="_blank">"Hello World" Tutorial</a>.
             </p>
             <section>
                 <h2>Get Started</h2>
                 <ol>
                     <li>The application code is in <code>index.php</code></li>
-                    <li>Read the <a href="http://www.slimframework.com/documentation/stable" target="_blank">online documentation</a></li>
+                    <li>Read the <a href="http://docs.slimframework.com/" target="_blank">online documentation</a></li>
                     <li>Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter</li>
                 </ol>
             </section>
@@ -118,12 +115,6 @@ $app->get('/', function () {
                     Follow <a href="http://www.twitter.com/slimphp" target="_blank">@slimphp</a> on Twitter to receive the very latest news
                     and updates about the framework.
                 </p>
-
-                <h3>IRC</h3>
-                <p>
-                    Find Josh Lockhart in the irc.freenode.net "##slim" IRC channel during the day. Say hi, ask questions,
-                    or just hang out with fellow Slim users.
-                </p>
             </section>
             <section style="padding-bottom: 20px">
                 <h2>Slim Framework Extras</h2>
@@ -136,28 +127,43 @@ $app->get('/', function () {
         </body>
     </html>
 EOT;
-    echo $template;
+        echo $template;
+    }
+);
+
+// POST route
+$app->post(
+    '/post',
+    function () {
+        echo 'This is a POST route';
+    }
+);
+
+// PUT route
+$app->put(
+    '/put',
+    function () {
+        echo 'This is a PUT route';
+    }
+);
+
+// PATCH route
+$app->patch('/patch', function () {
+    echo 'This is a PATCH route';
 });
 
-//POST route
-$app->post('/post', function () {
-    echo 'This is a POST route';
-});
-
-//PUT route
-$app->put('/put', function () {
-    echo 'This is a PUT route';
-});
-
-//DELETE route
-$app->delete('/delete', function () {
-    echo 'This is a DELETE route';
-});
+// DELETE route
+$app->delete(
+    '/delete',
+    function () {
+        echo 'This is a DELETE route';
+    }
+);
 
 /**
  * Step 4: Run the Slim application
  *
- * This method should be called last. This is responsible for executing
- * the Slim application using the settings and routes defined above.
+ * This method should be called last. This executes the Slim application
+ * and returns the HTTP response to the HTTP client.
  */
 $app->run();

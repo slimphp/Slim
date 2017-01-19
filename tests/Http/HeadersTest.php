@@ -3,10 +3,10 @@
  * Slim - a micro PHP 5 framework
  *
  * @author      Josh Lockhart <info@slimframework.com>
- * @copyright   2011 Josh Lockhart
+ * @copyright   2011-2017 Josh Lockhart
  * @link        http://www.slimframework.com
  * @license     http://www.slimframework.com/license
- * @version     1.5.2
+ * @version     2.6.4
  *
  * MIT LICENSE
  *
@@ -30,108 +30,30 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-set_include_path(dirname(__FILE__) . '/../' . PATH_SEPARATOR . get_include_path());
-
-require_once 'Slim/Http/Headers.php';
-
-class HeadersTest extends PHPUnit_Framework_TestCase {
-    /**
-     * Test constructor without args
-     */
-    public function testConstructorWithoutArgs() {
-        $h = new Slim_Http_Headers();
-        $this->assertEquals(0, count($h));
+class HeadersTest extends PHPUnit_Framework_TestCase
+{
+    public function testNormalizesKey()
+    {
+        $h = new \Slim\Http\Headers();
+        $h->set('Http_Content_Type', 'text/html');
+        $prop = new \ReflectionProperty($h, 'data');
+        $prop->setAccessible(true);
+        $this->assertArrayHasKey('Content-Type', $prop->getValue($h));
     }
 
-    /**
-     * Test constructor with args
-     */
-    public function testConstructorWithArgs() {
-        $h = new Slim_Http_Headers(array('Content-Type' => 'text/html'));
-        $this->assertEquals(1, count($h));
-    }
-
-    /**
-     * Test get and set header
-     */
-    public function testSetAndGetHeader() {
-        $h = new Slim_Http_Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals('text/html', $h['Content-Type']);
-        $this->assertEquals('text/html', $h['Content-type']);
-        $this->assertEquals('text/html', $h['content-type']);
-    }
-
-    /**
-     * Test get non-existent header
-     */
-    public function testGetNonExistentHeader() {
-        $h = new Slim_Http_Headers();
-        $this->assertNull($h['foo']);
-    }
-
-    /**
-     * Test isset header
-     */
-    public function testHeaderIsSet() {
-        $h = new Slim_Http_Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertTrue(isset($h['Content-Type']));
-        $this->assertTrue(isset($h['Content-type']));
-        $this->assertTrue(isset($h['content-type']));
-        $this->assertFalse(isset($h['foo']));
-    }
-
-    /**
-     * Test unset header
-     */
-    public function testUnsetHeader() {
-        $h = new Slim_Http_Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        unset($h['Content-Type']);
-        $this->assertEquals(0, count($h));
-    }
-
-    /**
-     * Test merge headers
-     */
-    public function testMergeHeaders() {
-        $h = new Slim_Http_Headers();
-        $h['Content-Type'] = 'text/html';
-        $this->assertEquals(1, count($h));
-        $h->merge(array('Content-type' => 'text/csv', 'content-length' => 10));
-        $this->assertEquals(2, count($h));
-        $this->assertEquals('text/csv', $h['content-type']);
-        $this->assertEquals(10, $h['Content-length']);
-    }
-
-    /**
-     * Test iteration
-     */
-    public function testIteration() {
-        $h = new Slim_Http_Headers();
-        $h['One'] = 'Foo';
-        $h['Two'] = 'Bar';
-        $output = '';
-        foreach ( $h as $key => $value ) {
-            $output .= $key . $value;
-        }
-        $this->assertEquals('OneFooTwoBar', $output);
-    }
-
-    /**
-     * Test outputs header name in original form, not canonical form
-     */
-    public function testOutputsOriginalNotCanonicalName() {
-        $h = new Slim_Http_Headers();
-        $h['X-Powered-By'] = 'Slim';
-        $h['Content-Type'] = 'text/csv';
-        $keys = array();
-        foreach ( $h as $name => $value ) {
-            $keys[] = $name;
-        }
-        $this->assertContains('X-Powered-By', $keys);
-        $this->assertContains('Content-Type', $keys);
+    public function testExtractHeaders()
+    {
+        $test = array(
+            'HTTP_HOST' => 'foo.com',
+            'SERVER_NAME' => 'foo',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        );
+        $results = \Slim\Http\Headers::extract($test);
+        $this->assertEquals(array(
+            'HTTP_HOST' => 'foo.com',
+            'CONTENT_TYPE' => 'text/html',
+            'X_FORWARDED_FOR' => '127.0.0.1'
+        ), $results);
     }
 }
