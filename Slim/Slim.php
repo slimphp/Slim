@@ -718,11 +718,7 @@ class Slim
     {
         if (!is_null($viewClass)) {
             $existingData = is_null($this->view) ? array() : $this->view->getData();
-            if ($viewClass instanceOf \Slim\View) {
-                $this->view = $viewClass;
-            } else {
-                $this->view = new $viewClass();
-            }
+            $this->view = ($viewClass instanceOf \Slim\View) ? $viewClass : new $viewClass();
             $this->view->appendData($existingData);
             $this->view->setTemplatesDirectory($this->config('templates.path'));
         }
