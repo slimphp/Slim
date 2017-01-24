@@ -131,7 +131,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param  Environment $environment The Slim application Environment
      *
-     * @return self
+     * @return static
      */
     public static function createFromEnvironment(Environment $environment)
     {
@@ -286,7 +286,7 @@ class Request extends Message implements ServerRequestInterface
      * changed request method.
      *
      * @param string $method Case-sensitive method.
-     * @return self
+     * @return static
      * @throws \InvalidArgumentException for invalid HTTP methods.
      */
     public function withMethod($method)
@@ -497,7 +497,7 @@ class Request extends Message implements ServerRequestInterface
      * @link http://tools.ietf.org/html/rfc7230#section-2.7 (for the various
      *     request-target forms allowed in request messages)
      * @param mixed $requestTarget
-     * @return self
+     * @return static
      * @throws InvalidArgumentException if the request target is invalid
      */
     public function withRequestTarget($requestTarget)
@@ -555,7 +555,7 @@ class Request extends Message implements ServerRequestInterface
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
      * @param UriInterface $uri New request URI to use.
      * @param bool $preserveHost Preserve the original state of the Host header.
-     * @return self
+     * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
@@ -717,7 +717,7 @@ class Request extends Message implements ServerRequestInterface
      * updated cookie values.
      *
      * @param array $cookies Array of key/value pairs representing cookies.
-     * @return self
+     * @return static
      */
     public function withCookieParams(array $cookies)
     {
@@ -778,7 +778,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param array $query Array of query string arguments, typically from
      *     $_GET.
-     * @return self
+     * @return static
      */
     public function withQueryParams(array $query)
     {
@@ -817,7 +817,7 @@ class Request extends Message implements ServerRequestInterface
      * updated body parameters.
      *
      * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
-     * @return self
+     * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
@@ -915,7 +915,7 @@ class Request extends Message implements ServerRequestInterface
      * @see getAttributes()
      * @param string $name The attribute name.
      * @param mixed $value The value of the attribute.
-     * @return self
+     * @return static
      */
     public function withAttribute($name, $value)
     {
@@ -938,7 +938,7 @@ class Request extends Message implements ServerRequestInterface
      * updated attributes.
      *
      * @param  array $attributes New attributes
-     * @return self
+     * @return static
      */
     public function withAttributes(array $attributes)
     {
@@ -960,7 +960,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @see getAttributes()
      * @param string $name The attribute name.
-     * @return self
+     * @return static
      */
     public function withoutAttribute($name)
     {
@@ -1048,7 +1048,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param null|array|object $data The deserialized body data. This will
      *     typically be in an array or object.
-     * @return self
+     * @return static
      * @throws \InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
