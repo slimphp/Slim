@@ -254,7 +254,7 @@ class Response extends Message implements ResponseInterface
      * Proxies to the underlying stream and writes the provided data to it.
      *
      * @param string $data
-     * @return self
+     * @return $this
      */
     public function write($data)
     {

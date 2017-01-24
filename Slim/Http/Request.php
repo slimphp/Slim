@@ -1069,7 +1069,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @return self
+     * @return $this
      */
     public function reparseBody()
     {
