@@ -66,7 +66,10 @@ trait MiddlewareAwareTrait
         $this->stack[] = function (
             ServerRequestInterface $request,
             ResponseInterface $response
-        ) use ($callable, $next) {
+        ) use (
+            $callable,
+            $next
+        ) {
             $result = call_user_func($callable, $request, $response, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new UnexpectedValueException(
