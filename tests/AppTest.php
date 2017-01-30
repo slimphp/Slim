@@ -2102,6 +2102,25 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response = $method->invoke($app, $response);
     }
 
+    public function testUnsupportedMethodUsedByClient()
+    {
+        $this->markTestSkipped('Handling of bad methods needs to be fixed first.');
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'REQUEST_URI' => '/',
+            'REQUEST_METHOD' => 'BADMTHD',
+        ]);
+
+        $req = Request::createFromEnvironment($env);
+        $res = new Response();
+        $app = new App();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(400, $resOut->getStatusCode());
+    }
 
     public function testContainerSetToRoute()
     {
