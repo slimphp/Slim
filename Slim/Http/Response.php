@@ -176,7 +176,7 @@ class Response extends Message implements ResponseInterface
      * @param string $reasonPhrase The reason phrase to use with the
      *     provided status code; if none is provided, implementations MAY
      *     use the defaults as suggested in the HTTP specification.
-     * @return self
+     * @return static
      * @throws \InvalidArgumentException For invalid status code arguments.
      */
     public function withStatus($code, $reasonPhrase = '')
@@ -254,7 +254,7 @@ class Response extends Message implements ResponseInterface
      * Proxies to the underlying stream and writes the provided data to it.
      *
      * @param string $data
-     * @return self
+     * @return $this
      */
     public function write($data)
     {
@@ -277,7 +277,7 @@ class Response extends Message implements ResponseInterface
      *
      * @param  string|UriInterface $url    The redirect destination.
      * @param  int|null            $status The redirect HTTP status code.
-     * @return self
+     * @return static
      */
     public function withRedirect($url, $status = null)
     {
@@ -306,7 +306,7 @@ class Response extends Message implements ResponseInterface
      * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
      * @throws \RuntimeException
-     * @return self
+     * @return static
      */
     public function withJson($data, $status = null, $encodingOptions = 0)
     {
