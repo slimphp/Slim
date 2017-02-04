@@ -289,15 +289,13 @@ class App
      */
     public function run($silent = false)
     {
-        try {
-            $request = $this->container->get('request');
-        } catch (InvalidMethodException $e) {
-            $request = $e->getRequest();
-        }
-
         $response = $this->container->get('response');
 
-        $response = !isset($e) ? $this->process($request, $response) : $this->processInvalidMethod($request, $response);
+        try {
+            $response = $this->process($this->container->get('request'), $response);
+        } catch (InvalidMethodException $e) {
+            $response = $this->processInvalidMethod($e->getRequest(), $response);
+        }
 
         if (!$silent) {
             $this->respond($response);
