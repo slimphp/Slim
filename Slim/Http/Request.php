@@ -16,6 +16,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Collection;
+use Slim\Exception\InvalidMethodException;
+use Slim\Exception\MethodNotAllowedException;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
@@ -166,6 +168,7 @@ class Request extends Message implements ServerRequestInterface
      * @param array            $serverParams  The server environment variables
      * @param StreamInterface  $body          The request body object
      * @param array            $uploadedFiles The request uploadedFiles collection
+     * @throws InvalidMethodException on invalid HTTP method
      */
     public function __construct(
         $method,
@@ -176,7 +179,12 @@ class Request extends Message implements ServerRequestInterface
         StreamInterface $body,
         array $uploadedFiles = []
     ) {
-        $this->originalMethod = $this->filterMethod($method);
+        try {
+            $this->originalMethod = $this->filterMethod($method);
+        } catch (InvalidMethodException $e) {
+            $this->originalMethod = $method;
+        }
+
         $this->uri = $uri;
         $this->headers = $headers;
         $this->cookies = $cookies;
@@ -215,6 +223,11 @@ class Request extends Message implements ServerRequestInterface
             parse_str($input, $data);
             return $data;
         });
+
+        // if the request had an invalid method, we can throw it now
+        if (isset($e) && $e instanceof InvalidMethodException) {
+            throw $e;
+        }
     }
 
     /**
@@ -321,10 +334,7 @@ class Request extends Message implements ServerRequestInterface
 
         $method = strtoupper($method);
         if (!isset($this->validMethods[$method])) {
-            throw new InvalidArgumentException(sprintf(
-                'Unsupported HTTP method "%s" provided',
-                $method
-            ));
+            throw new InvalidMethodException($this, $method);
         }
 
         return $method;

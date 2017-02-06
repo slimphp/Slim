@@ -8,27 +8,29 @@
  */
 namespace Slim;
 
-use Exception;
-use Slim\Interfaces\CallableResolverInterface;
-use Throwable;
 use Closure;
+use Exception;
+use FastRoute\Dispatcher;
+use Interop\Container\ContainerInterface;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Interop\Container\ContainerInterface;
-use FastRoute\Dispatcher;
-use Slim\Exception\SlimException;
+use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\InvalidMethodException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Http\Uri;
-use Slim\Http\Headers;
+use Slim\Exception\SlimException;
 use Slim\Http\Body;
+use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\Response;
+use Slim\Http\Uri;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Throwable;
 
 /**
  * App
@@ -362,16 +364,48 @@ class App
      */
     public function run($silent = false)
     {
-        $request = $this->container->get('request');
         $response = $this->container->get('response');
 
-        $response = $this->process($request, $response);
+        try {
+            $response = $this->process($this->container->get('request'), $response);
+        } catch (InvalidMethodException $e) {
+            $response = $this->processInvalidMethod($e->getRequest(), $response);
+        }
 
         if (!$silent) {
             $this->respond($response);
         }
 
         return $response;
+    }
+
+    /**
+     * Pull route info for a request with a bad method to decide whether to
+     * return a not-found error (default) or a bad-method error, then run
+     * the handler for that error, returning the resulting response.
+     *
+     * Used for cases where an incoming request has an unrecognized method,
+     * rather than throwing an exception and not catching it all the way up.
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $router = $this->getRouter();
+        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
+        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
+
+        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
+            return $this->handleException(
+                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
+                $request,
+                $response
+            );
+        }
+
+        return $this->handleException(new NotFoundException($request, $response), $request, $response);
     }
 
     /**
