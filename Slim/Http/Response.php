@@ -455,17 +455,18 @@ class Response extends Message implements ResponseInterface
      */
     public function __toString()
     {
+        $eol = "\r\n";
         $output = sprintf(
             'HTTP/%s %s %s',
             $this->getProtocolVersion(),
             $this->getStatusCode(),
             $this->getReasonPhrase()
         );
-        $output .= PHP_EOL;
+        $output .= $eol;
         foreach ($this->getHeaders() as $name => $values) {
-            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . PHP_EOL;
+            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . $eol;
         }
-        $output .= PHP_EOL;
+        $output .= $eol;
         $output .= (string)$this->getBody();
 
         return $output;
