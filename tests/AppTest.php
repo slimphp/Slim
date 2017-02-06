@@ -2102,6 +2102,32 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $response = $method->invoke($app, $response);
     }
 
+    public function testUnsupportedMethodWithoutRoute()
+    {
+        $app = new App();
+        $c = $app->getContainer();
+        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+
+        $resOut = $app->run(true);
+
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
+        $this->assertEquals(404, $resOut->getStatusCode());
+    }
+
+    public function testUnsupportedMethodWithRoute()
+    {
+        $app = new App();
+        $app->get('/', function () {
+            // stubbed action to give us a route at /
+        });
+        $c = $app->getContainer();
+        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+
+        $resOut = $app->run(true);
+
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
+        $this->assertEquals(405, $resOut->getStatusCode());
+    }
 
     public function testContainerSetToRoute()
     {
