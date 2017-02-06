@@ -118,6 +118,13 @@ class Response extends Message implements ResponseInterface
     ];
 
     /**
+     * EOL characters used for HTTP response.
+     *
+     * @var string
+     */
+     const EOL = "\r\n";
+
+    /**
      * Create new HTTP response.
      *
      * @param int                   $status  The response status code.
@@ -455,18 +462,17 @@ class Response extends Message implements ResponseInterface
      */
     public function __toString()
     {
-        $eol = "\r\n";
         $output = sprintf(
             'HTTP/%s %s %s',
             $this->getProtocolVersion(),
             $this->getStatusCode(),
             $this->getReasonPhrase()
         );
-        $output .= $eol;
+        $output .= Response::EOL;
         foreach ($this->getHeaders() as $name => $values) {
-            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . $eol;
+            $output .= sprintf('%s: %s', $name, $this->getHeaderLine($name)) . Response::EOL;
         }
-        $output .= $eol;
+        $output .= Response::EOL;
         $output .= (string)$this->getBody();
 
         return $output;
