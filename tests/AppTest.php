@@ -1779,23 +1779,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res = $app->run(true);
     }
 
-    public function testRunSlimException()
-    {
-        $app = $this->appFactory();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            $res->write("Failed");
-            throw new SlimException($req, $res);
-        });
-        $res = $app->run(true);
-
-        $res->getBody()->rewind();
-        $this->assertEquals(200, $res->getStatusCode());
-        $this->assertEquals("Failed", $res->getBody()->getContents());
-    }
-
     /**
      * @requires PHP 7.0
      */

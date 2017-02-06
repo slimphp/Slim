@@ -8,7 +8,55 @@
  */
 namespace Slim\Exception;
 
-class NotFoundException extends SlimException
-{
+use \Exception;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
+class NotFoundException extends Exception
+{
+    /**
+     * A request object
+     *
+     * @var ServerRequestInterface
+     */
+    protected $request;
+
+    /**
+     * A response object to send to the HTTP client
+     *
+     * @var ResponseInterface
+     */
+    protected $response;
+
+    /**
+     * Create new exception
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     */
+    public function __construct(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $this->request = $request;
+        $this->response = $response;
+    }
+
+    /**
+     * Get request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get response
+     *
+     * @return ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->response;
+    }
 }
