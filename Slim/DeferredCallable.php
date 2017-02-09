@@ -10,7 +10,7 @@
 namespace Slim;
 
 use Closure;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class DeferredCallable
 {

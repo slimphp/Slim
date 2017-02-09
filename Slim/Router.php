@@ -9,7 +9,7 @@
 namespace Slim;
 
 use FastRoute\Dispatcher;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;

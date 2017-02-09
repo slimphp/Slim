@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 /**
  * A routable, middleware-aware object
