@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
 use Slim\Exception\ContainerValueNotFoundException;
