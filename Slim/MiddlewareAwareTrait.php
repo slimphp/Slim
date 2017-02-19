@@ -3,7 +3,7 @@
  * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim;
@@ -63,8 +63,14 @@ trait MiddlewareAwareTrait
             $this->seedMiddlewareStack();
         }
         $next = $this->stack->top();
-        $this->stack[] = function (ServerRequestInterface $req, ResponseInterface $res) use ($callable, $next) {
-            $result = call_user_func($callable, $req, $res, $next);
+        $this->stack[] = function (
+            ServerRequestInterface $request,
+            ResponseInterface $response
+        ) use (
+            $callable,
+            $next
+        ) {
+            $result = call_user_func($callable, $request, $response, $next);
             if ($result instanceof ResponseInterface === false) {
                 throw new UnexpectedValueException(
                     'Middleware must return instance of \Psr\Http\Message\ResponseInterface'
@@ -100,12 +106,12 @@ trait MiddlewareAwareTrait
     /**
      * Call middleware stack
      *
-     * @param  ServerRequestInterface $req A request object
-     * @param  ResponseInterface      $res A response object
+     * @param  ServerRequestInterface $request A request object
+     * @param  ResponseInterface      $response A response object
      *
      * @return ResponseInterface
      */
-    public function callMiddlewareStack(ServerRequestInterface $req, ResponseInterface $res)
+    public function callMiddlewareStack(ServerRequestInterface $request, ResponseInterface $response)
     {
         if (is_null($this->stack)) {
             $this->seedMiddlewareStack();
@@ -113,8 +119,8 @@ trait MiddlewareAwareTrait
         /** @var callable $start */
         $start = $this->stack->top();
         $this->middlewareLock = true;
-        $resp = $start($req, $res);
+        $response = $start($request, $response);
         $this->middlewareLock = false;
-        return $resp;
+        return $response;
     }
 }

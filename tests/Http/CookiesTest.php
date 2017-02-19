@@ -3,7 +3,7 @@
  * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
@@ -159,6 +159,13 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $cookies = Cookies::parseHeader('foo=bar; name=Josh');
         $this->assertEquals('bar', $cookies['foo']);
         $this->assertEquals('Josh', $cookies['name']);
+    }
+
+    public function testParseHeaderWithJsonArray()
+    {
+        $cookies = Cookies::parseHeader('foo=bar; testarray=["someVar1","someVar2","someVar3"]');
+        $this->assertEquals('bar', $cookies['foo']);
+        $this->assertContains('someVar3', json_decode($cookies['testarray']));
     }
 
     public function testToHeaders()

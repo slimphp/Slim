@@ -2,17 +2,32 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/codeguy/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/codeguy/Slim/blob/master/LICENSE (MIT License)
+ * @link      https://github.com/slimphp/Slim
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE (MIT License)
  */
 namespace Slim\Exception;
 
+use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class MethodNotAllowedException extends SlimException
+class MethodNotAllowedException extends Exception
 {
+    /**
+     * A request object
+     *
+     * @var ServerRequestInterface
+     */
+    protected $request;
+
+    /**
+     * A response object to send to the HTTP client
+     *
+     * @var ResponseInterface
+     */
+    protected $response;
+
     /**
      * HTTP methods allowed
      *
@@ -29,8 +44,29 @@ class MethodNotAllowedException extends SlimException
      */
     public function __construct(ServerRequestInterface $request, ResponseInterface $response, array $allowedMethods)
     {
-        parent::__construct($request, $response);
+        $this->request = $request;
+        $this->response = $response;
         $this->allowedMethods = $allowedMethods;
+    }
+
+    /**
+     * Get request
+     *
+     * @return ServerRequestInterface
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * Get response
+     *
+     * @return ResponseInterface
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /**
