@@ -20,6 +20,10 @@ use Slim\Exception\InvalidMethodException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
 use Slim\Exception\SlimException;
+use Slim\Handlers\Error;
+use Slim\Handlers\NotAllowed;
+use Slim\Handlers\NotFound;
+use Slim\Handlers\PhpError;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -867,7 +871,7 @@ class App
             $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
         } elseif ($e instanceof NotFoundException) {
             $handler = $this->getNotFoundHandler();
-            $params = [$e->getRequest(), $e->getResponse()];s
+            $params = [$e->getRequest(), $e->getResponse()];
         } elseif ($e instanceof SlimException) {
             // This is a Stop exception and contains the response
             return $e->getResponse();
