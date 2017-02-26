@@ -49,34 +49,24 @@ final class CallableResolver implements CallableResolverInterface
         $resolved = $toResolve;
 
         if (!is_callable($toResolve) && is_string($toResolve)) {
+            $class = $toResolve;
+            $method = '__invoke';
+
             // check for slim callable as "class:method"
             $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
             if (preg_match($callablePattern, $toResolve, $matches)) {
                 $class = $matches[1];
                 $method = $matches[2];
+            }
 
-                if ($this->container instanceof ContainerInterface &&
-                    $this->container->has($class)) {
-                    $resolved = [$this->container->get($class), $method];
-                } else {
-                    if (!class_exists($class)) {
-                        throw new RuntimeException(sprintf('Callable %s does not exist', $class));
-                    }
-                    $resolved = [new $class($this->container), $method];
-                }
+            if ($this->container instanceof ContainerInterface &&
+                $this->container->has($class)) {
+                $resolved = [$this->container->get($class), $method];
             } else {
-                // check if string is something in the DIC that's callable or is a class name which
-                // has an __invoke() method
-                $class = $toResolve;
-                if ($this->container instanceof ContainerInterface &&
-                    $this->container->has($class)) {
-                    $resolved = $this->container->get($class);
-                } else {
-                    if (!class_exists($class)) {
-                        throw new RuntimeException(sprintf('Callable %s does not exist', $class));
-                    }
-                    $resolved = new $class($this->container);
+                if (!class_exists($class)) {
+                    throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
+                $resolved = [new $class($this->container), $method];
             }
         }
 
