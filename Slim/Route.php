@@ -52,6 +52,9 @@ class Route extends Routable implements RouteInterface
      */
     protected $groups;
 
+    /**
+     * @var bool
+     */
     private $finalized = false;
 
     /**
@@ -59,7 +62,7 @@ class Route extends Routable implements RouteInterface
      *
      * One of: false, 'prepend' or 'append'
      *
-     * @var boolean|string
+     * @var bool|string
      */
     protected $outputBuffering = 'append';
 
