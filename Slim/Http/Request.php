@@ -125,6 +125,9 @@ class Request extends Message implements ServerRequestInterface
         'POST' => 1,
         'PUT' => 1,
         'TRACE' => 1,
+        'LINK' => 1,
+        'UNLINK' => 1,
+        
     ];
 
     /**
