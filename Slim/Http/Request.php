@@ -207,15 +207,27 @@ class Request extends Message implements ServerRequestInterface
 
         $this->registerMediaTypeParser('application/xml', function ($input) {
             $backup = libxml_disable_entity_loader(true);
+            $backup_errors = libxml_use_internal_errors(true);
             $result = simplexml_load_string($input);
             libxml_disable_entity_loader($backup);
+            libxml_clear_errors();
+            libxml_use_internal_errors($backup_errors);
+            if ($result === false) {
+                return null;
+            }
             return $result;
         });
 
         $this->registerMediaTypeParser('text/xml', function ($input) {
             $backup = libxml_disable_entity_loader(true);
+            $backup_errors = libxml_use_internal_errors(true);
             $result = simplexml_load_string($input);
             libxml_disable_entity_loader($backup);
+            libxml_clear_errors();
+            libxml_use_internal_errors($backup_errors);
+            if ($result === false) {
+                return null;
+            }
             return $result;
         });
 
@@ -576,7 +588,7 @@ class Request extends Message implements ServerRequestInterface
                 $clone->headers->set('Host', $uri->getHost());
             }
         } else {
-            if ($this->uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeader('Host') === null)) {
+            if ($uri->getHost() !== '' && (!$this->hasHeader('Host') || $this->getHeaderLine('Host') === '')) {
                 $clone->headers->set('Host', $uri->getHost());
             }
         }

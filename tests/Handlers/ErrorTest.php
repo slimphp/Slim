@@ -97,6 +97,22 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * If someone extends the Error handler and calls renderHtmlExceptionOrError with
+     * a parameter that isn't an Exception or Error, then we thrown an Exception.
+     */
+    public function testRenderHtmlExceptionorErrorTypeChecksParameter()
+    {
+        $class = new \ReflectionClass(Error::class);
+        $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
+        $renderHtmlExceptionorError->setAccessible(true);
+
+        $this->setExpectedException(\RuntimeException::class);
+
+        $error = new Error();
+        $renderHtmlExceptionorError->invokeArgs($error, ['foo']);
+    }
+
+    /**
      * @param string $method
      * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
      */
