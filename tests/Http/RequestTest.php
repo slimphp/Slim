@@ -847,6 +847,43 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Josh', $request->getParsedBody()->name);
     }
 
+    /**
+     * Will fail if a simple_xml warning is created
+     */
+    public function testInvalidXmlIsQuietForTextXml()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'text/xml');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></invalid]>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(null, $request->getParsedBody());
+    }
+
+    /**
+     * Will fail if a simple_xml warning is created
+     */
+    public function testInvalidXmlIsQuietForApplicationXml()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/xml');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></invalid]>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(null, $request->getParsedBody());
+    }
+
+
     public function testGetParsedBodyWhenAlreadyParsed()
     {
         $request = $this->requestFactory();
