@@ -382,6 +382,42 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeSame($uri2, 'uri', $clone);
     }
 
+    public function testWithUriPreservesHost()
+    {
+        // When `$preserveHost` is set to `true`, this method interacts with
+        // the Host header in the following ways:
+
+        // - If the the Host header is missing or empty, and the new URI contains
+        //   a host component, this method MUST update the Host header in the returned
+        //   request.
+        $uri1 = Uri::createFromString('');
+        $uri2 = Uri::createFromString('http://example2.com/test');
+
+        // Request
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
+
+        $clone = $request->withUri($uri2, true);
+        $this->assertSame('example2.com', $clone->getHeaderLine('Host'));
+
+        // - If the Host header is missing or empty, and the new URI does not contain a
+        //   host component, this method MUST NOT update the Host header in the returned
+        //   request.
+        $uri3 = Uri::createFromString('');
+
+        $clone = $request->withUri($uri3, true);
+        $this->assertSame('', $clone->getHeaderLine('Host'));
+
+        // - If a Host header is present and non-empty, this method MUST NOT update
+        //   the Host header in the returned request.
+        $request = $request->withHeader('Host', 'example.com');
+        $clone = $request->withUri($uri2, true);
+        $this->assertSame('example.com', $clone->getHeaderLine('Host'));
+    }
+
     public function testGetContentType()
     {
         $headers = new Headers([
