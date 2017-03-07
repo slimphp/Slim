@@ -199,7 +199,7 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $handler The route callable
+     * @param  callable $callable The route callable
      *
      * @return \Slim\Interfaces\RouteInterface
      */
