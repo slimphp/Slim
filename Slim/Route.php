@@ -283,7 +283,7 @@ class Route extends Routable implements RouteInterface
      * Retrieve a specific route argument
      *
      * @param string $name
-     * @param mixed $default
+     * @param string|null $default
      *
      * @return mixed
      */
