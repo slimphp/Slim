@@ -155,6 +155,8 @@ class App
      * @param  string $method
      * @param  array $args
      * @return mixed
+     *
+     * @throws BadMethodCallException
      */
     public function __call($method, $args)
     {
@@ -810,6 +812,8 @@ class App
      *
      * @param ResponseInterface $response
      * @return ResponseInterface
+     *
+     * @throws RuntimeException
      */
     protected function finalize(ResponseInterface $response)
     {

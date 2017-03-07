@@ -125,6 +125,8 @@ class Router implements RouterInterface
      * @param string $basePath
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
      */
     public function setBasePath($basePath)
     {
@@ -143,6 +145,9 @@ class Router implements RouterInterface
      * @param string|false $cacheFile
      *
      * @return self
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     public function setCacheFile($cacheFile)
     {
