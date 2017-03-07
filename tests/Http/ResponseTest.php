@@ -273,8 +273,8 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
     public function testToString()
     {
-        $output = 'HTTP/1.1 404 Not Found' . PHP_EOL .
-                  'X-Foo: Bar' . PHP_EOL . PHP_EOL .
+        $output = 'HTTP/1.1 404 Not Found' . Response::EOL .
+                  'X-Foo: Bar' . Response::EOL . Response::EOL .
                   'Where am I?';
         $this->expectOutputString($output);
         $response = new Response();
