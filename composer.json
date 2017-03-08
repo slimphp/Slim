@@ -32,7 +32,7 @@
         "pimple/pimple": "^3.0",
         "psr/http-message": "^1.0",
         "nikic/fast-route": "^1.0",
-        "container-interop/container-interop": "^1.1"
+        "container-interop/container-interop": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.5",

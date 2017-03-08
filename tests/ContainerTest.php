@@ -9,7 +9,7 @@
 namespace Slim\Tests;
 
 use Slim\Container;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
