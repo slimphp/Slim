@@ -52,6 +52,9 @@ class Route extends Routable implements RouteInterface
      */
     protected $groups;
 
+    /**
+     * @var bool
+     */
     private $finalized = false;
 
     /**
