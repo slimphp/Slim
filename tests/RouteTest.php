@@ -29,7 +29,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
         $callable = function ($req, $res, $args) {
-            // Do something
+            return $res;
         };
 
         return new Route($methods, $pattern, $callable);
@@ -163,29 +163,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $route->setName(false);
     }
 
-    public function testSetOutputBuffering()
-    {
-        $route = $this->routeFactory();
-
-        $route->setOutputBuffering(false);
-        $this->assertFalse($route->getOutputBuffering());
-
-        $route->setOutputBuffering('append');
-        $this->assertSame('append', $route->getOutputBuffering());
-
-        $route->setOutputBuffering('prepend');
-        $this->assertSame('prepend', $route->getOutputBuffering());
-    }
-
-    public function testSetInvalidOutputBuffering()
-    {
-        $route = $this->routeFactory();
-
-        $this->setExpectedException('InvalidArgumentException');
-
-        $route->setOutputBuffering('invalid');
-    }
-
     public function testAddMiddlewareAsString()
     {
         $route = $this->routeFactory();
@@ -263,8 +240,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensure that anything echo'd in a route callable is added to the response
-     * object that is returned by __invoke().
+     * Ensure that anything echo'd in a route callable is, by default, NOT
+     * added to the response object body.
      */
     public function testInvokeWhenEchoingOutput()
     {
@@ -283,9 +260,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
 
+        // We capture output buffer here only to clean test CLI output
+        ob_start();
         $response = $route->__invoke($request, $response);
+        ob_end_clean();
 
-        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertEquals('', (string)$response->getBody()); // Output buffer ignored without optional middleware
         $this->assertEquals(201, $response->getStatusCode());
     }
 
@@ -296,7 +276,9 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testInvokeWhenReturningAString()
     {
         $callable = function ($req, $res, $args) {
-            return "foo";
+            $res->write('foo');
+
+            return $res;
         };
         $route = new Route(['GET'], '/', $callable);
 
@@ -312,33 +294,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $response = $route->__invoke($request, $response);
 
         $this->assertEquals('foo', (string)$response->getBody());
-    }
-
-    /**
-     * Ensure that if `outputBuffering` property is set to `prepend` correct response
-     * body is returned by __invoke().
-     */
-    public function testInvokeWhenPrependingOutputBuffer()
-    {
-        $callable = function ($req, $res, $args) {
-            echo 'foo';
-            return $res->write('bar');
-        };
-        $route = new Route(['GET'], '/', $callable);
-        $route->setOutputBuffering('prepend');
-
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
-
-        $response = $route->__invoke($request, $response);
-
-        $this->assertEquals('foobar', (string)$response->getBody());
     }
 
     /**
@@ -362,38 +317,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $response = new Response;
 
         $response = $route->__invoke($request, $response);
-    }
-
-
-    /**
-     * Ensure that if `outputBuffering` property is set to `false` correct response
-     * body is returned by __invoke().
-     */
-    public function testInvokeWhenDisablingOutputBuffer()
-    {
-        ob_start();
-        $callable = function ($req, $res, $args) {
-            echo 'foo';
-            return $res->write('bar');
-        };
-        $route = new Route(['GET'], '/', $callable);
-        $route->setOutputBuffering(false);
-
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
-
-        $response = $route->__invoke($request, $response);
-
-        $this->assertEquals('bar', (string)$response->getBody());
-
-        $output = ob_get_clean();
-        $this->assertEquals('foo', $output);
     }
 
     /**

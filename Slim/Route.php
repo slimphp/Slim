@@ -55,15 +55,6 @@ class Route extends Routable implements RouteInterface
     private $finalized = false;
 
     /**
-     * Output buffering mode
-     *
-     * One of: false, 'prepend' or 'append'
-     *
-     * @var boolean|string
-     */
-    protected $outputBuffering = 'append';
-
-    /**
      * @var \Slim\Interfaces\InvocationStrategyInterface
      */
     protected $routeInvocationStrategy;
@@ -195,33 +186,6 @@ class Route extends Routable implements RouteInterface
     public function getIdentifier()
     {
         return $this->identifier;
-    }
-
-    /**
-     * Get output buffering mode
-     *
-     * @return boolean|string
-     */
-    public function getOutputBuffering()
-    {
-        return $this->outputBuffering;
-    }
-
-    /**
-     * Set output buffering mode
-     *
-     * One of: false, 'prepend' or 'append'
-     *
-     * @param boolean|string $mode
-     *
-     * @throws InvalidArgumentException If an unknown buffering mode is specified
-     */
-    public function setOutputBuffering($mode)
-    {
-        if (!in_array($mode, [false, 'prepend', 'append'], true)) {
-            throw new InvalidArgumentException('Unknown output buffering mode');
-        }
-        $this->outputBuffering = $mode;
     }
 
     /**
@@ -357,47 +321,11 @@ class Route extends Routable implements RouteInterface
         /** @var InvocationStrategyInterface $handler */
         $handler = $this->routeInvocationStrategy;
 
-        // invoke route callable
-        if ($this->outputBuffering === false) {
-            $newResponse = $handler($callable, $request, $response, $this->arguments);
-        } else {
-            try {
-                ob_start();
-                $newResponse = $handler($callable, $request, $response, $this->arguments);
-                $output = ob_get_clean();
-            // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
-                ob_end_clean();
-                throw $e;
-            // @codeCoverageIgnoreEnd
-            } catch (Exception $e) {
-                ob_end_clean();
-                throw $e;
-            }
+        $routeResponse = $handler($callable, $request, $response, $this->arguments);
+        if (! $routeResponse instanceof ResponseInterface) {
+            throw new \RuntimeException('Route handler must return instance of \Psr\Http\Message\ResponseInterface');
         }
 
-        if ($newResponse instanceof ResponseInterface) {
-            // if route callback returns a ResponseInterface, then use it
-            $response = $newResponse;
-        } elseif (is_string($newResponse)) {
-            // if route callback returns a string, then append it to the response
-            if ($response->getBody()->isWritable()) {
-                $response->getBody()->write($newResponse);
-            }
-        }
-
-        if (!empty($output) && $response->getBody()->isWritable()) {
-            if ($this->outputBuffering === 'prepend') {
-                // prepend output buffer content
-                $body = new Http\Body(fopen('php://temp', 'r+'));
-                $body->write($output . $response->getBody());
-                $response = $response->withBody($body);
-            } elseif ($this->outputBuffering === 'append') {
-                // append output buffer content
-                $response->getBody()->write($output);
-            }
-        }
-
-        return $response;
+        return $routeResponse;
     }
 }
