@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Handlers\NotFound</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Handlers.html" title="Summary of Slim\Handlers"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li class="active">
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li>
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Handlers.AbstractError.html">AbstractError</a></li>
+				<li><a href="class-Slim.Handlers.AbstractHandler.html">AbstractHandler</a></li>
+				<li><a href="class-Slim.Handlers.Error.html">Error</a></li>
+				<li><a href="class-Slim.Handlers.NotAllowed.html">NotAllowed</a></li>
+				<li class="active"><a href="class-Slim.Handlers.NotFound.html">NotFound</a></li>
+				<li><a href="class-Slim.Handlers.PhpError.html">PhpError</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class NotFound</h1>
+
+
+	<div class="description">
+	<p>Default Slim application not found handler.</p>
+
+<p>It outputs a simple message in either JSON, XML or HTML based on the
+Accept header.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+			<a href="class-Slim.Handlers.AbstractHandler.html"><span>Slim\Handlers\AbstractHandler</span></a>
+			
+			
+			
+		</dd>
+		<dd style="padding-left:30px">
+			<img src="resources/inherit.png" alt="Extended by">
+<b><span>Slim\Handlers\NotFound</span></b>			
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Handlers.html">Handlers</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-Slim.Handlers.NotFound.html#16-126" title="Go to source code">Handlers/NotFound.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__invoke" id="___invoke">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___invoke">#</a>
+			<code><a href="source-class-Slim.Handlers.NotFound.html#24-60" title="Go to source code">__invoke</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Invoke not found handler</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Invoke not found handler</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd>The most recent Request object</dd>
+						<dt><var>$response</var></dt>
+						<dd>The most recent Response object</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						UnexpectedValueException
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="renderJsonNotFoundOutput" id="_renderJsonNotFoundOutput">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_renderJsonNotFoundOutput">#</a>
+			<code><a href="source-class-Slim.Handlers.NotFound.html#62-70" title="Go to source code">renderJsonNotFoundOutput</a>( )</code>
+
+			<div class="description short">
+				<p>Return a response for application/json content not found</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return a response for application/json content not found</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="renderXmlNotFoundOutput" id="_renderXmlNotFoundOutput">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_renderXmlNotFoundOutput">#</a>
+			<code><a href="source-class-Slim.Handlers.NotFound.html#72-80" title="Go to source code">renderXmlNotFoundOutput</a>( )</code>
+
+			<div class="description short">
+				<p>Return a response for xml content not found</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return a response for xml content not found</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="renderHtmlNotFoundOutput" id="_renderHtmlNotFoundOutput">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_renderHtmlNotFoundOutput">#</a>
+			<code><a href="source-class-Slim.Handlers.NotFound.html#82-125" title="Go to source code">renderHtmlNotFoundOutput</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span> )</code>
+
+			<div class="description short">
+				<p>Return a response for text/html content not found</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return a response for text/html content not found</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd>The most recent Request object</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+	        <div class="panel-heading"><h3>Methods inherited from <a href="class-Slim.Handlers.AbstractHandler.html#methods">Slim\Handlers\AbstractHandler</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Handlers.AbstractHandler.html#_determineContentType">determineContentType()</a></code>
+			</p>
+		</div>
+
+
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Properties inherited from <a href="class-Slim.Handlers.AbstractHandler.html#properties">Slim\Handlers\AbstractHandler</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Handlers.AbstractHandler.html#$knownContentTypes"><var>$knownContentTypes</var></a></code>
+			</p>
+		</div>
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

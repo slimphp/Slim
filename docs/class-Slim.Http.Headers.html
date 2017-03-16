@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Http\Headers</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Http.html" title="Summary of Slim\Http"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li class="active">
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Http.Body.html">Body</a></li>
+				<li><a href="class-Slim.Http.Cookies.html">Cookies</a></li>
+				<li><a href="class-Slim.Http.Environment.html">Environment</a></li>
+				<li class="active"><a href="class-Slim.Http.Headers.html">Headers</a></li>
+				<li><a href="class-Slim.Http.Message.html">Message</a></li>
+				<li><a href="class-Slim.Http.Request.html">Request</a></li>
+				<li><a href="class-Slim.Http.RequestBody.html">RequestBody</a></li>
+				<li><a href="class-Slim.Http.Response.html">Response</a></li>
+				<li><a href="class-Slim.Http.Stream.html">Stream</a></li>
+				<li><a href="class-Slim.Http.UploadedFile.html">UploadedFile</a></li>
+				<li><a href="class-Slim.Http.Uri.html">Uri</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Headers</h1>
+
+
+	<div class="description">
+	<p>Headers</p>
+
+<p>This class represents a collection of HTTP headers
+that is used in both the HTTP request and response objects.
+It also enables header name case-insensitivity when
+getting or setting a header value.</p>
+
+<p>Each HTTP header can have multiple values. This class
+stores values into an array for each header name. When
+you request a header value, you receive an array of values
+for that header.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+			<a href="class-Slim.Collection.html"><span>Slim\Collection</span></a>
+			
+			 implements 
+				<a href="class-Slim.Interfaces.CollectionInterface.html"><span>Slim\Interfaces\CollectionInterface</span></a>
+			
+			
+		</dd>
+		<dd style="padding-left:30px">
+			<img src="resources/inherit.png" alt="Extended by">
+<b><span>Slim\Http\Headers</span></b>			
+			 implements 
+				<a href="class-Slim.Interfaces.Http.HeadersInterface.html"><span>Slim\Interfaces\Http\HeadersInterface</span></a>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Http.html">Http</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-Slim.Http.Headers.html#14-222" title="Go to source code">Http/Headers.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="createFromEnvironment" id="_createFromEnvironment">
+
+			<td class="attributes"><code>
+				 public static
+				<code><a href="class-Slim.Http.Headers.html">Slim\Http\Headers</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createFromEnvironment">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#43-65" title="Go to source code">createFromEnvironment</a>( <span><code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code> <var>$environment</var></span> )</code>
+
+			<div class="description short">
+				<p>Create new headers collection with data extracted from
+the application Environment object</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new headers collection with data extracted from
+the application Environment object</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$environment</var></dt>
+						<dd>The Slim application Environment</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Headers.html">Slim\Http\Headers</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="determineAuthorization" id="_determineAuthorization">
+
+			<td class="attributes"><code>
+				 public static
+				<code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_determineAuthorization">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#68-89" title="Go to source code">determineAuthorization</a>( <span><code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code> <var>$environment</var></span> )</code>
+
+			<div class="description short">
+				<p>If HTTP_AUTHORIZATION does not exist tries to get it from
+getallheaders() when available.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>If HTTP_AUTHORIZATION does not exist tries to get it from
+getallheaders() when available.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$environment</var></dt>
+						<dd>The Slim application Environment</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="all" id="_all">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_all">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#91-107" title="Go to source code">all</a>( )</code>
+
+			<div class="description short">
+				<p>Return array of HTTP header names and values.
+This method returns the <em>original</em> header name
+as specified by the end user.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return array of HTTP header names and values.
+This method returns the <em>original</em> header name
+as specified by the end user.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+					<h4>Overrides</h4>
+					<div class="list"><code><a href="class-Slim.Collection.html#_all">Slim\Collection::all</a></code></div>
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.CollectionInterface.html#_all">Slim\Interfaces\CollectionInterface::all()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="set" id="_set">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_set">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#109-127" title="Go to source code">set</a>( <span>string <var>$key</var></span>, <span>string <var>$value</var></span> )</code>
+
+			<div class="description short">
+				<p>Set HTTP header value</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Set HTTP header value</p>
+
+<p>This method sets a header value. It replaces
+any values that may already exist for the header name.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+						<dt><var>$value</var></dt>
+						<dd>The header value</dd>
+					</dl></div>
+
+
+
+
+					<h4>Overrides</h4>
+					<div class="list"><code><a href="class-Slim.Collection.html#_set">Slim\Collection::set</a></code></div>
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.CollectionInterface.html#_set">Slim\Interfaces\CollectionInterface::set()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="get" id="_get">
+
+			<td class="attributes"><code>
+				 public 
+				string[]
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_get">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#129-144" title="Go to source code">get</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Get HTTP header value</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get HTTP header value</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+						<dt><var>$default</var></dt>
+						<dd>The default value if key does not exist</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string[]
+					</div>
+
+
+
+					<h4>Overrides</h4>
+					<div class="list"><code><a href="class-Slim.Collection.html#_get">Slim\Collection::get</a></code></div>
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.CollectionInterface.html#_get">Slim\Interfaces\CollectionInterface::get()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getOriginalKey" id="_getOriginalKey">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getOriginalKey">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#146-161" title="Go to source code">getOriginalKey</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Get HTTP header key as originally specified</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get HTTP header key as originally specified</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+						<dt><var>$default</var></dt>
+						<dd>The default value if key does not exist</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="add" id="_add">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_add">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#163-178" title="Go to source code">add</a>( <span>string <var>$key</var></span>, <span>array|string <var>$value</var></span> )</code>
+
+			<div class="description short">
+				<p>Add HTTP header value</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add HTTP header value</p>
+
+<p>This method appends a header value. Unlike the set() method,
+this method <em>appends</em> this new value to any values
+that already exist for this header name.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+						<dt><var>$value</var></dt>
+						<dd>The new header value(s)</dd>
+					</dl></div>
+
+
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.Http.HeadersInterface.html#_add">Slim\Interfaces\Http\HeadersInterface::add()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="has" id="_has">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_has">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#180-190" title="Go to source code">has</a>( <span>string <var>$key</var></span> )</code>
+
+			<div class="description short">
+				<p>Does this collection have a given header?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Does this collection have a given header?</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+					<h4>Overrides</h4>
+					<div class="list"><code><a href="class-Slim.Collection.html#_has">Slim\Collection::has</a></code></div>
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.CollectionInterface.html#_has">Slim\Interfaces\CollectionInterface::has()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="remove" id="_remove">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_remove">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#192-200" title="Go to source code">remove</a>( <span>string <var>$key</var></span> )</code>
+
+			<div class="description short">
+				<p>Remove header from collection</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Remove header from collection</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+					</dl></div>
+
+
+
+
+					<h4>Overrides</h4>
+					<div class="list"><code><a href="class-Slim.Collection.html#_remove">Slim\Collection::remove</a></code></div>
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.CollectionInterface.html#_remove">Slim\Interfaces\CollectionInterface::remove()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="normalizeKey" id="_normalizeKey">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_normalizeKey">#</a>
+			<code><a href="source-class-Slim.Http.Headers.html#202-221" title="Go to source code">normalizeKey</a>( <span>string <var>$key</var></span> )</code>
+
+			<div class="description short">
+				<p>Normalize header name</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Normalize header name</p>
+
+<p>This method transforms header names into a
+normalized form. This is how we enable case-insensitive
+header names in the other methods in this class.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The case-insensitive header name</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>Normalized header name
+					</div>
+
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.Http.HeadersInterface.html#_normalizeKey">Slim\Interfaces\Http\HeadersInterface::normalizeKey()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+	        <div class="panel-heading"><h3>Methods inherited from <a href="class-Slim.Collection.html#methods">Slim\Collection</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Collection.html#___construct">__construct()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_clear">clear()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_count">count()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_getIterator">getIterator()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_keys">keys()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_offsetExists">offsetExists()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_offsetGet">offsetGet()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_offsetSet">offsetSet()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_offsetUnset">offsetUnset()</a></code>, 
+				<code><a href="class-Slim.Collection.html#_replace">replace()</a></code>
+			</p>
+		</div>
+
+
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="special" id="$special">
+			<td class="attributes"><code>
+				protected static 
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Headers.html#29-41" title="Go to source code"><var>$special</var></a>
+
+				<div class="description short">
+					<p>Special HTTP headers that do not have the "HTTP_" prefix</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Special HTTP headers that do not have the "HTTP_" prefix</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$special" class="anchor">#</a>
+					<code>[
+    <span class="php-quote">'CONTENT_TYPE'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'CONTENT_LENGTH'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'PHP_AUTH_USER'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'PHP_AUTH_PW'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'PHP_AUTH_DIGEST'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'AUTH_TYPE'</span> =&gt; <span class="php-num">1</span>,
+]</code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Properties inherited from <a href="class-Slim.Collection.html#properties">Slim\Collection</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Collection.html#$data"><var>$data</var></a></code>
+			</p>
+		</div>
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Router</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.html" title="Summary of Slim"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li>
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.App.html">App</a></li>
+				<li><a href="class-Slim.CallableResolver.html">CallableResolver</a></li>
+				<li><a href="class-Slim.Collection.html">Collection</a></li>
+				<li><a href="class-Slim.Container.html">Container</a></li>
+				<li><a href="class-Slim.DefaultServicesProvider.html">DefaultServicesProvider</a></li>
+				<li><a href="class-Slim.DeferredCallable.html">DeferredCallable</a></li>
+				<li><a href="class-Slim.Routable.html">Routable</a></li>
+				<li><a href="class-Slim.Route.html">Route</a></li>
+				<li><a href="class-Slim.RouteGroup.html">RouteGroup</a></li>
+				<li class="active"><a href="class-Slim.Router.html">Router</a></li>
+			</ul>
+
+
+			<h3>Traits</h3>
+			<ul>
+				<li><a href="class-Slim.CallableResolverAwareTrait.html">CallableResolverAwareTrait</a></li>
+				<li><a href="class-Slim.MiddlewareAwareTrait.html">MiddlewareAwareTrait</a></li>
+			</ul>
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Router</h1>
+
+
+	<div class="description">
+	<p>Router</p>
+
+<p>This class organizes Slim application route objects. It is responsible
+for registering route objects, assigning names to route objects,
+finding routes that match the current HTTP request, and creating
+URLs for a named route.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+<b><span>Slim\Router</span></b>			
+			 implements 
+				<a href="class-Slim.Interfaces.RouterInterface.html"><span>Slim\Interfaces\RouterInterface</span></a>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-Slim.Router.html#23-455" title="Go to source code">Router.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.Router.html#86-94" title="Go to source code">__construct</a>( <span>FastRoute\RouteParser <var>$parser</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Create new router</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new router</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$parser</var></dt>
+						<dd></dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="setBasePath" id="_setBasePath">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Router.html">Slim\Router</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_setBasePath">#</a>
+			<code><a href="source-class-Slim.Router.html#96-112" title="Go to source code">setBasePath</a>( <span>string <var>$basePath</var></span> )</code>
+
+			<div class="description short">
+				<p>Set the base path used in pathFor()</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Set the base path used in pathFor()</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$basePath</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Router.html">Slim\Router</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="setCacheFile" id="_setCacheFile">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Router.html">Slim\Router</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_setCacheFile">#</a>
+			<code><a href="source-class-Slim.Router.html#114-135" title="Go to source code">setCacheFile</a>( <span>string|false <var>$cacheFile</var></span> )</code>
+
+			<div class="description short">
+				<p>Set path to fast route cache file. If this is false then route caching is disabled.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Set path to fast route cache file. If this is false then route caching is disabled.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$cacheFile</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Router.html">Slim\Router</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="setContainer" id="_setContainer">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_setContainer">#</a>
+			<code><a href="source-class-Slim.Router.html#137-143" title="Go to source code">setContainer</a>( <span>Interop\Container\ContainerInterface <var>$container</var></span> )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$container</var></dt>
+						<dd></dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="map" id="_map">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_map">#</a>
+			<code><a href="source-class-Slim.Router.html#145-176" title="Go to source code">map</a>( <span>string[] <var>$methods</var></span>, <span>string <var>$pattern</var></span>, <span>callable <var>$handler</var></span> )</code>
+
+			<div class="description short">
+				<p>Add route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$methods</var></dt>
+						<dd>Array of HTTP methods</dd>
+						<dt><var>$pattern</var></dt>
+						<dd>The route pattern</dd>
+						<dt><var>$handler</var></dt>
+						<dd>The route callable</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>if the route pattern isn't a string
+					</div>
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_map">Slim\Interfaces\RouterInterface::map()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="dispatch" id="_dispatch">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_dispatch">#</a>
+			<code><a href="source-class-Slim.Router.html#178-195" title="Go to source code">dispatch</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span> )</code>
+
+			<div class="description short">
+				<p>Dispatch router for HTTP request</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Dispatch router for HTTP request</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd>The current HTTP request object</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php">https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php</a><br>
+					</div>
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_dispatch">Slim\Interfaces\RouterInterface::dispatch()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="createRoute" id="_createRoute">
+
+			<td class="attributes"><code>
+				 protected 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createRoute">#</a>
+			<code><a href="source-class-Slim.Router.html#197-214" title="Go to source code">createRoute</a>( <span>string[] <var>$methods</var></span>, <span>string <var>$pattern</var></span>, <span>callable <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Create a new Route object</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create a new Route object</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$methods</var></dt>
+						<dd>Array of HTTP methods</dd>
+						<dt><var>$pattern</var></dt>
+						<dd>The route pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callable</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="createDispatcher" id="_createDispatcher">
+
+			<td class="attributes"><code>
+				 protected 
+				FastRoute\Dispatcher
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createDispatcher">#</a>
+			<code><a href="source-class-Slim.Router.html#216-243" title="Go to source code">createDispatcher</a>( )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						FastRoute\Dispatcher
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="setDispatcher" id="_setDispatcher">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_setDispatcher">#</a>
+			<code><a href="source-class-Slim.Router.html#245-251" title="Go to source code">setDispatcher</a>( <span>FastRoute\Dispatcher <var>$dispatcher</var></span> )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$dispatcher</var></dt>
+						<dd></dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getRoutes" id="_getRoutes">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Route.html">Slim\Route</a>[]</code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getRoutes">#</a>
+			<code><a href="source-class-Slim.Router.html#253-261" title="Go to source code">getRoutes</a>( )</code>
+
+			<div class="description short">
+				<p>Get route objects</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get route objects</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Route.html">Slim\Route</a>[]</code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getNamedRoute" id="_getNamedRoute">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Route.html">Slim\Route</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getNamedRoute">#</a>
+			<code><a href="source-class-Slim.Router.html#263-280" title="Go to source code">getNamedRoute</a>( <span>string <var>$name</var></span> )</code>
+
+			<div class="description short">
+				<p>Get named route object</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get named route object</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>Route name</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Route.html">Slim\Route</a></code>
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>If named route does not exist
+					</div>
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_getNamedRoute">Slim\Interfaces\RouterInterface::getNamedRoute()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="removeNamedRoute" id="_removeNamedRoute">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_removeNamedRoute">#</a>
+			<code><a href="source-class-Slim.Router.html#282-295" title="Go to source code">removeNamedRoute</a>( <span>string <var>$name</var></span> )</code>
+
+			<div class="description short">
+				<p>Remove named route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Remove named route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>Route name</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>If named route does not exist
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="processGroups" id="_processGroups">
+
+			<td class="attributes"><code>
+				 protected 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_processGroups">#</a>
+			<code><a href="source-class-Slim.Router.html#297-309" title="Go to source code">processGroups</a>( )</code>
+
+			<div class="description short">
+				<p>Process route groups</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Process route groups</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>A group pattern to prefix routes with
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="pushGroup" id="_pushGroup">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteGroupInterface.html">Slim\Interfaces\RouteGroupInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_pushGroup">#</a>
+			<code><a href="source-class-Slim.Router.html#311-324" title="Go to source code">pushGroup</a>( <span>string <var>$pattern</var></span>, <span>callable <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add a route group to the array</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add a route group to the array</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd></dd>
+						<dt><var>$callable</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteGroupInterface.html">Slim\Interfaces\RouteGroupInterface</a></code>
+					</div>
+
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_pushGroup">Slim\Interfaces\RouterInterface::pushGroup()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="popGroup" id="_popGroup">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.RouteGroup.html">Slim\RouteGroup</a></code>|boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_popGroup">#</a>
+			<code><a href="source-class-Slim.Router.html#326-335" title="Go to source code">popGroup</a>( )</code>
+
+			<div class="description short">
+				<p>Removes the last route group from the array</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Removes the last route group from the array</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.RouteGroup.html">Slim\RouteGroup</a></code>|boolean<br>The RouteGroup if successful, else False
+					</div>
+
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_popGroup">Slim\Interfaces\RouterInterface::popGroup()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="lookupRoute" id="_lookupRoute">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_lookupRoute">#</a>
+			<code><a href="source-class-Slim.Router.html#337-347" title="Go to source code">lookupRoute</a>( <span> <var>$identifier</var></span> )</code>
+
+			<div class="description short">
+				
+			</div>
+
+			<div class="description detailed hidden">
+				
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$identifier</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_lookupRoute">Slim\Interfaces\RouterInterface::lookupRoute()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="relativePathFor" id="_relativePathFor">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_relativePathFor">#</a>
+			<code><a href="source-class-Slim.Router.html#349-410" title="Go to source code">relativePathFor</a>( <span>string <var>$name</var></span>, <span>array <var>$data</var> = []</span>, <span>array <var>$queryParams</var> = []</span> )</code>
+
+			<div class="description short">
+				<p>Build the path for a named route excluding the base path</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Build the path for a named route excluding the base path</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>Route name</dd>
+						<dt><var>$data</var></dt>
+						<dd>Named argument replacement data</dd>
+						<dt><var>$queryParams</var></dt>
+						<dd>Optional query string parameters</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>If named route does not exist<br>
+						InvalidArgumentException<br>If required data not provided
+					</div>
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_relativePathFor">Slim\Interfaces\RouterInterface::relativePathFor()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="pathFor" id="_pathFor">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_pathFor">#</a>
+			<code><a href="source-class-Slim.Router.html#413-434" title="Go to source code">pathFor</a>( <span>string <var>$name</var></span>, <span>array <var>$data</var> = []</span>, <span>array <var>$queryParams</var> = []</span> )</code>
+
+			<div class="description short">
+				<p>Build the path for a named route including the base path</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Build the path for a named route including the base path</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>Route name</dd>
+						<dt><var>$data</var></dt>
+						<dd>Named argument replacement data</dd>
+						<dt><var>$queryParams</var></dt>
+						<dd>Optional query string parameters</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>If named route does not exist<br>
+						InvalidArgumentException<br>If required data not provided
+					</div>
+
+
+
+					<h4>Implementation of</h4>
+					<div class="list"><code><a href="class-Slim.Interfaces.RouterInterface.html#_pathFor">Slim\Interfaces\RouterInterface::pathFor()</a></code></div>
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="urlFor" id="_urlFor">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_urlFor">#</a>
+			<code><a href="source-class-Slim.Router.html#436-454" title="Go to source code">urlFor</a>( <span>string <var>$name</var></span>, <span>array <var>$data</var> = []</span>, <span>array <var>$queryParams</var> = []</span> )</code>
+
+			<div class="description short">
+				<p>Build the path for a named route.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Build the path for a named route.</p>
+
+<p>This method is deprecated. Use pathFor() from now on.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>Route name</dd>
+						<dt><var>$data</var></dt>
+						<dd>Named argument replacement data</dd>
+						<dt><var>$queryParams</var></dt>
+						<dd>Optional query string parameters</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>If named route does not exist<br>
+						InvalidArgumentException<br>If required data not provided
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Constants summary</h2></div>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Constants inherited from <a href="class-Slim.Interfaces.RouterInterface.html#constants">Slim\Interfaces\RouterInterface</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Interfaces.RouterInterface.html#ALLOWED_METHODS"><b>ALLOWED_METHODS</b></a></code>, 
+				<code><a href="class-Slim.Interfaces.RouterInterface.html#DISPATCH_STATUS"><b>DISPATCH_STATUS</b></a></code>
+			</p>
+		</div>
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="container" id="$container">
+			<td class="attributes"><code>
+				protected  
+				Interop\Container\ContainerInterface
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#33-38" title="Go to source code"><var>$container</var></a>
+
+				<div class="description short">
+					<p>Container Interface</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Container Interface</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$container" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="routeParser" id="$routeParser">
+			<td class="attributes"><code>
+				protected  
+				FastRoute\RouteParser
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#40-45" title="Go to source code"><var>$routeParser</var></a>
+
+				<div class="description short">
+					<p>Parser</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Parser</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$routeParser" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="basePath" id="$basePath">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#47-52" title="Go to source code"><var>$basePath</var></a>
+
+				<div class="description short">
+					<p>Base path used in pathFor()</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Base path used in pathFor()</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$basePath" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="cacheFile" id="$cacheFile">
+			<td class="attributes"><code>
+				protected  
+				string|False
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#54-59" title="Go to source code"><var>$cacheFile</var></a>
+
+				<div class="description short">
+					<p>Path to fast route cache file. Set to false to disable route caching</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Path to fast route cache file. Set to false to disable route caching</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$cacheFile" class="anchor">#</a>
+					<code><span class="php-keyword1">false</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="routes" id="$routes">
+			<td class="attributes"><code>
+				protected  
+				<code><a href="class-Slim.Route.html">Slim\Route</a>[]</code>
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#61-66" title="Go to source code"><var>$routes</var></a>
+
+				<div class="description short">
+					<p>Routes</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Routes</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$routes" class="anchor">#</a>
+					<code>[]</code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="routeCounter" id="$routeCounter">
+			<td class="attributes"><code>
+				protected  
+				integer
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#68-72" title="Go to source code"><var>$routeCounter</var></a>
+
+				<div class="description short">
+					<p>Route counter incrementer</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Route counter incrementer</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$routeCounter" class="anchor">#</a>
+					<code><span class="php-num">0</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="routeGroups" id="$routeGroups">
+			<td class="attributes"><code>
+				protected  
+				<code><a href="class-Slim.RouteGroup.html">Slim\RouteGroup</a>[]</code>
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#74-79" title="Go to source code"><var>$routeGroups</var></a>
+
+				<div class="description short">
+					<p>Route groups</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Route groups</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$routeGroups" class="anchor">#</a>
+					<code>[]</code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="dispatcher" id="$dispatcher">
+			<td class="attributes"><code>
+				protected  
+				FastRoute\Dispatcher
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Router.html#81-84" title="Go to source code"><var>$dispatcher</var></a>
+
+				<div class="description short">
+					
+				</div>
+
+				<div class="description detailed hidden">
+					
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$dispatcher" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

@@ -1,0 +1,2501 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Http\Request</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Http.html" title="Summary of Slim\Http"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li class="active">
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Http.Body.html">Body</a></li>
+				<li><a href="class-Slim.Http.Cookies.html">Cookies</a></li>
+				<li><a href="class-Slim.Http.Environment.html">Environment</a></li>
+				<li><a href="class-Slim.Http.Headers.html">Headers</a></li>
+				<li><a href="class-Slim.Http.Message.html">Message</a></li>
+				<li class="active"><a href="class-Slim.Http.Request.html">Request</a></li>
+				<li><a href="class-Slim.Http.RequestBody.html">RequestBody</a></li>
+				<li><a href="class-Slim.Http.Response.html">Response</a></li>
+				<li><a href="class-Slim.Http.Stream.html">Stream</a></li>
+				<li><a href="class-Slim.Http.UploadedFile.html">UploadedFile</a></li>
+				<li><a href="class-Slim.Http.Uri.html">Uri</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Request</h1>
+
+
+	<div class="description">
+	<p>Request</p>
+
+<p>This class represents an HTTP request. It manages
+the request method, URI, headers, cookies, and body
+according to the PSR-7 standard.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+			<a href="class-Slim.Http.Message.html"><span>Slim\Http\Message</span></a>
+			
+			 implements 
+<span>Psr\Http\Message\MessageInterface</span>
+			
+			
+		</dd>
+		<dd style="padding-left:30px">
+			<img src="resources/inherit.png" alt="Extended by">
+<b><span>Slim\Http\Request</span></b>			
+			 implements 
+<span>Psr\Http\Message\ServerRequestInterface</span>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Http.html">Http</a><br>
+		
+
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php">https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php</a><br>
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php">https://github.com/php-fig/http-message/blob/master/src/RequestInterface.php</a><br>
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/ServerRequestInterface.php">https://github.com/php-fig/http-message/blob/master/src/ServerRequestInterface.php</a><br>
+			<b>Located at</b> <a href="source-class-Slim.Http.Request.html#23-1212" title="Go to source code">Http/Request.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="createFromEnvironment" id="_createFromEnvironment">
+
+			<td class="attributes"><code>
+				 public static
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createFromEnvironment">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#130-157" title="Go to source code">createFromEnvironment</a>( <span><code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code> <var>$environment</var></span> )</code>
+
+			<div class="description short">
+				<p>Create new HTTP request with data extracted from the application
+Environment object</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new HTTP request with data extracted from the application
+Environment object</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$environment</var></dt>
+						<dd>The Slim application Environment</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#159-243" title="Go to source code">__construct</a>( <span>string <var>$method</var></span>, <span>Psr\Http\Message\UriInterface <var>$uri</var></span>, <span><code><a href="class-Slim.Interfaces.Http.HeadersInterface.html">Slim\Interfaces\Http\HeadersInterface</a></code> <var>$headers</var></span>, <span>array <var>$cookies</var></span>, <span>array <var>$serverParams</var></span>, <span>Psr\Http\Message\StreamInterface <var>$body</var></span>, <span>array <var>$uploadedFiles</var> = [] </span> )</code>
+
+			<div class="description short">
+				<p>Create new HTTP request.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new HTTP request.</p>
+
+<p>Adds a host header when none was provided and a host is defined in uri.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd>The request method</dd>
+						<dt><var>$uri</var></dt>
+						<dd>The request URI object</dd>
+						<dt><var>$headers</var></dt>
+						<dd>The request headers collection</dd>
+						<dt><var>$cookies</var></dt>
+						<dd>The request cookies collection</dd>
+						<dt><var>$serverParams</var></dt>
+						<dd>The server environment variables</dd>
+						<dt><var>$body</var></dt>
+						<dd>The request body object</dd>
+						<dt><var>$uploadedFiles</var></dt>
+						<dd>The request uploadedFiles collection</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						<code><a href="class-Slim.Exception.InvalidMethodException.html">Slim\Exception\InvalidMethodException</a></code><br>on invalid HTTP method
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__clone" id="___clone">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___clone">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#245-256" title="Go to source code">__clone</a>( )</code>
+
+			<div class="description short">
+				<p>This method is applied to the cloned object
+after PHP performs an initial shallow-copy. This
+method completes a deep-copy by creating new objects
+for the cloned object's internal reference pointers.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>This method is applied to the cloned object
+after PHP performs an initial shallow-copy. This
+method completes a deep-copy by creating new objects
+for the cloned object's internal reference pointers.</p>
+
+
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getMethod" id="_getMethod">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getMethod">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#262-288" title="Go to source code">getMethod</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieves the HTTP method of the request.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieves the HTTP method of the request.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>Returns the request method.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getOriginalMethod" id="_getOriginalMethod">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getOriginalMethod">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#290-300" title="Go to source code">getOriginalMethod</a>( )</code>
+
+			<div class="description short">
+				<p>Get the original HTTP method (ignore override).</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get the original HTTP method (ignore override).</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withMethod" id="_withMethod">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withMethod">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#302-325" title="Go to source code">withMethod</a>( <span>string <var>$method</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the provided HTTP method.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the provided HTTP method.</p>
+
+<p>While HTTP method names are typically all uppercase characters, HTTP
+method names are case-sensitive and thus implementations SHOULD NOT
+modify the given string.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+changed request method.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd>Case-sensitive method.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid HTTP methods.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterMethod" id="_filterMethod">
+
+			<td class="attributes"><code>
+				 protected 
+				null|string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterMethod">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#327-353" title="Go to source code">filterMethod</a>( <span>null|string <var>$method</var></span> )</code>
+
+			<div class="description short">
+				<p>Validate the HTTP method</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Validate the HTTP method</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						null|string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>on invalid HTTP method.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isMethod" id="_isMethod">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isMethod">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#355-366" title="Go to source code">isMethod</a>( <span>string <var>$method</var></span> )</code>
+
+			<div class="description short">
+				<p>Does this request use a given method?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Does this request use a given method?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd>HTTP method</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isGet" id="_isGet">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isGet">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#368-378" title="Go to source code">isGet</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a GET request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a GET request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isPost" id="_isPost">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isPost">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#380-390" title="Go to source code">isPost</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a POST request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a POST request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isPut" id="_isPut">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isPut">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#392-402" title="Go to source code">isPut</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a PUT request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a PUT request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isPatch" id="_isPatch">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isPatch">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#404-414" title="Go to source code">isPatch</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a PATCH request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a PATCH request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isDelete" id="_isDelete">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isDelete">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#416-426" title="Go to source code">isDelete</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a DELETE request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a DELETE request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isHead" id="_isHead">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isHead">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#428-438" title="Go to source code">isHead</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a HEAD request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a HEAD request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isOptions" id="_isOptions">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isOptions">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#440-450" title="Go to source code">isOptions</a>( )</code>
+
+			<div class="description short">
+				<p>Is this a OPTIONS request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this a OPTIONS request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isXhr" id="_isXhr">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isXhr">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#452-462" title="Go to source code">isXhr</a>( )</code>
+
+			<div class="description short">
+				<p>Is this an XHR request?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this an XHR request?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getRequestTarget" id="_getRequestTarget">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getRequestTarget">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#468-505" title="Go to source code">getRequestTarget</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieves the message's request target.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieves the message's request target.</p>
+
+<p>Retrieves the message's request-target either as it will appear (for
+clients), as it appeared at request (for servers), or as it was
+specified for the instance (see withRequestTarget()).</p>
+
+<p>In most cases, this will be the origin-form of the composed URI,
+unless a value was provided to the concrete implementation (see
+withRequestTarget() below).</p>
+
+<p>If no URI is available, and no request-target has been specifically
+provided, this method MUST return the string "/".</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withRequestTarget" id="_withRequestTarget">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withRequestTarget">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#507-536" title="Go to source code">withRequestTarget</a>( <span>mixed <var>$requestTarget</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specific request-target.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specific request-target.</p>
+
+<p>If the request needs a non-origin-form request-target — e.g., for
+specifying an absolute-form, authority-form, or asterisk-form —
+this method may be used to create an instance with the specified
+request-target, verbatim.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+changed request target.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$requestTarget</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>if the request target is invalid
+					</div>
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://tools.ietf.org/html/rfc7230#section-2.7">(for the various
+    request-target forms allowed in request messages)</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getUri" id="_getUri">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\UriInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getUri">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#538-550" title="Go to source code">getUri</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieves the URI instance.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieves the URI instance.</p>
+
+<p>This method MUST return a UriInterface instance.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\UriInterface<br><p>Returns a UriInterface instance
+    representing the URI of the request.</p>
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://tools.ietf.org/html/rfc3986#section-4.3">http://tools.ietf.org/html/rfc3986#section-4.3</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withUri" id="_withUri">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withUri">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#552-598" title="Go to source code">withUri</a>( <span>Psr\Http\Message\UriInterface <var>$uri</var></span>, <span>boolean <var>$preserveHost</var> = <span class="php-keyword1">false</span></span> )</code>
+
+			<div class="description short">
+				<p>Returns an instance with the provided URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns an instance with the provided URI.</p>
+
+<p>This method MUST update the Host header of the returned request by
+default if the URI contains a host component. If the URI does not
+contain a host component, any pre-existing Host header MUST be carried
+over to the returned request.</p>
+
+<p>You can opt-in to preserving the original state of the Host header by
+setting <code>$preserveHost</code> to <code>true</code>. When <code>$preserveHost</code> is set to
+<code>true</code>, this method interacts with the Host header in the following ways:</p>
+
+<ul>
+<li>If the the Host header is missing or empty, and the new URI contains a host component, this method MUST update the Host header in the returned request.</li>
+<li>If the Host header is missing or empty, and the new URI does not contain a host component, this method MUST NOT update the Host header in the returned request.</li>
+<li>If a Host header is present and non-empty, this method MUST NOT update the Host header in the returned request.</li>
+</ul>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+new UriInterface instance.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$uri</var></dt>
+						<dd>New request URI to use.</dd>
+						<dt><var>$preserveHost</var></dt>
+						<dd>Preserve the original state of the Host header.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://tools.ietf.org/html/rfc3986#section-4.3">http://tools.ietf.org/html/rfc3986#section-4.3</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getContentType" id="_getContentType">
+
+			<td class="attributes"><code>
+				 public 
+				string|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getContentType">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#600-612" title="Go to source code">getContentType</a>( )</code>
+
+			<div class="description short">
+				<p>Get request content type.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get request content type.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string|null<br>The request content type, if known
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getMediaType" id="_getMediaType">
+
+			<td class="attributes"><code>
+				 public 
+				string|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getMediaType">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#614-631" title="Go to source code">getMediaType</a>( )</code>
+
+			<div class="description short">
+				<p>Get request media type, if known.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get request media type, if known.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string|null<br>The request media type, minus content-type params
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getMediaTypeParams" id="_getMediaTypeParams">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getMediaTypeParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#633-654" title="Go to source code">getMediaTypeParams</a>( )</code>
+
+			<div class="description short">
+				<p>Get request media type params, if known.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get request media type params, if known.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getContentCharset" id="_getContentCharset">
+
+			<td class="attributes"><code>
+				 public 
+				string|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getContentCharset">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#656-671" title="Go to source code">getContentCharset</a>( )</code>
+
+			<div class="description short">
+				<p>Get request content character set, if known.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get request content character set, if known.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string|null
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getContentLength" id="_getContentLength">
+
+			<td class="attributes"><code>
+				 public 
+				integer|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getContentLength">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#673-685" title="Go to source code">getContentLength</a>( )</code>
+
+			<div class="description short">
+				<p>Get request content length, if known.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get request content length, if known.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer|null
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getCookieParams" id="_getCookieParams">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getCookieParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#691-704" title="Go to source code">getCookieParams</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve cookies.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve cookies.</p>
+
+<p>Retrieves cookies sent by the client to the server.</p>
+
+<p>The data MUST be compatible with the structure of the $_COOKIE
+superglobal.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getCookieParam" id="_getCookieParam">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getCookieParam">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#706-725" title="Go to source code">getCookieParam</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Fetch cookie value from cookies sent by the client to the server.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Fetch cookie value from cookies sent by the client to the server.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The attribute name.</dd>
+						<dt><var>$default</var></dt>
+						<dd>Default value to return if the attribute does not exist.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withCookieParams" id="_withCookieParams">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withCookieParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#727-750" title="Go to source code">withCookieParams</a>( <span>array <var>$cookies</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified cookies.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified cookies.</p>
+
+<p>The data IS NOT REQUIRED to come from the $_COOKIE superglobal, but MUST
+be compatible with the structure of $_COOKIE. Typically, this data will
+be injected at instantiation.</p>
+
+<p>This method MUST NOT update the related Cookie header of the request
+instance, nor related values in the server params.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated cookie values.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$cookies</var></dt>
+						<dd>Array of key/value pairs representing cookies.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getQueryParams" id="_getQueryParams">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getQueryParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#756-781" title="Go to source code">getQueryParams</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve query string arguments.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve query string arguments.</p>
+
+<p>Retrieves the deserialized query string arguments, if any.</p>
+
+<p>Note: the query params might not be in sync with the URI or server
+params. If you need to ensure you are only getting the original
+values, you may need to parse the query string from <code>getUri()-&gt;getQuery()</code>
+or from the <code>QUERY_STRING</code> server param.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withQueryParams" id="_withQueryParams">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withQueryParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#783-811" title="Go to source code">withQueryParams</a>( <span>array <var>$query</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified query string arguments.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified query string arguments.</p>
+
+<p>These values SHOULD remain immutable over the course of the incoming
+request. They MAY be injected during instantiation, such as from PHP's
+$_GET superglobal, or MAY be derived from some other value such as the
+URI. In cases where the arguments are parsed from the URI, the data
+MUST be compatible with what PHP's parse_str() would return for
+purposes of how duplicate query parameters are handled, and how nested
+sets are handled.</p>
+
+<p>Setting query string arguments MUST NOT change the URI stored by the
+request, nor the values in the server params.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated query string arguments.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$query</var></dt>
+						<dd><p>Array of query string arguments, typically from
+    $_GET.</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getUploadedFiles" id="_getUploadedFiles">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getUploadedFiles">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#817-832" title="Go to source code">getUploadedFiles</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve normalized file upload data.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve normalized file upload data.</p>
+
+<p>This method returns upload metadata in a normalized tree, with each leaf
+an instance of Psr\Http\Message\UploadedFileInterface.</p>
+
+<p>These values MAY be prepared from $_FILES or the message body during
+instantiation, or MAY be injected via withUploadedFiles().</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array<br><p>An array tree of UploadedFileInterface instances; an empty
+    array MUST be returned if no data is present.</p>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withUploadedFiles" id="_withUploadedFiles">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withUploadedFiles">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#834-851" title="Go to source code">withUploadedFiles</a>( <span>array <var>$uploadedFiles</var></span> )</code>
+
+			<div class="description short">
+				<p>Create a new instance with the specified uploaded files.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create a new instance with the specified uploaded files.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated body parameters.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$uploadedFiles</var></dt>
+						<dd>An array tree of UploadedFileInterface instances.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>if an invalid structure is provided.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getServerParams" id="_getServerParams">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getServerParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#857-869" title="Go to source code">getServerParams</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve server parameters.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve server parameters.</p>
+
+<p>Retrieves data related to the incoming request environment,
+typically derived from PHP's $_SERVER superglobal. The data IS NOT
+REQUIRED to originate from $_SERVER.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getServerParam" id="_getServerParam">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getServerParam">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#871-885" title="Go to source code">getServerParam</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Retrieve a server parameter.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve a server parameter.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd></dd>
+						<dt><var>$default</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getAttributes" id="_getAttributes">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getAttributes">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#891-905" title="Go to source code">getAttributes</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve attributes derived from the request.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve attributes derived from the request.</p>
+
+<p>The request "attributes" may be used to allow injection of any
+parameters derived from the request: e.g., the results of path
+match operations; the results of decrypting cookies; the results of
+deserializing non-form-encoded message bodies; etc. Attributes
+will be application and request specific, and CAN be mutable.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array<br>Attributes derived from the request.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getAttribute" id="_getAttribute">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getAttribute">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#907-925" title="Go to source code">getAttribute</a>( <span>string <var>$name</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Retrieve a single derived request attribute.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve a single derived request attribute.</p>
+
+<p>Retrieves a single derived request attribute as described in
+getAttributes(). If the attribute has not been previously set, returns
+the default value as provided.</p>
+
+<p>This method obviates the need for a hasAttribute() method, as it allows
+specifying a default value to return if the attribute is not found.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>The attribute name.</dd>
+						<dt><var>$default</var></dt>
+						<dd>Default value to return if the attribute does not exist.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-Slim.Http.Request.html#_getAttributes">Slim\Http\Request::getAttributes()</a></code><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withAttribute" id="_withAttribute">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withAttribute">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#927-948" title="Go to source code">withAttribute</a>( <span>string <var>$name</var></span>, <span>mixed <var>$value</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified derived request attribute.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified derived request attribute.</p>
+
+<p>This method allows setting a single derived request attribute as
+described in getAttributes().</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated attribute.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>The attribute name.</dd>
+						<dt><var>$value</var></dt>
+						<dd>The value of the attribute.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-Slim.Http.Request.html#_getAttributes">Slim\Http\Request::getAttributes()</a></code><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withAttributes" id="_withAttributes">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withAttributes">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#950-971" title="Go to source code">withAttributes</a>( <span>array <var>$attributes</var></span> )</code>
+
+			<div class="description short">
+				<p>Create a new instance with the specified derived request attributes.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create a new instance with the specified derived request attributes.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+<p>This method allows setting all new derived request attributes as
+described in getAttributes().</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return a new instance that has the
+updated attributes.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$attributes</var></dt>
+						<dd>New attributes</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withoutAttribute" id="_withoutAttribute">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withoutAttribute">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#973-993" title="Go to source code">withoutAttribute</a>( <span>string <var>$name</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance that removes the specified derived request attribute.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance that removes the specified derived request attribute.</p>
+
+<p>This method allows removing a single derived request attribute as
+described in getAttributes().</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that removes
+the attribute.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$name</var></dt>
+						<dd>The attribute name.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-Slim.Http.Request.html#_getAttributes">Slim\Http\Request::getAttributes()</a></code><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getParsedBody" id="_getParsedBody">
+
+			<td class="attributes"><code>
+				 public 
+				null|array|object
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getParsedBody">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#999-1047" title="Go to source code">getParsedBody</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve any parameters provided in the request body.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve any parameters provided in the request body.</p>
+
+<p>If the request Content-Type is either application/x-www-form-urlencoded
+or multipart/form-data, and the request method is POST, this method MUST
+return the contents of $_POST.</p>
+
+<p>Otherwise, this method may return any results of deserializing
+the request body content; as parsing returns structured content, the
+potential types MUST be arrays or objects only. A null value indicates
+the absence of body content.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						null|array|object<br><p>The deserialized body parameters, if any.
+    These will typically be an array or object.</p>
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>if the request body media type parser returns an invalid value
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withParsedBody" id="_withParsedBody">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withParsedBody">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1049-1087" title="Go to source code">withParsedBody</a>( <span>null|array|object <var>$data</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified body parameters.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified body parameters.</p>
+
+<p>These MAY be injected during instantiation.</p>
+
+<p>If the request Content-Type is either application/x-www-form-urlencoded
+or multipart/form-data, and the request method is POST, use this method
+ONLY to inject the contents of $_POST.</p>
+
+<p>The data IS NOT REQUIRED to come from $_POST, but MUST be the results of
+deserializing the request body content. Deserialization/parsing returns
+structured data, and, as such, this method ONLY accepts arrays or objects,
+or a null value if nothing was available to parse.</p>
+
+<p>As an example, if content negotiation determines that the request data
+is a JSON payload, this method could be used to create a request
+instance with the deserialized parameters.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated body parameters.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$data</var></dt>
+						<dd><p>The deserialized body data. This will
+    typically be in an array or object.</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br><p>if an unsupported argument type is
+    provided.</p>
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="reparseBody" id="_reparseBody">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_reparseBody">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1089-1101" title="Go to source code">reparseBody</a>( )</code>
+
+			<div class="description short">
+				<p>Force Body to be parsed again.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Force Body to be parsed again.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						<br>$this
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="registerMediaTypeParser" id="_registerMediaTypeParser">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_registerMediaTypeParser">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1103-1119" title="Go to source code">registerMediaTypeParser</a>( <span>string <var>$mediaType</var></span>, <span>callable <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Register media type parser.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Register media type parser.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$mediaType</var></dt>
+						<dd><p>A HTTP media type (excluding content-type
+    params).</p></dd>
+						<dt><var>$callable</var></dt>
+						<dd><p>A callable that returns parsed contents for
+    media type.</p></dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getParam" id="_getParam">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getParam">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1125-1149" title="Go to source code">getParam</a>( <span>string <var>$key</var></span>, <span>string <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Fetch request parameter value from body or query string (in that order).</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Fetch request parameter value from body or query string (in that order).</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>The parameter key.</dd>
+						<dt><var>$default</var></dt>
+						<dd>The default value.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed<br>The parameter value.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getParsedBodyParam" id="_getParsedBodyParam">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getParsedBodyParam">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1151-1172" title="Go to source code">getParsedBodyParam</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Fetch parameter value from request body.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Fetch parameter value from request body.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd></dd>
+						<dt><var>$default</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getQueryParam" id="_getQueryParam">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getQueryParam">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1174-1193" title="Go to source code">getQueryParam</a>( <span>string <var>$key</var></span>, <span>mixed <var>$default</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Fetch parameter value from query string.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Fetch parameter value from query string.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd></dd>
+						<dt><var>$default</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getParams" id="_getParams">
+
+			<td class="attributes"><code>
+				 public 
+				array
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getParams">#</a>
+			<code><a href="source-class-Slim.Http.Request.html#1195-1211" title="Go to source code">getParams</a>( )</code>
+
+			<div class="description short">
+				<p>Fetch assocative array of body and query string parameters.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Fetch assocative array of body and query string parameters.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						array
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+	        <div class="panel-heading"><h3>Methods inherited from <a href="class-Slim.Http.Message.html#methods">Slim\Http\Message</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Http.Message.html#___set">__set()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getBody">getBody()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeader">getHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeaderLine">getHeaderLine()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeaders">getHeaders()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getProtocolVersion">getProtocolVersion()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_hasHeader">hasHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withAddedHeader">withAddedHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withBody">withBody()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withHeader">withHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withProtocolVersion">withProtocolVersion()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withoutHeader">withoutHeader()</a></code>
+			</p>
+		</div>
+
+
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="method" id="$method">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#36-41" title="Go to source code"><var>$method</var></a>
+
+				<div class="description short">
+					<p>The request method</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request method</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$method" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="originalMethod" id="$originalMethod">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#43-48" title="Go to source code"><var>$originalMethod</var></a>
+
+				<div class="description short">
+					<p>The original request method (ignoring override)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The original request method (ignoring override)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$originalMethod" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="uri" id="$uri">
+			<td class="attributes"><code>
+				protected  
+				Psr\Http\Message\UriInterface
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#50-55" title="Go to source code"><var>$uri</var></a>
+
+				<div class="description short">
+					<p>The request URI object</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request URI object</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$uri" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="requestTarget" id="$requestTarget">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#57-62" title="Go to source code"><var>$requestTarget</var></a>
+
+				<div class="description short">
+					<p>The request URI target (path + query string)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request URI target (path + query string)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$requestTarget" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="queryParams" id="$queryParams">
+			<td class="attributes"><code>
+				protected  
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#64-69" title="Go to source code"><var>$queryParams</var></a>
+
+				<div class="description short">
+					<p>The request query string params</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request query string params</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$queryParams" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="cookies" id="$cookies">
+			<td class="attributes"><code>
+				protected  
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#71-76" title="Go to source code"><var>$cookies</var></a>
+
+				<div class="description short">
+					<p>The request cookies</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request cookies</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$cookies" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="serverParams" id="$serverParams">
+			<td class="attributes"><code>
+				protected  
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#78-83" title="Go to source code"><var>$serverParams</var></a>
+
+				<div class="description short">
+					<p>The server environment variables at the time the request was created.</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The server environment variables at the time the request was created.</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$serverParams" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="attributes" id="$attributes">
+			<td class="attributes"><code>
+				protected  
+				<code><a href="class-Slim.Collection.html">Slim\Collection</a></code>
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#85-90" title="Go to source code"><var>$attributes</var></a>
+
+				<div class="description short">
+					<p>The request attributes (route segment names and values)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request attributes (route segment names and values)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$attributes" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="bodyParsed" id="$bodyParsed">
+			<td class="attributes"><code>
+				protected  
+				null|array|object
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#92-97" title="Go to source code"><var>$bodyParsed</var></a>
+
+				<div class="description short">
+					<p>The request body parsed (if possible) into a PHP array or object</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The request body parsed (if possible) into a PHP array or object</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$bodyParsed" class="anchor">#</a>
+					<code><span class="php-keyword1">false</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="bodyParsers" id="$bodyParsers">
+			<td class="attributes"><code>
+				protected  
+				callable[]
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#99-104" title="Go to source code"><var>$bodyParsers</var></a>
+
+				<div class="description short">
+					<p>List of request body parsers (e.g., url-encoded, JSON, XML, multipart)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>List of request body parsers (e.g., url-encoded, JSON, XML, multipart)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$bodyParsers" class="anchor">#</a>
+					<code>[]</code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="uploadedFiles" id="$uploadedFiles">
+			<td class="attributes"><code>
+				protected  
+				Psr\Http\Message\UploadedFileInterface
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#106-111" title="Go to source code"><var>$uploadedFiles</var></a>
+
+				<div class="description short">
+					<p>List of uploaded files</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>List of uploaded files</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$uploadedFiles" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="validMethods" id="$validMethods">
+			<td class="attributes"><code>
+				protected  
+				string[]
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Request.html#113-128" title="Go to source code"><var>$validMethods</var></a>
+
+				<div class="description short">
+					<p>Valid request methods</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Valid request methods</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$validMethods" class="anchor">#</a>
+					<code>[
+    <span class="php-quote">'CONNECT'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'DELETE'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'GET'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'HEAD'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'OPTIONS'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'PATCH'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'POST'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'PUT'</span> =&gt; <span class="php-num">1</span>,
+    <span class="php-quote">'TRACE'</span> =&gt; <span class="php-num">1</span>,
+]</code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Properties inherited from <a href="class-Slim.Http.Message.html#properties">Slim\Http\Message</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Http.Message.html#$body"><var>$body</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$headers"><var>$headers</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$protocolVersion"><var>$protocolVersion</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$validProtocolVersions"><var>$validProtocolVersions</var></a></code>
+			</p>
+		</div>
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

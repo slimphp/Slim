@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Http\Stream</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Http.html" title="Summary of Slim\Http"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li class="active">
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Http.Body.html">Body</a></li>
+				<li><a href="class-Slim.Http.Cookies.html">Cookies</a></li>
+				<li><a href="class-Slim.Http.Environment.html">Environment</a></li>
+				<li><a href="class-Slim.Http.Headers.html">Headers</a></li>
+				<li><a href="class-Slim.Http.Message.html">Message</a></li>
+				<li><a href="class-Slim.Http.Request.html">Request</a></li>
+				<li><a href="class-Slim.Http.RequestBody.html">RequestBody</a></li>
+				<li><a href="class-Slim.Http.Response.html">Response</a></li>
+				<li class="active"><a href="class-Slim.Http.Stream.html">Stream</a></li>
+				<li><a href="class-Slim.Http.UploadedFile.html">UploadedFile</a></li>
+				<li><a href="class-Slim.Http.Uri.html">Uri</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Stream</h1>
+
+
+	<div class="description">
+	<p>Represents a data stream as defined in PSR-7.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+<b><span>Slim\Http\Stream</span></b>			
+			 implements 
+<span>Psr\Http\Message\StreamInterface</span>
+			
+			
+		</dd>
+	</dl>
+
+
+	<div>
+		<h3>Direct known subclasses</h3>
+		<p class="elementList">
+			<code><a href="class-Slim.Http.Body.html">Slim\Http\Body</a></code>
+		</p>
+	</div>
+
+	<div>
+		<h3>Indirect known subclasses</h3>
+		<p class="elementList">
+			<code><a href="class-Slim.Http.RequestBody.html">Slim\Http\RequestBody</a></code>
+		</p>
+	</div>
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Http.html">Http</a><br>
+		
+
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php">https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php</a><br>
+			<b>Located at</b> <a href="source-class-Slim.Http.Stream.html#15-450" title="Go to source code">Http/Stream.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#89-99" title="Go to source code">__construct</a>( <span>resource <var>$stream</var></span> )</code>
+
+			<div class="description short">
+				<p>Create a new Stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create a new Stream.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$stream</var></dt>
+						<dd>A PHP resource handle.</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>If argument is not a resource.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getMetadata" id="_getMetadata">
+
+			<td class="attributes"><code>
+				 public 
+				array|mixed|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getMetadata">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#101-123" title="Go to source code">getMetadata</a>( <span>string <var>$key</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Get stream metadata as an associative array or retrieve a specific key.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get stream metadata as an associative array or retrieve a specific key.</p>
+
+<p>The keys returned are identical to the keys returned from PHP's
+stream_get_meta_data() function.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$key</var></dt>
+						<dd>Specific metadata to retrieve.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						array|mixed|null<br><p>Returns an associative array if no key is
+    provided. Returns a specific key value if a key is provided and the
+    value is found, or null if the key is not found.</p>
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://php.net/manual/en/function.stream-get-meta-data.php">http://php.net/manual/en/function.stream-get-meta-data.php</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isAttached" id="_isAttached">
+
+			<td class="attributes"><code>
+				 protected 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isAttached">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#125-135" title="Go to source code">isAttached</a>( )</code>
+
+			<div class="description short">
+				<p>Is a resource attached to this stream?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is a resource attached to this stream?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="attach" id="_attach">
+
+			<td class="attributes"><code>
+				 protected 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_attach">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#137-157" title="Go to source code">attach</a>( <span>resource <var>$newStream</var></span> )</code>
+
+			<div class="description short">
+				<p>Attach new resource to this object.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Attach new resource to this object.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$newStream</var></dt>
+						<dd>A PHP resource handle.</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>If argument is not a valid PHP resource.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="detach" id="_detach">
+
+			<td class="attributes"><code>
+				 public 
+				resource|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_detach">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#159-178" title="Go to source code">detach</a>( )</code>
+
+			<div class="description short">
+				<p>Separates any underlying resources from the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Separates any underlying resources from the stream.</p>
+
+<p>After the stream has been detached, the stream is in an unusable state.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						resource|null<br>Underlying PHP stream, if any
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__toString" id="___toString">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___toString">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#180-206" title="Go to source code">__toString</a>( )</code>
+
+			<div class="description short">
+				<p>Reads all data from the stream into a string, from the beginning to end.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Reads all data from the stream into a string, from the beginning to end.</p>
+
+<p>This method MUST attempt to seek to the beginning of the stream before
+reading data and read the stream until the end is reached.</p>
+
+<p>Warning: This could attempt to load a large amount of data into memory.</p>
+
+<p>This method MUST NOT raise an exception in order to conform with PHP's
+string casting operations.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							http://php.net/manual/en/language.oop5.magic.php#object.tostring<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="close" id="_close">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_close">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#208-222" title="Go to source code">close</a>( )</code>
+
+			<div class="description short">
+				<p>Closes the stream and any underlying resources.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Closes the stream and any underlying resources.</p>
+
+
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getSize" id="_getSize">
+
+			<td class="attributes"><code>
+				 public 
+				integer|null
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getSize">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#224-237" title="Go to source code">getSize</a>( )</code>
+
+			<div class="description short">
+				<p>Get the size of the stream if known.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Get the size of the stream if known.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer|null<br>Returns the size in bytes if known, or null if unknown.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="tell" id="_tell">
+
+			<td class="attributes"><code>
+				 public 
+				integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_tell">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#239-253" title="Go to source code">tell</a>( )</code>
+
+			<div class="description short">
+				<p>Returns the current position of the file read/write pointer</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns the current position of the file read/write pointer</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer<br>Position of the file pointer
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>on error.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="eof" id="_eof">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_eof">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#255-263" title="Go to source code">eof</a>( )</code>
+
+			<div class="description short">
+				<p>Returns true if the stream is at the end of the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns true if the stream is at the end of the stream.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isReadable" id="_isReadable">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isReadable">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#265-290" title="Go to source code">isReadable</a>( )</code>
+
+			<div class="description short">
+				<p>Returns whether or not the stream is readable.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns whether or not the stream is readable.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isWritable" id="_isWritable">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isWritable">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#292-313" title="Go to source code">isWritable</a>( )</code>
+
+			<div class="description short">
+				<p>Returns whether or not the stream is writable.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns whether or not the stream is writable.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isSeekable" id="_isSeekable">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isSeekable">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#315-331" title="Go to source code">isSeekable</a>( )</code>
+
+			<div class="description short">
+				<p>Returns whether or not the stream is seekable.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns whether or not the stream is seekable.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="seek" id="_seek">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_seek">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#333-353" title="Go to source code">seek</a>( <span>integer <var>$offset</var></span>, <span>integer <var>$whence</var> = SEEK_SET</span> )</code>
+
+			<div class="description short">
+				<p>Seek to a position in the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Seek to a position in the stream.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$offset</var></dt>
+						<dd>Stream offset</dd>
+						<dt><var>$whence</var></dt>
+						<dd><p>Specifies how the cursor position will be calculated
+    based on the seek offset. Valid values are identical to the built-in
+    PHP $whence values for <code>fseek()</code>.  SEEK_SET: Set position equal to
+    offset bytes SEEK_CUR: Set position to current location plus offset
+    SEEK_END: Set position to end-of-stream plus offset.</p></dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>on failure.
+					</div>
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://www.php.net/manual/en/function.fseek.php">http://www.php.net/manual/en/function.fseek.php</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="rewind" id="_rewind">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_rewind">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#355-372" title="Go to source code">rewind</a>( )</code>
+
+			<div class="description short">
+				<p>Seek to the beginning of the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Seek to the beginning of the stream.</p>
+
+<p>If the stream is not seekable, this method will raise an exception;
+otherwise, it will perform a seek(0).</p>
+
+
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>on failure.
+					</div>
+
+					<h4>See</h4>
+					<div class="list">
+							<code><a href="class-Slim.Http.Stream.html#_seek">Slim\Http\Stream::seek()</a></code><br>
+					</div>
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://www.php.net/manual/en/function.fseek.php">http://www.php.net/manual/en/function.fseek.php</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="read" id="_read">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_read">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#374-393" title="Go to source code">read</a>( <span>integer <var>$length</var></span> )</code>
+
+			<div class="description short">
+				<p>Read data from the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Read data from the stream.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$length</var></dt>
+						<dd><p>Read up to $length bytes from the object and return
+    them. Fewer than $length bytes may be returned if underlying stream
+    call returns fewer bytes.</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br><p>Returns the data read from the stream, or an empty string
+    if no bytes are available.</p>
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>if an error occurs.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="write" id="_write">
+
+			<td class="attributes"><code>
+				 public 
+				integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_write">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#395-414" title="Go to source code">write</a>( <span>string <var>$string</var></span> )</code>
+
+			<div class="description short">
+				<p>Write data to the stream.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Write data to the stream.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$string</var></dt>
+						<dd>The string that is to be written.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer<br>Returns the number of bytes written to the stream.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br>on failure.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getContents" id="_getContents">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getContents">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#416-431" title="Go to source code">getContents</a>( )</code>
+
+			<div class="description short">
+				<p>Returns the remaining contents in a string</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns the remaining contents in a string</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException<br><p>if unable to read or an error occurs while
+    reading.</p>
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isPipe" id="_isPipe">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isPipe">#</a>
+			<code><a href="source-class-Slim.Http.Stream.html#433-449" title="Go to source code">isPipe</a>( )</code>
+
+			<div class="description short">
+				<p>Returns whether or not the stream is a pipe.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Returns whether or not the stream is a pipe.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Constants summary</h2></div>
+			<table class="summary table table-bordered table-striped constants" id="constants">
+			<tr data-order="FSTAT_MODE_S_IFIFO" id="FSTAT_MODE_S_IFIFO">
+
+				<td class="attributes"><code>integer</code></td>
+				<td class="name">
+					<code>
+						<a href="source-class-Slim.Http.Stream.html#22-27" title="Go to source code"><b>FSTAT_MODE_S_IFIFO</b></a>
+					</code>
+
+					<div class="description short">
+						<p>Bit mask to determine if the stream is a pipe</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Bit mask to determine if the stream is a pipe</p>
+
+<p>This is octal as per header stat.h</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#FSTAT_MODE_S_IFIFO" class="anchor">#</a>
+						<code><span class="php-num">0010000</span></code>
+					</div>
+				</td>
+			</tr>
+			</table>
+		</div>
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="modes" id="$modes">
+			<td class="attributes"><code>
+				protected static 
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#29-38" title="Go to source code"><var>$modes</var></a>
+
+				<div class="description short">
+					<p>Resource modes</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Resource modes</p>
+
+						<h4>Link</h4>
+						<div class="list">
+								<a href="http://php.net/manual/function.fopen.php">http://php.net/manual/function.fopen.php</a><br>
+						</div>
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$modes" class="anchor">#</a>
+					<code>[
+    <span class="php-quote">'readable'</span> =&gt; [<span class="php-quote">'r'</span>, <span class="php-quote">'r+'</span>, <span class="php-quote">'w+'</span>, <span class="php-quote">'a+'</span>, <span class="php-quote">'x+'</span>, <span class="php-quote">'c+'</span>],
+    <span class="php-quote">'writable'</span> =&gt; [<span class="php-quote">'r+'</span>, <span class="php-quote">'w'</span>, <span class="php-quote">'w+'</span>, <span class="php-quote">'a'</span>, <span class="php-quote">'a+'</span>, <span class="php-quote">'x'</span>, <span class="php-quote">'x+'</span>, <span class="php-quote">'c'</span>, <span class="php-quote">'c+'</span>],
+]</code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="stream" id="$stream">
+			<td class="attributes"><code>
+				protected  
+				resource
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#40-45" title="Go to source code"><var>$stream</var></a>
+
+				<div class="description short">
+					<p>The underlying stream resource</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The underlying stream resource</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$stream" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="meta" id="$meta">
+			<td class="attributes"><code>
+				protected  
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#47-52" title="Go to source code"><var>$meta</var></a>
+
+				<div class="description short">
+					<p>Stream metadata</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Stream metadata</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$meta" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="readable" id="$readable">
+			<td class="attributes"><code>
+				protected  
+				boolean
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#54-59" title="Go to source code"><var>$readable</var></a>
+
+				<div class="description short">
+					<p>Is this stream readable?</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Is this stream readable?</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$readable" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="writable" id="$writable">
+			<td class="attributes"><code>
+				protected  
+				boolean
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#61-66" title="Go to source code"><var>$writable</var></a>
+
+				<div class="description short">
+					<p>Is this stream writable?</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Is this stream writable?</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$writable" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="seekable" id="$seekable">
+			<td class="attributes"><code>
+				protected  
+				boolean
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#68-73" title="Go to source code"><var>$seekable</var></a>
+
+				<div class="description short">
+					<p>Is this stream seekable?</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Is this stream seekable?</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$seekable" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="size" id="$size">
+			<td class="attributes"><code>
+				protected  
+				null|integer
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#75-80" title="Go to source code"><var>$size</var></a>
+
+				<div class="description short">
+					<p>The size of the stream if known</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>The size of the stream if known</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$size" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="isPipe" id="$isPipe">
+			<td class="attributes"><code>
+				protected  
+				boolean
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Stream.html#82-87" title="Go to source code"><var>$isPipe</var></a>
+
+				<div class="description short">
+					<p>Is this stream a pipe?</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Is this stream a pipe?</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$isPipe" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
