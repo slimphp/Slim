@@ -35,8 +35,8 @@
         "container-interop/container-interop": "^1.1"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^2.5",
-        "phpunit/phpunit": "^4.0"
+        "squizlabs/php_codesniffer": "^2.8",
+        "phpunit/phpunit": "^5.7"
     },
     "provide": {
         "psr/http-message-implementation": "1.0"
