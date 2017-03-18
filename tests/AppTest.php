@@ -9,7 +9,6 @@
 
 namespace Slim\Tests;
 
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Container;
