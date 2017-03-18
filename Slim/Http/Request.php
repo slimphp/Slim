@@ -1192,7 +1192,7 @@ class Request extends Message implements ServerRequestInterface
     }
 
     /**
-     * Fetch assocative array of body and query string parameters.
+     * Fetch associative array of body and query string parameters.
      *
      * Note: This method is not part of the PSR-7 standard.
      *
