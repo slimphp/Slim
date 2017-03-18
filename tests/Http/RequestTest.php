@@ -787,6 +787,36 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
+    public function testGetParsedBodyInvalidJson()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{foo}bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodySemiValidJson()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('"foo bar"');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
     public function testGetParsedBodyWithJsonStructuredSuffix()
     {
         $method = 'GET';
