@@ -196,6 +196,7 @@ class Uri implements UriInterface
         // parse_url() requires a full URL. As we don't extract the domain name or scheme,
         // we use a stand-in.
         $requestUri = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
+        $requestUri = rawurldecode($requestUri);
 
         $basePath = '';
         $virtualPath = $requestUri;
