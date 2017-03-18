@@ -509,14 +509,11 @@ class UriTest extends \PHPUnit_Framework_TestCase
     {
         $environment = Environment::mock([
             'SCRIPT_NAME' => "/f'oo bar/index.php",
-            'REQUEST_URI' => "/f'oo%20bar/baz",
+            'REQUEST_URI' => "/f%27oo%20bar/baz",
         ]);
         $uri = Uri::createFromEnvironment($environment);
 
-        $this->assertEquals("/f%27oo%20bar", $uri->getBasePath());
         $this->assertEquals('baz', $uri->getPath());
-
-        $this->assertEquals('http://localhost/f%27oo%20bar/baz', (string) $uri);
     }
 
     public function testGetBaseUrl()
