@@ -36,7 +36,7 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.5",
-        "phpunit/phpunit": "^4.0"
+        "phpunit/phpunit": "^5.0"
     },
     "provide": {
         "psr/http-message-implementation": "1.0"
