@@ -10,7 +10,6 @@ namespace Slim\Http;
 
 use InvalidArgumentException;
 use \Psr\Http\Message\UriInterface;
-use Slim\Http\Environment;
 
 /**
  * Value object representing a URI.

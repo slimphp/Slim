@@ -8,12 +8,9 @@
  */
 namespace Slim;
 
-use Closure;
 use Exception;
 use FastRoute\Dispatcher;
 use Interop\Container\ContainerInterface;
-use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\InvalidMethodException;
@@ -23,13 +20,7 @@ use Slim\Handlers\Error;
 use Slim\Handlers\NotAllowed;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\PhpError;
-use Slim\Http\Body;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
