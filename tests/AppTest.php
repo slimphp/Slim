@@ -2154,7 +2154,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $method = new \ReflectionMethod('Slim\App', 'handlePhpError');
         $method->setAccessible(true);
 
-        $throwable = $this->getMockBuilder('\Throwable')->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
+        $throwable = $this->getMockBuilder('\Throwable')
+            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
         $res = new Response();

@@ -90,7 +90,8 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $this->skipIfPhp70();
         $error = new PhpError();
 
-        $throwable = $this->getMockBuilder('\Throwable')->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
+        $throwable = $this->getMockBuilder('\Throwable')
+            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
 
         /** @var \Throwable $throwable */
 
@@ -115,7 +116,8 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
         $error = new PhpError(true);
 
-        $throwable = $this->getMockBuilder('\Throwable')->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
+        $throwable = $this->getMockBuilder('\Throwable')
+            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
 
         $throwablePrev = clone $throwable;
 
