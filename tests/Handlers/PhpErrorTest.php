@@ -90,10 +90,8 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $this->skipIfPhp70();
         $error = new PhpError();
 
-        $throwable = $this->getMock(
-            '\Throwable',
-            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
-        );
+        $throwable = $this->getMockBuilder('\Throwable')
+            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
 
         /** @var \Throwable $throwable */
 
@@ -118,10 +116,8 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
         $error = new PhpError(true);
 
-        $throwable = $this->getMock(
-            '\Throwable',
-            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
-        );
+        $throwable = $this->getMockBuilder('\Throwable')
+            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
 
         $throwablePrev = clone $throwable;
 
@@ -148,7 +144,8 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
     public function testNotFoundContentType5()
     {
         $this->skipIfPhp70();
-        $errorMock = $this->getMock(PhpError::class, ['determineContentType']);
+        $errorMock = $this->getMockBuilder(PhpError::class)->setMethods(['determineContentType'])->getMock();
+
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
