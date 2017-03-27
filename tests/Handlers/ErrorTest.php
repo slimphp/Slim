@@ -8,11 +8,12 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\Error;
 use Slim\Http\Response;
 use UnexpectedValueException;
 
-class ErrorTest extends \PHPUnit_Framework_TestCase
+class ErrorTest extends TestCase
 {
     public function errorProvider()
     {
@@ -62,6 +63,9 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
     }
 
+    /**
+     * @expectedException \UnexpectedValueException
+     */
     public function testNotFoundContentType()
     {
         $errorMock = $this->getMockBuilder(Error::class)->setMethods(['determineContentType'])->getMock();
@@ -72,7 +76,6 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), $e);
     }
 
@@ -99,14 +102,14 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     /**
      * If someone extends the Error handler and calls renderHtmlExceptionOrError with
      * a parameter that isn't an Exception or Error, then we thrown an Exception.
+     *
+     * @expectedException \RuntimeException
      */
     public function testRenderHtmlExceptionorErrorTypeChecksParameter()
     {
         $class = new \ReflectionClass(Error::class);
         $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
         $renderHtmlExceptionorError->setAccessible(true);
-
-        $this->setExpectedException(\RuntimeException::class);
 
         $error = new Error();
         $renderHtmlExceptionorError->invokeArgs($error, ['foo']);

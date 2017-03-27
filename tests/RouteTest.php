@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Slim\CallableResolver;
 use Slim\Container;
 use Slim\DeferredCallable;
@@ -22,7 +23,7 @@ use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 
-class RouteTest extends \PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
     public function routeFactory()
     {
@@ -154,12 +155,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo', $route->getName());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetInvalidName()
     {
         $route = $this->routeFactory();
-
-        $this->setExpectedException('InvalidArgumentException');
-
         $route->setName(false);
     }
 
@@ -177,12 +178,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('prepend', $route->getOutputBuffering());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testSetInvalidOutputBuffering()
     {
         $route = $this->routeFactory();
-
-        $this->setExpectedException('InvalidArgumentException');
-
         $route->setOutputBuffering('invalid');
     }
 

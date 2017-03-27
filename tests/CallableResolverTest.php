@@ -8,12 +8,13 @@
  */
 namespace Slim\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 
-class CallableResolverTest extends \PHPUnit_Framework_TestCase
+class CallableResolverTest extends TestCase
 {
     /**
      * @var Container
@@ -107,32 +108,42 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(1, InvokableTest::$CalledCount);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testMethodNotFoundThrowException()
     {
         $this->container['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
         $resolver->resolve('callable_service:noFound');
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testFunctionNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
         $resolver->resolve('noFound');
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Callable Unknown does not exist
+     */
     public function testClassNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'Callable Unknown does not exist');
         $resolver->resolve('Unknown:notFound');
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage is not resolvable
+     */
     public function testCallableClassNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'is not resolvable');
         $resolver->resolve(['Unknown', 'notFound']);
     }
 }

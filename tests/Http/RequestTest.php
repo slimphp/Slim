@@ -9,6 +9,7 @@
 
 namespace Slim\Tests\Http;
 
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Collection;
 use Slim\Http\Environment;
@@ -18,7 +19,7 @@ use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestTest extends TestCase
 {
     public function requestFactory($envData = [])
     {
