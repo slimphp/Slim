@@ -217,7 +217,8 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     public function testMoveToStream()
     {
         $uploadedFile = $this->generateNewTmpFile();
-        $uploadedFile->moveTo('php://temp');
+        $stream = $uploadedFile->getStream();
+        $this->assertEquals('12345678', $stream->getContents());
     }
 
     public function providerCreateFromEnvironment()
