@@ -9,13 +9,10 @@
 
 namespace Slim\Tests;
 
-use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
-use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
