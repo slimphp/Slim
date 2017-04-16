@@ -10,7 +10,6 @@ namespace Slim\Tests\Handlers;
 
 use Slim\Handlers\Error;
 use Slim\Http\Response;
-use UnexpectedValueException;
 
 class ErrorTest extends \PHPUnit_Framework_TestCase
 {
