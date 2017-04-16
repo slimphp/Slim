@@ -17,7 +17,7 @@ use Slim\Exception\ContainerException as SlimContainerException;
 /**
  * Slim's default DI container is Pimple.
  *
- * Slim\App expects a container that implements Interop\Container\ContainerInterface
+ * Slim\App expects a container that implements Psr\Container\ContainerInterface
  * with these service keys configured and ready for use:
  *
  *  - settings: an array or instance of \ArrayAccess
@@ -101,7 +101,7 @@ class Container extends PimpleContainer implements ContainerInterface
     }
 
     /********************************************************************************
-     * Methods to satisfy Interop\Container\ContainerInterface
+     * Methods to satisfy Psr\Container\ContainerInterface
      *******************************************************************************/
 
     /**
