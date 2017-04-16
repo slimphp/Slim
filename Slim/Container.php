@@ -49,7 +49,7 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @var array
      */
-    private $defaultSettings = [
+    protected $defaultSettings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
         'outputBuffering' => 'append',
@@ -82,7 +82,7 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @return void
      */
-    private function registerDefaultServices($userSettings)
+    protected function registerDefaultServices($userSettings)
     {
         $defaultSettings = $this->defaultSettings;
 
