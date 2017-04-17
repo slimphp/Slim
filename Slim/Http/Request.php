@@ -110,23 +110,6 @@ class Request extends Message implements ServerRequestInterface
     protected $uploadedFiles;
 
     /**
-     * Valid request methods
-     *
-     * @var string[]
-     */
-    protected $validMethods = [
-        'CONNECT' => 1,
-        'DELETE' => 1,
-        'GET' => 1,
-        'HEAD' => 1,
-        'OPTIONS' => 1,
-        'PATCH' => 1,
-        'POST' => 1,
-        'PUT' => 1,
-        'TRACE' => 1,
-    ];
-
-    /**
      * Create new HTTP request with data extracted from the application
      * Environment object
      *
@@ -348,7 +331,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $method = strtoupper($method);
-        if (!isset($this->validMethods[$method])) {
+        if (preg_match("/^[!#$%&'*+.^_`|~0-9a-z-]+$/i", $method) !== 1) {
             throw new InvalidMethodException($this, $method);
         }
 
