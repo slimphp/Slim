@@ -606,4 +606,11 @@ class UriTest extends TestCase
         );
         $this->assertEquals('abc=123', $uri->getQuery());
     }
+
+    public function testAtSignsInPasswordArePercentEncoded()
+    {
+        $url = new \Slim\Http\Uri('https', 'example.com', 443, '/', '', '', 'foo', 'b@r');
+        $result = $url->getBaseUrl();
+        $this->assertSame('https://foo:b%40r@example.com', $result);
+    }
 }
