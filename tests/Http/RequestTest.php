@@ -74,12 +74,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
+    public function testWithAllAllowedCharactersMethod()
+    {
+        $request = $this->requestFactory()->withMethod("!#$%&'*+.^_`|~09AZ-");
+
+        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'method', $request);
+        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'originalMethod', $request);
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
     public function testWithMethodInvalid()
     {
-        $this->requestFactory()->withMethod('FOO');
+        $this->requestFactory()->withMethod('B@R');
     }
 
     public function testWithMethodNull()
@@ -208,7 +216,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $cookies = [];
         $serverParams = [];
         $body = new RequestBody();
-        $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('B@R', $uri, $headers, $cookies, $serverParams, $body);
     }
 
     /**

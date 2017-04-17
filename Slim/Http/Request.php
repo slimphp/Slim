@@ -114,6 +114,7 @@ class Request extends Message implements ServerRequestInterface
      * Valid request methods
      *
      * @var string[]
+     * @deprecated
      */
     protected $validMethods = [
         'CONNECT' => 1,
@@ -349,7 +350,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $method = strtoupper($method);
-        if (!isset($this->validMethods[$method])) {
+        if (preg_match("/^[!#$%&'*+.^_`|~0-9a-z-]+$/i", $method) !== 1) {
             throw new InvalidMethodException($this, $method);
         }
 
