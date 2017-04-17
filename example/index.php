@@ -6,7 +6,7 @@
  * If you are not using Composer, you need to load Slim Framework with your own
  * PSR-4 autoloader.
  */
-require 'vendor/autoload.php';
+require '../vendor/autoload.php';
 
 /**
  * Step 2: Instantiate a Slim application
