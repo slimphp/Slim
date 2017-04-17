@@ -175,6 +175,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeContains('PATCH', 'methods', $route);
         $this->assertAttributeContains('DELETE', 'methods', $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
+        $this->assertAttributeContains('LINK', 'methods', $route);
+        $this->assertAttributeContains('UNLINK', 'methods', $route);
     }
 
     public function testMapRoute()
