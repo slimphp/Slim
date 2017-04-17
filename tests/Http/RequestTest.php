@@ -544,6 +544,62 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($request->getContentLength());
     }
 
+    public function testSingleGetAcceptHeaders()
+    {
+        $headers = new Headers([
+            'Accept' => '*/*',
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $headers);
+
+        $this->assertEquals(1, count($request->getAcceptHeaders()));
+        $this->assertTrue(in_array('*/*', $request->getAcceptHeaders()));
+        $this->assertFalse(in_array('application/json', $request->getAcceptHeaders()));
+    }
+
+    public function testMultipleGetAcceptHeaders()
+    {
+        $headers = new Headers([
+            'Accept' => '*/*, application/json',
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $headers);
+
+        $this->assertEquals(2, count($request->getAcceptHeaders()));
+        $this->assertTrue(in_array('*/*', $request->getAcceptHeaders()));
+        $this->assertTrue(in_array('application/json', $request->getAcceptHeaders()));
+    }
+
+    public function testGetAcceptHeadersWithoutHeader()
+    {
+        $headers = new Headers([]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $headers);
+
+        $this->assertEmpty($request->getAcceptHeaders());
+    }
+
+    public function testHasAcceptHeader()
+    {
+        $headers = new Headers([
+            'Accept' => '*/*, application/json',
+        ]);
+        $request = $this->requestFactory();
+        $headersProp = new \ReflectionProperty($request, 'headers');
+        $headersProp->setAccessible(true);
+        $headersProp->setValue($request, $headers);
+
+        $this->assertTrue($request->hasAcceptHeader('*/*'));
+        $this->assertTrue($request->hasAcceptHeader('application/json'));
+        $this->assertFalse($request->hasAcceptHeader('application/xml'));
+    }
+
     /*******************************************************************************
      * Cookies
      ******************************************************************************/
