@@ -348,8 +348,9 @@ class Uri implements UriInterface
      */
     public function getUserInfo()
     {
+        $user = urlencode($this->user);
         $password = urlencode($this->password);
-        return $this->user . ($password ? ':' . $password : '');
+        return $user . ($password ? ':' . $password : '');
     }
 
     /**
