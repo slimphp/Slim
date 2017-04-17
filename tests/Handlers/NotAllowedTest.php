@@ -8,10 +8,11 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\NotAllowed;
 use Slim\Http\Response;
 
-class NotAllowedTest extends \PHPUnit_Framework_TestCase
+class NotAllowedTest extends TestCase
 {
     public function invalidMethodProvider()
     {
@@ -56,13 +57,15 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
     }
 
+    /**
+     * @expectedException \UnexpectedValueException
+     */
     public function testNotFoundContentType()
     {
         $errorMock = $this->getMockBuilder(NotAllowed::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($this->getRequest('GET', 'unknown/type'), new Response(), ['POST']);
     }
 

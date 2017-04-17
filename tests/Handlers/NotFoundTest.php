@@ -8,11 +8,12 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\NotFound;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 
-class NotFoundTest extends \PHPUnit_Framework_TestCase
+class NotFoundTest extends TestCase
 {
     public function notFoundProvider()
     {
@@ -43,6 +44,9 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
     }
 
+    /**
+     * @expectedException \UnexpectedValueException
+     */
     public function testNotFoundContentType()
     {
         $errorMock = $this->getMockBuilder(NotFound::class)->setMethods(['determineContentType'])->getMock();
@@ -51,7 +55,6 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), ['POST']);
     }
 

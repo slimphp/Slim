@@ -8,12 +8,13 @@
  */
 namespace Slim\Tests\Http;
 
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Response;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends TestCase
 {
     /*******************************************************************************
      * Create

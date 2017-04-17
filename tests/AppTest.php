@@ -9,6 +9,7 @@
 
 namespace Slim\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Exception\MethodNotAllowedException;
@@ -24,7 +25,7 @@ use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
-class AppTest extends \PHPUnit_Framework_TestCase
+class AppTest extends TestCase
 {
     public static function setupBeforeClass()
     {
@@ -1275,6 +1276,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Hello', (string)$res->getBody());
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
     public function testInvokeWithPimpleUndefinedCallable()
     {
         // Prepare request and response objects
@@ -1300,8 +1304,6 @@ class AppTest extends \PHPUnit_Framework_TestCase
         };
 
         $app->get('/foo', 'foo:bar');
-
-        $this->setExpectedException('\RuntimeException');
 
         // Invoke app
         $app($req, $res);

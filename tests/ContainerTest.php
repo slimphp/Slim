@@ -8,10 +8,11 @@
  */
 namespace Slim\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Container;
 use Interop\Container\ContainerInterface;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     /**
      * @var Container

@@ -8,11 +8,12 @@
  */
 namespace Slim\Tests\Http;
 
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 
-class HeadersTest extends \PHPUnit_Framework_TestCase
+class HeadersTest extends TestCase
 {
     public function testCreateFromEnvironment()
     {

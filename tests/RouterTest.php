@@ -8,9 +8,10 @@
  */
 namespace Slim\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Router;
 
-class RouterTest extends \PHPUnit_Framework_TestCase
+class RouterTest extends TestCase
 {
     /** @var Router */
     protected $router;
@@ -321,26 +322,23 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     /**
      * Test cacheFile should be a string or false
+     *
+     * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Router cacheFile must be a string
      */
     public function testSettingInvalidCacheFileValue()
     {
-        $this->setExpectedException(
-            '\InvalidArgumentException',
-            'Router cacheFile must be a string'
-        );
         $this->router->setCacheFile(['invalid']);
     }
 
     /**
      * Test if cacheFile is not a writable directory
+     *
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Router cacheFile directory must be writable
      */
     public function testSettingInvalidCacheFileNotExisting()
     {
-        $this->setExpectedException(
-            '\RuntimeException',
-            'Router cacheFile directory must be writable'
-        );
-
         $this->router->setCacheFile(
             dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
         );
