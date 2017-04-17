@@ -244,7 +244,7 @@ class App
      */
     public function any($pattern, $callable)
     {
-        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'LINK', 'UNLINK'], $pattern, $callable);
     }
 
     /**
