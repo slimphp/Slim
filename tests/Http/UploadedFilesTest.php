@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -16,7 +17,7 @@ use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-class UploadedFilesTest extends \PHPUnit_Framework_TestCase
+class UploadedFilesTest extends TestCase
 {
     static private $filename = './phpUxcOty';
 
@@ -143,12 +144,12 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
+     * @expectedException \InvalidArgumentException
      */
     public function testMoveToNotWritable(UploadedFile $uploadedFile)
     {
         $tempName = uniqid('file-');
         $path = 'some_random_dir' . DIRECTORY_SEPARATOR . $tempName;
-        $this->setExpectedException('\InvalidArgumentException');
         $uploadedFile->moveTo($path);
     }
 
@@ -173,7 +174,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testMoveTo
      * @param UploadedFile $uploadedFile
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
     {
@@ -191,11 +192,10 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      *
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
+     * @expectedException \RuntimeException
      */
     public function testMoveToAgain(UploadedFile $uploadedFile)
     {
-        $this->setExpectedException('\RuntimeException');
-
         $tempName = uniqid('file-');
         $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
         $uploadedFile->moveTo($path);
@@ -206,11 +206,10 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      *
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
+     * @expectedException \RuntimeException
      */
     public function testMovedStream($uploadedFile)
     {
-        $this->setExpectedException('\RuntimeException');
-
         $uploadedFile->getStream();
     }
 

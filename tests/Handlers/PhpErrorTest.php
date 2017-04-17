@@ -9,10 +9,12 @@
 
 namespace Slim\Tests\Handlers;
 
+use Doctrine\Instantiator\Exception\UnexpectedValueException;
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\PhpError;
 use Slim\Http\Response;
 
-class PhpErrorTest extends \PHPUnit_Framework_TestCase
+class PhpErrorTest extends TestCase
 {
     public function phpErrorProvider()
     {
@@ -66,6 +68,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @requires PHP 7.0
+     * @expectedException \UnexpectedValueException
      */
     public function testNotFoundContentType()
     {
@@ -75,7 +78,6 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), new \Exception());
     }
 
@@ -140,6 +142,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @requires PHP 5.0
+     * @expectedException \UnexpectedValueException
      */
     public function testNotFoundContentType5()
     {
@@ -152,7 +155,6 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $throwable = $this->getMockBuilder('\Throwable')->getMock();
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), $throwable);
     }
 

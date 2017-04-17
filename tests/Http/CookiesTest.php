@@ -8,12 +8,13 @@
  */
 namespace Slim\Tests\Http;
 
+use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use ReflectionClass;
 use InvalidArgumentException;
 use Slim\Http\Cookies;
 
-class CookiesTest extends \PHPUnit_Framework_TestCase
+class CookiesTest extends TestCase
 {
     public function testConstructor()
     {
@@ -224,9 +225,11 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test_date=Works; expires=' . $formattedStringDate, $cookieStringDate);
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     */
     public function testParseHeaderException()
     {
-        $this->setExpectedException(InvalidArgumentException::class);
         Cookies::parseHeader(new \StdClass);
     }
 }

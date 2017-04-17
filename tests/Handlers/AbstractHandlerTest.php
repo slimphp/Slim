@@ -8,9 +8,10 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit\Framework\TestCase;
 use Slim\Handlers\AbstractHandler;
 
-class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
+class AbstractHandlerTest extends TestCase
 {
     public function testHalfValidContentType()
     {
