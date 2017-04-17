@@ -133,6 +133,32 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
+    public function testLinkRoute()
+    {
+    	$path = '/foo';
+    	$callable = function ($req, $res) {
+    		// Do something
+    	};
+    	$app = new App();
+    	$route = $app->link($path, $callable);
+    	
+    	$this->assertInstanceOf('\Slim\Route', $route);
+    	$this->assertAttributeContains('LINK', 'methods', $route);
+    }
+    
+    public function testUnlinkRoute()
+    {
+    	$path = '/foo';
+    	$callable = function ($req, $res) {
+    		// Do something
+    	};
+    	$app = new App();
+    	$route = $app->unlink($path, $callable);
+    	
+    	$this->assertInstanceOf('\Slim\Route', $route);
+    	$this->assertAttributeContains('UNLINK', 'methods', $route);
+    }
+    
     public function testAnyRoute()
     {
         $path = '/foo';
