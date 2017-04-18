@@ -69,7 +69,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     {
         $_FILES = $input;
 
-        $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock());
+        $uploadedFile = UploadedFile::createFromGlobals();
         $this->assertEquals($expected, $uploadedFile);
     }
 
@@ -478,7 +478,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         $cookies = [];
         $serverParams = $env->all();
         $body = new RequestBody();
-        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+        $uploadedFiles = UploadedFile::createFromGlobals();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         return $request;
