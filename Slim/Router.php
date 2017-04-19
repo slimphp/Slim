@@ -159,6 +159,9 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Route pattern must be a string');
         }
 
+        // Ensure pattern has a leading slash
+        $pattern = '/' . ltrim($pattern, '/');
+
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
             $pattern = $this->processGroups() . $pattern;
@@ -318,6 +321,9 @@ class Router implements RouterInterface
      */
     public function pushGroup($pattern, $callable)
     {
+        // Ensure pattern has a leading slash
+        $pattern = '/' . ltrim($pattern, '/');
+
         $group = new RouteGroup($pattern, $callable);
         array_push($this->routeGroups, $group);
         return $group;
