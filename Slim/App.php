@@ -245,6 +245,10 @@ class App
             $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
         }
 
+        if (is_callable([$route, 'setEnforceReturn'])) {
+            $route->setEnforceReturn($this->container->get('settings')['enforceReturn']);
+        }
+
         return $route;
     }
 

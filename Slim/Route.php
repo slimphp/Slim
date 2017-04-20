@@ -9,11 +9,11 @@
 namespace Slim;
 
 use Exception;
+use Slim\Exception\MissingResponseFromRouteException;
 use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -63,6 +63,14 @@ class Route extends Routable implements RouteInterface
      * @var boolean|string
      */
     protected $outputBuffering = 'append';
+
+    /**
+     * Enforce Return
+     *
+     * Forces a return value from a callable when true
+     * @var bool
+     */
+    protected $enforceReturnOfResponse = false;
 
     /**
      * Route parameters
@@ -207,6 +215,16 @@ class Route extends Routable implements RouteInterface
     }
 
     /**
+     * Set the value of enforceReturn
+     *
+     * @param boolean $enforceReturnOfResponse
+     */
+    public function setEnforceReturnOfResponse($enforceReturnOfResponse)
+    {
+        $this->enforceReturnOfResponse = (bool)$enforceReturnOfResponse;
+    }
+
+    /**
      * Set route name
      *
      * @param string $name
@@ -323,10 +341,12 @@ class Route extends Routable implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param ServerRequestInterface $request  The current Request object
-     * @param ResponseInterface      $response The current Response object
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Exception  if the route callable throws an exception
+     * @param ServerRequestInterface $request The current Request object
+     * @param ResponseInterface $response The current Response object
+     * @return ResponseInterface
+     * @throws MissingResponseFromRouteException
+     * @throws Exception if the route callable throws an exception
+     * @throws Throwable
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -357,6 +377,8 @@ class Route extends Routable implements RouteInterface
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
             $response = $newResponse;
+        } elseif ($this->enforceReturnOfResponse) {
+            throw new MissingResponseFromRouteException("Route does not return a response");
         } elseif (is_string($newResponse)) {
             // if route callback returns a string, then append it to the response
             if ($response->getBody()->isWritable()) {
