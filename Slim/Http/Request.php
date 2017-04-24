@@ -1214,4 +1214,21 @@ class Request extends Message implements ServerRequestInterface
 
         return $params;
     }
+
+    /**
+     * Get the route name.
+     *
+     * Note: This method is not part of the PSR-7 standard.
+     *
+     * @return string|null Route name or null if none found.
+     */
+    public function getRouteName()
+    {
+        $routeInfo = $this->getAttribute('routeInfo');
+        if (is_array($routeInfo) && isset($routeInfo[1][0])) {
+            return $routeInfo[1][0]->getName();
+        }
+
+        return null;
+    }
 }
