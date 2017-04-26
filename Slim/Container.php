@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use Interop\Container\ContainerInterface;
-use Interop\Container\Exception\ContainerException;
+use Psr\Container\ContainerInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Pimple\Container as PimpleContainer;
 use Slim\Exception\ContainerValueNotFoundException;
 use Slim\Exception\ContainerException as SlimContainerException;
@@ -17,7 +17,7 @@ use Slim\Exception\ContainerException as SlimContainerException;
 /**
  * Slim's default DI container is Pimple.
  *
- * Slim\App expects a container that implements Interop\Container\ContainerInterface
+ * Slim\App expects a container that implements Psr\Container\ContainerInterface
  * with these service keys configured and ready for use:
  *
  *  - settings: an array or instance of \ArrayAccess
@@ -110,7 +110,7 @@ class Container extends PimpleContainer implements ContainerInterface
      * @param string $id Identifier of the entry to look for.
      *
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
-     * @throws ContainerException               Error while retrieving the entry.
+     * @throws ContainerExceptionInterface      Error while retrieving the entry.
      *
      * @return mixed Entry.
      */

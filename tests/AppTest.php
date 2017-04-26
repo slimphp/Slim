@@ -10,6 +10,7 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Exception\MethodNotAllowedException;
