@@ -521,7 +521,30 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $uri->getFragment());
     }
 
-    public function testCreateEnvironmentWithIPv6Host()
+    public function testCreateEnvironmentWithIPv6HostNoPort()
+    {
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'PHP_AUTH_USER' => 'josh',
+            'PHP_AUTH_PW' => 'sekrit',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => '[2001:db8::1]',
+            'REMOTE_ADDR' => '2001:db8::1',
+            'SERVER_PORT' => 8080,
+        ]);
+
+        $uri = Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
+        $this->assertEquals('[2001:db8::1]', $uri->getHost());
+        $this->assertEquals('8080', $uri->getPort());
+        $this->assertEquals('/foo/bar', $uri->getPath());
+        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertEquals('', $uri->getFragment());
+    }
+
+    public function testCreateEnvironmentWithIPv6HostWithPort()
     {
         $environment = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
