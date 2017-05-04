@@ -1023,7 +1023,7 @@ class Request extends Message implements ServerRequestInterface
             return $this->bodyParsed;
         }
 
-        if (!$this->body) {
+        if (!$this->getBody()) {
             return null;
         }
 
