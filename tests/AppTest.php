@@ -68,6 +68,27 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeContains('GET', 'methods', $route);
     }
 
+    /**
+     * Verify head() proxy method creates route properly.
+     *
+     * @test
+     *
+     * @return void
+     */
+    public function testHeadRoute()
+    {
+        $pattern = '/foo';
+        $callable = function ($request, $response) {
+            // Do something
+        };
+
+        $app = new App();
+        $route = $app->head($pattern, $callable);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('HEAD', 'methods', $route);
+    }
+
     public function testPostRoute()
     {
         $path = '/foo';

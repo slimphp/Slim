@@ -144,6 +144,19 @@ class App
     }
 
     /**
+     * Add HEAD route
+     *
+     * @param string $pattern  The route URI pattern
+     * @param callable|string  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function head($pattern, $callable)
+    {
+        return $this->map(['HEAD'], $pattern, $callable);
+    }
+
+    /**
      * Add POST route
      *
      * @param  string $pattern  The route URI pattern
