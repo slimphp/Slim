@@ -29,7 +29,7 @@ class ContainerTest extends TestCase
      */
     public function testGet()
     {
-        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
+        $this->assertInstanceOf('\Slim\Handlers\NotFound', $this->container->get('notFoundHandler'));
     }
 
 
