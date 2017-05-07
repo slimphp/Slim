@@ -25,7 +25,7 @@ class MessageStub extends Message
     /**
      * Headers
      *
-     * @var \Slim\Interfaces\Http\HeadersInterface
+     * @var \Slim\Http\HeadersInterface
      */
     public $headers;
 
