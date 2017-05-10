@@ -20,6 +20,14 @@ abstract class HttpException extends Exception
      */
     protected $details = null;
     /**
+     * @var string|null
+     */
+    protected $title = '';
+    /**
+     * @var string
+     */
+    protected $description = '';
+    /**
      * @var bool
      */
     protected $recoverable = true;
@@ -62,11 +70,24 @@ abstract class HttpException extends Exception
     }
 
     /**
-     * @param bool $recoverable
+     * @param string $title
      */
-    public function setRecoverable($recoverable)
+    public function setTitle($title)
     {
-        $this->recoverable = $recoverable;
+        $this->title = $title;
+    }
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description)
+    {
+        $this->description = $description;
+    }
+
+    public function notRecoverable()
+    {
+        $this->recoverable = false;
     }
 
     /**
@@ -91,6 +112,22 @@ abstract class HttpException extends Exception
     public function getDetails()
     {
         return $this->details;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->description;
     }
 
     /**

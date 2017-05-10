@@ -10,6 +10,7 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\PhpException;
 use Slim\Http\Body;
 
 /**
@@ -25,13 +26,14 @@ class ErrorHandler extends AbstractHandler
      */
     public function respond()
     {
-        $renderer = new $this->renderer($this->exception, $this->displayErrorDetails);
+        $e = $this->exception;
+        $renderer = new $this->renderer($e, $this->displayErrorDetails);
         $output = $renderer->render();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write($output);
 
         if ($this->exception instanceof HttpNotAllowedException) {
-            $this->response->withHeader('Allow', $this->exception->getAllowedMethods());
+            $this->response->withHeader('Allow', $e->getAllowedMethods());
         }
 
         return $this->response

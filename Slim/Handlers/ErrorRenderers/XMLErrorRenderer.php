@@ -6,7 +6,9 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
-namespace Slim\Handlers;
+namespace Slim\Handlers\ErrorRenderers;
+
+use Slim\Handlers\AbstractErrorRenderer;
 
 /**
  * Default Slim application XML Error Renderer
@@ -16,7 +18,7 @@ class XMLErrorRenderer extends AbstractErrorRenderer
     /**
      * @return string
      */
-    public function renderThrowableOutput()
+    public function renderLanguageExceptionOutput()
     {
         $e = $this->exception;
         $xml = "<error>\n  <message>Slim Application Error</message>\n";
@@ -40,7 +42,7 @@ class XMLErrorRenderer extends AbstractErrorRenderer
     /**
      * @return string
      */
-    public function renderGenericOutput()
+    public function renderGenericExceptionOutput()
     {
         return "<root><message>{$this->exception->getMessage()}</message></root>";
     }

@@ -16,6 +16,6 @@ namespace Slim\Interfaces;
  */
 interface ErrorRendererInterface
 {
-    public function renderThrowableOutput();
-    public function renderGenericOutput();
+    public function renderLanguageExceptionOutput();
+    public function renderGenericExceptionOutput();
 }

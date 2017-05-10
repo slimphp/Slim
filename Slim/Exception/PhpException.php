@@ -9,15 +9,15 @@ class PhpException extends Exception
 
     /**
      * PhpException constructor.
-     * @param Exception $exception
+     * @param $exception
      */
-    public function __construct(Exception $exception)
+    public function __construct($exception)
     {
         $this->exception = $exception;
     }
 
     /**
-     * @return Exception
+     * @return mixed
      */
     public function getException()
     {

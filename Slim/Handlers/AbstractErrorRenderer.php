@@ -9,7 +9,7 @@
 namespace Slim\Handlers;
 
 use Exception;
-use Throwable;
+use Slim\Exception\PhpException;
 use Slim\Interfaces\ErrorRendererInterface;
 
 /**
@@ -45,10 +45,10 @@ abstract class AbstractErrorRenderer implements ErrorRendererInterface
      */
     public function render()
     {
-        if ($this->exception instanceof Throwable) {
-            return $this->renderThrowableOutput();
+        if ($this->exception instanceof PhpException) {
+            return $this->renderLanguageExceptionOutput();
         }
 
-        return $this->renderGenericOutput();
+        return $this->renderGenericExceptionOutput();
     }
 }

@@ -6,14 +6,16 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
-namespace Slim\Handlers;
+namespace Slim\Handlers\ErrorRenderers;
+
+use Slim\Handlers\AbstractErrorRenderer;
 
 /**
  * Default Slim application JSON Error Renderer
  */
 class JSONErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderThrowableOutput()
+    public function renderLanguageExceptionOutput()
     {
         $e = $this->exception;
         $error = ['message' => 'Slim Application Error'];
@@ -36,10 +38,9 @@ class JSONErrorRenderer extends AbstractErrorRenderer
         return json_encode($error, JSON_PRETTY_PRINT);
     }
 
-    public function renderGenericOutput()
+    public function renderGenericExceptionOutput()
     {
         $error = ['message' => $this->exception->getMessage()];
-
         return json_encode($error, JSON_PRETTY_PRINT);
     }
 }

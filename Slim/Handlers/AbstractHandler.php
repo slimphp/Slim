@@ -9,12 +9,16 @@
 namespace Slim\Handlers;
 
 use Exception;
-use Slim\Interfaces\ErrorHandlerInterface;
 use UnexpectedValueException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
+use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
+use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
+use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
+use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
+use Slim\Interfaces\ErrorHandlerInterface;
 
 /**
  * Default Slim application error handler
@@ -117,7 +121,6 @@ abstract class AbstractHandler implements ErrorHandlerInterface
             return current($selectedContentTypes);
         }
 
-        // handle +json and +xml specially
         if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
             $mediaType = 'application/' . $matches[1];
             if (in_array($mediaType, $this->knownContentTypes)) {
@@ -135,6 +138,8 @@ abstract class AbstractHandler implements ErrorHandlerInterface
     protected function resolveRenderer()
     {
         if ($this->method === 'OPTIONS') {
+            $this->statusCode = 200;
+            $this->contentType = 'text/plain';
             return PlainTextErrorRenderer::class;
         }
 
@@ -161,8 +166,7 @@ abstract class AbstractHandler implements ErrorHandlerInterface
     {
         $statusCode = 500;
 
-        if ($this->exception instanceof HttpException)
-        {
+        if ($this->exception instanceof HttpException) {
             $statusCode = $this->exception->getCode();
         }
 

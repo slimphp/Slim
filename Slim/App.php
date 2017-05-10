@@ -18,6 +18,7 @@ use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Exception\PhpException;
+use Slim\Handlers\AbstractHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
@@ -98,6 +99,7 @@ class App
      */
     public function __construct(array $settings = [])
     {
+
         $this->addSettings($settings);
         $this->container = new Container();
     }
@@ -295,7 +297,7 @@ class App
      */
     public function setNotFoundHandler(callable $handler)
     {
-        $this->getSetting('errorHandlers')['HttpNotFoundException'] = $handler;
+        $this->addErrorHandler(HttpNotFoundException::class, $handler);
     }
 
     /**
@@ -306,7 +308,7 @@ class App
      */
     public function getNotFoundHandler()
     {
-        return $this->getErrorHandler('HttpNotFoundException');
+        return $this->getErrorHandler(HttpNotFoundException::class);
     }
 
     /**
@@ -327,7 +329,7 @@ class App
      */
     public function setNotAllowedHandler(callable $handler)
     {
-        $this->getSetting('errorHandlers')['HttpNotAllowedException'] = $handler;
+        $this->addErrorHandler(HttpNotAllowedException::class, $handler);
     }
 
     /**
@@ -338,7 +340,7 @@ class App
      */
     public function getNotAllowedHandler()
     {
-        return $this->getErrorHandler('HttpNotAllowedException');
+        return $this->getErrorHandler(HttpNotAllowedException::class);
     }
 
     /**
@@ -359,7 +361,9 @@ class App
      */
     public function setErrorHandler($type, callable $handler)
     {
-        $this->getSetting('errorHandlers')[$type] = $handler;
+        $handlers = $this->getSetting('errorHandlers', []);
+        $handlers[$type] = $handler;
+        $this->addSetting('errorHandlers', $handlers);
     }
 
     /**
@@ -367,16 +371,22 @@ class App
      * occurs when processing the current request.
      *
      * @param null|string $type
-     * @return callable|Error
+     * @return callable|ErrorHandler
      */
     public function getErrorHandler($type = null)
     {
         $handlers = $this->getSetting('errorHandlers');
-        $displayErrorDetails = $this->getSetting('displayErrorDetails', false);
+        $displayErrorDetails = $this->getSetting('displayErrorDetails');
 
         if (!is_null($type) && isset($handlers[$type])) {
-            $handler = get_class($handlers[$type]);
-            return new $handler($displayErrorDetails);
+            $handler = $handlers[$type];
+
+            if (is_callable($handler)) {
+                return $handler;
+            } else if ($handler instanceof AbstractHandler) {
+                $handler = get_class($handler);
+                return new $handler($displayErrorDetails);
+            }
         }
 
         return new ErrorHandler($displayErrorDetails);
@@ -399,7 +409,7 @@ class App
      */
     public function setPhpErrorHandler(callable $handler)
     {
-        $this->getSetting('errorHandlers')['PhpException'] = $handler;
+        $this->setErrorHandler(PhpException::class, $handler);
     }
 
     /**
@@ -410,7 +420,7 @@ class App
      */
     public function getPhpErrorHandler()
     {
-        return $this->getErrorHandler('PhpException');
+        return $this->getErrorHandler(PhpException::class);
     }
 
     /********************************************************************************
@@ -575,8 +585,6 @@ class App
      * @return ResponseInterface
      *
      * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
      */
     public function run($silent = false)
     {
@@ -621,12 +629,7 @@ class App
         }
 
         // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (Exception $e) {
-            $response = $this->handleException($e, $request, $response);
-        }
-
+        $response = $this->callMiddlewareStack($request, $response);
         $response = $this->finalize($response);
 
         return $response;
@@ -787,7 +790,6 @@ class App
          */
         if (method_exists($exception, 'getRequest')) {
             $r = $exception->getRequest();
-
             if (!is_null($r)) {
                 $request = $r;
             }
