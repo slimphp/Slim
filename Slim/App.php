@@ -8,22 +8,22 @@
  */
 namespace Slim;
 
+use BadMethodCallException;
 use Exception;
 use FastRoute\Dispatcher;
 use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\InvalidMethodException;
-use Slim\Exception\MethodNotAllowedException;
-use Slim\Exception\NotFoundException;
-use Slim\Handlers\Error;
-use Slim\Handlers\NotAllowed;
-use Slim\Handlers\NotFound;
-use Slim\Handlers\PhpError;
+use Slim\Exception\HttpException;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\PhpException;
+use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -157,7 +157,7 @@ class App
             }
         }
 
-        throw new \BadMethodCallException("Method $method is not a valid method");
+        throw new BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
@@ -295,7 +295,7 @@ class App
      */
     public function setNotFoundHandler(callable $handler)
     {
-        $this->notFoundHandler = $handler;
+        $this->getSetting('errorHandlers')['HttpNotFoundException'] = $handler;
     }
 
     /**
@@ -306,11 +306,7 @@ class App
      */
     public function getNotFoundHandler()
     {
-        if (!$this->notFoundHandler) {
-            $this->notFoundHandler = new NotFound();
-        }
-
-        return $this->notFoundHandler;
+        return $this->getErrorHandler('HttpNotFoundException');
     }
 
     /**
@@ -331,7 +327,7 @@ class App
      */
     public function setNotAllowedHandler(callable $handler)
     {
-        $this->notAllowedHandler = $handler;
+        $this->getSetting('errorHandlers')['HttpNotAllowedException'] = $handler;
     }
 
     /**
@@ -342,11 +338,7 @@ class App
      */
     public function getNotAllowedHandler()
     {
-        if (!$this->notAllowedHandler) {
-            $this->notAllowedHandler = new NotAllowed();
-        }
-
-        return $this->notAllowedHandler;
+        return $this->getErrorHandler('HttpNotAllowedException');
     }
 
     /**
@@ -362,26 +354,32 @@ class App
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
+     * @param string $type
      * @param callable $handler
      */
-    public function setErrorHandler(callable $handler)
+    public function setErrorHandler($type, callable $handler)
     {
-        $this->errorHandler = $handler;
+        $this->getSetting('errorHandlers')[$type] = $handler;
     }
 
     /**
      * Get callable to handle scenarios where an error
      * occurs when processing the current request.
      *
+     * @param null|string $type
      * @return callable|Error
      */
-    public function getErrorHandler()
+    public function getErrorHandler($type = null)
     {
-        if (!$this->errorHandler) {
-            $this->errorHandler = new Error($this->getSetting('displayErrorDetails'));
+        $handlers = $this->getSetting('errorHandlers');
+        $displayErrorDetails = $this->getSetting('displayErrorDetails', false);
+
+        if (!is_null($type) && isset($handlers[$type])) {
+            $handler = get_class($handlers[$type]);
+            return new $handler($displayErrorDetails);
         }
 
-        return $this->errorHandler;
+        return new ErrorHandler($displayErrorDetails);
     }
 
     /**
@@ -401,7 +399,7 @@ class App
      */
     public function setPhpErrorHandler(callable $handler)
     {
-        $this->phpErrorHandler = $handler;
+        $this->getSetting('errorHandlers')['PhpException'] = $handler;
     }
 
     /**
@@ -412,11 +410,7 @@ class App
      */
     public function getPhpErrorHandler()
     {
-        if (!$this->phpErrorHandler) {
-            $this->phpErrorHandler = new PhpError($this->getSetting('displayErrorDetails'));
-        }
-
-        return $this->phpErrorHandler;
+        return $this->getErrorHandler('PhpException');
     }
 
     /********************************************************************************
@@ -587,11 +581,14 @@ class App
     public function run($silent = false)
     {
         $response = $this->container->get('response');
+        $request = $this->container->get('request');
 
         try {
-            $response = $this->process($this->container->get('request'), $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
+            $response = $this->process($request, $response);
+        } catch (Exception $e) {
+            $response = $this->handleException($e, $request, $response);
+        } catch (Throwable $e) {
+            $response = $this->handleException(new PhpException($e), $request, $response);
         }
 
         if (!$silent) {
@@ -599,35 +596,6 @@ class App
         }
 
         return $response;
-    }
-
-    /**
-     * Pull route info for a request with a bad method to decide whether to
-     * return a not-found error (default) or a bad-method error, then run
-     * the handler for that error, returning the resulting response.
-     *
-     * Used for cases where an incoming request has an unrecognized method,
-     * rather than throwing an exception and not catching it all the way up.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $router = $this->getRouter();
-        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
-
-        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this->handleException(
-                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
-                $request,
-                $response
-            );
-        }
-
-        return $this->handleException(new NotFoundException($request, $response), $request, $response);
     }
 
     /**
@@ -641,8 +609,6 @@ class App
      * @return ResponseInterface
      *
      * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -659,8 +625,6 @@ class App
             $response = $this->callMiddlewareStack($request, $response);
         } catch (Exception $e) {
             $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
-            $response = $this->handlePhpError($e, $request, $response);
         }
 
         $response = $this->finalize($response);
@@ -756,16 +720,24 @@ class App
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $route = $router->lookupRoute($routeInfo[1]);
-            return $route->run($request, $response);
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            $notAllowedHandler = $this->getNotAllowedHandler();
-            return $notAllowedHandler($request, $response, $routeInfo[1]);
+        $exception = null;
+        switch ($routeInfo[0]) {
+            case Dispatcher::FOUND:
+                $route = $router->lookupRoute($routeInfo[1]);
+                return $route->run($request, $response);
+
+            case Dispatcher::METHOD_NOT_ALLOWED:
+                $exception = new HttpNotAllowedException(['method' => $routeInfo[1]]);
+                $exception->setRequest($request);
+                break;
+
+            case Dispatcher::NOT_FOUND:
+                $exception = new HttpNotFoundException;
+                $exception->setRequest($request);
+                break;
         }
 
-        $notFoundHandler = $this->getNotFoundHandler();
-        return $notFoundHandler($request, $response);
+        return $this->handleException($exception, $request, $response);
     }
 
     /**
@@ -798,6 +770,45 @@ class App
     }
 
     /**
+     * Resolve custom error handler from container or use default ErrorHandler
+     * @param Exception $exception
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return mixed
+     */
+    public function handleException(Exception $exception, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $exceptionType = get_class($exception);
+        $handler = $this->getErrorHandler($exceptionType);
+
+        /**
+         * Retrieve request object from exception
+         * and replace current request object if not null
+         */
+        if (method_exists($exception, 'getRequest')) {
+            $r = $exception->getRequest();
+
+            if (!is_null($r)) {
+                $request = $r;
+            }
+        }
+
+        /**
+         * Check if exception is instance of HttpException
+         * If so, check if it is not recoverable
+         * End request immediately in case it is not recoverable
+         */
+        $recoverable = true;
+        if ($exception instanceof HttpException) {
+            $recoverable = $exception->isRecoverable();
+        }
+
+        return $recoverable
+            ? call_user_func_array($handler, [$request, $response, $exception])
+            : $response;
+    }
+
+    /**
      * Finalize response
      *
      * @param ResponseInterface $response
@@ -817,7 +828,7 @@ class App
         // Add Content-Length header if `addContentLengthHeader` setting is set
         if ($this->getSetting('addContentLengthHeader') == true) {
             if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
+                throw new RuntimeException("Unexpected data in output buffer. " .
                     "Maybe you have characters before an opening <?php tag?");
             }
             $size = $response->getBody()->getSize();
@@ -845,51 +856,5 @@ class App
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     *
-     * @param  Exception $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     *
-     * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
-     */
-    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        if ($e instanceof MethodNotAllowedException) {
-            $handler = $this->getNotAllowedHandler();
-            $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
-        } elseif ($e instanceof NotFoundException) {
-            $handler = $this->getNotFoundHandler();
-            $params = [$e->getRequest(), $e->getResponse()];
-        } else {
-            // Other exception, use $request and $response params
-            $handler = $this->getErrorHandler();
-            $params = [$request, $response, $e];
-        }
-
-        return call_user_func_array($handler, $params);
-    }
-
-    /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
-     *
-     * @param  Throwable $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     * @throws Throwable
-     */
-    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $handler = $this->getPhpErrorHandler();
-        $params = [$request, $response, $e];
-
-        return call_user_func_array($handler, $params);
     }
 }

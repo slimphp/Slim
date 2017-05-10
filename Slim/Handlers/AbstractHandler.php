@@ -8,12 +8,21 @@
  */
 namespace Slim\Handlers;
 
+use Exception;
+use Slim\Interfaces\ErrorHandlerInterface;
+use UnexpectedValueException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpBadRequestException;
+use Slim\Exception\HttpException;
 
 /**
- * Abstract Slim application handler
+ * Default Slim application error handler
+ *
+ * It outputs the error message and diagnostic information in either JSON, XML,
+ * or HTML based on the Accept header.
  */
-abstract class AbstractHandler
+abstract class AbstractHandler implements ErrorHandlerInterface
 {
     /**
      * Known handled content types
@@ -26,6 +35,69 @@ abstract class AbstractHandler
         'text/xml',
         'text/html',
     ];
+    /**
+     * @var bool
+     */
+    protected $displayErrorDetails = false;
+    /**
+     * @var string
+     */
+    protected $contentType = 'text/plain';
+    /**
+     * @var string
+     */
+    protected $method;
+    /**
+     * @var ServerRequestInterface
+     */
+    protected $request;
+    /**
+     * @var ResponseInterface
+     */
+    protected $response;
+    /**
+     * @var Exception
+     */
+    protected $exception;
+    /**
+     * @var HTMLErrorRenderer|JSONErrorRenderer|XMLErrorRenderer|PlainTextErrorRenderer
+     */
+    protected $renderer;
+    /**
+     * @var int
+     */
+    protected $statusCode;
+
+    /**
+     * AbstractHandler constructor.
+     * @param bool $displayErrorDetails
+     */
+    public function __construct($displayErrorDetails = true)
+    {
+        $this->displayErrorDetails = $displayErrorDetails;
+    }
+
+    /**
+     * Invoke error handler
+     *
+     * @param ServerRequestInterface $request   The most recent Request object
+     * @param ResponseInterface      $response  The most recent Response object
+     * @param Exception             $exception The caught Exception object
+     *
+     * @return ResponseInterface
+     */
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
+    {
+        $this->request = $request;
+        $this->response = $response;
+        $this->exception = $exception;
+        $this->method = $request->getMethod();
+        $this->contentType = $this->resolveContentType();
+        $this->renderer = $this->resolveRenderer();
+        $this->statusCode = $this->resolveStatusCode();
+
+        return $this->respond();
+    }
 
     /**
      * Determine which content type we know about is wanted using Accept header
@@ -34,12 +106,11 @@ abstract class AbstractHandler
      * Slim's error handling requirements. Consider a fully-feature solution such
      * as willdurand/negotiation for any other situation.
      *
-     * @param ServerRequestInterface $request
      * @return string
      */
-    protected function determineContentType(ServerRequestInterface $request)
+    protected function resolveContentType()
     {
-        $acceptHeader = $request->getHeaderLine('Accept');
+        $acceptHeader = $this->request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
 
         if (count($selectedContentTypes)) {
@@ -55,5 +126,46 @@ abstract class AbstractHandler
         }
 
         return 'text/html';
+    }
+
+    /**
+     * @return HTMLErrorRenderer|JSONErrorRenderer|XMLErrorRenderer|PlainTextErrorRenderer
+     * @throws HttpBadRequestException
+     */
+    protected function resolveRenderer()
+    {
+        if ($this->method === 'OPTIONS') {
+            return PlainTextErrorRenderer::class;
+        }
+
+        switch ($this->contentType) {
+            case 'application/json':
+                return JSONErrorRenderer::class;
+
+            case 'text/xml':
+            case 'application/xml':
+                return XMLErrorRenderer::class;
+
+            case 'text/html':
+                return HTMLErrorRenderer::class;
+
+            default:
+                throw new UnexpectedValueException(sprintf('Cannot render unknown content type: %s', $this->contentType));
+        }
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveStatusCode()
+    {
+        $statusCode = 500;
+
+        if ($this->exception instanceof HttpException)
+        {
+            $statusCode = $this->exception->getCode();
+        }
+
+        return $statusCode;
     }
 }

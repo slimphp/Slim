@@ -16,7 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Collection;
-use Slim\Exception\InvalidMethodException;
+use Slim\Exception\HttpNotImplementedException;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
@@ -150,7 +150,7 @@ class Request extends Message implements ServerRequestInterface
      * @param array            $serverParams  The server environment variables
      * @param StreamInterface  $body          The request body object
      * @param array            $uploadedFiles The request uploadedFiles collection
-     * @throws InvalidMethodException on invalid HTTP method
+     * @throws HttpNotImplementedException on invalid HTTP method
      */
     public function __construct(
         $method,
@@ -163,7 +163,7 @@ class Request extends Message implements ServerRequestInterface
     ) {
         try {
             $this->originalMethod = $this->filterMethod($method);
-        } catch (InvalidMethodException $e) {
+        } catch (HttpNotImplementedException $e) {
             $this->originalMethod = $method;
         }
 
@@ -223,7 +223,7 @@ class Request extends Message implements ServerRequestInterface
         });
 
         // if the request had an invalid method, we can throw it now
-        if (isset($e) && $e instanceof InvalidMethodException) {
+        if (isset($e) && $e instanceof HttpNotImplementedException) {
             throw $e;
         }
     }
@@ -315,26 +315,30 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param  null|string $method
      * @return null|string
-     * @throws \InvalidArgumentException on invalid HTTP method.
+     * @throws HttpNotImplementedException on invalid HTTP method.
      */
     protected function filterMethod($method)
     {
         if ($method === null) {
             return $method;
         }
-
         if (!is_string($method)) {
             throw new InvalidArgumentException(sprintf(
                 'Unsupported HTTP method; must be a string, received %s',
                 (is_object($method) ? get_class($method) : gettype($method))
             ));
         }
-
         $method = strtoupper($method);
         if (preg_match("/^[!#$%&'*+.^_`|~0-9a-z-]+$/i", $method) !== 1) {
-            throw new InvalidMethodException($this, $method);
-        }
+            $e = new HttpNotImplementedException(sprintf(
+                'Unsupported HTTP method "%s" provided',
+                $method
+            ));
+            $e->setRequest($this);
+            $e->setDetails(['method' => $method]);
+            throw $e;
 
+        }
         return $method;
     }
 
