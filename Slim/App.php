@@ -18,6 +18,7 @@ use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Exception\PhpException;
+use Slim\Handlers\AbstractErrorHandler;
 use Slim\Handlers\AbstractHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
@@ -278,7 +279,7 @@ class App
      */
     public function setNotFoundHandler(callable $handler)
     {
-        $this->addErrorHandler(HttpNotFoundException::class, $handler);
+        $this->setErrorHandler(HttpNotFoundException::class, $handler);
     }
 
     /**
@@ -310,14 +311,14 @@ class App
      */
     public function setNotAllowedHandler(callable $handler)
     {
-        $this->addErrorHandler(HttpNotAllowedException::class, $handler);
+        $this->setErrorHandler(HttpNotAllowedException::class, $handler);
     }
 
     /**
      * Get callable to handle scenarios where a suitable
      * route matches the request URI but not the request method.
      *
-     * @return callable|Error
+     * @return callable|ErrorHandler
      */
     public function getNotAllowedHandler()
     {
@@ -364,7 +365,7 @@ class App
 
             if (is_callable($handler)) {
                 return $handler;
-            } else if ($handler instanceof AbstractHandler) {
+            } else if ($handler instanceof AbstractErrorHandler) {
                 $handler = get_class($handler);
                 return new $handler($displayErrorDetails);
             }

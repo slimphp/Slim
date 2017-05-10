@@ -18,7 +18,7 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class HTMLErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderLanguageExceptionOutput()
+    public function renderPhpExceptionOutput()
     {
         $title = 'Slim Application Error';
         $e = $this->exception;

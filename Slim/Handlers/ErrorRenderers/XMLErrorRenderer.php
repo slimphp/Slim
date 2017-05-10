@@ -18,7 +18,7 @@ class XMLErrorRenderer extends AbstractErrorRenderer
     /**
      * @return string
      */
-    public function renderLanguageExceptionOutput()
+    public function renderPhpExceptionOutput()
     {
         $e = $this->exception;
         $xml = "<error>\n  <message>Slim Application Error</message>\n";

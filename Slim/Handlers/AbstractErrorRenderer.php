@@ -46,7 +46,7 @@ abstract class AbstractErrorRenderer implements ErrorRendererInterface
     public function render()
     {
         if ($this->exception instanceof PhpException) {
-            return $this->renderLanguageExceptionOutput();
+            return $this->renderPhpExceptionOutput();
         }
 
         return $this->renderGenericExceptionOutput();

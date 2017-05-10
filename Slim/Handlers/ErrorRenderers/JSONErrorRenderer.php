@@ -15,7 +15,7 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class JSONErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderLanguageExceptionOutput()
+    public function renderPhpExceptionOutput()
     {
         $e = $this->exception;
         $error = ['message' => 'Slim Application Error'];

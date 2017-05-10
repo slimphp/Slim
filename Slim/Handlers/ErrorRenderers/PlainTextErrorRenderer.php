@@ -15,7 +15,7 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderLanguageExceptionOutput()
+    public function renderPhpExceptionOutput()
     {
         return $this->exception->getMessage();
     }
