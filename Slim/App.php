@@ -8,8 +8,6 @@
  */
 namespace Slim;
 
-use BadMethodCallException;
-use Exception;
 use FastRoute\Dispatcher;
 use Interop\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -19,12 +17,14 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Exception\PhpException;
 use Slim\Handlers\AbstractErrorHandler;
-use Slim\Handlers\AbstractHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use BadMethodCallException;
+use Exception;
 use RuntimeException;
 use Throwable;
 
@@ -275,9 +275,9 @@ class App
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param callable $handler
+     * @param string|callable $handler
      */
-    public function setNotFoundHandler(callable $handler)
+    public function setNotFoundHandler($handler)
     {
         $this->setErrorHandler(HttpNotFoundException::class, $handler);
     }
@@ -307,9 +307,9 @@ class App
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param callable $handler
+     * @param string|callable $handler
      */
-    public function setNotAllowedHandler(callable $handler)
+    public function setNotAllowedHandler($handler)
     {
         $this->setErrorHandler(HttpNotAllowedException::class, $handler);
     }
@@ -339,9 +339,9 @@ class App
      * \Psr\Http\Message\ResponseInterface.
      *
      * @param string $type
-     * @param callable $handler
+     * @param string|callable $handler
      */
-    public function setErrorHandler($type, callable $handler)
+    public function setErrorHandler($type, $handler)
     {
         $handlers = $this->getSetting('errorHandlers', []);
         $handlers[$type] = $handler;
@@ -353,7 +353,7 @@ class App
      * occurs when processing the current request.
      *
      * @param null|string $type
-     * @return callable|ErrorHandler
+     * @return callable|ErrorHandlerInterface
      */
     public function getErrorHandler($type = null)
     {
@@ -365,9 +365,11 @@ class App
 
             if (is_callable($handler)) {
                 return $handler;
-            } else if ($handler instanceof AbstractErrorHandler) {
-                $handler = get_class($handler);
+            } else if (is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class)) {
                 return new $handler($displayErrorDetails);
+            } else if ($handler instanceof AbstractErrorHandler) {
+                $handler->setDisplayErrorDetails($displayErrorDetails);
+                return $handler;
             }
         }
 
@@ -387,9 +389,9 @@ class App
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param callable $handler
+     * @param string|callable $handler
      */
-    public function setPhpErrorHandler(callable $handler)
+    public function setPhpErrorHandler($handler)
     {
         $this->setErrorHandler(PhpException::class, $handler);
     }
@@ -398,7 +400,7 @@ class App
      * Get callable to handle scenarios where a PHP error
      * occurs when processing the current request.
      *
-     * @return callable|Error
+     * @return callable|ErrorHandlerInterface
      */
     public function getPhpErrorHandler()
     {

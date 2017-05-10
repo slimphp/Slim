@@ -8,8 +8,6 @@
  */
 namespace Slim\Handlers;
 
-use Exception;
-use UnexpectedValueException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
@@ -21,6 +19,8 @@ use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
+use Error;
+use Exception;
 
 /**
  * Default Slim application error handler
@@ -137,8 +137,8 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * Determine which renderer to use based on content type
      * Overloaded $renderer from calling class takes precedence over all
      *
+     * @throws Error
      * @return ErrorRendererInterface
-     * @throws UnexpectedValueException
      */
     protected function resolveRenderer()
     {
@@ -146,6 +146,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
 
         if (!is_null($this->renderer)) {
             $renderer = $this->renderer;
+            if (!is_subclass_of($renderer, AbstractErrorRenderer::class)) {
+                throw new Error(sprintf(
+                    'Non compliant error renderer provided (%s). Renderer expected to be a subclass of AbstractErrorRenderer',
+                    $renderer
+                ));
+            }
         } else if ($this->method === 'OPTIONS') {
             $this->statusCode = 200;
             $this->contentType = 'text/plain';
@@ -166,7 +172,10 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
                 break;
 
                 default:
-                    throw new UnexpectedValueException(sprintf('Cannot render unknown content type: %s', $this->contentType));
+                    throw new Error(sprintf(
+                        'Cannot render unknown content type: %s',
+                        $this->contentType
+                    ));
                 break;
             }
         }
@@ -186,6 +195,14 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         }
 
         return $statusCode;
+    }
+
+    /**
+     * @param bool $displayErrorDetails
+     */
+    public function setDisplayErrorDetails($displayErrorDetails)
+    {
+        $this->displayErrorDetails = $displayErrorDetails;
     }
 
     /**
