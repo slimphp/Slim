@@ -137,8 +137,9 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * Determine which renderer to use based on content type
      * Overloaded $renderer from calling class takes precedence over all
      *
-     * @throws Error
      * @return ErrorRendererInterface
+     *
+     * @throws Error
      */
     protected function resolveRenderer()
     {
