@@ -56,26 +56,6 @@ class App
     protected $router;
 
     /**
-     * @var callable
-     */
-    protected $notFoundHandler;
-
-    /**
-     * @var callable
-     */
-    protected $notAllowedHandler;
-
-    /**
-     * @var callable
-     */
-    protected $errorHandler;
-
-    /**
-     * @var callable
-     */
-    protected $phpErrorHandler;
-
-    /**
      * @var array
      */
     protected $settings = [
@@ -86,6 +66,7 @@ class App
         'displayErrorDetails' => false,
         'addContentLengthHeader' => true,
         'routerCacheFile' => false,
+        'errorHandlers' => []
     ];
 
     /********************************************************************************
