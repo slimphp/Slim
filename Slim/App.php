@@ -712,14 +712,15 @@ class App
                 return $route->run($request, $response);
 
             case Dispatcher::METHOD_NOT_ALLOWED:
-                $exception = new HttpNotAllowedException(['method' => $routeInfo[1]]);
+                $exception = new HttpNotAllowedException;
+                $exception->setAllowedMethods($routeInfo[1]);
                 $exception->setRequest($request);
-                break;
+            break;
 
             case Dispatcher::NOT_FOUND:
                 $exception = new HttpNotFoundException;
                 $exception->setRequest($request);
-                break;
+            break;
         }
 
         return $this->handleException($exception, $request, $response);
