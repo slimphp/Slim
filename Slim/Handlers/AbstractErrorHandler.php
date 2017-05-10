@@ -12,7 +12,6 @@ use Exception;
 use UnexpectedValueException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
@@ -21,6 +20,7 @@ use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
 use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
+use Slim\Interfaces\ErrorRendererInterface;
 
 /**
  * Default Slim application error handler
@@ -66,7 +66,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected $exception;
     /**
-     * @var HTMLErrorRenderer|JSONErrorRenderer|XMLErrorRenderer|PlainTextErrorRenderer
+     * @var ErrorRendererInterface
      */
     protected $renderer = null;
     /**
@@ -134,35 +134,44 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * @return HTMLErrorRenderer|JSONErrorRenderer|XMLErrorRenderer|PlainTextErrorRenderer
-     * @throws HttpBadRequestException
+     * Determine which renderer to use based on content type
+     * Overloaded $renderer from calling class takes precedence over all
+     *
+     * @return ErrorRendererInterface
+     * @throws UnexpectedValueException
      */
     protected function resolveRenderer()
     {
-        if ($this->method === 'OPTIONS') {
-            $this->statusCode = 200;
-            $this->contentType = 'text/plain';
-            return PlainTextErrorRenderer::class;
-        }
+        $renderer = null;
 
         if (!is_null($this->renderer)) {
-            return $this->renderer;
+            $renderer = $this->renderer;
+        } else if ($this->method === 'OPTIONS') {
+            $this->statusCode = 200;
+            $this->contentType = 'text/plain';
+            $renderer = PlainTextErrorRenderer::class;
+        } else {
+            switch ($this->contentType) {
+                case 'application/json':
+                    $renderer = JSONErrorRenderer::class;
+                break;
+
+                case 'text/xml':
+                case 'application/xml':
+                    $renderer = XMLErrorRenderer::class;
+                break;
+
+                case 'text/html':
+                    $renderer = HTMLErrorRenderer::class;
+                break;
+
+                default:
+                    throw new UnexpectedValueException(sprintf('Cannot render unknown content type: %s', $this->contentType));
+                break;
+            }
         }
 
-        switch ($this->contentType) {
-            case 'application/json':
-                return JSONErrorRenderer::class;
-
-            case 'text/xml':
-            case 'application/xml':
-                return XMLErrorRenderer::class;
-
-            case 'text/html':
-                return HTMLErrorRenderer::class;
-
-            default:
-                throw new UnexpectedValueException(sprintf('Cannot render unknown content type: %s', $this->contentType));
-        }
+        return new $renderer($this->exception, $this->displayErrorDetails);
     }
 
     /**
@@ -185,16 +194,16 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     public function respond()
     {
         $e = $this->exception;
-        $renderer = new $this->renderer($e, $this->displayErrorDetails);
-        $output = $renderer->render();
+        $response = $this->response;
+        $output = $this->renderer->render();
         $body = new Body(fopen('php://temp', 'r+'));
         $body->write($output);
 
-        if ($this->exception instanceof HttpNotAllowedException) {
-            $this->response->withHeader('Allow', $e->getAllowedMethods());
+        if ($e instanceof HttpNotAllowedException) {
+            $response = $response->withHeader('Allow', $e->getAllowedMethods());
         }
 
-        return $this->response
+        return $response
             ->withStatus($this->statusCode)
             ->withHeader('Content-type', $this->contentType)
             ->withBody($body);
