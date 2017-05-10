@@ -40,7 +40,7 @@ abstract class HttpException extends Exception
     {
         if (is_string($details)) {
             parent::__construct($details);
-        } else if (!is_null($details)) {
+        } elseif (!is_null($details)) {
             $this->details = $details;
         }
     }

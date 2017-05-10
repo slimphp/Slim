@@ -365,9 +365,9 @@ class App
 
             if (is_callable($handler)) {
                 return $handler;
-            } else if (is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class)) {
+            } elseif (is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class)) {
                 return new $handler($displayErrorDetails);
-            } else if ($handler instanceof AbstractErrorHandler) {
+            } elseif ($handler instanceof AbstractErrorHandler) {
                 $handler->setDisplayErrorDetails($displayErrorDetails);
                 return $handler;
             }
@@ -717,12 +717,12 @@ class App
                 $exception = new HttpNotAllowedException;
                 $exception->setAllowedMethods($routeInfo[1]);
                 $exception->setRequest($request);
-            break;
+                break;
 
             case Dispatcher::NOT_FOUND:
                 $exception = new HttpNotFoundException;
                 $exception->setRequest($request);
-            break;
+                break;
         }
 
         return $this->handleException($exception, $request, $response);

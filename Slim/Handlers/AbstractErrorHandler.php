@@ -159,7 +159,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
                     $renderer
                 ));
             }
-        } else if ($this->method === 'OPTIONS') {
+        } elseif ($this->method === 'OPTIONS') {
             $this->statusCode = 200;
             $this->contentType = 'text/plain';
             $renderer = PlainTextErrorRenderer::class;
@@ -167,16 +167,16 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
             switch ($this->contentType) {
                 case 'application/json':
                     $renderer = JSONErrorRenderer::class;
-                break;
+                    break;
 
                 case 'text/xml':
                 case 'application/xml':
                     $renderer = XMLErrorRenderer::class;
-                break;
+                    break;
 
                 case 'text/html':
                     $renderer = HTMLErrorRenderer::class;
-                break;
+                    break;
 
                 default:
                     throw new Error(sprintf(

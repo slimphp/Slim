@@ -337,7 +337,6 @@ class Request extends Message implements ServerRequestInterface
             $e->setRequest($this);
             $e->setDetails(['method' => $method]);
             throw $e;
-
         }
         return $method;
     }
