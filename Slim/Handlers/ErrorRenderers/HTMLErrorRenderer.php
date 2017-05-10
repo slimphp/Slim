@@ -20,21 +20,14 @@ class HTMLErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {
-        $title = 'Slim Application Error';
         $e = $this->exception;
-        $re = $e->getException();
+        $title = 'Slim Application Error';
 
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderExceptionFragment($e);
-            $html .= '<h2>Previous exception</h2>';
-            $html .= $this->renderExceptionFragment($re);
 
-            while ($e = $e->getPrevious()) {
-                $html .= '<h2>Previous exception</h2>';
-                $html .= $this->renderExceptionFragment($e);
-            }
         } else {
             $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
@@ -55,13 +48,17 @@ class HTMLErrorRenderer extends AbstractErrorRenderer
     public function renderGenericExceptionOutput()
     {
         $e = $this->exception;
+        $title = '';
+        $description = '';
 
-        $title = $e->getMessage();
+        if ($this->displayErrorDetails) {
+            $description = $e->getMessage();
+        }
+
         if (method_exists($e, 'getTitle')) {
             $title = $e->getTitle();
         }
 
-        $description = '';
         if (method_exists($e, 'getDescription')) {
             $description = $e->getDescription();
         }

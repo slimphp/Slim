@@ -125,22 +125,6 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * Test container has error handler
-     */
-    public function testGetErrorHandler()
-    {
-        $this->assertInstanceOf('\Slim\Handlers\Error', $this->container['errorHandler']);
-    }
-
-    /**
-     * Test container has error handler
-     */
-    public function testGetNotAllowedHandler()
-    {
-        $this->assertInstanceOf('\Slim\Handlers\NotAllowed', $this->container['notAllowedHandler']);
-    }
-
-    /**
      * Test settings can be edited
      */
     public function testSettingsCanBeEdited()

@@ -21,6 +21,7 @@ use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Error;
 use Exception;
+use Throwable;
 
 /**
  * Default Slim application error handler
@@ -44,7 +45,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * @var bool
      */
-    protected $displayErrorDetails = false;
+    protected $displayErrorDetails;
     /**
      * @var string
      */
@@ -78,7 +79,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * AbstractHandler constructor.
      * @param bool $displayErrorDetails
      */
-    public function __construct($displayErrorDetails = true)
+    public function __construct($displayErrorDetails = false)
     {
         $this->displayErrorDetails = $displayErrorDetails;
     }
@@ -98,9 +99,13 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         $this->response = $response;
         $this->exception = $exception;
         $this->method = $request->getMethod();
-        $this->contentType = $this->resolveContentType();
+        $this->contentType = $this->resolveContentType($request);
         $this->renderer = $this->resolveRenderer();
         $this->statusCode = $this->resolveStatusCode();
+
+        if (!$this->displayErrorDetails) {
+            $this->writeToErrorLog($exception);
+        }
 
         return $this->respond();
     }
@@ -112,11 +117,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * Slim's error handling requirements. Consider a fully-feature solution such
      * as willdurand/negotiation for any other situation.
      *
+     * @param ServerRequestInterface $request
      * @return string
      */
-    protected function resolveContentType()
+    protected function resolveContentType(ServerRequestInterface $request)
     {
-        $acceptHeader = $this->request->getHeaderLine('Accept');
+        $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
 
         if (count($selectedContentTypes)) {
@@ -225,5 +231,39 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
             ->withStatus($this->statusCode)
             ->withHeader('Content-type', $this->contentType)
             ->withBody($body);
+    }
+
+    /**
+     * Write to the error log if displayErrorDetails is false
+     *
+     * @param Exception|Throwable $throwable
+     *
+     * @return void
+     */
+    protected function writeToErrorLog($throwable)
+    {
+        if ($this->displayErrorDetails) {
+            return;
+        }
+        $renderer = new PlainTextErrorRenderer($throwable);
+        $message = 'Slim Application Error:' . PHP_EOL;
+        $message .= $renderer->render();
+        while ($throwable = $throwable->getPrevious()) {
+            $renderer = new PlainTextErrorRenderer($throwable);
+            $message .= PHP_EOL . 'Previous Error:' . PHP_EOL;
+            $message .= $renderer->render();
+        }
+        $message .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
+        $this->logError($message);
+    }
+
+    /**
+     * Wraps the error_log function so that this can be easily tested
+     *
+     * @param $message
+     */
+    protected function logError($message)
+    {
+        error_log($message);
     }
 }

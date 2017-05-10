@@ -9,9 +9,9 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit\Framework\TestCase;
-use Slim\Handlers\AbstractHandler;
+use Slim\Handlers\AbstractErrorHandler;
 
-class AbstractHandlerTest extends TestCase
+class AbstractErrorHandlerTest extends TestCase
 {
     public function testHalfValidContentType()
     {
@@ -19,7 +19,7 @@ class AbstractHandlerTest extends TestCase
 
         $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue('unknown/+json'));
 
-        $abstractHandler = $this->getMockForAbstractClass(AbstractHandler::class);
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
 
         $newTypes = [
             'application/xml',
@@ -27,13 +27,13 @@ class AbstractHandlerTest extends TestCase
             'text/html',
         ];
 
-        $class = new \ReflectionClass(AbstractHandler::class);
+        $class = new \ReflectionClass(AbstractErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($abstractHandler, $newTypes);
 
-        $method = $class->getMethod('determineContentType');
+        $method = $class->getMethod('resolveContentType');
         $method->setAccessible(true);
 
         $return = $method->invoke($abstractHandler, $req);
@@ -55,15 +55,15 @@ class AbstractHandlerTest extends TestCase
             ->method('getHeaderLine')
             ->willReturn('text/plain,text/html');
 
-        // provide access to the determineContentType() as it's a protected method
-        $class = new \ReflectionClass(AbstractHandler::class);
-        $method = $class->getMethod('determineContentType');
+        // provide access to the resolveContentType() as it's a protected method
+        $class = new \ReflectionClass(AbstractErrorHandler::class);
+        $method = $class->getMethod('resolveContentType');
         $method->setAccessible(true);
 
-        // use a mock object here as AbstractHandler cannot be directly instantiated
-        $abstractHandler = $this->getMockForAbstractClass(AbstractHandler::class);
+        // use a mock object here as AbstractErrorHandler cannot be directly instantiated
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
 
-        // call determineContentType()
+        // call resolveContentType()
         $return = $method->invoke($abstractHandler, $request);
 
         $this->assertEquals('text/html', $return);

@@ -10,14 +10,16 @@
 namespace Slim\Tests\Http;
 
 use PHPUnit\Framework\TestCase;
-use ReflectionProperty;
 use Slim\Collection;
+use Slim\Exception\HttpNotImplementedException;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use ReflectionProperty;
+use InvalidArgumentException;
 
 class RequestTest extends TestCase
 {
@@ -84,7 +86,7 @@ class RequestTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Slim\Exception\HttpNotImplementedException
      */
     public function testWithMethodInvalid()
     {
@@ -208,7 +210,7 @@ class RequestTest extends TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \Slim\Exception\HttpNotImplementedException
      */
     public function testCreateRequestWithInvalidMethodString()
     {

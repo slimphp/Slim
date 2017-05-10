@@ -9,6 +9,8 @@
 namespace Slim\Handlers\ErrorRenderers;
 
 use Slim\Handlers\AbstractErrorRenderer;
+use Exception;
+use Throwable;
 
 /**
  * Default Slim application JSON Error Renderer
@@ -22,16 +24,8 @@ class JSONErrorRenderer extends AbstractErrorRenderer
 
         if ($this->displayErrorDetails) {
             $error['exception'] = [];
-
             do {
-                $error['exception'][] = [
-                    'type' => get_class($e),
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => explode("\n", $e->getTraceAsString()),
-                ];
+                $error['exception'][] = $this->renderExceptionFragment($e);
             } while ($e = $e->getPrevious());
         }
 
@@ -40,7 +34,32 @@ class JSONErrorRenderer extends AbstractErrorRenderer
 
     public function renderGenericExceptionOutput()
     {
-        $error = ['message' => $this->exception->getMessage()];
+        $e = $this->exception;
+        $error = ['message' => $e->getMessage()];
+
+        if ($this->displayErrorDetails) {
+            $error['exception'] = [];
+            do {
+                $error['exception'][] = $this->renderExceptionFragment($e);
+            } while ($e = $e->getPrevious());
+        }
+
         return json_encode($error, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * @param Exception|Throwable $e
+     * @return array
+     */
+    public function renderExceptionFragment($e)
+    {
+        return [
+            'type' => get_class($e),
+            'code' => $e->getCode(),
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => explode("\n", $e->getTraceAsString()),
+        ];
     }
 }

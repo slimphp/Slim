@@ -9,7 +9,7 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit\Framework\TestCase;
-use Slim\Handlers\Error;
+use Slim\Handlers\ErrorHandler;
 use Slim\Http\Response;
 
 class ErrorTest extends TestCase
@@ -31,13 +31,13 @@ class ErrorTest extends TestCase
      *
      * @dataProvider errorProvider
      */
-    public function testError($acceptHeader, $contentType, $startOfBody)
+    public function testErrorHandler($acceptHeader, $contentType, $startOfBody)
     {
-        $error = new Error();
+        $errorHandler = new ErrorHandler();
         $e = new \Exception("Oops", 1, new \Exception('Previous oops'));
 
         /** @var Response $res */
-        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -49,13 +49,13 @@ class ErrorTest extends TestCase
      *
      * @dataProvider errorProvider
      */
-    public function testErrorDisplayDetails($acceptHeader, $contentType, $startOfBody)
+    public function testErrorHandlerDisplayDetails($acceptHeader, $contentType, $startOfBody)
     {
-        $error = new Error(true);
+        $errorHandler = new ErrorHandler(true);
         $e = new \Exception('Oops', 1, new \Exception('Opps before'));
 
         /** @var Response $res */
-        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -63,12 +63,12 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \Error
      */
     public function testNotFoundContentType()
     {
-        $errorMock = $this->getMockBuilder(Error::class)->setMethods(['determineContentType'])->getMock();
-        $errorMock->method('determineContentType')
+        $errorMock = $this->getMockBuilder(ErrorHandler::class)->setMethods(['resolveContentType'])->getMock();
+        $errorMock->method('resolveContentType')
             ->will($this->returnValue('unknown/type'));
 
         $e = new \Exception("Oops");
@@ -84,7 +84,7 @@ class ErrorTest extends TestCase
      */
     public function testPreviousException()
     {
-        $error = $this->getMockBuilder('\Slim\Handlers\Error')->setMethods(['logError'])->getMock();
+        $error = $this->getMockBuilder('\Slim\Handlers\ErrorHandler')->setMethods(['logError'])->getMock();
         $error->expects($this->once())->method('logError')->with(
             $this->logicalAnd(
                 $this->stringContains("Type: Exception" . PHP_EOL . "Message: Second Oops"),
@@ -96,22 +96,6 @@ class ErrorTest extends TestCase
         $second = new \Exception("Second Oops", 0, $first);
 
         $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second);
-    }
-
-    /**
-     * If someone extends the Error handler and calls renderHtmlExceptionOrError with
-     * a parameter that isn't an Exception or Error, then we thrown an Exception.
-     *
-     * @expectedException \RuntimeException
-     */
-    public function testRenderHtmlExceptionorErrorTypeChecksParameter()
-    {
-        $class = new \ReflectionClass(Error::class);
-        $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
-        $renderHtmlExceptionorError->setAccessible(true);
-
-        $error = new Error();
-        $renderHtmlExceptionorError->invokeArgs($error, ['foo']);
     }
 
     /**
