@@ -14,10 +14,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
+use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
 use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
 use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
 use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
+use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 
 /**
@@ -26,7 +28,7 @@ use Slim\Interfaces\ErrorHandlerInterface;
  * It outputs the error message and diagnostic information in either JSON, XML,
  * or HTML based on the Accept header.
  */
-abstract class AbstractHandler implements ErrorHandlerInterface
+abstract class AbstractErrorHandler implements ErrorHandlerInterface
 {
     /**
      * Known handled content types
@@ -66,7 +68,7 @@ abstract class AbstractHandler implements ErrorHandlerInterface
     /**
      * @var HTMLErrorRenderer|JSONErrorRenderer|XMLErrorRenderer|PlainTextErrorRenderer
      */
-    protected $renderer;
+    protected $renderer = null;
     /**
      * @var int
      */
@@ -143,6 +145,10 @@ abstract class AbstractHandler implements ErrorHandlerInterface
             return PlainTextErrorRenderer::class;
         }
 
+        if (!is_null($this->renderer)) {
+            return $this->renderer;
+        }
+
         switch ($this->contentType) {
             case 'application/json':
                 return JSONErrorRenderer::class;
@@ -171,5 +177,26 @@ abstract class AbstractHandler implements ErrorHandlerInterface
         }
 
         return $statusCode;
+    }
+
+    /**
+     * @return ResponseInterface
+     */
+    public function respond()
+    {
+        $e = $this->exception;
+        $renderer = new $this->renderer($e, $this->displayErrorDetails);
+        $output = $renderer->render();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($output);
+
+        if ($this->exception instanceof HttpNotAllowedException) {
+            $this->response->withHeader('Allow', $e->getAllowedMethods());
+        }
+
+        return $this->response
+            ->withStatus($this->statusCode)
+            ->withHeader('Content-type', $this->contentType)
+            ->withBody($body);
     }
 }

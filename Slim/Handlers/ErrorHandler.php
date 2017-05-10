@@ -19,26 +19,6 @@ use Slim\Http\Body;
  * It outputs the error message and diagnostic information in either JSON, XML,
  * or HTML based on the Accept header.
  */
-class ErrorHandler extends AbstractHandler
+class ErrorHandler extends AbstractErrorHandler
 {
-    /**
-     * @return ResponseInterface
-     */
-    public function respond()
-    {
-        $e = $this->exception;
-        $renderer = new $this->renderer($e, $this->displayErrorDetails);
-        $output = $renderer->render();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($output);
-
-        if ($this->exception instanceof HttpNotAllowedException) {
-            $this->response->withHeader('Allow', $e->getAllowedMethods());
-        }
-
-        return $this->response
-            ->withStatus($this->statusCode)
-            ->withHeader('Content-type', $this->contentType)
-            ->withBody($body);
-    }
 }
