@@ -67,6 +67,7 @@ class App
         'displayErrorDetails' => false,
         'addContentLengthHeader' => true,
         'routerCacheFile' => false,
+        'defaultErrorHandler' => null,
         'errorHandlers' => []
     ];
 
@@ -263,19 +264,117 @@ class App
     }
 
     /**
-     * Set callable to handle scenarios where a suitable
-     * route does not match the current request.
+     * Set callable to handle scenarios where an error
+     * occurs when processing the current request.
      *
      * This service MUST return a callable that accepts
-     * two arguments:
+     * three arguments optionally four arguments.
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Psr\Http\Message\ResponseInterface
+     * 3. Instance of Exception
+     * 4. Boolean displayErrorDetails (optional)
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param string|callable $handler
+     * @param string $type
+     * @param callable $handler
+     */
+    public function setErrorHandler($type, $handler)
+    {
+        if (!is_callable($handler)) {
+            throw new RuntimeException(sprintf(
+                'Invalid parameter %s of type %s passed to the setErrorHandler method. ' .
+                'Please provide a callable function.',
+                $handler,
+                gettype($handler)
+            ));
+        }
+
+        $handlers = $this->getSetting('errorHandlers', []);
+        $handlers[$type] = $handler;
+        $this->addSetting('errorHandlers', $handlers);
+    }
+
+    /**
+     * Get callable to handle scenarios where an error
+     * occurs when processing the current request.
+     *
+     * @param string $type
+     * @return callable
+     */
+    public function getErrorHandler($type)
+    {
+        $handlers = $this->getSetting('errorHandlers');
+
+        if (isset($handlers[$type])) {
+            $handler = $handlers[$type];
+
+            if (is_callable($handler)) {
+                return $handler;
+            }
+        }
+
+        return $this->getDefaultErrorHandler();
+    }
+
+    /**
+     * Set callable as the default Slim application error handler.
+     *
+     * This service MUST return a callable that accepts
+     * three arguments optionally four arguments.
+     *
+     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+     * 2. Instance of \Psr\Http\Message\ResponseInterface
+     * 3. Instance of Exception
+     * 4. Boolean displayErrorDetails (optional)
+     *
+     * The callable MUST return an instance of
+     * \Psr\Http\Message\ResponseInterface.
+     *
+     * @param callable $handler
+     */
+    public function setDefaultErrorHandler($handler)
+    {
+        if (!is_callable($handler)) {
+            throw new RuntimeException(sprintf(
+                'Invalid parameter %s of type %s passed to the setDefaultErrorHandler method. ' .
+                'Please provide a callable function.',
+                $handler,
+                gettype($handler)
+            ));
+        }
+
+        $this->addSetting('defaultErrorHandler', $handler);
+    }
+
+    /**
+     * Get the default error handler from settings.
+     *
+     * @return callable|ErrorHandler
+     */
+    public function getDefaultErrorHandler()
+    {
+        return $this->getSetting('defaultErrorHandler', new ErrorHandler);
+    }
+
+    /**
+     * Set callable to handle scenarios where a suitable
+     * route does not match the current request.
+     *
+     * This service MUST return a callable that accepts
+     * three arguments optionally four arguments.
+     *
+     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+     * 2. Instance of \Psr\Http\Message\ResponseInterface
+     * 3. Instance of Exception
+     * 4. Boolean displayErrorDetails (optional)
+     *
+     * The callable MUST return an instance of
+     * \Psr\Http\Message\ResponseInterface.
+     *
+     * @param callable $handler
      */
     public function setNotFoundHandler($handler)
     {
@@ -286,7 +385,7 @@ class App
      * Get callable to handle scenarios where a suitable
      * route does not match the current request.
      *
-     * @return callable|Error
+     * @return callable|ErrorHandlerInterface
      */
     public function getNotFoundHandler()
     {
@@ -298,11 +397,12 @@ class App
      * route matches the request URI but not the request method.
      *
      * This service MUST return a callable that accepts
-     * three arguments:
+     * three arguments optionally four arguments.
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Array of allowed HTTP methods
+     * 3. Instance of Exception
+     * 4. Boolean displayErrorDetails (optional)
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
@@ -318,7 +418,7 @@ class App
      * Get callable to handle scenarios where a suitable
      * route matches the request URI but not the request method.
      *
-     * @return callable|ErrorHandler
+     * @return callable
      */
     public function getNotAllowedHandler()
     {
@@ -326,79 +426,24 @@ class App
     }
 
     /**
-     * Set callable to handle scenarios where an error
-     * occurs when processing the current request.
-     *
-     * This service MUST return a callable that accepts three arguments:
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Error
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param string $type
-     * @param string|callable $handler
-     */
-    public function setErrorHandler($type, $handler)
-    {
-        if (!(is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class))
-            && !is_callable($handler)
-        ) {
-            throw new RuntimeException(sprintf(
-                'Invalid parameter %s of type %s passed to setErrorHandler method. ' .
-                'Please provide a valid subclass name of AbstractErrorHandler ' .
-                'or an invokable callback function.',
-                $handler,
-                gettype($handler)
-            ));
-        }
-
-        $handlers = $this->getSetting('errorHandlers', []);
-        $handlers[$type] = $handler;
-        $this->addSetting('errorHandlers', $handlers);
-    }
-
-    /**
-     * Get callable to handle scenarios where an error
-     * occurs when processing the current request.
-     *
-     * @param null|string $type
-     * @return callable|ErrorHandlerInterface
-     */
-    public function getErrorHandler($type = null)
-    {
-        $handlers = $this->getSetting('errorHandlers');
-        $displayErrorDetails = $this->getSetting('displayErrorDetails');
-
-        if (!is_null($type) && isset($handlers[$type])) {
-            $handler = $handlers[$type];
-
-            if (is_callable($handler)) {
-                return $handler;
-            } elseif (is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class)) {
-                return new $handler($displayErrorDetails);
-            }
-        }
-
-        return new ErrorHandler($displayErrorDetails);
-    }
-
-    /**
      * Set callable to handle scenarios where a PHP error
      * occurs when processing the current request.
      *
-     * This service MUST return a callable that accepts three arguments:
+     * This service MUST return a callable that accepts
+     * three arguments optionally four arguments.
      *
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Error
+     * 3. Instance of Exception
+     * 4. Boolean displayErrorDetails (optional)
+     *
+     * Or a subclass name of AbstractErrorHandler
+     * eg. CustomErrorHandler::class
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param string|callable $handler
+     * @param callable $handler
      */
     public function setPhpErrorHandler($handler)
     {
@@ -409,7 +454,7 @@ class App
      * Get callable to handle scenarios where a PHP error
      * occurs when processing the current request.
      *
-     * @return callable|ErrorHandlerInterface
+     * @return callable
      */
     public function getPhpErrorHandler()
     {
@@ -777,6 +822,7 @@ class App
     {
         $exceptionType = get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);
+        $displayErrorDetails = $this->getSetting('displayErrorDetails');
 
         /**
          * Retrieve request object from exception
@@ -800,7 +846,7 @@ class App
         }
 
         return $recoverable
-            ? call_user_func_array($handler, [$request, $response, $exception])
+            ? call_user_func_array($handler, [$request, $response, $exception, $displayErrorDetails])
             : $response;
     }
 

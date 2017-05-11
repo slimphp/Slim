@@ -16,6 +16,7 @@ namespace Slim\Interfaces;
  */
 interface ErrorRendererInterface
 {
+    public function render();
     public function renderPhpExceptionOutput();
     public function renderGenericExceptionOutput();
 }

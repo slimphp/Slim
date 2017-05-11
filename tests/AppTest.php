@@ -92,10 +92,10 @@ class AppTest extends TestCase
         $this->assertAttributeContains('foo', 'settings', $app);
     }
 
-    public function testGetErrorHandler()
+    public function testGetDefaultErrorHandler()
     {
         $app = new App();
-        $this->assertInstanceOf('\Slim\Handlers\ErrorHandler', $app->getErrorHandler());
+        $this->assertInstanceOf('\Slim\Handlers\ErrorHandler', $app->getDefaultErrorHandler());
     }
 
     /********************************************************************************
@@ -1019,36 +1019,54 @@ class AppTest extends TestCase
         $this->assertEquals($res->getBody(), $expectedOutput);
     }
 
+    public function testSetDefaultErrorHandler()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function () {
+            throw new HttpNotFoundException;
+        });
+        $handler = function ($req, $res) {
+            return $res->withJson(['Oops..']);
+        };
+        $app->setDefaultErrorHandler($handler);
+        $res = $app->run(true);
+        $expectedOutput = json_encode(['Oops..']);
+
+        $this->assertEquals($res->getBody(), $expectedOutput);
+    }
+
     /**
      * @expectedException \RuntimeException
      */
     public function testSetErrorHandlerThrowsExceptionWhenInvalidArgumentPassed()
     {
         $app = new App();
-        $app->setErrorHandler('RandomExceptionClassName', 'NonExistantClassname');
+        $app->setErrorHandler('RandomExceptionClassName', 'InvalidParameter');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testSetDefaultErrorHandlerThrowsExceptionWhenInvalidArgumentPassed()
+    {
+        $app = new App();
+        $app->setDefaultErrorHandler('RandomExceptionClassName');
     }
 
     public function testErrorHandlerShortcuts()
     {
         $app = new App();
-        $handler = MockErrorHandler::class;
+        $handler = new MockErrorHandler;
         $app->setNotAllowedHandler($handler);
         $app->setNotFoundHandler($handler);
         $app->setPhpErrorHandler($handler);
 
-        $this->assertInstanceOf($handler, $app->getErrorHandler(HttpNotAllowedException::class));
-        $this->assertInstanceOf($handler, $app->getErrorHandler(HttpNotFoundException::class));
-        $this->assertInstanceOf($handler, $app->getErrorHandler(PhpException::class));
-    }
-
-    public function testGetErrorHandlerInstantiatesHandlerFromString()
-    {
-        $app = new App();
-        $exception = HttpNotFoundException::class;
-        $app->setErrorHandler($exception, MockErrorHandler::class);
-        $handler = $app->getErrorHandler($exception);
-
-        $this->assertInstanceOf(MockErrorHandler::class, $handler);
+        $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(HttpNotAllowedException::class));
+        $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(HttpNotFoundException::class));
+        $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(PhpException::class));
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForPhpExceptions()

@@ -36,7 +36,7 @@ class AbstractErrorHandlerTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($abstractHandler, $newTypes);
 
-        $method = $class->getMethod('resolveContentType');
+        $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
         $return = $method->invoke($abstractHandler, $req);
@@ -58,15 +58,15 @@ class AbstractErrorHandlerTest extends TestCase
             ->method('getHeaderLine')
             ->willReturn('text/plain,text/html');
 
-        // provide access to the resolveContentType() as it's a protected method
+        // provide access to the determineContentType() as it's a protected method
         $class = new \ReflectionClass(AbstractErrorHandler::class);
-        $method = $class->getMethod('resolveContentType');
+        $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
         // use a mock object here as AbstractErrorHandler cannot be directly instantiated
         $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
 
-        // call resolveContentType()
+        // call determineContentType()
         $return = $method->invoke($abstractHandler, $request);
 
         $this->assertEquals('text/html', $return);

@@ -12,7 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
-use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
 use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
 use Slim\Handlers\ErrorRenderers\XmlErrorRenderer;
@@ -76,38 +75,35 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     protected $statusCode;
 
     /**
-     * AbstractHandler constructor.
-     * @param bool $displayErrorDetails
-     */
-    public function __construct($displayErrorDetails = false)
-    {
-        $this->displayErrorDetails = $displayErrorDetails;
-    }
-
-    /**
      * Invoke error handler
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
      * @param Exception    $exception The caught Exception object
+     * @param bool $displayErrorDetails Whether or not to display the error details
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, Exception $exception)
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        Exception $exception,
+        $displayErrorDetails = false
+    ) {
+        $this->displayErrorDetails = $displayErrorDetails;
         $this->request = $request;
         $this->response = $response;
         $this->exception = $exception;
         $this->method = $request->getMethod();
-        $this->statusCode = $this->resolveStatusCode();
-        $this->contentType = $this->resolveContentType($request);
-        $this->renderer = $this->resolveRenderer();
+        $this->statusCode = $this->determineStatusCode();
+        $this->contentType = $this->determineContentType($request);
+        $this->renderer = $this->determineRenderer();
 
         if (!$this->displayErrorDetails) {
             $this->writeToErrorLog();
         }
 
-        return $this->respond();
+        return $this->formatResponse();
     }
 
     /**
@@ -120,7 +116,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * @param ServerRequestInterface $request
      * @return string
      */
-    protected function resolveContentType(ServerRequestInterface $request)
+    protected function determineContentType(ServerRequestInterface $request)
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
@@ -147,7 +143,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @throws RuntimeException
      */
-    protected function resolveRenderer()
+    protected function determineRenderer()
     {
         $renderer = null;
 
@@ -193,7 +189,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * @return int
      */
-    protected function resolveStatusCode()
+    protected function determineStatusCode()
     {
         $statusCode = 500;
 
@@ -207,13 +203,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * @return ResponseInterface
      */
-    public function respond()
+    protected function formatResponse()
     {
         $e = $this->exception;
         $response = $this->response;
-        $output = $this->renderer->render();
         $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($output);
+        $body->write($this->renderer->render());
 
         if ($e instanceof HttpNotAllowedException) {
             $response = $response->withHeader('Allow', $e->getAllowedMethods());
