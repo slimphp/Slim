@@ -1028,6 +1028,19 @@ class AppTest extends TestCase
         $app->setErrorHandler('RandomExceptionClassName', 'NonExistantClassname');
     }
 
+    public function testErrorHandlerShortcuts()
+    {
+        $app = new App();
+        $handler = MockErrorHandler::class;
+        $app->setNotAllowedHandler($handler);
+        $app->setNotFoundHandler($handler);
+        $app->setPhpErrorHandler($handler);
+
+        $this->assertInstanceOf($handler, $app->getErrorHandler(HttpNotAllowedException::class));
+        $this->assertInstanceOf($handler, $app->getErrorHandler(HttpNotFoundException::class));
+        $this->assertInstanceOf($handler, $app->getErrorHandler(PhpException::class));
+    }
+
     public function testGetErrorHandlerInstantiatesHandlerFromString()
     {
         $app = new App();
