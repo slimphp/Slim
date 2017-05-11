@@ -40,6 +40,28 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertNotEquals($genericOutput, $phpExceptionOutput);
     }
 
+    public function testHTMLErrorRendererDisplaysErrorDetails()
+    {
+        $exception = new PhpException(new RuntimeException('Oops..'));
+        $renderer = new HTMLErrorRenderer($exception, true);
+        $output = $renderer->render();
+
+        $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
+    }
+
+    public function testHTMLErrorRendererRenderFragmentMethod()
+    {
+        $exception = new Exception('Oops..', 500);
+        $renderer = new HTMLErrorRenderer($exception, true);
+        $output = $renderer->renderExceptionFragment($exception);
+
+        $this->assertRegExp('/.*Type:*/', $output);
+        $this->assertRegExp('/.*Code:*/', $output);
+        $this->assertRegExp('/.*Message*/', $output);
+        $this->assertRegExp('/.*File*/', $output);
+        $this->assertRegExp('/.*Line*/', $output);
+    }
+
     public function testJSONErrorRendererDisplaysErrorDetails()
     {
         $exception = new Exception('Oops..');

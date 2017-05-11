@@ -83,10 +83,6 @@ class HTMLErrorRenderer extends AbstractErrorRenderer
      */
     public function renderExceptionFragment($exception)
     {
-        if (!$exception instanceof Exception && !$exception instanceof Error) {
-            throw new RuntimeException('Unexpected type. Expected Exception or Error.');
-        }
-
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 
         if (($code = $exception->getCode())) {
