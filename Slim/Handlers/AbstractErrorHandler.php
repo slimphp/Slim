@@ -13,9 +13,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
-use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
-use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
-use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
+use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
+use Slim\Handlers\ErrorRenderers\XmlErrorRenderer;
+use Slim\Handlers\ErrorRenderers\JsonErrorRenderer;
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
@@ -168,12 +168,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         } else {
             switch ($this->contentType) {
                 case 'application/json':
-                    $renderer = JSONErrorRenderer::class;
+                    $renderer = JsonErrorRenderer::class;
                     break;
 
                 case 'text/xml':
                 case 'application/xml':
-                    $renderer = XMLErrorRenderer::class;
+                    $renderer = XmlErrorRenderer::class;
                     break;
 
                 case 'text/plain':
@@ -182,7 +182,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
 
                 default:
                 case 'text/html':
-                    $renderer = HTMLErrorRenderer::class;
+                    $renderer = HtmlErrorRenderer::class;
                     break;
             }
         }

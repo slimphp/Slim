@@ -10,10 +10,10 @@ namespace Slim\Tests\Handlers;
 
 use PHPUnit\Framework\TestCase;
 use Slim\Exception\PhpException;
-use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
-use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
+use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
+use Slim\Handlers\ErrorRenderers\JsonErrorRenderer;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
-use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
+use Slim\Handlers\ErrorRenderers\XmlErrorRenderer;
 use Exception;
 use RuntimeException;
 
@@ -27,14 +27,14 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertEquals('Oops..', $renderer->render());
     }
 
-    public function testHTMLErrorRendererOutputIsDifferentForPhpExceptions()
+    public function testHTMLErrorRendererOutputForPhpExceptions()
     {
         $exception = new Exception('Oops..');
-        $genericRenderer = new HTMLErrorRenderer($exception);
+        $genericRenderer = new HtmlErrorRenderer($exception);
         $genericOutput = $genericRenderer->render();
 
         $phpException = new PhpException(new RuntimeException('Oops..'));
-        $phpExceptionRenderer = new HTMLErrorRenderer($phpException);
+        $phpExceptionRenderer = new HtmlErrorRenderer($phpException);
         $phpExceptionOutput = $phpExceptionRenderer->render();
 
         $this->assertNotEquals($genericOutput, $phpExceptionOutput);
@@ -44,7 +44,7 @@ class AbstractErrorRendererTest extends TestCase
     public function testHTMLErrorRendererDisplaysErrorDetails()
     {
         $exception = new PhpException(new RuntimeException('Oops..'));
-        $renderer = new HTMLErrorRenderer($exception, true);
+        $renderer = new HtmlErrorRenderer($exception, true);
         $output = $renderer->render();
 
         $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
@@ -53,7 +53,7 @@ class AbstractErrorRendererTest extends TestCase
     public function testHTMLErrorRendererRenderFragmentMethod()
     {
         $exception = new Exception('Oops..', 500);
-        $renderer = new HTMLErrorRenderer($exception, true);
+        $renderer = new HtmlErrorRenderer($exception, true);
         $output = $renderer->renderExceptionFragment($exception);
 
         $this->assertRegExp('/.*Type:*/', $output);
@@ -63,10 +63,18 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertRegExp('/.*Line*/', $output);
     }
 
+    public function testJSONErrorRendererPhpOutputForPhpExceptions()
+    {
+        $exception = new PhpException(new RuntimeException('Oops..'));
+        $renderer = new JsonErrorRenderer($exception);
+        $output = $renderer->renderPhpExceptionOutput();
+        $this->assertRegExp('/.*Slim Application Error.*/', $output);
+    }
+
     public function testJSONErrorRendererDisplaysErrorDetails()
     {
         $exception = new Exception('Oops..');
-        $renderer = new JSONErrorRenderer($exception, true);
+        $renderer = new JsonErrorRenderer($exception, true);
         $fragment = $renderer->renderExceptionFragment($exception);
         $output = json_encode(json_decode($renderer->render()));
         $expectedString = json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
@@ -77,7 +85,7 @@ class AbstractErrorRendererTest extends TestCase
     public function testJSONErrorRendererDoesNotDisplayErrorDetails()
     {
         $exception = new Exception('Oops..');
-        $renderer = new JSONErrorRenderer($exception);
+        $renderer = new JsonErrorRenderer($exception);
         $output = json_encode(json_decode($renderer->render()));
 
         $this->assertEquals($output, json_encode(['message' => 'Oops..']));
@@ -87,7 +95,7 @@ class AbstractErrorRendererTest extends TestCase
     {
         $previousException = new Exception('Oh no!');
         $exception = new Exception('Oops..', 0, $previousException);
-        $renderer = new JSONErrorRenderer($exception, true);
+        $renderer = new JsonErrorRenderer($exception, true);
         $output = json_encode(json_decode($renderer->render()));
 
         $fragments = [
@@ -104,7 +112,7 @@ class AbstractErrorRendererTest extends TestCase
     {
         $previousException = new RuntimeException('Oops..');
         $exception = new PhpException($previousException);
-        $renderer = new XMLErrorRenderer($exception, true);
+        $renderer = new XmlErrorRenderer($exception, true);
         $output = simplexml_load_string($renderer->render());
 
         $this->assertEquals($output->message[0], 'Slim Application Error');

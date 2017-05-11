@@ -13,7 +13,7 @@ use Slim\Handlers\AbstractErrorRenderer;
 /**
  * Default Slim application XML Error Renderer
  */
-class XMLErrorRenderer extends AbstractErrorRenderer
+class XmlErrorRenderer extends AbstractErrorRenderer
 {
     /**
      * @return string

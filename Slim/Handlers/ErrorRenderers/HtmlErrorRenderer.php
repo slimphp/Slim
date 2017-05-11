@@ -16,7 +16,7 @@ use Slim\Handlers\AbstractErrorRenderer;
 /**
  * Default Slim application HTML Error Renderer
  */
-class HTMLErrorRenderer extends AbstractErrorRenderer
+class HtmlErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {

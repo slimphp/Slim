@@ -15,7 +15,7 @@ use Throwable;
 /**
  * Default Slim application JSON Error Renderer
  */
-class JSONErrorRenderer extends AbstractErrorRenderer
+class JsonErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {

@@ -16,7 +16,7 @@ use Slim\Exception\HttpNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorHandler;
-use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
+use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -1085,7 +1085,7 @@ class AppTest extends TestCase
         // Create Html Renderer and Assert Output
         $exception = new HttpNotAllowedException;
         $exception->setAllowedMethods(['GET']);
-        $renderer = new HTMLErrorRenderer($exception, false);
+        $renderer = new HtmlErrorRenderer($exception, false);
 
         // Invoke app
         $resOut = $app($req, $res);
