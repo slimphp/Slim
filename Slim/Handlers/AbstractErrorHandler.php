@@ -157,7 +157,8 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
             $renderer = $this->renderer;
             if (!is_subclass_of($renderer, AbstractErrorRenderer::class)) {
                 throw new RuntimeException(sprintf(
-                    'Non compliant error renderer provided (%s). Renderer expected to be a subclass of AbstractErrorRenderer',
+                    'Non compliant error renderer provided (%s). ' .
+                    'Renderer expected to be a subclass of AbstractErrorRenderer',
                     $renderer
                 ));
             }
