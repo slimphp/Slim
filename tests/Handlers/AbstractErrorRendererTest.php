@@ -38,6 +38,7 @@ class AbstractErrorRendererTest extends TestCase
         $phpExceptionOutput = $phpExceptionRenderer->render();
 
         $this->assertNotEquals($genericOutput, $phpExceptionOutput);
+        $this->assertRegExp('/.*Slim Application Error.*/', $phpExceptionOutput);
     }
 
     public function testHTMLErrorRendererDisplaysErrorDetails()
