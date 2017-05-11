@@ -10,6 +10,7 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
@@ -19,8 +20,8 @@ use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
-use Error;
 use Exception;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -145,7 +146,8 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @return ErrorRendererInterface
      *
-     * @throws Error
+     * @throws HttpBadRequestException
+     * @throws RuntimeException
      */
     protected function resolveRenderer()
     {
@@ -154,7 +156,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         if (!is_null($this->renderer)) {
             $renderer = $this->renderer;
             if (!is_subclass_of($renderer, AbstractErrorRenderer::class)) {
-                throw new Error(sprintf(
+                throw new RuntimeException(sprintf(
                     'Non compliant error renderer provided (%s). Renderer expected to be a subclass of AbstractErrorRenderer',
                     $renderer
                 ));
@@ -179,7 +181,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
                     break;
 
                 default:
-                    throw new Error(sprintf(
+                    throw new HttpBadRequestException(sprintf(
                         'Cannot render unknown content type: %s',
                         $this->contentType
                     ));

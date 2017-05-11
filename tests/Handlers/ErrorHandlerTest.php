@@ -63,7 +63,7 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @expectedException \Error
+     * @expectedException \Slim\Exception\HttpBadRequestException
      */
     public function testNotFoundContentType()
     {
