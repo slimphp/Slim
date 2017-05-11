@@ -10,7 +10,6 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
@@ -41,7 +40,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         'application/json',
         'application/xml',
         'text/xml',
-        'text/html',
+        'text/html'
     ];
     /**
      * @var bool
@@ -50,7 +49,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * @var string
      */
-    protected $contentType = 'text/plain';
+    protected $contentType;
     /**
      * @var string
      */
@@ -146,12 +145,16 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @return ErrorRendererInterface
      *
-     * @throws HttpBadRequestException
      * @throws RuntimeException
      */
     protected function resolveRenderer()
     {
         $renderer = null;
+
+        if ($this->method === 'OPTIONS') {
+            $this->statusCode = 200;
+            $this->contentType = 'text/plain';
+        }
 
         if (!is_null($this->renderer)) {
             $renderer = $this->renderer;
@@ -162,10 +165,6 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
                     $renderer
                 ));
             }
-        } elseif ($this->method === 'OPTIONS') {
-            $this->statusCode = 200;
-            $this->contentType = 'text/plain';
-            $renderer = PlainTextErrorRenderer::class;
         } else {
             switch ($this->contentType) {
                 case 'application/json':
@@ -177,16 +176,14 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
                     $renderer = XMLErrorRenderer::class;
                     break;
 
-                case 'text/html':
-                    $renderer = HTMLErrorRenderer::class;
+                case 'text/plain':
+                    $renderer = PlainTextErrorRenderer::class;
                     break;
 
                 default:
-                    throw new HttpBadRequestException(sprintf(
-                        'Cannot render unknown content type: %s',
-                        $this->contentType
-                    ));
-                break;
+                case 'text/html':
+                    $renderer = HTMLErrorRenderer::class;
+                    break;
             }
         }
 

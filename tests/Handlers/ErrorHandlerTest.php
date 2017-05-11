@@ -63,22 +63,6 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @expectedException \Slim\Exception\HttpBadRequestException
-     */
-    public function testNotFoundContentType()
-    {
-        $errorMock = $this->getMockBuilder(ErrorHandler::class)->setMethods(['resolveContentType'])->getMock();
-        $errorMock->method('resolveContentType')
-            ->will($this->returnValue('unknown/type'));
-
-        $e = new \Exception("Oops");
-
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-
-        $errorMock->__invoke($req, new Response(), $e);
-    }
-
-    /**
      * Test that an exception with a previous exception provides correct output
      * to the error log
      */
