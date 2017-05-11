@@ -19,23 +19,24 @@ class JSONErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {
-        $e = $this->exception;
-        $error = ['message' => 'Slim Application Error'];
-
-        if ($this->displayErrorDetails) {
-            $error['exception'] = [];
-            do {
-                $error['exception'][] = $this->renderExceptionFragment($e);
-            } while ($e = $e->getPrevious());
-        }
-
-        return json_encode($error, JSON_PRETTY_PRINT);
+        $message = 'Slim Application Error';
+        return $this->renderExceptionBody($message);
     }
 
     public function renderGenericExceptionOutput()
     {
+        $message = $this->exception->getMessage();
+        return $this->renderExceptionBody($message);
+    }
+
+    /**
+     * @param $message
+     * @return string
+     */
+    public function renderExceptionBody($message)
+    {
         $e = $this->exception;
-        $error = ['message' => $e->getMessage()];
+        $error = ['message' => $message];
 
         if ($this->displayErrorDetails) {
             $error['exception'] = [];
@@ -59,7 +60,6 @@ class JSONErrorRenderer extends AbstractErrorRenderer
             'message' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
-            'trace' => explode("\n", $e->getTraceAsString()),
         ];
     }
 }

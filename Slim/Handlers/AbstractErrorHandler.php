@@ -99,9 +99,9 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         $this->response = $response;
         $this->exception = $exception;
         $this->method = $request->getMethod();
+        $this->statusCode = $this->resolveStatusCode();
         $this->contentType = $this->resolveContentType($request);
         $this->renderer = $this->resolveRenderer();
-        $this->statusCode = $this->resolveStatusCode();
 
         if (!$this->displayErrorDetails) {
             $this->writeToErrorLog($exception);
@@ -210,6 +210,14 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     public function setDisplayErrorDetails($displayErrorDetails)
     {
         $this->displayErrorDetails = $displayErrorDetails;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDisplayErrorDetails()
+    {
+        return $this->displayErrorDetails;
     }
 
     /**

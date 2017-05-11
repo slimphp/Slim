@@ -153,11 +153,11 @@ class UploadedFilesTest extends TestCase
         $uploadedFile->moveTo($path);
     }
 
-    /*
+    /**
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
      * @return UploadedFile
-     *
+     */
     public function testMoveTo(UploadedFile $uploadedFile)
     {
         $tempName = uniqid('file-');
@@ -170,13 +170,12 @@ class UploadedFilesTest extends TestCase
 
         return $uploadedFile;
     }
-    */
 
-    /*
+    /**
      * @depends testMoveTo
      * @param UploadedFile $uploadedFile
      * @expectedException \RuntimeException
-     *
+     */
     public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
     {
         $tempName = uniqid('file-');
@@ -187,43 +186,39 @@ class UploadedFilesTest extends TestCase
 
         $uploadedFile->moveTo($path);
     }
-    */
 
-    /*
+    /**
      * This test must run after testMoveTo
      *
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
      * @expectedException \RuntimeException
-     *
+     */
     public function testMoveToAgain(UploadedFile $uploadedFile)
     {
         $tempName = uniqid('file-');
         $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
         $uploadedFile->moveTo($path);
     }
-    */
 
-    /*
+
+    /**
      * This test must run after testMoveTo
      *
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
      * @expectedException \RuntimeException
-     *
+     */
     public function testMovedStream($uploadedFile)
     {
         $uploadedFile->getStream();
     }
-    */
 
-    /*
     public function testMoveToStream()
     {
         $uploadedFile = $this->generateNewTmpFile();
         $uploadedFile->moveTo('php://temp');
     }
-    */
 
     public function providerCreateFromEnvironment()
     {

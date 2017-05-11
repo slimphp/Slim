@@ -9,7 +9,10 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit\Framework\TestCase;
+use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\AbstractErrorHandler;
+use Slim\Handlers\ErrorHandler;
+use Slim\Http\Response;
 
 class AbstractErrorHandlerTest extends TestCase
 {
@@ -67,5 +70,29 @@ class AbstractErrorHandlerTest extends TestCase
         $return = $method->invoke($abstractHandler, $request);
 
         $this->assertEquals('text/html', $return);
+    }
+
+    public function testOptions()
+    {
+        $handler = new ErrorHandler;
+        $exception = new HttpNotAllowedException;
+        $exception->setAllowedMethods(['POST', 'PUT']);
+        /** @var Response $res */
+        $res = $handler->__invoke($this->getRequest('OPTIONS'), new Response(), $exception);
+        $this->assertSame(200, $res->getStatusCode());
+        $this->assertTrue($res->hasHeader('Allow'));
+        $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
+    }
+
+    /**
+     * @param string $method
+     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
+     */
+    protected function getRequest($method, $contentType = 'text/html')
+    {
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req->expects($this->once())->method('getMethod')->will($this->returnValue($method));
+        $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue($contentType));
+        return $req;
     }
 }

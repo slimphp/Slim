@@ -343,6 +343,18 @@ class App
      */
     public function setErrorHandler($type, $handler)
     {
+        if (!(is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class))
+            && !is_callable($handler)
+        ) {
+            throw new RuntimeException(sprintf(
+                'Invalid parameter %s of type %s passed to setErrorHandler method. ' .
+                'Please provide a valid subclass name of AbstractErrorHandler ' .
+                'or an invokable callback function.',
+                $handler,
+                gettype($handler)
+            ));
+        }
+
         $handlers = $this->getSetting('errorHandlers', []);
         $handlers[$type] = $handler;
         $this->addSetting('errorHandlers', $handlers);
@@ -367,9 +379,6 @@ class App
                 return $handler;
             } elseif (is_string($handler) && is_subclass_of($handler, AbstractErrorHandler::class)) {
                 return new $handler($displayErrorDetails);
-            } elseif ($handler instanceof AbstractErrorHandler) {
-                $handler->setDisplayErrorDetails($displayErrorDetails);
-                return $handler;
             }
         }
 

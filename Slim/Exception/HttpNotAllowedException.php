@@ -19,7 +19,7 @@ class HttpNotAllowedException extends HttpException
             $allowedMethods = $details['allowedMethods'];
 
             if (is_array($allowedMethods)) {
-                return implode(',', $allowedMethods);
+                return implode(', ', $allowedMethods);
             } elseif (is_string($allowedMethods)) {
                 return $allowedMethods;
             }

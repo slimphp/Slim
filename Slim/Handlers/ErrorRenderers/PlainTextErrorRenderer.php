@@ -17,8 +17,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {
-        $e = $this->exception;
-        return $this->renderExceptionFragment($e);
+        return $this->renderExceptionFragment();
     }
 
     public function renderGenericExceptionOutput()
@@ -26,7 +25,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
         $e = $this->exception;
 
         if (!$this->displayErrorDetails) {
-            return $this->renderExceptionFragment($e);
+            return $this->renderExceptionFragment();
         }
 
         return $e->getMessage();
