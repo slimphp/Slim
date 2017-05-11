@@ -13,6 +13,7 @@ use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorRenderers\HTMLErrorRenderer;
 use Slim\Handlers\ErrorRenderers\JSONErrorRenderer;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
+use Slim\Handlers\ErrorRenderers\XMLErrorRenderer;
 use Exception;
 use RuntimeException;
 
@@ -74,5 +75,17 @@ class AbstractErrorRendererTest extends TestCase
         $expectedString = json_encode(['message' => 'Oops..', 'exception' => $fragments]);
 
         $this->assertEquals($output, $expectedString);
+    }
+
+    public function testXMLErrorRendererDisplaysErrorDetails()
+    {
+        $previousException = new RuntimeException('Oops..');
+        $exception = new PhpException($previousException);
+        $renderer = new XMLErrorRenderer($exception, true);
+        $output = simplexml_load_string($renderer->render());
+
+        $this->assertEquals($output->message[0], 'Slim Application Error');
+        $this->assertEquals((string)$output->exception[0]->type, 'Slim\Exception\PhpException');
+        $this->assertEquals((string)$output->exception[1]->type, 'RuntimeException');
     }
 }

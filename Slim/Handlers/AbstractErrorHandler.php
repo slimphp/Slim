@@ -205,22 +205,6 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * @param bool $displayErrorDetails
-     */
-    public function setDisplayErrorDetails($displayErrorDetails)
-    {
-        $this->displayErrorDetails = $displayErrorDetails;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getDisplayErrorDetails()
-    {
-        return $this->displayErrorDetails;
-    }
-
-    /**
      * @return ResponseInterface
      */
     public function respond()
