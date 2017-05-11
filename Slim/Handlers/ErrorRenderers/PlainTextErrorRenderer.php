@@ -9,6 +9,8 @@
 namespace Slim\Handlers\ErrorRenderers;
 
 use Slim\Handlers\AbstractErrorRenderer;
+use Exception;
+use Throwable;
 
 /**
  * Default Slim application Plain Text Error Renderer
@@ -17,23 +19,39 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
     public function renderPhpExceptionOutput()
     {
-        return $this->renderExceptionFragment();
+        return $this->formatExceptionBody();
     }
 
     public function renderGenericExceptionOutput()
     {
-        $e = $this->exception;
-
-        if (!$this->displayErrorDetails) {
-            return $this->renderExceptionFragment();
+        if ($this->displayErrorDetails) {
+            return $this->formatExceptionBody();
         }
 
-        return $e->getMessage();
+        return $this->exception->getMessage();
     }
 
-    public function renderExceptionFragment()
+    public function formatExceptionBody()
     {
         $e = $this->exception;
+
+        $text = 'Slim Application Error:' . PHP_EOL;
+        $text .= $this->formatExceptionFragment($e);
+
+        while ($e = $e->getPrevious()) {
+            $text .= PHP_EOL . 'Previous Error:' . PHP_EOL;
+            $text .= $this->formatExceptionFragment($e);
+        }
+
+        return $text;
+    }
+
+    /**
+     * @param Exception|Throwable $e
+     * @return string
+     */
+    public function formatExceptionFragment($e)
+    {
         $text = sprintf('Type: %s' . PHP_EOL, get_class($e));
 
         if ($code = $e->getCode()) {

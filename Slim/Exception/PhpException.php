@@ -2,12 +2,13 @@
 namespace Slim\Exception;
 
 use Exception;
+use Throwable;
 
 class PhpException extends Exception
 {
     /**
      * PhpException constructor.
-     * @param $exception
+     * @param Exception|Throwable $exception
      */
     public function __construct($exception)
     {

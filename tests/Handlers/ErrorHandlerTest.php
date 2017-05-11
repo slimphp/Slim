@@ -11,6 +11,7 @@ namespace Slim\Tests\Handlers;
 use PHPUnit\Framework\TestCase;
 use Slim\Handlers\ErrorHandler;
 use Slim\Http\Response;
+use Exception;
 
 class ErrorTest extends TestCase
 {
@@ -34,7 +35,7 @@ class ErrorTest extends TestCase
     public function testErrorHandler($acceptHeader, $contentType, $startOfBody)
     {
         $errorHandler = new ErrorHandler();
-        $e = new \Exception("Oops", 1, new \Exception('Previous oops'));
+        $e = new Exception("Oops", 1, new Exception('Previous oops'));
 
         /** @var Response $res */
         $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
@@ -52,7 +53,7 @@ class ErrorTest extends TestCase
     public function testErrorHandlerDisplayDetails($acceptHeader, $contentType, $startOfBody)
     {
         $errorHandler = new ErrorHandler(true);
-        $e = new \Exception('Oops', 1, new \Exception('Opps before'));
+        $e = new Exception('Oops', 1, new Exception('Oops before'));
 
         /** @var Response $res */
         $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
@@ -76,8 +77,8 @@ class ErrorTest extends TestCase
             )
         );
 
-        $first = new \Exception("First Oops");
-        $second = new \Exception("Second Oops", 0, $first);
+        $first = new Exception("First Oops");
+        $second = new Exception("Second Oops", 0, $first);
 
         $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second);
     }

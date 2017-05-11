@@ -22,7 +22,7 @@ class AbstractErrorRendererTest extends TestCase
     public function testPlainTextErrorRenderDoesNotDisplayErrorDetails()
     {
         $exception = new Exception('Oops..');
-        $renderer = new PlainTextErrorRenderer($exception, true);
+        $renderer = new PlainTextErrorRenderer($exception);
 
         $this->assertEquals('Oops..', $renderer->render());
     }
@@ -75,7 +75,7 @@ class AbstractErrorRendererTest extends TestCase
     {
         $exception = new Exception('Oops..');
         $renderer = new JsonErrorRenderer($exception, true);
-        $fragment = $renderer->renderExceptionFragment($exception);
+        $fragment = $renderer->formatExceptionFragment($exception);
         $output = json_encode(json_decode($renderer->render()));
         $expectedString = json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
 
@@ -99,8 +99,8 @@ class AbstractErrorRendererTest extends TestCase
         $output = json_encode(json_decode($renderer->render()));
 
         $fragments = [
-            $renderer->renderExceptionFragment($exception),
-            $renderer->renderExceptionFragment($previousException),
+            $renderer->formatExceptionFragment($exception),
+            $renderer->formatExceptionFragment($previousException),
         ];
 
         $expectedString = json_encode(['message' => 'Oops..', 'exception' => $fragments]);

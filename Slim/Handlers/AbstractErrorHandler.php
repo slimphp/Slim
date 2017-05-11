@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
 use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
 use Slim\Handlers\ErrorRenderers\XmlErrorRenderer;
@@ -21,7 +22,6 @@ use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Exception;
 use RuntimeException;
-use Throwable;
 
 /**
  * Default Slim application error handler
@@ -89,7 +89,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param Exception             $exception The caught Exception object
+     * @param Exception    $exception The caught Exception object
      *
      * @return ResponseInterface
      */
@@ -104,7 +104,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         $this->renderer = $this->resolveRenderer();
 
         if (!$this->displayErrorDetails) {
-            $this->writeToErrorLog($exception);
+            $this->writeToErrorLog();
         }
 
         return $this->respond();
@@ -228,34 +228,23 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * Write to the error log if displayErrorDetails is false
      *
-     * @param Exception|Throwable $throwable
-     *
      * @return void
      */
-    protected function writeToErrorLog($throwable)
+    protected function writeToErrorLog()
     {
-        if ($this->displayErrorDetails) {
-            return;
-        }
-        $renderer = new PlainTextErrorRenderer($throwable);
-        $message = 'Slim Application Error:' . PHP_EOL;
-        $message .= $renderer->render();
-        while ($throwable = $throwable->getPrevious()) {
-            $renderer = new PlainTextErrorRenderer($throwable);
-            $message .= PHP_EOL . 'Previous Error:' . PHP_EOL;
-            $message .= $renderer->render();
-        }
-        $message .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
-        $this->logError($message);
+        $renderer = new PlainTextErrorRenderer($this->exception, true);
+        $error = $renderer->render();
+        $error .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
+        $this->logError($error);
     }
 
     /**
      * Wraps the error_log function so that this can be easily tested
      *
-     * @param $message
+     * @param string $error
      */
-    protected function logError($message)
+    protected function logError($error)
     {
-        error_log($message);
+        error_log($error);
     }
 }
