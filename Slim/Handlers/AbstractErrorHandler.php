@@ -20,7 +20,6 @@ use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Exception;
-use RuntimeException;
 
 /**
  * Default Slim application error handler
@@ -39,7 +38,8 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         'application/json',
         'application/xml',
         'text/xml',
-        'text/html'
+        'text/html',
+        'text/plain'
     ];
     /**
      * @var bool
@@ -120,9 +120,20 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+        $count = count($selectedContentTypes);
 
-        if (count($selectedContentTypes)) {
-            return current($selectedContentTypes);
+        if ($count) {
+            $current = current($selectedContentTypes);
+
+            /**
+             * Ensure other supported content types take precedence over text/plain
+             * when multiple content types are provided via Accept header.
+             */
+            if ($current === 'text/plain' && $count > 1) {
+                return next($selectedContentTypes);
+            }
+
+            return $current;
         }
 
         if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
@@ -141,7 +152,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @return ErrorRendererInterface
      *
-     * @throws RuntimeException
+     * @throws \RuntimeException
      */
     protected function determineRenderer()
     {
@@ -155,7 +166,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         if (!is_null($this->renderer)) {
             $renderer = $this->renderer;
             if (!is_subclass_of($renderer, AbstractErrorRenderer::class)) {
-                throw new RuntimeException(sprintf(
+                throw new \RuntimeException(sprintf(
                     'Non compliant error renderer provided (%s). ' .
                     'Renderer expected to be a subclass of AbstractErrorRenderer',
                     $renderer

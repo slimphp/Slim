@@ -8,9 +8,7 @@
  */
 namespace Slim\Handlers\ErrorRenderers;
 
-use Error;
 use Exception;
-use RuntimeException;
 use Slim\Handlers\AbstractErrorRenderer;
 
 /**
@@ -31,17 +29,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
             $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
-        $output = sprintf(
-            "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
-            "<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
-            "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{" .
-            "display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>",
-            $title,
-            $title,
-            $html
-        );
-
-        return $output;
+        return $this->renderHtmlBody($title, $html);
     }
 
     public function renderGenericExceptionOutput()
@@ -50,31 +38,43 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
         $title = '';
         $description = '';
 
-        if ($this->displayErrorDetails) {
-            $description = $e->getMessage();
-        }
-
         if (method_exists($e, 'getTitle')) {
             $title = $e->getTitle();
         }
 
         if (method_exists($e, 'getDescription')) {
             $description = $e->getDescription();
+        } elseif ($this->displayErrorDetails) {
+            $description = $e->getMessage();
         }
+        $html = "<p>${description}</p>";
 
-        $output = sprintf(
-            "<html><head><title>%s</title><style>" .
-            "body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif;}" .
-            "h1{margin:0;font-size:48px;font-weight:normal;line-height:48px}" .
-            "strong{display:inline-block;width:65px}" .
-            "</style></head><body><h1>%s</h1><p>%s</p>" .
-            "<a href='#' onClick='window.history.go(-1)'>Go Back</a></body></html>",
+        return $this->renderHtmlBody($title, $html);
+    }
+
+    public function renderHtmlBody($title = '', $html = '')
+    {
+        return sprintf(
+            "<html>" .
+            "   <head>" .
+            "       <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>" .
+            "       <title>%s</title>" .
+            "       <style>" .
+            "           body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana,sans-serif}" .
+            "           h1{margin:0;font-size:48px;font-weight:normal;line-height:48px}" .
+            "           strong{display:inline-block;width:65px}" .
+            "       </style>" .
+            "   </head>" .
+            "   <body>" .
+            "       <h1>%s</h1>" .
+            "       <div>%s</div>" .
+            "       <a href='#' onClick='window.history.go(-1)'>Go Back</a>" .
+            "   </body>" .
+            "</html>",
             $title,
             $title,
-            $description
+            $html
         );
-
-        return $output;
     }
 
     /**

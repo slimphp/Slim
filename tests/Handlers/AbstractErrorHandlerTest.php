@@ -13,6 +13,7 @@ use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\AbstractErrorHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Http\Response;
+use ReflectionClass;
 
 class AbstractErrorHandlerTest extends TestCase
 {
@@ -30,7 +31,7 @@ class AbstractErrorHandlerTest extends TestCase
             'text/html',
         ];
 
-        $class = new \ReflectionClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
@@ -59,7 +60,7 @@ class AbstractErrorHandlerTest extends TestCase
             ->willReturn('text/plain,text/html');
 
         // provide access to the determineContentType() as it's a protected method
-        $class = new \ReflectionClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
@@ -74,8 +75,8 @@ class AbstractErrorHandlerTest extends TestCase
 
     public function testOptions()
     {
-        $handler = new ErrorHandler;
-        $exception = new HttpNotAllowedException;
+        $handler = new ErrorHandler();
+        $exception = new HttpNotAllowedException();
         $exception->setAllowedMethods(['POST', 'PUT']);
         /** @var Response $res */
         $res = $handler->__invoke($this->getRequest('OPTIONS'), new Response(), $exception);

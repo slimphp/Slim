@@ -1,11 +1,10 @@
 <?php
 namespace Slim\Exception;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-abstract class HttpException extends Exception
+abstract class HttpException extends \Exception
 {
     /**
      * @var ServerRequestInterface|null

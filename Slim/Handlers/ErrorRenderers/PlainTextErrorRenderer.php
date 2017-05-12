@@ -9,8 +9,6 @@
 namespace Slim\Handlers\ErrorRenderers;
 
 use Slim\Handlers\AbstractErrorRenderer;
-use Exception;
-use Throwable;
 
 /**
  * Default Slim application Plain Text Error Renderer
@@ -47,7 +45,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param Exception|Throwable $e
+     * @param \Exception|\Throwable $e
      * @return string
      */
     public function formatExceptionFragment($e)

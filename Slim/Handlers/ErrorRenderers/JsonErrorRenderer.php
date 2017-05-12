@@ -9,8 +9,6 @@
 namespace Slim\Handlers\ErrorRenderers;
 
 use Slim\Handlers\AbstractErrorRenderer;
-use Exception;
-use Throwable;
 
 /**
  * Default Slim application JSON Error Renderer
@@ -49,7 +47,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param Exception|Throwable $e
+     * @param \Exception|\Throwable $e
      * @return array
      */
     public function formatExceptionFragment($e)

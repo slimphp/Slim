@@ -10,8 +10,6 @@ namespace Slim\Handlers;
 
 use Slim\Exception\PhpException;
 use Slim\Interfaces\ErrorRendererInterface;
-use Exception;
-use Throwable;
 
 /**
  * Default Slim application error renderer
@@ -22,7 +20,7 @@ use Throwable;
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {
     /**
-     * @var Exception
+     * @var \Exception
      */
     protected $exception;
     /**
@@ -32,7 +30,7 @@ abstract class AbstractErrorRenderer implements ErrorRendererInterface
 
     /**
      * AbstractErrorRenderer constructor.
-     * @param Exception|Throwable $exception
+     * @param \Exception|\Throwable $exception
      * @param bool $displayErrorDetails
      */
     public function __construct($exception, $displayErrorDetails = false)
