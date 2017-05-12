@@ -1087,6 +1087,17 @@ class AppTest extends TestCase
         $this->assertInstanceOf(ErrorHandler::class, $handler);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testGetErrorHandlersThrowsExceptionWhenErrorHandlersArgumentSettingIsNotArray()
+    {
+        $settings = ['errorHandlers' => 'ShouldBeArray'];
+        $app = new App($settings);
+        $handler = new MockErrorHandler();
+        $app->setErrorHandler(HttpNotFoundException::class, $handler);
+    }
+
     /********************************************************************************
      * Runner
      *******************************************************************************/

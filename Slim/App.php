@@ -285,7 +285,7 @@ class App
     {
         $resolver = $this->getCallableResolver();
         $handler = $resolver->resolve($callable);
-        $handlers = $this->getSetting('errorHandlers', []);
+        $handlers = $this->getErrorHandlers();
         $handlers[$type] = $handler;
         $this->addSetting('errorHandlers', $handlers);
     }
@@ -296,10 +296,12 @@ class App
      *
      * @param string $type
      * @return callable
+     *
+     * @throws \RuntimeException
      */
     public function getErrorHandler($type)
     {
-        $handlers = $this->getSetting('errorHandlers');
+        $handlers = $this->getErrorHandlers();
 
         if (isset($handlers[$type])) {
             $handler = $handlers[$type];
@@ -311,6 +313,25 @@ class App
 
         return $this->getDefaultErrorHandler();
     }
+
+    /**
+     * Retrieve error handler array from settings
+     *
+     * @returns array
+     *
+     * @throws \RuntimeException
+     */
+    protected function getErrorHandlers()
+    {
+        $handlers = $this->getSetting('errorHandlers', []);
+
+        if (!is_array($handlers)) {
+            throw new \RuntimeException('Slim application setting "errorHandlers" should be an array.');
+        }
+
+        return $handlers;
+    }
+
 
     /**
      * Set callable as the default Slim application error handler.
