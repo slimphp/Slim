@@ -18,6 +18,7 @@
 - [#2098](https://github.com/slimphp/Slim/pull/2098) Remove CallableResolverTrait
 - [#2102](https://github.com/slimphp/Slim/pull/2102) Remove container from router
 - [#2124](https://github.com/slimphp/Slim/pull/2124) Remove Slim\Exception\SlimException
+- [#2174](https://github.com/slimphp/Slim/pull/2174) Switch from Container-Interop to PSR-11
 
 ### Fixed
 
