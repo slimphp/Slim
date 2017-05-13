@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Http\Response</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Http.html" title="Summary of Slim\Http"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li class="active">
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Http.Body.html">Body</a></li>
+				<li><a href="class-Slim.Http.Cookies.html">Cookies</a></li>
+				<li><a href="class-Slim.Http.Environment.html">Environment</a></li>
+				<li><a href="class-Slim.Http.Headers.html">Headers</a></li>
+				<li><a href="class-Slim.Http.Message.html">Message</a></li>
+				<li><a href="class-Slim.Http.Request.html">Request</a></li>
+				<li><a href="class-Slim.Http.RequestBody.html">RequestBody</a></li>
+				<li class="active"><a href="class-Slim.Http.Response.html">Response</a></li>
+				<li><a href="class-Slim.Http.Stream.html">Stream</a></li>
+				<li><a href="class-Slim.Http.UploadedFile.html">UploadedFile</a></li>
+				<li><a href="class-Slim.Http.Uri.html">Uri</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Response</h1>
+
+
+	<div class="description">
+	<p>Response</p>
+
+<p>This class represents an HTTP response. It manages
+the response status, headers, and body
+according to the PSR-7 standard.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+			<a href="class-Slim.Http.Message.html"><span>Slim\Http\Message</span></a>
+			
+			 implements 
+<span>Psr\Http\Message\MessageInterface</span>
+			
+			
+		</dd>
+		<dd style="padding-left:30px">
+			<img src="resources/inherit.png" alt="Extended by">
+<b><span>Slim\Http\Response</span></b>			
+			 implements 
+<span>Psr\Http\Message\ResponseInterface</span>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Http.html">Http</a><br>
+		
+
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php">https://github.com/php-fig/http-message/blob/master/src/MessageInterface.php</a><br>
+				<b>Link:</b>
+				<a href="https://github.com/php-fig/http-message/blob/master/src/ResponseInterface.php">https://github.com/php-fig/http-message/blob/master/src/ResponseInterface.php</a><br>
+			<b>Located at</b> <a href="source-class-Slim.Http.Response.html#17-480" title="Go to source code">Http/Response.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#127-139" title="Go to source code">__construct</a>( <span>integer <var>$status</var> = <span class="php-num">200</span></span>, <span><code><a href="class-Slim.Interfaces.Http.HeadersInterface.html">Slim\Interfaces\Http\HeadersInterface</a></code> <var>$headers</var> = <span class="php-keyword1">null</span></span>, <span>Psr\Http\Message\StreamInterface <var>$body</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Create new HTTP response.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new HTTP response.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$status</var></dt>
+						<dd>The response status code.</dd>
+						<dt><var>$headers</var></dt>
+						<dd>The response headers.</dd>
+						<dt><var>$body</var></dt>
+						<dd>The response body.</dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__clone" id="___clone">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___clone">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#141-150" title="Go to source code">__clone</a>( )</code>
+
+			<div class="description short">
+				<p>This method is applied to the cloned object
+after PHP performs an initial shallow-copy. This
+method completes a deep-copy by creating new objects
+for the cloned object's internal reference pointers.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>This method is applied to the cloned object
+after PHP performs an initial shallow-copy. This
+method completes a deep-copy by creating new objects
+for the cloned object's internal reference pointers.</p>
+
+
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getStatusCode" id="_getStatusCode">
+
+			<td class="attributes"><code>
+				 public 
+				integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getStatusCode">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#156-167" title="Go to source code">getStatusCode</a>( )</code>
+
+			<div class="description short">
+				<p>Gets the response status code.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Gets the response status code.</p>
+
+<p>The status code is a 3-digit integer result code of the server's attempt
+to understand and satisfy the request.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer<br>Status code.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withStatus" id="_withStatus">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withStatus">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#169-210" title="Go to source code">withStatus</a>( <span>integer <var>$code</var></span>, <span>string <var>$reasonPhrase</var> = <span class="php-quote">''</span></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified status code and, optionally, reason phrase.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified status code and, optionally, reason phrase.</p>
+
+<p>If no reason phrase is specified, implementations MAY choose to default
+to the RFC 7231 or IANA recommended reason phrase for the response's
+status code.</p>
+
+<p>This method MUST be implemented in such a way as to retain the
+immutability of the message, and MUST return an instance that has the
+updated status and reason phrase.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$code</var></dt>
+						<dd>The 3-digit integer result code to set.</dd>
+						<dt><var>$reasonPhrase</var></dt>
+						<dd><p>The reason phrase to use with the
+    provided status code; if none is provided, implementations MAY
+    use the defaults as suggested in the HTTP specification.</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>For invalid status code arguments.
+					</div>
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://tools.ietf.org/html/rfc7231#section-6">http://tools.ietf.org/html/rfc7231#section-6</a><br>
+							<a href="http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml">http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterStatus" id="_filterStatus">
+
+			<td class="attributes"><code>
+				 protected 
+				integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterStatus">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#212-226" title="Go to source code">filterStatus</a>( <span>integer <var>$status</var></span> )</code>
+
+			<div class="description short">
+				<p>Filter HTTP status code.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Filter HTTP status code.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$status</var></dt>
+						<dd>HTTP status code.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						integer
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>If an invalid HTTP status code is provided.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getReasonPhrase" id="_getReasonPhrase">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getReasonPhrase">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#228-250" title="Go to source code">getReasonPhrase</a>( )</code>
+
+			<div class="description short">
+				<p>Gets the response reason phrase associated with the status code.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Gets the response reason phrase associated with the status code.</p>
+
+<p>Because a reason phrase is not a required element in a response
+status line, the reason phrase value MAY be null. Implementations MAY
+choose to return the default RFC 7231 recommended reason phrase (or those
+listed in the IANA HTTP Status Code Registry) for the response's
+status code.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>Reason phrase; must return an empty string if none present.
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://tools.ietf.org/html/rfc7231#section-6">http://tools.ietf.org/html/rfc7231#section-6</a><br>
+							<a href="http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml">http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="write" id="_write">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_write">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#256-271" title="Go to source code">write</a>( <span>string <var>$data</var></span> )</code>
+
+			<div class="description short">
+				<p>Write data to the response body.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Write data to the response body.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+<p>Proxies to the underlying stream and writes the provided data to it.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$data</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<br>$this
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withRedirect" id="_withRedirect">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withRedirect">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#277-302" title="Go to source code">withRedirect</a>( <span>string|Psr\Http\Message\UriInterface <var>$url</var></span>, <span>integer|null <var>$status</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Redirect.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Redirect.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+<p>This method prepares the response object to return an HTTP Redirect
+response to the client.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$url</var></dt>
+						<dd>The redirect destination.</dd>
+						<dt><var>$status</var></dt>
+						<dd>The redirect HTTP status code.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withJson" id="_withJson">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withJson">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#304-333" title="Go to source code">withJson</a>( <span>mixed <var>$data</var></span>, <span>integer <var>$status</var> = <span class="php-keyword1">null</span></span>, <span>integer <var>$encodingOptions</var> = <span class="php-num">0</span></span> )</code>
+
+			<div class="description short">
+				<p>Json.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Json.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+<p>This method prepares the response object to return an HTTP Json
+response to the client.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$data</var></dt>
+						<dd>The data</dd>
+						<dt><var>$status</var></dt>
+						<dd>The HTTP status code.</dd>
+						<dt><var>$encodingOptions</var></dt>
+						<dd>Json encoding options</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						RuntimeException
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isEmpty" id="_isEmpty">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isEmpty">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#335-345" title="Go to source code">isEmpty</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response empty?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response empty?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isInformational" id="_isInformational">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isInformational">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#347-357" title="Go to source code">isInformational</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response informational?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response informational?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isOk" id="_isOk">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isOk">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#359-369" title="Go to source code">isOk</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response OK?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response OK?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isSuccessful" id="_isSuccessful">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isSuccessful">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#371-381" title="Go to source code">isSuccessful</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response successful?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response successful?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isRedirect" id="_isRedirect">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isRedirect">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#383-393" title="Go to source code">isRedirect</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response a redirect?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response a redirect?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isRedirection" id="_isRedirection">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isRedirection">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#395-405" title="Go to source code">isRedirection</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response a redirection?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response a redirection?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isForbidden" id="_isForbidden">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isForbidden">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#407-418" title="Go to source code">isForbidden</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response forbidden?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response forbidden?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+					<h4>Api</h4>
+					<div class="list">
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isNotFound" id="_isNotFound">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isNotFound">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#420-430" title="Go to source code">isNotFound</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response not Found?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response not Found?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isClientError" id="_isClientError">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isClientError">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#432-442" title="Go to source code">isClientError</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response a client error?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response a client error?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isServerError" id="_isServerError">
+
+			<td class="attributes"><code>
+				 public 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isServerError">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#444-454" title="Go to source code">isServerError</a>( )</code>
+
+			<div class="description short">
+				<p>Is this response a server error?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Is this response a server error?</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__toString" id="___toString">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___toString">#</a>
+			<code><a href="source-class-Slim.Http.Response.html#456-479" title="Go to source code">__toString</a>( )</code>
+
+			<div class="description short">
+				<p>Convert response to string.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Convert response to string.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+	        <div class="panel-heading"><h3>Methods inherited from <a href="class-Slim.Http.Message.html#methods">Slim\Http\Message</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Http.Message.html#___set">__set()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getBody">getBody()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeader">getHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeaderLine">getHeaderLine()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getHeaders">getHeaders()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_getProtocolVersion">getProtocolVersion()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_hasHeader">hasHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withAddedHeader">withAddedHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withBody">withBody()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withHeader">withHeader()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withProtocolVersion">withProtocolVersion()</a></code>, 
+				<code><a href="class-Slim.Http.Message.html#_withoutHeader">withoutHeader()</a></code>
+			</p>
+		</div>
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Constants summary</h2></div>
+			<table class="summary table table-bordered table-striped constants" id="constants">
+			<tr data-order="EOL" id="EOL">
+
+				<td class="attributes"><code>string</code></td>
+				<td class="name">
+					<code>
+						<a href="source-class-Slim.Http.Response.html#120-125" title="Go to source code"><b>EOL</b></a>
+					</code>
+
+					<div class="description short">
+						<p>EOL characters used for HTTP response.</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>EOL characters used for HTTP response.</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#EOL" class="anchor">#</a>
+						<code><span class="php-quote">&quot;\r\n&quot;</span></code>
+					</div>
+				</td>
+			</tr>
+			</table>
+		</div>
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="status" id="$status">
+			<td class="attributes"><code>
+				protected  
+				integer
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Response.html#29-34" title="Go to source code"><var>$status</var></a>
+
+				<div class="description short">
+					<p>Status code</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Status code</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$status" class="anchor">#</a>
+					<code><span class="php-num">200</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="reasonPhrase" id="$reasonPhrase">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Response.html#36-41" title="Go to source code"><var>$reasonPhrase</var></a>
+
+				<div class="description short">
+					<p>Reason phrase</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Reason phrase</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$reasonPhrase" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="messages" id="$messages">
+			<td class="attributes"><code>
+				protected static 
+				array
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Response.html#43-118" title="Go to source code"><var>$messages</var></a>
+
+				<div class="description short">
+					<p>Status codes and reason phrases</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Status codes and reason phrases</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$messages" class="anchor">#</a>
+					<code>[
+    <span class="php-comment">//Informational 1xx</span>
+    <span class="php-num">100</span> =&gt; <span class="php-quote">'Continue'</span>,
+    <span class="php-num">101</span> =&gt; <span class="php-quote">'Switching Protocols'</span>,
+    <span class="php-num">102</span> =&gt; <span class="php-quote">'Processing'</span>,
+    <span class="php-comment">//Successful 2xx</span>
+    <span class="php-num">200</span> =&gt; <span class="php-quote">'OK'</span>,
+    <span class="php-num">201</span> =&gt; <span class="php-quote">'Created'</span>,
+    <span class="php-num">202</span> =&gt; <span class="php-quote">'Accepted'</span>,
+    <span class="php-num">203</span> =&gt; <span class="php-quote">'Non-Authoritative Information'</span>,
+    <span class="php-num">204</span> =&gt; <span class="php-quote">'No Content'</span>,
+    <span class="php-num">205</span> =&gt; <span class="php-quote">'Reset Content'</span>,
+    <span class="php-num">206</span> =&gt; <span class="php-quote">'Partial Content'</span>,
+    <span class="php-num">207</span> =&gt; <span class="php-quote">'Multi-Status'</span>,
+    <span class="php-num">208</span> =&gt; <span class="php-quote">'Already Reported'</span>,
+    <span class="php-num">226</span> =&gt; <span class="php-quote">'IM Used'</span>,
+    <span class="php-comment">//Redirection 3xx</span>
+    <span class="php-num">300</span> =&gt; <span class="php-quote">'Multiple Choices'</span>,
+    <span class="php-num">301</span> =&gt; <span class="php-quote">'Moved Permanently'</span>,
+    <span class="php-num">302</span> =&gt; <span class="php-quote">'Found'</span>,
+    <span class="php-num">303</span> =&gt; <span class="php-quote">'See Other'</span>,
+    <span class="php-num">304</span> =&gt; <span class="php-quote">'Not Modified'</span>,
+    <span class="php-num">305</span> =&gt; <span class="php-quote">'Use Proxy'</span>,
+    <span class="php-num">306</span> =&gt; <span class="php-quote">'(Unused)'</span>,
+    <span class="php-num">307</span> =&gt; <span class="php-quote">'Temporary Redirect'</span>,
+    <span class="php-num">308</span> =&gt; <span class="php-quote">'Permanent Redirect'</span>,
+    <span class="php-comment">//Client Error 4xx</span>
+    <span class="php-num">400</span> =&gt; <span class="php-quote">'Bad Request'</span>,
+    <span class="php-num">401</span> =&gt; <span class="php-quote">'Unauthorized'</span>,
+    <span class="php-num">402</span> =&gt; <span class="php-quote">'Payment Required'</span>,
+    <span class="php-num">403</span> =&gt; <span class="php-quote">'Forbidden'</span>,
+    <span class="php-num">404</span> =&gt; <span class="php-quote">'Not Found'</span>,
+    <span class="php-num">405</span> =&gt; <span class="php-quote">'Method Not Allowed'</span>,
+    <span class="php-num">406</span> =&gt; <span class="php-quote">'Not Acceptable'</span>,
+    <span class="php-num">407</span> =&gt; <span class="php-quote">'Proxy Authentication Required'</span>,
+    <span class="php-num">408</span> =&gt; <span class="php-quote">'Request Timeout'</span>,
+    <span class="php-num">409</span> =&gt; <span class="php-quote">'Conflict'</span>,
+    <span class="php-num">410</span> =&gt; <span class="php-quote">'Gone'</span>,
+    <span class="php-num">411</span> =&gt; <span class="php-quote">'Length Required'</span>,
+    <span class="php-num">412</span> =&gt; <span class="php-quote">'Precondition Failed'</span>,
+    <span class="php-num">413</span> =&gt; <span class="php-quote">'Request Entity Too Large'</span>,
+    <span class="php-num">414</span> =&gt; <span class="php-quote">'Request-URI Too Long'</span>,
+    <span class="php-num">415</span> =&gt; <span class="php-quote">'Unsupported Media Type'</span>,
+    <span class="php-num">416</span> =&gt; <span class="php-quote">'Requested Range Not Satisfiable'</span>,
+    <span class="php-num">417</span> =&gt; <span class="php-quote">'Expectation Failed'</span>,
+    <span class="php-num">418</span> =&gt; <span class="php-quote">'I\'m a teapot'</span>,
+    <span class="php-num">421</span> =&gt; <span class="php-quote">'Misdirected Request'</span>,
+    <span class="php-num">422</span> =&gt; <span class="php-quote">'Unprocessable Entity'</span>,
+    <span class="php-num">423</span> =&gt; <span class="php-quote">'Locked'</span>,
+    <span class="php-num">424</span> =&gt; <span class="php-quote">'Failed Dependency'</span>,
+    <span class="php-num">426</span> =&gt; <span class="php-quote">'Upgrade Required'</span>,
+    <span class="php-num">428</span> =&gt; <span class="php-quote">'Precondition Required'</span>,
+    <span class="php-num">429</span> =&gt; <span class="php-quote">'Too Many Requests'</span>,
+    <span class="php-num">431</span> =&gt; <span class="php-quote">'Request Header Fields Too Large'</span>,
+    <span class="php-num">444</span> =&gt; <span class="php-quote">'Connection Closed Without Response'</span>,
+    <span class="php-num">451</span> =&gt; <span class="php-quote">'Unavailable For Legal Reasons'</span>,
+    <span class="php-num">499</span> =&gt; <span class="php-quote">'Client Closed Request'</span>,
+    <span class="php-comment">//Server Error 5xx</span>
+    <span class="php-num">500</span> =&gt; <span class="php-quote">'Internal Server Error'</span>,
+    <span class="php-num">501</span> =&gt; <span class="php-quote">'Not Implemented'</span>,
+    <span class="php-num">502</span> =&gt; <span class="php-quote">'Bad Gateway'</span>,
+    <span class="php-num">503</span> =&gt; <span class="php-quote">'Service Unavailable'</span>,
+    <span class="php-num">504</span> =&gt; <span class="php-quote">'Gateway Timeout'</span>,
+    <span class="php-num">505</span> =&gt; <span class="php-quote">'HTTP Version Not Supported'</span>,
+    <span class="php-num">506</span> =&gt; <span class="php-quote">'Variant Also Negotiates'</span>,
+    <span class="php-num">507</span> =&gt; <span class="php-quote">'Insufficient Storage'</span>,
+    <span class="php-num">508</span> =&gt; <span class="php-quote">'Loop Detected'</span>,
+    <span class="php-num">510</span> =&gt; <span class="php-quote">'Not Extended'</span>,
+    <span class="php-num">511</span> =&gt; <span class="php-quote">'Network Authentication Required'</span>,
+    <span class="php-num">599</span> =&gt; <span class="php-quote">'Network Connect Timeout Error'</span>,
+]</code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Properties inherited from <a href="class-Slim.Http.Message.html#properties">Slim\Http\Message</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.Http.Message.html#$body"><var>$body</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$headers"><var>$headers</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$protocolVersion"><var>$protocolVersion</var></a></code>, 
+				<code><a href="class-Slim.Http.Message.html#$validProtocolVersions"><var>$validProtocolVersions</var></a></code>
+			</p>
+		</div>
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\Http\Uri</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Http.html" title="Summary of Slim\Http"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li class="active">
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li><a href="class-Slim.Http.Body.html">Body</a></li>
+				<li><a href="class-Slim.Http.Cookies.html">Cookies</a></li>
+				<li><a href="class-Slim.Http.Environment.html">Environment</a></li>
+				<li><a href="class-Slim.Http.Headers.html">Headers</a></li>
+				<li><a href="class-Slim.Http.Message.html">Message</a></li>
+				<li><a href="class-Slim.Http.Request.html">Request</a></li>
+				<li><a href="class-Slim.Http.RequestBody.html">RequestBody</a></li>
+				<li><a href="class-Slim.Http.Response.html">Response</a></li>
+				<li><a href="class-Slim.Http.Stream.html">Stream</a></li>
+				<li><a href="class-Slim.Http.UploadedFile.html">UploadedFile</a></li>
+				<li class="active"><a href="class-Slim.Http.Uri.html">Uri</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class Uri</h1>
+
+
+	<div class="description">
+	<p>Value object representing a URI.</p>
+
+<p>This interface is meant to represent URIs according to RFC 3986 and to
+provide methods for most common operations. Additional functionality for
+working with URIs can be provided on top of the interface or externally.
+Its primary use is for HTTP requests, but may also be used in other
+contexts.</p>
+
+<p>Instances of this interface are considered immutable; all methods that
+might change state MUST be implemented such that they retain the internal
+state of the current instance and return an instance that contains the
+changed state.</p>
+
+<p>Typically the Host header will be also be present in the request message.
+For server-side requests, the scheme will typically be discoverable in the
+server parameters.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+<b><span>Slim\Http\Uri</span></b>			
+			 implements 
+<span>Psr\Http\Message\UriInterface</span>
+			
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Http.html">Http</a><br>
+		
+
+				<b>Link:</b>
+				<a href="http://tools.ietf.org/html/rfc3986">(the URI specification)</a><br>
+			<b>Located at</b> <a href="source-class-Slim.Http.Uri.html#15-824" title="Go to source code">Http/Uri.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#100-130" title="Go to source code">__construct</a>( <span>string <var>$scheme</var></span>, <span>string <var>$host</var></span>, <span>integer <var>$port</var> = <span class="php-keyword1">null</span></span>, <span>string <var>$path</var> = <span class="php-quote">'/'</span></span>, <span>string <var>$query</var> = <span class="php-quote">''</span></span>, <span>string <var>$fragment</var> = <span class="php-quote">''</span></span>, <span>string <var>$user</var> = <span class="php-quote">''</span></span>, <span>string <var>$password</var> = <span class="php-quote">''</span> </span> )</code>
+
+			<div class="description short">
+				<p>Create new Uri.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new Uri.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$scheme</var></dt>
+						<dd>Uri scheme.</dd>
+						<dt><var>$host</var></dt>
+						<dd>Uri host.</dd>
+						<dt><var>$port</var></dt>
+						<dd>Uri port number.</dd>
+						<dt><var>$path</var></dt>
+						<dd>Uri path.</dd>
+						<dt><var>$query</var></dt>
+						<dd>Uri query string.</dd>
+						<dt><var>$fragment</var></dt>
+						<dd>Uri fragment.</dd>
+						<dt><var>$user</var></dt>
+						<dd>Uri user.</dd>
+						<dt><var>$password</var></dt>
+						<dd>Uri password.</dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="createFromString" id="_createFromString">
+
+			<td class="attributes"><code>
+				 public static
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createFromString">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#132-157" title="Go to source code">createFromString</a>( <span>string <var>$uri</var></span> )</code>
+
+			<div class="description short">
+				<p>Create new Uri from string.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new Uri from string.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$uri</var></dt>
+						<dd><p>Complete Uri string
+    (i.e., https://user:pass@host:443/path?query).</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="createFromEnvironment" id="_createFromEnvironment">
+
+			<td class="attributes"><code>
+				 public static
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_createFromEnvironment">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#159-235" title="Go to source code">createFromEnvironment</a>( <span><code><a href="class-Slim.Http.Environment.html">Slim\Http\Environment</a></code> <var>$env</var></span> )</code>
+
+			<div class="description short">
+				<p>Create new Uri from environment.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new Uri from environment.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$env</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getScheme" id="_getScheme">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getScheme">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#241-258" title="Go to source code">getScheme</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the scheme component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the scheme component of the URI.</p>
+
+<p>If no scheme is present, this method MUST return an empty string.</p>
+
+<p>The value returned MUST be normalized to lowercase, per RFC 3986
+Section 3.1.</p>
+
+<p>The trailing ":" character is not part of the scheme and MUST NOT be
+added.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI scheme.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc3986#section-3.1<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withScheme" id="_withScheme">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withScheme">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#260-282" title="Go to source code">withScheme</a>( <span>string <var>$scheme</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified scheme.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified scheme.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified scheme.</p>
+
+<p>Implementations MUST support the schemes "http" and "https" case
+insensitively, and MAY accommodate other schemes if required.</p>
+
+<p>An empty scheme is equivalent to removing the scheme.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$scheme</var></dt>
+						<dd>The scheme to use with the new instance.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified scheme.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid or unsupported schemes.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterScheme" id="_filterScheme">
+
+			<td class="attributes"><code>
+				 protected 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterScheme">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#284-311" title="Go to source code">filterScheme</a>( <span>string <var>$scheme</var></span> )</code>
+
+			<div class="description short">
+				<p>Filter Uri scheme.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Filter Uri scheme.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$scheme</var></dt>
+						<dd>Raw Uri scheme.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>If the Uri scheme is not a string.<br>
+						InvalidArgumentException<br>If Uri scheme is not "", "https", or "http".
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getAuthority" id="_getAuthority">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getAuthority">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#317-342" title="Go to source code">getAuthority</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the authority component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the authority component of the URI.</p>
+
+<p>If no authority information is present, this method MUST return an empty
+string.</p>
+
+<p>The authority syntax of the URI is:</p>
+
+<pre>[user-info@]host[:port]</pre>
+
+<p>If the port component is not set or is the standard port for the current
+scheme, it SHOULD NOT be included.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI authority, in "[user-info@]host[:port]" format.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc3986#section-3.2<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getUserInfo" id="_getUserInfo">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getUserInfo">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#344-362" title="Go to source code">getUserInfo</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the user information component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the user information component of the URI.</p>
+
+<p>If no user information is present, this method MUST return an empty
+string.</p>
+
+<p>If a user is present in the URI, this will return that value;
+additionally, if the password is also present, it will be appended to the
+user value, with a colon (":") separating the values.</p>
+
+<p>The trailing "@" character is not part of the user information and MUST
+NOT be added.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI user information, in "username[:password]" format.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withUserInfo" id="_withUserInfo">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withUserInfo">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#364-385" title="Go to source code">withUserInfo</a>( <span>string <var>$user</var></span>, <span>null|string <var>$password</var> = <span class="php-keyword1">null</span></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified user information.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified user information.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified user information.</p>
+
+<p>Password is optional, but the user information MUST include the
+user; an empty string for the user is equivalent to removing user
+information.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$user</var></dt>
+						<dd>The user name to use for authority.</dd>
+						<dt><var>$password</var></dt>
+						<dd>The password associated with $user.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified user information.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getHost" id="_getHost">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getHost">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#387-401" title="Go to source code">getHost</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the host component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the host component of the URI.</p>
+
+<p>If no host is present, this method MUST return an empty string.</p>
+
+<p>The value returned MUST be normalized to lowercase, per RFC 3986
+Section 3.2.2.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI host.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							http://tools.ietf.org/html/rfc3986#section-3.2.2<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withHost" id="_withHost">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withHost">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#403-421" title="Go to source code">withHost</a>( <span>string <var>$host</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified host.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified host.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified host.</p>
+
+<p>An empty host value is equivalent to removing the host.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$host</var></dt>
+						<dd>The hostname to use with the new instance.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified host.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid hostnames.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getPort" id="_getPort">
+
+			<td class="attributes"><code>
+				 public 
+				null|integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getPort">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#423-441" title="Go to source code">getPort</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the port component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the port component of the URI.</p>
+
+<p>If a port is present, and it is non-standard for the current scheme,
+this method MUST return it as an integer. If the port is the standard port
+used with the current scheme, this method SHOULD return null.</p>
+
+<p>If no port is present, and no scheme is present, this method MUST return
+a null value.</p>
+
+<p>If no port is present, but a scheme is present, this method MAY return
+the standard port for that scheme, but SHOULD return null.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						null|integer<br>The URI port.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withPort" id="_withPort">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withPort">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#443-467" title="Go to source code">withPort</a>( <span>null|integer <var>$port</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified port.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified port.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified port.</p>
+
+<p>Implementations MUST raise an exception for ports outside the
+established TCP and UDP port ranges.</p>
+
+<p>A null value provided for the port is equivalent to removing the port
+information.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$port</var></dt>
+						<dd><p>The port to use with the new instance; a null value
+    removes the port information.</p></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified port.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid ports.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="hasStandardPort" id="_hasStandardPort">
+
+			<td class="attributes"><code>
+				 protected 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_hasStandardPort">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#469-477" title="Go to source code">hasStandardPort</a>( )</code>
+
+			<div class="description short">
+				<p>Does this Uri use a standard port?</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Does this Uri use a standard port?</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterPort" id="_filterPort">
+
+			<td class="attributes"><code>
+				 protected 
+				null|integer
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterPort">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#479-494" title="Go to source code">filterPort</a>( <span>null|integer <var>$port</var></span> )</code>
+
+			<div class="description short">
+				<p>Filter Uri port.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Filter Uri port.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$port</var></dt>
+						<dd>The Uri port number.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						null|integer
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>If the port is invalid.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getPath" id="_getPath">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getPath">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#500-528" title="Go to source code">getPath</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the path component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the path component of the URI.</p>
+
+<p>The path can either be empty or absolute (starting with a slash) or
+rootless (not starting with a slash). Implementations MUST support all
+three syntaxes.</p>
+
+<p>Normally, the empty path "" and absolute path "/" are considered equal as
+defined in RFC 7230 Section 2.7.3. But this method MUST NOT automatically
+do this normalization because in contexts with a trimmed base path, e.g.
+the front controller, this difference becomes significant. It's the task
+of the user to handle both "" and "/".</p>
+
+<p>The value returned MUST be percent-encoded, but MUST NOT double-encode
+any characters. To determine what characters to encode, please refer to
+RFC 3986, Sections 2 and 3.3.</p>
+
+<p>As an example, if the value should include a slash ("/") not intended as
+delimiter between path segments, that value MUST be passed in encoded
+form (e.g., "%2F") to the instance.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI path.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc3986#section-2<br>
+							https://tools.ietf.org/html/rfc3986#section-3.3<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withPath" id="_withPath">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withPath">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#530-567" title="Go to source code">withPath</a>( <span>string <var>$path</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified path.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified path.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified path.</p>
+
+<p>The path can either be empty or absolute (starting with a slash) or
+rootless (not starting with a slash). Implementations MUST support all
+three syntaxes.</p>
+
+<p>If the path is intended to be domain-relative rather than path relative then
+it must begin with a slash ("/"). Paths not starting with a slash ("/")
+are assumed to be relative to some base path known to the application or
+consumer.</p>
+
+<p>Users can provide both encoded and decoded path characters.
+Implementations ensure the correct encoding as outlined in getPath().</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$path</var></dt>
+						<dd>The path to use with the new instance.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified path.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid paths.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getBasePath" id="_getBasePath">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getBasePath">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#569-582" title="Go to source code">getBasePath</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the base path segment of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the base path segment of the URI.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+<p>This method MUST return a string; if no path is present it MUST return
+an empty string.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The base path segment of the URI.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withBasePath" id="_withBasePath">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withBasePath">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#584-607" title="Go to source code">withBasePath</a>( <span>string <var>$basePath</var></span> )</code>
+
+			<div class="description short">
+				<p>Set base path.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Set base path.</p>
+
+<p>Note: This method is not part of the PSR-7 standard.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$basePath</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterPath" id="_filterPath">
+
+			<td class="attributes"><code>
+				 protected 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterPath">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#609-630" title="Go to source code">filterPath</a>( <span>string <var>$path</var></span> )</code>
+
+			<div class="description short">
+				<p>Filter Uri path.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Filter Uri path.</p>
+
+<p>This method percent-encodes all reserved
+characters in the provided path string. This method
+will NOT double-encode characters that are already
+percent-encoded.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$path</var></dt>
+						<dd>The raw uri path.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The RFC 3986 percent-encoded uri path.
+					</div>
+
+
+					<h4>Link</h4>
+					<div class="list">
+							<a href="http://www.faqs.org/rfcs/rfc3986.html">http://www.faqs.org/rfcs/rfc3986.html</a><br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getQuery" id="_getQuery">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getQuery">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#636-659" title="Go to source code">getQuery</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the query string of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the query string of the URI.</p>
+
+<p>If no query string is present, this method MUST return an empty string.</p>
+
+<p>The leading "?" character is not part of the query and MUST NOT be
+added.</p>
+
+<p>The value returned MUST be percent-encoded, but MUST NOT double-encode
+any characters. To determine what characters to encode, please refer to
+RFC 3986, Sections 2 and 3.4.</p>
+
+<p>As an example, if a value in a key/value pair of the query string should
+include an ampersand ("&amp;") not intended as a delimiter between values,
+that value MUST be passed in encoded form (e.g., "%26") to the instance.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI query string.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc3986#section-2<br>
+							https://tools.ietf.org/html/rfc3986#section-3.4<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withQuery" id="_withQuery">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withQuery">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#661-686" title="Go to source code">withQuery</a>( <span>string <var>$query</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified query string.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified query string.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified query string.</p>
+
+<p>Users can provide both encoded and decoded query characters.
+Implementations ensure the correct encoding as outlined in getQuery().</p>
+
+<p>An empty query string value is equivalent to removing the query string.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$query</var></dt>
+						<dd>The query string to use with the new instance.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified query string.
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>for invalid query strings.
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="filterQuery" id="_filterQuery">
+
+			<td class="attributes"><code>
+				 protected 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_filterQuery">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#688-703" title="Go to source code">filterQuery</a>( <span>string <var>$query</var></span> )</code>
+
+			<div class="description short">
+				<p>Filters the query string or fragment of a URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Filters the query string or fragment of a URI.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$query</var></dt>
+						<dd>The raw uri query string.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The percent-encoded query string.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getFragment" id="_getFragment">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getFragment">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#709-728" title="Go to source code">getFragment</a>( )</code>
+
+			<div class="description short">
+				<p>Retrieve the fragment component of the URI.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Retrieve the fragment component of the URI.</p>
+
+<p>If no fragment is present, this method MUST return an empty string.</p>
+
+<p>The leading "#" character is not part of the fragment and MUST NOT be
+added.</p>
+
+<p>The value returned MUST be percent-encoded, but MUST NOT double-encode
+any characters. To determine what characters to encode, please refer to
+RFC 3986, Sections 2 and 3.5.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string<br>The URI fragment.
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc3986#section-2<br>
+							https://tools.ietf.org/html/rfc3986#section-3.5<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="withFragment" id="_withFragment">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_withFragment">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#730-754" title="Go to source code">withFragment</a>( <span>string <var>$fragment</var></span> )</code>
+
+			<div class="description short">
+				<p>Return an instance with the specified URI fragment.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return an instance with the specified URI fragment.</p>
+
+<p>This method MUST retain the state of the current instance, and return
+an instance that contains the specified URI fragment.</p>
+
+<p>Users can provide both encoded and decoded fragment characters.
+Implementations ensure the correct encoding as outlined in getFragment().</p>
+
+<p>An empty fragment value is equivalent to removing the fragment.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$fragment</var></dt>
+						<dd>The fragment to use with the new instance.</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Http.Uri.html">Slim\Http\Uri</a></code><br>A new instance with the specified fragment.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__toString" id="___toString">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___toString">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#760-799" title="Go to source code">__toString</a>( )</code>
+
+			<div class="description short">
+				<p>Return the string representation as a URI reference.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return the string representation as a URI reference.</p>
+
+<p>Depending on which components of the URI are present, the resulting
+string is either a full URI or relative reference according to RFC 3986,
+Section 4.1. The method concatenates the various components of the URI,
+using the appropriate delimiters:</p>
+
+<ul>
+<li>If a scheme is present, it MUST be suffixed by ":".</li>
+<li>If an authority is present, it MUST be prefixed by "//".</li>
+<li>The path can be concatenated without delimiters. But there are two cases where the path has to be adjusted to make the URI reference valid as PHP does not allow to throw an exception in __toString(): - If the path is rootless and an authority is present, the path MUST be prefixed by "/". - If the path is starting with more than one "/" and no authority is present, the starting slashes MUST be reduced to one.</li>
+<li>If a query is present, it MUST be prefixed by "?".</li>
+<li>If a fragment is present, it MUST be prefixed by "#".</li>
+</ul>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							http://tools.ietf.org/html/rfc3986#section-4.1<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getBaseUrl" id="_getBaseUrl">
+
+			<td class="attributes"><code>
+				 public 
+				string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getBaseUrl">#</a>
+			<code><a href="source-class-Slim.Http.Uri.html#801-823" title="Go to source code">getBaseUrl</a>( )</code>
+
+			<div class="description short">
+				<p>Return the fully qualified base URL.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Return the fully qualified base URL.</p>
+
+<p>Note that this method never includes a trailing /</p>
+
+<p>This method is not part of PSR-7.</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						string
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+			<table class="summary table table-bordered table-striped properties" id="properties">
+		<tr data-order="scheme" id="$scheme">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#37-42" title="Go to source code"><var>$scheme</var></a>
+
+				<div class="description short">
+					<p>Uri scheme (without "://" suffix)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri scheme (without "://" suffix)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$scheme" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="user" id="$user">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#44-49" title="Go to source code"><var>$user</var></a>
+
+				<div class="description short">
+					<p>Uri user</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri user</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$user" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="password" id="$password">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#51-56" title="Go to source code"><var>$password</var></a>
+
+				<div class="description short">
+					<p>Uri password</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri password</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$password" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="host" id="$host">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#58-63" title="Go to source code"><var>$host</var></a>
+
+				<div class="description short">
+					<p>Uri host</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri host</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$host" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="port" id="$port">
+			<td class="attributes"><code>
+				protected  
+				null|integer
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#65-70" title="Go to source code"><var>$port</var></a>
+
+				<div class="description short">
+					<p>Uri port number</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri port number</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$port" class="anchor">#</a>
+					<code></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="basePath" id="$basePath">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#72-77" title="Go to source code"><var>$basePath</var></a>
+
+				<div class="description short">
+					<p>Uri base path</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri base path</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$basePath" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="path" id="$path">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#79-84" title="Go to source code"><var>$path</var></a>
+
+				<div class="description short">
+					<p>Uri path</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri path</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$path" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="query" id="$query">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#86-91" title="Go to source code"><var>$query</var></a>
+
+				<div class="description short">
+					<p>Uri query string (without "?" prefix)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri query string (without "?" prefix)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$query" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+		<tr data-order="fragment" id="$fragment">
+			<td class="attributes"><code>
+				protected  
+				string
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.Http.Uri.html#93-98" title="Go to source code"><var>$fragment</var></a>
+
+				<div class="description short">
+					<p>Uri fragment string (without "#" prefix)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					<p>Uri fragment string (without "#" prefix)</p>
+
+				</div>
+			</td>
+			<td class="value">
+				<div>
+					<a href="#$fragment" class="anchor">#</a>
+					<code><span class="php-quote">''</span></code>
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

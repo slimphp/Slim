@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Interface Slim\Interfaces\InvocationStrategyInterface</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.Interfaces.html" title="Summary of Slim\Interfaces"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li>
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li class="active">
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+
+			<h3>Interfaces</h3>
+			<ul>
+				<li><a href="class-Slim.Interfaces.CallableResolverInterface.html">CallableResolverInterface</a></li>
+				<li><a href="class-Slim.Interfaces.CollectionInterface.html">CollectionInterface</a></li>
+				<li class="active"><a href="class-Slim.Interfaces.InvocationStrategyInterface.html">InvocationStrategyInterface</a></li>
+				<li><a href="class-Slim.Interfaces.RouteGroupInterface.html">RouteGroupInterface</a></li>
+				<li><a href="class-Slim.Interfaces.RouteInterface.html">RouteInterface</a></li>
+				<li><a href="class-Slim.Interfaces.RouterInterface.html">RouterInterface</a></li>
+			</ul>
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Interface InvocationStrategyInterface</h1>
+
+
+	<div class="description">
+	<p>Defines a contract for invoking a route callable.</p>
+	</div>
+
+
+
+
+
+	<div>
+		<h3>Direct known implementers</h3>
+		<p class="elementList">
+			<code><a href="class-Slim.Handlers.Strategies.RequestResponse.html">Slim\Handlers\Strategies\RequestResponse</a></code>, 
+			<code><a href="class-Slim.Handlers.Strategies.RequestResponseArgs.html">Slim\Handlers\Strategies\RequestResponseArgs</a></code>
+		</p>
+	</div>
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a>\<a href="namespace-Slim.Interfaces.html">Interfaces</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-Slim.Interfaces.InvocationStrategyInterface.html#14-35" title="Go to source code">Interfaces/InvocationStrategyInterface.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__invoke" id="___invoke">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface|string
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___invoke">#</a>
+			<code><a href="source-class-Slim.Interfaces.InvocationStrategyInterface.html#19-34" title="Go to source code">__invoke</a>( <span>callable <var>$callable</var></span>, <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span>, <span>array <var>$routeArguments</var></span> )</code>
+
+			<div class="description short">
+				<p>Invoke a route callable.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Invoke a route callable.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$callable</var></dt>
+						<dd>The callable to invoke using the strategy.</dd>
+						<dt><var>$request</var></dt>
+						<dd>The request object.</dd>
+						<dt><var>$response</var></dt>
+						<dd>The response object.</dd>
+						<dt><var>$routeArguments</var></dt>
+						<dd>The route's placholder arguments</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface|string<br>The response from the callable.
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+
+
+
+
+
+
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>

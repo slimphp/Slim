@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class Slim\App</title>
+
+	<link rel="stylesheet" href="resources/bootstrap.min.css?973e37a8502921d56bc02bb55321f45b072b6f71">
+	<link rel="stylesheet" href="resources/style.css?49f43d3208c5d7e33fa16d36107a345bf11cc00d">
+
+</head>
+
+<body>
+	<nav id="navigation" class="navbar navbar-default navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a href="index.html" class="navbar-brand">Overview</a>
+			</div>
+			<div class="collapse navbar-collapse">
+
+                <form id="search" class="navbar-form navbar-left" role="search">
+                    <input type="hidden" name="cx" value="">
+                    <input type="hidden" name="ie" value="UTF-8">
+                    <div class="form-group">
+                        <input type="text" name="q" class="search-query form-control" placeholder="Search">
+					</div>
+				</form>
+
+				<ul class="nav navbar-nav">
+					<li>
+						<a href="namespace-Slim.html" title="Summary of Slim"><span>Namespace</span></a>
+					</li>
+					<li class="active">
+<span>Class</span>					</li>
+
+
+
+
+
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div id="left">
+	<div id="menu">
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+					<li class="active">
+						<a href="namespace-Slim.html">
+							Slim<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Exception.html">
+							Exception						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Handlers.html">
+							Handlers<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Handlers.Strategies.html">
+							Strategies						</a>
+							</li>
+								</ul></li>
+					<li>
+						<a href="namespace-Slim.Http.html">
+							Http						</a>
+							</li>
+					<li>
+						<a href="namespace-Slim.Interfaces.html">
+							Interfaces<span></span>
+						</a>
+							<ul>
+					<li>
+						<a href="namespace-Slim.Interfaces.Http.html">
+							Http						</a>
+							</li>
+								</ul></li></ul></li>
+			</ul>
+		</div>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-Slim.App.html">App</a></li>
+				<li><a href="class-Slim.CallableResolver.html">CallableResolver</a></li>
+				<li><a href="class-Slim.Collection.html">Collection</a></li>
+				<li><a href="class-Slim.Container.html">Container</a></li>
+				<li><a href="class-Slim.DefaultServicesProvider.html">DefaultServicesProvider</a></li>
+				<li><a href="class-Slim.DeferredCallable.html">DeferredCallable</a></li>
+				<li><a href="class-Slim.Routable.html">Routable</a></li>
+				<li><a href="class-Slim.Route.html">Route</a></li>
+				<li><a href="class-Slim.RouteGroup.html">RouteGroup</a></li>
+				<li><a href="class-Slim.Router.html">Router</a></li>
+			</ul>
+
+
+			<h3>Traits</h3>
+			<ul>
+				<li><a href="class-Slim.CallableResolverAwareTrait.html">CallableResolverAwareTrait</a></li>
+				<li><a href="class-Slim.MiddlewareAwareTrait.html">MiddlewareAwareTrait</a></li>
+			</ul>
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+	<div id="rightInner">
+<div id="content" class="class">
+	<h1>Class App</h1>
+
+
+	<div class="description">
+	<p>App</p>
+
+<p>This is the primary class with which you instantiate,
+configure, and run a Slim Framework application.
+The \Slim\App class also accepts Slim Framework middleware.</p>
+	</div>
+
+	<dl class="tree well">
+		<dd style="padding-left:0px">
+<b><span>Slim\App</span></b>			
+			
+			 uses 
+					<a href="class-Slim.MiddlewareAwareTrait.html"><span>Slim\MiddlewareAwareTrait</span></a>
+			
+		</dd>
+	</dl>
+
+
+
+
+
+
+
+
+	<div class="alert alert-info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-Slim.html">Slim</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-Slim.App.html#34-677" title="Go to source code">App.php</a>
+		<br>
+	</div>
+
+
+
+		<div class="panel panel-default">
+			<div class="panel-heading"><h2>Methods summary</h2></div>
+			<table class="summary table table-bordered table-striped methods" id="methods">
+		<tr data-order="__construct" id="___construct">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___construct">#</a>
+			<code><a href="source-class-Slim.App.html#68-83" title="Go to source code">__construct</a>( <span>Interop\Container\ContainerInterface|array <var>$container</var> = []</span> )</code>
+
+			<div class="description short">
+				<p>Create new application</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Create new application</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$container</var></dt>
+						<dd>Either a ContainerInterface or an associative array of app settings</dd>
+					</dl></div>
+
+
+					<h4>Throws</h4>
+					<div class="list">
+						InvalidArgumentException<br>when no container is provided that implements ContainerInterface
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="getContainer" id="_getContainer">
+
+			<td class="attributes"><code>
+				 public 
+				Interop\Container\ContainerInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_getContainer">#</a>
+			<code><a href="source-class-Slim.App.html#85-93" title="Go to source code">getContainer</a>( )</code>
+
+			<div class="description short">
+				<p>Enable access to the DI container by consumers of $app</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Enable access to the DI container by consumers of $app</p>
+
+
+
+					<h4>Returns</h4>
+					<div class="list">
+						Interop\Container\ContainerInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="add" id="_add">
+
+			<td class="attributes"><code>
+				 public 
+				static
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_add">#</a>
+			<code><a href="source-class-Slim.App.html#95-107" title="Go to source code">add</a>( <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add middleware</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add middleware</p>
+
+<p>This method prepends new middleware to the app's middleware stack.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$callable</var></dt>
+						<dd>The callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						static
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__call" id="___call">
+
+			<td class="attributes"><code>
+				 public 
+				mixed
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___call">#</a>
+			<code><a href="source-class-Slim.App.html#109-127" title="Go to source code">__call</a>( <span>string <var>$method</var></span>, <span>array <var>$args</var></span> )</code>
+
+			<div class="description short">
+				<p>Calling a non-existant method on App checks to see if there's an item
+in the container that is callable and if so, calls it.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Calling a non-existant method on App checks to see if there's an item
+in the container that is callable and if so, calls it.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd></dd>
+						<dt><var>$args</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						mixed
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="get" id="_get">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_get">#</a>
+			<code><a href="source-class-Slim.App.html#133-144" title="Go to source code">get</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add GET route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add GET route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="post" id="_post">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_post">#</a>
+			<code><a href="source-class-Slim.App.html#146-157" title="Go to source code">post</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add POST route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add POST route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="put" id="_put">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_put">#</a>
+			<code><a href="source-class-Slim.App.html#159-170" title="Go to source code">put</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add PUT route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add PUT route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="patch" id="_patch">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_patch">#</a>
+			<code><a href="source-class-Slim.App.html#172-183" title="Go to source code">patch</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add PATCH route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add PATCH route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="delete" id="_delete">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_delete">#</a>
+			<code><a href="source-class-Slim.App.html#185-196" title="Go to source code">delete</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add DELETE route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add DELETE route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="options" id="_options">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_options">#</a>
+			<code><a href="source-class-Slim.App.html#198-209" title="Go to source code">options</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add OPTIONS route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add OPTIONS route</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="any" id="_any">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_any">#</a>
+			<code><a href="source-class-Slim.App.html#211-222" title="Go to source code">any</a>( <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add route for any HTTP method</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add route for any HTTP method</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="map" id="_map">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_map">#</a>
+			<code><a href="source-class-Slim.App.html#224-249" title="Go to source code">map</a>( <span>array <var>$methods</var></span>, <span>string <var>$pattern</var></span>, <span>callable|string <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Add route with multiple methods</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Add route with multiple methods</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$methods</var></dt>
+						<dd>Numeric array of HTTP method names</dd>
+						<dt><var>$pattern</var></dt>
+						<dd>The route URI pattern</dd>
+						<dt><var>$callable</var></dt>
+						<dd>The route callback routine</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteInterface.html">Slim\Interfaces\RouteInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="group" id="_group">
+
+			<td class="attributes"><code>
+				 public 
+				<code><a href="class-Slim.Interfaces.RouteGroupInterface.html">Slim\Interfaces\RouteGroupInterface</a></code>
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_group">#</a>
+			<code><a href="source-class-Slim.App.html#251-271" title="Go to source code">group</a>( <span>string <var>$pattern</var></span>, <span>callable <var>$callable</var></span> )</code>
+
+			<div class="description short">
+				<p>Route Groups</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Route Groups</p>
+
+<p>This method accepts a route pattern and a callback. All route
+declarations in the callback will be prepended by the group(s)
+that it is in.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$pattern</var></dt>
+						<dd></dd>
+						<dt><var>$callable</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						<code><a href="class-Slim.Interfaces.RouteGroupInterface.html">Slim\Interfaces\RouteGroupInterface</a></code>
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="run" id="_run">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_run">#</a>
+			<code><a href="source-class-Slim.App.html#277-305" title="Go to source code">run</a>( <span>boolean|false <var>$silent</var> = <span class="php-keyword1">false</span></span> )</code>
+
+			<div class="description short">
+				<p>Run application</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Run application</p>
+
+<p>This method traverses the application middleware stack and then sends the
+resultant Response object to the HTTP client.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$silent</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						Exception<br>
+						<code><a href="class-Slim.Exception.MethodNotAllowedException.html">Slim\Exception\MethodNotAllowedException</a></code><br>
+						<code><a href="class-Slim.Exception.NotFoundException.html">Slim\Exception\NotFoundException</a></code>
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="processInvalidMethod" id="_processInvalidMethod">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_processInvalidMethod">#</a>
+			<code><a href="source-class-Slim.App.html#307-338" title="Go to source code">processInvalidMethod</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Pull route info for a request with a bad method to decide whether to
+return a not-found error (default) or a bad-method error, then run
+the handler for that error, returning the resulting response.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Pull route info for a request with a bad method to decide whether to
+return a not-found error (default) or a bad-method error, then run
+the handler for that error, returning the resulting response.</p>
+
+<p>Used for cases where an incoming request has an unrecognized method,
+rather than throwing an exception and not catching it all the way up.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd></dd>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="process" id="_process">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_process">#</a>
+			<code><a href="source-class-Slim.App.html#340-380" title="Go to source code">process</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Process a request</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Process a request</p>
+
+<p>This method traverses the application middleware stack and then returns the
+resultant Response object.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd></dd>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						Exception<br>
+						<code><a href="class-Slim.Exception.MethodNotAllowedException.html">Slim\Exception\MethodNotAllowedException</a></code><br>
+						<code><a href="class-Slim.Exception.NotFoundException.html">Slim\Exception\NotFoundException</a></code>
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="respond" id="_respond">
+
+			<td class="attributes"><code>
+				 public 
+				
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_respond">#</a>
+			<code><a href="source-class-Slim.App.html#382-443" title="Go to source code">respond</a>( <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Send the response the client</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Send the response the client</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="__invoke" id="___invoke">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#___invoke">#</a>
+			<code><a href="source-class-Slim.App.html#445-492" title="Go to source code">__invoke</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Invoke application</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Invoke application</p>
+
+<p>This method implements the middleware interface. It receives
+Request and Response objects, and it returns a Response object
+after compiling the routes registered in the Router and dispatching
+the Request object to the appropriate Route callback routine.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd>The most recent Request object</dd>
+						<dt><var>$response</var></dt>
+						<dd>The most recent Response object</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						<code><a href="class-Slim.Exception.MethodNotAllowedException.html">Slim\Exception\MethodNotAllowedException</a></code><br>
+						<code><a href="class-Slim.Exception.NotFoundException.html">Slim\Exception\NotFoundException</a></code>
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="subRequest" id="_subRequest">
+
+			<td class="attributes"><code>
+				 public 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_subRequest">#</a>
+			<code><a href="source-class-Slim.App.html#494-535" title="Go to source code">subRequest</a>( <span>string <var>$method</var></span>, <span>string <var>$path</var></span>, <span>string <var>$query</var> = <span class="php-quote">''</span></span>, <span>array <var>$headers</var> = []</span>, <span>array <var>$cookies</var> = []</span>, <span>string <var>$bodyContent</var> = <span class="php-quote">''</span></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var> = <span class="php-keyword1">null</span> </span> )</code>
+
+			<div class="description short">
+				<p>Perform a sub-request from within an application route</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Perform a sub-request from within an application route</p>
+
+<p>This method allows you to prepare and initiate a sub-request, run within
+the context of the current request. This WILL NOT issue a remote HTTP
+request. Instead, it will route the provided URL, method, headers,
+cookies, body, and server variables against the set of registered
+application routes. The result response object is returned.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$method</var></dt>
+						<dd>The request method (e.g., GET, POST, PUT, etc.)</dd>
+						<dt><var>$path</var></dt>
+						<dd>The request URI path</dd>
+						<dt><var>$query</var></dt>
+						<dd>The request URI query string</dd>
+						<dt><var>$headers</var></dt>
+						<dd>The request headers (key-value array)</dd>
+						<dt><var>$cookies</var></dt>
+						<dd>The request cookies (key-value array)</dd>
+						<dt><var>$bodyContent</var></dt>
+						<dd>The request body</dd>
+						<dt><var>$response</var></dt>
+						<dd>The response object (optional)</dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="dispatchRouterAndPrepareRoute" id="_dispatchRouterAndPrepareRoute">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ServerRequestInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_dispatchRouterAndPrepareRoute">#</a>
+			<code><a href="source-class-Slim.App.html#537-564" title="Go to source code">dispatchRouterAndPrepareRoute</a>( <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span><code><a href="class-Slim.Interfaces.RouterInterface.html">Slim\Interfaces\RouterInterface</a></code> <var>$router</var></span> )</code>
+
+			<div class="description short">
+				<p>Dispatch the router to find the route. Prepare the route for use.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Dispatch the router to find the route. Prepare the route for use.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$request</var></dt>
+						<dd></dd>
+						<dt><var>$router</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ServerRequestInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="finalize" id="_finalize">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_finalize">#</a>
+			<code><a href="source-class-Slim.App.html#566-595" title="Go to source code">finalize</a>( <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Finalize response</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Finalize response</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="isEmptyResponse" id="_isEmptyResponse">
+
+			<td class="attributes"><code>
+				 protected 
+				boolean
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_isEmptyResponse">#</a>
+			<code><a href="source-class-Slim.App.html#597-613" title="Go to source code">isEmptyResponse</a>( <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Helper method, which returns true if the provided response must not output a body and false
+if the response could have a body.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Helper method, which returns true if the provided response must not output a body and false
+if the response could have a body.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						boolean
+					</div>
+
+
+					<h4>See</h4>
+					<div class="list">
+							https://tools.ietf.org/html/rfc7231<br>
+					</div>
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="handleException" id="_handleException">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_handleException">#</a>
+			<code><a href="source-class-Slim.App.html#615-651" title="Go to source code">handleException</a>( <span>Exception <var>$e</var></span>, <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Call relevant handler from the Container if needed. If it doesn't exist,
+then just re-throw.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Call relevant handler from the Container if needed. If it doesn't exist,
+then just re-throw.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$e</var></dt>
+						<dd></dd>
+						<dt><var>$request</var></dt>
+						<dd></dd>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						Exception<br>if a handler is needed and not found
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+		<tr data-order="handlePhpError" id="_handlePhpError">
+
+			<td class="attributes"><code>
+				 protected 
+				Psr\Http\Message\ResponseInterface
+				
+				</code>
+			</td>
+
+			<td class="name"><div>
+			<a class="anchor" href="#_handlePhpError">#</a>
+			<code><a href="source-class-Slim.App.html#653-676" title="Go to source code">handlePhpError</a>( <span>Throwable <var>$e</var></span>, <span>Psr\Http\Message\ServerRequestInterface <var>$request</var></span>, <span>Psr\Http\Message\ResponseInterface <var>$response</var></span> )</code>
+
+			<div class="description short">
+				<p>Call relevant handler from the Container if needed. If it doesn't exist,
+then just re-throw.</p>
+			</div>
+
+			<div class="description detailed hidden">
+				<p>Call relevant handler from the Container if needed. If it doesn't exist,
+then just re-throw.</p>
+
+
+					<h4>Parameters</h4>
+					<div class="list"><dl>
+						<dt><var>$e</var></dt>
+						<dd></dd>
+						<dt><var>$request</var></dt>
+						<dd></dd>
+						<dt><var>$response</var></dt>
+						<dd></dd>
+					</dl></div>
+
+					<h4>Returns</h4>
+					<div class="list">
+						Psr\Http\Message\ResponseInterface
+					</div>
+
+					<h4>Throws</h4>
+					<div class="list">
+						Throwable
+					</div>
+
+
+
+			</div>
+			</div></td>
+		</tr>
+			</table>
+		</div>
+
+
+		<div class="panel panel-default">
+	        <div class="panel-heading"><h3>Methods used from <a href="class-Slim.MiddlewareAwareTrait.html#methods">Slim\MiddlewareAwareTrait</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.MiddlewareAwareTrait.html#_addMiddleware">addMiddleware()</a></code>, 
+				<code><a href="class-Slim.MiddlewareAwareTrait.html#_callMiddlewareStack">callMiddlewareStack()</a></code>, 
+				<code><a href="class-Slim.MiddlewareAwareTrait.html#_seedMiddlewareStack">seedMiddlewareStack()</a></code>
+			</p>
+		</div>
+
+
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Constants summary</h2></div>
+			<table class="summary table table-bordered table-striped constants" id="constants">
+			<tr data-order="VERSION" id="VERSION">
+
+				<td class="attributes"><code>string</code></td>
+				<td class="name">
+					<code>
+						<a href="source-class-Slim.App.html#50-55" title="Go to source code"><b>VERSION</b></a>
+					</code>
+
+					<div class="description short">
+						<p>Current version</p>
+					</div>
+
+					<div class="description detailed hidden">
+						<p>Current version</p>
+
+					</div>
+				</td>
+				<td class="value">
+					<div>
+						<a href="#VERSION" class="anchor">#</a>
+						<code><span class="php-quote">'3.8.0-dev'</span></code>
+					</div>
+				</td>
+			</tr>
+			</table>
+		</div>
+
+
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h2>Properties summary</h2></div>
+		</div>
+
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Properties used from <a href="class-Slim.MiddlewareAwareTrait.html#properties">Slim\MiddlewareAwareTrait</a></h3></div>
+			<p class="elementList">
+				<code><a href="class-Slim.MiddlewareAwareTrait.html#$middlewareLock"><var>$middlewareLock</var></a></code>, 
+				<code><a href="class-Slim.MiddlewareAwareTrait.html#$stack"><var>$stack</var></a></code>
+			</p>
+		</div>
+
+		<div class="panel panel-default">
+            <div class="panel-heading"><h3>Magic properties</h3></div>
+			<table class="summary table table-bordered table-striped properties" id="magicProperties">
+		<tr data-order="errorHandler" id="m$errorHandler">
+			<td class="attributes"><code>
+				public  read-only
+				callable
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.App.html#41" title="Go to source code"><var>$errorHandler</var></a>
+
+				<div class="description short">
+					
+				</div>
+
+				<div class="description detailed hidden">
+					
+
+				</div>
+			</td>
+		</tr>
+		<tr data-order="phpErrorHandler" id="m$phpErrorHandler">
+			<td class="attributes"><code>
+				public  read-only
+				callable
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.App.html#42" title="Go to source code"><var>$phpErrorHandler</var></a>
+
+				<div class="description short">
+					
+				</div>
+
+				<div class="description detailed hidden">
+					
+
+				</div>
+			</td>
+		</tr>
+		<tr data-order="notFoundHandler" id="m$notFoundHandler">
+			<td class="attributes"><code>
+				public  read-only
+				callable
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.App.html#43" title="Go to source code"><var>$notFoundHandler</var></a>
+
+				<div class="description short">
+					<p>function($request, $response)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					
+
+				</div>
+			</td>
+		</tr>
+		<tr data-order="notAllowedHandler" id="m$notAllowedHandler">
+			<td class="attributes"><code>
+				public  read-only
+				callable
+			</code></td>
+
+			<td class="name">
+					<a href="source-class-Slim.App.html#44" title="Go to source code"><var>$notAllowedHandler</var></a>
+
+				<div class="description short">
+					<p>function($request, $response, $allowedHttpMethods)</p>
+				</div>
+
+				<div class="description detailed hidden">
+					
+
+				</div>
+			</td>
+		</tr>
+			</table>
+		</div>
+
+
+
+</div>
+	</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
