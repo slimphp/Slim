@@ -209,6 +209,32 @@ class App
     }
 
     /**
+     * Add LINK route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  callable|string  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function link($pattern, $callable)
+    {
+        return $this->map(['LINK'], $pattern, $callable);
+    }
+    
+    /**
+     * Add UNLINK route
+     *
+     * @param  string $pattern  The route URI pattern
+     * @param  callable|string  $callable The route callback routine
+     *
+     * @return \Slim\Interfaces\RouteInterface
+     */
+    public function unlink($pattern, $callable)
+    {
+        return $this->map(['UNLINK'], $pattern, $callable);
+    }
+    
+    /**
      * Add route for any HTTP method
      *
      * @param  string $pattern  The route URI pattern
@@ -218,7 +244,7 @@ class App
      */
     public function any($pattern, $callable)
     {
-        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'LINK', 'UNLINK'], $pattern, $callable);
     }
 
     /**
