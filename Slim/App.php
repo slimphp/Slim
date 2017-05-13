@@ -363,7 +363,14 @@ class App
      */
     public function getDefaultErrorHandler()
     {
-        return $this->getSetting('defaultErrorHandler', new ErrorHandler());
+        $handler = $this->getSetting('defaultErrorHandler', null);
+
+        if (!is_null($handler)) {
+            $resolver = $this->getCallableResolver();
+            return $resolver->resolve($handler);
+        }
+
+        return new ErrorHandler();
     }
 
     /**

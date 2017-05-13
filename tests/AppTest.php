@@ -1092,12 +1092,20 @@ class AppTest extends TestCase
     {
         $app = new App();
         $container = new Container();
-        $container[MockErrorHandler::class] = function ($c) {
-            return new MockErrorHandler();
-        };
         $app->setContainer($container);
         $app->setNotAllowedHandler(MockErrorHandler::class);
         $handler = $app->getErrorHandler(HttpNotAllowedException::class);
+
+        $this->assertEquals([new MockErrorHandler(), '__invoke'], $handler);
+    }
+
+    public function testGetDefaultHandlerResolvesContainerCallableWhenHandlerPassedIntoSettings()
+    {
+        $app = new App();
+        $container = new Container();
+        $app->setContainer($container);
+        $app->setDefaultErrorHandler(MockErrorHandler::class);
+        $handler = $app->getDefaultErrorHandler();
 
         $this->assertEquals([new MockErrorHandler(), '__invoke'], $handler);
     }
