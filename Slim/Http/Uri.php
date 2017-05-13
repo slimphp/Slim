@@ -185,7 +185,7 @@ class Uri implements UriInterface
         if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
 
-            if ($matches[2]) {
+            if (isset($matches[2])) {
                 $port = (int) substr($matches[2], 1);
             }
         } else {
