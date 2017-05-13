@@ -854,8 +854,15 @@ class App
             $recoverable = $exception->isRecoverable();
         }
 
+        $params = [
+            $request,
+            $response,
+            $exception,
+            $displayErrorDetails
+        ];
+
         return $recoverable
-            ? call_user_func_array($handler, [$request, $response, $exception, $displayErrorDetails])
+            ? call_user_func_array($handler, $params)
             : $response;
     }
 

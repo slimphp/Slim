@@ -2041,7 +2041,8 @@ class AppTest extends TestCase
 
         $exception = new HttpNotFoundException;
         $notFoundHandler = $app->getNotFoundHandler();
-        $response = $notFoundHandler($request, $response, $exception);
+        $displayErrorDetails = $app->getSetting('displayErrorDetails');
+        $response = $notFoundHandler($request, $response, $exception, $displayErrorDetails);
 
         $this->assertSame(404, $response->getStatusCode());
     }

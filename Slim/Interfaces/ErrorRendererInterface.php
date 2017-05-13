@@ -16,7 +16,29 @@ namespace Slim\Interfaces;
  */
 interface ErrorRendererInterface
 {
+    /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
+     */
+    public function __construct($exception, $displayErrorDetails);
+
+    /**
+     * @return string
+     */
     public function render();
+
+    /**
+     * @return \Slim\Http\Body
+     */
+    public function renderWithBody();
+
+    /**
+     * @return string
+     */
     public function renderPhpExceptionOutput();
+
+    /**
+     * @return string
+     */
     public function renderGenericExceptionOutput();
 }

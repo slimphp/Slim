@@ -13,10 +13,44 @@ use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\AbstractErrorHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Http\Response;
+use Slim\Tests\Mocks\MockErrorRenderer;
 use ReflectionClass;
 
 class AbstractErrorHandlerTest extends TestCase
 {
+    public function testDetermineContentTypeMethodDoesNotThrowExceptionWhenPassedValidRenderer()
+    {
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('renderer');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($abstractHandler, MockErrorRenderer::class);
+
+        $method = $class->getMethod('determineRenderer');
+        $method->setAccessible(true);
+        $method->invoke($abstractHandler);
+
+        $this->addToAssertionCount(1);
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testDetermineContentTypeMethodThrowsExceptionWhenPassedAnInvalidRenderer()
+    {
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('renderer');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($abstractHandler, 'NonExistentRenderer::class');
+
+        $method = $class->getMethod('determineRenderer');
+        $method->setAccessible(true);
+        $method->invoke($abstractHandler);
+    }
+
     public function testHalfValidContentType()
     {
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();

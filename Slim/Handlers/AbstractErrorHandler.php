@@ -10,6 +10,7 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\CallableResolver;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
@@ -156,23 +157,19 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected function determineRenderer()
     {
-        $renderer = null;
+        $renderer = $this->renderer;
 
-        if ($this->method === 'OPTIONS') {
-            $this->statusCode = 200;
-            $this->contentType = 'text/plain';
+        if ((!is_null($renderer) && !class_exists($renderer))
+            || (!is_null($renderer) && !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer)))
+        ) {
+            throw new \RuntimeException(sprintf(
+                'Non compliant error renderer provided (%s). ' .
+                'Renderer must implement the ErrorRendererInterface',
+                $renderer
+            ));
         }
 
-        if (!is_null($this->renderer)) {
-            $renderer = $this->renderer;
-            if (!is_subclass_of($renderer, AbstractErrorRenderer::class)) {
-                throw new \RuntimeException(sprintf(
-                    'Non compliant error renderer provided (%s). ' .
-                    'Renderer expected to be a subclass of AbstractErrorRenderer',
-                    $renderer
-                ));
-            }
-        } else {
+        if (is_null($renderer)) {
             switch ($this->contentType) {
                 case 'application/json':
                     $renderer = JsonErrorRenderer::class;
@@ -202,13 +199,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected function determineStatusCode()
     {
-        $statusCode = 500;
-
-        if ($this->exception instanceof HttpException) {
-            $statusCode = $this->exception->getCode();
+        if ($this->method === 'OPTIONS') {
+            return 200;
+        } elseif ($this->exception instanceof HttpException) {
+            return $this->exception->getCode();
         }
-
-        return $statusCode;
+        return 500;
     }
 
     /**
@@ -218,8 +214,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     {
         $e = $this->exception;
         $response = $this->response;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($this->renderer->render());
+        $body = $this->renderer->renderWithBody();
 
         if ($e instanceof HttpNotAllowedException) {
             $response = $response->withHeader('Allow', $e->getAllowedMethods());

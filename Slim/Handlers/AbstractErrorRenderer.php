@@ -9,6 +9,7 @@
 namespace Slim\Handlers;
 
 use Slim\Exception\PhpException;
+use Slim\Http\Body;
 use Slim\Interfaces\ErrorRendererInterface;
 
 /**
@@ -44,10 +45,18 @@ abstract class AbstractErrorRenderer implements ErrorRendererInterface
      */
     public function render()
     {
-        if ($this->exception instanceof PhpException) {
-            return $this->renderPhpExceptionOutput();
-        }
+        return $this->exception instanceof PhpException
+            ? $this->renderPhpExceptionOutput()
+            : $this->renderGenericExceptionOutput();
+    }
 
-        return $this->renderGenericExceptionOutput();
+    /**
+     * @return Body
+     */
+    public function renderWithBody()
+    {
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write($this->render());
+        return $body;
     }
 }
