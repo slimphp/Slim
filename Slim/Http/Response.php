@@ -50,6 +50,7 @@ class Response extends Message implements ResponseInterface
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
+        111 => 'Connection Refused',
         //Successful 2xx
         200 => 'OK',
         201 => 'Created',
