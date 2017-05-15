@@ -143,13 +143,14 @@ class Request extends Message implements ServerRequestInterface
         $headers = Headers::createFromEnvironment($environment);
         $cookies = Cookies::parseHeader($headers->get('Cookie', []));
         $serverParams = $environment->all();
-        $body = new RequestBody();
+        $body = new RequestBody($environment);
         $uploadedFiles = UploadedFile::createFromEnvironment($environment);
 
         $request = new static($method, $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
 
         if ($method === 'POST' &&
-            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data'])
+            in_array($request->getMediaType(), ['application/x-www-form-urlencoded', 'multipart/form-data']) &&
+            !$environment["MOCK_POST_DATA"]
         ) {
             // parsed body must be $_POST
             $request = $request->withParsedBody($_POST);

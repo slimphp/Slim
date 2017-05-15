@@ -45,6 +45,7 @@ class Environment extends Collection implements EnvironmentInterface
             'REMOTE_ADDR'          => '127.0.0.1',
             'REQUEST_TIME'         => time(),
             'REQUEST_TIME_FLOAT'   => microtime(true),
+            'MOCK_POST_DATA'       => null
         ], $userData);
 
         return new static($data);
