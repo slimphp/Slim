@@ -204,7 +204,7 @@ class RouteTest extends TestCase
             'user' => 'john',
             'id' => '123',
         ];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
 
@@ -228,7 +228,7 @@ class RouteTest extends TestCase
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
 
         CallableTest::$CalledCount = 0;
 
@@ -253,7 +253,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -279,7 +279,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -305,7 +305,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -332,7 +332,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -357,7 +357,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -384,7 +384,7 @@ class RouteTest extends TestCase
         $uri = Uri::createFromString('https://example.com:80');
         $headers = new Headers();
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response;
@@ -415,7 +415,7 @@ class RouteTest extends TestCase
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
 
         $result = $route->callMiddlewareStack($request, new Response);
 
@@ -453,7 +453,7 @@ class RouteTest extends TestCase
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
 
         $result = $route->callMiddlewareStack($request, new Response);
 

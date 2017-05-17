@@ -20,7 +20,6 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
 
@@ -36,18 +35,6 @@ class DefaultServicesProvider
      */
     public function register($container)
     {
-        if (!isset($container['environment'])) {
-            /**
-             * This service MUST return a shared instance
-             * of \Slim\Interfaces\Http\EnvironmentInterface.
-             *
-             * @return EnvironmentInterface
-             */
-            $container['environment'] = function () {
-                return new Environment($_SERVER);
-            };
-        }
-
         if (!isset($container['request'])) {
             /**
              * PSR-7 Request object
@@ -57,7 +44,7 @@ class DefaultServicesProvider
              * @return ServerRequestInterface
              */
             $container['request'] = function ($container) {
-                return Request::createFromEnvironment($container->get('environment'));
+                return Request::createFromGlobals($_SERVER);
             };
         }
 

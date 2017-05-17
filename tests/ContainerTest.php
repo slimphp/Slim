@@ -10,7 +10,7 @@ namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slim\Container;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 
 class ContainerTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ContainerTest extends TestCase
      */
     public function testGet()
     {
-        $this->assertInstanceOf('\Slim\Http\Environment', $this->container->get('environment'));
+        $this->assertInstanceOf('\Slim\Handlers\NotFound', $this->container->get('notFoundHandler'));
     }
 
 
@@ -37,7 +37,7 @@ class ContainerTest extends TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Interop\Container\Exception\NotFoundException
+     * @expectedException \Psr\Container\NotFoundExceptionInterface
      */
     public function testGetWithValueNotFoundError()
     {
@@ -48,7 +48,7 @@ class ContainerTest extends TestCase
      * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
      * config error
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException \Psr\Container\NotFoundExceptionInterface
      */
     public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
     {
@@ -62,10 +62,10 @@ class ContainerTest extends TestCase
     }
 
     /**
-     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * Test `get()` recasts \InvalidArgumentException as PSR-11 compliant exceptions when an error is present
      * in the DI config
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException \Psr\Container\ContainerExceptionInterface
      */
     public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
     {
