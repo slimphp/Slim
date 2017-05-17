@@ -74,8 +74,10 @@ class Error extends AbstractError
     {
         $title = 'Slim Application Error';
 
+        $html = '<p><img src="https://http.cat/500" alt="500 Internal Server Error" /></p>';
+
         if ($this->displayErrorDetails) {
-            $html = '<p>The application could not run because of the following error:</p>';
+            $html .= '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
             $html .= $this->renderHtmlException($exception);
 
@@ -84,7 +86,7 @@ class Error extends AbstractError
                 $html .= $this->renderHtmlExceptionOrError($exception);
             }
         } else {
-            $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
+            $html .= '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }
 
         $output = sprintf(

@@ -137,6 +137,7 @@ class NotAllowed extends AbstractHandler
     </head>
     <body>
         <h1>Method not allowed</h1>
+        <p><img src="https://http.cat/405" alt="405 Method Not Allowed" /></p>
         <p>Method not allowed. Must be one of: <strong>$allow</strong></p>
     </body>
 </html>

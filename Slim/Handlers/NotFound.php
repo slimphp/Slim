@@ -113,6 +113,7 @@ class NotFound extends AbstractHandler
     </head>
     <body>
         <h1>Page Not Found</h1>
+        <p><img src="https://http.cat/404" alt="404 Not Found" /></p>
         <p>
             The page you are looking for could not be found. Check the address bar
             to ensure your URL is spelled correctly. If all else fails, you can
