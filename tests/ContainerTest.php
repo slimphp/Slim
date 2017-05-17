@@ -11,6 +11,7 @@ namespace Slim\Tests;
 use PHPUnit\Framework\TestCase;
 use Slim\Container;
 use Psr\Container\ContainerInterface;
+use Slim\Tests\Mocks\MockErrorRenderer;
 
 class ContainerTest extends TestCase
 {
@@ -29,10 +30,9 @@ class ContainerTest extends TestCase
      */
     public function testGet()
     {
-        $this->assertInstanceOf('\Slim\Handlers\NotFound', $this->container->get('notFoundHandler'));
+        $this->container['MockErrorRenderer'] = new MockErrorRenderer(new \Exception('oops'));
+        $this->assertInstanceOf(MockErrorRenderer::class, $this->container->get('MockErrorRenderer'));
     }
-
-
 
     /**
      * Test `get()` throws error if item does not exist

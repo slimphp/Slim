@@ -16,7 +16,6 @@ use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
-use Slim\Http\Environment;
 
 class HttpExceptionTest extends TestCase
 {
@@ -33,15 +32,10 @@ class HttpExceptionTest extends TestCase
     public function testHttpExceptionRequestReponseGetterSetters()
     {
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($_SERVER);
+        $headers = Headers::createFromGlobals($_SERVER);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $_SERVER;
         $body = new RequestBody();
         $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $response = new Response();
