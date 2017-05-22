@@ -362,12 +362,11 @@ class Router implements RouterInterface
     /**
      * Removes the last route group from the array
      *
-     * @return RouteGroup|bool The RouteGroup if successful, else False
+     * @return RouteGroup|null The last RouteGroup, if one exists
      */
     public function popGroup()
     {
-        $group = array_pop($this->routeGroups);
-        return $group instanceof RouteGroup ? $group : false;
+        return array_pop($this->routeGroups);
     }
 
     /**
