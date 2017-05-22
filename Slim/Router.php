@@ -355,7 +355,7 @@ class Router implements RouterInterface
     public function pushGroup($pattern, $callable)
     {
         $group = new RouteGroup($pattern, $callable);
-        array_push($this->routeGroups, $group);
+        $this->routeGroups[] = $group;
         return $group;
     }
 
