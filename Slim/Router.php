@@ -234,7 +234,7 @@ class Router implements RouterInterface
      * @param  string   $pattern The route pattern
      * @param  callable $callable The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return Route
      */
     protected function createRoute($methods, $pattern, $callable)
     {
