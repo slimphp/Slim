@@ -828,7 +828,7 @@ class Request extends Message implements ServerRequestInterface
      * These values MAY be prepared from $_FILES or the message body during
      * instantiation, or MAY be injected via withUploadedFiles().
      *
-     * @return array An array tree of UploadedFileInterface instances; an empty
+     * @return UploadedFileInterface[] An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
     public function getUploadedFiles()
