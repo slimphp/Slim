@@ -10,7 +10,7 @@ ini_set('session.use_cookies', 0);
 
 // Enable Composer autoloader
 /** @var \Composer\Autoload\ClassLoader $autoloader */
-$autoloader = require dirname(__DIR__) . '/vendor/autoload.php';
+$autoloader = require dirname(__DIR__) . '/../vendor/autoload.php';
 
 require dirname(__FILE__) . '/getallheaders.php';
 

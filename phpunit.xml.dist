@@ -13,11 +13,11 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="tests/phpunit/bootstrap.php"
 >
     <testsuites>
         <testsuite name="Slim Test Suite">
-            <directory>./tests/</directory>
+            <directory>./tests/phpunit/</directory>
         </testsuite>
     </testsuites>
 
