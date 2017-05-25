@@ -1,0 +1,11 @@
+default:
+
+    autoload:
+        - %paths.base%/tests/behat/context_files/
+
+    suites:
+
+        basic:
+            paths:    [ %paths.base%/tests/behat/feature_files/ ]
+            filters:  { tags: '~@wip' }
+            contexts: [ \Slim\Behat\Context\Context ]

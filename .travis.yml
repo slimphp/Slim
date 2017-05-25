@@ -18,6 +18,7 @@ script:
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
   - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then vendor/bin/phpunit ; fi
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpcs ; fi
+  - ./vendor/bin/behat
 
 after_script:
   - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls --coverage_clover=clover.xml -v ; fi

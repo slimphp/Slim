@@ -37,7 +37,8 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.5",
-        "phpunit/phpunit": "^5.7|^6.0"
+        "phpunit/phpunit": "^5.7|^6.0",
+        "behat/behat": "^3.3"
     },
     "provide": {
         "psr/http-message-implementation": "1.0"
@@ -49,7 +50,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Slim\\Tests\\": "tests/phpunit/"
+            "Slim\\Tests\\": "tests/phpunit/",
+            "Slim\\Behat\\Context\\": "tests/behat/context_files/"
         }
     },
     "scripts": {
