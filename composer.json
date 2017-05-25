@@ -47,6 +47,11 @@
             "Slim\\": "Slim"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Slim\\Tests\\": "tests/phpunit/"
+        }
+    },
     "scripts": {
         "test": [
             "@phpunit",
