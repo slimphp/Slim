@@ -1,11 +1,18 @@
 default:
 
-    autoload:
-        - %paths.base%/tests/behat/context_files/
+  suites:
 
-    suites:
+    default:
+      paths: [ %paths.base%/tests/behat/feature_files/ ]
+      filters: { tags: '~@wip' }
+      contexts:
+        - \Slim\Behat\Context\FeatureContext:
+          - "@app"
+        - \Slim\Behat\Context\BasicSmokeTestContext:
+          - "@app"
+        - \Slim\Behat\Context\MiddlewaresContext:
+          - "@app"
 
-        basic:
-            paths:    [ %paths.base%/tests/behat/feature_files/ ]
-            filters:  { tags: '~@wip' }
-            contexts: [ \Slim\Behat\Context\Context ]
+      services:
+        app:
+          class: "Slim\\App"

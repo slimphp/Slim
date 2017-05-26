@@ -5,10 +5,10 @@ Feature: Basic smoke test
 
   Scenario: Nascent application returning a response
     Given I have set up an application to return a response with Hello World
-    When I query the '/hello-world' route
+    When I query the route '/hello-world'
     Then the response body should be 'Hello world'
 
   Scenario: Using echoing instead of returning a response object
     Given I have set up an application to echo Hello World
-    When I query the '/hello-world' route
+    When I query the route '/hello-world'
     Then the response body should be 'Hello world'
