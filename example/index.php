@@ -1,6 +1,12 @@
 <?php
 
 /**
+ * Step 0: Copy this example directory to its own root and then run composer:
+ *
+ *      $ composer update
+ */
+
+/**
  * Step 1: Require the Slim Framework using Composer's autoloader
  *
  * If you are not using Composer, you need to load Slim Framework with your own
@@ -25,6 +31,10 @@ $app = new Slim\App();
  * to appropriate HTTP request methods. In this example, the second
  * argument for `Slim::get`, `Slim::post`, `Slim::put`, `Slim::patch`, and `Slim::delete`
  * is an anonymous function.
+ *
+ * Note that the route pattern is relative to where your index.php (the application entry
+ * point) is. That is to say these routes are not absolute. e.g. if your index.php is in
+ * '/example', then the URL '/example/myroute' would be registered as '/myroute'
  */
 $app->get('/', function ($request, $response, $args) {
     $response->write("Welcome to Slim!");
