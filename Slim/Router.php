@@ -233,11 +233,13 @@ class Router implements RouterInterface
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
-        } else {
-            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
-                'routeParser' => $this->routeParser,
-            ]);
-        }
+
+            return $this->dispatcher;
+        } 
+
+        $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            'routeParser' => $this->routeParser,
+        ]);
 
         return $this->dispatcher;
     }
