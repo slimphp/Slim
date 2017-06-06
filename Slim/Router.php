@@ -271,12 +271,15 @@ class Router implements RouterInterface
      */
     public function getNamedRoute($name)
     {
-        foreach ($this->routes as $route) {
-            if ($name == $route->getName()) {
-                return $route;
-            }
+        $routes = array_filter($this->routes, function ($route) use ($name) {
+            return $name === $route->getName();
+        });
+
+        if (empty($routes)) {
+            throw new RuntimeException('Named route does not exist for name: ' . $name);
         }
-        throw new RuntimeException('Named route does not exist for name: ' . $name);
+
+        return array_shift($routes);
     }
 
     /**
