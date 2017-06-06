@@ -130,7 +130,6 @@ class Router implements RouterInterface
             throw new RuntimeException('Router cacheFile directory must be writable');
         }
 
-
         return $this;
     }
 
@@ -233,11 +232,13 @@ class Router implements RouterInterface
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
-        } else {
-            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
-                'routeParser' => $this->routeParser,
-            ]);
-        }
+
+            return $this->dispatcher;
+        } 
+
+        $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            'routeParser' => $this->routeParser,
+        ]);
 
         return $this->dispatcher;
     }
@@ -272,10 +273,11 @@ class Router implements RouterInterface
     public function getNamedRoute($name)
     {
         foreach ($this->routes as $route) {
-            if ($name == $route->getName()) {
+            if ($name === $route->getName()) {
                 return $route;
             }
         }
+        
         throw new RuntimeException('Named route does not exist for name: ' . $name);
     }
 
