@@ -130,7 +130,6 @@ class Router implements RouterInterface
             throw new RuntimeException('Router cacheFile directory must be writable');
         }
 
-
         return $this;
     }
 
