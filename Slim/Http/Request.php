@@ -133,10 +133,11 @@ class Request extends Message implements ServerRequestInterface
      * Environment object
      *
      * @param  Environment $environment The Slim application Environment
+     * @param  Collection $settings The Slim application Settings
      *
      * @return static
      */
-    public static function createFromEnvironment(Environment $environment)
+    public static function createFromEnvironment(Environment $environment, Collection $settings)
     {
         $method = $environment['REQUEST_METHOD'];
         $uri = Uri::createFromEnvironment($environment);

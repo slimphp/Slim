@@ -57,7 +57,7 @@ class DefaultServicesProvider
              * @return ServerRequestInterface
              */
             $container['request'] = function ($container) {
-                return Request::createFromEnvironment($container->get('environment'));
+                return Request::createFromEnvironment($container->get('environment'), $container->get('settings'));
             };
         }
 

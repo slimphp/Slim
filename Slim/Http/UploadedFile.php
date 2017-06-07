@@ -12,6 +12,8 @@ use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
+use Slim\Collection;
+use Slim\Interfaces\Http\RequestBuilderInterface;
 
 /**
  * Represents Uploaded Files.
@@ -21,7 +23,7 @@ use Psr\Http\Message\UploadedFileInterface;
  * @link https://github.com/php-fig/http-message/blob/master/src/UploadedFileInterface.php
  * @link https://github.com/php-fig/http-message/blob/master/src/StreamInterface.php
  */
-class UploadedFile implements UploadedFileInterface
+class UploadedFile implements UploadedFileInterface, RequestBuilderInterface
 {
     /**
      * The client-provided full path to the file
@@ -78,10 +80,11 @@ class UploadedFile implements UploadedFileInterface
      * Create a normalized tree of UploadedFile instances from the Environment.
      *
      * @param Environment $env The environment
+     * @param Collection $settings The settings
      *
      * @return array|null A normalized tree of UploadedFile instances or null if none are provided.
      */
-    public static function createFromEnvironment(Environment $env)
+    public static function createFromEnvironment(Environment $env, Collection $settings)
     {
         if (is_array($env['slim.files']) && $env->has('slim.files')) {
             return $env['slim.files'];
@@ -96,10 +99,11 @@ class UploadedFile implements UploadedFileInterface
      * Parse a non-normalized, i.e. $_FILES superglobal, tree of uploaded file data.
      *
      * @param array $uploadedFiles The non-normalized tree of uploaded file data.
+     * @param Collection $settings The $settings
      *
      * @return array A normalized tree of UploadedFile instances.
      */
-    private static function parseUploadedFiles(array $uploadedFiles)
+    private static function parseUploadedFiles(array $uploadedFiles, Collection $settings)
     {
         $parsed = [];
         foreach ($uploadedFiles as $field => $uploadedFile) {
@@ -112,7 +116,8 @@ class UploadedFile implements UploadedFileInterface
 
             $parsed[$field] = [];
             if (!is_array($uploadedFile['error'])) {
-                $parsed[$field] = new static(
+                $class = static::build($settings);
+                $parsed[$field] = new $class(
                     $uploadedFile['tmp_name'],
                     isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
                     isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
@@ -136,6 +141,17 @@ class UploadedFile implements UploadedFileInterface
         }
 
         return $parsed;
+    }
+
+    /**
+     * Check to see if user specified their own uploaded file class.
+     *
+     * @param Collection $settings
+     * @return mixed
+     */
+    public static function build(Collection $settings)
+    {
+        return $settings->get('uploadedFileClass', __CLASS__);
     }
 
     /**
