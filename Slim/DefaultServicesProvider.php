@@ -23,6 +23,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\ArrayContainerInterface;
 
 /**
  * Slim's default Service Provider.
@@ -32,9 +33,9 @@ class DefaultServicesProvider
     /**
      * Register Slim's default services.
      *
-     * @param Container $container A DI container implementing ArrayAccess and container-interop.
+     * @param ArrayContainerInterface $container A DI container
      */
-    public function register($container)
+    public function register(ArrayContainerInterface $container)
     {
         if (!isset($container['environment'])) {
             /**
