@@ -25,6 +25,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($prop->getValue($h)['accept']));
         $this->assertEquals('application/json', $prop->getValue($h)['accept']['value'][0]);
+        $this->assertEquals('Accept', $prop->getValue($h)['accept']['originalKey']);
     }
 
     public function testCreateFromEnvironmentWithSpecialHeaders()
@@ -38,6 +39,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue(is_array($prop->getValue($h)['content-type']));
         $this->assertEquals('application/json', $prop->getValue($h)['content-type']['value'][0]);
+        $this->assertEquals('Content-Type', $prop->getValue($h)['content-type']['originalKey']);
     }
 
     public function testCreateFromEnvironmentIgnoresHeaders()
@@ -51,6 +53,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop->setAccessible(true);
 
         $this->assertNotContains('content-length', $prop->getValue($h));
+        $this->assertEquals('Content-Type', $prop->getValue($h)['content-type']['originalKey']);
     }
 
     public function testConstructor()
