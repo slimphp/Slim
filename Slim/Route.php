@@ -333,7 +333,7 @@ class Route extends Routable implements RouteInterface
         $this->callable = $this->resolveCallable($this->callable);
 
         /** @var InvocationStrategyInterface $handler */
-        $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
+        $handler = null !== $this->getContainer() ? $this->getContainer()->get('foundHandler') : new RequestResponse();
 
         // invoke route callable
         if ($this->outputBuffering === false) {

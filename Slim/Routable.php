@@ -28,13 +28,6 @@ abstract class Routable
     protected $callable;
 
     /**
-     * Container
-     *
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
      * Route middleware
      *
      * @var callable[]
@@ -69,19 +62,6 @@ abstract class Routable
     }
 
     /**
-     * Set container for use with resolveCallable
-     *
-     * @param ContainerInterface $container
-     *
-     * @return self
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-        return $this;
-    }
-
-    /**
      * Prepend middleware to the middleware collection
      *
      * @param callable|string $callable The callback routine
@@ -90,7 +70,7 @@ abstract class Routable
      */
     public function add($callable)
     {
-        $this->middleware[] = new DeferredCallable($callable, $this->container);
+        $this->middleware[] = new DeferredCallable($callable, $this->getContainer());
         return $this;
     }
 
