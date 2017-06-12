@@ -30,12 +30,7 @@ use Slim\Interfaces\RouteInterface;
  */
 class Router implements RouterInterface
 {
-    /**
-     * Container Interface
-     *
-     * @var ContainerInterface
-     */
-    protected $container;
+    use ContainerAwareTrait;
 
     /**
      * Parser
@@ -135,14 +130,6 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * Add route
      *
      * @param  string[] $methods Array of HTTP methods
@@ -207,7 +194,7 @@ class Router implements RouterInterface
     {
         $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
         if (!empty($this->container)) {
-            $route->setContainer($this->container);
+            $route->setContainer($this->getContainer());
         }
 
         return $route;

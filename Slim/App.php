@@ -45,6 +45,7 @@ use Slim\Interfaces\RouterInterface;
  */
 class App
 {
+    use ContainerAwareTrait;
     use MiddlewareAwareTrait;
 
     /**
@@ -79,17 +80,7 @@ class App
         if (!$container instanceof ContainerInterface) {
             throw new InvalidArgumentException('Expected a ContainerInterface');
         }
-        $this->container = $container;
-    }
-
-    /**
-     * Enable access to the DI container by consumers of $app
-     *
-     * @return ContainerInterface
-     */
-    public function getContainer()
-    {
-        return $this->container;
+        $this->setContainer($container);
     }
 
     /**
@@ -103,7 +94,7 @@ class App
      */
     public function add($callable)
     {
-        return $this->addMiddleware(new DeferredCallable($callable, $this->container));
+        return $this->addMiddleware(new DeferredCallable($callable, $this->getContainer()));
     }
 
     /**
@@ -116,8 +107,8 @@ class App
      */
     public function __call($method, $args)
     {
-        if ($this->container->has($method)) {
-            $obj = $this->container->get($method);
+        if ($this->getContainer()->has($method)) {
+            $obj = $this->getContainer()->get($method);
             if (is_callable($obj)) {
                 return call_user_func_array($obj, $args);
             }
@@ -233,16 +224,16 @@ class App
     public function map(array $methods, $pattern, $callable)
     {
         if ($callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
+            $callable = $callable->bindTo($this->getContainer());
         }
 
-        $route = $this->container->get('router')->map($methods, $pattern, $callable);
+        $route = $this->getContainer()->get('router')->map($methods, $pattern, $callable);
         if (is_callable([$route, 'setContainer'])) {
-            $route->setContainer($this->container);
+            $route->setContainer($this->getContainer());
         }
 
         if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->container->get('settings')['outputBuffering']);
+            $route->setOutputBuffering($this->getContainer()->get('settings')['outputBuffering']);
         }
 
         return $route;
@@ -263,10 +254,10 @@ class App
     public function group($pattern, $callable)
     {
         /** @var RouteGroup $group */
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
-        $group->setContainer($this->container);
+        $group = $this->getContainer()->get('router')->pushGroup($pattern, $callable);
+        $group->setContainer($this->getContainer());
         $group($this);
-        $this->container->get('router')->popGroup();
+        $this->getContainer()->get('router')->popGroup();
         return $group;
     }
 
@@ -289,10 +280,10 @@ class App
      */
     public function run($silent = false)
     {
-        $response = $this->container->get('response');
+        $response = $this->getContainer()->get('response');
 
         try {
-            $response = $this->process($this->container->get('request'), $response);
+            $response = $this->process($this->getContainer()->get('request'), $response);
         } catch (InvalidMethodException $e) {
             $response = $this->processInvalidMethod($e->getRequest(), $response);
         }
@@ -318,7 +309,7 @@ class App
      */
     protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $router = $this->container->get('router');
+        $router = $this->getContainer()->get('router');
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
         }
@@ -354,13 +345,13 @@ class App
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
         // Ensure basePath is set
-        $router = $this->container->get('router');
+        $router = $this->getContainer()->get('router');
         if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
             $router->setBasePath($request->getUri()->getBasePath());
         }
 
         // Dispatch the Router first if the setting for this is on
-        if ($this->container->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
+        if ($this->getContainer()->get('settings')['determineRouteBeforeAppMiddleware'] === true) {
             // Dispatch router (note: you won't be able to alter routes after this)
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
         }
@@ -410,7 +401,7 @@ class App
             if ($body->isSeekable()) {
                 $body->rewind();
             }
-            $settings       = $this->container->get('settings');
+            $settings       = $this->getContainer()->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
 
             $contentLength  = $response->getHeaderLine('Content-Length');
@@ -463,7 +454,7 @@ class App
         $routeInfo = $request->getAttribute('routeInfo');
 
         /** @var \Slim\Interfaces\RouterInterface $router */
-        $router = $this->container->get('router');
+        $router = $this->getContainer()->get('router');
 
         // If router hasn't been dispatched or the URI changed then dispatch
         if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
@@ -475,19 +466,19 @@ class App
             $route = $router->lookupRoute($routeInfo[1]);
             return $route->run($request, $response);
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            if (!$this->container->has('notAllowedHandler')) {
+            if (!$this->getContainer()->has('notAllowedHandler')) {
                 throw new MethodNotAllowedException($request, $response, $routeInfo[1]);
             }
             /** @var callable $notAllowedHandler */
-            $notAllowedHandler = $this->container->get('notAllowedHandler');
+            $notAllowedHandler = $this->getContainer()->get('notAllowedHandler');
             return $notAllowedHandler($request, $response, $routeInfo[1]);
         }
 
-        if (!$this->container->has('notFoundHandler')) {
+        if (!$this->getContainer()->has('notFoundHandler')) {
             throw new NotFoundException($request, $response);
         }
         /** @var callable $notFoundHandler */
-        $notFoundHandler = $this->container->get('notFoundHandler');
+        $notFoundHandler = $this->getContainer()->get('notFoundHandler');
         return $notFoundHandler($request, $response);
     }
 
@@ -518,7 +509,7 @@ class App
         $bodyContent = '',
         ResponseInterface $response = null
     ) {
-        $env = $this->container->get('environment');
+        $env = $this->getContainer()->get('environment');
         $uri = Uri::createFromEnvironment($env)->withPath($path)->withQuery($query);
         $headers = new Headers($headers);
         $serverParams = $env->all();
@@ -528,7 +519,7 @@ class App
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         if (!$response) {
-            $response = $this->container->get('response');
+            $response = $this->getContainer()->get('response');
         }
 
         return $this($request, $response);
@@ -579,8 +570,8 @@ class App
         }
 
         // Add Content-Length header if `addContentLengthHeader` setting is set
-        if (isset($this->container->get('settings')['addContentLengthHeader']) &&
-            $this->container->get('settings')['addContentLengthHeader'] == true) {
+        if (isset($this->getContainer()->get('settings')['addContentLengthHeader']) &&
+            $this->getContainer()->get('settings')['addContentLengthHeader'] == true) {
             if (ob_get_length() > 0) {
                 throw new \RuntimeException("Unexpected data in output buffer. " .
                     "Maybe you have characters before an opening <?php tag?");
@@ -640,8 +631,8 @@ class App
             $params = [$request, $response, $e];
         }
 
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
+        if ($this->getContainer()->has($handler)) {
+            $callable = $this->getContainer()->get($handler);
             // Call the registered handler
             return call_user_func_array($callable, $params);
         }
@@ -665,8 +656,8 @@ class App
         $handler = 'phpErrorHandler';
         $params = [$request, $response, $e];
 
-        if ($this->container->has($handler)) {
-            $callable = $this->container->get($handler);
+        if ($this->getContainer()->has($handler)) {
+            $callable = $this->getContainer()->get($handler);
             // Call the registered handler
             return call_user_func_array($callable, $params);
         }
