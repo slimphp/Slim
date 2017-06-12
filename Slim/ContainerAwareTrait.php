@@ -25,7 +25,7 @@ trait ContainerAwareTrait
     /**
      * Set a container instance
      *
-     * @param ConteinerInterface $container
+     * @param ContainerInterface $container
      */
     public function setContainer(ContainerInterface $container)
     {
