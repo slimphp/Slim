@@ -10,14 +10,12 @@ namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\CallableResolver;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorRenderers\PlainTextErrorRenderer;
 use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
 use Slim\Handlers\ErrorRenderers\XmlErrorRenderer;
 use Slim\Handlers\ErrorRenderers\JsonErrorRenderer;
-use Slim\Http\Body;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Exception;
@@ -80,7 +78,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param Exception    $exception The caught Exception object
+     * @param Exception|Throwable    $exception The caught Exception object
      * @param bool $displayErrorDetails Whether or not to display the error details
      *
      * @return ResponseInterface
@@ -88,8 +86,8 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     public function __invoke(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        Exception $exception,
-        $displayErrorDetails = false
+        $exception,
+        $displayErrorDetails
     ) {
         $this->displayErrorDetails = $displayErrorDetails;
         $this->request = $request;

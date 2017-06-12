@@ -11,6 +11,7 @@ namespace Slim\Interfaces;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Exception;
+use Throwable;
 
 /**
  * ErrorHandlerInterface
@@ -23,14 +24,14 @@ interface ErrorHandlerInterface
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
-     * @param Exception $exception
+     * @param Exception|Throwable $exception
      * @param $displayErrorDetails
      * @return ResponseInterface
      */
     public function __invoke(
         ServerRequestInterface $request,
         ResponseInterface $response,
-        Exception $exception,
+        $exception,
         $displayErrorDetails
     );
 }

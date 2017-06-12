@@ -113,7 +113,7 @@ class AbstractErrorHandlerTest extends TestCase
         $exception = new HttpNotAllowedException();
         $exception->setAllowedMethods(['POST', 'PUT']);
         /** @var Response $res */
-        $res = $handler->__invoke($this->getRequest('OPTIONS'), new Response(), $exception);
+        $res = $handler->__invoke($this->getRequest('OPTIONS'), new Response(), $exception, false);
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
         $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));

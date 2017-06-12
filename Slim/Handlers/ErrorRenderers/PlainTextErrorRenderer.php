@@ -15,21 +15,10 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderPhpExceptionOutput()
-    {
-        return $this->formatExceptionBody();
-    }
-
-    public function renderGenericExceptionOutput()
-    {
-        if ($this->displayErrorDetails) {
-            return $this->formatExceptionBody();
-        }
-
-        return $this->exception->getMessage();
-    }
-
-    public function formatExceptionBody()
+    /**
+     * @return string
+     */
+    public function render()
     {
         $e = $this->exception;
 
@@ -48,7 +37,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
      * @param \Exception|\Throwable $e
      * @return string
      */
-    public function formatExceptionFragment($e)
+    private function formatExceptionFragment($e)
     {
         $text = sprintf('Type: %s' . PHP_EOL, get_class($e));
 

@@ -31,14 +31,4 @@ interface ErrorRendererInterface
      * @return \Slim\Http\Body
      */
     public function renderWithBody();
-
-    /**
-     * @return string
-     */
-    public function renderPhpExceptionOutput();
-
-    /**
-     * @return string
-     */
-    public function renderGenericExceptionOutput();
 }

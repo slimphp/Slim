@@ -15,12 +15,10 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class MockErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderPhpExceptionOutput()
-    {
-        return '';
-    }
-
-    public function renderGenericExceptionOutput()
+    /**
+     * @return string
+     */
+    public function render()
     {
         return '';
     }

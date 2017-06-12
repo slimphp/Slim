@@ -15,26 +15,13 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class JsonErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderPhpExceptionOutput()
-    {
-        $message = 'Slim Application Error';
-        return $this->formatExceptionPayload($message);
-    }
-
-    public function renderGenericExceptionOutput()
-    {
-        $message = $this->exception->getMessage();
-        return $this->formatExceptionPayload($message);
-    }
-
     /**
-     * @param $message
      * @return string
      */
-    public function formatExceptionPayload($message)
+    public function render()
     {
         $e = $this->exception;
-        $error = ['message' => $message];
+        $error = ['message' => $e->getMessage()];
 
         if ($this->displayErrorDetails) {
             $error['exception'] = [];
@@ -50,7 +37,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
      * @param \Exception|\Throwable $e
      * @return array
      */
-    public function formatExceptionFragment($e)
+    private function formatExceptionFragment($e)
     {
         return [
             'type' => get_class($e),

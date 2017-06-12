@@ -38,7 +38,7 @@ class ErrorTest extends TestCase
         $e = new Exception("Oops", 1, new Exception('Previous oops'));
 
         /** @var Response $res */
-        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e, false);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -56,7 +56,7 @@ class ErrorTest extends TestCase
         $e = new Exception('Oops', 1, new Exception('Oops before'));
 
         /** @var Response $res */
-        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
+        $res = $errorHandler->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e, true);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -80,7 +80,7 @@ class ErrorTest extends TestCase
         $first = new Exception("First Oops");
         $second = new Exception("Second Oops", 0, $first);
 
-        $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second);
+        $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second, false);
     }
 
     /**

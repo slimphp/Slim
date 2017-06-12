@@ -10,13 +10,11 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Handlers\ErrorRenderers\HtmlErrorRenderer;
 use Slim\Handlers\Strategies\RequestResponseArgs;
@@ -1064,20 +1062,9 @@ class AppTest extends TestCase
         $handler = new MockErrorHandler();
         $app->setNotAllowedHandler($handler);
         $app->setNotFoundHandler($handler);
-        $app->setPhpErrorHandler($handler);
 
         $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(HttpNotAllowedException::class));
         $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(HttpNotFoundException::class));
-        $this->assertInstanceOf(MockErrorHandler::class, $app->getErrorHandler(PhpException::class));
-    }
-
-    public function testGetErrorHandlerWillReturnDefaultErrorHandlerForPhpExceptions()
-    {
-        $app = new App();
-        $exception = PhpException::class;
-        $handler = $app->getErrorHandler($exception);
-
-        $this->assertInstanceOf(ErrorHandler::class, $handler);
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()

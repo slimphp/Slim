@@ -30,7 +30,7 @@ class ContainerTest extends TestCase
      */
     public function testGet()
     {
-        $this->container['MockErrorRenderer'] = new MockErrorRenderer(new \Exception('oops'));
+        $this->container['MockErrorRenderer'] = new MockErrorRenderer(new \Exception('oops'), false);
         $this->assertInstanceOf(MockErrorRenderer::class, $this->container->get('MockErrorRenderer'));
     }
 

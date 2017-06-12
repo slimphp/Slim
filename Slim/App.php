@@ -15,7 +15,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
-use Slim\Exception\PhpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
@@ -439,42 +438,6 @@ class App
         return $this->getErrorHandler(HttpNotAllowedException::class);
     }
 
-    /**
-     * Set callable to handle scenarios where a PHP error
-     * occurs when processing the current request.
-     *
-     * This service MUST return a callable that accepts
-     * three arguments optionally four arguments.
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
-     *
-     * Or a subclass name of AbstractErrorHandler
-     * eg. CustomErrorHandler::class
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param callable $handler
-     */
-    public function setPhpErrorHandler($handler)
-    {
-        $this->setErrorHandler(PhpException::class, $handler);
-    }
-
-    /**
-     * Get callable to handle scenarios where a PHP error
-     * occurs when processing the current request.
-     *
-     * @return callable
-     */
-    public function getPhpErrorHandler()
-    {
-        return $this->getErrorHandler(PhpException::class);
-    }
-
     /********************************************************************************
      * Router proxy methods
      *******************************************************************************/
@@ -648,7 +611,7 @@ class App
         } catch (Exception $e) {
             $response = $this->handleException($e, $request, $response);
         } catch (Throwable $e) {
-            $response = $this->handleException(new PhpException($e), $request, $response);
+            $response = $this->handleException($e, $request, $response);
         }
 
         if (!$silent) {
@@ -827,12 +790,12 @@ class App
 
     /**
      * Resolve custom error handler from container or use default ErrorHandler
-     * @param Exception $exception
+     * @param Exception|Throwable $exception
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return mixed
      */
-    public function handleException(Exception $exception, ServerRequestInterface $request, ResponseInterface $response)
+    public function handleException($exception, ServerRequestInterface $request, ResponseInterface $response)
     {
         $exceptionType = get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);

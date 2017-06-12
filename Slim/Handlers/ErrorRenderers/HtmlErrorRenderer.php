@@ -16,7 +16,10 @@ use Slim\Handlers\AbstractErrorRenderer;
  */
 class HtmlErrorRenderer extends AbstractErrorRenderer
 {
-    public function renderPhpExceptionOutput()
+    /**
+     * @return string
+     */
+    public function render()
     {
         $e = $this->exception;
         $title = 'Slim Application Error';
@@ -32,26 +35,11 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
         return $this->renderHtmlBody($title, $html);
     }
 
-    public function renderGenericExceptionOutput()
-    {
-        $e = $this->exception;
-        $title = '';
-        $description = '';
-
-        if (method_exists($e, 'getTitle')) {
-            $title = $e->getTitle();
-        }
-
-        if (method_exists($e, 'getDescription')) {
-            $description = $e->getDescription();
-        } elseif ($this->displayErrorDetails) {
-            $description = $e->getMessage();
-        }
-        $html = "<p>${description}</p>";
-
-        return $this->renderHtmlBody($title, $html);
-    }
-
+    /**
+     * @param string $title
+     * @param string $html
+     * @return string
+     */
     public function renderHtmlBody($title = '', $html = '')
     {
         return sprintf(
@@ -81,7 +69,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
      * @param Exception $exception
      * @return string
      */
-    public function renderExceptionFragment($exception)
+    private function renderExceptionFragment($exception)
     {
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 

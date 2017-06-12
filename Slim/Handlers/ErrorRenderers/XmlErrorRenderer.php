@@ -18,10 +18,10 @@ class XmlErrorRenderer extends AbstractErrorRenderer
     /**
      * @return string
      */
-    public function renderPhpExceptionOutput()
+    public function render()
     {
         $e = $this->exception;
-        $xml = "<error>\n  <message>Slim Application Error</message>\n";
+        $xml = "<error>\n  <message>{$e->getMessage()}</message>\n";
         if ($this->displayErrorDetails) {
             do {
                 $xml .= "  <exception>\n";
@@ -36,14 +36,6 @@ class XmlErrorRenderer extends AbstractErrorRenderer
         $xml .= "</error>";
 
         return $xml;
-    }
-
-    /**
-     * @return string
-     */
-    public function renderGenericExceptionOutput()
-    {
-        return "<root><message>{$this->exception->getMessage()}</message></root>";
     }
 
     /**

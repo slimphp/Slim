@@ -8,7 +8,6 @@
  */
 namespace Slim\Handlers;
 
-use Slim\Exception\PhpException;
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorRendererInterface;
 
@@ -34,20 +33,10 @@ abstract class AbstractErrorRenderer implements ErrorRendererInterface
      * @param \Exception|\Throwable $exception
      * @param bool $displayErrorDetails
      */
-    public function __construct($exception, $displayErrorDetails = false)
+    public function __construct($exception, $displayErrorDetails)
     {
         $this->exception = $exception;
         $this->displayErrorDetails = $displayErrorDetails;
-    }
-
-    /**
-     * @return string
-     */
-    public function render()
-    {
-        return $this->exception instanceof PhpException
-            ? $this->renderPhpExceptionOutput()
-            : $this->renderGenericExceptionOutput();
     }
 
     /**
