@@ -1205,7 +1205,7 @@ class Request extends Message implements ServerRequestInterface
      * @param array|null $only list the keys to retrieve.
      * @return array|null
      */
-    public function getParams($only = null)
+    public function getParams(array $only = null)
     {
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
