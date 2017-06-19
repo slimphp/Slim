@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.7/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/6.1/phpunit.xsd"
          backupGlobals="false"
          backupStaticAttributes="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
@@ -13,11 +13,11 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="tests/phpunit/bootstrap.php"
 >
     <testsuites>
         <testsuite name="Slim Test Suite">
-            <directory>./tests/</directory>
+            <directory>./tests/phpunit/</directory>
         </testsuite>
     </testsuites>
 
