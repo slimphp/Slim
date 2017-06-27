@@ -5,7 +5,7 @@
 
 ### Added
 
-- Nothing.
+- [#2166](https://github.com/slimphp/Slim/pull/2166) Added Middleware\OutputBuffering
 
 ### Deprecated
 
