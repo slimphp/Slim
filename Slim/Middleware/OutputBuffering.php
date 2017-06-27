@@ -43,6 +43,9 @@ class OutputBuffering
             ob_start();
             $newResponse = $next($request, $response);
             $output = ob_get_clean();
+        } catch (\Exception $e) {
+            ob_end_clean();
+            throw $e;
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
