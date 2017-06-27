@@ -32,16 +32,16 @@ class OutputBuffering
     /**
      * Invoke
      *
-     * @param  \ServerRequestInterface $req  PSR7 server request
-     * @param  \ResponseInterface      $res  PSR7 response
-     * @param  callable                $next Middleware callable
-     * @return \ResponseInterface            PSR7 response
+     * @param  ServerRequestInterface $request   PSR7 server request
+     * @param  ResponseInterface      $response  PSR7 response
+     * @param  callable               $next      Middleware callable
+     * @return ResponseInterface                 PSR7 response
      */
-    public function __invoke(ServerRequestInterface $req, ResponseInterface $res, callable $next)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
         try {
             ob_start();
-            $newResponse = $next($req, $res);
+            $newResponse = $next($request, $response);
             $output = ob_get_clean();
         } catch (\Throwable $e) {
             ob_end_clean();
