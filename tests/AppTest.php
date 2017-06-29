@@ -79,14 +79,14 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->addSettings(['foo' => 'bar']);
-        $this->assertEquals('bar', $app->getSetting('foo', 'what'));
+        $this->assertAttributeContains('bar', 'settings', $app);
     }
 
     public function testAddSetting()
     {
         $app = new App();
         $app->addSetting('foo', 'bar');
-        $this->assertEquals('bar', $app->getSetting('foo', 'what'));
+        $this->assertAttributeContains('bar', 'settings', $app);
     }
 
     /********************************************************************************
