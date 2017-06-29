@@ -29,6 +29,7 @@
     ],
     "require": {
         "php": ">=5.6.0",
+        "slim/http": ">=0.2",
         "pimple/pimple": "^3.0",
         "psr/http-message": "^1.0",
         "nikic/fast-route": "^1.0",

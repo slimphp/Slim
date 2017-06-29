@@ -59,7 +59,7 @@ interface RouterInterface
     /**
      * Removes the last route group from the array
      *
-     * @return bool True if successful, else False
+     * @return RouteGroupInterface|null
      */
     public function popGroup();
 

@@ -234,7 +234,7 @@ class Router implements RouterInterface
      * @param  string   $pattern The route pattern
      * @param  callable $callable The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return Route
      */
     protected function createRoute($methods, $pattern, $callable)
     {
@@ -355,19 +355,18 @@ class Router implements RouterInterface
     public function pushGroup($pattern, $callable)
     {
         $group = new RouteGroup($pattern, $callable);
-        array_push($this->routeGroups, $group);
+        $this->routeGroups[] = $group;
         return $group;
     }
 
     /**
      * Removes the last route group from the array
      *
-     * @return RouteGroup|bool The RouteGroup if successful, else False
+     * @return RouteGroup|null The last RouteGroup, if one exists
      */
     public function popGroup()
     {
-        $group = array_pop($this->routeGroups);
-        return $group instanceof RouteGroup ? $group : false;
+        return array_pop($this->routeGroups);
     }
 
     /**

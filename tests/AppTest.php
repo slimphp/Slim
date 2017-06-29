@@ -838,10 +838,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -881,10 +881,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -925,10 +925,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/baz/',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -975,10 +975,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/baz/',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1009,10 +1009,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'POST',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1049,10 +1049,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1077,10 +1077,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/bar',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1105,10 +1105,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/bar',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1133,10 +1133,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/test!',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1162,10 +1162,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/test!',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1190,10 +1190,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/test!',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1220,10 +1220,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1248,10 +1248,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1288,10 +1288,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1318,10 +1318,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1364,10 +1364,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1391,10 +1391,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/rob',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $req = $req->withAttribute("one", 1);
@@ -1420,10 +1420,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo/rob',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $req = $req->withAttribute("one", 1);
@@ -1448,10 +1448,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1485,10 +1485,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1517,10 +1517,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1548,10 +1548,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1617,10 +1617,10 @@ class AppTest extends TestCase
                 'REQUEST_URI' => '/foo',
                 'REQUEST_METHOD' => 'GET',
             ]);
-            $uri = Uri::createFromEnvironment($env);
-            $headers = Headers::createFromEnvironment($env);
+            $uri = Uri::createFromGlobals($env);
+            $headers = Headers::createFromGlobals($env);
             $cookies = [];
-            $serverParams = $env->all();
+            $serverParams = $env;
             $body = new RequestBody();
             $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
             $res = new Response();
@@ -1670,10 +1670,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Mocks\SmallChunksStream();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = (new Response())->withBody($body);
@@ -1697,10 +1697,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1736,10 +1736,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1772,10 +1772,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -1918,10 +1918,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new Body(fopen('php://temp', 'r+'));
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
@@ -2095,10 +2095,10 @@ class AppTest extends TestCase
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
         ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
         $cookies = [];
-        $serverParams = $env->all();
+        $serverParams = $env;
         $body = new RequestBody();
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
