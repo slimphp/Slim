@@ -80,7 +80,6 @@ class App
     protected $settings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
-        'outputBuffering' => 'append',
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
         'addContentLengthHeader' => true,
@@ -532,11 +531,6 @@ class App
 
         // Create route
         $route = $this->getRouter()->map($methods, $pattern, $callable);
-
-        // TODO: Do we keep output buffering?
-        if (is_callable([$route, 'setOutputBuffering'])) {
-            $route->setOutputBuffering($this->getSetting('outputBuffering', 'append'));
-        }
 
         return $route;
     }
