@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLength
 - [#2166](https://github.com/slimphp/Slim/pull/2166) Added Middleware\OutputBufferingMiddleware
 
 ### Deprecated
@@ -13,6 +14,8 @@
 
 ### Removed
 
+- [#2254](https://github.com/slimphp/Slim/pull/2254) `addContentLengthHeader` setting is removed
+- [#2166](https://github.com/slimphp/Slim/pull/2166) `outputBuffering` setting is removed
 - [#2067](https://github.com/slimphp/Slim/pull/2067) Remove App::VERSION
 - [#2078](https://github.com/slimphp/Slim/pull/2078) Remove App::subRequest()
 - [#2098](https://github.com/slimphp/Slim/pull/2098) Remove CallableResolverTrait
