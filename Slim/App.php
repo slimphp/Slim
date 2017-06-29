@@ -82,7 +82,6 @@ class App
         'responseChunkSize' => 4096,
         'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
-        'addContentLengthHeader' => true,
         'routerCacheFile' => false,
     ];
 
@@ -806,18 +805,6 @@ class App
 
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-        }
-
-        // Add Content-Length header if `addContentLengthHeader` setting is set
-        if ($this->getSetting('addContentLengthHeader') == true) {
-            if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
-                    "Maybe you have characters before an opening <?php tag?");
-            }
-            $size = $response->getBody()->getSize();
-            if ($size !== null && !$response->hasHeader('Content-Length')) {
-                $response = $response->withHeader('Content-Length', (string) $size);
-            }
         }
 
         return $response;

@@ -79,14 +79,14 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->addSettings(['foo' => 'bar']);
-        $this->assertAttributeContains('foo', 'settings', $app);
+        $this->assertEquals('bar', $app->getSetting('foo', 'what'));
     }
 
     public function testAddSetting()
     {
         $app = new App();
         $app->addSetting('foo', 'bar');
-        $this->assertAttributeContains('foo', 'settings', $app);
+        $this->assertEquals('bar', $app->getSetting('foo', 'what'));
     }
 
     /********************************************************************************
@@ -1953,11 +1953,11 @@ class AppTest extends TestCase
 
         $response = new Response();
         $response->getBody()->write('foo');
+        $response = $response->withHeader('Content-Type', 'text/plain');
 
         $response = $method->invoke(new App(), $response);
 
-        $this->assertTrue($response->hasHeader('Content-Length'));
-        $this->assertEquals('3', $response->getHeaderLine('Content-Length'));
+        $this->assertTrue($response->hasHeader('Content-Type'));
     }
 
     public function testFinalizeWithoutBody()
@@ -2025,41 +2025,6 @@ class AppTest extends TestCase
         $app = new App();
         $app->getContainer()['bar'] = 'foo';
         $app->foo('bar');
-    }
-
-    public function testOmittingContentLength()
-    {
-        $method = new \ReflectionMethod('Slim\App', 'finalize');
-        $method->setAccessible(true);
-
-        $response = new Response();
-        $response->getBody()->write('foo');
-
-        $app = new App();
-        $app->addSetting('addContentLengthHeader', false);
-        $response = $method->invoke($app, $response);
-
-        $this->assertFalse($response->hasHeader('Content-Length'));
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Unexpected data in output buffer
-     */
-    public function testForUnexpectedDataInOutputBuffer()
-    {
-        $this->expectOutputString('test'); // needed to avoid risky test warning
-        echo "test";
-        $method = new \ReflectionMethod('Slim\App', 'finalize');
-        $method->setAccessible(true);
-
-        $response = new Response();
-        $response->getBody()->write('foo');
-
-        $app = new App();
-        $container = $app->getContainer();
-        $container['settings']['addContentLengthHeader'] = true;
-        $response = $method->invoke($app, $response);
     }
 
     public function testUnsupportedMethodWithoutRoute()
