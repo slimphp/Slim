@@ -10,8 +10,9 @@ namespace Slim\Tests\Http;
 
 use ReflectionProperty;
 use Slim\Http\RequestBody;
+use PHPUnit\Framework\TestCase;
 
-class RequestBodyTest extends \PHPUnit_Framework_TestCase
+class RequestBodyTest extends TestCase
 {
     /** @var string */
     // @codingStandardsIgnoreStart
@@ -147,7 +148,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->body->isWritable());
         $this->assertEquals('', (string)$this->body);
 
-        $this->setExpectedException('RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->tell();
     }
 
@@ -178,7 +179,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
         $bodyStream->setAccessible(true);
         $bodyStream->setValue($this->body, null);
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->tell();
     }
 
@@ -256,7 +257,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
     {
         $this->body->detach();
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->seek(10);
     }
 
@@ -272,7 +273,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
     {
         $this->body->detach();
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->rewind();
     }
 
@@ -285,7 +286,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
     {
         $this->body->detach();
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->read(10);
     }
 
@@ -303,7 +304,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
     {
         $this->body->detach();
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->write('foo');
     }
 
@@ -318,7 +319,7 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
     {
         $this->body->detach();
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $this->body->getContents();
     }
 }

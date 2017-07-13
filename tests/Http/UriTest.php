@@ -11,8 +11,9 @@ namespace Slim\Tests\Http;
 use InvalidArgumentException;
 use Slim\Http\Environment;
 use Slim\Http\Uri;
+use PHPUnit\Framework\TestCase;
 
-class UriTest extends \PHPUnit_Framework_TestCase
+class UriTest extends TestCase
 {
     /**
      * @var resource

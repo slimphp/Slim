@@ -10,8 +10,9 @@ namespace Slim\Tests;
 
 use Slim\Container;
 use Psr\Container\ContainerInterface;
+use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     /**
      * @var Container

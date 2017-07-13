@@ -12,8 +12,9 @@ use ReflectionProperty;
 use ReflectionClass;
 use InvalidArgumentException;
 use Slim\Http\Cookies;
+use PHPUnit\Framework\TestCase;
 
-class CookiesTest extends \PHPUnit_Framework_TestCase
+class CookiesTest extends TestCase
 {
     public function testConstructor()
     {
@@ -226,7 +227,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
 
     public function testParseHeaderException()
     {
-        $this->setExpectedException(InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         Cookies::parseHeader(new \StdClass);
     }
 }

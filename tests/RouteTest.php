@@ -20,8 +20,9 @@ use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use PHPUnit\Framework\TestCase;
 
-class RouteTest extends \PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
     public function routeFactory()
     {
@@ -157,7 +158,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = $this->routeFactory();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
 
         $route->setName(false);
     }
@@ -180,7 +181,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $route = $this->routeFactory();
 
-        $this->setExpectedException('InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
 
         $route->setOutputBuffering('invalid');
     }

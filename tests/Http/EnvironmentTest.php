@@ -9,8 +9,9 @@
 namespace Slim\Tests\Http;
 
 use Slim\Http\Environment;
+use PHPUnit\Framework\TestCase;
 
-class EnvironmentTest extends \PHPUnit_Framework_TestCase
+class EnvironmentTest extends TestCase
 {
     /**
      * Server settings for the default HTTP request

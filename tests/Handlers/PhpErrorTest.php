@@ -11,8 +11,9 @@ namespace Slim\Tests\Handlers;
 
 use Slim\Handlers\PhpError;
 use Slim\Http\Response;
+use PHPUnit\Framework\TestCase;
 
-class PhpErrorTest extends \PHPUnit_Framework_TestCase
+class PhpErrorTest extends TestCase
 {
     public function phpErrorProvider()
     {
@@ -75,7 +76,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
+        $this->expectException(\UnexpectedValueException::class);
         $errorMock->__invoke($req, new Response(), new \Exception());
     }
 
@@ -155,7 +156,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $throwable = $this->getMockBuilder('\Throwable')->getMock();
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
+        $this->expectException(\UnexpectedValueException::class);
         $errorMock->__invoke($req, new Response(), $throwable);
     }
 
@@ -173,7 +174,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     protected function skipIfPhp70()
     {

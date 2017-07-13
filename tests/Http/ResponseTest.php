@@ -12,8 +12,9 @@ use ReflectionProperty;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Response;
+use PHPUnit\Framework\TestCase;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends TestCase
 {
     /*******************************************************************************
      * Create

@@ -10,9 +10,9 @@ namespace Slim\Tests\Handlers;
 
 use Slim\Handlers\Error;
 use Slim\Http\Response;
-use UnexpectedValueException;
+use PHPUnit\Framework\TestCase;
 
-class ErrorTest extends \PHPUnit_Framework_TestCase
+class ErrorTest extends TestCase
 {
     public function errorProvider()
     {
@@ -72,7 +72,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
+        $this->expectException(\UnexpectedValueException::class);
         $errorMock->__invoke($req, new Response(), $e);
     }
 
@@ -106,7 +106,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
         $renderHtmlExceptionorError->setAccessible(true);
 
-        $this->setExpectedException(\RuntimeException::class);
+        $this->expectException(\RuntimeException::class);
 
         $error = new Error();
         $renderHtmlExceptionorError->invokeArgs($error, ['foo']);

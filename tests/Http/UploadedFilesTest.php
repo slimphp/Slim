@@ -15,8 +15,9 @@ use Slim\Http\RequestBody;
 use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use PHPUnit\Framework\TestCase;
 
-class UploadedFilesTest extends \PHPUnit_Framework_TestCase
+class UploadedFilesTest extends TestCase
 {
     static private $filename = './phpUxcOty';
 
@@ -148,7 +149,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     {
         $tempName = uniqid('file-');
         $path = 'some_random_dir' . DIRECTORY_SEPARATOR . $tempName;
-        $this->setExpectedException('\InvalidArgumentException');
+        $this->expectException(\InvalidArgumentException::class);
         $uploadedFile->moveTo($path);
     }
 
@@ -173,7 +174,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testMoveTo
      * @param UploadedFile $uploadedFile
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
     {
@@ -194,7 +195,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public function testMoveToAgain(UploadedFile $uploadedFile)
     {
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
 
         $tempName = uniqid('file-');
         $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
@@ -209,7 +210,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public function testMovedStream($uploadedFile)
     {
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
 
         $uploadedFile->getStream();
     }
@@ -218,6 +219,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     {
         $uploadedFile = $this->generateNewTmpFile();
         $uploadedFile->moveTo('php://temp');
+        $this->assertTrue(true); // There should be no exceptions so if we get here the test passed.
     }
 
     public function providerCreateFromEnvironment()
