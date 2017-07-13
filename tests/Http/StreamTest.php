@@ -9,8 +9,9 @@
 namespace Slim\Tests\Http;
 
 use Slim\Http\Stream;
+use PHPUnit\Framework\TestCase;
 
-class StreamTest extends \PHPUnit_Framework_TestCase
+class StreamTest extends TestCase
 {
     /**
      * @var resource pipe stream file handle

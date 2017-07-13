@@ -12,8 +12,9 @@ use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
+use PHPUnit\Framework\TestCase;
 
-class CallableResolverTest extends \PHPUnit_Framework_TestCase
+class CallableResolverTest extends TestCase
 {
     /**
      * @var Container
@@ -111,35 +112,38 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
     {
         $this->container['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $resolver->resolve('callable_service:noFound');
     }
 
     public function testFunctionNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $resolver->resolve('noFound');
     }
 
     public function testClassNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'Callable Unknown does not exist');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Callable Unknown does not exist');
         $resolver->resolve('Unknown:notFound');
     }
 
     public function testCallableClassNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'is not resolvable');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('is not resolvable');
         $resolver->resolve(['Unknown', 'notFound']);
     }
 
     public function testCallableInvalidTypeThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $this->setExpectedException('\RuntimeException', 'is not resolvable');
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('is not resolvable');
         $resolver->resolve(__LINE__);
     }
 }

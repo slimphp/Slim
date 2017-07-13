@@ -25,8 +25,9 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
+use PHPUnit\Framework\TestCase;
 
-class AppTest extends \PHPUnit_Framework_TestCase
+class AppTest extends TestCase
 {
     public static function setupBeforeClass()
     {
@@ -41,7 +42,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testContainerInterfaceException()
     {
-        $this->setExpectedException('InvalidArgumentException', 'Expected a ContainerInterface');
+        $this->expectException(\InvalidArgumentException::class);
         $app = new App('');
     }
 
@@ -992,7 +993,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notAllowedHandler']);
-        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
+        $this->expectException(MethodNotAllowedException::class);
         $app($req, $res);
     }
 
@@ -1202,7 +1203,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         // now test that exception is raised if the handler isn't registered
         unset($app->getContainer()['notFoundHandler']);
-        $this->setExpectedException('Slim\Exception\NotFoundException');
+        $this->expectException(NotFoundException::class);
         $app($req, $res);
     }
 
@@ -1269,7 +1270,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $app->get('/foo', 'foo:bar');
 
-        $this->setExpectedException('\RuntimeException');
+        $this->expectException(\RuntimeException::class);
 
         // Invoke app
         $app($req, $res);

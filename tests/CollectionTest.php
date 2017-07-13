@@ -10,8 +10,9 @@ namespace Slim\Tests;
 
 use ReflectionProperty;
 use Slim\Collection;
+use PHPUnit\Framework\TestCase;
 
-class CollectionTest extends \PHPUnit_Framework_TestCase
+class CollectionTest extends TestCase
 {
     /**
      * @var Collection

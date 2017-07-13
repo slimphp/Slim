@@ -6,8 +6,9 @@ namespace Slim\Tests;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
+use PHPUnit\Framework\TestCase;
 
-class DeferredCallableTest extends \PHPUnit_Framework_TestCase
+class DeferredCallableTest extends TestCase
 {
     public function testItResolvesCallable()
     {

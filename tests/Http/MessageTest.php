@@ -10,8 +10,9 @@ namespace Slim\Tests\Http;
 
 use Slim\Http\Headers;
 use Slim\Tests\Mocks\MessageStub;
+use PHPUnit\Framework\TestCase;
 
-class MessageTest extends \PHPUnit_Framework_TestCase
+class MessageTest extends TestCase
 {
     /*******************************************************************************
      * Protocol

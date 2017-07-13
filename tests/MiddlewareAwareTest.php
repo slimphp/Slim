@@ -8,6 +8,8 @@
  */
 namespace Slim\Tests;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionProperty;
 use Slim\Http\Body;
 use Slim\Http\Headers;
@@ -15,8 +17,9 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\Stackable;
+use PHPUnit\Framework\TestCase;
 
-class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
+class MiddlewareAwareTest extends TestCase
 {
     public function testSeedsMiddlewareStack()
     {
@@ -145,18 +148,24 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
             });
             return $resp;
         });
-        $this->setExpectedException('RuntimeException');
-        $stack->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        $this->expectException(\RuntimeException::class);
+
+        /** @var ServerRequestInterface $serverRequestInterface */
+        $serverRequestInterface = $this->getMockBuilder(ServerRequestInterface::class)->
+            disableOriginalConstructor()->
+            getMock();
+        /** @var ResponseInterface $responseInterface */
+        $responseInterface = $this->getMockBuilder(ResponseInterface::class)->
+            disableOriginalConstructor()->
+            getMock();
+        $stack->callMiddlewareStack($serverRequestInterface, $responseInterface);
     }
 
     public function testSeedTwiceThrowException()
     {
         $stack = new Stackable;
         $stack->alternativeSeed();
-        $this->setExpectedException('RuntimeException');
+        $this->expectException(\RuntimeException::class);
         $stack->alternativeSeed();
     }
 }
