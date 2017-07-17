@@ -865,8 +865,7 @@ class App
             $handler = $this->getErrorHandler();
             $params = [$request, $response, $e];
         }
-
-        return call_user_func_array($handler, $params);
+        return $handler(...$params);
     }
 
     /**
@@ -882,8 +881,6 @@ class App
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
         $handler = $this->getPhpErrorHandler();
-        $params = [$request, $response, $e];
-
-        return call_user_func_array($handler, $params);
+        return $handler($request, $response, $e);
     }
 }
