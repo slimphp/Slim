@@ -36,7 +36,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Interop\Container\Exception\NotFoundException
+     * @expectedException \Psr\Container\NotFoundExceptionInterface
      */
     public function testGetWithValueNotFoundError()
     {
@@ -47,7 +47,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
      * config error
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException \Psr\Container\ContainerExceptionInterface
      */
     public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
     {
@@ -61,10 +61,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * Test `get()` recasts \InvalidArgumentException as PSR-11 compliant exceptions when an error is present
      * in the DI config
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException \Psr\Container\ContainerExceptionInterface
      */
     public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
     {
