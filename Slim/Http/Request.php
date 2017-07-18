@@ -17,7 +17,6 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Collection;
 use Slim\Exception\InvalidMethodException;
-use Slim\Exception\MethodNotAllowedException;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
