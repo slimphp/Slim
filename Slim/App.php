@@ -301,7 +301,7 @@ class App
      * Get callable to handle scenarios where a suitable
      * route does not match the current request.
      *
-     * @return callable|Error
+     * @return callable|NotFound
      */
     public function getNotFoundHandler()
     {
@@ -337,7 +337,7 @@ class App
      * Get callable to handle scenarios where a suitable
      * route matches the request URI but not the request method.
      *
-     * @return callable|Error
+     * @return callable|NotAllowed
      */
     public function getNotAllowedHandler()
     {
@@ -407,7 +407,7 @@ class App
      * Get callable to handle scenarios where a PHP error
      * occurs when processing the current request.
      *
-     * @return callable|Error
+     * @return callable|PhpError
      */
     public function getPhpErrorHandler()
     {
@@ -855,17 +855,18 @@ class App
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
         if ($e instanceof MethodNotAllowedException) {
-            $handler = $this->getNotAllowedHandler();
-            $params = [$e->getRequest(), $e->getResponse(), $e->getAllowedMethods()];
-        } elseif ($e instanceof NotFoundException) {
-            $handler = $this->getNotFoundHandler();
-            $params = [$e->getRequest(), $e->getResponse()];
-        } else {
-            // Other exception, use $request and $response params
-            $handler = $this->getErrorHandler();
-            $params = [$request, $response, $e];
+            $notAllowedHandler = $this->getNotAllowedHandler();
+            return $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
         }
-        return $handler(...$params);
+
+        if ($e instanceof NotFoundException) {
+            $notFoundHandler = $this->getNotFoundHandler();
+            return $notFoundHandler($e->getRequest(), $e->getResponse());
+        }
+
+        // Other exception, use $request and $response params
+        $errorHandler = $this->getErrorHandler();
+        return $errorHandler($request, $response, $e);
     }
 
     /**
