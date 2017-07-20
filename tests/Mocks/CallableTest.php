@@ -8,6 +8,8 @@
  */
 namespace Slim\Tests\Mocks;
 
+use Slim\Http\Response;
+
 /**
  * Mock object for Slim\Tests\CallableResolverTest
  */
@@ -24,6 +26,8 @@ class CallableTest
 
     public function toCall()
     {
-        return static::$CalledCount++;
+        static::$CalledCount++;
+
+        return new Response();
     }
 }
