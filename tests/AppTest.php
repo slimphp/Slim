@@ -1582,7 +1582,9 @@ class AppTest extends TestCase
         $app->getContainer()['response'] = $res;
 
         $app->get('/foo', function ($req, $res) {
-            echo 'bar';
+            $res->write('bar');
+
+            return $res;
         });
 
         ob_start();
