@@ -2210,18 +2210,20 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
-// @codingStandardsIgnoreStart
     public function testExceptionOutputBufferingOn()
     {
+        // https://github.com/facebook/hhvm/issues/7444
+        if (defined('HHVM_VERSION')) {
+            ob_implicit_flush(true);
+        }
+
         $app = $this->appFactory();
         $app->get("/foo", function ($request, $response, $args) {
             $test = [1,2,3];
-            // var_dump($test);
-            echo "foobar";
+            var_dump($test);
             throw new \Exception("oops");
         });
 
-        /*
         $expectedOutput = <<<end
 array(3) {
   [0] =>
@@ -2232,8 +2234,7 @@ array(3) {
   int(3)
 }
 end;
-*/
-        $expectedOutput = 'foobar';
+
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
         $strPos = strpos($output, $expectedOutput);
@@ -2242,17 +2243,20 @@ end;
 
     public function testExceptionOutputBufferingOff()
     {
+        // https://github.com/facebook/hhvm/issues/7444
+        if (defined('HHVM_VERSION')) {
+            ob_implicit_flush(true);
+        }
+
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = false;
 
         $app->get("/foo", function ($request, $response, $args) {
             $test = [1,2,3];
-            // var_dump($test);
-            echo 'foobar';
+            var_dump($test);
             throw new \Exception("oops");
         });
 
-        /*
         $unExpectedOutput = <<<end
 array(3) {
   [0] =>
@@ -2263,14 +2267,12 @@ array(3) {
   int(3)
 }
 end;
-*/
-        $unExpectedOutput = 'foobar';
+
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
         $strPos = strpos($output, $unExpectedOutput);
         $this->assertFalse($strPos);
     }
-// @codingStandardsIgnoreEnd
 
     protected function skipIfPhp70()
     {
