@@ -2212,10 +2212,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
     public function testExceptionOutputBufferingOn()
     {
-        // https://github.com/facebook/hhvm/issues/7444
-        if (defined('HHVM_VERSION')) {
-            ob_implicit_flush(true);
-        }
+        // HHVM issue see https://github.com/facebook/hhvm/issues/7444
+        ob_implicit_flush(true);
 
         $app = $this->appFactory();
         $app->get("/foo", function ($request, $response, $args) {
@@ -2243,10 +2241,8 @@ end;
 
     public function testExceptionOutputBufferingOff()
     {
-        // https://github.com/facebook/hhvm/issues/7444
-        if (defined('HHVM_VERSION')) {
-            ob_implicit_flush(true);
-        }
+        // HHVM issue see https://github.com/facebook/hhvm/issues/7444
+        ob_implicit_flush(true);
 
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = false;
