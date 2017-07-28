@@ -2210,6 +2210,60 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
+    public function testExceptionOutputBufferingOn()
+    {
+        $app = $this->appFactory();
+        $app->get("/foo", function ($request, $response, $args) {
+            $test = [1,2,3];
+            var_dump($test);
+            throw new \Exception("oops");
+        });
+
+        $expectedOutput = <<<end
+array(3) {
+  [0] =>
+  int(1)
+  [1] =>
+  int(2)
+  [2] =>
+  int(3)
+}
+end;
+
+        $resOut = $app->run(true);
+        $output = (string)$resOut->getBody();
+        $strPos = strpos($output, $expectedOutput);
+        $this->assertNotFalse($strPos);
+    }
+
+    public function testExceptionOutputBufferingOff()
+    {
+        $app = $this->appFactory();
+        $app->getContainer()['settings']['outputBuffering'] = false;
+
+        $app->get("/foo", function ($request, $response, $args) {
+            $test = [1,2,3];
+            var_dump($test);
+            throw new \Exception("oops");
+        });
+
+        $unExpectedOutput = <<<end
+array(3) {
+  [0] =>
+  int(1)
+  [1] =>
+  int(2)
+  [2] =>
+  int(3)
+}
+end;
+
+        $resOut = $app->run(true);
+        $output = (string)$resOut->getBody();
+        $strPos = strpos($output, $unExpectedOutput);
+        $this->assertFalse($strPos);
+    }
+
     protected function skipIfPhp70()
     {
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
