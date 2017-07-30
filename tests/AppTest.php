@@ -15,6 +15,7 @@ use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
 use Slim\Exception\SlimException;
+use Slim\Handlers\Error;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -2210,40 +2211,8 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
-    public function testExceptionOutputBufferingOn()
-    {
-        // HHVM issue see https://github.com/facebook/hhvm/issues/7444
-        ob_implicit_flush(true);
-
-        $app = $this->appFactory();
-        $app->get("/foo", function ($request, $response, $args) {
-            $test = [1,2,3];
-            var_dump($test);
-            throw new \Exception("oops");
-        });
-
-        $expectedOutput = <<<end
-array(3) {
-  [0] =>
-  int(1)
-  [1] =>
-  int(2)
-  [2] =>
-  int(3)
-}
-end;
-
-        $resOut = $app->run(true);
-        $output = (string)$resOut->getBody();
-        $strPos = strpos($output, $expectedOutput);
-        $this->assertNotFalse($strPos);
-    }
-
     public function testExceptionOutputBufferingOff()
     {
-        // HHVM issue see https://github.com/facebook/hhvm/issues/7444
-        ob_implicit_flush(true);
-
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = false;
 
@@ -2268,6 +2237,70 @@ end;
         $output = (string)$resOut->getBody();
         $strPos = strpos($output, $unExpectedOutput);
         $this->assertFalse($strPos);
+    }
+
+    public function testExceptionOutputBufferingAppend()
+    {
+        // If we are testing in HHVM skip this test due to a bug in HHVM
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('https://github.com/facebook/hhvm/issues/7803');
+        }
+
+        $app = $this->appFactory();
+        $app->getContainer()['settings']['outputBuffering'] = 'append';
+        $app->get("/foo", function ($request, $response, $args) {
+            $test = [1,2,3];
+            var_dump($test);
+            throw new \Exception("oops");
+        });
+
+        $expectedOutput = <<<end
+array(3) {
+  [0] =>
+  int(1)
+  [1] =>
+  int(2)
+  [2] =>
+  int(3)
+}
+end;
+
+        $resOut = $app->run(true);
+        $output = (string)$resOut->getBody();
+        $strPos = strpos($output, $expectedOutput);
+        $this->assertNotFalse($strPos);
+    }
+
+    public function testExceptionOutputBufferingPrepend()
+    {
+        // If we are testing in HHVM skip this test due to a bug in HHVM
+        if (defined('HHVM_VERSION')) {
+            $this->markTestSkipped('https://github.com/facebook/hhvm/issues/7803');
+        }
+
+        $app = $this->appFactory();
+        $app->getContainer()['settings']['outputBuffering'] = 'prepend';
+        $app->get("/foo", function ($request, $response, $args) {
+            $test = [1,2,3];
+            var_dump($test);
+            throw new \Exception("oops");
+        });
+
+        $expectedOutput = <<<end
+array(3) {
+  [0] =>
+  int(1)
+  [1] =>
+  int(2)
+  [2] =>
+  int(3)
+}
+end;
+
+        $resOut = $app->run(true);
+        $output = (string)$resOut->getBody();
+        $strPos = strpos($output, $expectedOutput);
+        $this->assertNotFalse($strPos);
     }
 
     protected function skipIfPhp70()
