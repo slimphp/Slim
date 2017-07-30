@@ -68,9 +68,6 @@ class Error extends AbstractError
             $body->write($output . ob_get_clean());
         }
 
-        // Implicitly flush the buffer (HHVM requirement).
-        flush();
-
         return $response
                 ->withStatus(500)
                 ->withHeader('Content-type', $contentType)
