@@ -72,6 +72,17 @@ interface RouteInterface
     public function setArguments(array $arguments);
 
     /**
+     * Set output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @param boolean|string $mode
+     *
+     * @throws InvalidArgumentException If an unknown buffering mode is specified
+     */
+    public function setOutputBuffering($mode);
+
+    /**
      * Set route name
      *
      * @param string $name
