@@ -58,6 +58,15 @@ class Route extends Routable implements RouteInterface
     private $finalized = false;
 
     /**
+     * Output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @var boolean|string
+     */
+    protected $outputBuffering = 'append';
+
+    /**
      * @var \Slim\Interfaces\InvocationStrategyInterface
      */
     protected $routeInvocationStrategy;
@@ -189,6 +198,23 @@ class Route extends Routable implements RouteInterface
     public function getIdentifier()
     {
         return $this->identifier;
+    }
+
+    /**
+     * Set output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @param boolean|string $mode
+     *
+     * @throws InvalidArgumentException If an unknown buffering mode is specified
+     */
+    public function setOutputBuffering($mode)
+    {
+        if (!in_array($mode, [false, 'prepend', 'append'], true)) {
+            throw new InvalidArgumentException('Unknown output buffering mode');
+        }
+        $this->outputBuffering = $mode;
     }
 
     /**
