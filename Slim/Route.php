@@ -58,6 +58,15 @@ class Route extends Routable implements RouteInterface
     private $finalized = false;
 
     /**
+     * Output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @var boolean|string
+     */
+    protected $outputBuffering = 'append';
+
+    /**
      * @var \Slim\Interfaces\InvocationStrategyInterface
      */
     protected $routeInvocationStrategy;
