@@ -82,6 +82,17 @@ interface RouteInterface
     public function setName($name);
 
     /**
+     * Set output buffering mode
+     *
+     * One of: false, 'prepend' or 'append'
+     *
+     * @param boolean|string $mode
+     *
+     * @throws InvalidArgumentException If an unknown buffering mode is specified
+     */
+    public function setOutputBuffering($mode);
+
+    /**
      * Add middleware
      *
      * This method prepends new middleware to the route's middleware stack.
