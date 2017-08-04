@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Handlers;
 
@@ -17,10 +17,12 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
     public function notFoundProvider()
     {
         return [
-            ['application/json', '{'],
-            ['application/xml', '<root>'],
-            ['text/xml', '<root>'],
-            ['text/html', '<html>'],
+            ['application/json', 'application/json', '{'],
+            ['application/vnd.api+json', 'application/json', '{'],
+            ['application/xml', 'application/xml', '<root>'],
+            ['application/hal+xml', 'application/xml', '<root>'],
+            ['text/xml', 'text/xml', '<root>'],
+            ['text/html', 'text/html', '<html>'],
         ];
     }
 
@@ -29,16 +31,28 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
      *
      * @dataProvider notFoundProvider
      */
-    public function testNotFound($contentType, $startOfBody)
+    public function testNotFound($acceptHeader, $contentType, $startOfBody)
     {
         $notAllowed = new NotFound();
 
         /** @var Response $res */
-        $res = $notAllowed->__invoke($this->getRequest('GET', $contentType), new Response(), ['POST', 'PUT']);
+        $res = $notAllowed->__invoke($this->getRequest('GET', $acceptHeader), new Response(), ['POST', 'PUT']);
 
         $this->assertSame(404, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
+    }
+
+    public function testNotFoundContentType()
+    {
+        $errorMock = $this->getMockBuilder(NotFound::class)->setMethods(['determineContentType'])->getMock();
+        $errorMock->method('determineContentType')
+            ->will($this->returnValue('unknown/type'));
+
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+
+        $this->setExpectedException('\UnexpectedValueException');
+        $errorMock->__invoke($req, new Response(), ['POST']);
     }
 
     /**

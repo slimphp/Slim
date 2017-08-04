@@ -1,9 +1,9 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Http;
@@ -185,7 +185,7 @@ class Uri implements UriInterface
         if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
 
-            if ($matches[2]) {
+            if (isset($matches[2])) {
                 $port = (int) substr($matches[2], 1);
             }
         } else {
@@ -218,6 +218,9 @@ class Uri implements UriInterface
 
         // Query string
         $queryString = $env->get('QUERY_STRING', '');
+        if ($queryString === '') {
+            $queryString = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_QUERY);
+        }
 
         // Fragment
         $fragment = '';

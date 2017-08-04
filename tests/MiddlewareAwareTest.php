@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
@@ -147,8 +147,8 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
         });
         $this->setExpectedException('RuntimeException');
         $stack->callMiddlewareStack(
-            $this->getMock('Psr\Http\Message\ServerRequestInterface'),
-            $this->getMock('Psr\Http\Message\ResponseInterface')
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
         );
     }
 

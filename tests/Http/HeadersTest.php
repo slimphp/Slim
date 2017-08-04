@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
 
@@ -100,6 +100,19 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals(['GET', 'POST'], $h->get('Allow'));
+    }
+
+    public function testGetOriginalKey()
+    {
+        $h = new Headers();
+        $h->set('http-test_key', 'testValue');
+        $h->get('test-key');
+
+        $value = $h->get('test-key');
+
+        $this->assertEquals('testValue', reset($value));
+        $this->assertEquals('http-test_key', $h->getOriginalKey('test-key'));
+        $this->assertNull($h->getOriginalKey('test-non-existing'));
     }
 
     public function testGetNotExists()
@@ -200,5 +213,15 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo-bar', $h->normalizeKey('Http_Foo_Bar'));
         $this->assertEquals('foo-bar', $h->normalizeKey('http_foo_bar'));
         $this->assertEquals('foo-bar', $h->normalizeKey('http-foo-bar'));
+    }
+
+    public function testDetermineAuthorization()
+    {
+        $e = Environment::mock([]);
+        $en = Headers::determineAuthorization($e);
+        $h = Headers::createFromEnvironment($e);
+
+        $this->assertEquals('electrolytes', $en->get('HTTP_AUTHORIZATION'));
+        $this->assertEquals(['electrolytes'], $h->get('Authorization'));
     }
 }

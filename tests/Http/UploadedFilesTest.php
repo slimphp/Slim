@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
 
@@ -19,6 +19,8 @@ use Slim\Http\Uri;
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 {
     static private $filename = './phpUxcOty';
+
+    static private $tmpFiles = ['./phpUxcOty'];
     /**
      * @beforeClass
      */
@@ -34,9 +36,27 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      */
     public static function tearDownAfterClass()
     {
-        if (file_exists(self::$filename)) {
-            unlink(self::$filename);
+        foreach (self::$tmpFiles as $filename) {
+            if (file_exists($filename)) {
+                unlink($filename);
+            }
         }
+    }
+
+    /**
+     * @return UploadedFile
+     */
+    protected function generateNewTmpFile()
+    {
+        $filename = './php'.microtime();
+
+        $fh = fopen($filename, "w");
+        fwrite($fh, "12345678");
+        fclose($fh);
+
+        self::$tmpFiles[] = $filename;
+
+        return new UploadedFile($filename);
     }
 
     /**
@@ -51,6 +71,28 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
         $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock());
         $this->assertEquals($expected, $uploadedFile);
+    }
+
+    /**
+     * @param array $input The input array to parse.
+     *
+     * @dataProvider providerCreateFromEnvironment
+     */
+    public function testCreateFromEnvironmentFromUserData(array $input)
+    {
+        //If slim.files provided - it will return what was provided
+        $userData['slim.files'] = $input;
+
+        $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock($userData));
+        $this->assertEquals($input, $uploadedFile);
+    }
+
+    public function testCreateFromEnvironmentWithoutFile()
+    {
+        unset($_FILES);
+
+        $uploadedFile = UploadedFile::createFromEnvironment(Environment::mock());
+        $this->assertEquals([], $uploadedFile);
     }
 
     /**
@@ -101,6 +143,18 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     /**
      * @depends testConstructor
      * @param UploadedFile $uploadedFile
+     */
+    public function testMoveToNotWritable(UploadedFile $uploadedFile)
+    {
+        $tempName = uniqid('file-');
+        $path = 'some_random_dir' . DIRECTORY_SEPARATOR . $tempName;
+        $this->setExpectedException('\InvalidArgumentException');
+        $uploadedFile->moveTo($path);
+    }
+
+    /**
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
      * @return UploadedFile
      */
     public function testMoveTo(UploadedFile $uploadedFile)
@@ -116,32 +170,131 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         return $uploadedFile;
     }
 
+    /**
+     * @depends testMoveTo
+     * @param UploadedFile $uploadedFile
+     * @expectedException RuntimeException
+     */
+    public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
+    {
+        $tempName = uniqid('file-');
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
+        $uploadedFile->moveTo($path);
+        $this->assertFileExists($path);
+        unlink($path);
+
+        $uploadedFile->moveTo($path);
+    }
+
+    /**
+     * This test must run after testMoveTo
+     *
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
+     */
+    public function testMoveToAgain(UploadedFile $uploadedFile)
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $tempName = uniqid('file-');
+        $path = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $tempName;
+        $uploadedFile->moveTo($path);
+    }
+
+    /**
+     * This test must run after testMoveTo
+     *
+     * @depends testConstructor
+     * @param UploadedFile $uploadedFile
+     */
+    public function testMovedStream($uploadedFile)
+    {
+        $this->setExpectedException('\RuntimeException');
+
+        $uploadedFile->getStream();
+    }
+
+    public function testMoveToStream()
+    {
+        $uploadedFile = $this->generateNewTmpFile();
+        $uploadedFile->moveTo('php://temp');
+    }
+
     public function providerCreateFromEnvironment()
     {
         return [
+            // no nest: <input name="avatar" type="file">
             [
+                // $_FILES array
                 [
-                    'files' => [
+                    'avatar' => [
+                        'tmp_name' => 'phpUxcOty',
+                        'name'     => 'my-avatar.png',
+                        'size'     => 90996,
+                        'type'     => 'image/png',
+                        'error'    => 0,
+                    ],
+                ],
+                // expected format of array
+                [
+                    'avatar' => new UploadedFile('phpUxcOty', 'my-avatar.png', 'image/png', 90996, UPLOAD_ERR_OK, true)
+                ]
+            ],
+            // no nest, with error: <input name="avatar" type="file">
+            [
+                // $_FILES array
+                [
+                    'avatar' => [
+                        'tmp_name' => 'phpUxcOty',
+                        'name'     => 'my-avatar.png',
+                        'size'     => 90996,
+                        'type'     => 'image/png',
+                        'error'    => 7,
+                    ],
+                ],
+                // expected format of array
+                [
+                    'avatar' => new UploadedFile(
+                        'phpUxcOty',
+                        'my-avatar.png',
+                        'image/png',
+                        90996,
+                        UPLOAD_ERR_CANT_WRITE,
+                        true
+                    )
+                ]
+            ],
+
+            // array of files: <input name="avatars[]" type="file">
+            [
+                // $_FILES array
+                [
+                    'avatars' => [
                         'tmp_name' => [
                             0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
                             1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
                         ],
-                        'name'     => [
+                        'name' => [
                             0 => 'file0.txt',
                             1 => 'file1.html',
                         ],
-                        'type'     => [
+                        'type' => [
                             0 => 'text/plain',
                             1 => 'text/html',
                         ],
-                        'error'    => [
+                        'error' => [
+                            0 => 0,
+                            1 => 0
+                        ],
+                        'size' => [
                             0 => 0,
                             1 => 0
                         ]
                     ],
                 ],
+                // expected format of array
                 [
-                    'files' => [
+                    'avatars' => [
                         0 => new UploadedFile(
                             __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
                             'file0.txt',
@@ -161,20 +314,153 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
                     ],
                 ]
             ],
+            // array of files as multidimensional array: <input name="avatars[]" type="file">
             [
+                // $_FILES array
                 [
-                    'avatar' => [
-                        'tmp_name' => 'phpUxcOty',
-                        'name'     => 'my-avatar.png',
-                        'size'     => 90996,
-                        'type'     => 'image/png',
-                        'error'    => 0,
+                    [
+                        'avatars' => [
+                            'tmp_name' => [
+                                0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                                1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                            ],
+                            'name'     => [
+                                0 => 'file0.txt',
+                                1 => 'file1.html',
+                            ],
+                            'type'     => [
+                                0 => 'text/plain',
+                                1 => 'text/html',
+                            ],
+                            'size'     => [
+                                0 => 0,
+                                1 => 0,
+                            ],
+                        ],
                     ],
                 ],
+                // expected format of array
                 [
-                    'avatar' => new UploadedFile('phpUxcOty', 'my-avatar.png', 'image/png', 90996, UPLOAD_ERR_OK, true)
+                    0 =>
+                        [
+                            'avatars' =>
+                                [
+                                    'tmp_name' => [],
+                                    'name'     => [],
+                                    'type'     => [],
+                                    'size'     => [],
+                                ],
+                        ],
+                ],
+            ],
+            // single nested file: <input name="details[avatar]" type="file">
+            [
+                // $_FILES array
+                [
+                    'details' => [
+                        'tmp_name' => [
+                            'avatar' => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                        ],
+                        'name' => [
+                            'avatar' => 'file0.txt',
+                        ],
+                        'type' => [
+                            'avatar' => 'text/plain',
+                        ],
+                        'error' => [
+                            'avatar' => 0,
+                        ],
+                        'size' => [
+                            'avatar' => 0,
+                        ],
+                    ],
+                ],
+                // expected format of array
+                [
+                    'details' => [
+                        'avatar' => new UploadedFile(
+                            __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                            'file0.txt',
+                            'text/plain',
+                            null,
+                            UPLOAD_ERR_OK,
+                            true
+                        ),
+                    ],
                 ]
-            ]
+            ],
+            // nested array of files: <input name="files[details][avatar][]" type="file">
+            [
+                [
+                    'files' => [
+                        'tmp_name' => [
+                            'details' => [
+                                'avatar' => [
+                                    0 => __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                                    1 => __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                                ],
+                            ],
+                        ],
+                        'name' => [
+                            'details' => [
+                                'avatar' => [
+                                    0 => 'file0.txt',
+                                    1 => 'file1.html',
+                                ],
+                            ],
+                        ],
+                        'type' => [
+                            'details' => [
+                                'avatar' => [
+                                    0 => 'text/plain',
+                                    1 => 'text/html',
+                                ],
+                            ],
+                        ],
+                        'error' => [
+                            'details' => [
+                                'avatar' => [
+                                    0 => 0,
+                                    1 => 0
+                                ],
+                            ],
+                        ],
+                        'size' => [
+                            'details' => [
+                                'avatar' => [
+                                    0 => 0,
+                                    1 => 0
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+                // expected format of array
+                [
+                    'files' => [
+                        'details' => [
+                            'avatar' => [
+                                0 => new UploadedFile(
+                                    __DIR__ . DIRECTORY_SEPARATOR . 'file0.txt',
+                                    'file0.txt',
+                                    'text/plain',
+                                    null,
+                                    UPLOAD_ERR_OK,
+                                    true
+                                ),
+                                1 => new UploadedFile(
+                                    __DIR__ . DIRECTORY_SEPARATOR . 'file1.html',
+                                    'file1.html',
+                                    'text/html',
+                                    null,
+                                    UPLOAD_ERR_OK,
+                                    true
+                                ),
+                            ],
+                        ],
+                    ],
+                ]
+            ],
         ];
     }
 

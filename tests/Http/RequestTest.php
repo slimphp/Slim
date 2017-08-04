@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 
 namespace Slim\Tests\Http;
@@ -20,9 +20,9 @@ use Slim\Http\Uri;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
-    public function requestFactory()
+    public function requestFactory($envData = [])
     {
-        $env = Environment::mock();
+        $env = Environment::mock($envData);
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = Headers::createFromEnvironment($env);
@@ -74,12 +74,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('PUT', 'originalMethod', $request);
     }
 
+    public function testWithAllAllowedCharactersMethod()
+    {
+        $request = $this->requestFactory()->withMethod("!#$%&'*+.^_`|~09AZ-");
+
+        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'method', $request);
+        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'originalMethod', $request);
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
     public function testWithMethodInvalid()
     {
-        $this->requestFactory()->withMethod('FOO');
+        $this->requestFactory()->withMethod('B@R');
     }
 
     public function testWithMethodNull()
@@ -208,7 +216,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $cookies = [];
         $serverParams = [];
         $body = new RequestBody();
-        $request = new Request('FOO', $uri, $headers, $cookies, $serverParams, $body);
+        $request = new Request('B@R', $uri, $headers, $cookies, $serverParams, $body);
     }
 
     /**
@@ -382,6 +390,42 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeSame($uri2, 'uri', $clone);
     }
 
+    public function testWithUriPreservesHost()
+    {
+        // When `$preserveHost` is set to `true`, this method interacts with
+        // the Host header in the following ways:
+
+        // - If the the Host header is missing or empty, and the new URI contains
+        //   a host component, this method MUST update the Host header in the returned
+        //   request.
+        $uri1 = Uri::createFromString('');
+        $uri2 = Uri::createFromString('http://example2.com/test');
+
+        // Request
+        $headers = new Headers();
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $request = new Request('GET', $uri1, $headers, $cookies, $serverParams, $body);
+
+        $clone = $request->withUri($uri2, true);
+        $this->assertSame('example2.com', $clone->getHeaderLine('Host'));
+
+        // - If the Host header is missing or empty, and the new URI does not contain a
+        //   host component, this method MUST NOT update the Host header in the returned
+        //   request.
+        $uri3 = Uri::createFromString('');
+
+        $clone = $request->withUri($uri3, true);
+        $this->assertSame('', $clone->getHeaderLine('Host'));
+
+        // - If a Host header is present and non-empty, this method MUST NOT update
+        //   the Host header in the returned request.
+        $request = $request->withHeader('Host', 'example.com');
+        $clone = $request->withUri($uri2, true);
+        $this->assertSame('example.com', $clone->getHeaderLine('Host'));
+    }
+
     public function testGetContentType()
     {
         $headers = new Headers([
@@ -512,6 +556,20 @@ class RequestTest extends \PHPUnit_Framework_TestCase
      * Cookies
      ******************************************************************************/
 
+    public function testGetCookieParam()
+    {
+        $shouldBe = 'john';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('user'));
+    }
+
+    public function testGetCookieParamWithDefault()
+    {
+        $shouldBe = 'bar';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getCookieParam('foo', 'bar'));
+    }
+
     public function testGetCookieParams()
     {
         $shouldBe = [
@@ -604,8 +662,8 @@ class RequestTest extends \PHPUnit_Framework_TestCase
 
     public function testGetServerParams()
     {
-        $mockEnv = Environment::mock();
-        $request = $this->requestFactory();
+        $mockEnv = Environment::mock(["HTTP_AUTHORIZATION" => "test"]);
+        $request = $this->requestFactory(["HTTP_AUTHORIZATION" => "test"]);
 
         $serverParams = $request->getServerParams();
         foreach ($serverParams as $key => $value) {
@@ -623,6 +681,21 @@ class RequestTest extends \PHPUnit_Framework_TestCase
                 );
             }
         }
+    }
+
+    public function testGetServerParam()
+    {
+        $shouldBe = 'HTTP/1.1';
+        $request = $this->requestFactory(['SERVER_PROTOCOL' => 'HTTP/1.1']);
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('SERVER_PROTOCOL'));
+    }
+
+    public function testGetServerParamWithDefault()
+    {
+        $shouldBe = 'bar';
+
+        $this->assertEquals($shouldBe, $this->requestFactory()->getServerParam('HTTP_NOT_EXIST', 'bar'));
     }
 
     /*******************************************************************************
@@ -722,12 +795,72 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
+    public function testGetParsedBodyInvalidJson()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{foo}bar');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodySemiValidJson()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('"foo bar"');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodyWithJsonStructuredSuffix()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/vnd.api+json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{"foo":"bar"}');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
     public function testGetParsedBodyXml()
     {
         $method = 'GET';
         $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
         $headers = new Headers();
         $headers->set('Content-Type', 'application/xml;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></person>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals('Josh', $request->getParsedBody()->name);
+    }
+
+    public function testGetParsedBodyWithXmlStructuredSuffix()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/hal+xml;charset=utf8');
         $cookies = [];
         $serverParams = [];
         $body = new RequestBody();
@@ -752,6 +885,43 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Josh', $request->getParsedBody()->name);
     }
 
+    /**
+     * Will fail if a simple_xml warning is created
+     */
+    public function testInvalidXmlIsQuietForTextXml()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'text/xml');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></invalid]>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(null, $request->getParsedBody());
+    }
+
+    /**
+     * Will fail if a simple_xml warning is created
+     */
+    public function testInvalidXmlIsQuietForApplicationXml()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/xml');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('<person><name>Josh</name></invalid]>');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(null, $request->getParsedBody());
+    }
+
+
     public function testGetParsedBodyWhenAlreadyParsed()
     {
         $request = $this->requestFactory();
@@ -770,6 +940,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $prop->setValue($request, null);
 
         $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodyAfterCallReparseBody()
+    {
+        $uri = Uri::createFromString('https://example.com:443/?one=1');
+        $headers = new Headers([
+            'Content-Type' => 'application/x-www-form-urlencoded;charset=utf8',
+        ]);
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+
+        $newBody = new RequestBody();
+        $newBody->write('abc=123');
+        $newBody->rewind();
+        $request = $request->withBody($newBody);
+        $request->reparseBody();
+
+        $this->assertEquals(['abc' => '123'], $request->getParsedBody());
     }
 
     /**
@@ -834,6 +1028,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $clone = $request->withParsedBody(null);
 
         $this->assertNull($clone->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoBodyData()
+    {
+        $request = $this->requestFactory(['REQUEST_METHOD' => 'POST']);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testGetParsedBodyReturnsNullWhenThereIsNoMediaTypeParserRegistered()
+    {
+        $request = $this->requestFactory([
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'text/csv',
+        ]);
+        $request->getBody()->write('foo,bar,baz');
+
+        $this->assertNull($request->getParsedBody());
     }
 
     /**

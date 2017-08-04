@@ -1,14 +1,15 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 
 namespace Slim\Tests;
 
+use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -22,6 +23,7 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
+use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
 class AppTest extends \PHPUnit_Framework_TestCase
@@ -1220,7 +1222,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
-        $mock = $this->getMock('StdClass', ['bar']);
+        $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
 
         $app = new App();
         $container = $app->getContainer();
@@ -1257,7 +1259,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
         $res = new Response();
 
-        $mock = $this->getMock('StdClass');
+        $mock = $this->getMockBuilder('StdClass')->getMock();
 
         $app = new App();
         $container = $app->getContainer();
@@ -1450,9 +1452,71 @@ class AppTest extends \PHPUnit_Framework_TestCase
     // TODO: Test finalize()
 
     // TODO: Test run()
+    public function testRun()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $app->get('/foo', function ($req, $res) {
+            echo 'bar';
+        });
+
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+
+        $this->assertEquals('bar', (string)$resOut);
+    }
 
 
     public function testRespond()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString('Hello');
+    }
+
+    public function testRespondWithHeaderNotSent()
     {
         $app = new App();
         $app->get('/foo', function ($req, $res) {
@@ -1520,9 +1584,22 @@ class AppTest extends \PHPUnit_Framework_TestCase
     public function testRespondWithPaddedStreamFilterOutput()
     {
         $availableFilter = stream_get_filters();
-        if (in_array('mcrypt.*', $availableFilter) && in_array('mdecrypt.*', $availableFilter)) {
+
+        if (version_compare(phpversion(), '7.0.0', '>=')) {
+            $filterName           = 'string.rot13';
+            $unfilterName         = 'string.rot13';
+            $specificFilterName   = 'string.rot13';
+            $specificUnfilterName = 'string.rot13';
+        } else {
+            $filterName           = 'mcrypt.*';
+            $unfilterName         = 'mdecrypt.*';
+            $specificFilterName   = 'mcrypt.rijndael-128';
+            $specificUnfilterName = 'mdecrypt.rijndael-128';
+        }
+
+        if (in_array($filterName, $availableFilter) && in_array($unfilterName, $availableFilter)) {
             $app = new App();
-            $app->get('/foo', function ($req, $res) {
+            $app->get('/foo', function ($req, $res) use ($specificFilterName, $specificUnfilterName) {
                 $key = base64_decode('xxxxxxxxxxxxxxxx');
                 $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
 
@@ -1531,7 +1608,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
                 $stream = fopen('php://temp', 'r+');
 
-                $filter = stream_filter_append($stream, 'mcrypt.rijndael-128', STREAM_FILTER_WRITE, [
+                $filter = stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
                     'key' => $key,
                     'iv' => $iv
                 ]);
@@ -1540,7 +1617,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
                 rewind($stream);
                 stream_filter_remove($filter);
 
-                stream_filter_append($stream, 'mdecrypt.rijndael-128', STREAM_FILTER_READ, [
+                stream_filter_append($stream, $specificUnfilterName, STREAM_FILTER_READ, [
                     'key' => $key,
                     'iv' => $iv
                 ]);
@@ -1590,6 +1667,40 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->expectOutputString("Hello");
     }
 
+    public function testResponseWithStreamReadYieldingLessBytesThanAsked()
+    {
+        $app = new App([
+            'settings' => ['responseChunkSize' => Mocks\SmallChunksStream::CHUNK_SIZE * 2]
+        ]);
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Mocks\SmallChunksStream();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = (new Response())->withBody($body);
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
+    }
+
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
     {
         $app = new App();
@@ -1612,6 +1723,45 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
+        };
+
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res;
+        });
+
+        $resOut = $app->run(true);
+
+        $this->assertEquals(500, $resOut->getStatusCode());
+        $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
+    }
+
+    /**
+     * @requires PHP 7.0
+     */
+    public function testExceptionPhpErrorHandlerDoesNotDisplayErrorDetails()
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $mw = function ($req, $res, $next) {
+            dumpFonction();
         };
 
         $app->add($mw);
@@ -1686,6 +1836,28 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $res->getBody()->rewind();
         $this->assertEquals(200, $res->getStatusCode());
         $this->assertEquals("Failed", $res->getBody()->getContents());
+    }
+
+    /**
+     * @requires PHP 7.0
+     */
+    public function testRunThrowable()
+    {
+        $app = $this->appFactory();
+        $app->get('/foo', function ($req, $res, $args) {
+            return $res;
+        });
+        $app->add(function ($req, $res, $args) {
+            throw new \Error('Failed');
+        });
+
+        $res = $app->run(true);
+
+        $res->getBody()->rewind();
+
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
     public function testRunNotFound()
@@ -1863,9 +2035,185 @@ class AppTest extends \PHPUnit_Framework_TestCase
     /**
      * @expectedException \BadMethodCallException
      */
+    public function testCallingFromContainerNotCallable()
+    {
+        $settings = [
+            'foo' => function ($c) {
+                return null;
+            }
+        ];
+        $app = new App($settings);
+        $app->foo('bar');
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
     public function testCallingAnUnknownContainerCallableThrows()
     {
         $app = new App();
         $app->foo('bar');
+    }
+
+    /**
+     * @expectedException \BadMethodCallException
+     */
+    public function testCallingAnUncallableContainerKeyThrows()
+    {
+        $app = new App();
+        $app->getContainer()['bar'] = 'foo';
+        $app->foo('bar');
+    }
+
+    public function testOmittingContentLength()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response->getBody()->write('foo');
+
+        $app = new App();
+        $container = $app->getContainer();
+        $container['settings']['addContentLengthHeader'] = false;
+        $response = $method->invoke($app, $response);
+
+        $this->assertFalse($response->hasHeader('Content-Length'));
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage Unexpected data in output buffer
+     */
+    public function testForUnexpectedDataInOutputBuffer()
+    {
+        $this->expectOutputString('test'); // needed to avoid risky test warning
+        echo "test";
+        $method = new \ReflectionMethod('Slim\App', 'finalize');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response->getBody()->write('foo');
+
+        $app = new App();
+        $container = $app->getContainer();
+        $container['settings']['addContentLengthHeader'] = true;
+        $response = $method->invoke($app, $response);
+    }
+
+    public function testUnsupportedMethodWithoutRoute()
+    {
+        $app = new App();
+        $c = $app->getContainer();
+        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+
+        $resOut = $app->run(true);
+
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
+        $this->assertEquals(404, $resOut->getStatusCode());
+    }
+
+    public function testUnsupportedMethodWithRoute()
+    {
+        $app = new App();
+        $app->get('/', function () {
+            // stubbed action to give us a route at /
+        });
+        $c = $app->getContainer();
+        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+
+        $resOut = $app->run(true);
+
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
+        $this->assertEquals(405, $resOut->getStatusCode());
+    }
+
+    public function testContainerSetToRoute()
+    {
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        $mock = new MockAction();
+
+        $app = new App();
+        $container = $app->getContainer();
+        $container['foo'] = function () use ($mock, $res) {
+            return $mock;
+        };
+
+        /** @var $router Router */
+        $router = $container['router'];
+
+        $router->map(['get'], '/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
+    }
+
+    public function testIsEmptyResponseWithEmptyMethod()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method->setAccessible(true);
+
+        $response = new Response();
+        $response = $response->withStatus(204);
+
+        $result = $method->invoke(new App(), $response);
+        $this->assertTrue($result);
+    }
+
+    public function testIsEmptyResponseWithoutEmptyMethod()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
+        $method->setAccessible(true);
+
+        /** @var Response $response */
+        $response = $this->getMockBuilder(ResponseInterface::class)->getMock();
+        $response->method('getStatusCode')
+            ->willReturn(204);
+
+        $result = $method->invoke(new App(), $response);
+        $this->assertTrue($result);
+    }
+
+    public function testHandlePhpError()
+    {
+        $this->skipIfPhp70();
+        $method = new \ReflectionMethod('Slim\App', 'handlePhpError');
+        $method->setAccessible(true);
+
+        $throwable = $this->getMock(
+            '\Throwable',
+            ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
+        );
+        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $res = new Response();
+
+        $res = $method->invoke(new App(), $throwable, $req, $res);
+
+        $this->assertSame(500, $res->getStatusCode());
+        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
+    }
+
+    protected function skipIfPhp70()
+    {
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            $this->markTestSkipped();
+        }
     }
 }

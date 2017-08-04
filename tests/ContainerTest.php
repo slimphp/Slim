@@ -1,14 +1,15 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
 use Slim\Container;
+use Psr\Container\ContainerInterface;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -35,11 +36,67 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Slim\Exception\ContainerValueNotFoundException
+     * @expectedException \Interop\Container\Exception\NotFoundException
      */
-    public function testGetWithError()
+    public function testGetWithValueNotFoundError()
     {
         $this->container->get('foo');
+    }
+
+    /**
+     * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
+     * config error
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container->get('doesnt-exist');
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
+     * in the DI config
+     *
+     * @expectedException \Interop\Container\Exception\ContainerException
+     */
+    public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
+    {
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) {
+                return $container['doesnt-exist'];
+            }
+        ;
+        $container->get('foo');
+    }
+
+    /**
+     * Test `get()` does not recast exceptions which are thrown in a factory closure
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetWithErrorThrownByFactoryClosure()
+    {
+        $invokable = $this->getMockBuilder('StdClass')->setMethods(['__invoke'])->getMock();
+        /** @var \Callable $invokable */
+        $invokable->expects($this->any())
+            ->method('__invoke')
+            ->will($this->throwException(new \InvalidArgumentException()));
+
+        $container = new Container;
+        $container['foo'] =
+            function (ContainerInterface $container) use ($invokable) {
+                call_user_func($invokable);
+            }
+        ;
+        $container->get('foo');
     }
 
     /**
@@ -104,5 +161,10 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     {
         $this->container->get('settings')['httpVersion'] = '1.2';
         $this->assertSame('1.2', $this->container->__get('settings')['httpVersion']);
+    }
+
+    public function testRouteCacheDisabledByDefault()
+    {
+        $this->assertFalse($this->container->get('settings')['routerCacheFile']);
     }
 }

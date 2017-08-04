@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
@@ -127,5 +127,19 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $resolver = new CallableResolver($this->container);
         $this->setExpectedException('\RuntimeException', 'Callable Unknown does not exist');
         $resolver->resolve('Unknown:notFound');
+    }
+
+    public function testCallableClassNotFoundThrowException()
+    {
+        $resolver = new CallableResolver($this->container);
+        $this->setExpectedException('\RuntimeException', 'is not resolvable');
+        $resolver->resolve(['Unknown', 'notFound']);
+    }
+
+    public function testCallableInvalidTypeThrowException()
+    {
+        $resolver = new CallableResolver($this->container);
+        $this->setExpectedException('\RuntimeException', 'is not resolvable');
+        $resolver->resolve(__LINE__);
     }
 }

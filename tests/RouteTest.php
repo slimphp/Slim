@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests;
 
@@ -46,6 +46,15 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals($methods, 'methods', $route);
         $this->assertAttributeEquals($pattern, 'pattern', $route);
         $this->assertAttributeEquals($callable, 'callable', $route);
+    }
+
+    public function testGetMethodsReturnsArrayWhenContructedWithString()
+    {
+        $route = new Route('GET', '/hello', function ($req, $res, $args) {
+            // Do something
+        });
+
+        $this->assertEquals(['GET'], $route->getMethods());
     }
 
     public function testGetMethods()
@@ -407,5 +416,41 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
         $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+    /**
+     * Ensure that the pattern can be dynamically changed
+     */
+    public function testPatternCanBeChanged()
+    {
+        $route = $this->routeFactory();
+        $route->setPattern('/hola/{nombre}');
+        $this->assertEquals('/hola/{nombre}', $route->getPattern());
+    }
+
+    /**
+     * Ensure that the callable can be changed
+     */
+    public function testChangingCallable()
+    {
+        $container = new Container();
+        $container['CallableTest2'] = new CallableTest;
+        $container['foundHandler'] = function () {
+            return new InvocationStrategyTest();
+        };
+
+        $route = new Route(['GET'], '/', 'CallableTest:toCall'); //Note that this doesn't actually exist
+        $route->setContainer($container);
+
+        $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock()->all(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals([$container['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

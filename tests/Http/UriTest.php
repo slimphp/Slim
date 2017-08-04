@@ -1,10 +1,10 @@
 <?php
 /**
- * Slim Framework (http://slimframework.com)
+ * Slim Framework (https://slimframework.com)
  *
  * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2016 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/master/LICENSE.md (MIT License)
+ * @copyright Copyright (c) 2011-2017 Josh Lockhart
+ * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Http;
 
@@ -388,6 +388,13 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('', 'query', $uri);
     }
 
+    public function testFilterQuery()
+    {
+        $uri = $this->uriFactory()->withQuery('?foobar=%match');
+
+        $this->assertAttributeEquals('foobar=%25match', 'query', $uri);
+    }
+
     /**
      * @covers Slim\Http\Uri::withQuery
      * @expectedException InvalidArgumentException
@@ -466,7 +473,6 @@ class UriTest extends \PHPUnit_Framework_TestCase
         ]);
         $uri = Uri::createFromEnvironment($environment);
         $this->assertEquals('http://example.com/foo/', (string) $uri);
-
     }
 
     /**
@@ -515,7 +521,30 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $uri->getFragment());
     }
 
-    public function testCreateEnvironmentWithIPv6Host()
+    public function testCreateEnvironmentWithIPv6HostNoPort()
+    {
+        $environment = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'PHP_AUTH_USER' => 'josh',
+            'PHP_AUTH_PW' => 'sekrit',
+            'QUERY_STRING' => 'abc=123',
+            'HTTP_HOST' => '[2001:db8::1]',
+            'REMOTE_ADDR' => '2001:db8::1',
+            'SERVER_PORT' => 8080,
+        ]);
+
+        $uri = Uri::createFromEnvironment($environment);
+
+        $this->assertEquals('josh:sekrit', $uri->getUserInfo());
+        $this->assertEquals('[2001:db8::1]', $uri->getHost());
+        $this->assertEquals('8080', $uri->getPort());
+        $this->assertEquals('/foo/bar', $uri->getPath());
+        $this->assertEquals('abc=123', $uri->getQuery());
+        $this->assertEquals('', $uri->getFragment());
+    }
+
+    public function testCreateEnvironmentWithIPv6HostWithPort()
     {
         $environment = Environment::mock([
             'SCRIPT_NAME' => '/index.php',
@@ -632,5 +661,17 @@ class UriTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->assertSame('/foo/index.php', $uri->getBasePath());
+    }
+
+    public function testRequestURICanContainParams()
+    {
+        $uri = Uri::createFromEnvironment(
+            Environment::mock(
+                [
+                    'REQUEST_URI' => '/foo?abc=123',
+                ]
+            )
+        );
+        $this->assertEquals('abc=123', $uri->getQuery());
     }
 }
