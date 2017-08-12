@@ -94,49 +94,64 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     public function testBottomMiddlewareIsRoute()
     {
         $route = $this->routeFactory();
-        $mw = function ($req, $res, $next) {
+        $bottom = null;
+        $mw = function ($req, $res, $next) use (&$bottom) {
+            $bottom = $next;
             return $res;
         };
         $route->add($mw);
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
+        $route->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
 
-        $this->assertEquals($route, $prop->getValue($route)->bottom());
+        $this->assertEquals($route, $bottom);
     }
 
     public function testAddMiddleware()
     {
         $route = $this->routeFactory();
-        $mw = function ($req, $res, $next) {
+        $called = 0;
+
+        $mw = function ($req, $res, $next) use (&$called) {
+            $called++;
             return $res;
         };
+
         $route->add($mw);
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
+        $route->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
 
-        $this->assertCount(2, $prop->getValue($route));
+        $this->assertSame($called, 1);
     }
 
     public function testRefinalizing()
     {
         $route = $this->routeFactory();
+        $called = 0;
 
-        $mw = function ($req, $res, $next) {
+        $mw = function ($req, $res, $next) use (&$called) {
+            $called++;
             return $res;
         };
+
         $route->add($mw);
 
         $route->finalize();
         $route->finalize();
 
-        $prop = new \ReflectionProperty($route, 'stack');
-        $prop->setAccessible(true);
+        $route->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
 
-        $this->assertCount(2, $prop->getValue($route));
+        $this->assertSame($called, 1);
     }
 
 

@@ -21,13 +21,19 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
     public function testSeedsMiddlewareStack()
     {
         $stack = new Stackable;
-        $stack->add(function ($req, $res, $next) {
-            return $res->write('Hi');
-        });
-        $prop = new ReflectionProperty($stack, 'stack');
-        $prop->setAccessible(true);
+        $bottom = null;
 
-        $this->assertSame($stack, $prop->getValue($stack)->bottom());
+        $stack->add(function ($req, $res, $next) use (&$bottom) {
+            $bottom = $next;
+            return $res;
+        });
+
+        $stack->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
+
+        $this->assertSame($stack, $bottom);
     }
 
     public function testCallMiddlewareStack()
@@ -129,10 +135,19 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
     {
         $stack = new Stackable;
         $stack->alternativeSeed();
-        $prop = new ReflectionProperty($stack, 'stack');
-        $prop->setAccessible(true);
+        $bottom = null;
 
-        $this->assertSame([$stack, 'testMiddlewareKernel'], $prop->getValue($stack)->bottom());
+        $stack->add(function ($req, $res, $next) use (&$bottom) {
+            $bottom = $next;
+            return $res;
+        });
+
+        $stack->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
+
+        $this->assertSame([$stack, 'testMiddlewareKernel'], $bottom);
     }
 
 
