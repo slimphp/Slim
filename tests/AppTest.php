@@ -787,29 +787,38 @@ class AppTest extends TestCase
     public function testBottomMiddlewareIsApp()
     {
         $app = new App();
-        $mw = function ($req, $res, $next) {
+        $bottom = null;
+        $mw = function ($req, $res, $next) use (&$bottom) {
+            $bottom = $next;
             return $res;
         };
         $app->add($mw);
 
-        $prop = new \ReflectionProperty($app, 'stack');
-        $prop->setAccessible(true);
+        $app->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
 
-        $this->assertEquals($app, $prop->getValue($app)->bottom());
+        $this->assertEquals($app, $bottom);
     }
 
     public function testAddMiddleware()
     {
         $app = new App();
-        $mw = function ($req, $res, $next) {
+        $called = 0;
+
+        $mw = function ($req, $res, $next) use (&$called) {
+            $called++;
             return $res;
         };
         $app->add($mw);
 
-        $prop = new \ReflectionProperty($app, 'stack');
-        $prop->setAccessible(true);
+        $app->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
 
-        $this->assertCount(2, $prop->getValue($app));
+        $this->assertSame($called, 1);
     }
 
     public function testAddMiddlewareOnRoute()
