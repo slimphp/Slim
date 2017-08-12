@@ -217,11 +217,11 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     public function testGetPortWithSchemeAndDefaultPort()
     {
-        $uriHppt = new Uri('http', 'www.example.com', 80);
-        $uriHppts = new Uri('https', 'www.example.com', 443);
+        $uriHttp = new Uri('http', 'www.example.com', 80);
+        $uriHttps = new Uri('https', 'www.example.com', 443);
 
-        $this->assertNull($uriHppt->getPort());
-        $this->assertNull($uriHppts->getPort());
+        $this->assertNull($uriHttp->getPort());
+        $this->assertNull($uriHttps->getPort());
     }
 
     public function testGetPortWithoutSchemeAndPort()
