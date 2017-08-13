@@ -56,16 +56,17 @@ class Error extends AbstractError
 
         $body = new Body(fopen('php://temp', 'r+'));
 
-        if ($this->outputBuffering === false) {
-            // delete anything in the output buffer.
-            ob_get_clean();
-            $body->write($output);
-        } elseif ($this->outputBuffering === 'prepend') {
+        if ($this->outputBuffering === 'prepend') {
             // prepend output buffer content
             $body->write(ob_get_clean() . $output);
         } elseif ($this->outputBuffering === 'append') {
             // append output buffer content
             $body->write($output . ob_get_clean());
+        } else {
+            // outputBuffering is false or some other unknown setting
+            // delete anything in the output buffer.
+            ob_get_clean();
+            $body->write($output);
         }
 
         return $response
