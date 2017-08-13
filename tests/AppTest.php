@@ -1895,19 +1895,6 @@ class AppTest extends TestCase
 //        $res = $app->run(true);
 //    }
 
-    public function testAppRunWithdetermineRouteBeforeAppMiddleware()
-    {
-        $app = $this->appFactory();
-        $app->addSetting('determineRouteBeforeAppMiddleware', true);
-        $app->get('/foo', function ($req, $res) {
-            return $res->write("Test");
-        });
-
-        $resOut = $app->run(true);
-        $resOut->getBody()->rewind();
-        $this->assertEquals("Test", $resOut->getBody()->getContents());
-    }
-
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
         $app = new App([

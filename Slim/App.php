@@ -24,6 +24,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Middleware\Routing;
 use Throwable;
 
 /**
@@ -80,7 +81,6 @@ class App
     protected $settings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
-        'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
         'routerCacheFile' => false,
     ];
@@ -641,12 +641,6 @@ class App
     {
         $router = $this->getRouter();
 
-        // Dispatch the Router first if the setting for this is on
-        if ($this->getSetting('determineRouteBeforeAppMiddleware') === true) {
-            // Dispatch router (note: you won't be able to alter routes after this)
-            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        }
-
         // Traverse middleware stack
         try {
             $response = $this->callMiddlewareStack($request, $response);
@@ -743,9 +737,10 @@ class App
         /** @var \Slim\Interfaces\RouterInterface $router */
         $router = $this->getRouter();
 
-        // If router hasn't been dispatched or the URI changed then dispatch
-        if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
-            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
+        // If router hasn't been run, then run it
+        if (null === $routeInfo) {
+            $routingMiddleware = new Routing($router);
+            $request = $routingMiddleware->doRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
@@ -759,35 +754,6 @@ class App
 
         $notFoundHandler = $this->getNotFoundHandler();
         return $notFoundHandler($request, $response);
-    }
-
-    /**
-     * Dispatch the router to find the route. Prepare the route for use.
-     *
-     * @param ServerRequestInterface $request
-     * @param RouterInterface        $router
-     * @return ServerRequestInterface
-     */
-    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request, RouterInterface $router)
-    {
-        $routeInfo = $router->dispatch($request);
-
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
-
-            $route = $router->lookupRoute($routeInfo[1]);
-            $route->prepare($request, $routeArguments);
-
-            // add route to the request's attributes in case a middleware or handler needs access to the route
-            $request = $request->withAttribute('route', $route);
-        }
-
-        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
-
-        return $request->withAttribute('routeInfo', $routeInfo);
     }
 
     /**
