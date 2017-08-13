@@ -20,6 +20,9 @@ use Slim\Handlers\Error;
 use Slim\Handlers\NotAllowed;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\PhpError;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -94,10 +97,10 @@ class App
      *
      * @param array $settings
      */
-    public function __construct(array $settings = [])
+    public function __construct(array $settings = [], ContainerInterface $container = null)
     {
         $this->addSettings($settings);
-        $this->container = new Container();
+        $this->container = $container;
     }
 
     /**
@@ -134,28 +137,6 @@ class App
         return $this->addMiddleware(
             new DeferredCallable($callable, $this->getCallableResolver())
         );
-    }
-
-    /**
-     * Calling a non-existant method on App checks to see if there's an item
-     * in the container that is callable and if so, calls it.
-     *
-     * @param  string $method
-     * @param  array $args
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public function __call($method, $args)
-    {
-        if ($this->container->has($method)) {
-            $obj = $this->container->get($method);
-            if (is_callable($obj)) {
-                return call_user_func_array($obj, $args);
-            }
-        }
-
-        throw new \BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
@@ -570,18 +551,21 @@ class App
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param bool|false $silent
      * @return ResponseInterface
      */
-    public function run($silent = false)
+    public function run()
     {
-        $response = $this->container->get('response');
-        $response = $this->process($this->container->get('request'), $response);
+        // create request
+        $request = Request::createFromGlobals($_SERVER);
 
-        if (!$silent) {
-            $this->respond($response);
-        }
+        // create response
+        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $response = new Response(200, $headers);
+        $response = $response->withProtocolVersion($this->getSetting('httpVersion'));
 
+        $response = $this->process($request, $response);
+
+        $this->respond($response);
         return $response;
     }
 
@@ -756,15 +740,13 @@ class App
     }
 
     /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
+     * Call relevant error handler
      *
      * @param  Exception $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      *
      * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -784,14 +766,12 @@ class App
     }
 
     /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
+     * Call PHP error handler
      *
      * @param  Throwable $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      * @return ResponseInterface
-     * @throws Throwable
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {

@@ -9,8 +9,9 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Pimple\Container as Pimple;
+use Pimple\Psr11\Container as Psr11Container;
 use Slim\CallableResolver;
-use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -179,13 +180,11 @@ class RouteTest extends TestCase
         $route->setName(false);
     }
 
-    public function testAddMiddlewareAsString()
+    public function testAddMiddlewareAsStringResolvesWithoutContainer()
     {
         $route = $this->routeFactory();
 
-        $container = new Container();
-        $container['MiddlewareStub'] = new MiddlewareStub();
-        $resolver = new CallableResolver($container);
+        $resolver = new CallableResolver();
         $route->setCallableResolver($resolver);
         $route->add('MiddlewareStub:run');
 
@@ -206,12 +205,58 @@ class RouteTest extends TestCase
         $this->assertInstanceOf('Slim\Http\Response', $result);
     }
 
-    public function testControllerInContainer()
+    public function testAddMiddlewareAsStringResolvesWithContainer()
     {
+        $route = $this->routeFactory();
 
-        $container = new Container();
-        $resolver = new CallableResolver($container);
-        $container['CallableTest'] = new CallableTest;
+        $pimple = new Pimple();
+        $pimple['MiddlewareStub'] = new MiddlewareStub();
+        $resolver = new CallableResolver(new Psr11Container($pimple));
+        $route->setCallableResolver($resolver);
+        $route->add('MiddlewareStub:run');
+
+        $env = Environment::mock();
+        $uri = Uri::createFromString('https://example.com:80');
+        $headers = new Headers();
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+        $serverParams = $env;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+
+        $response = new Response;
+        $result = $route->callMiddlewareStack($request, $response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+    }
+
+    public function testControllerMethodAsStringResolvesWithoutContainer()
+    {
+        $resolver = new CallableResolver();
+        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $resolver);
+
+        $route = new Route(['GET'], '/', $deferred);
+        $route->setCallableResolver($resolver);
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+
+        CallableTest::$CalledCount = 0;
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals(1, CallableTest::$CalledCount);
+    }
+
+    public function testControllerMethodAsStringResolvesWithContainer()
+    {
+        $pimple = new Pimple();
+        $pimple['CallableTest'] = new CallableTest();
+        $resolver = new CallableResolver(new Psr11Container($pimple));
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
 
@@ -337,18 +382,13 @@ class RouteTest extends TestCase
     /**
      * Ensure that `foundHandler` is called on actual callable
      */
-    public function testInvokeDeferredCallable()
+    public function testInvokeDeferredCallableWithNoContainer()
     {
-        $container = new Container();
-        $resolver = new CallableResolver($container);
-        $container['CallableTest'] = new CallableTest;
-        $container['foundHandler'] = function () {
-            return new InvocationStrategyTest();
-        };
+        $resolver = new CallableResolver();
 
-        $route = new Route(['GET'], '/', 'CallableTest:toCall');
+        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall');
         $route->setCallableResolver($resolver);
-        $route->setInvocationStrategy($container['foundHandler']);
+        $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $uri = Uri::createFromString('https://example.com:80');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -357,7 +397,30 @@ class RouteTest extends TestCase
         $result = $route->callMiddlewareStack($request, new Response);
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
-        $this->assertEquals([$container['CallableTest'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+        $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+    /**
+     * Ensure that `foundHandler` is called on actual callable
+     */
+    public function testInvokeDeferredCallableWithContainer()
+    {
+        $pimple = new Pimple();
+        $pimple['CallableTest'] = new CallableTest;
+        $resolver = new CallableResolver(new Psr11Container($pimple));
+
+        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall');
+        $route->setCallableResolver($resolver);
+        $route->setInvocationStrategy(new InvocationStrategyTest());
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
     /**
@@ -373,18 +436,38 @@ class RouteTest extends TestCase
     /**
      * Ensure that the callable can be changed
      */
-    public function testChangingCallable()
+    public function testChangingCallableWithNoContainer()
     {
-        $container = new Container();
-        $resolver = new CallableResolver($container);
-        $container['CallableTest2'] = new CallableTest;
-        $container['foundHandler'] = function () {
-            return new InvocationStrategyTest();
-        };
+        $resolver = new CallableResolver();
 
-        $route = new Route(['GET'], '/', 'CallableTest:toCall'); //Note that this doesn't actually exist
+        $route = new Route(['GET'], '/', 'NonExistent:toCall'); //Note that this doesn't actually exist
         $route->setCallableResolver($resolver);
-        $route->setInvocationStrategy($container['foundHandler']);
+        $route->setInvocationStrategy(new InvocationStrategyTest());
+
+        $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+    /**
+     * Ensure that the callable can be changed
+     */
+    public function testChangingCallableWithContainer()
+    {
+        $pimple = new Pimple();
+        $pimple['CallableTest2'] = new CallableTest;
+        $resolver = new CallableResolver(new Psr11Container($pimple));
+
+        $route = new Route(['GET'], '/', 'NonExistent:toCall'); //Note that this doesn't actually exist
+        $route->setCallableResolver($resolver);
+        $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
@@ -395,6 +478,6 @@ class RouteTest extends TestCase
         $result = $route->callMiddlewareStack($request, new Response);
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
-        $this->assertEquals([$container['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+        $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

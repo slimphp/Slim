@@ -9,8 +9,9 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Pimple\Container as Pimple;
+use Pimple\Psr11\Container;
 use Slim\CallableResolver;
-use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 
@@ -21,11 +22,18 @@ class CallableResolverTest extends TestCase
      */
     private $container;
 
+    /**
+     * @var Pimple
+     */
+    private $pimple;
+
     public function setUp()
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
-        $this->container = new Container();
+
+        $this->pimple = new Pimple;
+        $this->container = new Container($this->pimple);
     }
 
     public function testClosure()
@@ -82,7 +90,7 @@ class CallableResolverTest extends TestCase
 
     public function testContainer()
     {
-        $this->container['callable_service'] = new CallableTest();
+        $this->pimple['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('callable_service:toCall');
         $callable();
@@ -91,7 +99,7 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAnInvokableClassInContainer()
     {
-        $this->container['an_invokable'] = function ($c) {
+        $this->pimple['an_invokable'] = function ($c) {
             return new InvokableTest();
         };
         $resolver = new CallableResolver($this->container);
@@ -113,7 +121,7 @@ class CallableResolverTest extends TestCase
      */
     public function testMethodNotFoundThrowException()
     {
-        $this->container['callable_service'] = new CallableTest();
+        $this->pimple['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
         $resolver->resolve('callable_service:noFound');
     }

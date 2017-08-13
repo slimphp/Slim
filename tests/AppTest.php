@@ -10,6 +10,8 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Pimple\Container as Pimple;
+use Pimple\Psr11\Container as Psr11Container;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
@@ -37,6 +39,31 @@ class AppTest extends TestCase
     public static function tearDownAfterClass()
     {
         // ini_set('log_errors', 1);
+    }
+
+    /**
+     * helper to create a request object
+     * @return Request
+     */
+    private function requestFactory($requestUri, $method = 'GET', $data = [])
+    {
+        $defaults = [
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => $requestUri,
+            'REQUEST_METHOD' => $method,
+        ];
+
+        $data = array_merge($defaults, $data);
+
+        $env = Environment::mock($data);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
+        $cookies = [];
+        $serverParams = $env;
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        return $request;
     }
 
     /********************************************************************************
@@ -842,23 +869,13 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/');
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $response = $app($request, $response);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$response->getBody());
     }
 
 
@@ -885,23 +902,13 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/');
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $response = $app($request, $response);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$res->getBody());
+        $this->assertEquals('In2In1CenterOut1Out2', (string)$response->getBody());
     }
 
     public function testAddMiddlewareOnTwoRouteGroup()
@@ -929,23 +936,13 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/baz/',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/baz/');
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $response = $app($request, $response);
 
-        $this->assertEquals('In1In2CenterOut2Out1', (string)$res->getBody());
+        $this->assertEquals('In1In2CenterOut2Out1', (string)$response->getBody());
     }
 
     public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
@@ -979,23 +976,13 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/baz/',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/baz/');
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $response = $app($request, $response);
 
-        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$res->getBody());
+        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$response->getBody());
     }
 
 
@@ -1013,21 +1000,11 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'POST',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('POST', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo', 'POST');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
@@ -1036,11 +1013,6 @@ class AppTest extends TestCase
             '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
             (string)$resOut->getBody()
         );
-
-        // now test that exception is raised if the handler isn't registered
-//        unset($app->getContainer()['notAllowedHandler']);
-//        $this->setExpectedException('Slim\Exception\MethodNotAllowedException');
-//        $app($req, $res);
     }
 
     public function testInvokeWithMatchingRoute()
@@ -1053,24 +1025,14 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello', (string)$res->getBody());
+        $this->assertEquals('Hello', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArgument()
@@ -1081,24 +1043,14 @@ class AppTest extends TestCase
         })->setArgument('attribute', 'world!');
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/bar',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/bar');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello world!', (string)$res->getBody());
+        $this->assertEquals('Hello world!', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments()
@@ -1109,24 +1061,14 @@ class AppTest extends TestCase
         })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/bar',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/bar');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there world!', (string)$res->getBody());
+        $this->assertEquals('Hello there world!', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
@@ -1137,24 +1079,14 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/test!',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertEquals('Hello test!', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
@@ -1166,24 +1098,14 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/test!',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello test!', (string)$res->getBody());
+        $this->assertEquals('Hello test!', (string)$resOut->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
@@ -1194,24 +1116,14 @@ class AppTest extends TestCase
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/test!',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello there test!', (string)$res->getBody());
+        $this->assertEquals('Hello there test!', (string)$resOut->getBody());
     }
 
     public function testInvokeWithoutMatchingRoute()
@@ -1224,132 +1136,90 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
-
-        // now test that exception is raised if the handler isn't registered
-        //unset($app->getContainer()['notFoundHandler']);
-        //$this->setExpectedException('Slim\Exception\NotFoundException');
-        //$app($req, $res);
     }
 
-    public function testInvokeWithPimpleCallable()
+    public function testInvokeWithCallableRegisteredInContainer()
     {
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock, $response) {
             $mock->method('bar')
                 ->willReturn(
-                    $res->write('Hello')
+                    $response->write('Hello')
                 );
             return $mock;
         };
 
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals('Hello', (string)$res->getBody());
+        $this->assertEquals('Hello', (string)$resOut->getBody());
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testInvokeWithPimpleUndefinedCallable()
+    public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mock = $this->getMockBuilder('StdClass')->getMock();
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
 
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $app($req, $res);
+        $app($request, $response);
     }
 
-    public function testInvokeWithPimpleCallableViaMagicMethod()
+    public function testInvokeWithCallableInContainerViaMagicMethod()
     {
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mock = new MockAction();
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
 
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
     }
 
     public function testInvokeFunctionName()
@@ -1368,23 +1238,13 @@ class AppTest extends TestCase
         $app->get('/foo', __NAMESPACE__ . '\handle');
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $app($req, $res);
+        $resOut = $app($request, $response);
 
-        $this->assertEquals('foo', (string)$res->getBody());
+        $this->assertEquals('foo', (string)$resOut->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
@@ -1395,23 +1255,12 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/rob',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $req = $req->withAttribute("one", 1);
-        $res = new Response();
-
+        $request = $this->requestFactory('/foo/rob');
+        $request = $request->withAttribute("one", 1);
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
@@ -1424,23 +1273,12 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo/rob',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $req = $req->withAttribute("one", 1);
-        $res = new Response();
-
+        $request = $this->requestFactory('/foo/rob');
+        $request = $request->withAttribute("one", 1);
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
@@ -1449,23 +1287,14 @@ class AppTest extends TestCase
     // TODO: Test run()
     public function testRun()
     {
-        $app = new App();
+        $currentServer = $_SERVER; // backup $_SERVER
 
-        // Prepare request and response objects
-        $env = Environment::mock([
+        $app = new App();
+        $_SERVER = [
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
+        ];
 
         $app->get('/foo', function ($req, $res) {
             $res->write('bar');
@@ -1478,6 +1307,8 @@ class AppTest extends TestCase
         $resOut = ob_get_clean();
 
         $this->assertEquals('bar', (string)$resOut);
+
+        $_SERVER = $currentServer; // restore $_SERVER
     }
 
 
@@ -1491,21 +1322,11 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1523,21 +1344,11 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1554,21 +1365,11 @@ class AppTest extends TestCase
         });
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1623,21 +1424,11 @@ class AppTest extends TestCase
             });
 
             // Prepare request and response objects
-            $env = Environment::mock([
-                'SCRIPT_NAME' => '/index.php',
-                'REQUEST_URI' => '/foo',
-                'REQUEST_METHOD' => 'GET',
-            ]);
-            $uri = Uri::createFromGlobals($env);
-            $headers = Headers::createFromGlobals($env);
-            $cookies = [];
-            $serverParams = $env;
-            $body = new RequestBody();
-            $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-            $res = new Response();
+            $request = $this->requestFactory('/foo');
+            $response = new Response();
 
             // Invoke app
-            $resOut = $app($req, $res);
+            $resOut = $app($request, $response);
             $app->respond($resOut);
 
             $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
@@ -1686,11 +1477,11 @@ class AppTest extends TestCase
         $cookies = [];
         $serverParams = $env;
         $body = new Mocks\SmallChunksStream();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = (new Response())->withBody($body);
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $response = (new Response())->withBody($body);
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $app->respond($resOut);
 
@@ -1703,20 +1494,8 @@ class AppTest extends TestCase
         $app = new App();
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mw = function ($req, $res, $next) {
             throw new \Exception('middleware exception');
@@ -1724,11 +1503,11 @@ class AppTest extends TestCase
 
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res;
+        $app->get('/foo', function ($request, $response) {
+            return $response;
         });
 
-        $resOut = $app->run(true);
+        $resOut = $app->process($request, $response);
 
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
@@ -1742,20 +1521,8 @@ class AppTest extends TestCase
         $app = new App();
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mw = function ($req, $res, $next) {
             dumpFonction();
@@ -1763,67 +1530,22 @@ class AppTest extends TestCase
 
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
+        $app->get('/foo', function ($request, $response) {
             return $res;
         });
 
-        $resOut = $app->run(true);
+        $resOut = $app->process($request, $response);
 
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
     }
 
-    public function appFactory()
-    {
-        $app = new App();
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
-
-        return $app;
-    }
-
-    /**
-     * throws \Exception
-     * throws \Slim\Exception\MethodNotAllowedException
-     * throws \Slim\Exception\NotFoundException
-     * expectedException \Exception
-     */
-//    public function testRunExceptionNoHandler()
-//    {
-//        $app = $this->appFactory();
-//
-//        $container = $app->getContainer();
-//        unset($container['errorHandler']);
-//
-//        $app->get('/foo', function ($req, $res, $args) {
-//            return $res;
-//        });
-//        $app->add(function ($req, $res, $args) {
-//            throw new \Exception();
-//        });
-//        $res = $app->run(true);
-//    }
-
     /**
      * @requires PHP 7.0
      */
-    public function testRunThrowable()
+    public function testProcessThrowable()
     {
-        $app = $this->appFactory();
+        $app = new App();
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
@@ -1831,78 +1553,51 @@ class AppTest extends TestCase
             throw new \Error('Failed');
         });
 
-        $res = $app->run(true);
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+        $resOut = $app->process($request, $response);
 
-        $res->getBody()->rewind();
+        $resOut->getBody()->rewind();
 
-        $this->assertSame(500, $res->getStatusCode());
-        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
+        $this->assertSame(500, $resOut->getStatusCode());
+        $this->assertSame('text/html', $resOut->getHeaderLine('Content-Type'));
+        $this->assertEquals(0, strpos((string)$resOut->getBody(), '<html>'));
     }
 
-    public function testRunNotFound()
+    public function testProcessNotFound()
     {
-        $app = $this->appFactory();
+        $app = new App();
+
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
         $app->add(function ($req, $res, $args) {
             throw new NotFoundException($req, $res);
         });
-        $res = $app->run(true);
+
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+        $res = $app->process($request, $response);
 
         $this->assertEquals(404, $res->getStatusCode());
     }
 
-    /**
-     * expectedException \Slim\Exception\NotFoundException
-     */
-//    public function testRunNotFoundWithoutHandler()
-//    {
-//        $app = $this->appFactory();
-//        $container = $app->getContainer();
-//        unset($container['notFoundHandler']);
-//
-//        $app->get('/foo', function ($req, $res, $args) {
-//            return $res;
-//        });
-//        $app->add(function ($req, $res, $args) {
-//            throw new NotFoundException($req, $res);
-//        });
-//        $res = $app->run(true);
-//    }
-
-    public function testRunNotAllowed()
+    public function testProcessNotAllowed()
     {
-        $app = $this->appFactory();
+        $app = new App();
         $app->get('/foo', function ($req, $res, $args) {
             return $res;
         });
         $app->add(function ($req, $res, $args) {
             throw new MethodNotAllowedException($req, $res, ['POST']);
         });
-        $res = $app->run(true);
+
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+        $res = $app->process($request, $response);
 
         $this->assertEquals(405, $res->getStatusCode());
     }
-
-    /**
-     * expectedException \Slim\Exception\MethodNotAllowedException
-     */
-//    public function testRunNotAllowedWithoutHandler()
-//    {
-//        $app = $this->appFactory();
-//        $container = $app->getContainer();
-//        unset($container['notAllowedHandler']);
-//
-//        $app->get('/foo', function ($req, $res, $args) {
-//            return $res;
-//        });
-//        $app->add(function ($req, $res, $args) {
-//            throw new MethodNotAllowedException($req, $res, ['POST']);
-//        });
-//        $res = $app->run(true);
-//    }
 
     public function testExceptionErrorHandlerDisplaysErrorDetails()
     {
@@ -1911,20 +1606,8 @@ class AppTest extends TestCase
         ]);
 
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mw = function ($req, $res, $next) {
             throw new \RuntimeException('middleware exception');
@@ -1936,7 +1619,7 @@ class AppTest extends TestCase
             return $res;
         });
 
-        $resOut = $app->run(true);
+        $resOut = $app->process($request, $response);
 
         $this->assertEquals(500, $resOut->getStatusCode());
         $this->assertRegExp('/.*middleware exception.*/', (string)$resOut);
@@ -1967,69 +1650,20 @@ class AppTest extends TestCase
         $this->assertFalse($response->hasHeader('Content-Type'));
     }
 
-    public function testCallingAContainerCallable()
-    {
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function ($c) {
-            return function ($a) {
-                return $a;
-            };
-        };
-        $result = $app->foo('bar');
-        $this->assertSame('bar', $result);
-
-        $headers = new Headers();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', Uri::createFromString(''), $headers, [], [], $body);
-        $response = new Response();
-
-        $notFoundHandler = $app->getNotFoundHandler();
-        $response = $notFoundHandler($request, $response);
-
-        $this->assertSame(404, $response->getStatusCode());
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testCallingFromContainerNotCallable()
-    {
-        $settings = [
-            'foo' => function ($c) {
-                return null;
-            }
-        ];
-        $app = new App($settings);
-        $app->foo('bar');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testCallingAnUnknownContainerCallableThrows()
-    {
-        $app = new App();
-        $app->foo('bar');
-    }
-
-    /**
-     * @expectedException \BadMethodCallException
-     */
-    public function testCallingAnUncallableContainerKeyThrows()
-    {
-        $app = new App();
-        $app->getContainer()['bar'] = 'foo';
-        $app->foo('bar');
-    }
-
     public function testUnsupportedMethodWithoutRoute()
     {
         $app = new App();
-        $c = $app->getContainer();
-        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/',
+            'REQUEST_METHOD' => 'BADMTHD',
+        ]);
+        $uri = Uri::createFromGlobals($env);
+        $headers = Headers::createFromGlobals($env);
+        $request = new Request('GET', $uri, $headers, [], $env, new RequestBody());
+        $response = new Response();
 
-        $resOut = $app->run(true);
+        $resOut = $app->process($request, $response);
 
         $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(404, $resOut->getStatusCode());
@@ -2041,10 +1675,11 @@ class AppTest extends TestCase
         $app->get('/', function () {
             // stubbed action to give us a route at /
         });
-        $c = $app->getContainer();
-        $c['environment'] = Environment::mock(['REQUEST_URI' => '/', 'REQUEST_METHOD' => 'BADMTHD']);
 
-        $resOut = $app->run(true);
+        $request = $this->requestFactory('/', 'BADMTHD');
+        $response = new Response();
+
+        $resOut = $app->process($request, $response);
 
         $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(405, $resOut->getStatusCode());
@@ -2053,36 +1688,28 @@ class AppTest extends TestCase
     public function testContainerSetToRoute()
     {
         // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new RequestBody();
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
 
         $mock = new MockAction();
 
-        $app = new App();
-        $container = $app->getContainer();
-        $container['foo'] = function () use ($mock, $res) {
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
+
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
 
         /** @var $router Router */
         $router = $app->getRouter();
         $router->map(['get'], '/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($req, $res);
+        $resOut = $app($request, $response);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$res->getBody());
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
     }
 
     public function testIsEmptyResponseWithEmptyMethod()
@@ -2133,7 +1760,7 @@ class AppTest extends TestCase
     protected function skipIfPhp70()
     {
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
-            $this->markTestSkipped();
+            $this->markTestSkipped("Test is for PHP 5.6 or lower");
         }
     }
 }
