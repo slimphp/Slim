@@ -161,6 +161,22 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testPathForWithSurplusRouteParameters()
+    {
+        $methods = ['GET'];
+        $pattern = '/hello/{name}';
+        $callable = function ($request, $response, $args) {
+            echo sprintf('Hello %s', $args['name']);
+        };
+        $route = $this->router->map($methods, $pattern, $callable);
+        $route->setName('foo');
+
+        $this->assertEquals(
+            '/hello/josh?a=b',
+            $this->router->pathFor('foo', ['name' => 'josh', 'a' => 'b'])
+        );
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
