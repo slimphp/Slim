@@ -4,23 +4,29 @@ language: php
 
 dist: trusty
 
-php:
-  - 5.6
-  - 7.0
-  - 7.1
-  - hhvm
+matrix:
+  include:
+    - php: 5.6
+    - php: 7.0
+    - php: 7.1
+      env: ANALYSIS='true'
+    - php: hhvm
+    - php: 5.6
+      env: COMPOSER_ARGS='--prefer-lowest'
+    - php: nightly
+  allow_failures:
+    - php: nightly
 
 before_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then composer require satooshi/php-coveralls:1.* squizlabs/php_codesniffer:2.* -n ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then composer install -n ; fi
+  - composer update $COMPOSER_ARGS
 
 script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" != '5.6' ]]; then vendor/bin/phpunit ; fi
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then vendor/bin/phpcs ; fi
+  - if [[ "$ANALYSIS" != 'true' ]]; then vendor/bin/phpunit ; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpcs ; fi
 
 after_script:
-  - if [[ "$TRAVIS_PHP_VERSION" == '5.6' ]]; then php vendor/bin/coveralls --coverage_clover=clover.xml -v ; fi
+  - if [[ "$ANALYSIS" == 'true' ]]; then php vendor/bin/coveralls --coverage_clover=clover.xml -v ; fi
 
 notifications:
   slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
