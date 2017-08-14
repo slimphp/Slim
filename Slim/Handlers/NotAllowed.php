@@ -36,7 +36,7 @@ class NotAllowed extends AbstractHandler
         if ($request->getMethod() === 'OPTIONS') {
             $status = 200;
             $contentType = 'text/plain';
-            $output = $this->renderPlainNotAllowedMessage($methods);
+            $output = $this->renderPlainOptionsMessage($methods);
         } else {
             $status = 405;
             $contentType = $this->determineContentType($request);
@@ -70,12 +70,12 @@ class NotAllowed extends AbstractHandler
     }
 
     /**
-     * Render PLAIN not allowed message
+     * Render PLAIN message for OPTIONS response
      *
      * @param  array                  $methods
      * @return string
      */
-    protected function renderPlainNotAllowedMessage($methods)
+    protected function renderPlainOptionsMessage($methods)
     {
         $allow = implode(', ', $methods);
 
