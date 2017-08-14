@@ -35,7 +35,7 @@
         "psr/container": "^1.0"
     },
     "require-dev": {
-        "pimple/pimple": "^3.0",
+        "pimple/pimple": "^3.2",
         "squizlabs/php_codesniffer": "^2.9",
         "phpunit/phpunit": "^5.7|^6.2",
         "php-coveralls/php-coveralls": "^1.0"
