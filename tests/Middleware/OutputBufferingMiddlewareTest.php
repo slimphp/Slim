@@ -16,20 +16,20 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
-use Slim\Middleware\OutputBuffering;
+use Slim\Middleware\OutputBufferingMiddleware;
 
-class OutputBufferingTest extends TestCase
+class OutputBufferingMiddlewareTest extends TestCase
 {
     public function testStyleDefaultValid()
     {
-        $mw = new OutputBuffering();
+        $mw = new OutputBufferingMiddleware();
 
         $this->assertAttributeEquals('append', 'style', $mw);
     }
 
     public function testStyleCustomValid()
     {
-        $mw = new OutputBuffering('prepend');
+        $mw = new OutputBufferingMiddleware('prepend');
 
         $this->assertAttributeEquals('prepend', 'style', $mw);
     }
@@ -39,12 +39,12 @@ class OutputBufferingTest extends TestCase
      */
     public function testStyleCustomInvalid()
     {
-        $mw = new OutputBuffering('foo');
+        $mw = new OutputBufferingMiddleware('foo');
     }
 
     public function testAppend()
     {
-        $mw = new OutputBuffering('append');
+        $mw = new OutputBufferingMiddleware('append');
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
@@ -67,7 +67,7 @@ class OutputBufferingTest extends TestCase
 
     public function testPrepend()
     {
-        $mw = new OutputBuffering('prepend');
+        $mw = new OutputBufferingMiddleware('prepend');
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();

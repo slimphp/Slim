@@ -5,7 +5,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Body;
 
-class OutputBuffering
+class OutputBufferingMiddleware
 {
     const APPEND = 'append';
     const PREPEND = 'prepend';
