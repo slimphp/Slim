@@ -16,13 +16,13 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
-use Slim\Middleware\ContentLength;
+use Slim\Middleware\ContentLengthMiddleware;
 
-class ContentLengthTest extends TestCase
+class ContentLengthMiddlewareTest extends TestCase
 {
     public function testAddsContentLenght()
     {
-        $mw = new ContentLength('append');
+        $mw = new ContentLengthMiddleware('append');
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
