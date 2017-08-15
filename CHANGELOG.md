@@ -5,7 +5,7 @@
 
 ### Added
 
-- [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLength
+- [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLengthMiddleware
 - [#2166](https://github.com/slimphp/Slim/pull/2166) Added Middleware\OutputBufferingMiddleware
 
 ### Deprecated
