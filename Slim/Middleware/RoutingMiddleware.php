@@ -9,7 +9,7 @@ use Slim\Interfaces\RouterInterface;
 /**
  * Perform routing and store matched route to the request's attributes
  */
-class Routing
+class RoutingMiddleware
 {
     protected $router;
 

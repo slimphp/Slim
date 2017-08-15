@@ -24,7 +24,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
-use Slim\Middleware\Routing;
+use Slim\Middleware\RoutingMiddleware;
 use Throwable;
 
 /**
@@ -739,7 +739,7 @@ class App
 
         // If router hasn't been run, then run it
         if (null === $routeInfo) {
-            $routingMiddleware = new Routing($router);
+            $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->doRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }

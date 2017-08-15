@@ -18,10 +18,10 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
-use Slim\Middleware\Routing;
+use Slim\Middleware\RoutingMiddleware;
 use Slim\Router;
 
-class RoutingTest extends TestCase
+class RoutingMiddlewareTest extends TestCase
 {
     protected function getRouter()
     {
@@ -34,7 +34,7 @@ class RoutingTest extends TestCase
     public function testRouteIsStoredOnSuccessfulMatch()
     {
         $router = $this->getRouter();
-        $mw = new Routing($router);
+        $mw = new RoutingMiddleware($router);
 
         $uri = Uri::createFromString('https://example.com:443/hello/foo');
         $body = new Body(fopen('php://temp', 'r+'));
@@ -60,7 +60,7 @@ class RoutingTest extends TestCase
     public function testRouteIsNotStoredOnMethodNotAllowed()
     {
         $router = $this->getRouter();
-        $mw = new Routing($router);
+        $mw = new RoutingMiddleware($router);
 
         $uri = Uri::createFromString('https://example.com:443/hello/foo');
         $body = new Body(fopen('php://temp', 'r+'));
