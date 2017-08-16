@@ -34,7 +34,7 @@ final class CallableResolver implements CallableResolverInterface
     }
 
     /**
-     * Resolve toResolve into a closure that that the router can dispatch.
+     * Resolve toResolve into a closure so that the router can dispatch.
      *
      * If toResolve is of the format 'class:method', then try to extract 'class'
      * from the container otherwise instantiate it and then dispatch 'method'.
