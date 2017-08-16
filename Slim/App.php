@@ -319,8 +319,8 @@ class App
     protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
     {
         $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
+        if (is_callable([$request->getUri(), 'getBaseUrl']) && is_callable([$router, 'getBaseUrl'])) {
+            $router->setBasePath($request->getUri()->getBaseUrl());
         }
 
         $request = $this->dispatchRouterAndPrepareRoute($request, $router);
@@ -355,8 +355,8 @@ class App
     {
         // Ensure basePath is set
         $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
+        if (is_callable([$request->getUri(), 'getBaseUrl']) && is_callable([$router, 'getBaseUrl'])) {
+            $router->setBasePath($request->getUri()->getBaseUrl());
         }
 
         // Dispatch the Router first if the setting for this is on
