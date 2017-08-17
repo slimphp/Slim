@@ -737,10 +737,10 @@ class App
         /** @var \Slim\Interfaces\RouterInterface $router */
         $router = $this->getRouter();
 
-        // If router hasn't been run, then run it
+        // If routing hasn't been done, then do it now so we can dispatch
         if (null === $routeInfo) {
             $routingMiddleware = new RoutingMiddleware($router);
-            $request = $routingMiddleware->doRouting($request);
+            $request = $routingMiddleware->performRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }
 

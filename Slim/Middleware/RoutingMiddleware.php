@@ -28,7 +28,7 @@ class RoutingMiddleware
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $request = $this->doRouting($request);
+        $request = $this->performRouting($request);
         return $next($request, $response);
     }
 
@@ -38,7 +38,7 @@ class RoutingMiddleware
      * @param  ServerRequestInterface $request   PSR7 server request
      * @return ServerRequestInterface
      */
-    public function doRouting(ServerRequestInterface $request)
+    public function performRouting(ServerRequestInterface $request)
     {
         $routeInfo = $this->router->dispatch($request);
 
