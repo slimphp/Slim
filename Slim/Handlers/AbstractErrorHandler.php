@@ -19,6 +19,7 @@ use Slim\Handlers\ErrorRenderers\JsonErrorRenderer;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Exception;
+use Throwable;
 
 /**
  * Default Slim application error handler

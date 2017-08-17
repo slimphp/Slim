@@ -13,6 +13,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
+use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\ErrorHandler;
@@ -127,7 +128,7 @@ class App
      * @param  array $args
      * @return mixed
      *
-     * @throws BadMethodCallException
+     * @throws \BadMethodCallException
      */
     public function __call($method, $args)
     {
@@ -720,19 +721,21 @@ class App
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        // Get the route info
+        /**
+         * Get the route info
+         * If router hasn't been dispatched or the URI changed then dispatch
+         *
+         * @var \Slim\Interfaces\RouterInterface $router
+         */
+        $exception = null;
         $routeInfo = $request->getAttribute('routeInfo');
-
-        /** @var \Slim\Interfaces\RouterInterface $router */
         $router = $this->getRouter();
 
-        // If router hasn't been dispatched or the URI changed then dispatch
-        if (null === $routeInfo || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
+        if (is_null($routeInfo) || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
             $request = $this->dispatchRouterAndPrepareRoute($request, $router);
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
-        $exception = null;
         switch ($routeInfo[0]) {
             case Dispatcher::FOUND:
                 $route = $router->lookupRoute($routeInfo[1]);
@@ -741,13 +744,23 @@ class App
             case Dispatcher::METHOD_NOT_ALLOWED:
                 $exception = new HttpNotAllowedException;
                 $exception->setAllowedMethods($routeInfo[1]);
-                $exception->setRequest($request);
                 break;
 
             case Dispatcher::NOT_FOUND:
                 $exception = new HttpNotFoundException;
-                $exception->setRequest($request);
                 break;
+
+            default:
+                /**
+                 * This case should never be triggered unless unforeseen
+                 * circumstances with the Dispatcher occur.
+                 */
+                $exception = new HttpInternalServerErrorException;
+                break;
+        }
+
+        if (!is_null($exception)) {
+            $exception->setRequest($request);
         }
 
         return $this->handleException($exception, $request, $response);
@@ -806,16 +819,6 @@ class App
             }
         }
 
-        /**
-         * Check if exception is instance of HttpException
-         * If so, check if it is not recoverable
-         * End request immediately in case it is not recoverable
-         */
-        $recoverable = true;
-        if ($exception instanceof HttpException) {
-            $recoverable = $exception->isRecoverable();
-        }
-
         $params = [
             $request,
             $response,
@@ -823,9 +826,7 @@ class App
             $displayErrorDetails
         ];
 
-        return $recoverable
-            ? call_user_func_array($handler, $params)
-            : $response;
+        return call_user_func_array($handler, $params);
     }
 
     /**

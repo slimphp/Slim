@@ -59,14 +59,6 @@ class HttpExceptionTest extends TestCase
         $this->assertEquals(['Details'], $exception->getDetails());
     }
 
-    public function testHttpExceptionRecoverableGetterSetter()
-    {
-        $exception = new HttpNotFoundException;
-        $exception->notRecoverable();
-
-        $this->assertEquals(false, $exception->isRecoverable());
-    }
-
     public function testHttpNotAllowedExceptionGetAllowedMethods()
     {
         $exception = new HttpNotAllowedException;

@@ -26,10 +26,6 @@ abstract class HttpException extends \Exception
      * @var string
      */
     protected $description = '';
-    /**
-     * @var bool
-     */
-    protected $recoverable = true;
 
     /**
      * HttpException constructor.
@@ -84,11 +80,6 @@ abstract class HttpException extends \Exception
         $this->description = $description;
     }
 
-    public function notRecoverable()
-    {
-        $this->recoverable = false;
-    }
-
     /**
      * @return null|ServerRequestInterface
      */
@@ -127,13 +118,5 @@ abstract class HttpException extends \Exception
     public function getDescription()
     {
         return $this->description;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRecoverable()
-    {
-        return $this->recoverable;
     }
 }
