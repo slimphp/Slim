@@ -49,6 +49,20 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $message->withProtocolVersion('3.0');
     }
 
+    /**
+     * @covers Slim\Http\Message::withProtocolVersion
+     * @expectedException \InvalidArgumentException
+     */
+    public function testWithProtocolVersionInvalidMinorVersionThrowsException()
+    {
+        $message = new MessageStub();
+
+        /**
+         * @see https://http2.github.io/faq/#is-it-http20-or-http2
+         */
+        $message->withProtocolVersion('2.0');
+    }
+
     /*******************************************************************************
      * Headers
      ******************************************************************************/
