@@ -40,6 +40,7 @@ abstract class Message implements MessageInterface
         '1.0' => true,
         '1.1' => true,
         '2.0' => true,
+        '2' => true,
     ];
 
     /**

@@ -49,6 +49,22 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $message->withProtocolVersion('3.0');
     }
 
+
+    /**
+     * Ensure that we support HTTP '2'
+     *
+     * @see https://http2.github.io/faq/#is-it-http20-or-http2
+     * @covers Slim\Http\Message::withProtocolVersion
+     */
+    public function testWithProtocolVersionForHttp2()
+    {
+        $message = new MessageStub();
+        $clone = $message->withProtocolVersion('2');
+
+        $this->assertEquals('2', $clone->protocolVersion);
+    }
+
+
     /*******************************************************************************
      * Headers
      ******************************************************************************/
