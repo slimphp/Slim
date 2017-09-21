@@ -1212,10 +1212,13 @@ class Request extends Message implements ServerRequestInterface
         if ($postParams) {
             $params = array_merge($params, (array)$postParams);
         }
+
         if ($only) {
             $onlyParams = [];
             foreach ($only as $key) {
-                $onlyParams[$key] = isset($params[$key]) ? $params[$key] : null;
+                if (array_key_exists($key, $params)) {
+                    $onlyParams[$key] = $params[$key];
+                }
             }
             return $onlyParams;
         }

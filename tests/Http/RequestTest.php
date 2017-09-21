@@ -1165,7 +1165,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['abc' => 'xyz'], $request->getParams(['abc']));
     }
 
-    public function testGetParametersWithSpecificKeysDefaultToNull()
+    public function testGetParametersWithSpecificKeysAreMissingIfTheyDontExit()
     {
         $body = new RequestBody();
         $body->write('foo=bar');
@@ -1174,7 +1174,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
             ->withBody($body)
             ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        $this->assertEquals(['foo' => 'bar', 'bar' => null], $request->getParams(['foo', 'bar']));
+        $this->assertEquals(['foo' => 'bar'], $request->getParams(['foo', 'bar']));
     }
 
     /*******************************************************************************
