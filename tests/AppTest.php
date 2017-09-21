@@ -267,7 +267,7 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
+        $app->group('/foo', function ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
             });
@@ -280,7 +280,7 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSegmentRouteThatEndsInASlash()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
+        $app->group('/foo', function ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
             });
@@ -293,7 +293,7 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
+        $app->group('/foo', function ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
             });
@@ -306,7 +306,7 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
+        $app->group('/foo', function ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
             });
@@ -319,8 +319,8 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/', function ($req, $res) {
                     // Do something
                 });
@@ -334,8 +334,8 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithAnEmptyRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('', function ($req, $res) {
                     // Do something
                 });
@@ -349,8 +349,8 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSegmentRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -364,8 +364,8 @@ class AppTest extends TestCase
     public function testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar/', function ($req, $res) {
                     // Do something
                 });
@@ -379,8 +379,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -394,8 +394,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -409,8 +409,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -424,8 +424,8 @@ class AppTest extends TestCase
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('/foo', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -439,7 +439,7 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
             });
@@ -452,7 +452,7 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
             });
@@ -465,7 +465,7 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
             });
@@ -478,7 +478,7 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
             });
@@ -491,8 +491,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/', function ($req, $res) {
                     // Do something
                 });
@@ -506,8 +506,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('', function ($req, $res) {
                     // Do something
                 });
@@ -521,8 +521,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -536,8 +536,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar/', function ($req, $res) {
                     // Do something
                 });
@@ -551,8 +551,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -566,8 +566,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -581,8 +581,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -596,8 +596,8 @@ class AppTest extends TestCase
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('/', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('/', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -611,7 +611,7 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
             $app->get('/bar', function ($req, $res) {
                 // Do something
             });
@@ -624,7 +624,7 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSegmentRouteThatEndsInASlash()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
             $app->get('/bar/', function ($req, $res) {
                 // Do something
             });
@@ -637,7 +637,7 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
             $app->get('/', function ($req, $res) {
                 // Do something
             });
@@ -650,7 +650,7 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
             $app->get('', function ($req, $res) {
                 // Do something
             });
@@ -663,8 +663,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/', function ($req, $res) {
                     // Do something
                 });
@@ -678,8 +678,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('', function ($req, $res) {
                     // Do something
                 });
@@ -693,8 +693,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -708,8 +708,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/bar/', function ($req, $res) {
                     // Do something
                 });
@@ -723,8 +723,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -738,8 +738,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('/', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('/', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -753,8 +753,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRoute()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('/bar', function ($req, $res) {
                     // Do something
                 });
@@ -768,8 +768,8 @@ class AppTest extends TestCase
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
         $app = new App();
-        $app->group('', function () use ($app) {
-            $app->group('', function () use ($app) {
+        $app->group('', function ($app) {
+            $app->group('', function ($app) {
                 $app->get('bar', function ($req, $res) {
                     // Do something
                 });
@@ -866,7 +866,7 @@ class AppTest extends TestCase
     {
         $app = new App();
 
-        $app->group('/foo', function () use ($app) {
+        $app->group('/foo', function ($app) {
             $app->get('/', function ($req, $res) {
                 return $res->write('Center');
             });
@@ -908,8 +908,8 @@ class AppTest extends TestCase
     {
         $app = new App();
 
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/', function ($req, $res) {
                     return $res->write('Center');
                 });
@@ -952,8 +952,8 @@ class AppTest extends TestCase
     {
         $app = new App();
 
-        $app->group('/foo', function () use ($app) {
-            $app->group('/baz', function () use ($app) {
+        $app->group('/foo', function ($app) {
+            $app->group('/baz', function ($app) {
                 $app->get('/', function ($req, $res) {
                     return $res->write('Center');
                 })->add(function ($req, $res, $next) {
