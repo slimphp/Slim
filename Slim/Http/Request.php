@@ -1201,14 +1201,25 @@ class Request extends Message implements ServerRequestInterface
      *
      * Note: This method is not part of the PSR-7 standard.
      *
-     * @return array
+     * @param array|null $only list the keys to retrieve.
+     * @return array|null
      */
-    public function getParams()
+    public function getParams(array $only = null)
     {
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
             $params = array_merge($params, (array)$postParams);
+        }
+
+        if ($only) {
+            $onlyParams = [];
+            foreach ($only as $key) {
+                if (array_key_exists($key, $params)) {
+                    $onlyParams[$key] = $params[$key];
+                }
+            }
+            return $onlyParams;
         }
 
         return $params;

@@ -1153,6 +1153,30 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['abc' => 'xyz', 'foo' => 'bar'], $request->getParams());
     }
 
+    public function testGetParametersWithSpecificKeys()
+    {
+        $body = new RequestBody();
+        $body->write('foo=bar&abc=xyz');
+        $body->rewind();
+        $request = $this->requestFactory()
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals(['abc' => 'xyz'], $request->getParams(['abc']));
+    }
+
+    public function testGetParametersWithSpecificKeysAreMissingIfTheyDontExit()
+    {
+        $body = new RequestBody();
+        $body->write('foo=bar');
+        $body->rewind();
+        $request = $this->requestFactory()
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        $this->assertEquals(['foo' => 'bar'], $request->getParams(['foo', 'bar']));
+    }
+
     /*******************************************************************************
      * Protocol
      ******************************************************************************/
