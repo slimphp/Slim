@@ -42,6 +42,6 @@ class RouteGroup extends Routable implements RouteGroupInterface
             $callable = $callable->bindTo($app);
         }
 
-        $callable();
+        $callable($app);
     }
 }
