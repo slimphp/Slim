@@ -55,4 +55,18 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/foo/bar?abc=123', $env->get('REQUEST_URI'));
         $this->assertEquals('localhost', $env->get('HTTP_HOST'));
     }
+
+    /**
+     * Test environment from mock data with HTTPS
+     */
+    public function testMockHttps()
+    {
+        $env = Environment::mock([
+            'HTTPS' => 'on'
+        ]);
+
+        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
+        $this->assertEquals(443, $env->get('SERVER_PORT'));
+    }
+
 }
