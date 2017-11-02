@@ -68,5 +68,4 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
         $this->assertEquals(443, $env->get('SERVER_PORT'));
     }
-
 }
