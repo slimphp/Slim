@@ -30,16 +30,19 @@ class Environment extends Collection implements EnvironmentInterface
     public static function mock(array $userData = [])
     {
         //Validates if default protocol is HTTPS to set default port 443
-        if (isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') {
+        if ((isset($userData['HTTPS']) && $userData['HTTPS'] !== 'off') ||
+            ((isset($userData['REQUEST_SCHEME']) && $userData['REQUEST_SCHEME'] === 'https'))) {
+            $defscheme = 'https';
             $defport = 443;
         } else {
+            $defscheme = 'http';
             $defport = 80;
         }
 
         $data = array_merge([
             'SERVER_PROTOCOL'      => 'HTTP/1.1',
             'REQUEST_METHOD'       => 'GET',
-            'REQUEST_SCHEME'       => 'http',
+            'REQUEST_SCHEME'       => $defscheme,
             'SCRIPT_NAME'          => '',
             'REQUEST_URI'          => '',
             'QUERY_STRING'         => '',

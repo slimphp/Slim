@@ -66,6 +66,21 @@ class EnvironmentTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
+        $this->assertEquals('on', $env->get('HTTPS'));
+        $this->assertEquals(443, $env->get('SERVER_PORT'));
+    }
+
+    /**
+     * Test environment from mock data with REQUEST_SCHEME
+     */
+    public function testMockRequestScheme()
+    {
+        $env = Environment::mock([
+            'REQUEST_SCHEME' => 'https'
+        ]);
+
+        $this->assertInstanceOf('\Slim\Interfaces\CollectionInterface', $env);
+        $this->assertEquals('https', $env->get('REQUEST_SCHEME'));
         $this->assertEquals(443, $env->get('SERVER_PORT'));
     }
 }
