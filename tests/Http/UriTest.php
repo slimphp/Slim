@@ -180,12 +180,27 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $uri->getUserInfo());
     }
 
+    public function testGetUserInfoWithUsernameAndPasswordEncodesCorrectly()
+    {
+        $uri = Uri::createFromString('https://bob%40example.com:pass%3Aword@example.com:443/foo/bar?abc=123#section3');
+
+        $this->assertEquals('bob%40example.com:pass%3Aword', $uri->getUserInfo());
+    }
+
     public function testWithUserInfo()
     {
         $uri = $this->uriFactory()->withUserInfo('bob', 'pass');
 
         $this->assertAttributeEquals('bob', 'user', $uri);
         $this->assertAttributeEquals('pass', 'password', $uri);
+    }
+
+    public function testWithUserInfoEncodesCorrectly()
+    {
+        $uri = $this->uriFactory()->withUserInfo('bob@example.com', 'pass:word');
+
+        $this->assertAttributeEquals('bob%40example.com', 'user', $uri);
+        $this->assertAttributeEquals('pass%3Aword', 'password', $uri);
     }
 
     public function testWithUserInfoRemovesPassword()
