@@ -388,6 +388,16 @@ class App
     {
         // Send response
         if (!headers_sent()) {
+            // Headers
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
+
+            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
+            // See https://github.com/slimphp/Slim/issues/1730
+
             // Status
             header(sprintf(
                 'HTTP/%s %s %s',
@@ -395,13 +405,6 @@ class App
                 $response->getStatusCode(),
                 $response->getReasonPhrase()
             ));
-
-            // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
-            }
         }
 
         // Body
