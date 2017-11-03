@@ -20,6 +20,9 @@ use Slim\Handlers\Error;
 use Slim\Handlers\NotAllowed;
 use Slim\Handlers\NotFound;
 use Slim\Handlers\PhpError;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -94,10 +97,10 @@ class App
      *
      * @param array $settings
      */
-    public function __construct(array $settings = [])
+    public function __construct(array $settings = [], ContainerInterface $container = null)
     {
         $this->addSettings($settings);
-        $this->container = new Container();
+        $this->container = $container;
     }
 
     /**
@@ -134,28 +137,6 @@ class App
         return $this->addMiddleware(
             new DeferredCallable($callable, $this->getCallableResolver())
         );
-    }
-
-    /**
-     * Calling a non-existant method on App checks to see if there's an item
-     * in the container that is callable and if so, calls it.
-     *
-     * @param  string $method
-     * @param  array $args
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public function __call($method, $args)
-    {
-        if ($this->container->has($method)) {
-            $obj = $this->container->get($method);
-            if (is_callable($obj)) {
-                return call_user_func_array($obj, $args);
-            }
-        }
-
-        throw new \BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
@@ -570,57 +551,22 @@ class App
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param bool|false $silent
      * @return ResponseInterface
-     *
-     * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
      */
-    public function run($silent = false)
+    public function run()
     {
-        $response = $this->container->get('response');
+        // create request
+        $request = Request::createFromGlobals($_SERVER);
 
-        try {
-            $response = $this->process($this->container->get('request'), $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
-        }
+        // create response
+        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $response = new Response(200, $headers);
+        $response = $response->withProtocolVersion($this->getSetting('httpVersion'));
 
-        if (!$silent) {
-            $this->respond($response);
-        }
+        $response = $this->process($request, $response);
 
+        $this->respond($response);
         return $response;
-    }
-
-    /**
-     * Pull route info for a request with a bad method to decide whether to
-     * return a not-found error (default) or a bad-method error, then run
-     * the handler for that error, returning the resulting response.
-     *
-     * Used for cases where an incoming request has an unrecognized method,
-     * rather than throwing an exception and not catching it all the way up.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $router = $this->getRouter();
-        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
-
-        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this->handleException(
-                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
-                $request,
-                $response
-            );
-        }
-
-        return $this->handleException(new NotFoundException($request, $response), $request, $response);
     }
 
     /**
@@ -632,10 +578,6 @@ class App
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
-     *
-     * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -798,15 +740,13 @@ class App
     }
 
     /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
+     * Call relevant error handler
      *
      * @param  Exception $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      *
      * @return ResponseInterface
-     * @throws Exception if a handler is needed and not found
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -826,14 +766,12 @@ class App
     }
 
     /**
-     * Call relevant handler from the Container if needed. If it doesn't exist,
-     * then just re-throw.
+     * Call PHP error handler
      *
      * @param  Throwable $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
      * @return ResponseInterface
-     * @throws Throwable
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
