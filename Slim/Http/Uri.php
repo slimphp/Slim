@@ -381,6 +381,8 @@ class Uri implements UriInterface
         $clone->user = $this->filterUserInfo($user);
         if ($clone->user) {
             $clone->password = $password ? $this->filterUserInfo($password) : '';
+        } else {
+            $clone->password = '';
         }
 
         return $clone;
