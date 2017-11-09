@@ -13,7 +13,6 @@ use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -342,13 +341,15 @@ class Route extends Routable implements RouteInterface
             try {
                 ob_start();
                 $newResponse = $handler($this->callable, $request, $response, $this->arguments);
-                $output = ob_get_clean();
+                $output = ob_get_contents();
             // @codeCoverageIgnoreStart
             } catch (Throwable $e) {
                 throw $e;
             // @codeCoverageIgnoreEnd
             } catch (Exception $e) {
                 throw $e;
+            } finally {
+                ob_end_clean();
             }
         }
 
