@@ -12,6 +12,7 @@ use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
+use Slim\Tests\Mocks\ResolvingCallableDependencies\MockDependency;
 
 class CallableResolverTest extends \PHPUnit_Framework_TestCase
 {
@@ -141,5 +142,42 @@ class CallableResolverTest extends \PHPUnit_Framework_TestCase
         $resolver = new CallableResolver($this->container);
         $this->setExpectedException('\RuntimeException', 'is not resolvable');
         $resolver->resolve(__LINE__);
+    }
+
+    public function testSlimCallableWithSingleContainerDependency()
+    {
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('Slim\Tests\Mocks\ResolvingCallableDependencies\SingleContainerDependencyTest:getContainer');
+        $this->assertEquals($this->container, $callable());
+    }
+
+    public function testSlimCallableWithSingleUnTypeHintedContainerDependency()
+    {
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('Slim\Tests\Mocks\ResolvingCallableDependencies\SingleUnTypeHintedContainerDependencyTest:getContainer');
+        $this->assertEquals($this->container, $callable());
+    }
+
+    public function testSlimCallableWithMultipleDependencies()
+    {
+        $this->container[MockDependency::class] = function () {
+            return new MockDependency();
+        };
+        $resolver = new CallableResolver($this->container);
+
+        $callable = $resolver->resolve('Slim\Tests\Mocks\ResolvingCallableDependencies\MultipleDependencyTest:getInstance');
+        $instance = $callable();
+
+        $this->assertEquals($this->container, $instance->getContainer());
+        $this->assertEquals("processed", $instance->getDependency()->process());
+
+        unset($this->container[MockDependency::class]);
+    }
+
+    public function testSlimCallableWithMultipleUnTypedDependencies()
+    {
+        $resolver = new CallableResolver($this->container);
+        $this->setExpectedException('\RuntimeException');
+        $resolver->resolve('Slim\Tests\Mocks\ResolvingCallableDependencies\MultipleUnTypedDependencyTest:getInstance');
     }
 }
