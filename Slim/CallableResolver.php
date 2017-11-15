@@ -77,8 +77,6 @@ final class CallableResolver implements CallableResolverInterface
      * @param string $class
      * @param string $method
      * @return callable
-     *
-     * @throws \RuntimeException if the callable does not exist
      */
     protected function resolveCallable($class, $method = '__invoke')
     {
@@ -86,11 +84,73 @@ final class CallableResolver implements CallableResolverInterface
             return [$this->container->get($class), $method];
         }
 
+        return [$this->constructCallable($class), $method];
+    }
+
+    /**
+     * Check if string is a class that exists
+     * and if so resolve the constructor arguments from the DiC
+     *
+     * @param string $class
+     * @return object
+     *
+     * @throws \RuntimeException if the callable does not exist
+     */
+    protected function constructCallable($class)
+    {
         if (!class_exists($class)) {
             throw new RuntimeException(sprintf('Callable %s does not exist', $class));
         }
 
-        return [new $class($this->container), $method];
+        $reflection = new \ReflectionClass($class);
+
+        $constructor = $reflection->getConstructor();
+        $args = [];
+        if ($constructor !== null) {
+            $args = $this->resolveMethodArguments($constructor);
+        }
+
+        $callable = $reflection->newInstanceArgs($args);
+        return $callable;
+    }
+
+    /**
+     * Attempt to resolve method arguments from the DiC or pass in the container itself
+     *
+     * @param \ReflectionMethod $method
+     * @return array
+     *
+     * @throws \RuntimeException if an argument is not type hinted or a dependency cannot be resolved
+     */
+    protected function resolveMethodArguments(\ReflectionMethod $method)
+    {
+        $args = [];
+
+        $parameters = $method->getParameters();
+        if (count($parameters) === 1 && $parameters[0]->getClass() === null) {
+            // If there is a single un-type hinted argument then inject the container.
+            // This is for backwards compatibility.
+            $args[] = $this->container;
+        } else {
+            foreach ($method->getParameters() as $parameter) {
+                $class = $parameter->getClass();
+                if (!is_object($class)) {
+                    throw new RuntimeException(sprintf('Argument %d for %s::%s must be type hinted',
+                        $parameter->getPosition(), $method->getDeclaringClass()->getName(), $method->getName()));
+                }
+                if ($class->getName() == ContainerInterface::class) {
+                    $args[] = $this->container;
+                    continue;
+                }
+                if (!$this->container->has($class->getName())) {
+                    throw new RuntimeException(sprintf('%s is not resolvable', $class->getName()));
+                }
+
+                $args[] = $this->container->get($class->getName());
+            }
+        }
+
+        return $args;
     }
 
     /**
