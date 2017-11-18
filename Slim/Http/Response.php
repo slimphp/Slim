@@ -250,6 +250,34 @@ class Response extends Message implements ResponseInterface
     }
 
     /*******************************************************************************
+     * Headers
+     ******************************************************************************/
+
+    /**
+     * Return an instance with the provided value replacing the specified header.
+     *
+     * If a Location header is set and the status code is 200, then set the status
+     * code to 302 to mimic what PHP does. See https://github.com/slimphp/Slim/issues/1730
+     *
+     * @param string $name Case-insensitive header field name.
+     * @param string|string[] $value Header value(s).
+     * @return static
+     * @throws \InvalidArgumentException for invalid header names or values.
+     */
+    public function withHeader($name, $value)
+    {
+        $clone = clone $this;
+        $clone->headers->set($name, $value);
+
+        if ($clone->getStatusCode() === 200 && strtolower($name) === 'location') {
+            $clone = $clone->withStatus(302);
+        }
+
+        return $clone;
+    }
+
+
+    /*******************************************************************************
      * Body
      ******************************************************************************/
 
