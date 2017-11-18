@@ -2258,26 +2258,13 @@ end;
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = 'append';
         $app->get("/foo", function ($request, $response, $args) {
-            $test = [1,2,3];
-            var_dump($test);
+            echo 'output buffer test';
             throw new \Exception("oops");
         });
 
-        $expectedOutput = <<<end
-array(3) {
-  [0] =>
-  int(1)
-  [1] =>
-  int(2)
-  [2] =>
-  int(3)
-}
-end;
-
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
-        $strPos = strpos($output, $expectedOutput);
-        $this->assertNotFalse($strPos);
+        $this->assertStringEndsWith('output buffer test', $output);
     }
 
     public function testExceptionOutputBufferingPrepend()
@@ -2290,26 +2277,13 @@ end;
         $app = $this->appFactory();
         $app->getContainer()['settings']['outputBuffering'] = 'prepend';
         $app->get("/foo", function ($request, $response, $args) {
-            $test = [1,2,3];
-            var_dump($test);
+            echo 'output buffer test';
             throw new \Exception("oops");
         });
 
-        $expectedOutput = <<<end
-array(3) {
-  [0] =>
-  int(1)
-  [1] =>
-  int(2)
-  [2] =>
-  int(3)
-}
-end;
-
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
-        $strPos = strpos($output, $expectedOutput);
-        $this->assertNotFalse($strPos);
+        $this->assertStringStartsWith('output buffer test', $output);
     }
 
     protected function skipIfPhp70()

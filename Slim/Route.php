@@ -8,8 +8,6 @@
  */
 namespace Slim;
 
-use Exception;
-use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -334,24 +332,7 @@ class Route extends Routable implements RouteInterface
         /** @var InvocationStrategyInterface $handler */
         $handler = isset($this->container) ? $this->container->get('foundHandler') : new RequestResponse();
 
-        // invoke route callable
-        if ($this->outputBuffering === false) {
-            $newResponse = $handler($this->callable, $request, $response, $this->arguments);
-        } else {
-            try {
-                ob_start();
-                $newResponse = $handler($this->callable, $request, $response, $this->arguments);
-                $output = ob_get_contents();
-            // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
-                throw $e;
-            // @codeCoverageIgnoreEnd
-            } catch (Exception $e) {
-                throw $e;
-            } finally {
-                ob_end_clean();
-            }
-        }
+        $newResponse = $handler($this->callable, $request, $response, $this->arguments);
 
         if ($newResponse instanceof ResponseInterface) {
             // if route callback returns a ResponseInterface, then use it
@@ -360,18 +341,6 @@ class Route extends Routable implements RouteInterface
             // if route callback returns a string, then append it to the response
             if ($response->getBody()->isWritable()) {
                 $response->getBody()->write($newResponse);
-            }
-        }
-
-        if (!empty($output) && $response->getBody()->isWritable()) {
-            if ($this->outputBuffering === 'prepend') {
-                // prepend output buffer content
-                $body = new Http\Body(fopen('php://temp', 'r+'));
-                $body->write($output . $response->getBody());
-                $response = $response->withBody($body);
-            } elseif ($this->outputBuffering === 'append') {
-                // append output buffer content
-                $response->getBody()->write($output);
             }
         }
 
