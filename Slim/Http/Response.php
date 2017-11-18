@@ -269,7 +269,7 @@ class Response extends Message implements ResponseInterface
         $clone = clone $this;
         $clone->headers->set($name, $value);
 
-        if (200 == $clone->getStatusCode() && 'location' == strtolower($name)) {
+        if (200 === $clone->getStatusCode() && 'location' === strtolower($name)) {
             $clone = $clone->withStatus(302);
         }
 
