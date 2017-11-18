@@ -337,4 +337,20 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         // must have been caught earlier by the test framework
         $this->assertFalse(true);
     }
+
+    public function testStatusIsSetTo302IfLocationIsSetWhenStatusis200()
+    {
+        $response = new Response();
+        $response = $response->withHeader('Location', '/foo');
+
+        $this->assertSame(302, $response->getStatusCode());
+    }
+
+    public function testStatusIsNotSetTo302IfLocationIsSetWhenStatusisNot200()
+    {
+        $response = new Response();
+        $response = $response->withStatus(201)->withHeader('Location', '/foo');
+
+        $this->assertSame(201, $response->getStatusCode());
+    }
 }
