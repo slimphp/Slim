@@ -1,15 +1,15 @@
 # Slim example
 
-1. Install composer
+1. Install with [composer](https://getcomposer.org/)
 
-      ```text
+      ```bash
       $ cd Slim
       $ composer install
       ```
 
 2. Run php server
 
-      ```text
+      ```bash
       $ cd Slim
       $ php -S localhost:8888 -t example example/index.php
       ```
