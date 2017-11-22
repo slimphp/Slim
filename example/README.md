@@ -17,3 +17,4 @@
 3. Open browser
 
       Open http://localhost:8888 in your browser and you will see 'Welcome to Slim!'
+      Open http://localhost:8000/hello/world in your browser and you will see 'Hello, world'
