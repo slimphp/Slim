@@ -211,6 +211,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeEquals('', 'password', $uri);
     }
 
+    public function testWithUserInfoRemovesInfo()
+    {
+        $uri = $this->uriFactory()->withUserInfo('bob', 'password');
+
+        $uri = $uri->withUserInfo('');
+        $this->assertAttributeEquals('', 'user', $uri);
+        $this->assertAttributeEquals('', 'password', $uri);
+    }
+
+
     public function testGetHost()
     {
         $this->assertEquals('example.com', $this->uriFactory()->getHost());
