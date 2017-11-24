@@ -380,7 +380,7 @@ class App
     }
 
     /**
-     * Send the response the client
+     * Send the response to the client
      *
      * @param ResponseInterface $response
      */
