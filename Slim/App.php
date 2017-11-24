@@ -12,17 +12,19 @@ use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpException;
-use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpInternalServerErrorException;
 use Slim\Handlers\ErrorHandler;
+use Slim\Http\Headers;
+use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
-use BadMethodCallException;
+use Slim\Middleware\RoutingMiddleware;
 use Exception;
 use Throwable;
 
@@ -60,9 +62,7 @@ class App
     protected $settings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
-        'determineRouteBeforeAppMiddleware' => false,
         'displayErrorDetails' => false,
-        'addContentLengthHeader' => true,
         'routerCacheFile' => false,
         'defaultErrorHandler' => null,
         'errorHandlers' => []
@@ -77,11 +77,10 @@ class App
      *
      * @param array $settings
      */
-    public function __construct(array $settings = [])
+    public function __construct(array $settings = [], ContainerInterface $container = null)
     {
-
         $this->addSettings($settings);
-        $this->container = new Container();
+        $this->container = $container;
     }
 
     /**
@@ -118,28 +117,6 @@ class App
         return $this->addMiddleware(
             new DeferredCallable($callable, $this->getCallableResolver())
         );
-    }
-
-    /**
-     * Calling a non-existant method on App checks to see if there's an item
-     * in the container that is callable and if so, calls it.
-     *
-     * @param  string $method
-     * @param  array $args
-     * @return mixed
-     *
-     * @throws \BadMethodCallException
-     */
-    public function __call($method, $args)
-    {
-        if ($this->container->has($method)) {
-            $obj = $this->container->get($method);
-            if (is_callable($obj)) {
-                return call_user_func_array($obj, $args);
-            }
-        }
-
-        throw new BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
@@ -591,27 +568,22 @@ class App
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param bool|false $silent
      * @return ResponseInterface
-     *
      * @throws Exception
      */
-    public function run($silent = false)
+    public function run()
     {
-        $response = $this->container->get('response');
-        $request = $this->container->get('request');
+        // create request
+        $request = Request::createFromGlobals($_SERVER);
 
-        try {
-            $response = $this->process($request, $response);
-        } catch (Exception $e) {
-            $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
-            $response = $this->handleException($e, $request, $response);
-        }
+        // create response
+        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $response = new Response(200, $headers);
+        $response = $response->withProtocolVersion($this->getSetting('httpVersion'));
 
-        if (!$silent) {
-            $this->respond($response);
-        }
+        // Traverse middleware stack
+        $response = $this->process($request, $response);
+        $this->respond($response);
 
         return $response;
     }
@@ -625,21 +597,18 @@ class App
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @return ResponseInterface
-     *
      * @throws Exception
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
-        $router = $this->getRouter();
-
-        // Dispatch the Router first if the setting for this is on
-        if ($this->getSetting('determineRouteBeforeAppMiddleware') === true) {
-            // Dispatch router (note: you won't be able to alter routes after this)
-            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
+        try {
+            $response = $this->callMiddlewareStack($request, $response);
+        } catch (Exception $e) {
+            $response = $this->handleException($e, $request, $response);
+        } catch (Throwable $e) {
+            $response = $this->handleException($e, $request, $response);
         }
 
-        // Traverse middleware stack
-        $response = $this->callMiddlewareStack($request, $response);
         $response = $this->finalize($response);
 
         return $response;
@@ -654,6 +623,16 @@ class App
     {
         // Send response
         if (!headers_sent()) {
+            // Headers
+            foreach ($response->getHeaders() as $name => $values) {
+                foreach ($values as $value) {
+                    header(sprintf('%s: %s', $name, $value), false);
+                }
+            }
+
+            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
+            // See https://github.com/slimphp/Slim/issues/1730
+
             // Status
             header(sprintf(
                 'HTTP/%s %s %s',
@@ -661,13 +640,6 @@ class App
                 $response->getStatusCode(),
                 $response->getReasonPhrase()
             ));
-
-            // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), false);
-                }
-            }
         }
 
         // Body
@@ -731,8 +703,10 @@ class App
         $routeInfo = $request->getAttribute('routeInfo');
         $router = $this->getRouter();
 
-        if (is_null($routeInfo) || ($routeInfo['request'] !== [$request->getMethod(), (string) $request->getUri()])) {
-            $request = $this->dispatchRouterAndPrepareRoute($request, $router);
+        // If routing hasn't been done, then do it now so we can dispatch
+        if (null === $routeInfo) {
+            $routingMiddleware = new RoutingMiddleware($router);
+            $request = $routingMiddleware->performRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
@@ -764,35 +738,6 @@ class App
         }
 
         return $this->handleException($exception, $request, $response);
-    }
-
-    /**
-     * Dispatch the router to find the route. Prepare the route for use.
-     *
-     * @param ServerRequestInterface $request
-     * @param RouterInterface        $router
-     * @return ServerRequestInterface
-     */
-    protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request, RouterInterface $router)
-    {
-        $routeInfo = $router->dispatch($request);
-
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
-
-            $route = $router->lookupRoute($routeInfo[1]);
-            $route->prepare($request, $routeArguments);
-
-            // add route to the request's attributes in case a middleware or handler needs access to the route
-            $request = $request->withAttribute('route', $route);
-        }
-
-        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
-
-        return $request->withAttribute('routeInfo', $routeInfo);
     }
 
     /**
@@ -844,18 +789,6 @@ class App
 
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-        }
-
-        // Add Content-Length header if `addContentLengthHeader` setting is set
-        if ($this->getSetting('addContentLengthHeader') == true) {
-            if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
-                    "Maybe you have characters before an opening <?php tag?");
-            }
-            $size = $response->getBody()->getSize();
-            if ($size !== null && !$response->hasHeader('Content-Length')) {
-                $response = $response->withHeader('Content-Length', (string) $size);
-            }
         }
 
         return $response;

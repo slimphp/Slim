@@ -59,8 +59,7 @@ final class CallableResolver implements CallableResolverInterface
                 $method = $matches[2];
             }
 
-            if ($this->container instanceof ContainerInterface &&
-                $this->container->has($class)) {
+            if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
                 $resolved = [$this->container->get($class), $method];
             } else {
                 if (!class_exists($class)) {

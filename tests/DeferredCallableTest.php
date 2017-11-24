@@ -4,8 +4,9 @@
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Pimple\Container as Pimple;
+use Pimple\Psr11\Container;
 use Slim\CallableResolver;
-use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
 
@@ -13,9 +14,9 @@ class DeferredCallableTest extends TestCase
 {
     public function testItResolvesCallable()
     {
-        $container = new Container();
-        $container['CallableTest'] = new CallableTest;
-        $resolver = new CallableResolver($container);
+        $pimple = new Pimple();
+        $pimple['CallableTest'] = new CallableTest;
+        $resolver = new CallableResolver(new Container($pimple));
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $deferred();
@@ -30,7 +31,8 @@ class DeferredCallableTest extends TestCase
             ->expects($this->once())
             ->method('foo');
 
-        $container = new Container();
+        $pimple = new Pimple();
+        $container = new Container($pimple);
         $resolver = new CallableResolver($container);
         $test = $this;
 
@@ -45,8 +47,8 @@ class DeferredCallableTest extends TestCase
 
     public function testItReturnsInvokedCallableResponse()
     {
-        $container = new Container;
-        $resolver = new CallableResolver($container);
+        $pimple = new Pimple();
+        $resolver = new CallableResolver(new Container($pimple));
         $test = $this;
         $foo = 'foo';
         $bar = 'bar';
