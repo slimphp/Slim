@@ -18,7 +18,7 @@ use Slim\Interfaces\CallableResolverInterface;
  */
 final class CallableResolver implements CallableResolverInterface
 {
-    const CALLABLE_PATTERN = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
+    const CALLABLE_PATTERN = '!\A([^\:]+)\:([^\Z]+)\Z!';
 
     /**
      * @var ContainerInterface
