@@ -26,24 +26,15 @@ class MethodOverrideMiddleware
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $method = $this->getOverrideMethod($request);
+        $methodHeader = $request->getHeaderLine('X-Http-Method-Override');
 
-        return $next($request->withMethod($method), $response);
-    }
-
-    /**
-     * @param ServerRequestInterface $request
-     * @return string
-     */
-    protected function getOverrideMethod(ServerRequestInterface $request)
-    {
-        $method = $request->getHeaderLine('X-Http-Method-Override');
-
-        if (!$method && strtoupper($request->getMethod()) == 'POST') {
+        if ($methodHeader) {
+            $request = $request->withMethod($methodHeader);
+        } elseif (strtoupper($request->getMethod()) == 'POST') {
             $body = $request->getParsedBody();
 
             if (!empty($body['_METHOD'])) {
-                $method = $body['_METHOD'];
+                $request = $request->withMethod($body['_METHOD']);
             }
 
             if ($request->getBody()->eof()) {
@@ -51,10 +42,6 @@ class MethodOverrideMiddleware
             }
         }
 
-        if (!$method) {
-            $method = $request->getMethod();
-        }
-
-        return $method;
+        return $next($request, $response);
     }
 }
