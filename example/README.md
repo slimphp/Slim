@@ -1,15 +1,15 @@
 # Slim example
 
-1. Install composer
+1. Install with [composer](https://getcomposer.org/)
 
-      ```text
+      ```bash
       $ cd Slim
       $ composer install
       ```
 
 2. Run php server
 
-      ```text
+      ```bash
       $ cd Slim
       $ php -S localhost:8888 -t example example/index.php
       ```
@@ -17,3 +17,4 @@
 3. Open browser
 
       Open http://localhost:8888 in your browser and you will see 'Welcome to Slim!'
+      Open http://localhost:8000/hello/world in your browser and you will see 'Hello, world'
