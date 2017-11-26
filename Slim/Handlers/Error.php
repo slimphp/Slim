@@ -58,14 +58,16 @@ class Error extends AbstractError
 
         if ($this->outputBuffering === 'prepend') {
             // prepend output buffer content
-            $body->write(ob_get_clean() . $output);
+            $body->write(ob_get_contents() . $output);
+            ob_clean();
         } elseif ($this->outputBuffering === 'append') {
             // append output buffer content
-            $body->write($output . ob_get_clean());
+            $body->write($output . ob_get_contents());
+            ob_clean();
         } else {
             // outputBuffering is false or some other unknown setting
             // delete anything in the output buffer.
-            ob_get_clean();
+            ob_clean();
             $body->write($output);
         }
 
