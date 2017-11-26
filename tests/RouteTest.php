@@ -276,33 +276,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Ensure that anything echo'd in a route callable is added to the response
-     * object that is returned by __invoke().
-     */
-    public function testInvokeWhenEchoingOutput()
-    {
-        $callable = function ($req, $res, $args) {
-            echo "foo";
-            return $res->withStatus(201);
-        };
-        $route = new Route(['GET'], '/', $callable);
-
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
-
-        $response = $route->__invoke($request, $response);
-
-        $this->assertEquals('foo', (string)$response->getBody());
-        $this->assertEquals(201, $response->getStatusCode());
-    }
-
-    /**
      * Ensure that if a string is returned by a route callable, then it is
      * added to the response object that is returned by __invoke().
      */
@@ -325,33 +298,6 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $response = $route->__invoke($request, $response);
 
         $this->assertEquals('foo', (string)$response->getBody());
-    }
-
-    /**
-     * Ensure that if `outputBuffering` property is set to `prepend` correct response
-     * body is returned by __invoke().
-     */
-    public function testInvokeWhenPrependingOutputBuffer()
-    {
-        $callable = function ($req, $res, $args) {
-            echo 'foo';
-            return $res->write('bar');
-        };
-        $route = new Route(['GET'], '/', $callable);
-        $route->setOutputBuffering('prepend');
-
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
-
-        $response = $route->__invoke($request, $response);
-
-        $this->assertEquals('foobar', (string)$response->getBody());
     }
 
     /**

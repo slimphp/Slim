@@ -19,19 +19,13 @@ abstract class AbstractError extends AbstractHandler
     protected $displayErrorDetails;
 
     /**
-     * @var bool|string
-     */
-    protected $outputBuffering;
-
-    /**
      * Constructor
      *
      * @param bool $displayErrorDetails Set to true to display full details
      */
-    public function __construct($displayErrorDetails = false, $outputBuffering = false)
+    public function __construct($displayErrorDetails = false)
     {
         $this->displayErrorDetails = (bool) $displayErrorDetails;
-        $this->outputBuffering = $outputBuffering;
     }
 
     /**

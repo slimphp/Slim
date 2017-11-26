@@ -153,8 +153,7 @@ class DefaultServicesProvider
              */
             $container['errorHandler'] = function ($container) {
                 return new Error(
-                    $container->get('settings')['displayErrorDetails'],
-                    $container->get('settings')['outputBuffering']
+                    $container->get('settings')['displayErrorDetails']
                 );
             };
         }
