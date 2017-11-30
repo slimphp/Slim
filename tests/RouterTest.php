@@ -66,7 +66,6 @@ class RouterTest extends TestCase
 
     /**
      * Base path is ignored by relativePathFor()
-     *
      */
     public function testRelativePathFor()
     {
