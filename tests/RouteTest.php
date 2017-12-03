@@ -71,7 +71,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     {
         $callable = $this->routeFactory()->getCallable();
 
-        $this->assertTrue(is_callable($callable));
+        $this->assertInternalType('callable', $callable);
     }
 
     public function testArgumentSetting()
