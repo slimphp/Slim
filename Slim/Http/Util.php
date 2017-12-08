@@ -106,21 +106,21 @@ class Util
         $module = @mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
 
         //Validate IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
+        $ivSize = @mcrypt_enc_get_iv_size($module);
         if (strlen($iv) > $ivSize) {
             $iv = substr($iv, 0, $ivSize);
         }
 
         //Validate key
-        $keySize = mcrypt_enc_get_key_size($module);
+        $keySize = @mcrypt_enc_get_key_size($module);
         if (strlen($key) > $keySize) {
             $key = substr($key, 0, $keySize);
         }
 
         //Encrypt value
-        mcrypt_generic_init($module, $key, $iv);
+        @mcrypt_generic_init($module, $key, $iv);
         $res = @mcrypt_generic($module, $data);
-        mcrypt_generic_deinit($module);
+        @mcrypt_generic_deinit($module);
 
         return $res;
     }
@@ -153,25 +153,25 @@ class Util
         $settings = array_merge($defaults, $settings);
 
         //Get module
-        $module = mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
+        $module = @mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
 
         //Validate IV
-        $ivSize = mcrypt_enc_get_iv_size($module);
+        $ivSize = @mcrypt_enc_get_iv_size($module);
         if (strlen($iv) > $ivSize) {
             $iv = substr($iv, 0, $ivSize);
         }
 
         //Validate key
-        $keySize = mcrypt_enc_get_key_size($module);
+        $keySize = @mcrypt_enc_get_key_size($module);
         if (strlen($key) > $keySize) {
             $key = substr($key, 0, $keySize);
         }
 
         //Decrypt value
-        mcrypt_generic_init($module, $key, $iv);
+        @mcrypt_generic_init($module, $key, $iv);
         $decryptedData = @mdecrypt_generic($module, $data);
         $res = rtrim($decryptedData, "\0");
-        mcrypt_generic_deinit($module);
+        @mcrypt_generic_deinit($module);
 
         return $res;
     }
