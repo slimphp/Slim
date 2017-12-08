@@ -103,7 +103,7 @@ class Util
         $settings = array_merge($defaults, $settings);
 
         //Get module
-        $module = mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
+        $module = @mcrypt_module_open($settings['algorithm'], '', $settings['mode'], '');
 
         //Validate IV
         $ivSize = mcrypt_enc_get_iv_size($module);
