@@ -9,8 +9,8 @@
 namespace Slim\Tests\Mocks;
 
 /**
-* Mock object for Slim\Tests\RouteTest
-*/
+ * Mock object for Slim\Tests\RouteTest
+ */
 class StaticCallable
 {
     public static function run($req, $res, $next)
