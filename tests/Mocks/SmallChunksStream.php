@@ -103,6 +103,6 @@ class SmallChunksStream implements StreamInterface
 
     public function write($string)
     {
-        return $string;
+        return strlen($string);
     }
 }
