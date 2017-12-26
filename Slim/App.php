@@ -13,7 +13,6 @@ use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\InvalidMethodException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
 use Slim\Handlers\Error;
@@ -711,9 +710,6 @@ class App
      */
     protected function finalize(ResponseInterface $response)
     {
-        // stop PHP sending a Content-Type automatically
-        ini_set('default_mimetype', '');
-
         if ($this->isEmptyResponse($response)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
