@@ -16,6 +16,12 @@ use Slim\Tests\Mocks\CallableTest;
 
 class DeferredCallableTest extends TestCase
 {
+
+    public function setUp()
+    {
+        CallableTest::$CalledCount = 0;
+    }
+
     public function testItResolvesCallable()
     {
         $pimple = new Pimple();
