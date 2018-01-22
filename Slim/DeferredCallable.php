@@ -37,15 +37,14 @@ class DeferredCallable
         $this->callableResolver = $resolver;
     }
 
-    public function __invoke()
+    public function __invoke(...$args)
     {
         /** @var callable $callable */
         $callable = $this->callable;
         if ($this->callableResolver) {
             $callable = $this->callableResolver->resolve($callable);
         }
-        $args = func_get_args();
 
-        return call_user_func_array($callable, $args);
+        return $callable(...$args);
     }
 }

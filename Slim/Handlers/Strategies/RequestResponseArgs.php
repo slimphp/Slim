@@ -38,8 +38,6 @@ class RequestResponseArgs implements InvocationStrategyInterface
         ResponseInterface $response,
         array $routeArguments
     ): ResponseInterface {
-        array_unshift($routeArguments, $request, $response);
-
-        return call_user_func_array($callable, $routeArguments);
+        return $callable($request, $response, ...array_values($routeArguments));
     }
 }
