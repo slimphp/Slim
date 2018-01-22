@@ -145,6 +145,16 @@ class Route extends Routable implements RouteInterface
     {
         return $this->methods;
     }
+    
+    /**
+     * Get route pattern
+     *
+     * @return string[]
+     */
+    public function getPattern()
+    {
+        return $this->pattern;
+    }
 
     /**
      * Get parent route groups
