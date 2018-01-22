@@ -113,15 +113,8 @@ class ErrorMiddleware
 
         $exceptionType = get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);
-        $params = [
-            $request,
-            $exception,
-            $this->displayErrorDetails,
-            $this->logErrors,
-            $this->logErrorDetails,
-        ];
 
-        return call_user_func_array($handler, $params);
+        return $handler($request, $exception, $this->displayErrorDetails, $this->logErrors, $this->logErrorDetails);
     }
 
     /**
