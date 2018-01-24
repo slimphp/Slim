@@ -30,3 +30,5 @@ after_script:
 
 notifications:
   slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
+
+dist: trusty
