@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2329](https://github.com/slimphp/Slim/pull/2329) Added Middleware\MethodOverrideMiddleware
 - [#2288](https://github.com/slimphp/Slim/pull/2288) Separate routing from dispatching
 - [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLengthMiddleware
 - [#2166](https://github.com/slimphp/Slim/pull/2166) Added Middleware\OutputBufferingMiddleware

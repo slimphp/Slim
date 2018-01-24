@@ -8,11 +8,13 @@
  */
 namespace Slim\Middleware;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Http\Body;
+use Psr\Http\Message\ServerRequestInterface;
 
-class ContentLengthMiddleware
+/**
+ * Override HTTP Request method by given body param or custom header
+ */
+class MethodOverrideMiddleware
 {
     /**
      * Invoke
@@ -24,14 +26,22 @@ class ContentLengthMiddleware
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $response = $next($request, $response);
+        $methodHeader = $request->getHeaderLine('X-Http-Method-Override');
 
-        // Add Content-Length header if not already added
-        $size = $response->getBody()->getSize();
-        if ($size !== null && !$response->hasHeader('Content-Length')) {
-            $response = $response->withHeader('Content-Length', (string) $size);
+        if ($methodHeader) {
+            $request = $request->withMethod($methodHeader);
+        } elseif (strtoupper($request->getMethod()) == 'POST') {
+            $body = $request->getParsedBody();
+
+            if (!empty($body['_METHOD'])) {
+                $request = $request->withMethod($body['_METHOD']);
+            }
+
+            if ($request->getBody()->eof()) {
+                $request->getBody()->rewind();
+            }
         }
 
-        return $response;
+        return $next($request, $response);
     }
 }
