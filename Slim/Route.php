@@ -8,8 +8,6 @@
  */
 namespace Slim;
 
-use Exception;
-use Throwable;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;

@@ -3,7 +3,6 @@ namespace Slim\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Slim\Http\Body;
 
 class ContentLengthMiddleware
 {
