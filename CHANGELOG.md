@@ -16,6 +16,8 @@
 
 ### Removed
 
+
+- [#2375](https://github.com/slimphp/Slim/pull/2375) Slim no longer sets the `default_mimetype` to an empty string, so you need to set it yourself in php.ini or your app.
 - [#2288](https://github.com/slimphp/Slim/pull/2288) `determineRouteBeforeAppMiddleware` setting is removed. Add RoutingMiddleware() where you need it now.
 - [#2254](https://github.com/slimphp/Slim/pull/2254) `addContentLengthHeader` setting is removed
 - [#2166](https://github.com/slimphp/Slim/pull/2166) `outputBuffering` setting is removed
