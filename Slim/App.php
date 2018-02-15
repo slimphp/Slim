@@ -8,8 +8,6 @@
  */
 namespace Slim;
 
-use Exception;
-use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -51,12 +49,21 @@ class App
     protected $router;
 
     /**
+     * @var ServerRequestInterface|null
+     */
+    protected $request;
+
+    /**
+     * @var ResponseInterface|null
+     */
+    protected $response;
+
+    /**
      * @var array
      */
     protected $settings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
-        'displayErrorDetails' => false,
         'routerCacheFile' => false,
     ];
 
@@ -80,6 +87,7 @@ class App
      * Get container
      *
      * @return ContainerInterface|null
+     * @codeCoverageIgnore
      */
     public function getContainer()
     {
@@ -178,6 +186,7 @@ class App
      * Set callable resolver
      *
      * @param CallableResolverInterface $resolver
+     * @codeCoverageIgnore
      */
     public function setCallableResolver(CallableResolverInterface $resolver)
     {
@@ -202,6 +211,7 @@ class App
      * Set router
      *
      * @param RouterInterface $router
+     * @codeCoverageIgnore
      */
     public function setRouter(RouterInterface $router)
     {
@@ -228,6 +238,42 @@ class App
         }
 
         return $this->router;
+    }
+
+    /**
+     * @param ServerRequestInterface $request
+     * @codeCoverageIgnore
+     */
+    public function setRequest(ServerRequestInterface $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * @return ServerRequestInterface|null
+     * @codeCoverageIgnore
+     */
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @codeCoverageIgnore
+     */
+    public function setResponse(ResponseInterface $response)
+    {
+        $this->response = $response;
+    }
+
+    /**
+     * @return ResponseInterface|null
+     * @codeCoverageIgnore
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 
     /********************************************************************************
@@ -388,39 +434,29 @@ class App
     public function run()
     {
         // create request
-        $request = Request::createFromGlobals($_SERVER);
+        if (is_null($this->request)) {
+            $this->request = Request::createFromGlobals($_SERVER);
+        }
 
         // create response
-        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
-        $response = new Response(200, $headers);
-        $response = $response->withProtocolVersion($this->getSetting('httpVersion'));
-        $response = $this->process($request, $response);
+        if (is_null($this->response)) {
+            $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+            $this->response = new Response(200, $headers);
+            $this->response = $this->response->withProtocolVersion($this->getSetting('httpVersion'));
+        }
 
-        $this->respond($response);
-        return $response;
-    }
+        // call middleware stack
+        $this->response = $this->callMiddlewareStack($this->request, $this->response);
+        $this->response = $this->finalize($this->response);
 
-    /**
-     * Process a request
-     *
-     * This method traverses the application middleware stack and then returns the
-     * resultant Response object.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function process(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $response = $this->callMiddlewareStack($request, $response);
-        $response = $this->finalize($response);
-        return $response;
+        return $this->respond($this->response);
     }
 
     /**
      * Send the response the client
      *
      * @param ResponseInterface $response
+     * @return ResponseInterface
      */
     public function respond(ResponseInterface $response)
     {
@@ -479,6 +515,8 @@ class App
                 }
             }
         }
+
+        return $response;
     }
 
     /**
@@ -493,7 +531,6 @@ class App
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
-     * @throws Exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -508,14 +545,6 @@ class App
             $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
-        }
-
-        if ($routeInfo[0] === Dispatcher::NOT_FOUND) {
-            // TODO: Throw named exception once implemented in Slim\Http
-            throw new Exception('Not Found Exception.');
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            // TODO: Throw named exception once implemented in Slim\Http
-            throw new Exception('Not Allowed Exception.');
         }
 
         $route = $router->lookupRoute($routeInfo[1]);
