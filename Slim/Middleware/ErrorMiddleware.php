@@ -58,7 +58,8 @@ class ErrorMiddleware
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next) {
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+    {
         $this->request = $request;
         $this->response = $response;
 

@@ -65,9 +65,9 @@ class RoutingMiddleware
 
             // add route to the request's attributes
             $request = $request->withAttribute('route', $route);
-        } else if ($routeInfo[0] === Dispatcher::NOT_FOUND) {
+        } elseif ($routeInfo[0] === Dispatcher::NOT_FOUND) {
             $exception = new HttpNotFoundException();
-        } else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
             $exception = new HttpNotAllowedException();
             $exception->setAllowedMethods($routeInfo[1]);
         }
