@@ -57,6 +57,9 @@ class RoutingMiddlewareTest extends TestCase
         $result = $mw($request, $response, $next);
     }
 
+    /**
+     * @expectedException \Slim\Exception\HttpNotAllowedException
+     */
     public function testRouteIsNotStoredOnMethodNotAllowed()
     {
         $router = $this->getRouter();
@@ -75,8 +78,6 @@ class RoutingMiddlewareTest extends TestCase
             // routeInfo is available
             $routeInfo = $req->getAttribute('routeInfo');
             $this->assertInternalType('array', $routeInfo);
-            $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $routeInfo[0]);
-
 
             return $res;
         };
