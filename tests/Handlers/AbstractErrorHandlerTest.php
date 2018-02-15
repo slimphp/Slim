@@ -9,10 +9,15 @@
 namespace Slim\Tests\Handlers;
 
 use PHPUnit\Framework\TestCase;
+use Slim\Error\Renderers\JsonErrorRenderer;
+use Slim\Error\Renderers\PlainTextErrorRenderer;
+use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\AbstractErrorHandler;
 use Slim\Handlers\ErrorHandler;
 use Slim\Http\Response;
+use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\Mocks\MockErrorRenderer;
 use ReflectionClass;
 
@@ -49,6 +54,51 @@ class AbstractErrorHandlerTest extends TestCase
         $method = $class->getMethod('determineRenderer');
         $method->setAccessible(true);
         $method->invoke($abstractHandler);
+    }
+
+    public function testDetermineRenderer()
+    {
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('contentType');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($abstractHandler, 'application/json');
+
+        $method = $class->getMethod('determineRenderer');
+        $method->setAccessible(true);
+
+        $renderer = $method->invoke($abstractHandler);
+        $this->assertInstanceOf(JsonErrorRenderer::class, $renderer);
+
+        $reflectionProperty->setValue($abstractHandler, 'application/xml');
+        $renderer = $method->invoke($abstractHandler);
+        $this->assertInstanceOf(XmlErrorRenderer::class, $renderer);
+
+        $reflectionProperty->setValue($abstractHandler, 'text/plain');
+        $renderer = $method->invoke($abstractHandler);
+        $this->assertInstanceOf(PlainTextErrorRenderer::class, $renderer);
+    }
+
+    public function testDetermineStatusCode()
+    {
+        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(AbstractErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('exception');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($abstractHandler, new HttpNotFoundException());
+
+        $method = $class->getMethod('determineStatusCode');
+        $method->setAccessible(true);
+
+        $statusCode = $method->invoke($abstractHandler);
+        $this->assertEquals($statusCode, 404);
+
+        $reflectionProperty->setValue($abstractHandler, new MockCustomException());
+
+        $statusCode = $method->invoke($abstractHandler);
+        $this->assertEquals($statusCode, 500);
     }
 
     public function testHalfValidContentType()

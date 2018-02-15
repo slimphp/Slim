@@ -78,6 +78,39 @@ class ErrorMiddlewareTest extends TestCase
     }
 
     /**
+     * @requires PHP 7.0
+     */
+    public function testErrorHandlerHandlesThrowables()
+    {
+        $app = new App();
+
+        $mw2 = function ($req, $res) {
+            throw new \Error('Oops..');
+        };
+        $app->add($mw2);
+
+        $handler = function ($req, $res, $exception) {
+            return $res->withJson($exception->getMessage());
+        };
+        $mw = new ErrorMiddleware(false);
+        $mw->setDefaultErrorHandler($handler);
+        $app->add($mw);
+
+        $app->get('/foo', function ($req, $res) {
+            return $res->withJson('...');
+        });
+
+        $request = $this->requestFactory('/foo');
+        $app->setRequest($request);
+        $app->run();
+
+        $response = $app->getResponse();
+        $expectedOutput = json_encode('Oops..');
+        $this->assertEquals($response->getBody(), $expectedOutput);
+        $this->expectOutputString($expectedOutput);
+    }
+
+    /**
      * helper to create a request object
      * @return Request
      */
