@@ -34,26 +34,35 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param \Exception|\Throwable $e
+     * @param \Exception|\Throwable $exception
      * @return string
      */
-    private function formatExceptionFragment($e)
+    private function formatExceptionFragment($exception)
     {
-        $text = sprintf('Type: %s' . PHP_EOL, get_class($e));
+        $text = sprintf('Type: %s' . PHP_EOL, get_class($exception));
 
-        if ($code = $e->getCode()) {
+        $code = $exception->getCode();
+        if ($code !== null) {
             $text .= sprintf('Code: %s' . PHP_EOL, $code);
         }
-        if ($message = $e->getMessage()) {
+
+        $message = $exception->getMessage();
+        if ($message !== null) {
             $text .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
         }
-        if ($file = $e->getFile()) {
+
+        $file = $exception->getFile();
+        if ($file !== null) {
             $text .= sprintf('File: %s' . PHP_EOL, $file);
         }
-        if ($line = $e->getLine()) {
+
+        $line = $exception->getLine();
+        if ($line !== null) {
             $text .= sprintf('Line: %s' . PHP_EOL, $line);
         }
-        if ($trace = $e->getTraceAsString()) {
+
+        $trace = $exception->getTraceAsString();
+        if ($trace !== null) {
             $text .= sprintf('Trace: %s', $trace);
         }
 

@@ -34,17 +34,17 @@ class JsonErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param \Exception|\Throwable $e
+     * @param \Exception|\Throwable $exception
      * @return array
      */
-    private function formatExceptionFragment($e)
+    private function formatExceptionFragment($exception)
     {
         return [
-            'type' => get_class($e),
-            'code' => $e->getCode(),
-            'message' => $e->getMessage(),
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
+            'type' => get_class($exception),
+            'code' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
         ];
     }
 }

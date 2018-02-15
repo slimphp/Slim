@@ -434,12 +434,12 @@ class App
     public function run()
     {
         // create request
-        if (is_null($this->request)) {
+        if ($this->request === null) {
             $this->request = Request::createFromGlobals($_SERVER);
         }
 
         // create response
-        if (is_null($this->response)) {
+        if ($this->response === null) {
             $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
             $this->response = new Response(200, $headers);
             $this->response = $this->response->withProtocolVersion($this->getSetting('httpVersion'));
@@ -541,7 +541,7 @@ class App
         $router = $this->getRouter();
 
         // If routing hasn't been done, then do it now so we can dispatch
-        if (is_null($routeInfo)) {
+        if ($routeInfo === null) {
             $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');

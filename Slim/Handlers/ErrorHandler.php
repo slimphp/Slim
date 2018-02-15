@@ -11,8 +11,8 @@ namespace Slim\Handlers;
 /**
  * Default Slim application error handler
  *
- * It outputs the error message and diagnostic information in either
- * JSON, XML or HTML based on the Accept header.
+ * It outputs the error message and diagnostic information in one of the following formats:
+ * JSON, XML, Plain Text or HTML based on the Accept header.
  */
 class ErrorHandler extends AbstractErrorHandler
 {

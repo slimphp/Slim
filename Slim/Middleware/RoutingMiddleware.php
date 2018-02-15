@@ -77,7 +77,7 @@ class RoutingMiddleware
          * exact state of the request at the time of the exception can be
          * accessed by the end user if necessary
          */
-        if (!is_null($exception)) {
+        if ($exception !== null) {
             $exception->setRequest($request);
             throw $exception;
         }

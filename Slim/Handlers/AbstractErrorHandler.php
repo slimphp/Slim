@@ -22,10 +22,10 @@ use Exception;
 use Throwable;
 
 /**
- * Default Slim application error handler
+ * Abstract Slim application error handler
  *
- * It outputs the error message and diagnostic information in either JSON, XML,
- * or HTML based on the Accept header.
+ * It outputs the error message and diagnostic information in one of the following formats:
+ * JSON, XML, Plain Text or HTML based on the Accept header.
  */
 abstract class AbstractErrorHandler implements ErrorHandlerInterface
 {
@@ -158,8 +158,14 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     {
         $renderer = $this->renderer;
 
-        if ((!is_null($renderer) && !class_exists($renderer))
-            || (!is_null($renderer) && !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer)))
+        if ((
+                $renderer !== null
+                && !class_exists($renderer)
+            )
+            || (
+                $renderer !== null
+                && !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer))
+            )
         ) {
             throw new \RuntimeException(sprintf(
                 'Non compliant error renderer provided (%s). ' .
@@ -168,7 +174,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
             ));
         }
 
-        if (is_null($renderer)) {
+        if ($renderer === null) {
             switch ($this->contentType) {
                 case 'application/json':
                     $renderer = JsonErrorRenderer::class;
@@ -200,9 +206,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     {
         if ($this->method === 'OPTIONS') {
             return 200;
-        } elseif ($this->exception instanceof HttpException) {
+        }
+
+        if ($this->exception instanceof HttpException) {
             return $this->exception->getCode();
         }
+
         return 500;
     }
 

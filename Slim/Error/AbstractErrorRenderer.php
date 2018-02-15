@@ -12,10 +12,10 @@ use Slim\Http\Body;
 use Slim\Interfaces\ErrorRendererInterface;
 
 /**
- * Default Slim application error renderer
+ * Abstract Slim application error renderer
  *
- * It outputs the error message and diagnostic information in either JSON, XML,
- * or HTML based on the Accept header.
+ * It outputs the error message and diagnostic information in one of the following formats:
+ * JSON, XML, Plain Text or HTML
  */
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {

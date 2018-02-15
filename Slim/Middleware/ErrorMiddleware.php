@@ -84,7 +84,7 @@ class ErrorMiddleware
          */
         if (method_exists($exception, 'getRequest')) {
             $request = $exception->getRequest();
-            if (!is_null($request)) {
+            if ($request !== null) {
                 $this->request = $request;
             }
         }

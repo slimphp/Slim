@@ -20,7 +20,9 @@ class HttpNotAllowedException extends HttpException
 
             if (is_array($allowedMethods)) {
                 return implode(', ', $allowedMethods);
-            } elseif (is_string($allowedMethods)) {
+            }
+
+            if (is_string($allowedMethods)) {
                 return $allowedMethods;
             }
 
@@ -33,7 +35,7 @@ class HttpNotAllowedException extends HttpException
      */
     public function setAllowedMethods($methods)
     {
-        if (is_null($this->details)) {
+        if ($this->details === null) {
             $this->details = [];
         }
 
