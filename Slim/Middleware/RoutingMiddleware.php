@@ -11,6 +11,8 @@ namespace Slim\Middleware;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
 
 /**
@@ -44,10 +46,13 @@ class RoutingMiddleware
      *
      * @param  ServerRequestInterface $request   PSR7 server request
      * @return ServerRequestInterface
+     * @throws HttpNotFoundException
+     * @throws HttpNotAllowedException
      */
     public function performRouting(ServerRequestInterface $request)
     {
         $routeInfo = $this->router->dispatch($request);
+        $exception = null;
 
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeArguments = [];
@@ -60,6 +65,21 @@ class RoutingMiddleware
 
             // add route to the request's attributes
             $request = $request->withAttribute('route', $route);
+        } else if ($routeInfo[0] === Dispatcher::NOT_FOUND) {
+            $exception = new HttpNotFoundException();
+        } else if ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+            $exception = new HttpNotAllowedException();
+            $exception->setAllowedMethods($routeInfo[1]);
+        }
+
+        /**
+         * We pass the Request object to the exception so it reflects the
+         * exact state of the request at the time of the exception can be
+         * accessed by the end user if necessary
+         */
+        if (!is_null($exception)) {
+            $exception->setRequest($request);
+            throw $exception;
         }
 
         // routeInfo to the request's attributes
