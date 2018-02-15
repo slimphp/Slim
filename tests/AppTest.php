@@ -13,6 +13,8 @@ use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
+use Slim\Error\Renderers\HtmlErrorRenderer;
+use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -985,7 +987,309 @@ class AppTest extends TestCase
     /********************************************************************************
      * Runner
      *******************************************************************************/
-    // TODO: Re-add runner tests after error handling middleware has been developed
+
+    /**
+     * @expectedException \Slim\Exception\HttpNotAllowedException
+     */
+    public function testInvokeReturnMethodNotAllowed()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo', 'POST');
+        $response = new Response();
+
+        // Create Html Renderer and Assert Output
+        $exception = new HttpNotAllowedException();
+        $exception->setAllowedMethods(['GET']);
+        $renderer = new HtmlErrorRenderer($exception, false);
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(405, (string)$resOut->getStatusCode());
+        $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
+        $this->assertContains(
+            $renderer->render(),
+            (string)$resOut->getBody()
+        );
+    }
+
+    public function testInvokeWithMatchingRoute()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$resOut->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithSetArgument()
+    {
+        $app = new App();
+        $app->get('/foo/bar', function ($req, $res, $args) {
+            return $res->write("Hello {$args['attribute']}");
+        })->setArgument('attribute', 'world!');
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/bar');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello world!', (string)$resOut->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithSetArguments()
+    {
+        $app = new App();
+        $app->get('/foo/bar', function ($req, $res, $args) {
+            return $res->write("Hello {$args['attribute1']} {$args['attribute2']}");
+        })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/bar');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello there world!', (string)$resOut->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithNamedParameter()
+    {
+        $app = new App();
+        $app->get('/foo/{name}', function ($req, $res, $args) {
+            return $res->write("Hello {$args['name']}");
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello test!', (string)$resOut->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
+    {
+        $app = new App();
+        $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->get('/foo/{name}', function ($req, $res, $name) {
+            return $res->write("Hello {$name}");
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello test!', (string)$resOut->getBody());
+    }
+
+    public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
+    {
+        $app = new App();
+        $app->get('/foo/{name}', function ($req, $res, $args) {
+            return $res->write("Hello {$args['extra']} {$args['name']}");
+        })->setArguments(['extra' => 'there', 'name' => 'world!']);
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/test!');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello there test!', (string)$resOut->getBody());
+    }
+
+    /**
+     * @expectedException \Slim\Exception\HttpNotFoundException
+     */
+    public function testInvokeWithoutMatchingRoute()
+    {
+        $app = new App();
+        $app->get('/bar', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertAttributeEquals(404, 'status', $resOut);
+    }
+
+    public function testInvokeWithCallableRegisteredInContainer()
+    {
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
+
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock, $response) {
+            $mock->method('bar')
+                ->willReturn(
+                    $response->write('Hello')
+                );
+            return $mock;
+        };
+
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
+        $app->get('/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$resOut->getBody());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
+    {
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        $mock = $this->getMockBuilder('StdClass')->getMock();
+
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock) {
+            return $mock;
+        };
+
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
+        $app->get('/foo', 'foo:bar');
+
+        // Invoke app
+        $app($request, $response);
+    }
+
+    public function testInvokeWithCallableInContainerViaMagicMethod()
+    {
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        $mock = new MockAction();
+
+        $pimple = new Pimple();
+        $pimple['foo'] = function () use ($mock) {
+            return $mock;
+        };
+
+        $app = new App();
+        $app->setContainer(new Psr11Container($pimple));
+        $app->get('/foo', 'foo:bar');
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
+    }
+
+    public function testInvokeFunctionName()
+    {
+        $app = new App();
+
+        // @codingStandardsIgnoreStart
+        function handle($req, $res)
+        {
+            $res->write('foo');
+
+            return $res;
+        }
+        // @codingStandardsIgnoreEnd
+
+        $app->get('/foo', __NAMESPACE__ . '\handle');
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertEquals('foo', (string)$resOut->getBody());
+    }
+
+    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
+    {
+        $app = new App();
+        $app->get('/foo/{name}', function ($req, $res, $args) {
+            return $res->write($req->getAttribute('one') . $args['name']);
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/rob');
+        $request = $request->withAttribute("one", 1);
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+        $this->assertEquals('1rob', (string)$resOut->getBody());
+    }
+
+    public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
+    {
+        $app = new App();
+        $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->get('/foo/{name}', function ($req, $res, $name) {
+            return $res->write($req->getAttribute('one') . $name);
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/foo/rob');
+        $request = $request->withAttribute("one", 1);
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+        $this->assertEquals('1rob', (string)$resOut->getBody());
+    }
 
     // TODO: Test finalize()
 
