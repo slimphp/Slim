@@ -19,6 +19,7 @@ use Slim\Exception\HttpNotAllowedException;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Exception;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -45,6 +46,10 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      * @var bool
      */
     protected $displayErrorDetails;
+    /**
+     * @var bool
+     */
+    protected $logErrors;
     /**
      * @var string
      */
@@ -75,6 +80,15 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     protected $statusCode;
 
     /**
+     * AbstractErrorHandler constructor.
+     * @param bool $logErrors
+     */
+    public function __construct($logErrors)
+    {
+        $this->logErrors = $logErrors;
+    }
+
+    /**
      * Invoke error handler
      *
      * @param ServerRequestInterface $request   The most recent Request object
@@ -99,7 +113,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
         $this->contentType = $this->determineContentType($request);
         $this->renderer = $this->determineRenderer();
 
-        if (!$this->displayErrorDetails) {
+        if ($this->logErrors) {
             $this->writeToErrorLog();
         }
 
@@ -152,22 +166,19 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      *
      * @return ErrorRendererInterface
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function determineRenderer()
     {
         $renderer = $this->renderer;
 
-        if ((
-                $renderer !== null
-                && !class_exists($renderer)
-            )
-            || (
-                $renderer !== null
-                && !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer))
+        if ($renderer !== null
+            && (
+                !class_exists($renderer)
+                || !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer))
             )
         ) {
-            throw new \RuntimeException(sprintf(
+            throw new RuntimeException(sprintf(
                 'Non compliant error renderer provided (%s). ' .
                 'Renderer must implement the ErrorRendererInterface',
                 $renderer
@@ -196,7 +207,7 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
             }
         }
 
-        return new $renderer($this->exception, $this->displayErrorDetails);
+        return new $renderer();
     }
 
     /**
@@ -220,12 +231,11 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected function formatResponse()
     {
-        $e = $this->exception;
         $response = $this->response;
-        $body = $this->renderer->renderWithBody();
+        $body = $this->renderer->renderWithBody($this->exception, $this->displayErrorDetails);
 
-        if ($e instanceof HttpNotAllowedException) {
-            $response = $response->withHeader('Allow', $e->getAllowedMethods());
+        if ($this->exception instanceof HttpNotAllowedException) {
+            $response = $response->withHeader('Allow', $this->exception->getAllowedMethods());
         }
 
         return $response
@@ -241,9 +251,9 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected function writeToErrorLog()
     {
-        $renderer = new PlainTextErrorRenderer($this->exception, true);
-        $error = $renderer->render();
-        $error .= PHP_EOL . 'View in rendered output by enabling the "displayErrorDetails" setting.' . PHP_EOL;
+        $renderer = new PlainTextErrorRenderer();
+        $error = $renderer->render($this->exception, $this->displayErrorDetails);
+        $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
     }
 

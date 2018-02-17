@@ -1,6 +1,7 @@
 <?php
 namespace Slim\Tests\Middleware;
 
+use Guzzle\Common\Exception\RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
@@ -31,7 +32,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res) {
             return $res->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false);
+        $mw2 = new ErrorMiddleware(false, false);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
@@ -55,7 +56,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res) {
             return $res->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false);
+        $mw2 = new ErrorMiddleware(false, false);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
@@ -69,9 +70,27 @@ class ErrorMiddlewareTest extends TestCase
         $this->expectOutputString($expectedOutput);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testSetErrorHandlerThrowsException()
+    {
+        $mw = new ErrorMiddleware(false, false);
+        $mw->setErrorHandler(RuntimeException::class, 'Uncallable');
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testSetDefaultErrorHandlerThrowsException()
+    {
+        $mw = new ErrorMiddleware(false, false);
+        $mw->setDefaultErrorHandler('Uncallable');
+    }
+
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
     {
-        $middleware = new ErrorMiddleware(false);
+        $middleware = new ErrorMiddleware(false, false);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
@@ -92,7 +111,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res, $exception) {
             return $res->withJson($exception->getMessage());
         };
-        $mw = new ErrorMiddleware(false);
+        $mw = new ErrorMiddleware(false, false);
         $mw->setDefaultErrorHandler($handler);
         $app->add($mw);
 

@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Exception;
+use RuntimeException;
 use Throwable;
 
 class ErrorMiddleware
@@ -30,6 +31,10 @@ class ErrorMiddleware
      */
     protected $defaultErrorHandler;
     /**
+     * @var callable
+     */
+    protected $loggingHandler;
+    /**
      * @var ServerRequestInterface
      */
     protected $request;
@@ -41,12 +46,12 @@ class ErrorMiddleware
     /**
      * ErrorMiddleware constructor.
      * @param bool $displayErrorDetails
-     * @param ErrorHandlerInterface|callable $defaultErrorHandler
+     * @param bool $logErrors
      */
-    public function __construct($displayErrorDetails, $defaultErrorHandler = null)
+    public function __construct($displayErrorDetails, $logErrors)
     {
         $this->displayErrorDetails = $displayErrorDetails;
-        $this->defaultErrorHandler = is_null($defaultErrorHandler) ? new ErrorHandler() : $defaultErrorHandler;
+        $this->defaultErrorHandler = new ErrorHandler($logErrors);
     }
 
     /**
@@ -100,10 +105,8 @@ class ErrorMiddleware
      * Get callable to handle scenarios where an error
      * occurs when processing the current request.
      *
-     * @param string $type
+     * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @return callable|ErrorHandler
-     *
-     * @throws \RuntimeException
      */
     public function getErrorHandler($type)
     {
@@ -128,13 +131,16 @@ class ErrorMiddleware
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
      *
-     * @param string $type
+     * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @param callable|ErrorHandlerInterface $handler
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function setErrorHandler($type, $handler)
     {
+        if (!is_callable($handler)) {
+            throw new RuntimeException('Handler must be a callable function.');
+        }
         $this->handlers[$type] = $handler;
     }
 
@@ -154,10 +160,13 @@ class ErrorMiddleware
      *
      * @param callable|ErrorHandler $handler
      *
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function setDefaultErrorHandler($handler)
     {
+        if (!is_callable($handler)) {
+            throw new RuntimeException('Handler must be a callable function.');
+        }
         $this->defaultErrorHandler = $handler;
     }
 }
