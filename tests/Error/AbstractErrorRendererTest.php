@@ -21,8 +21,8 @@ class AbstractErrorRendererTest extends TestCase
     public function testHTMLErrorRendererDisplaysErrorDetails()
     {
         $exception = new RuntimeException('Oops..');
-        $renderer = new HtmlErrorRenderer($exception, true);
-        $output = $renderer->render();
+        $renderer = new HtmlErrorRenderer();
+        $output = $renderer->render($exception, true);
 
         $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
     }
@@ -30,8 +30,9 @@ class AbstractErrorRendererTest extends TestCase
     public function testHTMLErrorRendererRenderFragmentMethod()
     {
         $exception = new Exception('Oops..', 500);
-        $renderer = new HtmlErrorRenderer($exception, true);
+        $renderer = new HtmlErrorRenderer();
         $reflectionRenderer = new ReflectionClass(HtmlErrorRenderer::class);
+
         $method = $reflectionRenderer->getMethod('renderExceptionFragment');
         $method->setAccessible(true);
         $output = $method->invoke($renderer, $exception);
@@ -46,12 +47,14 @@ class AbstractErrorRendererTest extends TestCase
     public function testJSONErrorRendererDisplaysErrorDetails()
     {
         $exception = new Exception('Oops..');
-        $renderer = new JsonErrorRenderer($exception, true);
+        $renderer = new JsonErrorRenderer();
         $reflectionRenderer = new ReflectionClass(JsonErrorRenderer::class);
+
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
         $method->setAccessible(true);
+
         $fragment = $method->invoke($renderer, $exception);
-        $output = json_encode(json_decode($renderer->render()));
+        $output = json_encode(json_decode($renderer->render($exception, true)));
         $expectedString = json_encode(['message' => 'Oops..', 'exception' => [$fragment]]);
 
         $this->assertEquals($output, $expectedString);
@@ -60,8 +63,10 @@ class AbstractErrorRendererTest extends TestCase
     public function testJSONErrorRendererDoesNotDisplayErrorDetails()
     {
         $exception = new Exception('Oops..');
-        $renderer = new JsonErrorRenderer($exception, false);
-        $output = json_encode(json_decode($renderer->render()));
+
+        $renderer = new JsonErrorRenderer();
+        $output = json_encode(json_decode($renderer->render($exception, false)));
+
         $this->assertEquals($output, json_encode(['message' => 'Oops..']));
     }
 
@@ -69,11 +74,13 @@ class AbstractErrorRendererTest extends TestCase
     {
         $previousException = new Exception('Oh no!');
         $exception = new Exception('Oops..', 0, $previousException);
-        $renderer = new JsonErrorRenderer($exception, true);
+
+        $renderer = new JsonErrorRenderer();
         $reflectionRenderer = new ReflectionClass(JsonErrorRenderer::class);
         $method = $reflectionRenderer->getMethod('formatExceptionFragment');
         $method->setAccessible(true);
-        $output = json_encode(json_decode($renderer->render()));
+
+        $output = json_encode(json_decode($renderer->render($exception, true)));
 
         $fragments = [
             $method->invoke($renderer, $exception),
@@ -89,8 +96,9 @@ class AbstractErrorRendererTest extends TestCase
     {
         $previousException = new RuntimeException('Oops..');
         $exception = new Exception('Ooops...', 0, $previousException);
-        $renderer = new XmlErrorRenderer($exception, true);
-        $output = simplexml_load_string($renderer->render());
+
+        $renderer = new XmlErrorRenderer();
+        $output = simplexml_load_string($renderer->render($exception, true));
 
         $this->assertEquals($output->message[0], 'Ooops...');
         $this->assertEquals((string)$output->exception[0]->type, 'Exception');

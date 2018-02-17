@@ -20,32 +20,15 @@ use Slim\Interfaces\ErrorRendererInterface;
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {
     /**
-     * @var \Exception
-     */
-    protected $exception;
-    /**
-     * @var bool
-     */
-    protected $displayErrorDetails;
-
-    /**
-     * AbstractErrorRenderer constructor.
      * @param \Exception|\Throwable $exception
      * @param bool $displayErrorDetails
+     * @return \Slim\Http\Body
      */
-    public function __construct($exception, $displayErrorDetails)
+    public function renderWithBody($exception, $displayErrorDetails)
     {
-        $this->exception = $exception;
-        $this->displayErrorDetails = $displayErrorDetails;
-    }
-
-    /**
-     * @return Body
-     */
-    public function renderWithBody()
-    {
+        $output = $this->render($exception, $displayErrorDetails);
         $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($this->render());
+        $body->write($output);
         return $body;
     }
 }

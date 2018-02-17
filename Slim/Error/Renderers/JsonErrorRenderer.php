@@ -16,18 +16,19 @@ use Slim\Error\AbstractErrorRenderer;
 class JsonErrorRenderer extends AbstractErrorRenderer
 {
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return string
      */
-    public function render()
+    public function render($exception, $displayErrorDetails)
     {
-        $e = $this->exception;
-        $error = ['message' => $e->getMessage()];
+        $error = ['message' => $exception->getMessage()];
 
-        if ($this->displayErrorDetails) {
+        if ($displayErrorDetails) {
             $error['exception'] = [];
             do {
-                $error['exception'][] = $this->formatExceptionFragment($e);
-            } while ($e = $e->getPrevious());
+                $error['exception'][] = $this->formatExceptionFragment($exception);
+            } while ($exception = $exception->getPrevious());
         }
 
         return json_encode($error, JSON_PRETTY_PRINT);

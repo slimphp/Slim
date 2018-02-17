@@ -19,16 +19,14 @@ interface ErrorRendererInterface
     /**
      * @param \Exception|\Throwable $exception
      * @param bool $displayErrorDetails
-     */
-    public function __construct($exception, $displayErrorDetails);
-
-    /**
      * @return string
      */
-    public function render();
+    public function render($exception, $displayErrorDetails);
 
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return \Slim\Http\Body
      */
-    public function renderWithBody();
+    public function renderWithBody($exception, $displayErrorDetails);
 }

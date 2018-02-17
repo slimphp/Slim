@@ -16,23 +16,26 @@ use Slim\Error\AbstractErrorRenderer;
 class XmlErrorRenderer extends AbstractErrorRenderer
 {
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return string
      */
-    public function render()
+    public function render($exception, $displayErrorDetails)
     {
-        $e = $this->exception;
-        $xml = "<error>\n  <message>{$e->getMessage()}</message>\n";
-        if ($this->displayErrorDetails) {
+        $xml = "<error>\n  <message>{$exception->getMessage()}</message>\n";
+
+        if ($displayErrorDetails) {
             do {
                 $xml .= "  <exception>\n";
-                $xml .= "    <type>" . get_class($e) . "</type>\n";
-                $xml .= "    <code>" . $e->getCode() . "</code>\n";
-                $xml .= "    <message>" . $this->createCdataSection($e->getMessage()) . "</message>\n";
-                $xml .= "    <file>" . $e->getFile() . "</file>\n";
-                $xml .= "    <line>" . $e->getLine() . "</line>\n";
+                $xml .= "    <type>" . get_class($exception) . "</type>\n";
+                $xml .= "    <code>" . $exception->getCode() . "</code>\n";
+                $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
+                $xml .= "    <file>" . $exception->getFile() . "</file>\n";
+                $xml .= "    <line>" . $exception->getLine() . "</line>\n";
                 $xml .= "  </exception>\n";
-            } while ($e = $e->getPrevious());
+            } while ($exception = $exception->getPrevious());
         }
+
         $xml .= "</error>";
 
         return $xml;

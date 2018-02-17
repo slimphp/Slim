@@ -16,19 +16,19 @@ use Slim\Error\AbstractErrorRenderer;
 class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return string
      */
-    public function render()
+    public function render($exception, $displayErrorDetails)
     {
-        $e = $this->exception;
+        $text = "Slim Application Error:\n";
+        $text .= $this->formatExceptionFragment($exception);
 
-        $text = 'Slim Application Error:' . PHP_EOL;
-        $text .= $this->formatExceptionFragment($e);
-
-        while ($e = $e->getPrevious()) {
-            $text .= PHP_EOL . 'Previous Error:' . PHP_EOL;
-            $text .= $this->formatExceptionFragment($e);
-        }
+        do {
+            $text .= "\nPrevious Error:\n";
+            $text .= $this->formatExceptionFragment($exception);
+        } while ($exception = $exception->getPrevious());
 
         return $text;
     }
@@ -39,31 +39,31 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
      */
     private function formatExceptionFragment($exception)
     {
-        $text = sprintf('Type: %s' . PHP_EOL, get_class($exception));
+        $text = sprintf("Type: %s\n", get_class($exception));
 
         $code = $exception->getCode();
         if ($code !== null) {
-            $text .= sprintf('Code: %s' . PHP_EOL, $code);
+            $text .= sprintf("Code: %s\n", $code);
         }
 
         $message = $exception->getMessage();
         if ($message !== null) {
-            $text .= sprintf('Message: %s' . PHP_EOL, htmlentities($message));
+            $text .= sprintf("Message: %s\n", htmlentities($message));
         }
 
         $file = $exception->getFile();
         if ($file !== null) {
-            $text .= sprintf('File: %s' . PHP_EOL, $file);
+            $text .= sprintf("File: %s\n", $file);
         }
 
         $line = $exception->getLine();
         if ($line !== null) {
-            $text .= sprintf('Line: %s' . PHP_EOL, $line);
+            $text .= sprintf("Line: %s\n", $line);
         }
 
         $trace = $exception->getTraceAsString();
         if ($trace !== null) {
-            $text .= sprintf('Trace: %s', $trace);
+            $text .= sprintf("Trace: %s", $trace);
         }
 
         return $text;

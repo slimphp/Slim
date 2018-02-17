@@ -17,17 +17,18 @@ use Exception;
 class HtmlErrorRenderer extends AbstractErrorRenderer
 {
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return string
      */
-    public function render()
+    public function render($exception, $displayErrorDetails)
     {
-        $e = $this->exception;
         $title = 'Slim Application Error';
 
-        if ($this->displayErrorDetails) {
+        if ($displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
-            $html .= $this->renderExceptionFragment($e);
+            $html .= $this->renderExceptionFragment($exception);
         } else {
             $html = '<p>A website error has occurred. Sorry for the temporary inconvenience.</p>';
         }

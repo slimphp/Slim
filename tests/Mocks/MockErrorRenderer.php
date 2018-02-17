@@ -16,9 +16,11 @@ use Slim\Error\AbstractErrorRenderer;
 class MockErrorRenderer extends AbstractErrorRenderer
 {
     /**
+     * @param \Exception|\Throwable $exception
+     * @param bool $displayErrorDetails
      * @return string
      */
-    public function render()
+    public function render($exception, $displayErrorDetails)
     {
         return '';
     }
