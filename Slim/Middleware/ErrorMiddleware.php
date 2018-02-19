@@ -47,11 +47,12 @@ class ErrorMiddleware
      * ErrorMiddleware constructor.
      * @param bool $displayErrorDetails
      * @param bool $logErrors
+     * @param bool $logErrorDetails
      */
-    public function __construct($displayErrorDetails, $logErrors)
+    public function __construct($displayErrorDetails, $logErrors, $logErrorDetails)
     {
         $this->displayErrorDetails = $displayErrorDetails;
-        $this->defaultErrorHandler = new ErrorHandler($logErrors);
+        $this->defaultErrorHandler = new ErrorHandler($logErrors, $logErrorDetails);
     }
 
     /**

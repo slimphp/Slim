@@ -32,7 +32,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res) {
             return $res->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false, false);
+        $mw2 = new ErrorMiddleware(false, false, false);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
@@ -56,7 +56,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res) {
             return $res->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false, false);
+        $mw2 = new ErrorMiddleware(false, false, false);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
@@ -75,7 +75,7 @@ class ErrorMiddlewareTest extends TestCase
      */
     public function testSetErrorHandlerThrowsException()
     {
-        $mw = new ErrorMiddleware(false, false);
+        $mw = new ErrorMiddleware(false, false, false);
         $mw->setErrorHandler(RuntimeException::class, 'Uncallable');
     }
 
@@ -84,13 +84,13 @@ class ErrorMiddlewareTest extends TestCase
      */
     public function testSetDefaultErrorHandlerThrowsException()
     {
-        $mw = new ErrorMiddleware(false, false);
+        $mw = new ErrorMiddleware(false, false, false);
         $mw->setDefaultErrorHandler('Uncallable');
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
     {
-        $middleware = new ErrorMiddleware(false, false);
+        $middleware = new ErrorMiddleware(false, false, false);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
@@ -111,7 +111,7 @@ class ErrorMiddlewareTest extends TestCase
         $handler = function ($req, $res, $exception) {
             return $res->withJson($exception->getMessage());
         };
-        $mw = new ErrorMiddleware(false, false);
+        $mw = new ErrorMiddleware(false, false, false);
         $mw->setDefaultErrorHandler($handler);
         $app->add($mw);
 

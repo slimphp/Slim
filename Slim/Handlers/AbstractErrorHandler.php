@@ -51,6 +51,10 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
      */
     protected $logErrors;
     /**
+     * @var bool
+     */
+    protected $logErrorDetails;
+    /**
      * @var string
      */
     protected $contentType;
@@ -82,10 +86,12 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     /**
      * AbstractErrorHandler constructor.
      * @param bool $logErrors
+     * @param bool $logErrorDetails
      */
-    public function __construct($logErrors)
+    public function __construct($logErrors, $logErrorDetails)
     {
         $this->logErrors = $logErrors;
+        $this->logErrorDetails = $logErrorDetails;
     }
 
     /**
@@ -245,14 +251,13 @@ abstract class AbstractErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * Write to the error log if displayErrorDetails is false
-     *
+     * Write to the error log if $logErrors has been set to true
      * @return void
      */
     protected function writeToErrorLog()
     {
         $renderer = new PlainTextErrorRenderer();
-        $error = $renderer->render($this->exception, $this->displayErrorDetails);
+        $error = $renderer->render($this->exception, $this->logErrorDetails);
         $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
     }
