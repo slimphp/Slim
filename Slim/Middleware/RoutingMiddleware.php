@@ -8,7 +8,7 @@
  */
 namespace Slim\Middleware;
 
-use FastRoute\Dispatcher;
+use Slim\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -58,18 +58,18 @@ class RoutingMiddleware
      */
     public function performRouting(ServerRequestInterface $request)
     {
-        $routeInfo = $this->router->dispatch($request);
+        $dispatcherResults = $this->router->dispatch($request);
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
+        if ($dispatcherResults->getRouteStatus() === Dispatcher::FOUND) {
             $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
+            foreach ($dispatcherResults->getRouteArguments() as $k => $v) {
                 $routeArguments[$k] = urldecode($v);
             }
 
-            $route = $this->router->lookupRoute($routeInfo[1]);
+            $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
             $route->prepare($request, $routeArguments);
 
-            // add route to the request's attributes
+            // Add route to the request's attributes
             $request = $request->withAttribute('route', $route);
         } elseif ($routeInfo[0] === Dispatcher::NOT_FOUND) {
             $exception = new HttpNotFoundException($request);
@@ -80,8 +80,6 @@ class RoutingMiddleware
             throw $exception;
         }
 
-        // routeInfo to the request's attributes
-        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
-        return $request->withAttribute('routeInfo', $routeInfo);
+        return $request->withAttribute('dispatcherResults', $dispatcherResults);
     }
 }
