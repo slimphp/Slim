@@ -6,13 +6,12 @@ dist: trusty
 
 matrix:
   include:
-    - php: 5.6
     - php: 7.0
+    - php: 7.0
+      env: COMPOSER_ARGS='--prefer-lowest'
     - php: 7.1
       env: ANALYSIS='true'
-    - php: hhvm
-    - php: 5.6
-      env: COMPOSER_ARGS='--prefer-lowest'
+    - php: 7.2
     - php: nightly
   allow_failures:
     - php: nightly
