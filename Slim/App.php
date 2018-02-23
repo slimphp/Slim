@@ -13,6 +13,8 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -502,23 +504,25 @@ class App
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     *
+     * @throws HttpNotFoundException
+     * @throws HttpMethodNotAllowedException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        // Get the route info
-        $routeInfo = $request->getAttribute('routeInfo');
-
-        /** @var \Slim\Interfaces\RouterInterface $router */
-        $router = $this->getRouter();
+        /**
+         * @var DispatcherResults $dispatcherResults
+         */
+        $dispatcherResults = $request->getAttribute('dispatcherResults');
 
         // If routing hasn't been done, then do it now so we can dispatch
-        if ($routeInfo === null) {
+        if ($dispatcherResults === null) {
+            $router = $this->getRouter();
             $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);
-            $routeInfo = $request->getAttribute('routeInfo');
         }
 
-        $route = $router->lookupRoute($routeInfo[1]);
+        $route = $request->getAttribute('route');
         return $route->run($request, $response);
     }
 
