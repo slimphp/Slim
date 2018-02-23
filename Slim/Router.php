@@ -8,7 +8,6 @@
  */
 namespace Slim;
 
-use FastRoute\Dispatcher;
 use InvalidArgumentException;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
@@ -85,7 +84,7 @@ class Router implements RouterInterface
     protected $routeGroups = [];
 
     /**
-     * @var \FastRoute\Dispatcher
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -213,9 +212,7 @@ class Router implements RouterInterface
      *
      * @param  ServerRequestInterface $request The current HTTP request object
      *
-     * @return array
-     *
-     * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
+     * @return DispatcherResults
      */
     public function dispatch(ServerRequestInterface $request)
     {
@@ -250,7 +247,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * @return \FastRoute\Dispatcher
+     * @return Dispatcher
      */
     protected function createDispatcher()
     {
@@ -266,11 +263,13 @@ class Router implements RouterInterface
 
         if ($this->cacheFile) {
             $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+                'dispatcher' => '\\Slim\\Dispatcher',
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
         } else {
             $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+                'dispatcher' => '\\Slim\\Dispatcher',
                 'routeParser' => $this->routeParser,
             ]);
         }
@@ -279,7 +278,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param \FastRoute\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function setDispatcher(Dispatcher $dispatcher)
     {

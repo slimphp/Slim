@@ -11,6 +11,7 @@ namespace Slim\Interfaces;
 use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\DispatcherResults;
 
 /**
  * Router Interface
@@ -40,7 +41,7 @@ interface RouterInterface
      *
      * @param  ServerRequestInterface $request The current HTTP request object
      *
-     * @return array
+     * @return DispatcherResults
      *
      * @link   https://github.com/nikic/FastRoute/blob/master/src/Dispatcher.php
      */
