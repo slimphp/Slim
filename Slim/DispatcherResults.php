@@ -14,14 +14,17 @@ class DispatcherResults
      * @var Dispatcher
      */
     protected $dispatcher;
+
     /**
      * @var string
      */
     protected $httpMethod;
+
     /**
      * @var string
      */
     protected $uri;
+
     /**
      * @var int
      *
@@ -30,10 +33,12 @@ class DispatcherResults
      * Method Not Allowed = 2
      */
     protected $routeStatus;
+
     /**
      * @var callable|null
      */
     protected $routeHandler;
+
     /**
      * @var array
      */
@@ -105,10 +110,19 @@ class DispatcherResults
     }
 
     /**
+     * @param bool $urlDecode
      * @return array
      */
-    public function getRouteArguments()
+    public function getRouteArguments($urlDecode = true)
     {
+        if ($urlDecode) {
+            $routeArguments = [];
+            foreach ($this->routeArguments as $key => $value) {
+                $routeArguments[$key] = urldecode($value);
+            }
+            return $routeArguments;
+        }
+
         return $this->routeArguments;
     }
 

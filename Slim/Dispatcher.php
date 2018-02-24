@@ -16,6 +16,7 @@ class Dispatcher extends GroupCountBased
      * @var string
      */
     private $httpMethod;
+
     /**
      * @var string
      */

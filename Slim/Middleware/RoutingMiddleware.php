@@ -61,11 +61,7 @@ class RoutingMiddleware
         $dispatcherResults = $this->router->dispatch($request);
 
         if ($dispatcherResults->getRouteStatus() === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($dispatcherResults->getRouteArguments() as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
-
+            $routeArguments = $dispatcherResults->getRouteArguments();
             $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
             $route->prepare($request, $routeArguments);
 

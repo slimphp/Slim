@@ -3,6 +3,7 @@ namespace Slim\Tests;
 
 use FastRoute\RouteCollector;
 use PHPUnit\Framework\TestCase;
+use Slim\Dispatcher;
 use Slim\DispatcherResults;
 
 /**
@@ -32,6 +33,20 @@ class DispatcherTest extends TestCase
         ];
     }
 
+    public function testGetDispatcher()
+    {
+        $dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+            $r->addRoute('GET', '/foo', 'handler0'); // oops, forgot \d+ restriction ;)
+        }, $this->generateDispatcherOptions());
+
+        /**
+         * @var DispatcherResults $results
+         */
+        $results = $dispatcher->dispatch('GET', '/foo');
+
+        $this->assertInstanceOf(Dispatcher::class, $results->getDispatcher());
+    }
+
     /**
      * @dataProvider provideFoundDispatchCases
      */
@@ -47,6 +62,8 @@ class DispatcherTest extends TestCase
         $this->assertSame($dispatcher::FOUND, $results->getRouteStatus());
         $this->assertSame($handler, $results->getRouteHandler());
         $this->assertSame($argDict, $results->getRouteArguments());
+        $this->assertSame($method, $results->getHttpMethod());
+        $this->assertSame($uri, $results->getUri());
     }
 
     /**
@@ -78,6 +95,20 @@ class DispatcherTest extends TestCase
 
         $this->assertSame($dispatcher::METHOD_NOT_ALLOWED, $results->getRouteStatus());
         $this->assertSame($availableMethods, $results->getAllowedMethods(false));
+    }
+
+    public function testRouteArgumentsAreUrlDecoded()
+    {
+        $dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+            $r->addRoute('GET', '/{name}', 'handler0');
+        }, $this->generateDispatcherOptions());
+
+        /**
+         * @var DispatcherResults $results
+         */
+        $results = $dispatcher->dispatch('GET', '/Foo%20Bar');
+        $this->assertEquals($results->getRouteArguments()['name'], 'Foo Bar');
+        $this->assertEquals($results->getRouteArguments(false)['name'], 'Foo%20Bar');
     }
 
     /**
@@ -116,8 +147,10 @@ class DispatcherTest extends TestCase
     }
 
     /**
+     * @codingStandardsIgnoreStart
      * @expectedException \FastRoute\BadRouteException
      * @expectedExceptionMessage Static route "/user/nikic" is shadowed by previously defined variable route "/user/([^/]+)" for method "GET"
+     * @codingStandardsIgnoreEnd
      */
     public function testShadowedStaticRoute()
     {
