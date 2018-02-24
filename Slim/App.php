@@ -290,26 +290,34 @@ class App
     public function run($silent = false)
     {
         $response = $this->container->get('response');
+        $outputBuffering = $this->container->get('settings')['outputBuffering'];
 
-        try {
-            ob_start();
-            $response = $this->process($this->container->get('request'), $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
-        } finally {
-            $output = ob_get_clean();
-        }
+        if ($outputBuffering) {
+            try {
+                ob_start();
+                $response = $this->process($this->container->get('request'), $response);
+            } catch (InvalidMethodException $e) {
+                $response = $this->processInvalidMethod($e->getRequest(), $response);
+            } finally {
+                $output = ob_get_clean();
+            }
 
-        if (!empty($output) && $response->getBody()->isWritable()) {
-            $outputBuffering = $this->container->get('settings')['outputBuffering'];
-            if ($outputBuffering === 'prepend') {
-                // prepend output buffer content
-                $body = new Http\Body(fopen('php://temp', 'r+'));
-                $body->write($output . $response->getBody());
-                $response = $response->withBody($body);
-            } elseif ($outputBuffering === 'append') {
-                // append output buffer content
-                $response->getBody()->write($output);
+            if (!empty($output) && $response->getBody()->isWritable()) {
+                if ($outputBuffering === 'prepend') {
+                    // prepend output buffer content
+                    $body = new Http\Body(fopen('php://temp', 'r+'));
+                    $body->write($output . $response->getBody());
+                    $response = $response->withBody($body);
+                } elseif ($outputBuffering === 'append') {
+                    // append output buffer content
+                    $response->getBody()->write($output);
+                }
+            }
+        } else {
+            try {
+                $response = $this->process($this->container->get('request'), $response);
+            } catch (InvalidMethodException $e) {
+                $response = $this->processInvalidMethod($e->getRequest(), $response);
             }
         }
 
