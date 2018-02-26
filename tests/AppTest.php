@@ -13,6 +13,7 @@ use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
+use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
@@ -20,7 +21,6 @@ use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
-use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Router;
@@ -112,6 +112,31 @@ class AppTest extends TestCase
         $app = new App();
         $app->addSetting('foo', 'bar');
         $this->assertAttributeContains('bar', 'settings', $app);
+    }
+
+    public function testSetContainer()
+    {
+        $app = new App();
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $app->setContainer($container);
+        $this->assertSame($container, $app->getContainer());
+    }
+
+    public function testSetCallableResolver()
+    {
+        $app = new App();
+        $callableResolver = new CallableResolver();
+        $app->setCallableResolver($callableResolver);
+        $this->assertSame($callableResolver, $app->getCallableResolver());
+    }
+
+    public function testSetRouter()
+    {
+        $app = new App();
+        $router = new Router();
+        $app->setRouter($router);
+        $this->assertSame($router, $app->getRouter());
     }
 
     /********************************************************************************
@@ -1026,7 +1051,6 @@ class AppTest extends TestCase
         $app = new App();
         $app->get('/foo', function ($req, $res) {
             $res->write('Hello');
-
             return $res;
         });
 
