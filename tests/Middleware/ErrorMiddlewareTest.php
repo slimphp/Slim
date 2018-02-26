@@ -37,12 +37,9 @@ class ErrorMiddlewareTest extends TestCase
         $app->add($mw2);
 
         $request = $this->requestFactory('/foo/baz/');
-        $app->setRequest($request);
-        $app->run();
+        $app->run($request);
 
-        $response = $app->getResponse();
         $expectedOutput = json_encode('Oops..');
-        $this->assertEquals($response->getBody(), $expectedOutput);
         $this->expectOutputString($expectedOutput);
     }
 
@@ -61,12 +58,9 @@ class ErrorMiddlewareTest extends TestCase
         $app->add($mw2);
 
         $request = $this->requestFactory('/foo/baz/');
-        $app->setRequest($request);
-        $app->run();
+        $app->run($request);
 
-        $response = $app->getResponse();
         $expectedOutput = json_encode('Oops..');
-        $this->assertEquals($response->getBody(), $expectedOutput);
         $this->expectOutputString($expectedOutput);
     }
 
@@ -120,12 +114,9 @@ class ErrorMiddlewareTest extends TestCase
         });
 
         $request = $this->requestFactory('/foo');
-        $app->setRequest($request);
-        $app->run();
+        $app->run($request);
 
-        $response = $app->getResponse();
         $expectedOutput = json_encode('Oops..');
-        $this->assertEquals($response->getBody(), $expectedOutput);
         $this->expectOutputString($expectedOutput);
     }
 
