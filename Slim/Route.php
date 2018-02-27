@@ -80,11 +80,14 @@ class Route extends Routable implements RouteInterface
      * @param $byte number in range 0..15
      * @return uppercased hex digit (0..9, A..F) or underscore (in case of error)
      */
-    public static function digit2hex($byte){
-        if(($byte>=0) && ($byte<=9))
+    public static function digit2hex($byte)
+    {
+        if (($byte >= 0) && ($byte <= 9)) {
             return chr($byte+ord('0'));
-        if(($byte>=10) && ($byte<=15))
+        }
+        if (($byte >= 10) && ($byte <= 15)) {
             return chr($byte+ord('A')-10);
+        }
         return '_';
     }
 
@@ -96,8 +99,9 @@ class Route extends Routable implements RouteInterface
     public static function patternEncode($str){
         $arr=str_split($str);
         foreach ($arr as &$value) {
-            if(ord($value)>127)
+            if (ord($value) > 127) {
                 $value='%' . self::digit2hex(ord($value) >> 4) . self::digit2hex(ord($value) & 0xF);
+            }
         }
         return implode($arr);
     }
