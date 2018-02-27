@@ -76,6 +76,37 @@ class Route extends Routable implements RouteInterface
     protected $callable;
 
     /**
+     * Convert hexadecimal number (range 0..15) into uppercased hex digit (0..9, A..F)
+     * @param $byte number in range 0..15
+     * @return uppercased hex digit (0..9, A..F) or underscore (in case of error)
+     */
+    public static function digit2hex($byte)
+    {
+        if (($byte >= 0) && ($byte <= 9)) {
+            return chr($byte+ord('0'));
+        }
+        if (($byte >= 10) && ($byte <= 15)) {
+            return chr($byte+ord('A')-10);
+        }
+        return '_';
+    }
+
+    /**
+     * Convert symbols from higher half of ANSI table into it's percent-encoded presentation
+     * @param $str UTF-8 encoded string
+     * @return string with higher half of ANSI table percent-encoded
+     */
+    public static function patternEncode($str){
+        $arr=str_split($str);
+        foreach ($arr as &$value) {
+            if (ord($value) > 127) {
+                $value='%' . self::digit2hex(ord($value) >> 4) . self::digit2hex(ord($value) & 0xF);
+            }
+        }
+        return implode($arr);
+    }
+
+    /**
      * Create new route
      *
      * @param string|string[]   $methods The route HTTP methods
@@ -87,7 +118,7 @@ class Route extends Routable implements RouteInterface
     public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)
     {
         $this->methods  = is_string($methods) ? [$methods] : $methods;
-        $this->pattern  = $pattern;
+        $this->pattern  = self::patternEncode($pattern);
         $this->callable = $callable;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
