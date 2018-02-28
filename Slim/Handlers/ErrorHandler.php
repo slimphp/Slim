@@ -108,6 +108,8 @@ class ErrorHandler implements ErrorHandlerInterface
         $logErrorDetails
     ) {
         $this->displayErrorDetails = $displayErrorDetails;
+        $this->logErrors = $logErrors;
+        $this->logErrorDetails = $logErrorDetails;
         $this->request = $request;
         $this->exception = $exception;
         $this->method = $request->getMethod();
@@ -115,7 +117,7 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->contentType = $this->determineContentType($request);
         $this->renderer = $this->determineRenderer();
 
-        if ($this->logErrors) {
+        if ($logErrors) {
             $this->writeToErrorLog();
         }
 

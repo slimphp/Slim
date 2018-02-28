@@ -155,17 +155,35 @@ class ErrorHandlerTest extends TestCase
 
     public function testOptions()
     {
-        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
-        $handler = new ErrorHandler(true, true);
+        $request = $this->getRequest('OPTIONS');
+        $handler = new ErrorHandler();
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['POST', 'PUT']);
 
         /** @var Response $res */
-        $res = $handler->__invoke($this->getRequest('OPTIONS'), $exception, false, false, false);
+        $res = $handler->__invoke($request, $exception, true, true, true);
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
         $this->assertEquals('POST, PUT', $res->getHeaderLine('Allow'));
+    }
+
+    public function testWriteToErrorLog()
+    {
+        $request = $this->getMockBuilder(Request::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $handler = $this->getMockBuilder(ErrorHandler::class)
+            ->setMethods(['writeToErrorLog', 'logError'])
+            ->getMock();
+
+        $exception = new HttpNotFoundException($request);
+
+        $handler->expects($this->once())
+                ->method('writeToErrorLog');
+
+        $handler->__invoke($request, $exception, true, true, true);
     }
 
     /**
