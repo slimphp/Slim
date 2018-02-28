@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpBadRequestException extends HttpException
+class HttpBadRequestException extends HttpSpecializedException
 {
     protected $code = 400;
     protected $message = 'Bad request.';

@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpForbiddenException extends HttpException
+class HttpForbiddenException extends HttpSpecializedException
 {
     protected $code = 403;
     protected $message = 'Forbidden.';

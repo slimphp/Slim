@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpInternalServerErrorException extends HttpException
+class HttpInternalServerErrorException extends HttpSpecializedException
 {
     protected $code = 500;
     protected $message = 'Internal server error.';

@@ -1,27 +1,22 @@
 <?php
 namespace Slim\Exception;
 
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Exception;
+use Throwable;
 
-abstract class HttpException extends \Exception
+class HttpException extends Exception
 {
     /**
-     * @var ServerRequestInterface|null
+     * @var ServerRequestInterface
      */
-    protected $request = null;
-    /**
-     * @var ResponseInterface|null
-     */
-    protected $response = null;
-    /**
-     * @var array|null
-     */
-    protected $details;
+    protected $request;
+
     /**
      * @var string|null
      */
     protected $title = '';
+
     /**
      * @var string
      */
@@ -29,39 +24,15 @@ abstract class HttpException extends \Exception
 
     /**
      * HttpException constructor.
-     * @param string|array|null $details
-     */
-    public function __construct($details = null)
-    {
-        if (is_string($details)) {
-            return parent::__construct($details);
-        }
-
-        $this->details = $details;
-    }
-
-    /**
      * @param ServerRequestInterface $request
+     * @param string|null $message
+     * @param int $code
+     * @param Exception|Throwable|null $previous
      */
-    public function setRequest(ServerRequestInterface $request)
+    public function __construct(ServerRequestInterface $request, $message = null, $code = 0, $previous = null)
     {
+        parent::__construct($message, $code, $previous);
         $this->request = $request;
-    }
-
-    /**
-     * @param ResponseInterface $response
-     */
-    public function setResponse(ResponseInterface $response)
-    {
-        $this->response = $response;
-    }
-
-    /**
-     * @param array $details
-     */
-    public function setDetails(array $details)
-    {
-        $this->details = $details;
     }
 
     /**
@@ -86,22 +57,6 @@ abstract class HttpException extends \Exception
     public function getRequest()
     {
         return $this->request;
-    }
-
-    /**
-     * @return null|ResponseInterface
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @return array|null|string
-     */
-    public function getDetails()
-    {
-        return $this->details;
     }
 
     /**

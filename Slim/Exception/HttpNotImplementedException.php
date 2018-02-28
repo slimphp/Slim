@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpNotImplementedException extends HttpException
+class HttpNotImplementedException extends HttpSpecializedException
 {
     protected $code = 501;
     protected $message = 'Not implemented.';

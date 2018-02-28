@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpUnauthorizedException extends HttpException
+class HttpUnauthorizedException extends HttpSpecializedException
 {
     protected $code = 401;
     protected $message = 'Unauthorized.';

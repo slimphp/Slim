@@ -1,7 +1,7 @@
 <?php
 namespace Slim\Exception;
 
-class HttpNotFoundException extends HttpException
+class HttpNotFoundException extends HttpSpecializedException
 {
     protected $code = 404;
     protected $message = 'Not found.';
