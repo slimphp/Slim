@@ -11,6 +11,7 @@ namespace Slim\Tests\Error;
 use PHPUnit\Framework\TestCase;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
+use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
 use Exception;
 use ReflectionClass;
@@ -103,5 +104,33 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertEquals($output->message[0], 'Ooops...');
         $this->assertEquals((string)$output->exception[0]->type, 'Exception');
         $this->assertEquals((string)$output->exception[1]->type, 'RuntimeException');
+    }
+
+    public function testPlainTextErrorRendererFormatFragmentMethod()
+    {
+        $exception = new Exception('Oops..', 500);
+        $renderer = new PlainTextErrorRenderer();
+        $reflectionRenderer = new ReflectionClass(PlainTextErrorRenderer::class);
+
+        $method = $reflectionRenderer->getMethod('formatExceptionFragment');
+        $method->setAccessible(true);
+        $output = $method->invoke($renderer, $exception);
+
+        $this->assertRegExp('/.*Type:*/', $output);
+        $this->assertRegExp('/.*Code:*/', $output);
+        $this->assertRegExp('/.*Message*/', $output);
+        $this->assertRegExp('/.*File*/', $output);
+        $this->assertRegExp('/.*Line*/', $output);
+    }
+
+    public function testPlainTextErrorRendererDisplaysErrorDetails()
+    {
+        $previousException = new RuntimeException('Oops..');
+        $exception = new Exception('Ooops...', 0, $previousException);
+
+        $renderer = new PlainTextErrorRenderer();
+        $output = $renderer->render($exception, true);
+
+        $this->assertRegExp('/Ooops.../', $output);
     }
 }
