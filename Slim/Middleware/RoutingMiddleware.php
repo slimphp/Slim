@@ -11,7 +11,7 @@ namespace Slim\Middleware;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
 
@@ -20,8 +20,15 @@ use Slim\Interfaces\RouterInterface;
  */
 class RoutingMiddleware
 {
+    /**
+     * @var RouterInterface
+     */
     protected $router;
 
+    /**
+     * RoutingMiddleware constructor.
+     * @param RouterInterface $router
+     */
     public function __construct(RouterInterface $router)
     {
         $this->router = $router;
@@ -47,12 +54,11 @@ class RoutingMiddleware
      * @param  ServerRequestInterface $request   PSR7 server request
      * @return ServerRequestInterface
      * @throws HttpNotFoundException
-     * @throws HttpNotAllowedException
+     * @throws HttpMethodNotAllowedException
      */
     public function performRouting(ServerRequestInterface $request)
     {
         $routeInfo = $this->router->dispatch($request);
-        $exception = null;
 
         if ($routeInfo[0] === Dispatcher::FOUND) {
             $routeArguments = [];
@@ -66,19 +72,11 @@ class RoutingMiddleware
             // add route to the request's attributes
             $request = $request->withAttribute('route', $route);
         } elseif ($routeInfo[0] === Dispatcher::NOT_FOUND) {
-            $exception = new HttpNotFoundException();
+            $exception = new HttpNotFoundException($request);
+            throw $exception;
         } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            $exception = new HttpNotAllowedException();
+            $exception = new HttpMethodNotAllowedException($request);
             $exception->setAllowedMethods($routeInfo[1]);
-        }
-
-        /**
-         * We pass the Request object to the exception so it reflects the
-         * exact state of the request at the time of the exception can be
-         * accessed by the end user if necessary
-         */
-        if ($exception !== null) {
-            $exception->setRequest($request);
             throw $exception;
         }
 

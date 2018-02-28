@@ -10,49 +10,62 @@ namespace Slim\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Exception\HttpException;
 use Slim\Handlers\ErrorHandler;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Exception;
-use RuntimeException;
 use Throwable;
 
 class ErrorMiddleware
 {
     /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
+    /**
      * @var bool
      */
     protected $displayErrorDetails;
+
+    /**
+     * @var bool
+     */
+    protected $logErrors;
+
+    /**
+     * @var bool
+     */
+    protected $logErrorDetails;
+
     /**
      * @var array
      */
     protected $handlers = [];
+
     /**
-     * @var ErrorHandlerInterface|callable
+     * @var ErrorHandlerInterface|callable|null
      */
     protected $defaultErrorHandler;
-    /**
-     * @var callable
-     */
-    protected $loggingHandler;
-    /**
-     * @var ServerRequestInterface
-     */
-    protected $request;
-    /**
-     * @var ResponseInterface
-     */
-    protected $response;
 
     /**
      * ErrorMiddleware constructor.
+     * @param CallableResolverInterface $callableResolver
      * @param bool $displayErrorDetails
      * @param bool $logErrors
      * @param bool $logErrorDetails
      */
-    public function __construct($displayErrorDetails, $logErrors, $logErrorDetails)
-    {
+    public function __construct(
+        CallableResolverInterface $callableResolver,
+        $displayErrorDetails,
+        $logErrors,
+        $logErrorDetails
+    ) {
+        $this->callableResolver = $callableResolver;
         $this->displayErrorDetails = $displayErrorDetails;
-        $this->defaultErrorHandler = new ErrorHandler($logErrors, $logErrorDetails);
+        $this->logErrors = $logErrors;
+        $this->logErrorDetails = $logErrorDetails;
     }
 
     /**
@@ -66,38 +79,35 @@ class ErrorMiddleware
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
-        $this->request = $request;
-        $this->response = $response;
-
         try {
-            return $next($this->request, $this->response);
+            return $next($request, $response);
         } catch (Exception $e) {
-            return $this->handleException($e);
+            return $this->handleException($request, $e);
         } catch (Throwable $e) {
-            return $this->handleException($e);
+            return $this->handleException($request, $e);
         }
     }
 
     /**
-     * Resolve custom error handler from container or use default ErrorHandler
+     * @param ServerRequestInterface $request
      * @param Exception|Throwable $exception
-     * @return ResponseInterface
+     * @return mixed
      */
-    public function handleException($exception)
+    public function handleException(ServerRequestInterface $request, $exception)
     {
-        /**
-         * Retrieve request object from exception and replace current request object if not null
-         */
-        if (method_exists($exception, 'getRequest')) {
+        if ($exception instanceof HttpException) {
             $request = $exception->getRequest();
-            if ($request !== null) {
-                $this->request = $request;
-            }
         }
 
         $exceptionType = get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);
-        $params = [$this->request, $this->response, $exception, $this->displayErrorDetails];
+        $params = [
+            $request,
+            $exception,
+            $this->displayErrorDetails,
+            $this->logErrors,
+            $this->logErrorDetails,
+        ];
 
         return call_user_func_array($handler, $params);
     }
@@ -111,10 +121,11 @@ class ErrorMiddleware
      */
     public function getErrorHandler($type)
     {
-        if (isset($this->handlers[$type]) && is_callable($this->handlers[$type])) {
-            return $this->handlers[$type];
+        if (isset($this->handlers[$type])) {
+            return $this->callableResolver->resolve($this->handlers[$type]);
         }
-        return $this->defaultErrorHandler;
+
+        return $this->getDefaultErrorHandler();
     }
 
     /**
@@ -134,14 +145,9 @@ class ErrorMiddleware
      *
      * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @param callable|ErrorHandlerInterface $handler
-     *
-     * @throws RuntimeException
      */
     public function setErrorHandler($type, $handler)
     {
-        if (!is_callable($handler)) {
-            throw new RuntimeException('Handler must be a callable function.');
-        }
         $this->handlers[$type] = $handler;
     }
 
@@ -160,14 +166,23 @@ class ErrorMiddleware
      * \Psr\Http\Message\ResponseInterface.
      *
      * @param callable|ErrorHandler $handler
-     *
-     * @throws RuntimeException
      */
     public function setDefaultErrorHandler($handler)
     {
-        if (!is_callable($handler)) {
-            throw new RuntimeException('Handler must be a callable function.');
-        }
         $this->defaultErrorHandler = $handler;
+    }
+
+    /**
+     * Get default error handler
+     *
+     * @return ErrorHandler|callable
+     */
+    public function getDefaultErrorHandler()
+    {
+        if ($this->defaultErrorHandler !== null) {
+            return $this->callableResolver->resolve($this->defaultErrorHandler);
+        }
+
+        return new ErrorHandler();
     }
 }

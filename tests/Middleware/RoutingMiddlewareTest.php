@@ -58,7 +58,7 @@ class RoutingMiddlewareTest extends TestCase
     }
 
     /**
-     * @expectedException \Slim\Exception\HttpNotAllowedException
+     * @expectedException \Slim\Exception\HttpMethodNotAllowedException
      */
     public function testRouteIsNotStoredOnMethodNotAllowed()
     {

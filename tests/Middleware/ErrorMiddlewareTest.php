@@ -1,7 +1,6 @@
 <?php
 namespace Slim\Tests\Middleware;
 
-use Guzzle\Common\Exception\RuntimeException;
 use PHPUnit\Framework\TestCase;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
@@ -10,10 +9,12 @@ use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
+use Error;
 
 /**
  * Class ErrorMiddlewareTest
@@ -24,15 +25,16 @@ class ErrorMiddlewareTest extends TestCase
     public function testSetErrorHandler()
     {
         $app = new App();
+        $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
         $app->add($mw);
 
         $exception = HttpNotFoundException::class;
-        $handler = function ($req, $res) {
-            return $res->withJson('Oops..');
+        $handler = function () {
+            return (new Response())->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, false, false, false);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
@@ -46,14 +48,15 @@ class ErrorMiddlewareTest extends TestCase
     public function testSetDefaultErrorHandler()
     {
         $app = new App();
+        $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
         $app->add($mw);
 
-        $handler = function ($req, $res) {
-            return $res->withJson('Oops..');
+        $handler = function () {
+            return (new Response())->withJson('Oops..');
         };
-        $mw2 = new ErrorMiddleware(false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, false, false, false);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
@@ -67,24 +70,22 @@ class ErrorMiddlewareTest extends TestCase
     /**
      * @expectedException \RuntimeException
      */
-    public function testSetErrorHandlerThrowsException()
-    {
-        $mw = new ErrorMiddleware(false, false, false);
-        $mw->setErrorHandler(RuntimeException::class, 'Uncallable');
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testSetDefaultErrorHandlerThrowsException()
     {
-        $mw = new ErrorMiddleware(false, false, false);
+        $app = new App();
+        $callableResolver = $app->getCallableResolver();
+
+        $mw = new ErrorMiddleware($callableResolver, false, false, false);
         $mw->setDefaultErrorHandler('Uncallable');
+        $mw->getDefaultErrorHandler();
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
     {
-        $middleware = new ErrorMiddleware(false, false, false);
+        $app = new App();
+        $callableResolver = $app->getCallableResolver();
+
+        $middleware = new ErrorMiddleware($callableResolver, false, false, false);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
@@ -96,21 +97,22 @@ class ErrorMiddlewareTest extends TestCase
     public function testErrorHandlerHandlesThrowables()
     {
         $app = new App();
+        $callableResolver = $app->getCallableResolver();
 
-        $mw2 = function ($req, $res) {
-            throw new \Error('Oops..');
+        $mw2 = function () {
+            throw new Error('Oops..');
         };
         $app->add($mw2);
 
-        $handler = function ($req, $res, $exception) {
-            return $res->withJson($exception->getMessage());
+        $handler = function ($req, $exception) {
+            return (new Response())->withJson($exception->getMessage());
         };
-        $mw = new ErrorMiddleware(false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, false, false, false);
         $mw->setDefaultErrorHandler($handler);
         $app->add($mw);
 
-        $app->get('/foo', function ($req, $res) {
-            return $res->withJson('...');
+        $app->get('/foo', function () {
+            return (new Response())->withJson('...');
         });
 
         $request = $this->requestFactory('/foo');

@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
-use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -1014,7 +1014,7 @@ class AppTest extends TestCase
      *******************************************************************************/
 
     /**
-     * @expectedException \Slim\Exception\HttpNotAllowedException
+     * @expectedException \Slim\Exception\HttpMethodNotAllowedException
      */
     public function testInvokeReturnMethodNotAllowed()
     {
@@ -1030,9 +1030,9 @@ class AppTest extends TestCase
         $response = new Response();
 
         // Create Html Renderer and Assert Output
-        $exception = new HttpNotAllowedException();
+        $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
-        $renderer = new HtmlErrorRenderer($exception, false);
+        $renderer = new HtmlErrorRenderer();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1041,7 +1041,7 @@ class AppTest extends TestCase
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains(
-            $renderer->render(),
+            $renderer->render($exception, false),
             (string)$resOut->getBody()
         );
     }
