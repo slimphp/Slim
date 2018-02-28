@@ -46,10 +46,90 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(property_exists($request, 'foo'));
     }
 
-    public function testAddsHostHeaderFromUri()
+    public function testDoesNotAddHostHeaderFromUriIfAlreadySet()
     {
         $request = $this->requestFactory();
+
+        $this->assertEquals('localhost', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testAddsHostHeaderFromUriIfNotSet()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com/foo/bar?abc=123');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
         $this->assertEquals('example.com', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testAddsPortToHostHeaderIfSetWhenHostHeaderIsMissingFromRequest()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com:8443/foo/bar?abc=123');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        $this->assertEquals('example.com:8443', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testDoesntAddHostHeaderFromUriIfNeitherAreSet()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com/foo/bar?abc=123')
+            ->withHost('');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        $this->assertEquals('', $request->getHeaderLine('Host'));
     }
 
     /*******************************************************************************
