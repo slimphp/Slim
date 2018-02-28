@@ -4,7 +4,7 @@
  *
  * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
 namespace Slim\Tests\Handlers;
 
@@ -12,29 +12,29 @@ use PHPUnit\Framework\TestCase;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
-use Slim\Exception\HttpNotAllowedException;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Handlers\AbstractErrorHandler;
 use Slim\Handlers\ErrorHandler;
+use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\Mocks\MockErrorRenderer;
 use ReflectionClass;
 
-class AbstractErrorHandlerTest extends TestCase
+class ErrorHandlerTest extends TestCase
 {
     public function testDetermineContentTypeMethodDoesNotThrowExceptionWhenPassedValidRenderer()
     {
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
+        $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('renderer');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($abstractHandler, MockErrorRenderer::class);
+        $reflectionProperty->setValue($handler, MockErrorRenderer::class);
 
         $method = $class->getMethod('determineRenderer');
         $method->setAccessible(true);
-        $method->invoke($abstractHandler);
+        $method->invoke($handler);
 
         $this->addToAssertionCount(1);
     }
@@ -44,87 +44,88 @@ class AbstractErrorHandlerTest extends TestCase
      */
     public function testDetermineContentTypeMethodThrowsExceptionWhenPassedAnInvalidRenderer()
     {
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
+        $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('renderer');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($abstractHandler, 'NonExistentRenderer::class');
+        $reflectionProperty->setValue($handler, 'NonExistentRenderer::class');
 
         $method = $class->getMethod('determineRenderer');
         $method->setAccessible(true);
-        $method->invoke($abstractHandler);
+        $method->invoke($handler);
     }
 
     public function testDetermineRenderer()
     {
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
+        $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('contentType');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($abstractHandler, 'application/json');
+        $reflectionProperty->setValue($handler, 'application/json');
 
         $method = $class->getMethod('determineRenderer');
         $method->setAccessible(true);
 
-        $renderer = $method->invoke($abstractHandler);
+        $renderer = $method->invoke($handler);
         $this->assertInstanceOf(JsonErrorRenderer::class, $renderer);
 
-        $reflectionProperty->setValue($abstractHandler, 'application/xml');
-        $renderer = $method->invoke($abstractHandler);
+        $reflectionProperty->setValue($handler, 'application/xml');
+        $renderer = $method->invoke($handler);
         $this->assertInstanceOf(XmlErrorRenderer::class, $renderer);
 
-        $reflectionProperty->setValue($abstractHandler, 'text/plain');
-        $renderer = $method->invoke($abstractHandler);
+        $reflectionProperty->setValue($handler, 'text/plain');
+        $renderer = $method->invoke($handler);
         $this->assertInstanceOf(PlainTextErrorRenderer::class, $renderer);
     }
 
     public function testDetermineStatusCode()
     {
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
+        $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('exception');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($abstractHandler, new HttpNotFoundException());
+        $reflectionProperty->setValue($handler, new HttpNotFoundException($request));
 
         $method = $class->getMethod('determineStatusCode');
         $method->setAccessible(true);
 
-        $statusCode = $method->invoke($abstractHandler);
+        $statusCode = $method->invoke($handler);
         $this->assertEquals($statusCode, 404);
 
-        $reflectionProperty->setValue($abstractHandler, new MockCustomException());
+        $reflectionProperty->setValue($handler, new MockCustomException());
 
-        $statusCode = $method->invoke($abstractHandler);
+        $statusCode = $method->invoke($handler);
         $this->assertEquals($statusCode, 500);
     }
 
     public function testHalfValidContentType()
     {
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue('unknown/+json'));
+        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $request->expects($this->any())->method('getHeaderLine')->will($this->returnValue('unknown/+json'));
 
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
         $newTypes = [
             'application/xml',
             'text/xml',
             'text/html',
         ];
 
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(ErrorHandler::class);
 
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($abstractHandler, $newTypes);
+        $reflectionProperty->setValue($handler, $newTypes);
 
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
-        $return = $method->invoke($abstractHandler, $req);
+        $contentType = $method->invoke($handler, $request);
 
-        $this->assertEquals('text/html', $return);
+        $this->assertEquals('text/html', $contentType);
     }
 
     /**
@@ -133,36 +134,34 @@ class AbstractErrorHandlerTest extends TestCase
      */
     public function testAcceptableMediaTypeIsNotFirstInList()
     {
-        $request = $this->getMockBuilder('Slim\Http\Request')
-            ->disableOriginalConstructor()
-            ->getMock();
-
+        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
         $request->expects($this->any())
             ->method('getHeaderLine')
             ->willReturn('text/plain,text/html');
 
         // provide access to the determineContentType() as it's a protected method
-        $class = new ReflectionClass(AbstractErrorHandler::class);
+        $class = new ReflectionClass(ErrorHandler::class);
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
-        // use a mock object here as AbstractErrorHandler cannot be directly instantiated
-        $abstractHandler = $this->getMockForAbstractClass(AbstractErrorHandler::class, [true, true]);
+        // use a mock object here as ErrorHandler cannot be directly instantiated
+        $handler = $this->getMockBuilder(ErrorHandler::class)->getMock();
 
         // call determineContentType()
-        $return = $method->invoke($abstractHandler, $request);
+        $return = $method->invoke($handler, $request);
 
         $this->assertEquals('text/html', $return);
     }
 
     public function testOptions()
     {
+        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
         $handler = new ErrorHandler(true, true);
-        $exception = new HttpNotAllowedException();
+        $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['POST', 'PUT']);
 
         /** @var Response $res */
-        $res = $handler->__invoke($this->getRequest('OPTIONS'), new Response(), $exception, false);
+        $res = $handler->__invoke($this->getRequest('OPTIONS'), $exception, false, false, false);
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
@@ -175,7 +174,7 @@ class AbstractErrorHandlerTest extends TestCase
      */
     protected function getRequest($method, $contentType = 'text/html')
     {
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
+        $req = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
         $req->expects($this->once())->method('getMethod')->will($this->returnValue($method));
         $req->expects($this->any())->method('getHeaderLine')->will($this->returnValue($contentType));
         return $req;

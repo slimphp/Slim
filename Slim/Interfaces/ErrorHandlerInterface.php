@@ -4,7 +4,7 @@
  *
  * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
 namespace Slim\Interfaces;
 
@@ -23,15 +23,17 @@ interface ErrorHandlerInterface
 {
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @param Exception|Throwable $exception
-     * @param $displayErrorDetails
+     * @param bool $displayErrorDetails
+     * @param bool $logErrors
+     * @param bool $logErrorDetails
      * @return ResponseInterface
      */
     public function __invoke(
         ServerRequestInterface $request,
-        ResponseInterface $response,
         $exception,
-        $displayErrorDetails
+        $displayErrorDetails,
+        $logErrors,
+        $logErrorDetails
     );
 }
