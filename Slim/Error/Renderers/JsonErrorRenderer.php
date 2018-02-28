@@ -4,7 +4,7 @@
  *
  * @link      https://github.com/slimphp/Slim
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
 namespace Slim\Error\Renderers;
 
@@ -31,7 +31,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
             } while ($exception = $exception->getPrevious());
         }
 
-        return json_encode($error, JSON_PRETTY_PRINT);
+        return json_encode($error, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
     }
 
     /**
