@@ -59,7 +59,7 @@ class App
      *
      * @var ContainerInterface
      */
-    private $container;
+    protected $container;
 
     /********************************************************************************
      * Constructor
