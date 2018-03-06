@@ -212,11 +212,6 @@ class Headers extends Collection implements HeadersInterface
      */
     public function normalizeKey($key)
     {
-        $key = strtr(strtolower($key), '_', '-');
-        if (strpos($key, 'http-') === 0) {
-            $key = substr($key, 5);
-        }
-
-        return $key;
+        return stripos($key, 'http-') === 0 ? substr($key, 5) : $key;
     }
 }
