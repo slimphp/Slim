@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2398](https://github.com/slimphp/Slim/pull/2398) Added Middleware\ErrorMiddleware
 - [#2329](https://github.com/slimphp/Slim/pull/2329) Added Middleware\MethodOverrideMiddleware
 - [#2288](https://github.com/slimphp/Slim/pull/2288) Separate routing from dispatching
 - [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLengthMiddleware
@@ -16,7 +17,7 @@
 
 ### Removed
 
-
+- [#2398](https://github.com/slimphp/Slim/pull/2398) Slim no longer has error handling built into App. Add ErrorMiddleware() as the outermost middleware.
 - [#2375](https://github.com/slimphp/Slim/pull/2375) Slim no longer sets the `default_mimetype` to an empty string, so you need to set it yourself in php.ini or your app.
 - [#2288](https://github.com/slimphp/Slim/pull/2288) `determineRouteBeforeAppMiddleware` setting is removed. Add RoutingMiddleware() where you need it now.
 - [#2254](https://github.com/slimphp/Slim/pull/2254) `addContentLengthHeader` setting is removed
