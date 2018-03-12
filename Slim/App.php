@@ -8,17 +8,10 @@
  */
 namespace Slim;
 
-use Exception;
-use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Exception\MethodNotAllowedException;
-use Slim\Exception\NotFoundException;
-use Slim\Handlers\Error;
-use Slim\Handlers\NotAllowed;
-use Slim\Handlers\NotFound;
-use Slim\Handlers\PhpError;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -27,7 +20,6 @@ use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\RoutingMiddleware;
-use Throwable;
 
 /**
  * App
@@ -58,32 +50,11 @@ class App
     protected $router;
 
     /**
-     * @var callable
-     */
-    protected $notFoundHandler;
-
-    /**
-     * @var callable
-     */
-    protected $notAllowedHandler;
-
-    /**
-     * @var callable
-     */
-    protected $errorHandler;
-
-    /**
-     * @var callable
-     */
-    protected $phpErrorHandler;
-
-    /**
      * @var array
      */
     protected $settings = [
         'httpVersion' => '1.1',
         'responseChunkSize' => 4096,
-        'displayErrorDetails' => false,
         'routerCacheFile' => false,
     ];
 
@@ -95,6 +66,7 @@ class App
      * Create new application
      *
      * @param array $settings
+     * @param ContainerInterface|null $container
      */
     public function __construct(array $settings = [], ContainerInterface $container = null)
     {
@@ -256,147 +228,6 @@ class App
         return $this->router;
     }
 
-    /**
-     * Set callable to handle scenarios where a suitable
-     * route does not match the current request.
-     *
-     * This service MUST return a callable that accepts
-     * two arguments:
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param callable $handler
-     */
-    public function setNotFoundHandler(callable $handler)
-    {
-        $this->notFoundHandler = $handler;
-    }
-
-    /**
-     * Get callable to handle scenarios where a suitable
-     * route does not match the current request.
-     *
-     * @return callable|NotFound
-     */
-    public function getNotFoundHandler()
-    {
-        if (!$this->notFoundHandler) {
-            $this->notFoundHandler = new NotFound();
-        }
-
-        return $this->notFoundHandler;
-    }
-
-    /**
-     * Set callable to handle scenarios where a suitable
-     * route matches the request URI but not the request method.
-     *
-     * This service MUST return a callable that accepts
-     * three arguments:
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Array of allowed HTTP methods
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param callable $handler
-     */
-    public function setNotAllowedHandler(callable $handler)
-    {
-        $this->notAllowedHandler = $handler;
-    }
-
-    /**
-     * Get callable to handle scenarios where a suitable
-     * route matches the request URI but not the request method.
-     *
-     * @return callable|NotAllowed
-     */
-    public function getNotAllowedHandler()
-    {
-        if (!$this->notAllowedHandler) {
-            $this->notAllowedHandler = new NotAllowed();
-        }
-
-        return $this->notAllowedHandler;
-    }
-
-    /**
-     * Set callable to handle scenarios where an error
-     * occurs when processing the current request.
-     *
-     * This service MUST return a callable that accepts three arguments:
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Error
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param callable $handler
-     */
-    public function setErrorHandler(callable $handler)
-    {
-        $this->errorHandler = $handler;
-    }
-
-    /**
-     * Get callable to handle scenarios where an error
-     * occurs when processing the current request.
-     *
-     * @return callable|Error
-     */
-    public function getErrorHandler()
-    {
-        if (!$this->errorHandler) {
-            $this->errorHandler = new Error($this->getSetting('displayErrorDetails'));
-        }
-
-        return $this->errorHandler;
-    }
-
-    /**
-     * Set callable to handle scenarios where a PHP error
-     * occurs when processing the current request.
-     *
-     * This service MUST return a callable that accepts three arguments:
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Error
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param callable $handler
-     */
-    public function setPhpErrorHandler(callable $handler)
-    {
-        $this->phpErrorHandler = $handler;
-    }
-
-    /**
-     * Get callable to handle scenarios where a PHP error
-     * occurs when processing the current request.
-     *
-     * @return callable|PhpError
-     */
-    public function getPhpErrorHandler()
-    {
-        if (!$this->phpErrorHandler) {
-            $this->phpErrorHandler = new PhpError($this->getSetting('displayErrorDetails'));
-        }
-
-        return $this->phpErrorHandler;
-    }
-
     /********************************************************************************
      * Router proxy methods
      *******************************************************************************/
@@ -550,56 +381,34 @@ class App
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
+     * @param RequestInterface|null $request
      * @return ResponseInterface
      */
-    public function run()
+    public function run(RequestInterface $request = null)
     {
         // create request
-        $request = Request::createFromGlobals($_SERVER);
+        if ($request === null) {
+            $request = Request::createFromGlobals($_SERVER);
+        }
 
         // create response
         $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
+        $httpVersion = $this->getSetting('httpVersion');
         $response = new Response(200, $headers);
-        $response = $response->withProtocolVersion($this->getSetting('httpVersion'));
+        $response = $response->withProtocolVersion($httpVersion);
 
-        $response = $this->process($request, $response);
-
-        $this->respond($response);
-        return $response;
-    }
-
-    /**
-     * Process a request
-     *
-     * This method traverses the application middleware stack and then returns the
-     * resultant Response object.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function process(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $router = $this->getRouter();
-
-        // Traverse middleware stack
-        try {
-            $response = $this->callMiddlewareStack($request, $response);
-        } catch (Exception $e) {
-            $response = $this->handleException($e, $request, $response);
-        } catch (Throwable $e) {
-            $response = $this->handlePhpError($e, $request, $response);
-        }
-
+        // call middleware stack
+        $response = $this->callMiddlewareStack($request, $response);
         $response = $this->finalize($response);
 
-        return $response;
+        return $this->respond($response);
     }
 
     /**
      * Send the response the client
      *
      * @param ResponseInterface $response
+     * @return ResponseInterface
      */
     public function respond(ResponseInterface $response)
     {
@@ -658,6 +467,8 @@ class App
                 }
             }
         }
+
+        return $response;
     }
 
     /**
@@ -682,22 +493,14 @@ class App
         $router = $this->getRouter();
 
         // If routing hasn't been done, then do it now so we can dispatch
-        if (null === $routeInfo) {
+        if ($routeInfo === null) {
             $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);
             $routeInfo = $request->getAttribute('routeInfo');
         }
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $route = $router->lookupRoute($routeInfo[1]);
-            return $route->run($request, $response);
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            $notAllowedHandler = $this->getNotAllowedHandler();
-            return $notAllowedHandler($request, $response, $routeInfo[1]);
-        }
-
-        $notFoundHandler = $this->getNotFoundHandler();
-        return $notFoundHandler($request, $response);
+        $route = $router->lookupRoute($routeInfo[1]);
+        return $route->run($request, $response);
     }
 
     /**
@@ -733,45 +536,5 @@ class App
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
-    }
-
-    /**
-     * Call relevant error handler
-     *
-     * @param  Exception $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     *
-     * @return ResponseInterface
-     */
-    protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        if ($e instanceof MethodNotAllowedException) {
-            $notAllowedHandler = $this->getNotAllowedHandler();
-            return $notAllowedHandler($e->getRequest(), $e->getResponse(), $e->getAllowedMethods());
-        }
-
-        if ($e instanceof NotFoundException) {
-            $notFoundHandler = $this->getNotFoundHandler();
-            return $notFoundHandler($e->getRequest(), $e->getResponse());
-        }
-
-        // Other exception, use $request and $response params
-        $errorHandler = $this->getErrorHandler();
-        return $errorHandler($request, $response, $e);
-    }
-
-    /**
-     * Call PHP error handler
-     *
-     * @param  Throwable $e
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
-     * @return ResponseInterface
-     */
-    protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $handler = $this->getPhpErrorHandler();
-        return $handler($request, $response, $e);
     }
 }

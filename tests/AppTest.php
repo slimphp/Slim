@@ -11,17 +11,16 @@ namespace Slim\Tests;
 use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
-use Slim\Exception\MethodNotAllowedException;
-use Slim\Exception\NotFoundException;
+use Slim\CallableResolver;
+use Slim\Error\Renderers\HtmlErrorRenderer;
+use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
-use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Router;
@@ -113,6 +112,31 @@ class AppTest extends TestCase
         $app = new App();
         $app->addSetting('foo', 'bar');
         $this->assertAttributeContains('bar', 'settings', $app);
+    }
+
+    public function testSetContainer()
+    {
+        $app = new App();
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $app->setContainer($container);
+        $this->assertSame($container, $app->getContainer());
+    }
+
+    public function testSetCallableResolver()
+    {
+        $app = new App();
+        $callableResolver = new CallableResolver();
+        $app->setCallableResolver($callableResolver);
+        $this->assertSame($callableResolver, $app->getCallableResolver());
+    }
+
+    public function testSetRouter()
+    {
+        $app = new App();
+        $router = new Router();
+        $app->setRouter($router);
+        $this->assertSame($router, $app->getRouter());
     }
 
     /********************************************************************************
@@ -989,6 +1013,9 @@ class AppTest extends TestCase
      * Runner
      *******************************************************************************/
 
+    /**
+     * @expectedException \Slim\Exception\HttpMethodNotAllowedException
+     */
     public function testInvokeReturnMethodNotAllowed()
     {
         $app = new App();
@@ -1002,6 +1029,11 @@ class AppTest extends TestCase
         $request = $this->requestFactory('/foo', 'POST');
         $response = new Response();
 
+        // Create Html Renderer and Assert Output
+        $exception = new HttpMethodNotAllowedException($request);
+        $exception->setAllowedMethods(['GET']);
+        $renderer = new HtmlErrorRenderer();
+
         // Invoke app
         $resOut = $app($request, $response);
 
@@ -1009,7 +1041,7 @@ class AppTest extends TestCase
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains(
-            '<p>Method not allowed. Must be one of: <strong>GET</strong></p>',
+            $renderer->render($exception, false),
             (string)$resOut->getBody()
         );
     }
@@ -1019,7 +1051,6 @@ class AppTest extends TestCase
         $app = new App();
         $app->get('/foo', function ($req, $res) {
             $res->write('Hello');
-
             return $res;
         });
 
@@ -1125,6 +1156,9 @@ class AppTest extends TestCase
         $this->assertEquals('Hello there test!', (string)$resOut->getBody());
     }
 
+    /**
+     * @expectedException \Slim\Exception\HttpNotFoundException
+     */
     public function testInvokeWithoutMatchingRoute()
     {
         $app = new App();
@@ -1488,142 +1522,6 @@ class AppTest extends TestCase
         $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
     }
 
-    public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
-    {
-        $app = new App();
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        $mw = function ($req, $res, $next) {
-            throw new \Exception('middleware exception');
-        };
-
-        $app->add($mw);
-
-        $app->get('/foo', function ($request, $response) {
-            return $response;
-        });
-
-        $resOut = $app->process($request, $response);
-
-        $this->assertEquals(500, $resOut->getStatusCode());
-        $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
-    }
-
-    /**
-     * @requires PHP 7.0
-     */
-    public function testExceptionPhpErrorHandlerDoesNotDisplayErrorDetails()
-    {
-        $app = new App();
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        $mw = function ($req, $res, $next) {
-            dumpFonction();
-        };
-
-        $app->add($mw);
-
-        $app->get('/foo', function ($request, $response) {
-            return $res;
-        });
-
-        $resOut = $app->process($request, $response);
-
-        $this->assertEquals(500, $resOut->getStatusCode());
-        $this->assertNotRegExp('/.*middleware exception.*/', (string)$resOut);
-    }
-
-    /**
-     * @requires PHP 7.0
-     */
-    public function testProcessThrowable()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            throw new \Error('Failed');
-        });
-
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-        $resOut = $app->process($request, $response);
-
-        $resOut->getBody()->rewind();
-
-        $this->assertSame(500, $resOut->getStatusCode());
-        $this->assertSame('text/html', $resOut->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$resOut->getBody(), '<html>'));
-    }
-
-    public function testProcessNotFound()
-    {
-        $app = new App();
-
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            throw new NotFoundException($req, $res);
-        });
-
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-        $res = $app->process($request, $response);
-
-        $this->assertEquals(404, $res->getStatusCode());
-    }
-
-    public function testProcessNotAllowed()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res, $args) {
-            return $res;
-        });
-        $app->add(function ($req, $res, $args) {
-            throw new MethodNotAllowedException($req, $res, ['POST']);
-        });
-
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-        $res = $app->process($request, $response);
-
-        $this->assertEquals(405, $res->getStatusCode());
-    }
-
-    public function testExceptionErrorHandlerDisplaysErrorDetails()
-    {
-        $app = new App([
-            'displayErrorDetails' => true
-        ]);
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        $mw = function ($req, $res, $next) {
-            throw new \RuntimeException('middleware exception');
-        };
-
-        $app->add($mw);
-
-        $app->get('/foo', function ($req, $res) {
-            return $res;
-        });
-
-        $resOut = $app->process($request, $response);
-
-        $this->assertEquals(500, $resOut->getStatusCode());
-        $this->assertRegExp('/.*middleware exception.*/', (string)$resOut);
-    }
-
     public function testFinalize()
     {
         $method = new \ReflectionMethod('Slim\App', 'finalize');
@@ -1649,40 +1547,9 @@ class AppTest extends TestCase
         $this->assertFalse($response->hasHeader('Content-Type'));
     }
 
-    public function testUnsupportedMethodWithoutRoute()
-    {
-        $app = new App();
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/',
-            'REQUEST_METHOD' => 'BADMTHD',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $request = new Request('GET', $uri, $headers, [], $env, new RequestBody());
-        $response = new Response();
+    // TODO: Re-add testUnsupportedMethodWithoutRoute
 
-        $resOut = $app->process($request, $response);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(404, $resOut->getStatusCode());
-    }
-
-    public function testUnsupportedMethodWithRoute()
-    {
-        $app = new App();
-        $app->get('/', function () {
-            // stubbed action to give us a route at /
-        });
-
-        $request = $this->requestFactory('/', 'BADMTHD');
-        $response = new Response();
-
-        $resOut = $app->process($request, $response);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(405, $resOut->getStatusCode());
-    }
+    // TODO: Re-add testUnsupportedMethodWithRoute
 
     public function testContainerSetToRoute()
     {
@@ -1735,25 +1602,6 @@ class AppTest extends TestCase
 
         $result = $method->invoke(new App(), $response);
         $this->assertTrue($result);
-    }
-
-    public function testHandlePhpError()
-    {
-        $this->skipIfPhp70();
-        $method = new \ReflectionMethod('Slim\App', 'handlePhpError');
-        $method->setAccessible(true);
-
-        $throwable = $this->getMockBuilder('\Throwable')
-            ->setMethods(['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious'])->getMock();
-
-        $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
-        $res = new Response();
-
-        $res = $method->invoke(new App(), $throwable, $req, $res);
-
-        $this->assertSame(500, $res->getStatusCode());
-        $this->assertSame('text/html', $res->getHeaderLine('Content-Type'));
-        $this->assertEquals(0, strpos((string)$res->getBody(), '<html>'));
     }
 
     protected function skipIfPhp70()
