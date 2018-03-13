@@ -8,7 +8,7 @@
  */
 namespace Slim\Middleware;
 
-use Slim\Dispatcher;
+use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
@@ -41,6 +41,9 @@ class RoutingMiddleware
      * @param  ResponseInterface      $response  PSR7 response
      * @param  callable               $next      Middleware callable
      * @return ResponseInterface                 PSR7 response
+     *
+     * @throws HttpNotFoundException
+     * @throws HttpMethodNotAllowedException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
@@ -53,29 +56,32 @@ class RoutingMiddleware
      *
      * @param  ServerRequestInterface $request   PSR7 server request
      * @return ServerRequestInterface
+     *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
     public function performRouting(ServerRequestInterface $request)
     {
         $dispatcherResults = $this->router->dispatch($request);
+        $routeStatus = $dispatcherResults->getRouteStatus();
 
-        if ($dispatcherResults->getRouteStatus() === Dispatcher::FOUND) {
-            $routeArguments = $dispatcherResults->getRouteArguments();
-            $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
-            $route->prepare($request, $routeArguments);
+        switch ($routeStatus) {
+            default:
+            case Dispatcher::FOUND:
+                $routeArguments = $dispatcherResults->getRouteArguments();
+                $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
+                $route->prepare($request, $routeArguments);
+                return $request
+                    ->withAttribute('route', $route)
+                    ->withAttribute('dispatcherResults', $dispatcherResults);
 
-            // Add route to the request's attributes
-            $request = $request->withAttribute('route', $route);
-        } elseif ($routeInfo[0] === Dispatcher::NOT_FOUND) {
-            $exception = new HttpNotFoundException($request);
-            throw $exception;
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            $exception = new HttpMethodNotAllowedException($request);
-            $exception->setAllowedMethods($routeInfo[1]);
-            throw $exception;
+            case Dispatcher::NOT_FOUND:
+                throw new HttpNotFoundException($request);
+
+            case Dispatcher::METHOD_NOT_ALLOWED:
+                $exception = new HttpMethodNotAllowedException($request);
+                $exception->setAllowedMethods($dispatcherResults->getAllowedMethods());
+                throw $exception;
         }
-
-        return $request->withAttribute('dispatcherResults', $dispatcherResults);
     }
 }
