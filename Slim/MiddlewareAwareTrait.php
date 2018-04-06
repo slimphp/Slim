@@ -1,12 +1,13 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com).
+ * Slim Framework (https://slimframework.com)
  *
  * @see      https://github.com/slimphp/Slim
  *
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim;
 
 use RuntimeException;
@@ -15,32 +16,32 @@ use Psr\Http\Message\ResponseInterface;
 use UnexpectedValueException;
 
 /**
- * Middleware.
+ * Middleware
  *
  * This is an internal class that enables concentric middleware layers. This
  * class is an implementation detail and is used only inside of the Slim
- * application; it is not visible to—and should not be used by—end users.
+ * application; it is not visible to—and should not be used by—end users
  */
 trait MiddlewareAwareTrait
 {
     /**
-     * middleware call stack.
+     * middleware call stack
      *
      * @var callable
      */
     protected $stack = [];
 
     /**
-     * Middleware stack lock.
+     * Middleware stack lock
      *
      * @var bool
      */
     protected $middlewareLock = false;
 
     /**
-     * Add middleware.
+     * Add middleware
      *
-     * This method prepends new middleware to the application middleware stack.
+     * This method prepends new middleware to the application middleware stack
      *
      * @param callable $callable Any callable that accepts three arguments:
      *                           1. A Request object
@@ -68,7 +69,7 @@ trait MiddlewareAwareTrait
     }
 
     /**
-     * Seed middleware stack with first callable.
+     * Seed middleware stack with first callable
      *
      * @param callable $kernel The last item to run as middleware
      *
@@ -76,7 +77,7 @@ trait MiddlewareAwareTrait
      */
     protected function seedMiddlewareStack(callable $kernel = null)
     {
-        if (($this->stack)) {
+        if (!empty($this->stack)) {
             throw new RuntimeException('MiddlewareStack can only be seeded once.');
         }
         if (null === $kernel) {
@@ -119,7 +120,7 @@ trait MiddlewareAwareTrait
     }
 
     /**
-     * Call middleware stack.
+     * Call middleware stack
      *
      * @param ServerRequestInterface $request  A request object
      * @param ResponseInterface      $response A response object
