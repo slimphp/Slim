@@ -1,8 +1,9 @@
 <?php
 /**
- * Slim Framework (https://slimframework.com)
+ * Slim Framework (https://slimframework.com).
  *
- * @link      https://github.com/slimphp/Slim
+ * @see      https://github.com/slimphp/Slim
+ *
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
@@ -14,7 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use UnexpectedValueException;
 
 /**
- * Middleware
+ * Middleware.
  *
  * This is an internal class that enables concentric middleware layers. This
  * class is an implementation detail and is used only inside of the Slim
@@ -23,21 +24,21 @@ use UnexpectedValueException;
 trait MiddlewareAwareTrait
 {
     /**
-     * Tip of the middleware call stack
+     * middleware call stack.
      *
      * @var callable
      */
-    protected $tip;
+    protected $stack = [];
 
     /**
-     * Middleware stack lock
+     * Middleware stack lock.
      *
      * @var bool
      */
     protected $middlewareLock = false;
 
     /**
-     * Add middleware
+     * Add middleware.
      *
      * This method prepends new middleware to the application middleware stack.
      *
@@ -45,6 +46,7 @@ trait MiddlewareAwareTrait
      *                           1. A Request object
      *                           2. A Response object
      *                           3. A "next" middleware callable
+     *
      * @return static
      *
      * @throws RuntimeException         If middleware is added while the stack is dequeuing
@@ -56,32 +58,17 @@ trait MiddlewareAwareTrait
             throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');
         }
 
-        if (is_null($this->tip)) {
+        if (empty($this->stack)) {
             $this->seedMiddlewareStack();
         }
-        $next = $this->tip;
-        $this->tip = function (
-            ServerRequestInterface $request,
-            ResponseInterface $response
-        ) use (
-            $callable,
-            $next
-        ) {
-            $result = call_user_func($callable, $request, $response, $next);
-            if ($result instanceof ResponseInterface === false) {
-                throw new UnexpectedValueException(
-                    'Middleware must return instance of \Psr\Http\Message\ResponseInterface'
-                );
-            }
 
-            return $result;
-        };
+        $this->stack[] = $callable;
 
         return $this;
     }
 
     /**
-     * Seed middleware stack with first callable
+     * Seed middleware stack with first callable.
      *
      * @param callable $kernel The last item to run as middleware
      *
@@ -89,33 +76,67 @@ trait MiddlewareAwareTrait
      */
     protected function seedMiddlewareStack(callable $kernel = null)
     {
-        if (!is_null($this->tip)) {
+        if (($this->stack)) {
             throw new RuntimeException('MiddlewareStack can only be seeded once.');
         }
-        if ($kernel === null) {
+        if (null === $kernel) {
             $kernel = $this;
         }
-        $this->tip = $kernel;
+        $this->stack[] = $kernel;
+    }
+
+    protected function prepareStack()
+    {
+        if (!empty($this->stack)) {
+            $handler = array_shift($this->stack);
+
+            if (isset($this->container->get('settings')['middlewareFifo']) && $this->container->get('settings')['middlewareFifo']) {
+                $this->stack = array_reverse($this->stack);
+            }
+
+            foreach ($this->stack as $callable) {
+                $next = $handler;
+                $handler = function (
+                    ServerRequestInterface $request,
+                    ResponseInterface $response
+                ) use (
+                    $callable,
+                    $next
+                ) {
+                    $result = call_user_func($callable, $request, $response, $next);
+                    if (false === $result instanceof ResponseInterface) {
+                        throw new UnexpectedValueException(
+                            'Middleware must return instance of \Psr\Http\Message\ResponseInterface'
+                        );
+                    }
+
+                    return $result;
+                };
+            }
+        }
+
+        return $handler;
     }
 
     /**
-     * Call middleware stack
+     * Call middleware stack.
      *
-     * @param  ServerRequestInterface $request A request object
-     * @param  ResponseInterface      $response A response object
+     * @param ServerRequestInterface $request  A request object
+     * @param ResponseInterface      $response A response object
      *
      * @return ResponseInterface
      */
     public function callMiddlewareStack(ServerRequestInterface $request, ResponseInterface $response)
     {
-        if (is_null($this->tip)) {
+        if (empty($this->stack)) {
             $this->seedMiddlewareStack();
         }
-        /** @var callable $start */
-        $start = $this->tip;
+        /** @var callable $stack */
+        $stack = $this->prepareStack();
         $this->middlewareLock = true;
-        $response = $start($request, $response);
+        $response = $stack($request, $response);
         $this->middlewareLock = false;
+
         return $response;
     }
 }

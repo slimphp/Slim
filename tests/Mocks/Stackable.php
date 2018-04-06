@@ -10,6 +10,7 @@ namespace Slim\Tests\Mocks;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Container;
 use Slim\MiddlewareAwareTrait;
 
 /**
@@ -18,6 +19,13 @@ use Slim\MiddlewareAwareTrait;
 class Stackable
 {
     use MiddlewareAwareTrait;
+
+    public $container = null;
+
+    public function __construct()
+    {
+        $this->container = new Container();
+    }
 
     public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
     {
