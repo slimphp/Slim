@@ -18,9 +18,9 @@ use Slim\Http\Uri;
 
 class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 {
-    static private $filename = './phpUxcOty';
+    private static $filename = './phpUxcOty';
 
-    static private $tmpFiles = ['./phpUxcOty'];
+    private static $tmpFiles = ['./phpUxcOty'];
     /**
      * @beforeClass
      */

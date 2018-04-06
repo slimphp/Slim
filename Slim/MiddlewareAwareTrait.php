@@ -90,7 +90,8 @@ trait MiddlewareAwareTrait
     {
         $handler = array_shift($this->stack);
         if (!empty($this->stack)) {
-            if (isset($this->container) && isset($this->container->get('settings')['middlewareFifo']) && $this->container->get('settings')['middlewareFifo']) {
+            if (isset($this->container) && isset($this->container->get('settings')['middlewareFifo'])
+                && $this->container->get('settings')['middlewareFifo']) {
                 $this->stack = array_reverse($this->stack);
             }
 

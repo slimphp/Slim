@@ -122,7 +122,7 @@ class Response extends Message implements ResponseInterface
      *
      * @var string
      */
-     const EOL = "\r\n";
+    const EOL = "\r\n";
 
     /**
      * Create new HTTP response.
