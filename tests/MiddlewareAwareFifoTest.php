@@ -16,7 +16,7 @@ use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Tests\Mocks\Stackable;
 
-class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
+class MiddlewareAwareFifoTest extends \PHPUnit_Framework_TestCase
 {
     public function testSeedsMiddlewareStack()
     {
