@@ -88,9 +88,8 @@ trait MiddlewareAwareTrait
 
     protected function prepareStack()
     {
+        $handler = array_shift($this->stack);
         if (!empty($this->stack)) {
-            $handler = array_shift($this->stack);
-
             if (isset($this->container->get('settings')['middlewareFifo']) && $this->container->get('settings')['middlewareFifo']) {
                 $this->stack = array_reverse($this->stack);
             }
