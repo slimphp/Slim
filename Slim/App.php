@@ -12,6 +12,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -343,6 +344,24 @@ class App
         $route = $this->getRouter()->map($methods, $pattern, $callable);
 
         return $route;
+    }
+
+    /**
+     * Add a route that sends an HTTP redirect
+     *
+     * @param string              $from
+     * @param string|UriInterface $to
+     * @param int                 $status
+     *
+     * @return RouteInterface
+     */
+    public function redirect($from, $to, $status = 302)
+    {
+        $handler = function ($request, ResponseInterface $response) use ($to, $status) {
+            return $response->withHeader('Location', (string)$to)->withStatus($status);
+        };
+
+        return $this->get($from, $handler);
     }
 
     /**

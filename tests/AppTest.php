@@ -253,6 +253,26 @@ class AppTest extends TestCase
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
+    public function testRedirectRoute()
+    {
+        $source = '/foo';
+        $destination = '/bar';
+
+        $app = new App();
+        $route = $app->redirect($source, $destination, 301);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+
+        $response = $route->run($this->requestFactory($source), new Response());
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+
+        $routeWithDefaultStatus = $app->redirect($source, $destination);
+        $response = $routeWithDefaultStatus->run($this->requestFactory($source), new Response());
+        $this->assertEquals(302, $response->getStatusCode());
+    }
+
     /********************************************************************************
      * Route Patterns
      *******************************************************************************/
