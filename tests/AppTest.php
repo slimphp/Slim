@@ -166,6 +166,29 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
+    public function testRedirectRoute()
+    {
+        $source = '/foo';
+        $destination = '/bar';
+
+        $app = new App();
+        $request = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $route = $app->redirect($source, $destination, 301);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+        
+        $response = $route->run($request, new Response());
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+
+        $routeWithDefaultStatus = $app->redirect($source, $destination);
+        $response = $routeWithDefaultStatus->run($request, new Response());
+        $this->assertEquals(302, $response->getStatusCode());
+    }
+
     /********************************************************************************
      * Route Patterns
      *******************************************************************************/

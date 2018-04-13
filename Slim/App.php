@@ -249,6 +249,24 @@ class App
     }
 
     /**
+     * Add a route that sends an HTTP redirect
+     *
+     * @param string              $from
+     * @param string|UriInterface $to
+     * @param int                 $status
+     *
+     * @return RouteInterface
+     */
+    public function redirect($from, $to, $status = 302)
+    {
+        $handler = function ($request, ResponseInterface $response) use ($to, $status) {
+            return $response->withHeader('Location', (string)$to)->withStatus($status);
+        };
+
+        return $this->get($from, $handler);
+    }
+
+    /**
      * Route Groups
      *
      * This method accepts a route pattern and a callback. All route
