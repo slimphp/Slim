@@ -10,6 +10,7 @@
 namespace Slim\Tests;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -187,6 +188,13 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $routeWithDefaultStatus = $app->redirect($source, $destination);
         $response = $routeWithDefaultStatus->run($request, new Response());
         $this->assertEquals(302, $response->getStatusCode());
+
+        $uri = $this->getMockBuilder(UriInterface::class)->getMock();
+        $uri->expects($this->once())->method('__toString')->willReturn($destination);
+
+        $routeToUri = $app->redirect($source, $uri);
+        $response = $routeToUri->run($request, new Response());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
     /********************************************************************************
