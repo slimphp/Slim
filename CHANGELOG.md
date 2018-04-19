@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2425](https://github.com/slimphp/Slim/pull/2425) Added $app->redirect()
 - [#2398](https://github.com/slimphp/Slim/pull/2398) Added Middleware\ErrorMiddleware
 - [#2329](https://github.com/slimphp/Slim/pull/2329) Added Middleware\MethodOverrideMiddleware
 - [#2288](https://github.com/slimphp/Slim/pull/2288) Separate routing from dispatching
