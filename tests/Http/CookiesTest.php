@@ -35,7 +35,8 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
             'path' => null,
             'expires' => null,
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
+            'samesite' => null
         ];
 
         $cookies = new Cookies;
@@ -68,7 +69,8 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
                 'path' => null,
                 'expires' => null,
                 'secure' => false,
-                'httponly' => false
+                'httponly' => false,
+                'samesite' => null
             ]
         ];
 
@@ -85,7 +87,8 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
             'path' => null,
             'expires' => null,
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
+            'samesite' => 'lax'
         ];
 
         $cookies->setDefaults($defaults);
@@ -94,7 +97,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($cookies, 'responseCookies');
         $prop->setAccessible(true);
 
-        //we expect to have secure and httponly from defaults
+        //we expect to have secure, httponly and samesite from defaults
         $expectedValue = [
             'foo' => [
                 'value' => 'bar',
@@ -103,7 +106,8 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
                 'path' => null,
                 'expires' => null,
                 'secure' => true,
-                'httponly' => true
+                'httponly' => true,
+                'samesite' => 'lax'
             ]
         ];
 
@@ -120,13 +124,14 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
             'path' => null,
             'expires' => null,
             'secure' => true,
-            'httponly' => true
+            'httponly' => true,
+            'samesite' => 'lax'
         ];
 
         $cookies->setDefaults($defaults);
 
-        //default has secure true, lets override it to false
-        $cookies->set('foo', ['value' => 'bar', 'secure' => false]);
+        //default has secure true, samesite lax, lets override them
+        $cookies->set('foo', ['value' => 'bar', 'secure' => false, 'samesite' => 'strict']);
 
         $prop = new ReflectionProperty($cookies, 'responseCookies');
         $prop->setAccessible(true);
@@ -139,7 +144,43 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
                 'path' => null,
                 'expires' => null,
                 'secure' => false,
-                'httponly' => true
+                'httponly' => true,
+                'samesite' => 'strict'
+            ]
+        ];
+
+        $this->assertEquals($expectedValue, $prop->getValue($cookies));
+    }
+
+
+    public function testSetSameSiteCookieValuesAreCaseInsensitive()
+    {
+        // See also:
+        // https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1
+
+        $cookies = new Cookies;
+        $defaults = [
+            'value' => 'bacon',
+            'samesite' => 'lax'
+        ];
+
+        $cookies->setDefaults($defaults);
+
+        $cookies->set('breakfast', ['samesite' => 'StricT']);
+
+        $prop = new ReflectionProperty($cookies, 'responseCookies');
+        $prop->setAccessible(true);
+
+        $expectedValue = [
+            'breakfast' => [
+                'value' => 'bacon',
+                'domain' => null,
+                'hostonly' => null,
+                'path' => null,
+                'expires' => null,
+                'secure' => false,
+                'httponly' => false,
+                'samesite' => 'StricT',
             ]
         ];
 
@@ -200,7 +241,8 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
                 'path' => '/',
                 'secure' => true,
                 'hostonly' => true,
-                'httponly' => true
+                'httponly' => true,
+                'samesite' => 'lax'
             ]
         ];
         $stringDate = '2016-01-01 12:00:00';
@@ -218,7 +260,7 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('test=Works', $cookie);
         $this->assertEquals(
             'test_complex=Works; domain=example.com; path=/; expires='
-            . $formattedDate . '; secure; HostOnly; HttpOnly',
+            . $formattedDate . '; secure; HostOnly; HttpOnly; SameSite=lax',
             $cookieComplex
         );
         $this->assertEquals('test_date=Works; expires=' . $formattedStringDate, $cookieStringDate);
