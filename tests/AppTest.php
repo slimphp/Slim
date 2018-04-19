@@ -10,6 +10,7 @@
 namespace Slim\Tests;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -164,6 +165,36 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
+    }
+
+    public function testRedirectRoute()
+    {
+        $source = '/foo';
+        $destination = '/bar';
+
+        $app = new App();
+        $request = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $route = $app->redirect($source, $destination, 301);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+        
+        $response = $route->run($request, new Response());
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+
+        $routeWithDefaultStatus = $app->redirect($source, $destination);
+        $response = $routeWithDefaultStatus->run($request, new Response());
+        $this->assertEquals(302, $response->getStatusCode());
+
+        $uri = $this->getMockBuilder(UriInterface::class)->getMock();
+        $uri->expects($this->once())->method('__toString')->willReturn($destination);
+
+        $routeToUri = $app->redirect($source, $uri);
+        $response = $routeToUri->run($request, new Response());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
     /********************************************************************************
