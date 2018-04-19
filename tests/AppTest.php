@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
@@ -251,6 +252,33 @@ class AppTest extends TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
+    }
+
+    public function testRedirectRoute()
+    {
+        $source = '/foo';
+        $destination = '/bar';
+
+        $app = new App();
+        $route = $app->redirect($source, $destination, 301);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+
+        $response = $route->run($this->requestFactory($source), new Response());
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+
+        $routeWithDefaultStatus = $app->redirect($source, $destination);
+        $response = $routeWithDefaultStatus->run($this->requestFactory($source), new Response());
+        $this->assertEquals(302, $response->getStatusCode());
+
+        $uri = $this->getMockBuilder(UriInterface::class)->getMock();
+        $uri->expects($this->once())->method('__toString')->willReturn($destination);
+
+        $routeToUri = $app->redirect($source, $uri);
+        $response = $routeToUri->run($this->requestFactory($source), new Response());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
     /********************************************************************************
