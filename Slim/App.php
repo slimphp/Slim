@@ -52,7 +52,7 @@ class App
      *
      * @var string
      */
-    const VERSION = '3.10.0';
+    const VERSION = '3.10.1-dev';
 
     /**
      * Container
