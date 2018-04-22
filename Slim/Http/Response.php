@@ -131,8 +131,11 @@ class Response extends Message implements ResponseInterface
      * @param HeadersInterface|null $headers The response headers.
      * @param StreamInterface|null  $body    The response body.
      */
-    public function __construct($status = 200, HeadersInterface $headers = null, StreamInterface $body = null)
-    {
+    public function __construct(
+        $status = StatusCodes::HTTP_OK,
+        HeadersInterface $headers = null,
+        StreamInterface $body = null
+    ) {
         $this->status = $this->filterStatus($status);
         $this->headers = $headers ? $headers : new Headers();
         $this->body = $body ? $body : new Body(fopen('php://temp', 'r+'));
@@ -218,7 +221,10 @@ class Response extends Message implements ResponseInterface
      */
     protected function filterStatus($status)
     {
-        if (!is_integer($status) || $status<100 || $status>599) {
+        if (!is_integer($status) ||
+            $status<StatusCodes::HTTP_CONTINUE ||
+            $status>StatusCodes::HTTP_NETWORK_CONNECTION_TIMEOUT_ERROR
+        ) {
             throw new InvalidArgumentException('Invalid HTTP status code');
         }
 
@@ -269,8 +275,8 @@ class Response extends Message implements ResponseInterface
         $clone = clone $this;
         $clone->headers->set($name, $value);
 
-        if ($clone->getStatusCode() === 200 && strtolower($name) === 'location') {
-            $clone = $clone->withStatus(302);
+        if ($clone->getStatusCode() === StatusCodes::HTTP_OK && strtolower($name) === 'location') {
+            $clone = $clone->withStatus(StatusCodes::HTTP_FOUND);
         }
 
         return $clone;
@@ -318,8 +324,8 @@ class Response extends Message implements ResponseInterface
     {
         $responseWithRedirect = $this->withHeader('Location', (string)$url);
 
-        if (is_null($status) && $this->getStatusCode() === 200) {
-            $status = 302;
+        if (is_null($status) && $this->getStatusCode() === StatusCodes::HTTP_OK) {
+            $status = StatusCodes::HTTP_FOUND;
         }
 
         if (!is_null($status)) {
@@ -369,7 +375,10 @@ class Response extends Message implements ResponseInterface
      */
     public function isEmpty()
     {
-        return in_array($this->getStatusCode(), [204, 205, 304]);
+        return in_array(
+            $this->getStatusCode(),
+            [StatusCodes::HTTP_NO_CONTENT, StatusCodes::HTTP_RESET_CONTENT, StatusCodes::HTTP_NOT_MODIFIED]
+        );
     }
 
     /**
@@ -381,7 +390,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isInformational()
     {
-        return $this->getStatusCode() >= 100 && $this->getStatusCode() < 200;
+        return $this->getStatusCode() >= StatusCodes::HTTP_CONTINUE && $this->getStatusCode() < StatusCodes::HTTP_OK;
     }
 
     /**
@@ -393,7 +402,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isOk()
     {
-        return $this->getStatusCode() === 200;
+        return $this->getStatusCode() === StatusCodes::HTTP_OK;
     }
 
     /**
@@ -405,7 +414,8 @@ class Response extends Message implements ResponseInterface
      */
     public function isSuccessful()
     {
-        return $this->getStatusCode() >= 200 && $this->getStatusCode() < 300;
+        return $this->getStatusCode() >= StatusCodes::HTTP_OK &&
+            $this->getStatusCode() < StatusCodes::HTTP_MULTIPLE_CHOICES;
     }
 
     /**
@@ -417,7 +427,15 @@ class Response extends Message implements ResponseInterface
      */
     public function isRedirect()
     {
-        return in_array($this->getStatusCode(), [301, 302, 303, 307]);
+        return in_array(
+            $this->getStatusCode(),
+            [
+                StatusCodes::HTTP_MOVED_PERMANENTLY,
+                StatusCodes::HTTP_FOUND,
+                StatusCodes::HTTP_SEE_OTHER,
+                StatusCodes::HTTP_TEMPORARY_REDIRECT
+            ]
+        );
     }
 
     /**
@@ -429,7 +447,8 @@ class Response extends Message implements ResponseInterface
      */
     public function isRedirection()
     {
-        return $this->getStatusCode() >= 300 && $this->getStatusCode() < 400;
+        return $this->getStatusCode() >= StatusCodes::HTTP_MULTIPLE_CHOICES &&
+            $this->getStatusCode() < StatusCodes::HTTP_BAD_REQUEST;
     }
 
     /**
@@ -442,7 +461,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isForbidden()
     {
-        return $this->getStatusCode() === 403;
+        return $this->getStatusCode() === StatusCodes::HTTP_FORBIDDEN;
     }
 
     /**
@@ -454,7 +473,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isNotFound()
     {
-        return $this->getStatusCode() === 404;
+        return $this->getStatusCode() === StatusCodes::HTTP_NOT_FOUND;
     }
 
     /**
@@ -466,7 +485,8 @@ class Response extends Message implements ResponseInterface
      */
     public function isClientError()
     {
-        return $this->getStatusCode() >= 400 && $this->getStatusCode() < 500;
+        return $this->getStatusCode() >= StatusCodes::HTTP_BAD_REQUEST &&
+            $this->getStatusCode() < StatusCodes::HTTP_INTERNAL_SERVER_ERROR;
     }
 
     /**
@@ -478,7 +498,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isServerError()
     {
-        return $this->getStatusCode() >= 500 && $this->getStatusCode() < 600;
+        return $this->getStatusCode() >= StatusCodes::HTTP_INTERNAL_SERVER_ERROR && $this->getStatusCode() < 600;
     }
 
     /**
