@@ -48,73 +48,73 @@ class Response extends Message implements ResponseInterface
     protected static $messages = [
         //Informational 1xx
         StatusCode::HTTP_CONTINUE => 'Continue',
-        StatusCode::SWITCHING_PROTOCOLS => 'Switching Protocols',
+        StatusCode::HTTP_SWITCHING_PROTOCOLS => 'Switching Protocols',
         StatusCode::HTTP_PROCESSING => 'Processing',
         //Successful 2xx
         StatusCode::HTTP_OK => 'OK',
         StatusCode::HTTP_CREATED => 'Created',
         StatusCode::HTTP_ACCEPTED => 'Accepted',
-        StatusCode::NONAUTHORITATIVE_INFORMATION => 'Non-Authoritative Information',
-        StatusCode::NO_CONTENT => 'No Content',
-        StatusCode::RESET_CONTENT => 'Reset Content',
-        StatusCode::PARTIAL_CONTENT => 'Partial Content',
-        StatusCode::MULTI_STATUS => 'Multi-Status',
-        StatusCode::ALREADY_REPORTED => 'Already Reported',
-        StatusCode::IM_USED => 'IM Used',
+        StatusCode::HTTP_NONAUTHORITATIVE_INFORMATION => 'Non-Authoritative Information',
+        StatusCode::HTTP_NO_CONTENT => 'No Content',
+        StatusCode::HTTP_RESET_CONTENT => 'Reset Content',
+        StatusCode::HTTP_PARTIAL_CONTENT => 'Partial Content',
+        StatusCode::HTTP_MULTI_STATUS => 'Multi-Status',
+        StatusCode::HTTP_ALREADY_REPORTED => 'Already Reported',
+        StatusCode::HTTP_IM_USED => 'IM Used',
         //Redirection 3xx
-        StatusCode::MULTIPLE_CHOICES => 'Multiple Choices',
-        StatusCode::MOVED_PERMANENTLY => 'Moved Permanently',
+        StatusCode::HTTP_MULTIPLE_CHOICES => 'Multiple Choices',
+        StatusCode::HTTP_MOVED_PERMANENTLY => 'Moved Permanently',
         StatusCode::HTTP_FOUND => 'Found',
-        StatusCode::SEE_OTHER => 'See Other',
-        StatusCode::NOT_MODIFIED => 'Not Modified',
-        StatusCode::USE_PROXY => 'Use Proxy',
+        StatusCode::HTTP_SEE_OTHER => 'See Other',
+        StatusCode::HTTP_NOT_MODIFIED => 'Not Modified',
+        StatusCode::HTTP_USE_PROXY => 'Use Proxy',
         StatusCode::HTTP_UNUSED => '(Unused)',
-        StatusCode::TEMPORARY_REDIRECT => 'Temporary Redirect',
-        StatusCode::PERMANENT_REDIRECT => 'Permanent Redirect',
+        StatusCode::HTTP_TEMPORARY_REDIRECT => 'Temporary Redirect',
+        StatusCode::HTTP_PERMANENT_REDIRECT => 'Permanent Redirect',
         //Client Error 4xx
-        StatusCode::BAD_REQUEST => 'Bad Request',
+        StatusCode::HTTP_BAD_REQUEST => 'Bad Request',
         StatusCode::HTTP_UNAUTHORIZED => 'Unauthorized',
-        StatusCode::PAYMENT_REQUIRED => 'Payment Required',
+        StatusCode::HTTP_PAYMENT_REQUIRED => 'Payment Required',
         StatusCode::HTTP_FORBIDDEN => 'Forbidden',
-        StatusCode::NOT_FOUND => 'Not Found',
-        StatusCode::METHOD_NOT_ALLOWED => 'Method Not Allowed',
-        StatusCode::NOT_ACCEPTABLE => 'Not Acceptable',
-        StatusCode::PROXY_AUTHENTICATION_REQUIRED => 'Proxy Authentication Required',
-        StatusCode::REQUEST_TIMEOUT => 'Request Timeout',
+        StatusCode::HTTP_NOT_FOUND => 'Not Found',
+        StatusCode::HTTP_METHOD_NOT_ALLOWED => 'Method Not Allowed',
+        StatusCode::HTTP_NOT_ACCEPTABLE => 'Not Acceptable',
+        StatusCode::HTTP_PROXY_AUTHENTICATION_REQUIRED => 'Proxy Authentication Required',
+        StatusCode::HTTP_REQUEST_TIMEOUT => 'Request Timeout',
         StatusCode::HTTP_CONFLICT => 'Conflict',
         StatusCode::HTTP_GONE => 'Gone',
-        StatusCode::LENGTH_REQUIRED => 'Length Required',
-        StatusCode::PRECONDITION_FAILED => 'Precondition Failed',
-        StatusCode::REQUEST_ENTITY_TOO_LARGE => 'Request Entity Too Large',
-        StatusCode::REQUEST_URI_TOO_LONG => 'Request-URI Too Long',
-        StatusCode::UNSUPPORTED_MEDIA_TYPE => 'Unsupported Media Type',
-        StatusCode::REQUESTED_RANGE_NOT_SATISFIABLE => 'Requested Range Not Satisfiable',
-        StatusCode::EXPECTATION_FAILED => 'Expectation Failed',
-        StatusCode::IM_A_TEAPOT => 'I\'m a teapot',
-        StatusCode::MISDIRECTED_REQUEST => 'Misdirected Request',
-        StatusCode::UNPROCESSABLE_ENTITY => 'Unprocessable Entity',
+        StatusCode::HTTP_LENGTH_REQUIRED => 'Length Required',
+        StatusCode::HTTP_PRECONDITION_FAILED => 'Precondition Failed',
+        StatusCode::HTTP_REQUEST_ENTITY_TOO_LARGE => 'Request Entity Too Large',
+        StatusCode::HTTP_REQUEST_URI_TOO_LONG => 'Request-URI Too Long',
+        StatusCode::HTTP_UNSUPPORTED_MEDIA_TYPE => 'Unsupported Media Type',
+        StatusCode::HTTP_REQUESTED_RANGE_NOT_SATISFIABLE => 'Requested Range Not Satisfiable',
+        StatusCode::HTTP_EXPECTATION_FAILED => 'Expectation Failed',
+        StatusCode::HTTP_IM_A_TEAPOT => 'I\'m a teapot',
+        StatusCode::HTTP_MISDIRECTED_REQUEST => 'Misdirected Request',
+        StatusCode::HTTP_UNPROCESSABLE_ENTITY => 'Unprocessable Entity',
         StatusCode::HTTP_LOCKED => 'Locked',
-        StatusCode::FAILED_DEPENDENCY => 'Failed Dependency',
-        StatusCode::UPGRADE_REQUIRED => 'Upgrade Required',
-        StatusCode::PRECONDITION_REQUIRED => 'Precondition Required',
-        StatusCode::TOO_MANY_REQUESTS => 'Too Many Requests',
-        StatusCode::REQUEST_HEADER_FIELDS_TOO_LARGE => 'Request Header Fields Too Large',
-        StatusCode::CONNECTION_CLOSED_WITHOUT_RESPONSE => 'Connection Closed Without Response',
-        StatusCode::UNAVAILABLE_FOR_LEGAL_REASONS => 'Unavailable For Legal Reasons',
-        StatusCode::CLIENT_CLOSED_REQUEST => 'Client Closed Request',
+        StatusCode::HTTP_FAILED_DEPENDENCY => 'Failed Dependency',
+        StatusCode::HTTP_UPGRADE_REQUIRED => 'Upgrade Required',
+        StatusCode::HTTP_PRECONDITION_REQUIRED => 'Precondition Required',
+        StatusCode::HTTP_TOO_MANY_REQUESTS => 'Too Many Requests',
+        StatusCode::HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE => 'Request Header Fields Too Large',
+        StatusCode::HTTP_CONNECTION_CLOSED_WITHOUT_RESPONSE => 'Connection Closed Without Response',
+        StatusCode::HTTP_UNAVAILABLE_FOR_LEGAL_REASONS => 'Unavailable For Legal Reasons',
+        StatusCode::HTTP_CLIENT_CLOSED_REQUEST => 'Client Closed Request',
         //Server Error 5xx
-        StatusCode::INTERNAL_SERVER_ERROR => 'Internal Server Error',
-        StatusCode::NOT_IMPLEMENTED => 'Not Implemented',
-        StatusCode::BAD_GATEWAY => 'Bad Gateway',
-        StatusCode::SERVICE_UNAVAILABLE => 'Service Unavailable',
-        StatusCode::GATEWAY_TIMEOUT => 'Gateway Timeout',
-        StatusCode::VERSION_NOT_SUPPORTED => 'HTTP Version Not Supported',
-        StatusCode::VARIANT_ALSO_NEGOTIATES => 'Variant Also Negotiates',
-        StatusCode::INSUFFICIENT_STORAGE => 'Insufficient Storage',
-        StatusCode::LOOP_DETECTED => 'Loop Detected',
-        StatusCode::NOT_EXTENDED => 'Not Extended',
-        StatusCode::NETWORK_AUTHENTICATION_REQUIRED => 'Network Authentication Required',
-        StatusCode::NETWORK_CONNECTION_TIMEOUT_ERROR => 'Network Connect Timeout Error',
+        StatusCode::HTTP_INTERNAL_SERVER_ERROR => 'Internal Server Error',
+        StatusCode::HTTP_NOT_IMPLEMENTED => 'Not Implemented',
+        StatusCode::HTTP_BAD_GATEWAY => 'Bad Gateway',
+        StatusCode::HTTP_SERVICE_UNAVAILABLE => 'Service Unavailable',
+        StatusCode::HTTP_GATEWAY_TIMEOUT => 'Gateway Timeout',
+        StatusCode::HTTP_VERSION_NOT_SUPPORTED => 'HTTP Version Not Supported',
+        StatusCode::HTTP_VARIANT_ALSO_NEGOTIATES => 'Variant Also Negotiates',
+        StatusCode::HTTP_INSUFFICIENT_STORAGE => 'Insufficient Storage',
+        StatusCode::HTTP_LOOP_DETECTED => 'Loop Detected',
+        StatusCode::HTTP_NOT_EXTENDED => 'Not Extended',
+        StatusCode::HTTP_NETWORK_AUTHENTICATION_REQUIRED => 'Network Authentication Required',
+        StatusCode::HTTP_NETWORK_CONNECTION_TIMEOUT_ERROR => 'Network Connect Timeout Error',
     ];
 
     /**
@@ -122,7 +122,7 @@ class Response extends Message implements ResponseInterface
      *
      * @var string
      */
-     const EOL = "\r\n";
+    const EOL = "\r\n";
 
     /**
      * Create new HTTP response.
@@ -223,7 +223,7 @@ class Response extends Message implements ResponseInterface
     {
         if (!is_integer($status) ||
             $status<StatusCode::HTTP_CONTINUE ||
-            $status>StatusCode::NETWORK_CONNECTION_TIMEOUT_ERROR
+            $status>StatusCode::HTTP_NETWORK_CONNECTION_TIMEOUT_ERROR
         ) {
             throw new InvalidArgumentException('Invalid HTTP status code');
         }
@@ -377,7 +377,7 @@ class Response extends Message implements ResponseInterface
     {
         return in_array(
             $this->getStatusCode(),
-            [StatusCode::NO_CONTENT, StatusCode::RESET_CONTENT, StatusCode::NOT_MODIFIED]
+            [StatusCode::HTTP_NO_CONTENT, StatusCode::HTTP_RESET_CONTENT, StatusCode::HTTP_NOT_MODIFIED]
         );
     }
 
@@ -415,7 +415,7 @@ class Response extends Message implements ResponseInterface
     public function isSuccessful()
     {
         return $this->getStatusCode() >= StatusCode::HTTP_OK &&
-            $this->getStatusCode() < StatusCode::MULTIPLE_CHOICES;
+            $this->getStatusCode() < StatusCode::HTTP_MULTIPLE_CHOICES;
     }
 
     /**
@@ -430,10 +430,10 @@ class Response extends Message implements ResponseInterface
         return in_array(
             $this->getStatusCode(),
             [
-                StatusCode::MOVED_PERMANENTLY,
+                StatusCode::HTTP_MOVED_PERMANENTLY,
                 StatusCode::HTTP_FOUND,
-                StatusCode::SEE_OTHER,
-                StatusCode::TEMPORARY_REDIRECT
+                StatusCode::HTTP_SEE_OTHER,
+                StatusCode::HTTP_TEMPORARY_REDIRECT
             ]
         );
     }
@@ -447,8 +447,8 @@ class Response extends Message implements ResponseInterface
      */
     public function isRedirection()
     {
-        return $this->getStatusCode() >= StatusCode::MULTIPLE_CHOICES &&
-            $this->getStatusCode() < StatusCode::BAD_REQUEST;
+        return $this->getStatusCode() >= StatusCode::HTTP_MULTIPLE_CHOICES &&
+            $this->getStatusCode() < StatusCode::HTTP_BAD_REQUEST;
     }
 
     /**
@@ -473,7 +473,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isNotFound()
     {
-        return $this->getStatusCode() === StatusCode::NOT_FOUND;
+        return $this->getStatusCode() === StatusCode::HTTP_NOT_FOUND;
     }
 
     /**
@@ -485,8 +485,8 @@ class Response extends Message implements ResponseInterface
      */
     public function isClientError()
     {
-        return $this->getStatusCode() >= StatusCode::BAD_REQUEST &&
-            $this->getStatusCode() < StatusCode::INTERNAL_SERVER_ERROR;
+        return $this->getStatusCode() >= StatusCode::HTTP_BAD_REQUEST &&
+            $this->getStatusCode() < StatusCode::HTTP_INTERNAL_SERVER_ERROR;
     }
 
     /**
@@ -498,7 +498,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isServerError()
     {
-        return $this->getStatusCode() >= StatusCode::INTERNAL_SERVER_ERROR && $this->getStatusCode() < 600;
+        return $this->getStatusCode() >= StatusCode::HTTP_INTERNAL_SERVER_ERROR && $this->getStatusCode() < 600;
     }
 
     /**

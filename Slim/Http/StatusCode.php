@@ -22,7 +22,7 @@ class StatusCode
      *
      * @var int
      */
-    const SWITCHING_PROTOCOLS = 101;
+    const HTTP_SWITCHING_PROTOCOLS = 101;
 
     /**
      * Status code HTTP_PROCESSING
@@ -57,63 +57,63 @@ class StatusCode
      *
      * @var int
      */
-    const NONAUTHORITATIVE_INFORMATION = 203;
+    const HTTP_NONAUTHORITATIVE_INFORMATION = 203;
 
     /**
      * Status code HTTP_NO_CONTENT
      *
      * @var int
      */
-    const NO_CONTENT = 204;
+    const HTTP_NO_CONTENT = 204;
 
     /**
      * Status code HTTP_RESET_CONTENT
      *
      * @var int
      */
-    const RESET_CONTENT = 205;
+    const HTTP_RESET_CONTENT = 205;
 
     /**
      * Status code HTTP_PARTIAL_CONTENT
      *
      * @var int
      */
-    const PARTIAL_CONTENT = 206;
+    const HTTP_PARTIAL_CONTENT = 206;
 
     /**
      * Status code HTTP_MULTI_STATUS
      *
      * @var int
      */
-    const MULTI_STATUS = 207;
+    const HTTP_MULTI_STATUS = 207;
 
     /**
      * Status code HTTP_ALREADY_REPORTED
      *
      * @var int
      */
-    const ALREADY_REPORTED = 208;
+    const HTTP_ALREADY_REPORTED = 208;
 
     /**
      * Status code HTTP_IM_USED
      *
      * @var int
      */
-    const IM_USED = 226;
+    const HTTP_IM_USED = 226;
 
     /**
      * Status code HTTP_MULTIPLE_CHOICES
      *
      * @var int
      */
-    const MULTIPLE_CHOICES = 300;
+    const HTTP_MULTIPLE_CHOICES = 300;
 
     /**
      * Status code HTTP_MOVED_PERMANENTLY
      *
      * @var int
      */
-    const MOVED_PERMANENTLY = 301;
+    const HTTP_MOVED_PERMANENTLY = 301;
 
     /**
      * Status code HTTP_FOUND
@@ -127,49 +127,49 @@ class StatusCode
      *
      * @var int
      */
-    const SEE_OTHER = 303;
+    const HTTP_SEE_OTHER = 303;
 
     /**
      * Status code HTTP_NOT_MODIFIED
      *
      * @var int
      */
-    const NOT_MODIFIED = 304;
+    const HTTP_NOT_MODIFIED = 304;
 
     /**
      * Status code HTTP_USE_PROXY
      *
      * @var int
      */
-    const USE_PROXY = 305;
+    const HTTP_USE_PROXY = 305;
 
     /**
      * Status code HTTP_UNUSED
      *
      * @var int
      */
-    const HTTP_UNUSED = 306;
+    const HTTP_UNUSED= 306;
 
     /**
      * Status code HTTP_TEMPORARY_REDIRECT
      *
      * @var int
      */
-    const TEMPORARY_REDIRECT = 307;
+    const HTTP_TEMPORARY_REDIRECT = 307;
 
     /**
      * Status code HTTP_PERMANENT_REDIRECT
      *
      * @var int
      */
-    const PERMANENT_REDIRECT = 308;
+    const HTTP_PERMANENT_REDIRECT = 308;
 
     /**
      * Status code HTTP_BAD_REQUEST
      *
      * @var int
      */
-    const BAD_REQUEST = 400;
+    const HTTP_BAD_REQUEST = 400;
 
     /**
      * Status code HTTP_UNAUTHORIZED
@@ -183,7 +183,7 @@ class StatusCode
      *
      * @var int
      */
-    const PAYMENT_REQUIRED = 402;
+    const HTTP_PAYMENT_REQUIRED = 402;
 
     /**
      * Status code HTTP_FORBIDDEN
@@ -197,35 +197,35 @@ class StatusCode
      *
      * @var int
      */
-    const NOT_FOUND = 404;
+    const HTTP_NOT_FOUND = 404;
 
     /**
      * Status code HTTP_METHOD_NOT_ALLOWED
      *
      * @var int
      */
-    const METHOD_NOT_ALLOWED = 405;
+    const HTTP_METHOD_NOT_ALLOWED = 405;
 
     /**
      * Status code HTTP_NOT_ACCEPTABLE
      *
      * @var int
      */
-    const NOT_ACCEPTABLE = 406;
+    const HTTP_NOT_ACCEPTABLE = 406;
 
     /**
      * Status code HTTP_PROXY_AUTHENTICATION_REQUIRED
      *
      * @var int
      */
-    const PROXY_AUTHENTICATION_REQUIRED = 407;
+    const HTTP_PROXY_AUTHENTICATION_REQUIRED = 407;
 
     /**
      * Status code HTTP_REQUEST_TIMEOUT
      *
      * @var int
      */
-    const REQUEST_TIMEOUT = 408;
+    const HTTP_REQUEST_TIMEOUT = 408;
 
     /**
      * Status code HTTP_CONFLICT
@@ -246,70 +246,70 @@ class StatusCode
      *
      * @var int
      */
-    const LENGTH_REQUIRED = 411;
+    const HTTP_LENGTH_REQUIRED = 411;
 
     /**
      * Status code HTTP_PRECONDITION_FAILED
      *
      * @var int
      */
-    const PRECONDITION_FAILED = 412;
+    const HTTP_PRECONDITION_FAILED = 412;
 
     /**
      * Status code HTTP_REQUEST_ENTITY_TOO_LARGE
      *
      * @var int
      */
-    const REQUEST_ENTITY_TOO_LARGE = 413;
+    const HTTP_REQUEST_ENTITY_TOO_LARGE = 413;
 
     /**
      * Status code HTTP_REQUEST_URI_TOO_LONG
      *
      * @var int
      */
-    const REQUEST_URI_TOO_LONG = 414;
+    const HTTP_REQUEST_URI_TOO_LONG = 414;
 
     /**
      * Status code HTTP_UNSUPPORTED_MEDIA_TYPE
      *
      * @var int
      */
-    const UNSUPPORTED_MEDIA_TYPE = 415;
+    const HTTP_UNSUPPORTED_MEDIA_TYPE = 415;
 
     /**
      * Status code HTTP_REQUESTED_RANGE_NOT_SATISFIABLE
      *
      * @var int
      */
-    const REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    const HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
 
     /**
      * Status code HTTP_EXPECTATION_FAILED
      *
      * @var int
      */
-    const EXPECTATION_FAILED = 417;
+    const HTTP_EXPECTATION_FAILED = 417;
 
     /**
      * Status code HTTP_IM_A_TEAPOT
      *
      * @var int
      */
-    const IM_A_TEAPOT = 418;
+    const HTTP_IM_A_TEAPOT = 418;
 
     /**
      * Status code HTTP_MISDIRECTED_REQUEST
      *
      * @var int
      */
-    const MISDIRECTED_REQUEST = 421;
+    const HTTP_MISDIRECTED_REQUEST = 421;
 
     /**
      * Status code HTTP_UNPROCESSABLE_ENTITY
      *
      * @var int
      */
-    const UNPROCESSABLE_ENTITY = 422;
+    const HTTP_UNPROCESSABLE_ENTITY = 422;
 
     /**
      * Status code HTTP_LOCKED
@@ -323,138 +323,138 @@ class StatusCode
      *
      * @var int
      */
-    const FAILED_DEPENDENCY = 424;
+    const HTTP_FAILED_DEPENDENCY = 424;
 
     /**
      * Status code HTTP_UPGRADE_REQUIRED
      *
      * @var int
      */
-    const UPGRADE_REQUIRED = 426;
+    const HTTP_UPGRADE_REQUIRED = 426;
 
     /**
      * Status code HTTP_PRECONDITION_REQUIRED
      *
      * @var int
      */
-    const PRECONDITION_REQUIRED = 428;
+    const HTTP_PRECONDITION_REQUIRED = 428;
 
     /**
      * Status code HTTP_TOO_MANY_REQUESTS
      *
      * @var int
      */
-    const TOO_MANY_REQUESTS = 429;
+    const HTTP_TOO_MANY_REQUESTS = 429;
 
     /**
      * Status code HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE
      *
      * @var int
      */
-    const REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+    const HTTP_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
 
     /**
      * Status code HTTP_CONNECTION_CLOSED_WITHOUT_RESPONSE
      *
      * @var int
      */
-    const CONNECTION_CLOSED_WITHOUT_RESPONSE = 444;
+    const HTTP_CONNECTION_CLOSED_WITHOUT_RESPONSE = 444;
 
     /**
      * Status code HTTP_UNAVAILABLE_FOR_LEGAL_REASONS
      *
      * @var int
      */
-    const UNAVAILABLE_FOR_LEGAL_REASONS = 451;
+    const HTTP_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
 
     /**
      * Status code HTTP_CLIENT_CLOSED_REQUEST
      *
      * @var int
      */
-    const CLIENT_CLOSED_REQUEST = 499;
+    const HTTP_CLIENT_CLOSED_REQUEST = 499;
 
     /**
      * Status code HTTP_INTERNAL_SERVER_ERROR
      *
      * @var int
      */
-    const INTERNAL_SERVER_ERROR = 500;
+    const HTTP_INTERNAL_SERVER_ERROR = 500;
 
     /**
      * Status code HTTP_NOT_IMPLEMENTED
      *
      * @var int
      */
-    const NOT_IMPLEMENTED = 501;
+    const HTTP_NOT_IMPLEMENTED = 501;
 
     /**
      * Status code HTTP_BAD_GATEWAY
      *
      * @var int
      */
-    const BAD_GATEWAY = 502;
+    const HTTP_BAD_GATEWAY = 502;
 
     /**
      * Status code HTTP_SERVICE_UNAVAILABLE
      *
      * @var int
      */
-    const SERVICE_UNAVAILABLE = 503;
+    const HTTP_SERVICE_UNAVAILABLE = 503;
 
     /**
      * Status code HTTP_GATEWAY_TIMEOUT
      *
      * @var int
      */
-    const GATEWAY_TIMEOUT = 504;
+    const HTTP_GATEWAY_TIMEOUT = 504;
 
     /**
      * Status code HTTP_VERSION_NOT_SUPPORTED
      *
      * @var int
      */
-    const VERSION_NOT_SUPPORTED = 505;
+    const HTTP_VERSION_NOT_SUPPORTED = 505;
 
     /**
      * Status code HTTP_VARIANT_ALSO_NEGOTIATES
      *
      * @var int
      */
-    const VARIANT_ALSO_NEGOTIATES = 506;
+    const HTTP_VARIANT_ALSO_NEGOTIATES = 506;
 
     /**
      * Status code HTTP_INSUFFICIENT_STORAGE
      *
      * @var int
      */
-    const INSUFFICIENT_STORAGE = 507;
+    const HTTP_INSUFFICIENT_STORAGE = 507;
 
     /**
      * Status code HTTP_LOOP_DETECTED
      *
      * @var int
      */
-    const LOOP_DETECTED = 508;
+    const HTTP_LOOP_DETECTED = 508;
 
     /**
      * Status code HTTP_NOT_EXTENDED
      *
      * @var int
      */
-    const NOT_EXTENDED = 510;
+    const HTTP_NOT_EXTENDED = 510;
 
     /**
      * Status code HTTP_NETWORK_AUTHENTICATION_REQUIRED
      *
      * @var int
      */
-    const NETWORK_AUTHENTICATION_REQUIRED = 511;
+    const HTTP_NETWORK_AUTHENTICATION_REQUIRED = 511;
 
     /**
      * Status code HTTP_NETWORK_CONNECTION_TIMEOUT_ERROR
      *
      * @var int
      */
-    const NETWORK_CONNECTION_TIMEOUT_ERROR = 599;
+    const HTTP_NETWORK_CONNECTION_TIMEOUT_ERROR = 599;
 }
