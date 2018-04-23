@@ -8,7 +8,7 @@
  */
 namespace Slim\Http;
 
-class StatusCodes
+class StatusCode
 {
     /**
      * Status code HTTP_CONTINUE
