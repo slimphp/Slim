@@ -69,6 +69,13 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
+     * Route arguments parameters
+     *
+     * @var null|array
+     */
+    protected $savedArguments;
+
+    /**
      * The callable payload
      *
      * @var callable
@@ -286,7 +293,15 @@ class Route extends Routable implements RouteInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments)
     {
-        // Add the arguments
+        // Save the arguments added on routes
+        if (!isset($this->savedArguments)) {
+            $this->savedArguments = $this->getArguments();
+        }
+
+        // Reset the arguments
+        $this->setArguments($this->savedArguments);
+
+        // Add the route arguments
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v);
         }
