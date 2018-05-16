@@ -47,6 +47,11 @@
             "Slim\\": "Slim"
         }
     },
+    "autoload-dev": {
+        "files": [
+          "tests/Assets/HeaderFunctions.php"
+        ]
+    },
     "scripts": {
         "test": [
             "@phpunit",
