@@ -207,7 +207,7 @@ class RouterTest extends TestCase
         $class = new \ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
-        $this->assertInstanceOf('\Slim\Dispatcher', $method->invoke($this->router));
+        $this->assertInstanceOf(Dispatcher::class, $method->invoke($this->router));
     }
 
     public function testSetDispatcher()
@@ -215,11 +215,11 @@ class RouterTest extends TestCase
         $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r) {
             $r->addRoute('GET', '/', function () {
             });
-        }, ['dispatcher' => '\\Slim\\Dispatcher']));
+        }, ['dispatcher' => Dispatcher::class]));
         $class = new \ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
-        $this->assertInstanceOf('\Slim\Dispatcher', $prop->getValue($this->router));
+        $this->assertInstanceOf(Dispatcher::class, $prop->getValue($this->router));
     }
 
     /**
@@ -364,7 +364,7 @@ class RouterTest extends TestCase
         $method->setAccessible(true);
 
         $dispatcher = $method->invoke($this->router);
-        $this->assertInstanceOf('\Slim\Dispatcher', $dispatcher);
+        $this->assertInstanceOf(Dispatcher::class, $dispatcher);
         $this->assertFileExists($cacheFile, 'cache file was not created');
 
         // instantiate a new router & load the cached routes file & see if
@@ -421,7 +421,7 @@ class RouterTest extends TestCase
         $queryParams = ['a' => 'b', 'c' => 'd'];
 
         //create a router that mocks the pathFor with expected args
-        $router = $this->getMockBuilder('\Slim\Router')->setMethods(['pathFor'])->getMock();
+        $router = $this->getMockBuilder(Router::class)->setMethods(['pathFor'])->getMock();
         $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
         $router->urlFor($name, $data, $queryParams);
 

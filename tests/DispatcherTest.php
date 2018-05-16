@@ -1,6 +1,7 @@
 <?php
 namespace Slim\Tests;
 
+use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
@@ -14,12 +15,12 @@ class DispatcherTest extends TestCase
 {
     protected function getDispatcherClass()
     {
-        return 'Slim\\Dispatcher';
+        return Dispatcher::class;
     }
 
     protected function getDataGeneratorClass()
     {
-        return 'FastRoute\\DataGenerator\\GroupCountBased';
+        return GroupCountBased::class;
     }
 
     /**

@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
+use RuntimeException;
 
 /**
  * Perform routing and store matched route to the request's attributes
@@ -44,6 +45,7 @@ class RoutingMiddleware
      *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
+     * @throws RuntimeException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
@@ -66,7 +68,6 @@ class RoutingMiddleware
         $routeStatus = $dispatcherResults->getRouteStatus();
 
         switch ($routeStatus) {
-            default:
             case Dispatcher::FOUND:
                 $routeArguments = $dispatcherResults->getRouteArguments();
                 $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
@@ -82,6 +83,9 @@ class RoutingMiddleware
                 $exception = new HttpMethodNotAllowedException($request);
                 $exception->setAllowedMethods($dispatcherResults->getAllowedMethods());
                 throw $exception;
+
+            default:
+                throw new RuntimeException('An unexpected error occurred while performing routing.');
         }
     }
 }

@@ -263,13 +263,13 @@ class Router implements RouterInterface
 
         if ($this->cacheFile) {
             $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
-                'dispatcher' => '\\Slim\\Dispatcher',
+                'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
         } else {
             $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
-                'dispatcher' => '\\Slim\\Dispatcher',
+                'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
             ]);
         }

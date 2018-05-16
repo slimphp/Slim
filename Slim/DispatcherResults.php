@@ -27,10 +27,12 @@ class DispatcherResults
 
     /**
      * @var int
-     *
-     * Not Found = 0
-     * Found = 1
-     * Method Not Allowed = 2
+     * The following statuses are constants from Slim\Dispatcher
+     * Slim\Dispatcher extends FastRoute\Dispatcher\GroupCountBased
+     * Which implements the interface FastRoute\Dispatcher where the original constants are located
+     * Slim\Dispatcher::NOT_FOUND = 0
+     * Slim\Dispatcher::FOUND = 1
+     * Slim\Dispatcher::NOT_ALLOWED = 2
      */
     protected $routeStatus;
 
@@ -115,15 +117,16 @@ class DispatcherResults
      */
     public function getRouteArguments($urlDecode = true)
     {
-        if ($urlDecode) {
-            $routeArguments = [];
-            foreach ($this->routeArguments as $key => $value) {
-                $routeArguments[$key] = urldecode($value);
-            }
-            return $routeArguments;
+        if (!$urlDecode) {
+            return $this->routeArguments;
         }
 
-        return $this->routeArguments;
+        $routeArguments = [];
+        foreach ($this->routeArguments as $key => $value) {
+            $routeArguments[$key] = urldecode($value);
+        }
+
+        return $routeArguments;
     }
 
     /**
