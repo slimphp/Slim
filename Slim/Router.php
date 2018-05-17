@@ -216,12 +216,8 @@ class Router implements RouterInterface
      */
     public function dispatch(ServerRequestInterface $request)
     {
-        $uri = '/' . ltrim($request->getUri()->getPath(), '/');
-
-        return $this->createDispatcher()->dispatch(
-            $request->getMethod(),
-            $uri
-        );
+        $uri = '/' . ltrim(rawurldecode($request->getUri()->getPath()), '/');
+        return $this->createDispatcher()->dispatch($request->getMethod(), $uri);
     }
 
     /**

@@ -23,6 +23,11 @@ class Dispatcher extends GroupCountBased
     private $uri;
 
     /**
+     * @var array|null
+     */
+    private $allowedMethods;
+
+    /**
      * @param string $httpMethod
      * @param string $uri
      * @return DispatcherResults
@@ -65,7 +70,8 @@ class Dispatcher extends GroupCountBased
             return $this->dispatcherResultsFromVariableRouteResults($result);
         }
 
-        if (count($this->getAllowedMethods($httpMethod, $uri))) {
+        $this->allowedMethods = $this->getAllowedMethods($httpMethod, $uri);
+        if (count($this->allowedMethods)) {
             return $this->dispatcherResults(self::METHOD_NOT_ALLOWED);
         }
 
@@ -98,31 +104,29 @@ class Dispatcher extends GroupCountBased
     /**
      * @param string $httpMethod
      * @param string $uri
-     * @param bool $includeRequestedMethod
      * @return array
      */
-    public function getAllowedMethods($httpMethod, $uri, $includeRequestedMethod = true)
+    public function getAllowedMethods($httpMethod, $uri)
     {
-        $httpMethod = $includeRequestedMethod ? 'ArtificialMethod' : $httpMethod;
+        if ($this->allowedMethods !== null) {
+            return $this->allowedMethods;
+        }
 
-        $allowedMethods = [];
+        $this->allowedMethods = [];
         foreach ($this->staticRouteMap as $method => $uriMap) {
             if ($method !== $httpMethod && isset($uriMap[$uri])) {
-                $allowedMethods[] = $method;
+                $this->allowedMethods[] = $method;
             }
         }
 
         $varRouteData = $this->variableRouteData;
         foreach ($varRouteData as $method => $routeData) {
-            if ($method === $httpMethod) {
-                continue;
-            }
             $result = $this->dispatchVariableRoute($routeData, $uri);
             if ($result[0] === self::FOUND) {
-                $allowedMethods[] = $method;
+                $this->allowedMethods[] = $method;
             }
         }
 
-        return $allowedMethods;
+        return $this->allowedMethods;
     }
 }

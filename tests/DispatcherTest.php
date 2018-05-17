@@ -95,7 +95,7 @@ class DispatcherTest extends TestCase
         $results = $dispatcher->dispatch($method, $uri);
 
         $this->assertSame($dispatcher::METHOD_NOT_ALLOWED, $results->getRouteStatus());
-        $this->assertSame($availableMethods, $results->getAllowedMethods(false));
+        $this->assertSame($availableMethods, $results->getAllowedMethods());
     }
 
     public function testRouteArgumentsAreUrlDecoded()
@@ -457,6 +457,14 @@ class DispatcherTest extends TestCase
         };
 
         $cases[] = ['POST', '/bar', $callback, 'handler1', ['foo' => 'bar']];
+
+        // 27 --- International characters
+
+        $callback = function (RouteCollector $r) {
+            $r->addRoute('GET', '/новости/{name}', 'handler0');
+        };
+
+        $cases[] = ['GET', '/новости/rdlowrey', $callback, 'handler0', ['name' => 'rdlowrey']];
 
         // x -------------------------------------------------------------------------------------->
 

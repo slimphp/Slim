@@ -130,11 +130,10 @@ class DispatcherResults
     }
 
     /**
-     * @param bool $includeRequestedMethod
      * @return array
      */
-    public function getAllowedMethods($includeRequestedMethod = true)
+    public function getAllowedMethods()
     {
-        return $this->dispatcher->getAllowedMethods($this->httpMethod, $this->uri, $includeRequestedMethod);
+        return $this->dispatcher->getAllowedMethods($this->httpMethod, $this->uri);
     }
 }
