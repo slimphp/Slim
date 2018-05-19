@@ -23,9 +23,9 @@ class Dispatcher extends GroupCountBased
     private $uri;
 
     /**
-     * @var array|null
+     * @var array
      */
-    private $allowedMethods;
+    private $allowedMethods = [];
 
     /**
      * @param string $httpMethod
@@ -70,8 +70,7 @@ class Dispatcher extends GroupCountBased
             return $this->dispatcherResultsFromVariableRouteResults($result);
         }
 
-        $this->allowedMethods = $this->getAllowedMethods($httpMethod, $uri);
-        if (count($this->allowedMethods)) {
+        if (count($this->getAllowedMethods($httpMethod, $uri))) {
             return $this->dispatcherResults(self::METHOD_NOT_ALLOWED);
         }
 
@@ -108,14 +107,14 @@ class Dispatcher extends GroupCountBased
      */
     public function getAllowedMethods($httpMethod, $uri)
     {
-        if ($this->allowedMethods !== null) {
-            return $this->allowedMethods;
+        if (isset($this->allowedMethods[$uri])) {
+            return $this->allowedMethods[$uri];
         }
 
-        $this->allowedMethods = [];
+        $this->allowedMethods[$uri] = [];
         foreach ($this->staticRouteMap as $method => $uriMap) {
             if ($method !== $httpMethod && isset($uriMap[$uri])) {
-                $this->allowedMethods[] = $method;
+                $this->allowedMethods[$uri][] = $method;
             }
         }
 
@@ -123,10 +122,10 @@ class Dispatcher extends GroupCountBased
         foreach ($varRouteData as $method => $routeData) {
             $result = $this->dispatchVariableRoute($routeData, $uri);
             if ($result[0] === self::FOUND) {
-                $this->allowedMethods[] = $method;
+                $this->allowedMethods[$uri][] = $method;
             }
         }
 
-        return $this->allowedMethods;
+        return $this->allowedMethods[$uri];
     }
 }
