@@ -8,7 +8,7 @@
  */
 namespace Slim;
 
-class DispatcherResults
+class RoutingResults
 {
     /**
      * @var Dispatcher
@@ -47,7 +47,7 @@ class DispatcherResults
     protected $routeArguments;
 
     /**
-     * DispatcherResults constructor.
+     * RoutingResults constructor.
      * @param Dispatcher $dispatcher
      * @param $httpMethod
      * @param $uri
@@ -123,7 +123,7 @@ class DispatcherResults
 
         $routeArguments = [];
         foreach ($this->routeArguments as $key => $value) {
-            $routeArguments[$key] = urldecode($value);
+            $routeArguments[$key] = rawurldecode($value);
         }
 
         return $routeArguments;

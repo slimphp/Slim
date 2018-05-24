@@ -212,7 +212,7 @@ class Router implements RouterInterface
      *
      * @param  ServerRequestInterface $request The current HTTP request object
      *
-     * @return DispatcherResults
+     * @return RoutingResults
      */
     public function dispatch(ServerRequestInterface $request)
     {

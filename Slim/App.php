@@ -511,12 +511,12 @@ class App
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
         /**
-         * @var DispatcherResults $dispatcherResults
+         * @var RoutingResults $routingResults
          */
-        $dispatcherResults = $request->getAttribute('dispatcherResults');
+        $routingResults = $request->getAttribute('routingResults');
 
         // If routing hasn't been done, then do it now so we can dispatch
-        if ($dispatcherResults === null) {
+        if ($routingResults === null) {
             $router = $this->getRouter();
             $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);

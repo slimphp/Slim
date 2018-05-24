@@ -13,7 +13,7 @@ use FastRoute\Dispatcher;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\DispatcherResults;
+use Slim\RoutingResults;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -48,9 +48,9 @@ class RoutingMiddlewareTest extends TestCase
             $this->assertNotNull($route);
             $this->assertEquals('foo', $route->getArgument('name'));
 
-            // dispatcherResults is available
-            $dispatcherResults = $req->getAttribute('dispatcherResults');
-            $this->assertInstanceOf(DispatcherResults::class, $dispatcherResults);
+            // routingResults is available
+            $routingResults = $req->getAttribute('routingResults');
+            $this->assertInstanceOf(RoutingResults::class, $routingResults);
             return $res;
         };
         Closure::bind($next, $this); // bind test class so we can test request object
@@ -76,10 +76,10 @@ class RoutingMiddlewareTest extends TestCase
             $route = $req->getAttribute('route');
             $this->assertNull($route);
 
-            // dispatcherResults is available
-            $dispatcherResults = $req->getAttribute('dispatcherResults');
-            $this->assertInstanceOf(DispatcherResults::class, $dispatcherResults);
-            $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $dispatcherResults->getRouteStatus());
+            // routingResults is available
+            $routingResults = $req->getAttribute('routingResults');
+            $this->assertInstanceOf(RoutingResults::class, $routingResults);
+            $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
 
             return $res;
         };

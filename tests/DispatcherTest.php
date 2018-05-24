@@ -5,7 +5,7 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
-use Slim\DispatcherResults;
+use Slim\RoutingResults;
 
 /**
  * Class DispatcherTest
@@ -41,7 +41,7 @@ class DispatcherTest extends TestCase
         }, $this->generateDispatcherOptions());
 
         /**
-         * @var DispatcherResults $results
+         * @var RoutingResults $results
          */
         $results = $dispatcher->dispatch('GET', '/foo');
 
@@ -56,7 +56,7 @@ class DispatcherTest extends TestCase
         $dispatcher = \FastRoute\simpleDispatcher($callback, $this->generateDispatcherOptions());
 
         /**
-         * @var DispatcherResults $results
+         * @var RoutingResults $results
          */
         $results = $dispatcher->dispatch($method, $uri);
 
@@ -75,7 +75,7 @@ class DispatcherTest extends TestCase
         $dispatcher = \FastRoute\simpleDispatcher($callback, $this->generateDispatcherOptions());
 
         /**
-         * @var DispatcherResults $results
+         * @var RoutingResults $results
          */
         $results = $dispatcher->dispatch($method, $uri);
 
@@ -90,7 +90,7 @@ class DispatcherTest extends TestCase
         $dispatcher = \FastRoute\simpleDispatcher($callback, $this->generateDispatcherOptions());
 
         /**
-         * @var DispatcherResults $results
+         * @var RoutingResults $results
          */
         $results = $dispatcher->dispatch($method, $uri);
 
@@ -105,7 +105,7 @@ class DispatcherTest extends TestCase
         }, $this->generateDispatcherOptions());
 
         /**
-         * @var DispatcherResults $results
+         * @var RoutingResults $results
          */
         $results = $dispatcher->dispatch('GET', '/Foo%20Bar');
         $this->assertEquals($results->getRouteArguments()['name'], 'Foo Bar');

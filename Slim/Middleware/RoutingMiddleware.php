@@ -64,24 +64,24 @@ class RoutingMiddleware
      */
     public function performRouting(ServerRequestInterface $request)
     {
-        $dispatcherResults = $this->router->dispatch($request);
-        $routeStatus = $dispatcherResults->getRouteStatus();
+        $routingResults = $this->router->dispatch($request);
+        $routeStatus = $routingResults->getRouteStatus();
 
         switch ($routeStatus) {
             case Dispatcher::FOUND:
-                $routeArguments = $dispatcherResults->getRouteArguments();
-                $route = $this->router->lookupRoute($dispatcherResults->getRouteHandler());
+                $routeArguments = $routingResults->getRouteArguments();
+                $route = $this->router->lookupRoute($routingResults->getRouteHandler());
                 $route->prepare($request, $routeArguments);
                 return $request
                     ->withAttribute('route', $route)
-                    ->withAttribute('dispatcherResults', $dispatcherResults);
+                    ->withAttribute('routingResults', $routingResults);
 
             case Dispatcher::NOT_FOUND:
                 throw new HttpNotFoundException($request);
 
             case Dispatcher::METHOD_NOT_ALLOWED:
                 $exception = new HttpMethodNotAllowedException($request);
-                $exception->setAllowedMethods($dispatcherResults->getAllowedMethods());
+                $exception->setAllowedMethods($routingResults->getAllowedMethods());
                 throw $exception;
 
             default:

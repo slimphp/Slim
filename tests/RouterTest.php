@@ -10,7 +10,7 @@ namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
-use Slim\DispatcherResults;
+use Slim\RoutingResults;
 use Slim\Router;
 
 class RouterTest extends TestCase
@@ -379,7 +379,7 @@ class RouterTest extends TestCase
         $dispatcher2 = $method->invoke($this->router);
 
         /**
-         * @var DispatcherResults $result
+         * @var RoutingResults $result
          */
         $result = $dispatcher2->dispatch('GET', '/hello/josh/lockhart');
         $this->assertSame(Dispatcher::FOUND, $result->getRouteStatus());
