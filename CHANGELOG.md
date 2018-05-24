@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2405](https://github.com/slimphp/Slim/pull/2405) RoutingMiddleware now adds the `routingResults` request attribute to hold the results of routing
 - [#2425](https://github.com/slimphp/Slim/pull/2425) Added $app->redirect()
 - [#2398](https://github.com/slimphp/Slim/pull/2398) Added Middleware\ErrorMiddleware
 - [#2329](https://github.com/slimphp/Slim/pull/2329) Added Middleware\MethodOverrideMiddleware
@@ -34,4 +35,5 @@
 ### Fixed
 
 - [#2067](https://github.com/slimphp/Slim/pull/2067) Unit tests now pass on Windows systems
+- [#2405](https://github.com/slimphp/Slim/pull/2405) We rawurldecode() the path before passing to FastRoute, so UTF-8 characters in paths should now work.
 

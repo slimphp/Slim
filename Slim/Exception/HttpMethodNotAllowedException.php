@@ -21,7 +21,7 @@ class HttpMethodNotAllowedException extends HttpSpecializedException
     protected $description = 'The request method is not supported for the requested resource.';
 
     /**
-     * @return string
+     * @return array
      */
     public function getAllowedMethods()
     {

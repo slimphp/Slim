@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
+use RuntimeException;
 
 /**
  * Perform routing and store matched route to the request's attributes
@@ -41,6 +42,10 @@ class RoutingMiddleware
      * @param  ResponseInterface      $response  PSR7 response
      * @param  callable               $next      Middleware callable
      * @return ResponseInterface                 PSR7 response
+     *
+     * @throws HttpNotFoundException
+     * @throws HttpMethodNotAllowedException
+     * @throws RuntimeException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
     {
@@ -53,35 +58,34 @@ class RoutingMiddleware
      *
      * @param  ServerRequestInterface $request   PSR7 server request
      * @return ServerRequestInterface
+     *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
     public function performRouting(ServerRequestInterface $request)
     {
-        $routeInfo = $this->router->dispatch($request);
+        $routingResults = $this->router->dispatch($request);
+        $routeStatus = $routingResults->getRouteStatus();
 
-        if ($routeInfo[0] === Dispatcher::FOUND) {
-            $routeArguments = [];
-            foreach ($routeInfo[2] as $k => $v) {
-                $routeArguments[$k] = urldecode($v);
-            }
+        switch ($routeStatus) {
+            case Dispatcher::FOUND:
+                $routeArguments = $routingResults->getRouteArguments();
+                $route = $this->router->lookupRoute($routingResults->getRouteHandler());
+                $route->prepare($request, $routeArguments);
+                return $request
+                    ->withAttribute('route', $route)
+                    ->withAttribute('routingResults', $routingResults);
 
-            $route = $this->router->lookupRoute($routeInfo[1]);
-            $route->prepare($request, $routeArguments);
+            case Dispatcher::NOT_FOUND:
+                throw new HttpNotFoundException($request);
 
-            // add route to the request's attributes
-            $request = $request->withAttribute('route', $route);
-        } elseif ($routeInfo[0] === Dispatcher::NOT_FOUND) {
-            $exception = new HttpNotFoundException($request);
-            throw $exception;
-        } elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-            $exception = new HttpMethodNotAllowedException($request);
-            $exception->setAllowedMethods($routeInfo[1]);
-            throw $exception;
+            case Dispatcher::METHOD_NOT_ALLOWED:
+                $exception = new HttpMethodNotAllowedException($request);
+                $exception->setAllowedMethods($routingResults->getAllowedMethods());
+                throw $exception;
+
+            default:
+                throw new RuntimeException('An unexpected error occurred while performing routing.');
         }
-
-        // routeInfo to the request's attributes
-        $routeInfo['request'] = [$request->getMethod(), (string) $request->getUri()];
-        return $request->withAttribute('routeInfo', $routeInfo);
     }
 }

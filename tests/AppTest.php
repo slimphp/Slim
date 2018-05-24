@@ -281,6 +281,25 @@ class AppTest extends TestCase
         $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
+    public function testRouteWithInternationalCharacters()
+    {
+        $app = new App();
+        $app->get('/новости', function ($req, $res) {
+            $res->write('Hello');
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $request = $this->requestFactory('/новости');
+        $response = new Response();
+
+        // Invoke app
+        $resOut = $app($request, $response);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('Hello', (string)$resOut->getBody());
+    }
+
     /********************************************************************************
      * Route Patterns
      *******************************************************************************/
