@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
 class RoutingResults
@@ -37,7 +40,7 @@ class RoutingResults
     protected $routeStatus;
 
     /**
-     * @var callable|null
+     * @var null|string
      */
     protected $routeHandler;
 
@@ -49,19 +52,19 @@ class RoutingResults
     /**
      * RoutingResults constructor.
      * @param Dispatcher $dispatcher
-     * @param $httpMethod
-     * @param $uri
+     * @param string $httpMethod
+     * @param string $uri
      * @param int $routeStatus
-     * @param callable|null $routeHandler
+     * @param string|null $routeHandler
      * @param array $routeArguments
      */
     public function __construct(
         Dispatcher $dispatcher,
-        $httpMethod,
-        $uri,
-        $routeStatus,
-        $routeHandler = null,
-        $routeArguments = []
+        string $httpMethod,
+        string $uri,
+        int $routeStatus,
+        string $routeHandler = null,
+        array $routeArguments = []
     ) {
         $this->dispatcher = $dispatcher;
         $this->httpMethod = $httpMethod;
@@ -72,9 +75,9 @@ class RoutingResults
     }
 
     /**
-     * @return mixed
+     * @return Dispatcher
      */
-    public function getDispatcher()
+    public function getDispatcher(): Dispatcher
     {
         return $this->dispatcher;
     }
@@ -82,7 +85,7 @@ class RoutingResults
     /**
      * @return string
      */
-    public function getHttpMethod()
+    public function getHttpMethod(): string
     {
         return $this->httpMethod;
     }
@@ -90,7 +93,7 @@ class RoutingResults
     /**
      * @return string
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -98,13 +101,13 @@ class RoutingResults
     /**
      * @return int
      */
-    public function getRouteStatus()
+    public function getRouteStatus(): int
     {
         return $this->routeStatus;
     }
 
     /**
-     * @return callable|null
+     * @return null|string
      */
     public function getRouteHandler()
     {
@@ -115,7 +118,7 @@ class RoutingResults
      * @param bool $urlDecode
      * @return array
      */
-    public function getRouteArguments($urlDecode = true)
+    public function getRouteArguments(bool $urlDecode = true): array
     {
         if (!$urlDecode) {
             return $this->routeArguments;
@@ -132,7 +135,7 @@ class RoutingResults
     /**
      * @return array
      */
-    public function getAllowedMethods()
+    public function getAllowedMethods(): array
     {
         return $this->dispatcher->getAllowedMethods($this->httpMethod, $this->uri);
     }
