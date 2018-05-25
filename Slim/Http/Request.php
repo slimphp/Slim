@@ -1211,7 +1211,7 @@ class Request extends Message implements ServerRequestInterface
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
-            $params = array_merge($params, (array)$postParams);
+            $params = array_replace($params, (array)$postParams);
         }
 
         if ($only) {
