@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Middleware;
 
 use FastRoute\Dispatcher;
@@ -47,8 +50,11 @@ class RoutingMiddleware
      * @throws HttpMethodNotAllowedException
      * @throws RuntimeException
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next
+    ): ResponseInterface {
         $request = $this->performRouting($request);
         return $next($request, $response);
     }
@@ -61,8 +67,9 @@ class RoutingMiddleware
      *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
+     * @throws RuntimeException
      */
-    public function performRouting(ServerRequestInterface $request)
+    public function performRouting(ServerRequestInterface $request): ServerRequestInterface
     {
         $routingResults = $this->router->dispatch($request);
         $routeStatus = $routingResults->getRouteStatus();

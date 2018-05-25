@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
 use Slim\Interfaces\RouteGroupInterface;
@@ -23,7 +26,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
      * @param string   $pattern  The pattern prefix for the group
      * @param callable $callable The group callable
      */
-    public function __construct($pattern, $callable)
+    public function __construct(string $pattern, $callable)
     {
         $this->pattern = $pattern;
         $this->callable = $callable;

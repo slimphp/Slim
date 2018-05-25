@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Interfaces;
 
 use Psr\Http\Message\ResponseInterface;
@@ -24,12 +27,12 @@ interface InvocationStrategyInterface
      * @param ResponseInterface      $response The response object.
      * @param array                  $routeArguments The route's placholder arguments
      *
-     * @return ResponseInterface|string The response from the callable.
+     * @return ResponseInterface The response from the callable.
      */
     public function __invoke(
         callable $callable,
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $routeArguments
-    );
+    ): ResponseInterface;
 }

@@ -6,11 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Error;
 
 use Slim\Http\Body;
 use Slim\Interfaces\ErrorRendererInterface;
-use Exception;
 use Throwable;
 
 /**
@@ -22,11 +24,11 @@ use Throwable;
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {
     /**
-     * @param Exception|Throwable $exception
+     * @param Throwable $exception
      * @param bool $displayErrorDetails
      * @return Body
      */
-    public function renderWithBody($exception, $displayErrorDetails)
+    public function renderWithBody(Throwable $exception, bool $displayErrorDetails): Body
     {
         $output = $this->render($exception, $displayErrorDetails);
         $body = new Body(fopen('php://temp', 'r+'));

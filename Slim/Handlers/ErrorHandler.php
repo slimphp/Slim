@@ -6,21 +6,23 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Error\Renderers\PlainTextErrorRenderer;
+use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
-use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
+use Slim\Error\Renderers\PlainTextErrorRenderer;
+use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Http\Response;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
-use Exception;
-use RuntimeException;
 use Throwable;
 
 /**
@@ -75,7 +77,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $request;
 
     /**
-     * @var Exception
+     * @var Throwable
      */
     protected $exception;
 
@@ -93,7 +95,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * Invoke error handler
      *
      * @param ServerRequestInterface $request   The most recent Request object
-     * @param Exception|Throwable    $exception The caught Exception object
+     * @param Throwable              $exception The caught Exception object
      * @param bool $displayErrorDetails Whether or not to display the error details
      * @param bool $logErrors Whether or not to log errors
      * @param bool $logErrorDetails Whether or not to log error details
@@ -102,11 +104,11 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     public function __invoke(
         ServerRequestInterface $request,
-        $exception,
-        $displayErrorDetails,
-        $logErrors,
-        $logErrorDetails
-    ) {
+        Throwable $exception,
+        bool $displayErrorDetails,
+        bool $logErrors,
+        bool $logErrorDetails
+    ): ResponseInterface {
         $this->displayErrorDetails = $displayErrorDetails;
         $this->logErrors = $logErrors;
         $this->logErrorDetails = $logErrorDetails;
@@ -134,7 +136,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * @param ServerRequestInterface $request
      * @return string
      */
-    protected function determineContentType(ServerRequestInterface $request)
+    protected function determineContentType(ServerRequestInterface $request): string
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
@@ -172,7 +174,7 @@ class ErrorHandler implements ErrorHandlerInterface
      *
      * @throws RuntimeException
      */
-    protected function determineRenderer()
+    protected function determineRenderer(): ErrorRendererInterface
     {
         $renderer = $this->renderer;
 
@@ -217,7 +219,7 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * @return int
      */
-    protected function determineStatusCode()
+    protected function determineStatusCode(): int
     {
         if ($this->method === 'OPTIONS') {
             return 200;
@@ -233,7 +235,7 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * @return ResponseInterface
      */
-    protected function respond()
+    protected function respond(): ResponseInterface
     {
         $response = new Response();
         $body = $this->renderer->renderWithBody($this->exception, $this->displayErrorDetails);
@@ -266,7 +268,7 @@ class ErrorHandler implements ErrorHandlerInterface
      *
      * @param string $error
      */
-    protected function logError($error)
+    protected function logError(string $error)
     {
         error_log($error);
     }

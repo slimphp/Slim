@@ -6,11 +6,14 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use UnexpectedValueException;
 
 /**
@@ -50,7 +53,7 @@ trait MiddlewareAwareTrait
      * @throws RuntimeException         If middleware is added while the stack is dequeuing
      * @throws UnexpectedValueException If the middleware doesn't return a Psr\Http\Message\ResponseInterface
      */
-    protected function addMiddleware(callable $callable)
+    protected function addMiddleware(callable $callable): self
     {
         if ($this->middlewareLock) {
             throw new RuntimeException('Middleware can’t be added once the stack is dequeuing');
@@ -106,7 +109,7 @@ trait MiddlewareAwareTrait
      *
      * @return ResponseInterface
      */
-    public function callMiddlewareStack(ServerRequestInterface $request, ResponseInterface $response)
+    public function callMiddlewareStack(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         if (is_null($this->tip)) {
             $this->seedMiddlewareStack();

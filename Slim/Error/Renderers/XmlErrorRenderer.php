@@ -6,9 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Error\Renderers;
 
 use Slim\Error\AbstractErrorRenderer;
+use Throwable;
 
 /**
  * Default Slim application XML Error Renderer
@@ -16,11 +20,11 @@ use Slim\Error\AbstractErrorRenderer;
 class XmlErrorRenderer extends AbstractErrorRenderer
 {
     /**
-     * @param \Exception|\Throwable $exception
+     * @param Throwable $exception
      * @param bool $displayErrorDetails
      * @return string
      */
-    public function render($exception, $displayErrorDetails)
+    public function render(Throwable $exception, bool $displayErrorDetails): string
     {
         $xml = "<error>\n  <message>{$exception->getMessage()}</message>\n";
 
@@ -47,7 +51,7 @@ class XmlErrorRenderer extends AbstractErrorRenderer
      * @param  string $content
      * @return string
      */
-    private function createCdataSection($content)
+    private function createCdataSection(string $content): string
     {
         return sprintf('<![CDATA[%s]]>', str_replace(']]>', ']]]]><![CDATA[>', $content));
     }

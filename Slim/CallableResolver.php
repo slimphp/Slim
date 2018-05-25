@@ -6,10 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
-use RuntimeException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**
@@ -44,7 +47,7 @@ final class CallableResolver implements CallableResolverInterface
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
      */
-    public function resolve($toResolve)
+    public function resolve($toResolve): callable
     {
         $resolved = $toResolve;
 

@@ -171,15 +171,6 @@ class RouteTest extends TestCase
         $this->assertEquals('foo', $route->getName());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetInvalidName()
-    {
-        $route = $this->routeFactory();
-        $route->setName(false);
-    }
-
     public function testAddMiddlewareAsStringResolvesWithoutContainer()
     {
         $route = $this->routeFactory();

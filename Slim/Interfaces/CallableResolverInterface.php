@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Interfaces;
 
 /**
@@ -23,5 +26,5 @@ interface CallableResolverInterface
      *
      * @return callable
      */
-    public function resolve($toResolve);
+    public function resolve($toResolve): callable;
 }

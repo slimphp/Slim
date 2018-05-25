@@ -6,9 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Error\Renderers;
 
 use Slim\Error\AbstractErrorRenderer;
+use Throwable;
 
 /**
  * Default Slim application Plain Text Error Renderer
@@ -16,11 +20,11 @@ use Slim\Error\AbstractErrorRenderer;
 class PlainTextErrorRenderer extends AbstractErrorRenderer
 {
     /**
-     * @param \Exception|\Throwable $exception
+     * @param Throwable $exception
      * @param bool $displayErrorDetails
      * @return string
      */
-    public function render($exception, $displayErrorDetails)
+    public function render(Throwable $exception, bool $displayErrorDetails): string
     {
         $text = "Slim Application Error:\n";
         $text .= $this->formatExceptionFragment($exception);
@@ -34,10 +38,10 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param \Exception|\Throwable $exception
+     * @param Throwable $exception
      * @return string
      */
-    private function formatExceptionFragment($exception)
+    private function formatExceptionFragment(Throwable $exception): string
     {
         $text = sprintf("Type: %s\n", get_class($exception));
 
