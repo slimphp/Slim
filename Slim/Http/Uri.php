@@ -338,7 +338,7 @@ class Uri implements UriInterface
         $host = $this->getHost();
         $port = $this->getPort();
 
-        return ($userInfo ? $userInfo . '@' : '') . $host . ($port !== null ? ':' . $port : '');
+        return ($userInfo !== '' ? $userInfo . '@' : '') . $host . ($port !== null ? ':' . $port : '');
     }
 
     /**
@@ -358,7 +358,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo()
     {
-        return $this->user . ($this->password ? ':' . $this->password : '');
+        return $this->user . ($this->password !== '' ? ':' . $this->password : '');
     }
 
     /**
@@ -379,8 +379,8 @@ class Uri implements UriInterface
     {
         $clone = clone $this;
         $clone->user = $this->filterUserInfo($user);
-        if ($clone->user) {
-            $clone->password = $password ? $this->filterUserInfo($password) : '';
+        if ('' !== $clone->user) {
+            $clone->password = !in_array($password, [null, ''], true) ? $this->filterUserInfo($password) : '';
         } else {
             $clone->password = '';
         }
@@ -812,11 +812,11 @@ class Uri implements UriInterface
 
         $path = $basePath . '/' . ltrim($path, '/');
 
-        return ($scheme ? $scheme . ':' : '')
-            . ($authority ? '//' . $authority : '')
+        return ($scheme !== '' ? $scheme . ':' : '')
+            . ($authority !== '' ? '//' . $authority : '')
             . $path
-            . ($query ? '?' . $query : '')
-            . ($fragment ? '#' . $fragment : '');
+            . ($query !== '' ? '?' . $query : '')
+            . ($fragment !== '' ? '#' . $fragment : '');
     }
 
     /**
@@ -834,11 +834,11 @@ class Uri implements UriInterface
         $authority = $this->getAuthority();
         $basePath = $this->getBasePath();
 
-        if ($authority && substr($basePath, 0, 1) !== '/') {
+        if ($authority !== '' && substr($basePath, 0, 1) !== '/') {
             $basePath = $basePath . '/' . $basePath;
         }
 
-        return ($scheme ? $scheme . ':' : '')
+        return ($scheme !== '' ? $scheme . ':' : '')
             . ($authority ? '//' . $authority : '')
             . rtrim($basePath, '/');
     }

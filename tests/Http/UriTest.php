@@ -699,4 +699,16 @@ class UriTest extends \PHPUnit_Framework_TestCase
         );
         $this->assertEquals('abc=123', $uri->getQuery());
     }
+
+    public function testUriDistinguishZeroFromEmptyString()
+    {
+        $expected = 'https://0:0@0:1/0?0#0';
+        $this->assertSame($expected, (string) Uri::createFromString($expected));
+    }
+
+    public function testGetBaseUrlDistinguishZeroFromEmptyString()
+    {
+        $expected = 'https://0:0@0:1/0?0#0';
+        $this->assertSame('https://0:0@0:1', (string) Uri::createFromString($expected)->getBaseUrl());
+    }
 }
