@@ -433,7 +433,8 @@ class Response extends Message implements ResponseInterface
                 StatusCode::HTTP_MOVED_PERMANENTLY,
                 StatusCode::HTTP_FOUND,
                 StatusCode::HTTP_SEE_OTHER,
-                StatusCode::HTTP_TEMPORARY_REDIRECT
+                StatusCode::HTTP_TEMPORARY_REDIRECT,
+                StatusCode::HTTP_PERMANENT_REDIRECT
             ]
         );
     }
