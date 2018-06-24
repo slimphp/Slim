@@ -100,7 +100,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      * If someone extends the Error handler and calls renderHtmlExceptionOrError with
      * a parameter that isn't an Exception or Error, then we thrown an Exception.
      */
-    public function testRenderHtmlExceptionorErrorTypeChecksParameter()
+    public function testRenderHtmlExceptionOrErrorTypeChecksParameter()
     {
         $class = new \ReflectionClass(Error::class);
         $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
