@@ -1,5 +1,5 @@
-/vendor/
-/.idea/
+/vendor
+/.idea
 /composer.lock
 /phpunit.xml
 /clover.xml
