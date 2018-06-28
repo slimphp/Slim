@@ -213,6 +213,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
+    public function testCreateFromEnvironmentWithMultipartAndQueryParams()
+    {
+        $_POST['123'] = 'bar';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'QUERY_STRING' => '123=zar',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        # Fixes the bug that would make it previously return [ 0 => 'bar' ]
+        $this->assertEquals(['123' => 'bar'], $request->getParams());
+        $this->assertEquals(['123' => 'zar'], $request->getQueryParams());
+    }
+
     /**
      * @covers Slim\Http\Request::createFromEnvironment
      */
