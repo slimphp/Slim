@@ -157,6 +157,26 @@ class Request extends Message implements ServerRequestInterface
     }
 
     /**
+     * Create new HTTP request form PSR-7 request
+     *
+     * @param  ServerRequestInterface $request The PSR-7 request
+     *
+     * @return static
+     */
+    public static function createFromPsr7Request(ServerRequestInterface $request)
+    {
+        return new static(
+            $request->getMethod(),
+            $request->getUri(),
+            new Headers($request->getHeaders()),
+            $request->getCookieParams(),
+            $request->getServerParams(),
+            $request->getBody(),
+            $request->getUploadedFiles()
+        );
+    }
+
+    /**
      * Create new HTTP request.
      *
      * Adds a host header when none was provided and a host is defined in uri.
