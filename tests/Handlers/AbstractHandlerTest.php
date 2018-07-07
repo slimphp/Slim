@@ -65,6 +65,6 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
         // call determineContentType()
         $return = $method->invoke($abstractHandler, $request);
 
-        $this->assertEquals('text/html', $return);
+        $this->assertEquals('text/plain', $return);
     }
 }
