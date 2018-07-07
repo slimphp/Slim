@@ -52,7 +52,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
 
         $request->expects($this->any())
             ->method('getHeaderLine')
-            ->willReturn('text/plain,text/html');
+            ->willReturn('image/jpeg,text/plain,text/html');
 
         // provide access to the determineContentType() as it's a protected method
         $class = new \ReflectionClass(AbstractHandler::class);
