@@ -240,7 +240,7 @@ class UploadedFile implements UploadedFileInterface
             }
         } elseif ($this->sapi) {
             if (!is_uploaded_file($this->file)) {
-                throw new RuntimeException(sprintf('%1s is not a valid uploaded file', $this->file));
+                throw new RuntimeException(sprintf('%s is not a valid uploaded file', $this->file));
             }
 
             if (!move_uploaded_file($this->file, $targetPath)) {
