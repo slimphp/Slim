@@ -8,9 +8,10 @@
  */
 namespace Slim\Exception;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 
-class InvalidMethodException extends \InvalidArgumentException
+class InvalidMethodException extends InvalidArgumentException
 {
     protected $request;
 
