@@ -2412,6 +2412,153 @@ end;
         $this->assertStringStartsWith('output buffer test', $output);
     }
 
+    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
+    {
+        $app = new App();
+        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('1', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process without optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('0', (string)$resOut2->getBody());
+    }
+
+    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
+    {
+        $app = new App();
+        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        })->setArgument('baz', 'quux');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process without optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('2', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('1', (string)$resOut2->getBody());
+    }
+
+    public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
+    {
+        $app = new App();
+        $route = $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        })->setArgument('baz', 'quux');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('2', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // add another argument
+        $route->setArgument('one', '1');
+
+        // Invoke process with optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('3', (string)$resOut2->getBody());
+    }
+
     protected function skipIfPhp70()
     {
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
