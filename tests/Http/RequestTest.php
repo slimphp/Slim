@@ -254,6 +254,24 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('PUT', $request->getMethod());
     }
 
+    /**
+     * @covers Slim\Http\Request::createFromPsr7Request
+     */
+    public function testCreateFromPsr7Request()
+    {
+        $fakeRequest = $this->requestFactory();
+
+        $request = Request::createFromPsr7Request($fakeRequest);
+
+        $this->assertEquals($fakeRequest->getMethod(), $request->getMethod());
+        $this->assertEquals($fakeRequest->getUri(), $request->getUri());
+        $this->assertEquals($fakeRequest->getHeaders(), $request->getHeaders());
+        $this->assertEquals($fakeRequest->getCookieParams(), $request->getCookieParams());
+        $this->assertEquals($fakeRequest->getServerParams(), $request->getServerParams());
+        $this->assertEquals($fakeRequest->getBody(), $request->getBody());
+        $this->assertEquals($fakeRequest->getUploadedFiles(), $request->getUploadedFiles());
+    }
+
     public function testGetMethodWithOverrideHeader()
     {
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
