@@ -179,13 +179,13 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $handler The route callable
+     * @param  callable $callable The route callable
      *
      * @return RouteInterface
      *
      * @throws InvalidArgumentException if the route pattern isn't a string
      */
-    public function map($methods, $pattern, $handler)
+    public function map($methods, $pattern, $callable)
     {
         if (!is_string($pattern)) {
             throw new InvalidArgumentException('Route pattern must be a string');
@@ -200,7 +200,7 @@ class Router implements RouterInterface
         $methods = array_map("strtoupper", $methods);
 
         // Add route
-        $route = $this->createRoute($methods, $pattern, $handler);
+        $route = $this->createRoute($methods, $pattern, $callable);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 

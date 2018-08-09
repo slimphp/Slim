@@ -30,11 +30,11 @@ interface RouterInterface
      *
      * @param string[] $methods Array of HTTP methods
      * @param string   $pattern The route pattern
-     * @param callable $handler The route callable
+     * @param callable $callable The route callable
      *
      * @return RouteInterface
      */
-    public function map($methods, $pattern, $handler);
+    public function map($methods, $pattern, $callable);
 
     /**
      * Dispatch router for HTTP request
