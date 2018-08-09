@@ -390,9 +390,6 @@ class App
         /** @var RouteGroup $group */
         $router = $this->getRouter();
         $group = $router->pushGroup($pattern, $callable);
-        if ($this->callableResolver instanceof CallableResolverInterface) {
-            $group->setCallableResolver($this->callableResolver);
-        }
         $group($this);
         $router->popGroup();
 

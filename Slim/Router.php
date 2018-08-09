@@ -351,6 +351,9 @@ class Router implements RouterInterface
     {
         $group = new RouteGroup($pattern, $callable);
         $this->routeGroups[] = $group;
+        if ($this->callableResolver) {
+            $group->setCallableResolver($this->callableResolver);
+        }
         return $group;
     }
 
