@@ -189,6 +189,8 @@ class RouteTest extends \PHPUnit_Framework_TestCase
 
         $route->setOutputBuffering('prepend');
         $this->assertSame('prepend', $route->getOutputBuffering());
+
+        $this->assertEquals($route, $route->setOutputBuffering(false));
     }
 
     public function testSetInvalidOutputBuffering()
