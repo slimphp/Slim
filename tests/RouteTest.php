@@ -90,7 +90,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($route->getArgument('b', 'default'), 'default');
 
         $this->assertEquals($route, $route->setArgument('c', null));
-        $this->assertEquals($route, $route->setArguments(['d' => null]);
+        $this->assertEquals($route, $route->setArguments(['d' => null]));
     }
 
 
