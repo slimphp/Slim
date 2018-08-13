@@ -173,15 +173,17 @@ class Uri implements UriInterface
         $username = $env->get('PHP_AUTH_USER', '');
         $password = $env->get('PHP_AUTH_PW', '');
 
-        // Authority: Host
+        // Authority: Host and Port
         if ($env->has('HTTP_HOST')) {
             $host = $env->get('HTTP_HOST');
+            // set a port default
+            $port = 80;
         } else {
             $host = $env->get('SERVER_NAME');
+            // set a port default
+            $port = (int)$env->get('SERVER_PORT', 80);
         }
 
-        // Authority: Port
-        $port = (int)$env->get('SERVER_PORT', 80);
         if (preg_match('/^(\[[a-fA-F0-9:.]+\])(:\d+)?\z/', $host, $matches)) {
             $host = $matches[1];
 
