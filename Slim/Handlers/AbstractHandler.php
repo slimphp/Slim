@@ -25,6 +25,7 @@ abstract class AbstractHandler
         'application/xml',
         'text/xml',
         'text/html',
+        'text/plain',
     ];
 
     /**
