@@ -200,6 +200,8 @@ class Route extends Routable implements RouteInterface
      *
      * @param boolean|string $mode
      *
+     * @return self
+     *
      * @throws InvalidArgumentException If an unknown buffering mode is specified
      */
     public function setOutputBuffering($mode)
@@ -208,6 +210,7 @@ class Route extends Routable implements RouteInterface
             throw new InvalidArgumentException('Unknown output buffering mode');
         }
         $this->outputBuffering = $mode;
+        return $this;
     }
 
     /**
