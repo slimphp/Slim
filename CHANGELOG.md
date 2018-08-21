@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2404](https://github.com/slimphp/Slim/pull/2404) Slim 4 requires PHP 7.0 or higher
 - [#2329](https://github.com/slimphp/Slim/pull/2329) Added Middleware\MethodOverrideMiddleware
 - [#2288](https://github.com/slimphp/Slim/pull/2288) Separate routing from dispatching
 - [#2254](https://github.com/slimphp/Slim/pull/2254) Added Middleware\ContentLengthMiddleware
