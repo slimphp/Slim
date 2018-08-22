@@ -424,8 +424,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $app->get('/token/{token}', null)->setName('testRoute');
 
         // Inject request
-        $uri = \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
-        $request = new \Slim\Http\Request('GET', $uri, new \Slim\Http\Headers(), [], \Slim\Http\Environment::mock()->all(), new \Slim\Http\RequestBody());
+        $request = new \Slim\Http\Request(
+            'GET',
+            \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c'),
+            new \Slim\Http\Headers(),
+            [],
+            \Slim\Http\Environment::mock()->all(),
+            new \Slim\Http\RequestBody()
+        );
         $container['request'] = $request;
 
         // Generate complete URL

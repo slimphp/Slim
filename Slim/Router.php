@@ -444,7 +444,6 @@ class Router implements RouterInterface
      * @return string
      *
      * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws RuntimeException If named route does not exist or Request not initialized
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
@@ -461,6 +460,7 @@ class Router implements RouterInterface
         if (is_string($uri)) {
             $uri = Uri::createFromString($uri);
         }
+
         $scheme = $uri->getScheme();
         $authority = $uri->getAuthority();
         $host = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
