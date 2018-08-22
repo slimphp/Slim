@@ -434,11 +434,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
         $container['request'] = $request;
 
-        // Generate complete URL
+        // Generate complete URL with custom base path
         /** @var Router $router */
         $router = $container->get('router');
+        $router->setBasePath('/app'); // test URL with sub directory
         $result = $router->urlFor('testRoute', ['token' => 'randomToken']);
-        $expected = 'http://example.com:8000/token/randomToken';
+
+        $expected = 'http://example.com:8000/app/token/randomToken';
 
         $this->assertEquals($expected, $result);
     }
