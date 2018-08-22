@@ -6,9 +6,10 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests;
 
-use Slim\Container;
+use Psr\Container\ContainerExceptionInterface;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -401,39 +402,38 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that the router urlFor will proxy into a pathFor method, and trigger
-     * the user deprecated warning
-     */
-    public function testUrlForAliasesPathFor()
-    {
-        //create a temporary error handler, store the error str in this value
-        $errorString = null;
-
-        set_error_handler(function ($no, $str) use (&$errorString) {
-            $errorString = $str;
-        }, E_USER_DEPRECATED);
-
-        //create the parameters we expect
-        $name = 'foo';
-        $data = ['name' => 'josh'];
-        $queryParams = ['a' => 'b', 'c' => 'd'];
-
-        //create a router that mocks the pathFor with expected args
-        $router = $this->getMockBuilder('\Slim\Router')->setMethods(['pathFor'])->getMock();
-        $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
-        $router->urlFor($name, $data, $queryParams);
-
-        //check that our error was triggered
-        $this->assertEquals($errorString, 'urlFor() is deprecated. Use pathFor() instead.');
-
-        restore_error_handler();
-    }
-
-    /**
      * @expectedException \RuntimeException
      */
     public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {
         $this->router->lookupRoute("thisIsMissing");
+    }
+
+    /**
+     * Creates a slim app, adds test route, injects a fake request
+     * and generates a complete URL for the test route
+     *
+     * @throws ContainerExceptionInterface
+     */
+    public function testUrlFor()
+    {
+        $app = new \Slim\App();
+        $container = $app->getContainer();
+
+        // Add test route
+        $app->get('/token/{token}', null)->setName('testRoute');
+
+        // Inject request
+        $uri = \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
+        $request = new \Slim\Http\Request('GET', $uri, new \Slim\Http\Headers(), [], \Slim\Http\Environment::mock()->all(), new \Slim\Http\RequestBody());
+        $container['request'] = $request;
+
+        // Generate complete URL
+        /** @var Router $router */
+        $router = $container->get('router');
+        $result = $router->urlFor('testRoute', ['token' => 'randomToken']);
+        $expected = 'http://example.com:8000/token/randomToken';
+
+        $this->assertEquals($expected, $result);
     }
 }
