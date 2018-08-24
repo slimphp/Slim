@@ -6,11 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Interfaces;
 
-use InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Route Interface
@@ -29,14 +31,14 @@ interface RouteInterface
      *
      * @return string|null
      */
-    public function getArgument($name, $default = null);
+    public function getArgument(string $name, $default = null);
 
     /**
      * Get route arguments
      *
      * @return string[]
      */
-    public function getArguments();
+    public function getArguments(): array;
 
     /**
      * Get route name
@@ -50,7 +52,7 @@ interface RouteInterface
      *
      * @return string
      */
-    public function getPattern();
+    public function getPattern(): string;
 
     /**
      * Set a route argument
@@ -60,7 +62,7 @@ interface RouteInterface
      *
      * @return self
      */
-    public function setArgument($name, $value);
+    public function setArgument(string $name, string $value): self;
 
     /**
      * Replace route arguments
@@ -69,7 +71,7 @@ interface RouteInterface
      *
      * @return self
      */
-    public function setArguments(array $arguments);
+    public function setArguments(array $arguments): self;
 
     /**
      * Set route name
@@ -77,9 +79,8 @@ interface RouteInterface
      * @param string $name
      *
      * @return static
-     * @throws InvalidArgumentException if the route name is not a string
      */
-    public function setName($name);
+    public function setName(string $name): self;
 
     /**
      * Add middleware
@@ -111,7 +112,7 @@ interface RouteInterface
      * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response);
+    public function run(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
 
     /**
      * Dispatch route callable against current Request and Response objects
@@ -125,5 +126,5 @@ interface RouteInterface
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response);
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
 }

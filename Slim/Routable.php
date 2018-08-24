@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
 use Slim\Interfaces\CallableResolverInterface;
@@ -21,7 +24,7 @@ abstract class Routable
     /**
      * Route callable
      *
-     * @var callable
+     * @var callable|string
      */
     protected $callable;
 
@@ -49,7 +52,7 @@ abstract class Routable
      *
      * @return callable[]
      */
-    public function getMiddleware()
+    public function getMiddleware(): array
     {
         return $this->middleware;
     }
@@ -59,7 +62,7 @@ abstract class Routable
      *
      * @return string
      */
-    public function getPattern()
+    public function getPattern(): string
     {
         return $this->pattern;
     }
@@ -102,7 +105,7 @@ abstract class Routable
      *
      * @param string $newPattern
      */
-    public function setPattern($newPattern)
+    public function setPattern(string $newPattern)
     {
         $this->pattern = $newPattern;
     }

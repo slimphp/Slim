@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Interfaces;
 
 use Slim\App;
@@ -23,7 +26,7 @@ interface RouteGroupInterface
      *
      * @return string
      */
-    public function getPattern();
+    public function getPattern(): string;
 
     /**
      * Prepend middleware to the group middleware collection

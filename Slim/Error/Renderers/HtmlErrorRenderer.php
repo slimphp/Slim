@@ -6,10 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Error\Renderers;
 
 use Slim\Error\AbstractErrorRenderer;
-use Exception;
+use Throwable;
 
 /**
  * Default Slim application HTML Error Renderer
@@ -17,11 +20,11 @@ use Exception;
 class HtmlErrorRenderer extends AbstractErrorRenderer
 {
     /**
-     * @param \Exception|\Throwable $exception
+     * @param Throwable $exception
      * @param bool $displayErrorDetails
      * @return string
      */
-    public function render($exception, $displayErrorDetails)
+    public function render(Throwable $exception, bool $displayErrorDetails): string
     {
         $title = 'Slim Application Error';
 
@@ -41,7 +44,7 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
      * @param string $html
      * @return string
      */
-    public function renderHtmlBody($title = '', $html = '')
+    public function renderHtmlBody(string $title = '', string $html = ''): string
     {
         return sprintf(
             "<html>" .
@@ -67,10 +70,10 @@ class HtmlErrorRenderer extends AbstractErrorRenderer
     }
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      * @return string
      */
-    private function renderExceptionFragment($exception)
+    private function renderExceptionFragment(Throwable $exception): string
     {
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));
 

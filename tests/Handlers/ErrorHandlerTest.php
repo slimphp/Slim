@@ -173,6 +173,7 @@ class ErrorHandlerTest extends TestCase
         $request = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
             ->getMock();
+        $request->expects($this->any())->method('getHeaderLine')->with('Accept')->willReturn('application/json');
 
         $handler = $this->getMockBuilder(ErrorHandler::class)
             ->setMethods(['writeToErrorLog', 'logError'])

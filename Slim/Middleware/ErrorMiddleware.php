@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
@@ -14,7 +17,6 @@ use Slim\Exception\HttpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
-use Exception;
 use Throwable;
 
 class ErrorMiddleware
@@ -58,9 +60,9 @@ class ErrorMiddleware
      */
     public function __construct(
         CallableResolverInterface $callableResolver,
-        $displayErrorDetails,
-        $logErrors,
-        $logErrorDetails
+        bool $displayErrorDetails,
+        bool $logErrors,
+        bool $logErrorDetails
     ) {
         $this->callableResolver = $callableResolver;
         $this->displayErrorDetails = $displayErrorDetails;
@@ -77,12 +79,13 @@ class ErrorMiddleware
      *
      * @return ResponseInterface
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
-    {
+    public function __invoke(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        callable $next
+    ): ResponseInterface {
         try {
             return $next($request, $response);
-        } catch (Exception $e) {
-            return $this->handleException($request, $e);
         } catch (Throwable $e) {
             return $this->handleException($request, $e);
         }
@@ -90,10 +93,10 @@ class ErrorMiddleware
 
     /**
      * @param ServerRequestInterface $request
-     * @param Exception|Throwable $exception
+     * @param Throwable $exception
      * @return mixed
      */
-    public function handleException(ServerRequestInterface $request, $exception)
+    public function handleException(ServerRequestInterface $request, Throwable $exception)
     {
         if ($exception instanceof HttpException) {
             $request = $exception->getRequest();
@@ -119,7 +122,7 @@ class ErrorMiddleware
      * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @return callable|ErrorHandler
      */
-    public function getErrorHandler($type)
+    public function getErrorHandler(string $type)
     {
         if (isset($this->handlers[$type])) {
             return $this->callableResolver->resolve($this->handlers[$type]);
@@ -146,7 +149,7 @@ class ErrorMiddleware
      * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @param callable|ErrorHandlerInterface $handler
      */
-    public function setErrorHandler($type, $handler)
+    public function setErrorHandler(string $type, $handler)
     {
         $this->handlers[$type] = $handler;
     }

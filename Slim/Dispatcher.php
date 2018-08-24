@@ -6,6 +6,9 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
 use FastRoute\Dispatcher\GroupCountBased;
@@ -32,7 +35,7 @@ class Dispatcher extends GroupCountBased
      * @param string $uri
      * @return RoutingResults
      */
-    public function dispatch($httpMethod, $uri)
+    public function dispatch($httpMethod, $uri): RoutingResults
     {
         $this->httpMethod = $httpMethod;
         $this->uri = $uri;
@@ -78,12 +81,12 @@ class Dispatcher extends GroupCountBased
     }
 
     /**
-     * @param $status
-     * @param null $handler
+     * @param int $status
+     * @param string|null $handler
      * @param array $arguments
      * @return RoutingResults
      */
-    protected function routingResults($status, $handler = null, $arguments = [])
+    protected function routingResults(int $status, string $handler = null, array $arguments = []): RoutingResults
     {
         return new RoutingResults($this, $this->httpMethod, $this->uri, $status, $handler, $arguments);
     }
@@ -92,7 +95,7 @@ class Dispatcher extends GroupCountBased
      * @param array $result
      * @return RoutingResults
      */
-    protected function routingResultsFromVariableRouteResults($result)
+    protected function routingResultsFromVariableRouteResults(array $result): RoutingResults
     {
         if ($result[0] === self::FOUND) {
             return $this->routingResults(self::FOUND, $result[1], $result[2]);
@@ -105,7 +108,7 @@ class Dispatcher extends GroupCountBased
      * @param string $uri
      * @return array
      */
-    public function getAllowedMethods($httpMethod, $uri)
+    public function getAllowedMethods(string $httpMethod, string $uri): array
     {
         if (isset($this->allowedMethods[$uri])) {
             return $this->allowedMethods[$uri];

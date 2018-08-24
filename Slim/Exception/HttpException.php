@@ -6,10 +6,13 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+
+declare(strict_types=1);
+
 namespace Slim\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Exception;
+use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
 class HttpException extends Exception
@@ -20,7 +23,7 @@ class HttpException extends Exception
     protected $request;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected $title = '';
 
@@ -32,12 +35,16 @@ class HttpException extends Exception
     /**
      * HttpException constructor.
      * @param ServerRequestInterface $request
-     * @param string|null $message
+     * @param string $message
      * @param int $code
-     * @param Exception|Throwable|null $previous
+     * @param Throwable|null $previous
      */
-    public function __construct(ServerRequestInterface $request, $message = null, $code = 0, $previous = null)
-    {
+    public function __construct(
+        ServerRequestInterface $request,
+        string $message = '',
+        int $code = 0,
+        Throwable $previous = null
+    ) {
         parent::__construct($message, $code, $previous);
         $this->request = $request;
     }
@@ -45,7 +52,7 @@ class HttpException extends Exception
     /**
      * @param string $title
      */
-    public function setTitle($title)
+    public function setTitle(string $title)
     {
         $this->title = $title;
     }
@@ -53,15 +60,15 @@ class HttpException extends Exception
     /**
      * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(string $description)
     {
         $this->description = $description;
     }
 
     /**
-     * @return null|ServerRequestInterface
+     * @return ServerRequestInterface
      */
-    public function getRequest()
+    public function getRequest(): ServerRequestInterface
     {
         return $this->request;
     }
@@ -69,7 +76,7 @@ class HttpException extends Exception
     /**
      * @return string
      */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -77,7 +84,7 @@ class HttpException extends Exception
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
