@@ -18,6 +18,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -34,7 +35,7 @@ use Slim\Middleware\RoutingMiddleware;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  */
-class App
+class App implements RequestHandlerInterface
 {
     use MiddlewareAwareTrait;
 
@@ -422,6 +423,21 @@ class App
             $request = Request::createFromGlobals($_SERVER);
         }
 
+        return $this->handle($request);
+    }
+
+    /**
+     * Handle a request
+     *
+     * This method traverses the application middleware stack and then returns the
+     * resultant Response object.
+     *
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
         // create response
         $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
         $httpVersion = $this->getSetting('httpVersion');
