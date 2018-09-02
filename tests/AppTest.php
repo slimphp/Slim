@@ -18,6 +18,7 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\HeaderStackTestAsset;
 use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
@@ -27,8 +28,28 @@ use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
+/**
+ * Emit a header, without creating actual output artifacts
+ *
+ * @param string $value
+ */
+function header($value, $replace = true)
+{
+    \Slim\header($value, $replace);
+}
+
 class AppTest extends TestCase
 {
+    public function setUp()
+    {
+        HeaderStackTestAsset::reset();
+    }
+
+    public function tearDown()
+    {
+        HeaderStackTestAsset::reset();
+    }
+
     public static function setupBeforeClass()
     {
         // ini_set('log_errors', 0);
@@ -1567,6 +1588,78 @@ class AppTest extends TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
+    }
+
+    public function testResponseReplacesPreviouslySetHeaders()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            return $res
+                ->withHeader('X-Foo', 'baz1')
+                ->withAddedHeader('X-Foo', 'baz2')
+                ;
+        });
+
+        // Prepare request and response objects
+        $serverParams = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromGlobals($serverParams);
+        $headers = Headers::createFromGlobals($serverParams);
+        $cookies = [];
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $app->respond($resOut);
+
+        $expectedStack = [
+            ['header' => 'X-Foo: baz1', 'replace' => true, 'status_code' => null],
+            ['header' => 'X-Foo: baz2', 'replace' => false, 'status_code' => null],
+            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
+        ];
+
+        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
+    }
+
+    public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            return $res
+                ->withHeader('Set-Cookie', 'foo=bar')
+                ->withAddedHeader('Set-Cookie', 'bar=baz')
+                ;
+        });
+
+        // Prepare request and response objects
+        $serverParams = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromGlobals($serverParams);
+        $headers = Headers::createFromGlobals($serverParams);
+        $cookies = [];
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $app->respond($resOut);
+
+        $expectedStack = [
+            ['header' => 'Set-Cookie: foo=bar', 'replace' => false, 'status_code' => null],
+            ['header' => 'Set-Cookie: bar=baz', 'replace' => false, 'status_code' => null],
+            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
+        ];
+
+        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
     }
 
     public function testFinalize()
