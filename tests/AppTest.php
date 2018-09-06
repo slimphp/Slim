@@ -1744,6 +1744,12 @@ class AppTest extends TestCase
         $this->assertTrue($result);
     }
 
+    public function testAppIsARequestHandler()
+    {
+        $app = new App;
+        $this->assertInstanceof('Psr\Http\Server\RequestHandlerInterface', $app);
+    }
+
     protected function skipIfPhp70()
     {
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
