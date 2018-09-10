@@ -42,7 +42,7 @@ class RoutingResults
     /**
      * @var null|string
      */
-    protected $routeHandler;
+    protected $routeIdentifier;
 
     /**
      * @var array
@@ -55,7 +55,7 @@ class RoutingResults
      * @param string $httpMethod
      * @param string $uri
      * @param int $routeStatus
-     * @param string|null $routeHandler
+     * @param string|null $routeIdentifier
      * @param array $routeArguments
      */
     public function __construct(
@@ -63,14 +63,14 @@ class RoutingResults
         string $httpMethod,
         string $uri,
         int $routeStatus,
-        string $routeHandler = null,
+        string $routeIdentifier = null,
         array $routeArguments = []
     ) {
         $this->dispatcher = $dispatcher;
         $this->httpMethod = $httpMethod;
         $this->uri = $uri;
         $this->routeStatus = $routeStatus;
-        $this->routeHandler = $routeHandler;
+        $this->routeIdentifier = $routeIdentifier;
         $this->routeArguments = $routeArguments;
     }
 
@@ -109,9 +109,9 @@ class RoutingResults
     /**
      * @return null|string
      */
-    public function getRouteHandler()
+    public function getRouteIdentifier()
     {
-        return $this->routeHandler;
+        return $this->routeIdentifier;
     }
 
     /**

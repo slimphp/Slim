@@ -77,7 +77,7 @@ class RoutingMiddleware
         switch ($routeStatus) {
             case Dispatcher::FOUND:
                 $routeArguments = $routingResults->getRouteArguments();
-                $route = $this->router->lookupRoute($routingResults->getRouteHandler());
+                $route = $this->router->lookupRoute($routingResults->getRouteIdentifier());
                 $route->prepare($request, $routeArguments);
                 return $request
                     ->withAttribute('route', $route)

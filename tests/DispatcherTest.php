@@ -61,7 +61,7 @@ class DispatcherTest extends TestCase
         $results = $dispatcher->dispatch($method, $uri);
 
         $this->assertSame($dispatcher::FOUND, $results->getRouteStatus());
-        $this->assertSame($handler, $results->getRouteHandler());
+        $this->assertSame($handler, $results->getRouteIdentifier());
         $this->assertSame($argDict, $results->getRouteArguments());
         $this->assertSame($method, $results->getHttpMethod());
         $this->assertSame($uri, $results->getUri());
