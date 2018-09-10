@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Container\ContainerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 
@@ -69,6 +70,11 @@ final class CallableResolver implements CallableResolverInterface
                     throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
                 $resolved = [new $class($this->container), $method];
+            }
+
+            // For a class that implements RequestHandlerInterface, we will call handle()
+            if ($resolved[0] instanceof RequestHandlerInterface) {
+                $resolved[1] = 'handle';
             }
         }
 

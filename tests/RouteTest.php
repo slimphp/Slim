@@ -23,6 +23,7 @@ use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use Slim\Tests\Mocks\RequestHandlerTest;
 
 class RouteTest extends TestCase
 {
@@ -412,6 +413,25 @@ class RouteTest extends TestCase
 
         $this->assertInstanceOf('Slim\Http\Response', $result);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+    public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
+    {
+        $pimple = new Pimple();
+        $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
+        $resolver = new CallableResolver(new Psr11Container($pimple));
+
+        $route = new Route(['GET'], '/', RequestHandlerTest::class);
+        $route->setCallableResolver($resolver);
+
+        $uri = Uri::createFromString('https://example.com:80');
+        $body = new Body(fopen('php://temp', 'r+'));
+        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+
+        $result = $route->callMiddlewareStack($request, new Response);
+
+        $strategy = $pimple[RequestHandlerTest::class]::$strategy;
+        $this->assertEquals('Slim\Handlers\Strategies\RequestHandler', $strategy);
     }
 
     /**
