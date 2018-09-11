@@ -177,7 +177,7 @@ class Uri implements UriInterface
         if ($env->has('HTTP_HOST')) {
             $host = $env->get('HTTP_HOST');
             // set a port default
-            $port = 80;
+            $port = null;
         } else {
             $host = $env->get('SERVER_NAME');
             // set a port default
