@@ -27,7 +27,6 @@
 - [#2254](https://github.com/slimphp/Slim/pull/2254) `addContentLengthHeader` setting is removed
 - [#2221](https://github.com/slimphp/Slim/pull/2221) `Slim\Http` has been removed and Slim now depends on the separate Slim-Http component
 - [#2166](https://github.com/slimphp/Slim/pull/2166) `outputBuffering` setting is removed
-- [#2067](https://github.com/slimphp/Slim/pull/2067) Remove App::VERSION
 - [#2078](https://github.com/slimphp/Slim/pull/2078) Remove App::subRequest()
 - [#2098](https://github.com/slimphp/Slim/pull/2098) Remove CallableResolverTrait
 - [#2102](https://github.com/slimphp/Slim/pull/2102) Remove container from router
