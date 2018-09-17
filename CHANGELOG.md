@@ -22,7 +22,7 @@
 ### Removed
 
 - [#2398](https://github.com/slimphp/Slim/pull/2398) Slim no longer has error handling built into App. Add ErrorMiddleware() as the outermost middleware.
-- [#2375](https://github.com/slimphp/Slim/pull/2375) Slim no longer sets the `default_mimetype` to an empty string, so you need to set it yourself in php.ini or your app.
+- [#2375](https://github.com/slimphp/Slim/pull/2375) Slim no longer sets the `default_mimetype` to an empty string, so you need to set it yourself in php.ini or your app using `ini_set('default_mimetype', '');`.
 - [#2288](https://github.com/slimphp/Slim/pull/2288) `determineRouteBeforeAppMiddleware` setting is removed. Add RoutingMiddleware() where you need it now.
 - [#2254](https://github.com/slimphp/Slim/pull/2254) `addContentLengthHeader` setting is removed
 - [#2221](https://github.com/slimphp/Slim/pull/2221) `Slim\Http` has been removed and Slim now depends on the separate Slim-Http component
@@ -33,6 +33,11 @@
 - [#2124](https://github.com/slimphp/Slim/pull/2124) Remove Slim\Exception\SlimException
 - [#2174](https://github.com/slimphp/Slim/pull/2174) Switch from Container-Interop to PSR-11
 - [#2290](https://github.com/slimphp/Slim/pull/2290) Removed container. Set your own using `App::setContainer()`
+
+
+### Changed
+
+- [#2104](https://github.com/slimphp/Slim/pull/2104) Settings are the top level array elements in `App::__construct()`
 
 ### Fixed
 
