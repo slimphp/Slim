@@ -1,0 +1,19 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()->in(__DIR__);
+
+return PhpCsFixer\Config::create()
+    ->setFinder($finder)
+    ->setRules(array(
+        '@Symfony' => true,
+        '@Symfony:risky' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'ordered_imports' => true,
+        'protected_to_private' => false,
+        'declare_strict_types' => true,
+        'fully_qualified_strict_types' => true,
+        'mb_str_functions' => true,
+        'strict_param' => true,
+        'native_function_invocation' => true,
+    ))
+    ->setRiskyAllowed(true);
