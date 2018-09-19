@@ -272,6 +272,10 @@ class Response extends Message implements ResponseInterface
      */
     public function withHeader($name, $value)
     {
+        if ($this->body instanceof NonBufferedBody) {
+            header("$name: $value");
+        }
+
         $clone = clone $this;
         $clone->headers->set($name, $value);
 
