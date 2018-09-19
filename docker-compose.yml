@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+    slim-php:
+        build:
+            context: ./
+        volumes:
+        - "./Slim:/app/Slim/"
+        - "./tests:/app/tests/"

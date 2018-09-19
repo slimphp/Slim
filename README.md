@@ -52,6 +52,13 @@ To execute the test suite, you'll need phpunit.
 $ phpunit
 ```
 
+Alternatively if you have docker (and docker-compose) you can run the tests using
+the supplied docker image for local development:
+
+```bash
+$ docker-compose run slim-php
+``` 
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
