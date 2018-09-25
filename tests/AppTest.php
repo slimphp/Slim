@@ -1451,7 +1451,7 @@ class AppTest extends TestCase
 
         /** @var Router $router */
         $router = $app->getRouter();
-        $router->map(['get'], '/foo', 'foo:bar');
+        $router->map(['GET'], '/foo', 'foo:bar');
 
         // Invoke app
         $resOut = $app($request, $response);
