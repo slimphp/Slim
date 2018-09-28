@@ -241,6 +241,19 @@ class AppTest extends TestCase
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
+    public function testMapRouteWithLowercaseMethod()
+    {
+        $path = '/foo';
+        $callable = function ($req, $res) {
+            // Do something
+        };
+        $app = new App($this->getResponseFactory());
+        $route = $app->map(['get'], $path, $callable);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('get', 'methods', $route);
+    }
+
     public function testRedirectRoute()
     {
         $source = '/foo';
