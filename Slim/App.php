@@ -713,4 +713,31 @@ class App
         // No handlers found, so just throw the exception
         throw $e;
     }
+
+    /**
+     * returns an array with all patterns belonging to registered routes
+     *
+     * @param array $methods
+     *
+     * @return array
+     */
+    public function getRoutePattern(array $methods = [])
+    {
+        $pattern = [];
+        /** @var Container $container */
+        $container = $this->getContainer();
+        /** @var Router $router */
+        $router = $container->get("router");
+        /** @var array $routes */
+        $routes = $router->getRoutes();
+        /** @var Route $route */
+        foreach ($routes as $route) {
+            $intersection = \array_intersect($methods,$route->getMethods());
+            $intersectionSize = \count($intersection);
+            if (\count($methods) === 0 || $intersectionSize > 0) {
+                $pattern[] = $route->getPattern();
+            }
+        }
+        return $pattern;
+    }
 }
