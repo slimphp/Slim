@@ -129,11 +129,10 @@ class Cookies implements CookiesInterface
         }
 
         if (isset($properties['expires'])) {
-            if (is_string($properties['expires'])) {
-                $timestamp = strtotime($properties['expires']);
-            } else {
-                $timestamp = (int)$properties['expires'];
-            }
+            $timestamp = is_string($properties['expires'])
+                ? strtotime($properties['expires'])
+                : (int)$properties['expires'];
+
             if ($timestamp !== 0) {
                 $result .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
             }

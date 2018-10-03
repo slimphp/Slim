@@ -128,9 +128,9 @@ class Container extends PimpleContainer implements ContainerInterface
                     null,
                     $exception
                 );
-            } else {
-                throw $exception;
             }
+
+            throw $exception;
         }
     }
 
