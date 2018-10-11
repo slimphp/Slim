@@ -86,6 +86,13 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testGetBasePath()
+    {
+        $this->router->setBasePath('/new/base/path');
+        $this->assertFalse(('/not/the/new/base/path' === $this->router->getBasePath()));
+        $this->assertEquals('/new/base/path', $this->router->getBasePath());
+    }
+
     public function testPathForWithNoBasePath()
     {
         $this->router->setBasePath('');

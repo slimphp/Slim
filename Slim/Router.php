@@ -112,6 +112,16 @@ class Router implements RouterInterface
     }
 
     /**
+     * Get the base path used in pathFor()
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
+    /**
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
      * @param string|false $cacheFile
