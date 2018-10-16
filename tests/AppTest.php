@@ -26,7 +26,7 @@ use Slim\Http\RequestBody;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 use Slim\Router;
-use Slim\HeaderStackTestAsset;
+use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockAction;
 
 /**
@@ -43,12 +43,12 @@ class AppTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        HeaderStackTestAsset::reset();
+        HeaderStack::reset();
     }
 
     public function tearDown()
     {
-        HeaderStackTestAsset::reset();
+        HeaderStack::reset();
     }
 
     public static function setupBeforeClass()
@@ -1797,7 +1797,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
+        $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
@@ -1834,7 +1834,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
+        $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
