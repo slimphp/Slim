@@ -55,10 +55,10 @@ class OutputBufferingMiddlewareTest extends TestCase
         $response = new Response();
 
         $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
+            $body = $res->getBody();
+            $body->write('Body');
             echo 'Test';
-
-            return $res;
+            return $res->withBody($body);
         };
         $result = $mw($request, $response, $next);
 
@@ -78,10 +78,10 @@ class OutputBufferingMiddlewareTest extends TestCase
         $response = new Response();
 
         $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
+            $body = $res->getBody();
+            $body->write('Body');
             echo 'Test';
-
-            return $res;
+            return $res->withBody($body);
         };
         $result = $mw($request, $response, $next);
 

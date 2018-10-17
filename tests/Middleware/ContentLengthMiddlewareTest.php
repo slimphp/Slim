@@ -22,7 +22,7 @@ class ContentLengthMiddlewareTest extends TestCase
 {
     public function testAddsContentLenght()
     {
-        $mw = new ContentLengthMiddleware('append');
+        $mw = new ContentLengthMiddleware();
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = new Headers();
@@ -33,8 +33,9 @@ class ContentLengthMiddlewareTest extends TestCase
         $response = new Response();
 
         $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
-            return $res;
+            $body = $res->getBody();
+            $body->write('Body');
+            return $res->withBody($body);
         };
 
         $newResponse = $mw($request, $response, $next);

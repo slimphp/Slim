@@ -419,7 +419,10 @@ class Router implements RouterInterface
         }
 
         if (empty($segments)) {
-            throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
+            if (isset($segmentName)) {
+                throw new InvalidArgumentException('Missing data for URL segment: ' . $segmentName);
+            }
+            throw new InvalidArgumentException(sprintf('Missing RouteData for URL with name: "%s"', $name));
         }
         $url = implode('', $segments);
 
