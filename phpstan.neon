@@ -1,0 +1,5 @@
+parameters:
+  level: 1
+  paths:
+  - %currentWorkingDirectory%/example/
+  - %currentWorkingDirectory%/Slim/

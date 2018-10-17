@@ -39,7 +39,8 @@
         "pimple/pimple": "^3.2",
         "squizlabs/php_codesniffer": "^2.9",
         "phpunit/phpunit": "^5.7|^6.2",
-        "php-coveralls/php-coveralls": "^1.0"
+        "php-coveralls/php-coveralls": "^1.0",
+        "phpstan/phpstan": "^0.10"
     },
     "provide": {
         "psr/http-message-implementation": "1.0"
@@ -50,6 +51,9 @@
         }
     },
     "autoload-dev": {
+        "psr-4": {
+            "Slim\\Tests\\": "tests"
+        },
         "files": [
           "tests/Assets/HeaderFunctions.php"
         ]
@@ -60,6 +64,7 @@
             "@phpcs"
         ],
         "phpunit": "php vendor/bin/phpunit",
-        "phpcs": "php vendor/bin/phpcs"
+        "phpcs": "php vendor/bin/phpcs",
+        "phpstan": "phpstan analyse --no-progress -c phpstan.neon"
     }
 }
