@@ -70,6 +70,11 @@ Learn more at these links:
 
 If you discover security related issues, please email security@slimframework.com instead of using the issue tracker.
 
+## Professional support
+
+Slim is part of [Tidelift](https://tidelift.com/subscription/pkg/packagist-slim-slim?utm_source=packagist-slim-slim&utm_medium=referral&utm_campaign=readme) which gives software development teams a single source for purchasing and maintaining their software, with professional grade assurances from the experts who know it best, while seamlessly integrating with existing tools.
+
+
 ## Credits
 
 - [Josh Lockhart](https://github.com/codeguy)
