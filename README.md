@@ -108,9 +108,10 @@ $responseEmitter->emit($response);
 require 'vendor/autoload.php';
 
 use Slim\Http\Factory\DecoratedResponseFactory;
-use Slim\Http\Decorators\ServerRequestDecorator
+use Slim\Http\Decorators\ServerRequestDecorator;
 use Zend\Diactoros\ResponseFactory;
 use Zend\Diactoros\ServerRequestFactory;
+use Zend\Diactoros\StreamFactory;
 use Zend\HttpHandlerRunner\Emitter\SapiEmitter;
 
 $app = new Slim\App();
@@ -119,7 +120,8 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 });
 
 $responseFactory = new ResponseFactory();
-$decoratedResponseFactory = new DecoratedResponseFactory($responseFactory);
+$streamFactory = new StreamFactory();
+$decoratedResponseFactory = new DecoratedResponseFactory($responseFactory, $streamFactory);
 
 $serverRequestFactory = new ServerRequestFactory();
 $request = ServerRequestFactory::fromGlobals();
