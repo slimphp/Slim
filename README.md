@@ -57,7 +57,7 @@ $response = $app->run($request, $psr17Factory);
  * Once you have obtained the ResponseInterface from App::run()
  * You will need to emit the response by using an emitter of your choice
  * Slim ships with its own response emitter but 
- * you could use Zend Diactoros SapiEmitter for example
+ * you could use Zend HttpHandleRunner SapiEmitter for example
  */
 $responseEmitter = new ResponseEmitter();
 $responseEmitter->emit($response);
@@ -86,8 +86,6 @@ $request = ServerRequestFactory::fromGlobals();
 
 /**
  * The App::run() Method takes 2 parameters
- * In the case of Nyholm/psr7 the Psr17Factory provides all the Http-Factories in one class
- * which include ResponseFactoryInterface
  * @param ServerRequestInterface An instantiation of a ServerRequest
  * @param ResponseFactoryInterface An instantiation of a ResponseFactory
  */
@@ -96,7 +94,7 @@ $response = $app->run($request, $responseFactory);
 /**
  * Once you have obtained the ResponseInterface from App::run()
  * You will need to emit the response by using an emitter of your choice
- * We will use Zend's Emitter for this example
+ * We will use Zend HttpHandleRunner SapiEmitter for this example
  */
 $responseEmitter = new SapiEmitter();
 $responseEmitter->emit($response);
@@ -129,8 +127,6 @@ $decoratedServerRequest = new ServerRequestDecorator($request);
 
 /**
  * The App::run() Method takes 2 parameters
- * In the case of Nyholm/psr7 the Psr17Factory provides all the Http-Factories in one class
- * which include ResponseFactoryInterface
  * @param ServerRequestInterface An instantiation of a ServerRequest
  * @param ResponseFactoryInterface An instantiation of a ResponseFactory
  */
@@ -139,7 +135,7 @@ $response = $app->run($decoratedRequest, $decoratedResponseFactory);
 /**
  * Once you have obtained the ResponseInterface from App::run()
  * You will need to emit the response by using an emitter of your choice
- * We will use Zend's Emitter for this example
+ * We will use Zend HttpHandleRunner SapiEmitter for this example
  */
 $responseEmitter = new SapiEmitter();
 $responseEmitter->emit($response);
