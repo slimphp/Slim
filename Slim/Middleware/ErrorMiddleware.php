@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpException;
@@ -25,6 +26,11 @@ class ErrorMiddleware
      * @var CallableResolverInterface
      */
     protected $callableResolver;
+
+    /**
+     * @var ResponseFactoryInterface
+     */
+    protected $responseFactory;
 
     /**
      * @var bool
@@ -54,17 +60,20 @@ class ErrorMiddleware
     /**
      * ErrorMiddleware constructor.
      * @param CallableResolverInterface $callableResolver
+     * @param ResponseFactoryInterface $responseFactory
      * @param bool $displayErrorDetails
      * @param bool $logErrors
      * @param bool $logErrorDetails
      */
     public function __construct(
         CallableResolverInterface $callableResolver,
+        ResponseFactoryInterface $responseFactory,
         bool $displayErrorDetails,
         bool $logErrors,
         bool $logErrorDetails
     ) {
         $this->callableResolver = $callableResolver;
+        $this->responseFactory = $responseFactory;
         $this->displayErrorDetails = $displayErrorDetails;
         $this->logErrors = $logErrors;
         $this->logErrorDetails = $logErrorDetails;
@@ -186,6 +195,6 @@ class ErrorMiddleware
             return $this->callableResolver->resolve($this->defaultErrorHandler);
         }
 
-        return new ErrorHandler();
+        return new ErrorHandler($this->responseFactory);
     }
 }
