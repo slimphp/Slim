@@ -11,18 +11,18 @@ declare(strict_types=1);
 
 namespace Slim\Handlers;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpMethodNotAllowedException;
-use Slim\Http\Response;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -30,6 +30,9 @@ use Throwable;
  *
  * It outputs the error message and diagnostic information in one of the following formats:
  * JSON, XML, Plain Text or HTML based on the Accept header.
+ *
+ * @package Slim
+ * @since 4.0.0
  */
 class ErrorHandler implements ErrorHandlerInterface
 {
@@ -90,6 +93,20 @@ class ErrorHandler implements ErrorHandlerInterface
      * @var int
      */
     protected $statusCode;
+
+    /**
+     * @var ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
+     * ErrorHandler constructor.
+     * @param ResponseFactoryInterface $responseFactory
+     */
+    public function __construct(ResponseFactoryInterface $responseFactory)
+    {
+        $this->responseFactory = $responseFactory;
+    }
 
     /**
      * Invoke error handler
@@ -237,25 +254,25 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function respond(): ResponseInterface
     {
-        $response = new Response();
-        $body = $this->renderer->renderWithBody($this->exception, $this->displayErrorDetails);
+        $response = $this->responseFactory->createResponse($this->statusCode);
+        $response = $response->withHeader('Content-type', $this->contentType);
 
         if ($this->exception instanceof HttpMethodNotAllowedException) {
             $allowedMethods = implode(', ', $this->exception->getAllowedMethods());
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
-        return $response
-            ->withStatus($this->statusCode)
-            ->withHeader('Content-type', $this->contentType)
-            ->withBody($body);
+        $body = $this->renderer->render($this->exception, $this->displayErrorDetails);
+        $response->getBody()->write($body);
+
+        return $response;
     }
 
     /**
      * Write to the error log if $logErrors has been set to true
      * @return void
      */
-    protected function writeToErrorLog()
+    protected function writeToErrorLog(): void
     {
         $renderer = new PlainTextErrorRenderer();
         $error = $renderer->render($this->exception, $this->logErrorDetails);
