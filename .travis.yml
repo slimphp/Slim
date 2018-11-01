@@ -19,7 +19,7 @@ script:
 - mkdir -p build/logs && phpunit --coverage-clover build/logs/clover.xml
 - vendor/bin/phpunit
 - vendor/bin/phpcs
-- vendor/bin/phpstan analyse Slim tests
+- vendor/bin/phpstan analyse Slim
 
 after_script:
 - php vendor/bin/coveralls -v
