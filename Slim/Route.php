@@ -310,7 +310,7 @@ class Route extends Routable implements RouteInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        // Resolve route callable
+        /** @var callable $callable */
         $callable = $this->callable;
         if ($this->callableResolver) {
             $callable = $this->callableResolver->resolve($callable);

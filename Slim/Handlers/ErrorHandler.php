@@ -197,15 +197,14 @@ class ErrorHandler implements ErrorHandlerInterface
 
         if ($renderer !== null
             && (
-                !class_exists($renderer)
-                || !in_array('Slim\Interfaces\ErrorRendererInterface', class_implements($renderer))
+                (is_string($renderer) && !class_exists($renderer))
+                || !in_array(ErrorRendererInterface::class, class_implements($renderer))
             )
         ) {
-            throw new RuntimeException(sprintf(
+            throw new RuntimeException(
                 'Non compliant error renderer provided (%s). ' .
-                'Renderer must implement the ErrorRendererInterface',
-                $renderer
-            ));
+                'Renderer must implement the ErrorRendererInterface'
+            );
         }
 
         if ($renderer === null) {
@@ -262,7 +261,9 @@ class ErrorHandler implements ErrorHandlerInterface
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
-        $body = $this->renderer->render($this->exception, $this->displayErrorDetails);
+        /** @var ErrorRendererInterface $renderer */
+        $renderer = $this->renderer;
+        $body = $renderer->render($this->exception, $this->displayErrorDetails);
         $response->getBody()->write($body);
 
         return $response;

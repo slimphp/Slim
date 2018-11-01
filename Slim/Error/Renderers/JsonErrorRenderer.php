@@ -35,7 +35,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
             } while ($exception = $exception->getPrevious());
         }
 
-        return json_encode($error, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
+        return (string) json_encode($error, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
     }
 
     /**

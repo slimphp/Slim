@@ -43,12 +43,12 @@ class Router implements RouterInterface
     /**
      * Callable resolver
      *
-     * @var \Slim\Interfaces\CallableResolverInterface
+     * @var CallableResolverInterface|null
      */
     protected $callableResolver;
 
     /**
-     * @var \Slim\Interfaces\InvocationStrategyInterface
+     * @var InvocationStrategyInterface|null
      */
     protected $routeInvocationStrategy;
 
@@ -69,7 +69,7 @@ class Router implements RouterInterface
     /**
      * Routes
      *
-     * @var Route[]|RouterInterface[]
+     * @var array
      */
     protected $routes = [];
 
@@ -87,7 +87,7 @@ class Router implements RouterInterface
     protected $routeGroups = [];
 
     /**
-     * @var Dispatcher
+     * @var Dispatcher|null
      */
     protected $dispatcher;
 
@@ -138,7 +138,7 @@ class Router implements RouterInterface
     /**
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
-     * @param string|false $cacheFile
+     * @param string|bool $cacheFile
      *
      * @return self
      *
@@ -176,7 +176,7 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $handler The route callable
+     * @param  callable|string $handler The route callable
      *
      * @return RouteInterface
      */
@@ -190,11 +190,11 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        /**
-         * Add route
-         * @var Route $route
-         */
-        $route = $this->createRoute($methods, $pattern, $handler);
+        /** @var callable $routeHandler */
+        $routeHandler = $handler;
+
+        /** @var Route $route */
+        $route = $this->createRoute($methods, $pattern, $routeHandler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 

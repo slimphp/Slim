@@ -46,7 +46,7 @@ class App implements RequestHandlerInterface
     /**
      * Container
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
     private $container;
 
@@ -354,8 +354,9 @@ class App implements RequestHandlerInterface
             $callable = $callable->bindTo($this->container);
         }
 
-        // Create route
-        $route = $this->getRouter()->map($methods, $pattern, $callable);
+        /** @var Router $router */
+        $router = $this->getRouter();
+        $route = $router->map($methods, $pattern, $callable);
 
         return $route;
     }
@@ -464,9 +465,7 @@ class App implements RequestHandlerInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        /**
-         * @var RoutingResults $routingResults
-         */
+        /** @var RoutingResults|null $routingResults */
         $routingResults = $request->getAttribute('routingResults');
 
         // If routing hasn't been done, then do it now so we can dispatch

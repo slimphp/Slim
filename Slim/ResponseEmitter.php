@@ -55,7 +55,7 @@ class ResponseEmitter
      */
     public function emit(ResponseInterface $response): void
     {
-        if (!headers_sent()) {
+        if (headers_sent() === false) {
             if ($this->isResponseEmpty($response)) {
                 $response = $response
                     ->withoutHeader('Content-Type')
