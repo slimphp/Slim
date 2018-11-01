@@ -33,7 +33,6 @@ class InvocationStrategyTest implements InvocationStrategyInterface
         array $routeArguments
     ): ResponseInterface {
         static::$LastCalledFor = $callable;
-
         return $response;
     }
 }

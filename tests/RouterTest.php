@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
 use Slim\Route;
 use Slim\RoutingResults;

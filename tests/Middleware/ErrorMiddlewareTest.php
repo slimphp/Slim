@@ -17,8 +17,8 @@ use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\Test;
-use Error;
 use Closure;
+use Error;
 
 /**
  * Class ErrorMiddlewareTest

@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use InvalidArgumentException;
-use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
@@ -22,6 +20,8 @@ use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Router

@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
-use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Slim\RoutingResults;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Router Interface

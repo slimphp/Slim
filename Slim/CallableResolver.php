@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Container\ContainerInterface;
-use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
+use RuntimeException;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure
