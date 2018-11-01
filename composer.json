@@ -37,6 +37,7 @@
         "psr/http-server-handler": "^1.0"
     },
     "require-dev": {
+        "ext-simplexml": "*",
         "nyholm/psr7": "^1.0",
         "phpunit/phpunit": "^7.0",
         "phpstan/phpstan": "^0.10.3",
