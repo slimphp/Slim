@@ -36,7 +36,7 @@ class MethodOverrideMiddleware
 
         if ($methodHeader) {
             $request = $request->withMethod($methodHeader);
-        } elseif (strtoupper($request->getMethod()) == 'POST') {
+        } elseif (strtoupper($request->getMethod()) === 'POST') {
             $body = $request->getParsedBody();
 
             if (!empty($body['_METHOD'])) {
