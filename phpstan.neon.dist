@@ -1,0 +1,9 @@
+parameters:
+  level: max
+  ignoreErrors:
+    - '#Function Slim\\Tests\\handle not found#'
+    - '#Function Slim\\Tests\\testCallable#'
+    - '#Inner named functions are not supported by PHPStan#'
+    - '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject::foo()#'
+    - '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject::__invoke()#'
+    - '#Call to an undefined method PHPUnit\\Framework\\MockObject\\MockObject::urlFor()#'
