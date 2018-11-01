@@ -17,13 +17,13 @@ class OutputBufferingMiddlewareTest extends Test
 {
     public function testStyleDefaultValid()
     {
-        $mw = new OutputBufferingMiddleware($this->streamFactory());
+        $mw = new OutputBufferingMiddleware($this->getStreamFactory());
         $this->assertAttributeEquals('append', 'style', $mw);
     }
 
     public function testStyleCustomValid()
     {
-        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'prepend');
+        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
         $this->assertAttributeEquals('prepend', 'style', $mw);
     }
 
@@ -32,12 +32,12 @@ class OutputBufferingMiddlewareTest extends Test
      */
     public function testStyleCustomInvalid()
     {
-        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'foo');
+        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }
 
     public function testAppend()
     {
-        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'append');
+        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
@@ -55,7 +55,7 @@ class OutputBufferingMiddlewareTest extends Test
 
     public function testPrepend()
     {
-        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'prepend');
+        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $next = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');

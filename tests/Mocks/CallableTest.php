@@ -8,7 +8,7 @@
  */
 namespace Slim\Tests\Mocks;
 
-use Nyholm\Psr7\Factory\Psr17Factory;
+use Slim\Tests\Providers\PSR7ObjectProvider;
 
 /**
  * Mock object for Slim\Tests\CallableResolverTest
@@ -28,7 +28,7 @@ class CallableTest
     {
         static::$CalledCount++;
 
-        $psr17Factory = new Psr17Factory();
-        return $psr17Factory->createResponse();
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->createResponse();
     }
 }

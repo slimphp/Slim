@@ -1339,7 +1339,7 @@ class AppTest extends Test
         });
 
         $request = $this->createServerRequest('/');
-        $response = $app->run($request, $this->responseFactory());
+        $response = $app->run($request, $this->getResponseFactory());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
     }

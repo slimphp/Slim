@@ -99,7 +99,7 @@ class ErrorHandlerTest extends Test
 
         $reflectionProperty = $class->getProperty('responseFactory');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $this->responseFactory());
+        $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('exception');
         $reflectionProperty->setAccessible(true);
@@ -137,7 +137,7 @@ class ErrorHandlerTest extends Test
 
         $reflectionProperty = $class->getProperty('responseFactory');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $this->responseFactory());
+        $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
@@ -168,7 +168,7 @@ class ErrorHandlerTest extends Test
 
         $reflectionProperty = $class->getProperty('responseFactory');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($class, $this->responseFactory());
+        $reflectionProperty->setValue($class, $this->getResponseFactory());
 
         // use a mock object here as ErrorHandler cannot be directly instantiated
         $handler = $this
@@ -185,7 +185,7 @@ class ErrorHandlerTest extends Test
     public function testOptions()
     {
         $request = $this->createServerRequest('/', 'OPTIONS');
-        $handler = new ErrorHandler($this->responseFactory());
+        $handler = new ErrorHandler($this->getResponseFactory());
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['POST', 'PUT']);
 
@@ -204,7 +204,7 @@ class ErrorHandlerTest extends Test
             ->withHeader('Accept', 'application/json');
 
         $handler = $this->getMockBuilder(ErrorHandler::class)
-            ->setConstructorArgs(['responseFactory' => $this->responseFactory()])
+            ->setConstructorArgs(['responseFactory' => $this->getResponseFactory()])
             ->setMethods(['writeToErrorLog', 'logError'])
             ->getMock();
 

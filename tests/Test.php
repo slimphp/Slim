@@ -8,13 +8,14 @@
  */
 namespace Slim\Tests;
 
-use Nyholm\Psr7\Factory\Psr17Factory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\StreamInterface;
+use Slim\Tests\Providers\PSR7ObjectProvider;
 
 /**
  * Class Test
@@ -25,25 +26,28 @@ abstract class Test extends TestCase
     /**
      * @return ServerRequestFactoryInterface
      */
-    protected function serverRequestFactory(): ServerRequestFactoryInterface
+    protected function getServerRequestFactory(): ServerRequestFactoryInterface
     {
-        return new Psr17Factory();
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->getServerRequestFactory();
     }
 
     /**
      * @return ResponseFactoryInterface
      */
-    protected function responseFactory(): ResponseFactoryInterface
+    protected function getResponseFactory(): ResponseFactoryInterface
     {
-        return new Psr17Factory();
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->getResponseFactory();
     }
 
     /**
      * @return StreamFactoryInterface
      */
-    protected function streamFactory(): StreamFactoryInterface
+    protected function getStreamFactory(): StreamFactoryInterface
     {
-        return new Psr17Factory();
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->getStreamFactory();
     }
 
     /**
@@ -57,27 +61,8 @@ abstract class Test extends TestCase
         string $method = 'GET',
         array $data = []
     ): ServerRequestInterface {
-        $headers = array_merge([
-            'SERVER_PROTOCOL'      => 'HTTP/1.1',
-            'REQUEST_METHOD'       => $method,
-            'SCRIPT_NAME'          => '/index.php',
-            'REQUEST_URI'          => '',
-            'QUERY_STRING'         => '',
-            'SERVER_NAME'          => 'localhost',
-            'SERVER_PORT'          => 80,
-            'HTTP_HOST'            => 'localhost',
-            'HTTP_ACCEPT'          => 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'HTTP_ACCEPT_LANGUAGE' => 'en-US,en;q=0.8',
-            'HTTP_ACCEPT_CHARSET'  => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-            'HTTP_USER_AGENT'      => 'Slim Framework',
-            'REMOTE_ADDR'          => '127.0.0.1',
-            'REQUEST_TIME'         => time(),
-            'REQUEST_TIME_FLOAT'   => microtime(true),
-        ], $data);
-
-        return $this
-            ->serverRequestFactory()
-            ->createServerRequest($method, $uri, $headers);
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->createServerRequest($uri, $method, $data);
     }
 
     /**
@@ -87,8 +72,17 @@ abstract class Test extends TestCase
      */
     protected function createResponse(int $statusCode = 200, string $reasonPhrase = ''): ResponseInterface
     {
-        return $this
-            ->responseFactory()
-            ->createResponse($statusCode, $reasonPhrase);
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->createResponse($statusCode, $reasonPhrase);
+    }
+
+    /**
+     * @param string $contents
+     * @return StreamInterface
+     */
+    protected function createStream(string $contents = ''): StreamInterface
+    {
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->createStream($contents);
     }
 }

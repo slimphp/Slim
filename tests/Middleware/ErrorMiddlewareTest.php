@@ -42,12 +42,12 @@ class ErrorMiddlewareTest extends Test
         };
         Closure::bind($handler, $this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->responseFactory(), false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $app->run($request, $this->responseFactory());
+        $response = $app->run($request, $this->getResponseFactory());
 
         $this->assertEquals('Oops..', (string) $response->getBody());
     }
@@ -67,12 +67,12 @@ class ErrorMiddlewareTest extends Test
         };
         Closure::bind($handler, $this);
 
-        $mw2 = new ErrorMiddleware($callableResolver, $this->responseFactory(), false, false, false);
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $app->run($request, $this->responseFactory());
+        $response = $app->run($request, $this->getResponseFactory());
 
         $this->assertEquals('Oops..', (string) $response->getBody());
     }
@@ -85,7 +85,7 @@ class ErrorMiddlewareTest extends Test
         $app = new App();
         $callableResolver = $app->getCallableResolver();
 
-        $mw = new ErrorMiddleware($callableResolver, $this->responseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw->setDefaultErrorHandler('Uncallable');
         $mw->getDefaultErrorHandler();
     }
@@ -95,7 +95,7 @@ class ErrorMiddlewareTest extends Test
         $app = new App();
         $callableResolver = $app->getCallableResolver();
 
-        $middleware = new ErrorMiddleware($callableResolver, $this->responseFactory(), false, false, false);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
@@ -121,7 +121,7 @@ class ErrorMiddlewareTest extends Test
         };
         Closure::bind($handler, $this);
 
-        $mw = new ErrorMiddleware($callableResolver, $this->responseFactory(), false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw->setDefaultErrorHandler($handler);
         $app->add($mw);
 
@@ -131,7 +131,7 @@ class ErrorMiddlewareTest extends Test
         });
 
         $request = $this->createServerRequest('/foo');
-        $response = $app->run($request, $this->responseFactory());
+        $response = $app->run($request, $this->getResponseFactory());
 
         $this->assertEquals('Oops..', (string) $response->getBody());
     }

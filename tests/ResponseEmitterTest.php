@@ -89,7 +89,7 @@ class ResponseEmitterTest extends Test
                 'iv' => $iv
             ]);
 
-            $body = $this->streamFactory()->createStreamFromResource($stream);
+            $body = $this->getStreamFactory()->createStreamFromResource($stream);
             $response = $this
                 ->createResponse()
                 ->withHeader('Content-Length', $length)
@@ -173,7 +173,7 @@ class ResponseEmitterTest extends Test
 
     public function testIsResponseEmptyWithNonEmptyBodyAndTriggeringStatusCode()
     {
-        $body = $this->streamFactory()->createStream('Hello');
+        $body = $this->createStream('Hello');
         $response = $this
             ->createResponse(204)
             ->withBody($body);
