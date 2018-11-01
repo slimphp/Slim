@@ -392,12 +392,14 @@ class App implements RequestHandlerInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        /** @var RouteGroup $group */
         $router = $this->getRouter();
+
+        /** @var RouteGroup $group */
         $group = $router->pushGroup($pattern, $callable);
         if ($this->callableResolver instanceof CallableResolverInterface) {
             $group->setCallableResolver($this->callableResolver);
         }
+
         $group($this);
         $router->popGroup();
 
@@ -435,9 +437,12 @@ class App implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $header = ['Content-Type' => 'text/html; charset=UTF-8'];
         $httpVersion = $this->getSetting('httpVersion');
-        $response = $this->responseFactory->createResponse(200, '', $header, null, $httpVersion);
+        $response = $this->responseFactory
+            ->createResponse(200, '')
+            ->withProtocolVersion($httpVersion)
+            ->withHeader('Content-Type', 'text/html; charset=UTF-8');
+
         return $this->callMiddlewareStack($request, $response);
     }
 

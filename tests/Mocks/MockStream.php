@@ -31,7 +31,7 @@ class MockStream implements StreamInterface
     /** @var array|mixed|null|void */
     private $uri;
 
-    /** @var int */
+    /** @var int|null */
     private $size;
 
     /** @var array Hash of readable and writable stream types */
@@ -50,11 +50,13 @@ class MockStream implements StreamInterface
         ],
     ];
 
+    /**
+     * MockStream constructor.
+     * @param string|resource $body
+     */
     public function __construct($body = '')
     {
-        if ($body instanceof StreamInterface) {
-            return $body;
-        } elseif (\is_string($body)) {
+        if (\is_string($body)) {
             $resource = \fopen('php://temp', 'rw+');
             \fwrite($resource, $body);
             $body = $resource;

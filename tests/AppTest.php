@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
@@ -19,34 +18,11 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
-use Slim\HeaderStackTestAsset;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
-/**
- * Emit a header, without creating actual output artifacts
- *
- * @param string $value
- * @param bool $replace
- * @param int $statusCode
- */
-function header($value, bool $replace = true, int $statusCode = null)
-{
-    \Slim\header($value, $replace, $statusCode);
-}
-
 class AppTest extends Test
 {
-    public function setUp()
-    {
-        HeaderStackTestAsset::reset();
-    }
-
-    public function tearDown()
-    {
-        HeaderStackTestAsset::reset();
-    }
-
     public static function setupBeforeClass()
     {
         // ini_set('log_errors', 0);
@@ -1388,7 +1364,7 @@ class AppTest extends Test
         $app = new App();
         $app->setContainer(new Psr11Container($pimple));
 
-        /** @var $router Router */
+        /** @var Router $router */
         $router = $app->getRouter();
         $router->map(['get'], '/foo', 'foo:bar');
 

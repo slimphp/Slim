@@ -19,6 +19,16 @@ use Slim\Tests\Mocks\SmallChunksStream;
  */
 class ResponseEmitterTest extends Test
 {
+    public function setUp()
+    {
+        HeaderStackTestAsset::reset();
+    }
+
+    public function tearDown()
+    {
+        HeaderStackTestAsset::reset();
+    }
+
     public function testRespond()
     {
         $response = $this->createResponse();
@@ -127,8 +137,6 @@ class ResponseEmitterTest extends Test
 
     public function testResponseReplacesPreviouslySetHeaders()
     {
-        HeaderStackTestAsset::reset();
-
         $response = $this
             ->createResponse(200, 'OK')
             ->withHeader('X-Foo', 'baz1')
@@ -147,8 +155,6 @@ class ResponseEmitterTest extends Test
 
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
     {
-        HeaderStackTestAsset::reset();
-
         $response = $this
             ->createResponse(200, 'OK')
             ->withHeader('Set-Cookie', 'foo=bar')

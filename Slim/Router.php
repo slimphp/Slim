@@ -69,7 +69,7 @@ class Router implements RouterInterface
     /**
      * Routes
      *
-     * @var Route[]
+     * @var Route[]|RouterInterface[]
      */
     protected $routes = [];
 
@@ -190,7 +190,10 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        // Add route
+        /**
+         * Add route
+         * @var Route $route
+         */
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
@@ -249,18 +252,21 @@ class Router implements RouterInterface
         };
 
         if ($this->cacheFile) {
-            $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
                 'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
         } else {
-            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
                 'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
             ]);
         }
 
+        $this->dispatcher = $dispatcher;
         return $this->dispatcher;
     }
 
@@ -310,9 +316,8 @@ class Router implements RouterInterface
      */
     public function removeNamedRoute(string $name)
     {
+        /** @var Route $route */
         $route = $this->getNamedRoute($name);
-
-        // no exception, route exists, now remove by id
         unset($this->routes[$route->getIdentifier()]);
     }
 
@@ -392,6 +397,7 @@ class Router implements RouterInterface
         $routeDatas = array_reverse($routeDatas);
 
         $segments = [];
+        $segmentName = '';
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {
