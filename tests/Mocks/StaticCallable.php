@@ -8,17 +8,19 @@
  */
 namespace Slim\Tests\Mocks;
 
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Mock object for Slim\Tests\RouteTest
  */
 class StaticCallable
 {
-    public static function run($req, $res, $next)
+    public static function run(ServerRequestInterface $request, ResponseInterface $response, $next)
     {
-        $res->write('In1');
-        $res = $next($req, $res);
-        $res->write('Out1');
-
-        return $res;
+        $response->getBody()->write('In1');
+        $response = $next($request, $response);
+        $response->getBody()->write('Out1');
+        return $response;
     }
 }

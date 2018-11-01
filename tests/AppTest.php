@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\CallableResolver;
@@ -19,12 +20,6 @@ use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\HeaderStackTestAsset;
-use Slim\Http\Body;
-use Slim\Http\Environment;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
@@ -32,13 +27,15 @@ use Slim\Tests\Mocks\MockAction;
  * Emit a header, without creating actual output artifacts
  *
  * @param string $value
+ * @param bool $replace
+ * @param int $statusCode
  */
-function header($value, $replace = true)
+function header($value, bool $replace = true, int $statusCode = null)
 {
-    \Slim\header($value, $replace);
+    \Slim\header($value, $replace, $statusCode);
 }
 
-class AppTest extends TestCase
+class AppTest extends Test
 {
     public function setUp()
     {
@@ -59,31 +56,6 @@ class AppTest extends TestCase
     public static function tearDownAfterClass()
     {
         // ini_set('log_errors', 1);
-    }
-
-    /**
-     * helper to create a request object
-     * @return Request
-     */
-    private function requestFactory($requestUri, $method = 'GET', $data = [])
-    {
-        $defaults = [
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => $requestUri,
-            'REQUEST_METHOD' => $method,
-        ];
-
-        $data = array_merge($defaults, $data);
-
-        $env = Environment::mock($data);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
-
-        return $request;
     }
 
     /********************************************************************************
@@ -168,7 +140,7 @@ class AppTest extends TestCase
     public function testGetRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -181,7 +153,7 @@ class AppTest extends TestCase
     public function testPostRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -194,7 +166,7 @@ class AppTest extends TestCase
     public function testPutRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -207,7 +179,7 @@ class AppTest extends TestCase
     public function testPatchRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -220,7 +192,7 @@ class AppTest extends TestCase
     public function testDeleteRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -233,7 +205,7 @@ class AppTest extends TestCase
     public function testOptionsRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -246,7 +218,7 @@ class AppTest extends TestCase
     public function testAnyRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -264,7 +236,7 @@ class AppTest extends TestCase
     public function testMapRoute()
     {
         $path = '/foo';
-        $callable = function ($req, $res) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         };
         $app = new App();
@@ -286,33 +258,33 @@ class AppTest extends TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
 
-        $response = $route->run($this->requestFactory($source), new Response());
+        $response = $route->run($this->createServerRequest($source), $this->createResponse());
         $this->assertEquals(301, $response->getStatusCode());
         $this->assertEquals($destination, $response->getHeaderLine('Location'));
 
         $routeWithDefaultStatus = $app->redirect($source, $destination);
-        $response = $routeWithDefaultStatus->run($this->requestFactory($source), new Response());
+        $response = $routeWithDefaultStatus->run($this->createServerRequest($source), $this->createResponse());
         $this->assertEquals(302, $response->getStatusCode());
 
         $uri = $this->getMockBuilder(UriInterface::class)->getMock();
         $uri->expects($this->once())->method('__toString')->willReturn($destination);
 
         $routeToUri = $app->redirect($source, $uri);
-        $response = $routeToUri->run($this->requestFactory($source), new Response());
+        $response = $routeToUri->run($this->createServerRequest($source), $this->createResponse());
         $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
     public function testRouteWithInternationalCharacters()
     {
         $app = new App();
-        $app->get('/новости', function ($req, $res) {
-            $res->write('Hello');
-            return $res;
+        $app->get('/новости', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/новости');
-        $response = new Response();
+        $request = $this->createServerRequest('/новости');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -327,7 +299,7 @@ class AppTest extends TestCase
     public function testSegmentRouteThatDoesNotEndInASlash()
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
+        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
         /** @var \Slim\Router $router */
@@ -338,7 +310,7 @@ class AppTest extends TestCase
     public function testSegmentRouteThatEndsInASlash()
     {
         $app = new App();
-        $app->get('/foo/', function ($req, $res) {
+        $app->get('/foo/', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
         /** @var \Slim\Router $router */
@@ -349,7 +321,7 @@ class AppTest extends TestCase
     public function testSegmentRouteThatDoesNotStartWithASlash()
     {
         $app = new App();
-        $app->get('foo', function ($req, $res) {
+        $app->get('foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
         /** @var \Slim\Router $router */
@@ -360,7 +332,7 @@ class AppTest extends TestCase
     public function testSingleSlashRoute()
     {
         $app = new App();
-        $app->get('/', function ($req, $res) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
         /** @var \Slim\Router $router */
@@ -371,7 +343,7 @@ class AppTest extends TestCase
     public function testEmptyRoute()
     {
         $app = new App();
-        $app->get('', function ($req, $res) {
+        $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
         /** @var \Slim\Router $router */
@@ -386,7 +358,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/foo', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -399,7 +371,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/foo', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -412,7 +384,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/foo', function ($app) {
-            $app->get('/', function ($req, $res) {
+            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -425,7 +397,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/foo', function ($app) {
-            $app->get('', function ($req, $res) {
+            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -439,7 +411,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -454,7 +426,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -469,7 +441,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -484,7 +456,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -499,7 +471,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -514,7 +486,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -529,7 +501,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -544,7 +516,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/foo', function ($app) {
             $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -558,7 +530,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -571,7 +543,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -584,7 +556,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/', function ($app) {
-            $app->get('/', function ($req, $res) {
+            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -597,7 +569,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('/', function ($app) {
-            $app->get('', function ($req, $res) {
+            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -611,7 +583,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -626,7 +598,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -641,7 +613,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -656,7 +628,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -671,7 +643,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -686,7 +658,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -701,7 +673,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -716,7 +688,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('/', function ($app) {
             $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -730,7 +702,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('', function ($app) {
-            $app->get('/bar', function ($req, $res) {
+            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -743,7 +715,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('', function ($app) {
-            $app->get('/bar/', function ($req, $res) {
+            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -756,7 +728,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('', function ($app) {
-            $app->get('/', function ($req, $res) {
+            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -769,7 +741,7 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->group('', function ($app) {
-            $app->get('', function ($req, $res) {
+            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
@@ -783,7 +755,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -798,7 +770,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('', function ($req, $res) {
+                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -813,7 +785,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -828,7 +800,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/bar/', function ($req, $res) {
+                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -843,7 +815,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -858,7 +830,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('/', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -873,7 +845,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('', function ($app) {
-                $app->get('/bar', function ($req, $res) {
+                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -888,7 +860,7 @@ class AppTest extends TestCase
         $app = new App();
         $app->group('', function ($app) {
             $app->group('', function ($app) {
-                $app->get('bar', function ($req, $res) {
+                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
@@ -906,9 +878,9 @@ class AppTest extends TestCase
     {
         $app = new App();
         $bottom = null;
-        $mw = function ($req, $res, $next) use (&$bottom) {
+        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
             $bottom = $next;
-            return $res;
+            return $response;
         };
         $app->add($mw);
 
@@ -925,9 +897,9 @@ class AppTest extends TestCase
         $app = new App();
         $called = 0;
 
-        $mw = function ($req, $res, $next) use (&$called) {
+        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
             $called++;
-            return $res;
+            return $response;
         };
         $app->add($mw);
 
@@ -943,25 +915,24 @@ class AppTest extends TestCase
     {
         $app = new App();
 
-        $app->get('/', function ($req, $res) {
-            return $res->write('Center');
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
-
-            return $res;
-        })->add(function ($req, $res, $next) {
-            $res->write('In2');
-            $res = $next($req, $res);
-            $res->write('Out2');
-
-            return $res;
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Center');
+            return $response;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In1');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out1');
+            return $response;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In2');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out2');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/');
-        $response = new Response();
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
 
         // Invoke app
         $response = $app($request, $response);
@@ -975,26 +946,25 @@ class AppTest extends TestCase
         $app = new App();
 
         $app->group('/foo', function ($app) {
-            $app->get('/', function ($req, $res) {
-                return $res->write('Center');
+            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                $response->getBody()->write('Center');
+                return $response;
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
-
-            return $res;
-        })->add(function ($req, $res, $next) {
-            $res->write('In2');
-            $res = $next($req, $res);
-            $res->write('Out2');
-
-            return $res;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In1');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out1');
+            return $response;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In2');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out2');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/');
+        $response = $this->createResponse();
 
         // Invoke app
         $response = $app($request, $response);
@@ -1008,27 +978,26 @@ class AppTest extends TestCase
 
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                    $response->getBody()->write('Center');
+                    return $response;
                 });
-            })->add(function ($req, $res, $next) {
-                $res->write('In2');
-                $res = $next($req, $res);
-                $res->write('Out2');
-
-                return $res;
+            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                $response->getBody()->write('In2');
+                $response = $next($request, $response);
+                $response->getBody()->write('Out2');
+                return $response;
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
-
-            return $res;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In1');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out1');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/baz/');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/baz/');
+        $response = $this->createResponse();
 
         // Invoke app
         $response = $app($request, $response);
@@ -1042,33 +1011,31 @@ class AppTest extends TestCase
 
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
-                $app->get('/', function ($req, $res) {
-                    return $res->write('Center');
-                })->add(function ($req, $res, $next) {
-                    $res->write('In3');
-                    $res = $next($req, $res);
-                    $res->write('Out3');
-
-                    return $res;
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                    $response->getBody()->write('Center');
+                    return $response;
+                })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                    $response->getBody()->write('In3');
+                    $response = $next($request, $response);
+                    $response->getBody()->write('Out3');
+                    return $response;
                 });
-            })->add(function ($req, $res, $next) {
-                $res->write('In2');
-                $res = $next($req, $res);
-                $res->write('Out2');
-
-                return $res;
+            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                $response->getBody()->write('In2');
+                $response = $next($request, $response);
+                $response->getBody()->write('Out2');
+                return $response;
             });
-        })->add(function ($req, $res, $next) {
-            $res->write('In1');
-            $res = $next($req, $res);
-            $res->write('Out1');
-
-            return $res;
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response->getBody()->write('In1');
+            $response = $next($request, $response);
+            $response->getBody()->write('Out1');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/baz/');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/baz/');
+        $response = $this->createResponse();
 
         // Invoke app
         $response = $app($request, $response);
@@ -1087,15 +1054,14 @@ class AppTest extends TestCase
     public function testInvokeReturnMethodNotAllowed()
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
+        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo', 'POST');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo', 'POST');
+        $response = $this->createResponse();
 
         // Create Html Renderer and Assert Output
         $exception = new HttpMethodNotAllowedException($request);
@@ -1117,14 +1083,14 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRoute()
     {
         $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-            return $res;
+        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1136,13 +1102,14 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithSetArgument()
     {
         $app = new App();
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute']}");
+        $app->get('/foo/bar', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['attribute']}");
+            return $response;
         })->setArgument('attribute', 'world!');
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/bar');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/bar');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1154,13 +1121,14 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithSetArguments()
     {
         $app = new App();
-        $app->get('/foo/bar', function ($req, $res, $args) {
-            return $res->write("Hello {$args['attribute1']} {$args['attribute2']}");
+        $app->get('/foo/bar', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['attribute1']} {$args['attribute2']}");
+            return $response;
         })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/bar');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/bar');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1172,13 +1140,14 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['name']}");
+        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['name']}");
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/test!');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/test!');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1191,13 +1160,14 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write("Hello {$name}");
+        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
+            $response->getBody()->write("Hello {$name}");
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/test!');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/test!');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1209,13 +1179,14 @@ class AppTest extends TestCase
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write("Hello {$args['extra']} {$args['name']}");
+        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['extra']} {$args['name']}");
+            return $response;
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/test!');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo/test!');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1230,15 +1201,14 @@ class AppTest extends TestCase
     public function testInvokeWithoutMatchingRoute()
     {
         $app = new App();
-        $app->get('/bar', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
+        $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello');
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1250,17 +1220,17 @@ class AppTest extends TestCase
     public function testInvokeWithCallableRegisteredInContainer()
     {
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
 
         $pimple = new Pimple();
         $pimple['foo'] = function () use ($mock, $response) {
-            $mock->method('bar')
-                ->willReturn(
-                    $response->write('Hello')
-                );
+            $response->getBody()->write('Hello');
+            $mock
+                ->method('bar')
+                ->willReturn($response);
             return $mock;
         };
 
@@ -1281,8 +1251,8 @@ class AppTest extends TestCase
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         $mock = $this->getMockBuilder('StdClass')->getMock();
 
@@ -1302,8 +1272,8 @@ class AppTest extends TestCase
     public function testInvokeWithCallableInContainerViaMagicMethod()
     {
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         $mock = new MockAction();
 
@@ -1328,19 +1298,19 @@ class AppTest extends TestCase
         $app = new App();
 
         // @codingStandardsIgnoreStart
-        function handle($req, $res)
+        function handle(ServerRequestInterface $request, ResponseInterface $response)
         {
-            $res->write('foo');
+            $response->getBody()->write('foo');
 
-            return $res;
+            return $response;
         }
         // @codingStandardsIgnoreEnd
 
         $app->get('/foo', __NAMESPACE__ . '\handle');
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1351,14 +1321,15 @@ class AppTest extends TestCase
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
     {
         $app = new App();
-        $app->get('/foo/{name}', function ($req, $res, $args) {
-            return $res->write($req->getAttribute('one') . $args['name']);
+        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write($request->getAttribute('one') . $args['name']);
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/rob');
+        $request = $this->createServerRequest('/foo/rob');
         $request = $request->withAttribute("one", 1);
-        $response = new Response();
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
@@ -1369,322 +1340,32 @@ class AppTest extends TestCase
     {
         $app = new App();
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/foo/{name}', function ($req, $res, $name) {
-            return $res->write($req->getAttribute('one') . $name);
+        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
+            $response->getBody()->write($request->getAttribute('one') . $name);
+            return $response;
         });
 
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo/rob');
+        $request = $this->createServerRequest('/foo/rob');
         $request = $request->withAttribute("one", 1);
-        $response = new Response();
+        $response = $this->createResponse();
 
         // Invoke app
         $resOut = $app($request, $response);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
-    // TODO: Test finalize()
-
-    // TODO: Test run()
     public function testRun()
     {
-        $currentServer = $_SERVER; // backup $_SERVER
-
         $app = new App();
-        $_SERVER = [
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ];
-
-        $app->get('/foo', function ($req, $res) {
-            $res->write('bar');
-
-            return $res;
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
         });
 
-        ob_start();
-        $app->run();
-        $resOut = ob_get_clean();
+        $request = $this->createServerRequest('/');
+        $response = $app->run($request, $this->responseFactory());
 
-        $this->assertEquals('bar', (string)$resOut);
-
-        $_SERVER = $currentServer; // restore $_SERVER
-    }
-
-
-    public function testRespond()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        // Invoke app
-        $resOut = $app($request, $response);
-
-        $app->respond($resOut);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->expectOutputString('Hello');
-    }
-
-    public function testRespondWithHeaderNotSent()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        // Invoke app
-        $resOut = $app($request, $response);
-
-        $app->respond($resOut);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->expectOutputString('Hello');
-    }
-
-    public function testRespondNoContent()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            $res = $res->withStatus(204);
-            return $res;
-        });
-
-        // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
-
-        // Invoke app
-        $resOut = $app($request, $response);
-
-        $app->respond($resOut);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->assertEquals([], $resOut->getHeader('Content-Type'));
-        $this->assertEquals([], $resOut->getHeader('Content-Length'));
-        $this->expectOutputString('');
-    }
-
-    public function testRespondWithPaddedStreamFilterOutput()
-    {
-        $availableFilter = stream_get_filters();
-
-        if (version_compare(phpversion(), '7.0.0', '>=')) {
-            $filterName           = 'string.rot13';
-            $unfilterName         = 'string.rot13';
-            $specificFilterName   = 'string.rot13';
-            $specificUnfilterName = 'string.rot13';
-        } else {
-            $filterName           = 'mcrypt.*';
-            $unfilterName         = 'mdecrypt.*';
-            $specificFilterName   = 'mcrypt.rijndael-128';
-            $specificUnfilterName = 'mdecrypt.rijndael-128';
-        }
-
-        if (in_array($filterName, $availableFilter) && in_array($unfilterName, $availableFilter)) {
-            $app = new App();
-            $app->get('/foo', function ($req, $res) use ($specificFilterName, $specificUnfilterName) {
-                $key = base64_decode('xxxxxxxxxxxxxxxx');
-                $iv = base64_decode('Z6wNDk9LogWI4HYlRu0mng==');
-
-                $data = 'Hello';
-                $length = strlen($data);
-
-                $stream = fopen('php://temp', 'r+');
-
-                $filter = stream_filter_append($stream, $specificFilterName, STREAM_FILTER_WRITE, [
-                    'key' => $key,
-                    'iv' => $iv
-                ]);
-
-                fwrite($stream, $data);
-                rewind($stream);
-                stream_filter_remove($filter);
-
-                stream_filter_append($stream, $specificUnfilterName, STREAM_FILTER_READ, [
-                    'key' => $key,
-                    'iv' => $iv
-                ]);
-
-                return $res->withHeader('Content-Length', $length)->withBody(new Body($stream));
-            });
-
-            // Prepare request and response objects
-            $request = $this->requestFactory('/foo');
-            $response = new Response();
-
-            // Invoke app
-            $resOut = $app($request, $response);
-            $app->respond($resOut);
-
-            $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-            $this->expectOutputString('Hello');
-        } else {
-            $this->assertTrue(true);
-        }
-    }
-
-    public function testRespondIndeterminateLength()
-    {
-        $app = new App();
-        $body_stream = fopen('php://temp', 'r+');
-        $response = new Response();
-        $body = $this->getMockBuilder("\Slim\Http\Body")
-            ->setMethods(["getSize"])
-            ->setConstructorArgs([$body_stream])
-            ->getMock();
-        fwrite($body_stream, "Hello");
-        rewind($body_stream);
-        $body->method("getSize")->willReturn(null);
-        $response = $response->withBody($body);
-        $app->respond($response);
-        $this->expectOutputString("Hello");
-    }
-
-    public function testResponseWithStreamReadYieldingLessBytesThanAsked()
-    {
-        $app = new App([
-            'settings' => ['responseChunkSize' => Mocks\SmallChunksStream::CHUNK_SIZE * 2]
-        ]);
-        $app->get('/foo', function ($req, $res) {
-            $res->write('Hello');
-
-            return $res;
-        });
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Mocks\SmallChunksStream();
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = (new Response())->withBody($body);
-
-        // Invoke app
-        $resOut = $app($request, $response);
-
-        $app->respond($resOut);
-
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
-        $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
-    }
-
-    public function testResponseReplacesPreviouslySetHeaders()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            return $res
-                ->withHeader('X-Foo', 'baz1')
-                ->withAddedHeader('X-Foo', 'baz2')
-                ;
-        });
-
-        // Prepare request and response objects
-        $serverParams = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($serverParams);
-        $headers = Headers::createFromGlobals($serverParams);
-        $cookies = [];
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-
-        // Invoke app
-        $resOut = $app($req, $res);
-        $app->respond($resOut);
-
-        $expectedStack = [
-            ['header' => 'X-Foo: baz1', 'replace' => true, 'status_code' => null],
-            ['header' => 'X-Foo: baz2', 'replace' => false, 'status_code' => null],
-            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
-        ];
-
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
-    }
-
-    public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
-    {
-        $app = new App();
-        $app->get('/foo', function ($req, $res) {
-            return $res
-                ->withHeader('Set-Cookie', 'foo=bar')
-                ->withAddedHeader('Set-Cookie', 'bar=baz')
-                ;
-        });
-
-        // Prepare request and response objects
-        $serverParams = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromGlobals($serverParams);
-        $headers = Headers::createFromGlobals($serverParams);
-        $cookies = [];
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-
-        // Invoke app
-        $resOut = $app($req, $res);
-        $app->respond($resOut);
-
-        $expectedStack = [
-            ['header' => 'Set-Cookie: foo=bar', 'replace' => false, 'status_code' => null],
-            ['header' => 'Set-Cookie: bar=baz', 'replace' => false, 'status_code' => null],
-            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
-        ];
-
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
-    }
-
-    public function testFinalize()
-    {
-        $method = new \ReflectionMethod('Slim\App', 'finalize');
-        $method->setAccessible(true);
-
-        $response = new Response();
-        $response->getBody()->write('foo');
-        $response = $response->withHeader('Content-Type', 'text/plain');
-
-        $response = $method->invoke(new App(), $response);
-
-        $this->assertTrue($response->hasHeader('Content-Type'));
-    }
-
-    public function testFinalizeWithoutBody()
-    {
-        $method = new \ReflectionMethod('Slim\App', 'finalize');
-        $method->setAccessible(true);
-
-        $response = $method->invoke(new App(), new Response(304));
-
-        $this->assertFalse($response->hasHeader('Content-Length'));
-        $this->assertFalse($response->hasHeader('Content-Type'));
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     // TODO: Re-add testUnsupportedMethodWithoutRoute
@@ -1694,8 +1375,8 @@ class AppTest extends TestCase
     public function testContainerSetToRoute()
     {
         // Prepare request and response objects
-        $request = $this->requestFactory('/foo');
-        $response = new Response();
+        $request = $this->createServerRequest('/foo');
+        $response = $this->createResponse();
 
         $mock = new MockAction();
 
@@ -1716,32 +1397,6 @@ class AppTest extends TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
-    }
-
-    public function testIsEmptyResponseWithEmptyMethod()
-    {
-        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
-        $method->setAccessible(true);
-
-        $response = new Response();
-        $response = $response->withStatus(204);
-
-        $result = $method->invoke(new App(), $response);
-        $this->assertTrue($result);
-    }
-
-    public function testIsEmptyResponseWithoutEmptyMethod()
-    {
-        $method = new \ReflectionMethod('Slim\App', 'isEmptyResponse');
-        $method->setAccessible(true);
-
-        /** @var Response $response */
-        $response = $this->getMockBuilder(ResponseInterface::class)->getMock();
-        $response->method('getStatusCode')
-            ->willReturn(204);
-
-        $result = $method->invoke(new App(), $response);
-        $this->assertTrue($result);
     }
 
     public function testAppIsARequestHandler()

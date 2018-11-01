@@ -3,7 +3,6 @@ namespace Slim\Tests;
 
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
-use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
 use Slim\RoutingResults;
 
@@ -11,7 +10,7 @@ use Slim\RoutingResults;
  * Class DispatcherTest
  * @package Slim\Tests
  */
-class DispatcherTest extends TestCase
+class DispatcherTest extends Test
 {
     protected function getDispatcherClass()
     {

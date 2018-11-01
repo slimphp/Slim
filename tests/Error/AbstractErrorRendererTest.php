@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests\Error;
 
-use PHPUnit\Framework\TestCase;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
@@ -16,8 +15,9 @@ use Slim\Error\Renderers\XmlErrorRenderer;
 use Exception;
 use ReflectionClass;
 use RuntimeException;
+use Slim\Tests\Test;
 
-class AbstractErrorRendererTest extends TestCase
+class AbstractErrorRendererTest extends Test
 {
     public function testHTMLErrorRendererDisplaysErrorDetails()
     {

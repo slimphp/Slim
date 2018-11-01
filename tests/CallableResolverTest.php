@@ -8,14 +8,13 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 
-class CallableResolverTest extends TestCase
+class CallableResolverTest extends Test
 {
     /**
      * @var Container

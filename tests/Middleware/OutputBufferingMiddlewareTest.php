@@ -8,29 +8,22 @@
  */
 namespace Slim\Tests\Middleware;
 
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Body;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\Tests\Test;
 
-class OutputBufferingMiddlewareTest extends TestCase
+class OutputBufferingMiddlewareTest extends Test
 {
     public function testStyleDefaultValid()
     {
-        $mw = new OutputBufferingMiddleware();
-
+        $mw = new OutputBufferingMiddleware($this->streamFactory());
         $this->assertAttributeEquals('append', 'style', $mw);
     }
 
     public function testStyleCustomValid()
     {
-        $mw = new OutputBufferingMiddleware('prepend');
-
+        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'prepend');
         $this->assertAttributeEquals('prepend', 'style', $mw);
     }
 
@@ -39,27 +32,22 @@ class OutputBufferingMiddlewareTest extends TestCase
      */
     public function testStyleCustomInvalid()
     {
-        $mw = new OutputBufferingMiddleware('foo');
+        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'foo');
     }
 
     public function testAppend()
     {
-        $mw = new OutputBufferingMiddleware('append');
+        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'append');
 
-        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Body');
             echo 'Test';
 
-            return $res;
+            return $response;
         };
+
+        $request = $this->createServerRequest('/', 'GET');
+        $response = $this->createResponse();
         $result = $mw($request, $response, $next);
 
         $this->assertEquals('BodyTest', $result->getBody());
@@ -67,22 +55,17 @@ class OutputBufferingMiddlewareTest extends TestCase
 
     public function testPrepend()
     {
-        $mw = new OutputBufferingMiddleware('prepend');
+        $mw = new OutputBufferingMiddleware($this->streamFactory(), 'prepend');
 
-        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Body');
             echo 'Test';
 
-            return $res;
+            return $response;
         };
+
+        $request = $this->createServerRequest('/', 'GET');
+        $response = $this->createResponse();
         $result = $mw($request, $response, $next);
 
         $this->assertEquals('TestBody', $result->getBody());

@@ -8,30 +8,26 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
-use Slim\Http\Body;
-use Slim\Http\Environment;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use Exception;
 
-class RouteTest extends TestCase
+class RouteTest extends Test
 {
     public function routeFactory()
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
-            return $res;
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
         };
 
         return new Route($methods, $pattern, $callable);
@@ -98,17 +94,16 @@ class RouteTest extends TestCase
     {
         $route = $this->routeFactory();
         $bottom = null;
-        $mw = function ($req, $res, $next) use (&$bottom) {
+        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
             $bottom = $next;
-            return $res;
+            return $response;
         };
         $route->add($mw);
         $route->finalize();
 
-        $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $route->callMiddlewareStack($request, $response);
 
         $this->assertEquals($route, $bottom);
     }
@@ -118,18 +113,17 @@ class RouteTest extends TestCase
         $route = $this->routeFactory();
         $called = 0;
 
-        $mw = function ($req, $res, $next) use (&$called) {
+        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
             $called++;
-            return $res;
+            return $response;
         };
 
         $route->add($mw);
         $route->finalize();
 
-        $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $route->callMiddlewareStack($request, $response);
 
         $this->assertSame($called, 1);
     }
@@ -139,9 +133,9 @@ class RouteTest extends TestCase
         $route = $this->routeFactory();
         $called = 0;
 
-        $mw = function ($req, $res, $next) use (&$called) {
+        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
             $called++;
-            return $res;
+            return $response;
         };
 
         $route->add($mw);
@@ -149,10 +143,9 @@ class RouteTest extends TestCase
         $route->finalize();
         $route->finalize();
 
-        $route->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $route->callMiddlewareStack($request, $response);
 
         $this->assertSame($called, 1);
     }
@@ -179,21 +172,11 @@ class RouteTest extends TestCase
         $route->setCallableResolver($resolver);
         $route->add('MiddlewareStub:run');
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [
-            'user' => 'john',
-            'id' => '123',
-        ];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-
-        $response = new Response;
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
         $result = $route->callMiddlewareStack($request, $response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
     }
 
     public function testAddMiddlewareAsStringResolvesWithContainer()
@@ -206,21 +189,11 @@ class RouteTest extends TestCase
         $route->setCallableResolver($resolver);
         $route->add('MiddlewareStub:run');
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [
-            'user' => 'john',
-            'id' => '123',
-        ];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-
-        $response = new Response;
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
         $result = $route->callMiddlewareStack($request, $response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
     }
 
     public function testControllerMethodAsStringResolvesWithoutContainer()
@@ -231,15 +204,13 @@ class RouteTest extends TestCase
         $route = new Route(['GET'], '/', $deferred);
         $route->setCallableResolver($resolver);
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
-
         CallableTest::$CalledCount = 0;
 
-        $result = $route->callMiddlewareStack($request, new Response);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -254,15 +225,13 @@ class RouteTest extends TestCase
         $route = new Route(['GET'], '/', $deferred);
         $route->setCallableResolver($resolver);
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
-
         CallableTest::$CalledCount = 0;
 
-        $result = $route->callMiddlewareStack($request, new Response);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -272,23 +241,18 @@ class RouteTest extends TestCase
      */
     public function testInvokeWhenReturningAResponse()
     {
-        $callable = function ($req, $res, $args) {
-            return $res->write('foo');
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write('foo');
+            return $response;
         };
         $route = new Route(['GET'], '/', $callable);
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
+        CallableTest::$CalledCount = 0;
 
-        $response = $route->__invoke($request, $response);
+        $request = $this->createServerRequest('/');
+        $response = $route->__invoke($request, $this->createResponse());
 
-        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertEquals('foo', (string) $response->getBody());
     }
 
     /**
@@ -297,27 +261,21 @@ class RouteTest extends TestCase
      */
     public function testInvokeWhenEchoingOutput()
     {
-        $callable = function ($req, $res, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             echo "foo";
-            return $res->withStatus(201);
+            return $response->withStatus(201);
         };
         $route = new Route(['GET'], '/', $callable);
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
+        $request = $this->createServerRequest('/');
 
         // We capture output buffer here only to clean test CLI output
         ob_start();
-        $response = $route->__invoke($request, $response);
+        $response = $route->__invoke($request, $this->createResponse());
         ob_end_clean();
 
-        $this->assertEquals('', (string)$response->getBody()); // Output buffer ignored without optional middleware
+        // Output buffer is ignored without optional middleware
+        $this->assertEquals('', (string) $response->getBody());
         $this->assertEquals(201, $response->getStatusCode());
     }
 
@@ -327,24 +285,16 @@ class RouteTest extends TestCase
      */
     public function testInvokeWhenReturningAString()
     {
-        $callable = function ($req, $res, $args) {
-            $res->write('foo');
-            return $res;
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            $response->getBody()->write('foo');
+            return $response;
         };
         $route = new Route(['GET'], '/', $callable);
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
+        $request = $this->createServerRequest('/');
+        $response = $route->__invoke($request, $this->createResponse());
 
-        $response = $route->__invoke($request, $response);
-
-        $this->assertEquals('foo', (string)$response->getBody());
+        $this->assertEquals('foo', (string) $response->getBody());
     }
 
     /**
@@ -352,22 +302,15 @@ class RouteTest extends TestCase
      */
     public function testInvokeWithException()
     {
-        $callable = function ($req, $res, $args) {
-            throw new \Exception();
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            throw new Exception();
         };
         $route = new Route(['GET'], '/', $callable);
 
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
 
-        $env = Environment::mock();
-        $uri = Uri::createFromString('https://example.com:80');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response;
-
-        $response = $route->__invoke($request, $response);
+        $route->__invoke($request, $response);
     }
 
     /**
@@ -381,13 +324,11 @@ class RouteTest extends TestCase
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $result = $route->callMiddlewareStack($request, new Response);
-
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -404,13 +345,11 @@ class RouteTest extends TestCase
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $result = $route->callMiddlewareStack($request, new Response);
-
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -437,13 +376,11 @@ class RouteTest extends TestCase
 
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $result = $route->callMiddlewareStack($request, new Response);
-
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -462,13 +399,11 @@ class RouteTest extends TestCase
 
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
-        $uri = Uri::createFromString('https://example.com:80');
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, new Headers(), [], Environment::mock(), $body);
+        $request = $this->createServerRequest('/');
+        $response = $this->createResponse();
+        $result = $route->callMiddlewareStack($request, $response);
 
-        $result = $route->callMiddlewareStack($request, new Response);
-
-        $this->assertInstanceOf('Slim\Http\Response', $result);
+        $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }
