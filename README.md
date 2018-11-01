@@ -102,6 +102,47 @@ $responseEmitter = new SapiEmitter();
 $responseEmitter->emit($response);
 ```
 
+## Example Usage With Slim-Http Decorators, Zend Diactoros & Zend HttpHandleRunner
+```php
+<?php
+require 'vendor/autoload.php';
+
+use Slim\Http\Factory\DecoratedResponseFactory;
+use Slim\Http\Decorators\ServerRequestDecorator
+use Zend\Diactoros\ResponseFactory;
+use Zend\Diactoros\ServerRequestFactory;
+use Zend\HttpHandlerRunner\Emitter\SapiEmitter;
+
+$app = new Slim\App();
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $response->withJson(['Hello' => 'World']);
+});
+
+$responseFactory = new ResponseFactory();
+$decoratedResponseFactory = new DecoratedResponseFactory($responseFactory);
+
+$serverRequestFactory = new ServerRequestFactory();
+$request = ServerRequestFactory::fromGlobals();
+$decoratedServerRequest = new ServerRequestDecorator($request);
+
+/**
+ * The App::run() Method takes 2 parameters
+ * In the case of Nyholm/psr7 the Psr17Factory provides all the Http-Factories in one class
+ * which include ResponseFactoryInterface
+ * @param ServerRequestInterface An instantiation of a ServerRequest
+ * @param ResponseFactoryInterface An instantiation of a ResponseFactory
+ */
+$response = $app->run($decoratedRequest, $decoratedResponseFactory);
+
+/**
+ * Once you have obtained the ResponseInterface from App::run()
+ * You will need to emit the response by using an emitter of your choice
+ * We will use Zend's Emitter for this example
+ */
+$responseEmitter = new SapiEmitter();
+$responseEmitter->emit($response);
+```
+
 You may quickly test this using the built-in PHP server:
 ```bash
 $ php -S localhost:8000
