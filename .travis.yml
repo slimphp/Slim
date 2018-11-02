@@ -2,13 +2,15 @@ sudo: false
 
 language: php
 
-php:
-- 7.1
-- 7.2
-- 7.3
-- nightly
+dist: trusty
 
 matrix:
+  include:
+  - php: 7.1
+    env: ANALYSIS='true'
+  - php: 7.2
+  - php: 7.3
+  - php: nightly
   allow_failures:
   - php: nightly
 
@@ -17,13 +19,13 @@ before_script:
 - composer install -n
 
 script:
-- mkdir -p build/logs && phpunit --coverage-clover build/logs/clover.xml
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/phpunit --coverage-clover clover.xml ; fi
 - vendor/bin/phpunit
 - vendor/bin/phpcs
 - vendor/bin/phpstan analyse Slim
 
 after_success:
-- travis_retry php vendor/bin/php-coveralls -v
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/php-coveralls --clover=clover.xml -v ; fi
 
 notifications:
   slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
