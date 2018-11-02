@@ -22,8 +22,8 @@ script:
 - vendor/bin/phpcs
 - vendor/bin/phpstan analyse Slim
 
-after_script:
-- php vendor/bin/coveralls --coverage_clover=clover.xml -v
+after_success:
+- travis_retry php vendor/bin/php-coveralls -v
 
 notifications:
   slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
