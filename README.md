@@ -56,8 +56,8 @@ $response = $app->run($request, $psr17Factory);
 /**
  * Once you have obtained the ResponseInterface from App::run()
  * You will need to emit the response by using an emitter of your choice
- * Slim ships with its own response emitter but 
- * you could use Zend HttpHandleRunner SapiEmitter for example
+ * We will use Slim ResponseEmitter for this example
+ * But you could use Zend HttpHandleRunner SapiEmitter or other
  */
 $responseEmitter = new ResponseEmitter();
 $responseEmitter->emit($response);
@@ -138,6 +138,42 @@ $response = $app->run($decoratedRequest, $decoratedResponseFactory);
  * We will use Zend HttpHandleRunner SapiEmitter for this example
  */
 $responseEmitter = new SapiEmitter();
+$responseEmitter->emit($response);
+```
+
+## Example Usage With Guzzle PSR-7, Guzzle HTTP Factory
+
+Create an index.php file with the following contents:
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Psr7\ServerRequest;
+use Http\Factory\Guzzle\ResponseFactory;
+use Slim\ResponseEmitter;
+
+$app = new Slim\App();
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $response->getBody()->write("Hello, " . $args['name']);
+});
+
+$responseFactory = new ResponseFactory();
+$request = ServerRequest::fromGlobals();
+
+/**
+ * The App::run() Method takes 2 parameters
+ * @param ServerRequestInterface An instantiation of a ServerRequest
+ * @param ResponseFactoryInterface An instantiation of a ResponseFactory
+ */
+$response = $app->run($request, $responseFactory);
+
+/**
+ * Once you have obtained the ResponseInterface from App::run()
+ * You will need to emit the response by using an emitter of your choice
+ * We will use Slim ResponseEmitter for this example
+ */
+$responseEmitter = new ResponseEmitter();
 $responseEmitter->emit($response);
 ```
 
