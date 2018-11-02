@@ -25,7 +25,7 @@ script:
 - vendor/bin/phpstan analyse Slim
 
 after_success:
-- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/php-coveralls --clover=clover.xml -v ; fi
+- if [[ "$ANALYSIS" == 'true' ]]; then vendor/bin/php-coveralls --coverage_clover=clover.xml -v ; fi
 
 notifications:
   slack: slimphp:0RNzx2JuhkAqIf0MXcUZ0asT
