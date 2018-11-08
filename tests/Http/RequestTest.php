@@ -940,6 +940,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
     }
 
+    public function testGetParsedBodyWithJsonStructuredSuffixAndRegisteredParser()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/vnd.api+json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{"foo":"bar"}');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $request->registerMediaTypeParser('application/vnd.api+json', function ($input) {
+            return array('data' => $input);
+        });
+
+        $this->assertEquals(['data' => '{"foo":"bar"}'], $request->getParsedBody());
+    }
+
     public function testGetParsedBodyXml()
     {
         $method = 'GET';
