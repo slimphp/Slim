@@ -42,7 +42,13 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 });
 
 $psr17Factory = new Psr17Factory();
-$request = ServerRequestCreator::fromGlobals();
+$serverRequestFactory = new ServerRequestCreator(
+    $psr17Factory,
+    $psr17Factory,
+    $psr17Factory,
+    $psr17Factory
+);
+$request = $serverRequestFactory->fromGlobals();
 
 /**
  * The App::run() Method takes 2 parameters
