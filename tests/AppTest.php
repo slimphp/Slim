@@ -1392,6 +1392,7 @@ class AppTest extends TestCase
 
         $app = new App();
         $_SERVER = [
+            'HTTP_HOST' => 'example.com',
             'SCRIPT_NAME' => '/index.php',
             'REQUEST_URI' => '/foo',
             'REQUEST_METHOD' => 'GET',
