@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2497](https://github.com/slimphp/Slim/pull/2497) PSR-15 RequestHandlers can now be used as route callables
 - [#2496](https://github.com/slimphp/Slim/pull/2496) A Slim App can now be used as PSR-15 Request Handler
 - [#2405](https://github.com/slimphp/Slim/pull/2405) RoutingMiddleware now adds the `routingResults` request attribute to hold the results of routing
 - [#2404](https://github.com/slimphp/Slim/pull/2404) Slim 4 requires PHP 7.0 or higher
