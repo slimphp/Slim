@@ -318,7 +318,7 @@ class Route extends Routable implements RouteInterface
             $callable = $this->callableResolver->resolve($callable);
         }
 
-        /** @var InvocationStrategyInterface $handler */
+        /** @var InvocationStrategyInterface|RequestHandlerInterface $handler */
         $handler = $this->routeInvocationStrategy;
         if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
             // callables that implement RequestHandlerInterface use the RequestHandler strategy
