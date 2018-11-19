@@ -13,6 +13,8 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
@@ -318,12 +320,12 @@ class Route extends Routable implements RouteInterface
 
         /** @var InvocationStrategyInterface $handler */
         $handler = $this->routeInvocationStrategy;
-
-        $routeResponse = $handler($callable, $request, $response, $this->arguments);
-        if (! $routeResponse instanceof ResponseInterface) {
-            throw new \RuntimeException('Route handler must return instance of \Psr\Http\Message\ResponseInterface');
+        if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
+            // callables that implement RequestHandlerInterface use the RequestHandler strategy
+            $handler = new RequestHandler();
         }
 
-        return $routeResponse;
+        // invoke route callable via invokation strategy handler
+        return $handler($callable, $request, $response, $this->arguments);
     }
 }

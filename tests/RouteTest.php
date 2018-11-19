@@ -14,10 +14,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use Slim\Tests\Mocks\RequestHandlerTest;
 use Exception;
 
 class RouteTest extends Test
@@ -351,6 +353,24 @@ class RouteTest extends Test
 
         $this->assertInstanceOf(ResponseInterface::class, $result);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
+    }
+
+    public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
+    {
+        $pimple = new Pimple();
+        $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
+        $resolver = new CallableResolver(new Psr11Container($pimple));
+
+        $route = new Route(['GET'], '/', RequestHandlerTest::class);
+        $route->setCallableResolver($resolver);
+
+        $request = $this->createServerRequest('/', 'GET');
+        $response = $this->createResponse();
+        $route->callMiddlewareStack($request, $response);
+
+        /** @var InvocationStrategyInterface $strategy */
+        $strategy = $pimple[RequestHandlerTest::class]::$strategy;
+        $this->assertEquals('Slim\Handlers\Strategies\RequestHandler', $strategy);
     }
 
     /**
