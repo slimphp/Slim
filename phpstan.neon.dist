@@ -1,4 +1,5 @@
 parameters:
   level: max
   ignoreErrors:
+    - '^Parameter #1 $callable of callable Slim\\Interfaces\\InvocationStrategyInterface expects callable, array|callable given.^'
 
