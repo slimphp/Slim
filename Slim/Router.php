@@ -190,7 +190,10 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        /** @var callable $routeHandler */
+        /**
+         * This variable reassignment is to avoid PHPStan warning
+         * @var callable $routeHandler
+         */
         $routeHandler = $handler;
 
         /** @var Route $route */
