@@ -11,17 +11,17 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
+use InvalidArgumentException;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
-use InvalidArgumentException;
-use RuntimeException;
 
 /**
  * Router

@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Middleware;
 
+use Closure;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -15,7 +16,6 @@ use Slim\RoutingResults;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Router;
 use Slim\Tests\TestCase;
-use Closure;
 
 class RoutingMiddlewareTest extends TestCase
 {

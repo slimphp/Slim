@@ -9,6 +9,7 @@
 namespace Slim\Tests\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
+use ReflectionClass;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
@@ -18,7 +19,6 @@ use Slim\Handlers\ErrorHandler;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\Mocks\MockErrorRenderer;
 use Slim\Tests\TestCase;
-use ReflectionClass;
 
 class ErrorHandlerTest extends TestCase
 {

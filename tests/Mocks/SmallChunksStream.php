@@ -9,8 +9,8 @@
 
 namespace Slim\Tests\Mocks;
 
-use Psr\Http\Message\StreamInterface;
 use Exception;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * A mock stream interface that yields small chunks when reading

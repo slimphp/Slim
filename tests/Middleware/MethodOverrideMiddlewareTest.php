@@ -8,11 +8,11 @@
  */
 namespace Slim\Tests\Middleware;
 
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\Tests\TestCase;
-use Closure;
 
 /**
  * @covers \Slim\Middleware\MethodOverrideMiddleware

@@ -13,8 +13,8 @@ namespace Slim;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Interfaces\CallableResolverInterface;
 use RuntimeException;
+use Slim\Interfaces\CallableResolverInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure

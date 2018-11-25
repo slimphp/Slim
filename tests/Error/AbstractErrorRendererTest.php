@@ -8,14 +8,14 @@
  */
 namespace Slim\Tests\Error;
 
+use Exception;
+use ReflectionClass;
+use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Tests\TestCase;
-use Exception;
-use ReflectionClass;
-use RuntimeException;
 use stdClass;
 
 class AbstractErrorRendererTest extends TestCase

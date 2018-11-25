@@ -8,6 +8,8 @@
  */
 namespace Slim\Tests\Middleware;
 
+use Closure;
+use Error;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
@@ -17,8 +19,6 @@ use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\TestCase;
-use Closure;
-use Error;
 
 /**
  * Class ErrorMiddlewareTest
