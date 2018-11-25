@@ -190,14 +190,8 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        /**
-         * This variable reassignment is to avoid PHPStan warning
-         * @var callable $routeHandler
-         */
-        $routeHandler = $handler;
-
         /** @var Route $route */
-        $route = $this->createRoute($methods, $pattern, $routeHandler);
+        $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -222,7 +216,7 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $callable The route callable
+     * @param  callable|string $callable The route callable
      *
      * @return RouteInterface
      */
