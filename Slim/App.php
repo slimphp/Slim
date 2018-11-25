@@ -85,8 +85,11 @@ class App implements RequestHandlerInterface
      * @param ContainerInterface|null $container
      * @param array $settings
      */
-    public function __construct(ResponseFactoryInterface $responseFactory, ContainerInterface $container = null, array $settings = [])
-    {
+    public function __construct(
+        ResponseFactoryInterface $responseFactory,
+        ContainerInterface $container = null,
+        array $settings = []
+    ) {
         $this->responseFactory = $responseFactory;
         $this->container = $container;
         $this->addSettings($settings);
