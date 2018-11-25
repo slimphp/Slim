@@ -187,9 +187,6 @@ class Router implements RouterInterface
             $pattern = $this->processGroups() . $pattern;
         }
 
-        // According to RFC methods are defined in uppercase (See RFC 7231)
-        $methods = array_map("strtoupper", $methods);
-
         /** @var Route $route */
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
