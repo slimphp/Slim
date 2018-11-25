@@ -19,9 +19,10 @@ class Stackable
 {
     use MiddlewareAwareTrait;
 
-    public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
+    public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $res->write('Center');
+        $response->getBody()->write('Center');
+        return $response;
     }
 
     public function alternativeSeed()
@@ -29,9 +30,10 @@ class Stackable
         $this->seedMiddlewareStack([$this, 'testMiddlewareKernel']);
     }
 
-    public function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $res)
+    public function testMiddlewareKernel(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $res->write('hello from testMiddlewareKernel');
+        $response->getBody()->write('hello from testMiddlewareKernel');
+        return $response;
     }
 
     public function add($callable)

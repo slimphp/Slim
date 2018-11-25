@@ -8,7 +8,7 @@
  */
 namespace Slim\Tests\Mocks;
 
-use Slim\Http\Response;
+use Slim\Tests\Providers\PSR7ObjectProvider;
 
 /**
  * Mock object for Slim\Tests\CallableResolverTest
@@ -28,6 +28,7 @@ class CallableTest
     {
         static::$CalledCount++;
 
-        return new Response();
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        return $psr7ObjectProvider->createResponse();
     }
 }

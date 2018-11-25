@@ -8,14 +8,12 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 use Slim\Tests\Mocks\RequestHandlerTest;
-use Slim\Http\Request;
 
 class CallableResolverTest extends TestCase
 {
@@ -120,11 +118,11 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAPsrRequestHandlerClass()
     {
-        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $request = $this->createServerRequest('/', 'GET');
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(RequestHandlerTest::class);
         $callable($request);
-        $this->assertEquals(1, RequestHandlerTest::$CalledCount);
+        $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
     /**

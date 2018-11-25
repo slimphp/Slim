@@ -21,8 +21,10 @@ class MockAction
             throw new InvalidArgumentException("Not a Slim call");
         }
 
-        $arguments[1]->write(json_encode(compact('name') + ['arguments' => $arguments[2]]));
+        $response = $arguments[1];
+        $contents = json_encode(compact('name') + ['arguments' => $arguments[2]]);
+        $arguments[1]->getBody()->write($contents);
 
-        return $arguments[1];
+        return $response;
     }
 }

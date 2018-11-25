@@ -6,26 +6,26 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
-namespace Slim\Tests\Http;
+namespace Slim\Tests\Exception;
 
-use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Http\Request;
+use Slim\Tests\TestCase;
 
 class HttpExceptionTest extends TestCase
 {
     public function testHttpExceptionRequestReponseGetterSetters()
     {
-        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $request = $this->createServerRequest('/');
         $exception = new HttpNotFoundException($request);
 
-        $this->assertInstanceOf(Request::class, $exception->getRequest());
+        $this->assertInstanceOf(ServerRequestInterface::class, $exception->getRequest());
     }
 
     public function testHttpExceptionAttributeGettersSetters()
     {
-        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $request = $this->createServerRequest('/');
 
         $exception = new HttpNotFoundException($request);
         $exception->setTitle('Title');
@@ -37,7 +37,7 @@ class HttpExceptionTest extends TestCase
 
     public function testHttpNotAllowedExceptionGetAllowedMethods()
     {
-        $request = $this->getMockBuilder(Request::class)->disableOriginalConstructor()->getMock();
+        $request = $this->createServerRequest('/');
 
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);

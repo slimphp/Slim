@@ -39,7 +39,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
      */
     public function __invoke(App $app = null)
     {
-        // Resolve route callable
+        /** @var callable $callable */
         $callable = $this->callable;
         if ($this->callableResolver) {
             $callable = $this->callableResolver->resolve($callable);

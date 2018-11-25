@@ -28,7 +28,7 @@ trait MiddlewareAwareTrait
     /**
      * Tip of the middleware call stack
      *
-     * @var callable
+     * @var callable|null
      */
     protected $tip;
 

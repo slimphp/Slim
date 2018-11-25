@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
-use Slim\Http\Body;
 use Throwable;
 
 /**
@@ -28,11 +27,4 @@ interface ErrorRendererInterface
      * @return string
      */
     public function render(Throwable $exception, bool $displayErrorDetails): string;
-
-    /**
-     * @param Throwable $exception
-     * @param bool $displayErrorDetails
-     * @return Body
-     */
-    public function renderWithBody(Throwable $exception, bool $displayErrorDetails): Body;
 }

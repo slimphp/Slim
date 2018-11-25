@@ -5,6 +5,7 @@
 
 ### Added
 
+- [#2529](https://github.com/slimphp/Slim/pull/2529) Slim no longer ships with a PSR-7 implementation. You need to provide a PSR-7 ServerRequest and a PSR-17 ResponseFactory to run Slim.
 - [#2497](https://github.com/slimphp/Slim/pull/2497) PSR-15 RequestHandlers can now be used as route callables
 - [#2496](https://github.com/slimphp/Slim/pull/2496) A Slim App can now be used as PSR-15 Request Handler
 - [#2405](https://github.com/slimphp/Slim/pull/2405) RoutingMiddleware now adds the `routingResults` request attribute to hold the results of routing

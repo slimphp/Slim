@@ -11,7 +11,7 @@ namespace Slim\Tests\Mocks;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Http\Response;
+use Slim\Tests\Providers\PSR7ObjectProvider;
 
 /**
  * Mock object for Slim\Tests\CallableResolverTest
@@ -31,9 +31,14 @@ class RequestHandlerTest implements RequestHandlerInterface
             static::$strategy = $trace[1]['class'];
         }
 
-        $response = new Response();
-        $response = $response->withHeader('Content-Type', 'text/plain');
-        $response->write(static::$CalledCount);
+        $psr7ObjectProvider = new PSR7ObjectProvider();
+        $responseFactory = $psr7ObjectProvider->getResponseFactory();
+
+        $response = $responseFactory
+            ->createResponse()
+            ->withHeader('Content-Type', 'text/plain');
+        $calledCount = static::$CalledCount;
+        $response->getBody()->write("{$calledCount}");
 
         return $response;
     }

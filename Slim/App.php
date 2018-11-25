@@ -12,16 +12,13 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
@@ -49,7 +46,7 @@ class App implements RequestHandlerInterface
     /**
      * Container
      *
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
     private $container;
 
@@ -64,11 +61,15 @@ class App implements RequestHandlerInterface
     protected $router;
 
     /**
+     * @var ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
      * @var array
      */
     protected $settings = [
         'httpVersion' => '1.1',
-        'responseChunkSize' => 4096,
         'routerCacheFile' => false,
     ];
 
@@ -79,13 +80,18 @@ class App implements RequestHandlerInterface
     /**
      * Create new application
      *
-     * @param array $settings
+     * @param ResponseFactoryInterface $responseFactory
      * @param ContainerInterface|null $container
+     * @param array $settings
      */
-    public function __construct(array $settings = [], ContainerInterface $container = null)
-    {
-        $this->addSettings($settings);
+    public function __construct(
+        ResponseFactoryInterface $responseFactory,
+        ContainerInterface $container = null,
+        array $settings = []
+    ) {
+        $this->responseFactory = $responseFactory;
         $this->container = $container;
+        $this->addSettings($settings);
     }
 
     /**
@@ -353,8 +359,9 @@ class App implements RequestHandlerInterface
             $callable = $callable->bindTo($this->container);
         }
 
-        // Create route
-        $route = $this->getRouter()->map($methods, $pattern, $callable);
+        /** @var Router $router */
+        $router = $this->getRouter();
+        $route = $router->map($methods, $pattern, $callable);
 
         return $route;
     }
@@ -391,12 +398,14 @@ class App implements RequestHandlerInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        /** @var RouteGroup $group */
         $router = $this->getRouter();
+
+        /** @var RouteGroup $group */
         $group = $router->pushGroup($pattern, $callable);
         if ($this->callableResolver instanceof CallableResolverInterface) {
             $group->setCallableResolver($this->callableResolver);
         }
+
         $group($this);
         $router->popGroup();
 
@@ -413,17 +422,13 @@ class App implements RequestHandlerInterface
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param RequestInterface|null $request
-     * @return ResponseInterface
+     * @param ServerRequestInterface $request
      */
-    public function run(RequestInterface $request = null): ResponseInterface
+    public function run(ServerRequestInterface $request): void
     {
-        // create request
-        if ($request === null) {
-            $request = Request::createFromGlobals($_SERVER);
-        }
-
-        return $this->handle($request);
+        $response = $this->handle($request);
+        $responseEmitter = new ResponseEmitter();
+        $responseEmitter->emit($response);
     }
 
     /**
@@ -433,91 +438,17 @@ class App implements RequestHandlerInterface
      * resultant Response object.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        // create response
-        $headers = new Headers(['Content-Type' => 'text/html; charset=UTF-8']);
         $httpVersion = $this->getSetting('httpVersion');
-        $response = new Response(200, $headers);
-        $response = $response->withProtocolVersion($httpVersion);
+        $response = $this->responseFactory
+            ->createResponse(200, '')
+            ->withProtocolVersion($httpVersion)
+            ->withHeader('Content-Type', 'text/html; charset=UTF-8');
 
-        // call middleware stack
-        $response = $this->callMiddlewareStack($request, $response);
-        $response = $this->finalize($response);
-
-        return $this->respond($response);
-    }
-
-    /**
-     * Send the response the client
-     *
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     */
-    public function respond(ResponseInterface $response): ResponseInterface
-    {
-        // Send response
-        if (!headers_sent()) {
-            // Headers
-            foreach ($response->getHeaders() as $name => $values) {
-                $first = stripos($name, 'Set-Cookie') === 0 ? false : true;
-                foreach ($values as $value) {
-                    header(sprintf('%s: %s', $name, $value), $first);
-                    $first = false;
-                }
-            }
-
-            // Set the status _after_ the headers, because of PHP's "helpful" behavior with location headers.
-            // See https://github.com/slimphp/Slim/issues/1730
-
-            // Status
-            header(sprintf(
-                'HTTP/%s %s %s',
-                $response->getProtocolVersion(),
-                $response->getStatusCode(),
-                $response->getReasonPhrase()
-            ), true, $response->getStatusCode());
-        }
-
-        // Body
-        if (!$this->isEmptyResponse($response)) {
-            $body = $response->getBody();
-            if ($body->isSeekable()) {
-                $body->rewind();
-            }
-            $chunkSize = $this->getSetting('responseChunkSize', 4096);
-            $contentLength  = $response->getHeaderLine('Content-Length');
-            if (!$contentLength) {
-                $contentLength = $body->getSize();
-            }
-
-
-            if (isset($contentLength)) {
-                $amountToRead = $contentLength;
-                while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
-                    echo $data;
-
-                    $amountToRead -= strlen($data);
-
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
-                }
-            } else {
-                while (!$body->eof()) {
-                    echo $body->read($chunkSize);
-                    if (connection_status() != CONNECTION_NORMAL) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        return $response;
+        return $this->callMiddlewareStack($request, $response);
     }
 
     /**
@@ -538,9 +469,7 @@ class App implements RequestHandlerInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
-        /**
-         * @var RoutingResults $routingResults
-         */
+        /** @var RoutingResults|null $routingResults */
         $routingResults = $request->getAttribute('routingResults');
 
         // If routing hasn't been done, then do it now so we can dispatch
@@ -552,40 +481,5 @@ class App implements RequestHandlerInterface
 
         $route = $request->getAttribute('route');
         return $route->run($request, $response);
-    }
-
-    /**
-     * Finalize response
-     *
-     * @param ResponseInterface $response
-     * @return ResponseInterface
-     *
-     * @throws \RuntimeException
-     */
-    protected function finalize(ResponseInterface $response): ResponseInterface
-    {
-        if ($this->isEmptyResponse($response)) {
-            return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
-        }
-
-        return $response;
-    }
-
-    /**
-     * Helper method, which returns true if the provided response must not output a body and false
-     * if the response could have a body.
-     *
-     * @see https://tools.ietf.org/html/rfc7231
-     *
-     * @param ResponseInterface $response
-     * @return bool
-     */
-    protected function isEmptyResponse(ResponseInterface $response): bool
-    {
-        if (method_exists($response, 'isEmpty')) {
-            return $response->isEmpty();
-        }
-
-        return in_array($response->getStatusCode(), [204, 205, 304]);
     }
 }

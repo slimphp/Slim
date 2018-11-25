@@ -29,7 +29,7 @@ abstract class Routable
     protected $callable;
 
     /**
-     * @var \Slim\Interfaces\CallableResolverInterface
+     * @var CallableResolverInterface|null
      */
     protected $callableResolver;
 

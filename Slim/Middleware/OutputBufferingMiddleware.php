@@ -13,13 +13,18 @@ namespace Slim\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Body;
+use Psr\Http\Message\StreamFactoryInterface;
 use Throwable;
 
 class OutputBufferingMiddleware
 {
     const APPEND = 'append';
     const PREPEND = 'prepend';
+
+    /**
+     * @var StreamFactoryInterface
+     */
+    protected $streamFactory;
 
     /**
      * @var string
@@ -29,15 +34,17 @@ class OutputBufferingMiddleware
     /**
      * Constructor
      *
+     * @param StreamFactoryInterface $streamFactory
      * @param string $style Either "append" or "prepend"
      */
-    public function __construct(string $style = 'append')
+    public function __construct(StreamFactoryInterface $streamFactory, string $style = 'append')
     {
+        $this->streamFactory = $streamFactory;
+        $this->style = $style;
+
         if (!in_array($style, [static::APPEND, static::PREPEND])) {
             throw new \InvalidArgumentException('Invalid style. Must be one of: append, prepend');
         }
-
-        $this->style = $style;
     }
 
     /**
@@ -56,6 +63,7 @@ class OutputBufferingMiddleware
     ): ResponseInterface {
         try {
             ob_start();
+            /** @var ResponseInterface $newResponse */
             $newResponse = $next($request, $response);
             $output = ob_get_clean();
         } catch (\Throwable $e) {
@@ -65,7 +73,7 @@ class OutputBufferingMiddleware
 
         if (!empty($output) && $newResponse->getBody()->isWritable()) {
             if ($this->style === static::PREPEND) {
-                $body = new Body(fopen('php://temp', 'r+'));
+                $body = $this->streamFactory->createStream();
                 $body->write($output . $newResponse->getBody());
                 $newResponse = $newResponse->withBody($body);
             } elseif ($this->style === static::APPEND) {

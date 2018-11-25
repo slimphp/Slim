@@ -8,15 +8,11 @@
  */
 namespace Slim\Tests\Middleware;
 
-use PHPUnit\Framework\TestCase;
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\RequestBody;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Middleware\MethodOverrideMiddleware;
+use Slim\Tests\TestCase;
 
 /**
  * @covers \Slim\Middleware\MethodOverrideMiddleware
@@ -27,19 +23,16 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $mw = new MethodOverrideMiddleware();
 
-        $uri = new Uri('http', 'example.com');
-        $headers = new Headers([
-            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'PUT',
-        ]);
-        $request = new Request('GET', $uri, $headers, [], [], new RequestBody());
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $this->assertEquals('PUT', $req->getMethod());
-
-            return $res;
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $this->assertEquals('PUT', $request->getMethod());
+            return $response;
         };
-        \Closure::bind($next, $this);
+        Closure::bind($next, $this);
+
+        $request = $this
+            ->createServerRequest('/', 'POST')
+            ->withHeader('X-Http-Method-Override', 'PUT');
+        $response = $this->createResponse();
 
         $mw($request, $response, $next);
     }
@@ -48,21 +41,16 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $mw = new MethodOverrideMiddleware();
 
-        $uri = new Uri('http', 'example.com');
-        $body = new RequestBody();
-        $body->write('_METHOD=PUT');
-        $headers = new Headers([
-            'Content-Type' => 'application/x-www-form-urlencoded',
-        ]);
-        $request = new Request('POST', $uri, $headers, [], [], $body);
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $this->assertEquals('PUT', $req->getMethod());
-
-            return $res;
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $this->assertEquals('PUT', $request->getMethod());
+            return $response;
         };
-        \Closure::bind($next, $this);
+        Closure::bind($next, $this);
+
+        $request = $this
+            ->createServerRequest('/', 'POST')
+            ->withParsedBody(['_METHOD' => 'PUT']);
+        $response = $this->createResponse();
 
         $mw($request, $response, $next);
     }
@@ -71,22 +59,17 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $mw = new MethodOverrideMiddleware();
 
-        $uri = new Uri('http', 'example.com');
-        $body = new RequestBody();
-        $body->write('_METHOD=PUT');
-        $headers = new Headers([
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            'HTTP_X_HTTP_METHOD_OVERRIDE' => 'DELETE',
-        ]);
-        $request = new Request('POST', $uri, $headers, [], [], $body);
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $this->assertEquals('DELETE', $req->getMethod());
-
-            return $res;
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $this->assertEquals('DELETE', $request->getMethod());
+            return $response;
         };
-        \Closure::bind($next, $this);
+        Closure::bind($next, $this);
+
+        $request = $this
+            ->createServerRequest('/', 'POST')
+            ->withHeader('X-Http-Method-Override', 'DELETE')
+            ->withParsedBody((object) ['_METHOD' => 'PUT']);
+        $response = $this->createResponse();
 
         $mw($request, $response, $next);
     }
@@ -95,16 +78,14 @@ class MethodOverrideMiddlewareTest extends TestCase
     {
         $mw = new MethodOverrideMiddleware();
 
-        $uri = new Uri('http', 'example.com');
-        $request = new Request('POST', $uri, new Headers(), [], [], new RequestBody());
-        $response = new Response();
-
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $this->assertEquals('POST', $req->getMethod());
-
-            return $res;
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $this->assertEquals('POST', $request->getMethod());
+            return $response;
         };
-        \Closure::bind($next, $this);
+        Closure::bind($next, $this);
+
+        $request = $this->createServerRequest('/', 'POST');
+        $response = $this->createResponse();
 
         $mw($request, $response, $next);
     }

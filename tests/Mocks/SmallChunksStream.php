@@ -9,6 +9,7 @@
 
 namespace Slim\Tests\Mocks;
 
+use Exception;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -31,7 +32,7 @@ class SmallChunksStream implements StreamInterface
 
     public function __toString()
     {
-        throw new \Exception('not implemented');
+        return str_repeat('.', self::SIZE);
     }
 
     public function close()
@@ -40,7 +41,7 @@ class SmallChunksStream implements StreamInterface
 
     public function detach()
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function eof()
@@ -50,12 +51,12 @@ class SmallChunksStream implements StreamInterface
 
     public function getContents()
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function getMetadata($key = null)
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function getSize()
@@ -88,17 +89,17 @@ class SmallChunksStream implements StreamInterface
 
     public function rewind()
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function seek($offset, $whence = SEEK_SET)
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function tell()
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     public function write($string)

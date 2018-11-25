@@ -8,14 +8,15 @@
  */
 namespace Slim\Tests\Error;
 
-use PHPUnit\Framework\TestCase;
+use Exception;
+use ReflectionClass;
+use RuntimeException;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
-use Exception;
-use ReflectionClass;
-use RuntimeException;
+use Slim\Tests\TestCase;
+use stdClass;
 
 class AbstractErrorRendererTest extends TestCase
 {
@@ -99,6 +100,8 @@ class AbstractErrorRendererTest extends TestCase
         $exception = new Exception('Ooops...', 0, $previousException);
 
         $renderer = new XmlErrorRenderer();
+
+        /** @var stdClass $output */
         $output = simplexml_load_string($renderer->render($exception, true));
 
         $this->assertEquals($output->message[0], 'Ooops...');

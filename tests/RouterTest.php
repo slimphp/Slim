@@ -8,8 +8,8 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Slim\Dispatcher;
+use Slim\Route;
 use Slim\RoutingResults;
 use Slim\Router;
 
@@ -274,9 +274,10 @@ class RouterTest extends TestCase
         $callable = function ($request, $response, $args) {
             echo sprintf('Hello %s %s', $args['voornaam'], $args['achternaam']);
         };
+
+        /** @var Route $route */
         $route = $this->router->map($methods, $pattern, $callable);
         $route->setName('foo');
-
         $route->setPattern('/hallo/{voornaam:\w+}/{achternaam}');
 
         $this->assertEquals(
@@ -398,7 +399,6 @@ class RouterTest extends TestCase
         $data = ['name' => 'josh'];
         $queryParams = ['a' => 'b', 'c' => 'd'];
 
-        //create a router that mocks the pathFor with expected args
         $router = $this->getMockBuilder(Router::class)->setMethods(['pathFor'])->getMock();
         $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
         $router->urlFor($name, $data, $queryParams);

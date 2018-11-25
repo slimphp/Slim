@@ -8,20 +8,17 @@
  */
 namespace Slim\Tests\Middleware;
 
-use PHPUnit\Framework\TestCase;
+use Closure;
+use Error;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
-use Slim\Http\Body;
-use Slim\Http\Environment;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
-use Error;
+use Slim\Tests\TestCase;
 
 /**
  * Class ErrorMiddlewareTest
@@ -31,7 +28,8 @@ class ErrorMiddlewareTest extends TestCase
 {
     public function testSetErrorHandler()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
@@ -39,39 +37,46 @@ class ErrorMiddlewareTest extends TestCase
 
         $exception = HttpNotFoundException::class;
         $handler = function () {
-            return (new Response())->withJson('Oops..');
+            $response = $this->createResponse(500);
+            $response->getBody()->write('Oops..');
+            return $response;
         };
-        $mw2 = new ErrorMiddleware($callableResolver, false, false, false);
+        Closure::bind($handler, $this);
+
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setErrorHandler($exception, $handler);
         $app->add($mw2);
 
-        $request = $this->requestFactory('/foo/baz/');
+        $request = $this->createServerRequest('/foo/baz/');
         $app->run($request);
 
-        $expectedOutput = json_encode('Oops..');
-        $this->expectOutputString($expectedOutput);
+        $this->expectOutputString('Oops..');
     }
 
     public function testSetDefaultErrorHandler()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
         $app->add($mw);
 
         $handler = function () {
-            return (new Response())->withJson('Oops..');
+            $response = $this->createResponse();
+            $response->getBody()->write('Oops..');
+            return $response;
         };
-        $mw2 = new ErrorMiddleware($callableResolver, false, false, false);
+        Closure::bind($handler, $this);
+
+        $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setDefaultErrorHandler($handler);
         $app->add($mw2);
 
-        $request = $this->requestFactory('/foo/baz/');
+        $request = $this->createServerRequest('/foo/baz/');
         $app->run($request);
 
-        $expectedOutput = json_encode('Oops..');
-        $this->expectOutputString($expectedOutput);
+        $this->expectOutputString('Oops..');
     }
 
     /**
@@ -79,31 +84,31 @@ class ErrorMiddlewareTest extends TestCase
      */
     public function testSetDefaultErrorHandlerThrowsException()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw = new ErrorMiddleware($callableResolver, false, false, false);
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw->setDefaultErrorHandler('Uncallable');
         $mw->getDefaultErrorHandler();
     }
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $middleware = new ErrorMiddleware($callableResolver, false, false, false);
+        $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $exception = MockCustomException::class;
         $handler = $middleware->getErrorHandler($exception);
         $this->assertInstanceOf(ErrorHandler::class, $handler);
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testErrorHandlerHandlesThrowables()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw2 = function () {
@@ -111,46 +116,25 @@ class ErrorMiddlewareTest extends TestCase
         };
         $app->add($mw2);
 
-        $handler = function ($req, $exception) {
-            return (new Response())->withJson($exception->getMessage());
+        $handler = function (ServerRequestInterface $request, $exception) {
+            $response = $this->createResponse();
+            $response->getBody()->write($exception->getMessage());
+            return $response;
         };
-        $mw = new ErrorMiddleware($callableResolver, false, false, false);
+        Closure::bind($handler, $this);
+
+        $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw->setDefaultErrorHandler($handler);
         $app->add($mw);
 
-        $app->get('/foo', function () {
-            return (new Response())->withJson('...');
+        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('...');
+            return $response;
         });
 
-        $request = $this->requestFactory('/foo');
+        $request = $this->createServerRequest('/foo');
         $app->run($request);
 
-        $expectedOutput = json_encode('Oops..');
-        $this->expectOutputString($expectedOutput);
-    }
-
-    /**
-     * helper to create a request object
-     * @return Request
-     */
-    private function requestFactory($requestUri, $method = 'GET', $data = [])
-    {
-        $defaults = [
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => $requestUri,
-            'REQUEST_METHOD' => $method,
-        ];
-
-        $data = array_merge($defaults, $data);
-
-        $env = Environment::mock($data);
-        $uri = Uri::createFromGlobals($env);
-        $headers = Headers::createFromGlobals($env);
-        $cookies = [];
-        $serverParams = $env;
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
-
-        return $request;
+        $this->expectOutputString('Oops..');
     }
 }

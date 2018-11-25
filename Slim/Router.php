@@ -11,12 +11,12 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use InvalidArgumentException;
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
+use InvalidArgumentException;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
@@ -43,12 +43,12 @@ class Router implements RouterInterface
     /**
      * Callable resolver
      *
-     * @var \Slim\Interfaces\CallableResolverInterface
+     * @var CallableResolverInterface|null
      */
     protected $callableResolver;
 
     /**
-     * @var \Slim\Interfaces\InvocationStrategyInterface
+     * @var InvocationStrategyInterface|null
      */
     protected $routeInvocationStrategy;
 
@@ -69,7 +69,7 @@ class Router implements RouterInterface
     /**
      * Routes
      *
-     * @var Route[]
+     * @var array
      */
     protected $routes = [];
 
@@ -87,7 +87,7 @@ class Router implements RouterInterface
     protected $routeGroups = [];
 
     /**
-     * @var Dispatcher
+     * @var Dispatcher|null
      */
     protected $dispatcher;
 
@@ -138,7 +138,7 @@ class Router implements RouterInterface
     /**
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
-     * @param string|false $cacheFile
+     * @param string|bool $cacheFile
      *
      * @return self
      *
@@ -176,7 +176,7 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $handler The route callable
+     * @param  callable|string $handler The route callable
      *
      * @return RouteInterface
      */
@@ -190,7 +190,7 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        // Add route
+        /** @var Route $route */
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
@@ -216,7 +216,7 @@ class Router implements RouterInterface
      *
      * @param  string[] $methods Array of HTTP methods
      * @param  string   $pattern The route pattern
-     * @param  callable $callable The route callable
+     * @param  callable|string $callable The route callable
      *
      * @return RouteInterface
      */
@@ -249,18 +249,21 @@ class Router implements RouterInterface
         };
 
         if ($this->cacheFile) {
-            $this->dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
                 'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
                 'cacheFile' => $this->cacheFile,
             ]);
         } else {
-            $this->dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+            /** @var Dispatcher $dispatcher */
+            $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
                 'dispatcher' => Dispatcher::class,
                 'routeParser' => $this->routeParser,
             ]);
         }
 
+        $this->dispatcher = $dispatcher;
         return $this->dispatcher;
     }
 
@@ -310,9 +313,8 @@ class Router implements RouterInterface
      */
     public function removeNamedRoute(string $name)
     {
+        /** @var Route $route */
         $route = $this->getNamedRoute($name);
-
-        // no exception, route exists, now remove by id
         unset($this->routes[$route->getIdentifier()]);
     }
 
@@ -392,6 +394,7 @@ class Router implements RouterInterface
         $routeDatas = array_reverse($routeDatas);
 
         $segments = [];
+        $segmentName = '';
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {

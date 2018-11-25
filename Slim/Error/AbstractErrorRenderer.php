@@ -11,9 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Error;
 
-use Slim\Http\Body;
 use Slim\Interfaces\ErrorRendererInterface;
-use Throwable;
 
 /**
  * Abstract Slim application error renderer
@@ -23,16 +21,4 @@ use Throwable;
  */
 abstract class AbstractErrorRenderer implements ErrorRendererInterface
 {
-    /**
-     * @param Throwable $exception
-     * @param bool $displayErrorDetails
-     * @return Body
-     */
-    public function renderWithBody(Throwable $exception, bool $displayErrorDetails): Body
-    {
-        $output = $this->render($exception, $displayErrorDetails);
-        $body = new Body(fopen('php://temp', 'r+'));
-        $body->write($output);
-        return $body;
-    }
 }

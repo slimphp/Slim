@@ -49,7 +49,7 @@ class HeaderStackTestAsset
     /**
      * Push a header on the stack
      *
-     * @param string[] $header
+     * @param array $header
      */
     public static function push(array $header)
     {

@@ -8,33 +8,23 @@
  */
 namespace Slim\Tests\Middleware;
 
-use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Http\Body;
-use Slim\Http\Headers;
-use Slim\Http\Request;
-use Slim\Http\Response;
-use Slim\Http\Uri;
 use Slim\Middleware\ContentLengthMiddleware;
+use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
 {
     public function testAddsContentLenght()
     {
-        $mw = new ContentLengthMiddleware('append');
+        $mw = new ContentLengthMiddleware();
 
-        $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
-        $headers = new Headers();
-        $cookies = [];
-        $serverParams = [];
-        $body = new Body(fopen('php://temp', 'r+'));
-        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $response = new Response();
+        $request = $this->createServerRequest('https://example.com:443/foo/bar?abc=123');
+        $response = $this->createResponse();
 
-        $next = function (ServerRequestInterface $req, ResponseInterface $res) {
-            $res->write('Body');
-            return $res;
+        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Body');
+            return $response;
         };
 
         $newResponse = $mw($request, $response, $next);

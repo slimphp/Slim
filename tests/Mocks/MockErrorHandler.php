@@ -8,11 +8,11 @@
  */
 namespace Slim\Tests\Mocks;
 
-use Slim\Handlers\AbstractErrorHandler;
+use Slim\Handlers\ErrorHandler;
 
 /**
  * Mock object for Slim\Tests\AppTest
  */
-class MockErrorHandler extends AbstractErrorHandler
+class MockErrorHandler extends ErrorHandler
 {
 }

@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container;
 use Slim\CallableResolver;
