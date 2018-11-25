@@ -46,7 +46,7 @@ $serverRequestFactory = new ServerRequestCreator(
 );
 
 /**
- * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
@@ -56,13 +56,12 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
     return $response->getBody()->write("Hello, " . $args['name']);
 });
 
-
 /**
- * The App::run() Method takes 1 parameters
+ * The App::run() method takes 1 parameter
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = $serverRequestFactory->fromGlobals();
-$app->run($request, $psr17Factory);
+$app->run($request);
 ```
 
 ## Example Usage With Zend Diactoros & Zend HttpHandleRunner Response Emitter
@@ -78,7 +77,7 @@ $responseFactory = new ResponseFactory();
 $serverRequestFactory = new ServerRequestFactory();
 
 /**
- * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
@@ -89,7 +88,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 });
 
 /**
- * The App::handle() Method takes 1 parameters
+ * The App::handle() method takes 1 parameter
  * Note we are using handle() and not run() since we want to emit the response using Zend's Response Emitter
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
@@ -122,7 +121,7 @@ $decoratedResponseFactory = new DecoratedResponseFactory($responseFactory, $stre
 $serverRequestFactory = new ServerRequestFactory();
 
 /**
- * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
  * Note that we pass in the decorated response factory which will give us access to the Slim\Http
  * decorated Response methods like withJson()
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
@@ -135,7 +134,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 });
 
 /**
- * The App::run() Method takes 1 parameters
+ * The App::run() method takes 1 parameter
  * Note that we pass in the decorated server request object which will give us access to the Slim\Http
  * decorated ServerRequest methods like withRedirect()
  * @param ServerRequestInterface An instantiation of a ServerRequest
@@ -156,7 +155,7 @@ use Http\Factory\Guzzle\ResponseFactory;
 $responseFactory = new ResponseFactory();
 
 /**
- * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
@@ -167,7 +166,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 });
 
 /**
- * The App::run() Method takes 1 parameters
+ * The App::run() method takes 1 parameter
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = ServerRequest::fromGlobals();
