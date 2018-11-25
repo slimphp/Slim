@@ -70,6 +70,7 @@ class App implements RequestHandlerInterface
      */
     protected $settings = [
         'httpVersion' => '1.1',
+        'responseChunkSize' => 4096,
         'routerCacheFile' => false,
     ];
 
@@ -80,13 +81,15 @@ class App implements RequestHandlerInterface
     /**
      * Create new application
      *
-     * @param array $settings
+     * @param ResponseFactoryInterface $responseFactory
      * @param ContainerInterface|null $container
+     * @param array $settings
      */
-    public function __construct(array $settings = [], ContainerInterface $container = null)
+    public function __construct(ResponseFactoryInterface $responseFactory, ContainerInterface $container = null, array $settings = [])
     {
-        $this->addSettings($settings);
+        $this->responseFactory = $responseFactory;
         $this->container = $container;
+        $this->addSettings($settings);
     }
 
     /**
@@ -418,13 +421,13 @@ class App implements RequestHandlerInterface
      * resultant Response object to the HTTP client.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseFactoryInterface $responseFactory
-     * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseFactoryInterface $responseFactory): ResponseInterface
+    public function run(ServerRequestInterface $request): void
     {
-        $this->responseFactory = $responseFactory;
-        return $this->handle($request);
+        $response = $this->handle($request);
+        $responseChunkSize = $this->getSetting('responseChunkSize');
+        $responseEmitter = new ResponseEmitter($responseChunkSize);
+        $responseEmitter->emit($response);
     }
 
     /**

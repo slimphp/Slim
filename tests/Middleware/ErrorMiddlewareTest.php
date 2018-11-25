@@ -28,7 +28,8 @@ class ErrorMiddlewareTest extends TestCase
 {
     public function testSetErrorHandler()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
@@ -47,14 +48,15 @@ class ErrorMiddlewareTest extends TestCase
         $app->add($mw2);
 
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $app->run($request, $this->getResponseFactory());
+        $app->run($request);
 
-        $this->assertEquals('Oops..', (string) $response->getBody());
+        $this->expectOutputString('Oops..');
     }
 
     public function testSetDefaultErrorHandler()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw = new RoutingMiddleware($app->getRouter());
@@ -72,9 +74,9 @@ class ErrorMiddlewareTest extends TestCase
         $app->add($mw2);
 
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $app->run($request, $this->getResponseFactory());
+        $app->run($request);
 
-        $this->assertEquals('Oops..', (string) $response->getBody());
+        $this->expectOutputString('Oops..');
     }
 
     /**
@@ -82,7 +84,8 @@ class ErrorMiddlewareTest extends TestCase
      */
     public function testSetDefaultErrorHandlerThrowsException()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
@@ -92,7 +95,8 @@ class ErrorMiddlewareTest extends TestCase
 
     public function testGetErrorHandlerWillReturnDefaultErrorHandlerForUnhandledExceptions()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $middleware = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
@@ -101,12 +105,10 @@ class ErrorMiddlewareTest extends TestCase
         $this->assertInstanceOf(ErrorHandler::class, $handler);
     }
 
-    /**
-     * @requires PHP 7.0
-     */
     public function testErrorHandlerHandlesThrowables()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
         $mw2 = function () {
@@ -131,8 +133,8 @@ class ErrorMiddlewareTest extends TestCase
         });
 
         $request = $this->createServerRequest('/foo');
-        $response = $app->run($request, $this->getResponseFactory());
+        $app->run($request);
 
-        $this->assertEquals('Oops..', (string) $response->getBody());
+        $this->expectOutputString('Oops..');
     }
 }
