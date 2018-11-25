@@ -1,4 +1,0 @@
-parameters:
-    ignoreErrors:
-#        - '#Parameter \$to of method Slim\\App::redirect\(\) has invalid typehint type Slim\\UriInterface#'
-#        - '#Variable \$_FILES in isset\(\) always exists and is not nullable#'
