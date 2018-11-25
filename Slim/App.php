@@ -70,7 +70,6 @@ class App implements RequestHandlerInterface
      */
     protected $settings = [
         'httpVersion' => '1.1',
-        'responseChunkSize' => 4096,
         'routerCacheFile' => false,
     ];
 
@@ -428,8 +427,7 @@ class App implements RequestHandlerInterface
     public function run(ServerRequestInterface $request): void
     {
         $response = $this->handle($request);
-        $responseChunkSize = $this->getSetting('responseChunkSize');
-        $responseEmitter = new ResponseEmitter($responseChunkSize);
+        $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);
     }
 
