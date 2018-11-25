@@ -25,13 +25,7 @@ class AppTest extends TestCase
 {
     public static function setupBeforeClass()
     {
-        // ini_set('log_errors', 0);
         ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
-    }
-
-    public static function tearDownAfterClass()
-    {
-        // ini_set('log_errors', 1);
     }
 
     /********************************************************************************
