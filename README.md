@@ -25,22 +25,18 @@ Before you can get up and running with Slim you will need to choose a PSR-7 impl
 - [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend implementation. It is the slowest implementation of the 3. 
 
 ## Example Usage With Nyholm/psr7 and Nyholm/psr7-server
-
-Create an index.php file with the following contents:
-
 ```php
 <?php
 require 'vendor/autoload.php';
 
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Nyholm\Psr7Server\ServerRequestCreator;
-use Slim\ResponseEmitter;
 
-$app = new Slim\App();
-$app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
-});
-
+/**
+ * We need to instantiate our factories before instantiating Slim\App
+ * In the case of Nyholm/psr7 the Psr17Factory provides all the Http-Factories in one class
+ * which includes ResponseFactoryInterface
+ */
 $psr17Factory = new Psr17Factory();
 $serverRequestFactory = new ServerRequestCreator(
     $psr17Factory,
@@ -48,31 +44,28 @@ $serverRequestFactory = new ServerRequestCreator(
     $psr17Factory,
     $psr17Factory
 );
-$request = $serverRequestFactory->fromGlobals();
 
 /**
- * The App::run() Method takes 2 parameters
- * In the case of Nyholm/psr7 the Psr17Factory provides all the Http-Factories in one class
- * which include ResponseFactoryInterface
+ * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * @param ResponseFactoryInterface Any implementation of a ResponseFactory
+ * @param ContainerInterface|null Any implementation of a Container
+ * @param array Settings array
+ */
+$app = new Slim\App($psr17Factory);
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $response->getBody()->write("Hello, " . $args['name']);
+});
+
+
+/**
+ * The App::run() Method takes 1 parameters
  * @param ServerRequestInterface An instantiation of a ServerRequest
- * @param ResponseFactoryInterface An instantiation of a ResponseFactory
  */
-$response = $app->run($request, $psr17Factory);
-
-/**
- * Once you have obtained the ResponseInterface from App::run()
- * You will need to emit the response by using an emitter of your choice
- * We will use Slim ResponseEmitter for this example
- * But you could use Zend HttpHandleRunner SapiEmitter or other
- */
-$responseEmitter = new ResponseEmitter();
-$responseEmitter->emit($response);
+$request = $serverRequestFactory->fromGlobals();
+$app->run($request, $psr17Factory);
 ```
 
-## Example Usage With Zend Diactoros & Zend HttpHandleRunner
-
-Create an index.php file with the following contents:
-
+## Example Usage With Zend Diactoros & Zend HttpHandleRunner Response Emitter
 ```php
 <?php
 require 'vendor/autoload.php';
@@ -81,24 +74,30 @@ use Zend\Diactoros\ResponseFactory;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\HttpHandlerRunner\Emitter\SapiEmitter;
 
-$app = new Slim\App();
+$responseFactory = new ResponseFactory();
+$serverRequestFactory = new ServerRequestFactory();
+
+/**
+ * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * @param ResponseFactoryInterface Any implementation of a ResponseFactory
+ * @param ContainerInterface|null Any implementation of a Container
+ * @param array Settings array
+ */
+$app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
     return $response->getBody()->write("Hello, " . $args['name']);
 });
 
-$responseFactory = new ResponseFactory();
-$serverRequestFactory = new ServerRequestFactory();
-$request = ServerRequestFactory::fromGlobals();
-
 /**
- * The App::run() Method takes 2 parameters
+ * The App::handle() Method takes 1 parameters
+ * Note we are using handle() and not run() since we want to emit the response using Zend's Response Emitter
  * @param ServerRequestInterface An instantiation of a ServerRequest
- * @param ResponseFactoryInterface An instantiation of a ResponseFactory
  */
-$response = $app->run($request, $responseFactory);
+$request = ServerRequestFactory::fromGlobals();
+$response = $app->handle($request);
 
 /**
- * Once you have obtained the ResponseInterface from App::run()
+ * Once you have obtained the ResponseInterface from App::handle()
  * You will need to emit the response by using an emitter of your choice
  * We will use Zend HttpHandleRunner SapiEmitter for this example
  */
@@ -106,7 +105,7 @@ $responseEmitter = new SapiEmitter();
 $responseEmitter->emit($response);
 ```
 
-## Example Usage With Slim-Http Decorators, Zend Diactoros & Zend HttpHandleRunner
+## Example Usage With Slim-Http Decorators and Zend Diactoros
 ```php
 <?php
 require 'vendor/autoload.php';
@@ -116,71 +115,63 @@ use Slim\Http\Decorators\ServerRequestDecorator;
 use Zend\Diactoros\ResponseFactory;
 use Zend\Diactoros\ServerRequestFactory;
 use Zend\Diactoros\StreamFactory;
-use Zend\HttpHandlerRunner\Emitter\SapiEmitter;
-
-$app = new Slim\App();
-$app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->withJson(['Hello' => 'World']);
-});
 
 $responseFactory = new ResponseFactory();
 $streamFactory = new StreamFactory();
 $decoratedResponseFactory = new DecoratedResponseFactory($responseFactory, $streamFactory);
-
 $serverRequestFactory = new ServerRequestFactory();
+
+/**
+ * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * Note that we pass in the decorated response factory which will give us access to the Slim\Http
+ * decorated Response methods like withJson()
+ * @param ResponseFactoryInterface Any implementation of a ResponseFactory
+ * @param ContainerInterface|null Any implementation of a Container
+ * @param array Settings array
+ */
+$app = new Slim\App($decoratedResponseFactory);
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $response->withJson(['Hello' => 'World']);
+});
+
+/**
+ * The App::run() Method takes 1 parameters
+ * Note that we pass in the decorated server request object which will give us access to the Slim\Http
+ * decorated ServerRequest methods like withRedirect()
+ * @param ServerRequestInterface An instantiation of a ServerRequest
+ */
 $request = ServerRequestFactory::fromGlobals();
 $decoratedServerRequest = new ServerRequestDecorator($request);
-
-/**
- * The App::run() Method takes 2 parameters
- * @param ServerRequestInterface An instantiation of a ServerRequest
- * @param ResponseFactoryInterface An instantiation of a ResponseFactory
- */
-$response = $app->run($decoratedRequest, $decoratedResponseFactory);
-
-/**
- * Once you have obtained the ResponseInterface from App::run()
- * You will need to emit the response by using an emitter of your choice
- * We will use Zend HttpHandleRunner SapiEmitter for this example
- */
-$responseEmitter = new SapiEmitter();
-$responseEmitter->emit($response);
+$app->run($decoratedServerRequest);
 ```
 
-## Example Usage With Guzzle PSR-7, Guzzle HTTP Factory
-
-Create an index.php file with the following contents:
-
+## Example Usage With Guzzle PSR-7 and Guzzle HTTP Factory
 ```php
 <?php
 require 'vendor/autoload.php';
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Http\Factory\Guzzle\ResponseFactory;
-use Slim\ResponseEmitter;
 
-$app = new Slim\App();
+$responseFactory = new ResponseFactory();
+
+/**
+ * The App::__constructor() Method takes 1 mandatory parameter and 2 optional parameters
+ * @param ResponseFactoryInterface Any implementation of a ResponseFactory
+ * @param ContainerInterface|null Any implementation of a Container
+ * @param array Settings array
+ */
+$app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
     return $response->getBody()->write("Hello, " . $args['name']);
 });
 
-$responseFactory = new ResponseFactory();
-$request = ServerRequest::fromGlobals();
-
 /**
- * The App::run() Method takes 2 parameters
+ * The App::run() Method takes 1 parameters
  * @param ServerRequestInterface An instantiation of a ServerRequest
- * @param ResponseFactoryInterface An instantiation of a ResponseFactory
  */
-$response = $app->run($request, $responseFactory);
-
-/**
- * Once you have obtained the ResponseInterface from App::run()
- * You will need to emit the response by using an emitter of your choice
- * We will use Slim ResponseEmitter for this example
- */
-$responseEmitter = new ResponseEmitter();
-$responseEmitter->emit($response);
+$request = ServerRequest::fromGlobals();
+$app->run($request);
 ```
 
 You may quickly test this using the built-in PHP server:
