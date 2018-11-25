@@ -17,7 +17,7 @@ use Slim\Tests\Mocks\SmallChunksStream;
  * Class ResponseEmitterTest
  * @package Slim\Tests
  */
-class ResponseEmitterTest extends Test
+class ResponseEmitterTest extends TestCase
 {
     public function setUp()
     {

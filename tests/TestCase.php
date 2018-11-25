@@ -8,7 +8,7 @@
  */
 namespace Slim\Tests;
 
-use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\TestCase as PHPUnitTestCase;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -18,10 +18,10 @@ use Psr\Http\Message\StreamInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
 /**
- * Class Test
+ * Class TestCase
  * @package Slim\Tests
  */
-abstract class Test extends TestCase
+abstract class TestCase extends PhpUnitTestCase
 {
     /**
      * @return ServerRequestFactoryInterface

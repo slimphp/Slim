@@ -15,7 +15,7 @@ use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
-class CallableResolverTest extends Test
+class CallableResolverTest extends TestCase
 {
     /**
      * @var Container

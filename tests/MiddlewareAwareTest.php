@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Tests\Mocks\Stackable;
 
-class MiddlewareAwareTest extends Test
+class MiddlewareAwareTest extends TestCase
 {
     public function testSeedsMiddlewareStack()
     {

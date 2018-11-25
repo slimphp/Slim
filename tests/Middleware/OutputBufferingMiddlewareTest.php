@@ -11,9 +11,9 @@ namespace Slim\Tests\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 
-class OutputBufferingMiddlewareTest extends Test
+class OutputBufferingMiddlewareTest extends TestCase
 {
     public function testStyleDefaultValid()
     {

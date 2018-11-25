@@ -21,7 +21,7 @@ use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 
-class AppTest extends Test
+class AppTest extends TestCase
 {
     public static function setupBeforeClass()
     {

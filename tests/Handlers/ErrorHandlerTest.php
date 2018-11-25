@@ -17,10 +17,10 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\Mocks\MockErrorRenderer;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 use ReflectionClass;
 
-class ErrorHandlerTest extends Test
+class ErrorHandlerTest extends TestCase
 {
     public function testDetermineContentTypeMethodDoesNotThrowExceptionWhenPassedValidRenderer()
     {

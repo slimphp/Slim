@@ -11,9 +11,9 @@ namespace Slim\Tests\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 
-class ContentLengthMiddlewareTest extends Test
+class ContentLengthMiddlewareTest extends TestCase
 {
     public function testAddsContentLenght()
     {

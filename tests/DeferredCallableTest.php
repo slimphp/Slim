@@ -14,7 +14,7 @@ use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
 
-class DeferredCallableTest extends Test
+class DeferredCallableTest extends TestCase
 {
     public function testItResolvesCallable()
     {

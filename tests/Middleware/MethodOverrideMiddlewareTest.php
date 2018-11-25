@@ -11,13 +11,13 @@ namespace Slim\Tests\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 use Closure;
 
 /**
  * @covers \Slim\Middleware\MethodOverrideMiddleware
  */
-class MethodOverrideMiddlewareTest extends Test
+class MethodOverrideMiddlewareTest extends TestCase
 {
     public function testHeader()
     {

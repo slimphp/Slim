@@ -22,7 +22,7 @@ use Slim\Tests\Mocks\MiddlewareStub;
 use Slim\Tests\Mocks\RequestHandlerTest;
 use Exception;
 
-class RouteTest extends Test
+class RouteTest extends TestCase
 {
     public function routeFactory()
     {

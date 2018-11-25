@@ -16,7 +16,7 @@ use Slim\Handlers\ErrorHandler;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 use Closure;
 use Error;
 
@@ -24,7 +24,7 @@ use Error;
  * Class ErrorMiddlewareTest
  * @package Slim\Tests\Middleware
  */
-class ErrorMiddlewareTest extends Test
+class ErrorMiddlewareTest extends TestCase
 {
     public function testSetErrorHandler()
     {

@@ -10,7 +10,7 @@ use Slim\RoutingResults;
  * Class DispatcherTest
  * @package Slim\Tests
  */
-class DispatcherTest extends Test
+class DispatcherTest extends TestCase
 {
     protected function getDispatcherClass()
     {

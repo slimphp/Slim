@@ -14,10 +14,10 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\RoutingResults;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Router;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 use Closure;
 
-class RoutingMiddlewareTest extends Test
+class RoutingMiddlewareTest extends TestCase
 {
     protected function getRouter()
     {

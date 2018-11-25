@@ -13,7 +13,7 @@ use Slim\Route;
 use Slim\RoutingResults;
 use Slim\Router;
 
-class RouterTest extends Test
+class RouterTest extends TestCase
 {
     /** @var Router */
     protected $router;

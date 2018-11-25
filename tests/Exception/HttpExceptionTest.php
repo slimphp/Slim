@@ -11,9 +11,9 @@ namespace Slim\Tests\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Tests\Test;
+use Slim\Tests\TestCase;
 
-class HttpExceptionTest extends Test
+class HttpExceptionTest extends TestCase
 {
     public function testHttpExceptionRequestReponseGetterSetters()
     {
