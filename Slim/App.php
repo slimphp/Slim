@@ -9,6 +9,7 @@
 namespace Slim;
 
 use Exception;
+use Psr\Http\Message\UriInterface;
 use Slim\Exception\InvalidMethodException;
 use Slim\Http\Response;
 use Throwable;
