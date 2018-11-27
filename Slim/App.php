@@ -462,7 +462,7 @@ class App
             if (isset($contentLength)) {
                 $amountToRead = $contentLength;
                 while ($amountToRead > 0 && !$body->eof()) {
-                    $data = $body->read(min($chunkSize, $amountToRead));
+                    $data = $body->read(min((int)$chunkSize, (int)$amountToRead));
                     echo $data;
 
                     $amountToRead -= strlen($data);
