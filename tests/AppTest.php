@@ -1477,6 +1477,6 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $this->assertInstanceof('Psr\Http\Server\RequestHandlerInterface', $app);
+        $this->assertInstanceOf('Psr\Http\Server\RequestHandlerInterface', $app);
     }
 }
