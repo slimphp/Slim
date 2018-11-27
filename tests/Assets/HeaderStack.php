@@ -3,12 +3,8 @@
  * This is a direct copy of zend-diactoros/test/TestAsset/Functions.php and is used to override
  * header() and headers_sent() so we can test that they do the right thing.
  *
- * We put these into the Slim namespace, so that Slim\App will use these versions of header() and
- * headers_sent() when we test its output.
  */
-namespace Slim;
-
-use Slim\Tests\Assets\HeaderStack;
+namespace Slim\Tests\Assets;
 
 /**
  * Zend Framework (http://framework.zend.com/)
@@ -31,29 +27,58 @@ use Slim\Tests\Assets\HeaderStack;
  */
 
 /**
- * Have headers been sent?
- *
- * @return false
+ * Store output artifacts
  */
-function headers_sent()
+class HeaderStack
 {
-    return false;
-}
+    /**
+     * @var string[][]
+     */
+    private static $data = [];
 
-/**
- * Emit a header, without creating actual output artifacts
- *
- * @param string   $string
- * @param bool     $replace
- * @param int|null $statusCode
- */
-function header($string, $replace = true, $statusCode = null)
-{
-    HeaderStack::push(
-        [
-            'header'      => $string,
-            'replace'     => $replace,
-            'status_code' => $statusCode,
-        ]
-    );
+    /**
+     * Reset state
+     */
+    public static function reset()
+    {
+        self::$data = [];
+    }
+
+    /**
+     * Push a header on the stack
+     *
+     * @param string[] $header
+     */
+    public static function push(array $header)
+    {
+        self::$data[] = $header;
+    }
+
+    /**
+     * Return the current header stack
+     *
+     * @return string[][]
+     */
+    public static function stack()
+    {
+        return self::$data;
+    }
+
+    /**
+     * Verify if there's a header line on the stack
+     *
+     * @param string $header
+     *
+     * @return bool
+     */
+    public static function has($header)
+    {
+        foreach (self::$data as $item) {
+            if ($item['header'] === $header) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
