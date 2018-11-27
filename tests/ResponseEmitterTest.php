@@ -56,17 +56,10 @@ class ResponseEmitterTest extends TestCase
     {
         $availableFilter = stream_get_filters();
 
-        if (version_compare(phpversion(), '7.0.0', '>=')) {
-            $filterName           = 'string.rot13';
-            $unfilterName         = 'string.rot13';
-            $specificFilterName   = 'string.rot13';
-            $specificUnfilterName = 'string.rot13';
-        } else {
-            $filterName           = 'mcrypt.*';
-            $unfilterName         = 'mdecrypt.*';
-            $specificFilterName   = 'mcrypt.rijndael-128';
-            $specificUnfilterName = 'mdecrypt.rijndael-128';
-        }
+        $filterName           = 'string.rot13';
+        $unfilterName         = 'string.rot13';
+        $specificFilterName   = 'string.rot13';
+        $specificUnfilterName = 'string.rot13';
 
         if (in_array($filterName, $availableFilter) && in_array($unfilterName, $availableFilter)) {
             $key = base64_decode('xxxxxxxxxxxxxxxx');
