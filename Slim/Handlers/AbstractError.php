@@ -90,7 +90,7 @@ abstract class AbstractError extends AbstractHandler
     /**
      * Wraps the error_log function so that this can be easily tested
      *
-     * @param string $message
+     * @param $message
      */
     protected function logError($message)
     {
