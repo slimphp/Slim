@@ -1441,6 +1441,24 @@ class AppTest extends TestCase
         $this->expectOutputString('Hello World');
     }
 
+    public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod()
+    {
+        $called = 0;
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use (&$called) {
+            $called += 1;
+            $response->getBody()->write('Hello World');
+            return $response;
+        });
+
+        $request = $this->createServerRequest('/', 'HEAD');
+        $response = $app->handle($request);
+
+        $this->assertEquals(1, $called);
+        $this->assertEmpty((string) $response->getBody());
+    }
+
     // TODO: Re-add testUnsupportedMethodWithoutRoute
 
     // TODO: Re-add testUnsupportedMethodWithRoute
