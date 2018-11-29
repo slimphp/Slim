@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use FastRoute\RouteParser\Std as StdParser;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Handlers\PhpError;
@@ -77,6 +78,12 @@ class DefaultServicesProvider
             };
         }
 
+        if (!isset($container['routeParser'])) {
+            $container['routeParser'] = function () {
+                return new StdParser;
+            };
+        }
+
         if (!isset($container['router'])) {
             /**
              * This service MUST return a SHARED instance
@@ -93,7 +100,7 @@ class DefaultServicesProvider
                 }
 
 
-                $router = (new Router)->setCacheFile($routerCacheFile);
+                $router = (new Router($container['routeParser']))->setCacheFile($routerCacheFile);
                 if (method_exists($router, 'setContainer')) {
                     $router->setContainer($container);
                 }
