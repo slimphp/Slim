@@ -31,15 +31,11 @@ $responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new Strea
  */
 $app = new App($responseFactory);
 
-
 /**
  * Add middleware as required. This is a LIFO stack.
  * We recommend adding ErrorMiddleware at least
  */
 $app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
-
-
-$app = new App();
 
 /**
  * Define the Slim application routes
