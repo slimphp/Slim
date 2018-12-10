@@ -12,7 +12,7 @@ Slim is a PHP micro-framework that helps you quickly write simple yet powerful w
 It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
 
 ```bash
-$ composer require slim/slim "^4.0"
+$ composer require "slim/slim:4.x-dev"
 ```
 
 This will install Slim and all required dependencies. Slim requires PHP 7.1 or newer.
@@ -23,8 +23,42 @@ Before you can get up and running with Slim you will need to choose a PSR-7 impl
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) - This is the fastest, strictest and most lightweight implementation at the moment
 - [Guzzle/psr7](https://github.com/guzzle/psr7) - This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier
 - [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend implementation. It is the slowest implementation of the 3. 
+- [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - This is the Slim Framework projects PSR-7 implementation.
 
-## Example Usage With Nyholm/psr7 and Nyholm/psr7-server
+
+## Slim-Http Decorators
+
+[Slim-Http](https://github.com/slimphp/Slim-Http) is a set of decorators for any PSR-7 implementation that we recommend is used with Slim Framework.
+
+## Hello World with Slim-Http & Slim-Psr7
+
+```php
+<?php
+// composer require slim/slim:4.x-dev slim/psr7:dev-master slim/http
+use Slim\App;
+use Slim\Http\Factory\DecoratedResponseFactory;
+use Slim\Http\ServerRequest;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Psr7\Factory\ResponseFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Slim\Psr7\Factory\StreamFactory;
+
+$responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory());
+$app = new App($responseFactory);
+
+// Add middlweare (LIFO stack)
+$app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
+
+// Action
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    return $response->getBody()->write("Hello, " . $args['name']);
+});
+
+$request = new ServerRequest(ServerRequestFactory::createFromGlobals());
+$app->run($request);
+```
+
+## Hello World with Nyholm/psr7 and Nyholm/psr7-server
 ```php
 <?php
 require 'vendor/autoload.php';
@@ -64,7 +98,7 @@ $request = $serverRequestFactory->fromGlobals();
 $app->run($request);
 ```
 
-## Example Usage With Zend Diactoros & Zend HttpHandleRunner Response Emitter
+## Hello World with Zend Diactoros & Zend HttpHandleRunner Response Emitter
 ```php
 <?php
 require 'vendor/autoload.php';
@@ -104,7 +138,7 @@ $responseEmitter = new SapiEmitter();
 $responseEmitter->emit($response);
 ```
 
-## Example Usage With Slim-Http Decorators and Zend Diactoros
+## Hello World with Slim-Http Decorators and Zend Diactoros
 ```php
 <?php
 require 'vendor/autoload.php';
@@ -144,7 +178,7 @@ $decoratedServerRequest = new ServerRequestDecorator($request);
 $app->run($decoratedServerRequest);
 ```
 
-## Example Usage With Guzzle PSR-7 and Guzzle HTTP Factory
+## Hello World with Guzzle PSR-7 and Guzzle HTTP Factory
 ```php
 <?php
 require 'vendor/autoload.php';
