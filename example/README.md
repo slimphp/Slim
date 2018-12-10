@@ -3,7 +3,7 @@
 1. Install with [composer](https://getcomposer.org/)
 
       ```bash
-      $ cd Slim
+      $ cd Slim/example
       $ composer install
       ```
 

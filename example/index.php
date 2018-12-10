@@ -1,25 +1,48 @@
 <?php
 
 /**
- * Step 1: Require the Slim Framework using Composer's autoloader
- *
- * If you are not using Composer, you need to load Slim Framework with your own
- * PSR-4 autoloader.
+ * Require the Slim Framework using Composer's autoloader
+ * This example uses: composer require slim/slim:4.x-dev slim/psr7:dev-master slim/http
  */
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
 
 /**
- * Step 2: Instantiate a Slim application
- *
- * This example instantiates a Slim application using
- * its default settings. However, you will usually configure
- * your Slim application now by passing an associative array
- * of setting names and values into the application constructor.
+ * Import relevant classes
  */
-$app = new Slim\App();
+use Slim\App;
+use Slim\Http\Factory\DecoratedResponseFactory;
+use Slim\Http\ServerRequest;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Psr7\Factory\ResponseFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
+use Slim\Psr7\Factory\StreamFactory;
 
 /**
- * Step 3: Define the Slim application routes
+ * Create a PSR-17 response factory and instantiate our Slim appliciation ($app)
+ */
+$responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory());
+
+/**
+ * Instantiate a Slim application
+ *
+ * This example instantiates a Slim application using its default settings. However, you may choose to configure
+ * your Slim application now by passing an associative array of settings into the application constructor.
+ */
+$app = new App($responseFactory);
+
+
+/**
+ * Add middleware as required. This is a LIFO stack.
+ * We recommend adding ErrorMiddleware at least
+ */
+$app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
+
+
+$app = new App();
+
+/**
+ * Define the Slim application routes
  *
  * Here we define several Slim application routes that respond
  * to appropriate HTTP request methods. In this example, the second
@@ -37,9 +60,10 @@ $app->get('/hello[/{name}]', function ($request, $response, $args) {
 })->setArgument('name', 'World!');
 
 /**
- * Step 4: Run the Slim application
+ * Run the Slim application
  *
  * This method should be called last. This executes the Slim application
  * and returns the HTTP response to the HTTP client.
  */
-$app->run();
+$request = new ServerRequest(ServerRequestFactory::createFromGlobals());
+$app->run($request);
