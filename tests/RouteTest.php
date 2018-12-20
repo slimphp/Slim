@@ -8,10 +8,12 @@
  */
 namespace Slim\Tests;
 
+use Exception;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Interfaces\InvocationStrategyInterface;
@@ -20,7 +22,6 @@ use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 use Slim\Tests\Mocks\RequestHandlerTest;
-use Exception;
 
 class RouteTest extends TestCase
 {
@@ -31,8 +32,9 @@ class RouteTest extends TestCase
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             return $response;
         };
+        $responseFactory = $this->getResponseFactory();
 
-        return new Route($methods, $pattern, $callable);
+        return new Route($methods, $pattern, $callable, $responseFactory);
     }
 
     public function testConstructor()
@@ -42,7 +44,8 @@ class RouteTest extends TestCase
         $callable = function ($req, $res, $args) {
             // Do something
         };
-        $route = new Route($methods, $pattern, $callable);
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route($methods, $pattern, $callable, $responseFactory);
 
         $this->assertAttributeEquals($methods, 'methods', $route);
         $this->assertAttributeEquals($pattern, 'pattern', $route);
@@ -51,9 +54,11 @@ class RouteTest extends TestCase
 
     public function testGetMethodsReturnsArrayWhenContructedWithString()
     {
-        $route = new Route('GET', '/hello', function ($req, $res, $args) {
+        $callable = function ($req, $res, $args) {
             // Do something
-        });
+        };
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route('GET', '/hello', $callable, $responseFactory);
 
         $this->assertEquals(['GET'], $route->getMethods());
     }
@@ -91,23 +96,26 @@ class RouteTest extends TestCase
         $this->assertSame($route->getArgument('b', 'default'), 'default');
     }
 
-
     public function testBottomMiddlewareIsRoute()
     {
         $route = $this->routeFactory();
-        $bottom = null;
+
+        $reflection = new ReflectionClass(Route::class);
+        $property = $reflection->getProperty('middlewareRunner');
+        $property->setAccessible(true);
+        $middlewareRunner = $property->getValue($route);
+
         $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
-            $bottom = $next;
             return $response;
         };
-        $route->add($mw);
+        $route->addLegacy($mw);
         $route->finalize();
 
-        $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $route->callMiddlewareStack($request, $response);
+        /** @var array $middleware */
+        $middleware = $middlewareRunner->getMiddleware();
+        $bottom = $middleware[1];
 
-        $this->assertEquals($route, $bottom);
+        $this->assertInstanceOf(Route::class, $bottom);
     }
 
     public function testAddMiddleware()
@@ -119,13 +127,10 @@ class RouteTest extends TestCase
             $called++;
             return $response;
         };
-
-        $route->add($mw);
-        $route->finalize();
+        $route->addLegacy($mw);
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $route->callMiddlewareStack($request, $response);
+        $route->run($request);
 
         $this->assertSame($called, 1);
     }
@@ -140,14 +145,13 @@ class RouteTest extends TestCase
             return $response;
         };
 
-        $route->add($mw);
+        $route->addLegacy($mw);
 
         $route->finalize();
         $route->finalize();
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $route->callMiddlewareStack($request, $response);
+        $route->run($request);
 
         $this->assertSame($called, 1);
     }
@@ -172,13 +176,12 @@ class RouteTest extends TestCase
 
         $resolver = new CallableResolver();
         $route->setCallableResolver($resolver);
-        $route->add('MiddlewareStub:run');
+        $route->addLegacy('\Slim\Tests\Mocks\MiddlewareStub:run');
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testAddMiddlewareAsStringResolvesWithContainer()
@@ -189,30 +192,29 @@ class RouteTest extends TestCase
         $pimple['MiddlewareStub'] = new MiddlewareStub();
         $resolver = new CallableResolver(new Psr11Container($pimple));
         $route->setCallableResolver($resolver);
-        $route->add('MiddlewareStub:run');
+        $route->addLegacy('MiddlewareStub:run');
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testControllerMethodAsStringResolvesWithoutContainer()
     {
         $resolver = new CallableResolver();
         $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $resolver);
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', $deferred);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory);
         $route->setCallableResolver($resolver);
 
         CallableTest::$CalledCount = 0;
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -223,17 +225,17 @@ class RouteTest extends TestCase
         $resolver = new CallableResolver(new Psr11Container($pimple));
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', $deferred);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory);
         $route->setCallableResolver($resolver);
 
         CallableTest::$CalledCount = 0;
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -241,18 +243,19 @@ class RouteTest extends TestCase
      * Ensure that the response returned by a route callable is the response
      * object that is returned by __invoke().
      */
-    public function testInvokeWhenReturningAResponse()
+    public function testProcessWhenReturningAResponse()
     {
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write('foo');
             return $response;
         };
-        $route = new Route(['GET'], '/', $callable);
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route(['GET'], '/', $callable, $responseFactory);
 
         CallableTest::$CalledCount = 0;
 
         $request = $this->createServerRequest('/');
-        $response = $route->__invoke($request, $this->createResponse());
+        $response = $route->run($request);
 
         $this->assertEquals('foo', (string) $response->getBody());
     }
@@ -261,19 +264,20 @@ class RouteTest extends TestCase
      * Ensure that anything echo'd in a route callable is, by default, NOT
      * added to the response object body.
      */
-    public function testInvokeWhenEchoingOutput()
+    public function testRouteCallableDoesNotAppendEchoedOutput()
     {
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             echo "foo";
             return $response->withStatus(201);
         };
-        $route = new Route(['GET'], '/', $callable);
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route(['GET'], '/', $callable, $responseFactory);
 
         $request = $this->createServerRequest('/');
 
         // We capture output buffer here only to clean test CLI output
         ob_start();
-        $response = $route->__invoke($request, $this->createResponse());
+        $response = $route->run($request);
         ob_end_clean();
 
         // Output buffer is ignored without optional middleware
@@ -285,16 +289,17 @@ class RouteTest extends TestCase
      * Ensure that if a string is returned by a route callable, then it is
      * added to the response object that is returned by __invoke().
      */
-    public function testInvokeWhenReturningAString()
+    public function testRouteCallableAppendsCorrectOutputToResponse()
     {
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write('foo');
             return $response;
         };
-        $route = new Route(['GET'], '/', $callable);
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route(['GET'], '/', $callable, $responseFactory);
 
         $request = $this->createServerRequest('/');
-        $response = $route->__invoke($request, $this->createResponse());
+        $response = $route->run($request);
 
         $this->assertEquals('foo', (string) $response->getBody());
     }
@@ -307,12 +312,11 @@ class RouteTest extends TestCase
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             throw new Exception();
         };
-        $route = new Route(['GET'], '/', $callable);
+        $responseFactory = $this->getResponseFactory();
+        $route = new Route(['GET'], '/', $callable, $responseFactory);
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-
-        $route->__invoke($request, $response);
+        $route->run($request);
     }
 
     /**
@@ -321,16 +325,16 @@ class RouteTest extends TestCase
     public function testInvokeDeferredCallableWithNoContainer()
     {
         $resolver = new CallableResolver();
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall');
+        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall', $responseFactory);
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -342,16 +346,16 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest;
         $resolver = new CallableResolver(new Psr11Container($pimple));
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall');
+        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall', $responseFactory);
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -360,13 +364,13 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
         $resolver = new CallableResolver(new Psr11Container($pimple));
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', RequestHandlerTest::class);
+        $route = new Route(['GET'], '/', RequestHandlerTest::class, $responseFactory);
         $route->setCallableResolver($resolver);
 
         $request = $this->createServerRequest('/', 'GET');
-        $response = $this->createResponse();
-        $route->callMiddlewareStack($request, $response);
+        $route->run($request);
 
         /** @var InvocationStrategyInterface $strategy */
         $strategy = $pimple[RequestHandlerTest::class]::$strategy;
@@ -389,18 +393,18 @@ class RouteTest extends TestCase
     public function testChangingCallableWithNoContainer()
     {
         $resolver = new CallableResolver();
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', 'NonExistent:toCall'); //Note that this doesn't actually exist
+        $route = new Route(['GET'], '/', 'NonExistent:toCall', $responseFactory); //Note that this doesn't actually exist
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals([new CallableTest(), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
@@ -412,18 +416,18 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest2'] = new CallableTest;
         $resolver = new CallableResolver(new Psr11Container($pimple));
+        $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', 'NonExistent:toCall'); //Note that this doesn't actually exist
+        $route = new Route(['GET'], '/', 'NonExistent:toCall', $responseFactory); //Note that this doesn't actually exist
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
-        $result = $route->callMiddlewareStack($request, $response);
+        $response = $route->run($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $result);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 }

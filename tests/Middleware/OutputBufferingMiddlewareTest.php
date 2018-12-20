@@ -10,7 +10,9 @@ namespace Slim\Tests\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Middleware\LegacyMiddlewareWrapper;
 use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
 
 class OutputBufferingMiddlewareTest extends TestCase
@@ -32,42 +34,52 @@ class OutputBufferingMiddlewareTest extends TestCase
      */
     public function testStyleCustomInvalid()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
+        new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }
 
     public function testAppend()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
         };
 
-        $request = $this->createServerRequest('/', 'GET');
-        $response = $this->createResponse();
-        $result = $mw($request, $response, $next);
+        $responseFactory = $this->getResponseFactory();
+        $mw = new LegacyMiddlewareWrapper($callable, $responseFactory);
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
-        $this->assertEquals('BodyTest', $result->getBody());
+        $request = $this->createServerRequest('/', 'GET');
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $response = $middlewareRunner->run($request);
+
+        $this->assertEquals('BodyTest', $response->getBody());
     }
 
     public function testPrepend()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
         };
 
-        $request = $this->createServerRequest('/', 'GET');
-        $response = $this->createResponse();
-        $result = $mw($request, $response, $next);
+        $responseFactory = $this->getResponseFactory();
+        $mw = new LegacyMiddlewareWrapper($callable, $responseFactory);
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
-        $this->assertEquals('TestBody', $result->getBody());
+        $request = $this->createServerRequest('/', 'GET');
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $response = $middlewareRunner->run($request);
+
+        $this->assertEquals('TestBody', $response->getBody());
     }
 }

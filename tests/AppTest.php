@@ -13,6 +13,7 @@ use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
@@ -108,7 +109,7 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $router = new Router();
+        $router = new Router($responseFactory);
         $app->setRouter($router);
         $this->assertSame($router, $app->getRouter());
     }
@@ -291,12 +292,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/новости');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
@@ -939,19 +939,21 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
 
-        $bottom = null;
+        $reflection = new ReflectionClass(App::class);
+        $property = $reflection->getProperty('middlewareRunner');
+        $property->setAccessible(true);
+        $middlewareRunner = $property->getValue($app);
+
         $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
-            $bottom = $next;
             return $response;
         };
-        $app->add($mw);
+        $app->addLegacy($mw);
 
-        $app->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        /** @var array $middleware */
+        $middleware = $middlewareRunner->getMiddleware();
+        $bottom = $middleware[1];
 
-        $this->assertEquals($app, $bottom);
+        $this->assertInstanceOf(App::class, $bottom);
     }
 
     public function testAddMiddleware()
@@ -964,12 +966,13 @@ class AppTest extends TestCase
             $called++;
             return $response;
         };
-        $app->add($mw);
+        $app->addLegacy($mw);
 
-        $app->callMiddlewareStack(
-            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
-            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
-        );
+        $request = $this->createServerRequest('/');
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+        $app->handle($request);
 
         $this->assertSame($called, 1);
     }
@@ -980,28 +983,35 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
 
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('Center');
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('Center');
             return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In1');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
             $response = $next($request, $response);
-            $response->getBody()->write('Out1');
+            $appendToOutput('Out1');
             return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In2');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
             $response = $next($request, $response);
-            $response->getBody()->write('Out2');
+            $appendToOutput('Out2');
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
+        $output = '';
+        $appendToOutput = function (string $value) use (&$output) {
+            $output .= $value;
+        };
         $request = $this->createServerRequest('/');
-        $response = $this->createResponse();
+        $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
         // Invoke app
-        $response = $app($request, $response);
+        $app->run($request);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$response->getBody());
+        $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
 
@@ -1012,29 +1022,36 @@ class AppTest extends TestCase
 
         $app->group('/foo', function ($app) {
             $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                $response->getBody()->write('Center');
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('Center');
                 return $response;
             });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In1');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
             $response = $next($request, $response);
-            $response->getBody()->write('Out1');
+            $appendToOutput('Out1');
             return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In2');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
             $response = $next($request, $response);
-            $response->getBody()->write('Out2');
+            $appendToOutput('Out2');
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
+        $output = '';
+        $appendToOutput = function (string $value) use (&$output) {
+            $output .= $value;
+        };
         $request = $this->createServerRequest('/foo/');
-        $response = $this->createResponse();
+        $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
         // Invoke app
-        $response = $app($request, $response);
+        $app->run($request);
 
-        $this->assertEquals('In2In1CenterOut1Out2', (string)$response->getBody());
+        $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
     public function testAddMiddlewareOnTwoRouteGroup()
@@ -1045,30 +1062,37 @@ class AppTest extends TestCase
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $response->getBody()->write('Center');
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('Center');
                     return $response;
                 });
-            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                $response->getBody()->write('In2');
+            })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('In2');
                 $response = $next($request, $response);
-                $response->getBody()->write('Out2');
+                $appendToOutput('Out2');
                 return $response;
             });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In1');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
             $response = $next($request, $response);
-            $response->getBody()->write('Out1');
+            $appendToOutput('Out1');
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
+        $output = '';
+        $appendToOutput = function (string $value) use (&$output) {
+            $output .= $value;
+        };
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $this->createResponse();
+        $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
         // Invoke app
-        $response = $app($request, $response);
+        $app->run($request);
 
-        $this->assertEquals('In1In2CenterOut2Out1', (string)$response->getBody());
+        $this->assertEquals('In1In2CenterOut2Out1', $output);
     }
 
     public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
@@ -1079,35 +1103,43 @@ class AppTest extends TestCase
         $app->group('/foo', function ($app) {
             $app->group('/baz', function ($app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $response->getBody()->write('Center');
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('Center');
                     return $response;
-                })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                    $response->getBody()->write('In3');
+                })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('In3');
                     $response = $next($request, $response);
-                    $response->getBody()->write('Out3');
+                    $appendToOutput('Out3');
                     return $response;
                 });
-            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                $response->getBody()->write('In2');
+            })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('In2');
                 $response = $next($request, $response);
-                $response->getBody()->write('Out2');
+                $appendToOutput('Out2');
                 return $response;
             });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response->getBody()->write('In1');
+        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
             $response = $next($request, $response);
-            $response->getBody()->write('Out1');
+            $appendToOutput('Out1');
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
+        $output = '';
+        $appendToOutput = function (string $value) use (&$output) {
+            $output .= $value;
+        };
         $request = $this->createServerRequest('/foo/baz/');
-        $response = $this->createResponse();
+        $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
         // Invoke app
-        $response = $app($request, $response);
+        $app->run($request);
 
-        $this->assertEquals('In1In2In3CenterOut3Out2Out1', (string)$response->getBody());
+        $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
     }
 
 
@@ -1127,9 +1159,8 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo', 'POST');
-        $response = $this->createResponse();
 
         // Create Html Renderer and Assert Output
         $exception = new HttpMethodNotAllowedException($request);
@@ -1137,7 +1168,7 @@ class AppTest extends TestCase
         $renderer = new HtmlErrorRenderer();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
@@ -1157,12 +1188,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
@@ -1177,12 +1207,11 @@ class AppTest extends TestCase
             return $response;
         })->setArgument('attribute', 'world!');
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/bar');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello world!', (string)$resOut->getBody());
@@ -1197,12 +1226,11 @@ class AppTest extends TestCase
             return $response;
         })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/bar');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello there world!', (string)$resOut->getBody());
@@ -1217,12 +1245,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello test!', (string)$resOut->getBody());
@@ -1238,12 +1265,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello test!', (string)$resOut->getBody());
@@ -1258,12 +1284,11 @@ class AppTest extends TestCase
             return $response;
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello there test!', (string)$resOut->getBody());
@@ -1281,12 +1306,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
@@ -1294,7 +1318,7 @@ class AppTest extends TestCase
 
     public function testInvokeWithCallableRegisteredInContainer()
     {
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
         $response = $this->createResponse();
 
@@ -1315,7 +1339,7 @@ class AppTest extends TestCase
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
@@ -1326,9 +1350,8 @@ class AppTest extends TestCase
      */
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         $mock = $this->getMockBuilder('StdClass')->getMock();
 
@@ -1343,14 +1366,13 @@ class AppTest extends TestCase
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $app($request, $response);
+        $app->handle($request);
     }
 
     public function testInvokeWithCallableInContainerViaMagicMethod()
     {
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         $mock = new MockAction();
 
@@ -1365,7 +1387,7 @@ class AppTest extends TestCase
         $app->get('/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
@@ -1387,12 +1409,11 @@ class AppTest extends TestCase
 
         $app->get('/foo', __NAMESPACE__ . '\handle');
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertEquals('foo', (string)$resOut->getBody());
     }
@@ -1406,13 +1427,12 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/rob');
         $request = $request->withAttribute("one", 1);
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
@@ -1426,13 +1446,12 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo/rob');
         $request = $request->withAttribute("one", 1);
-        $response = $this->createResponse();
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
         $this->assertEquals('1rob', (string)$resOut->getBody());
     }
 
@@ -1503,9 +1522,8 @@ class AppTest extends TestCase
 
     public function testContainerSetToRoute()
     {
-        // Prepare request and response objects
+        // Prepare request object
         $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
 
         $mock = new MockAction();
 
@@ -1523,7 +1541,7 @@ class AppTest extends TestCase
         $router->map(['GET'], '/foo', 'foo:bar');
 
         // Invoke app
-        $resOut = $app($request, $response);
+        $resOut = $app->handle($request);
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());

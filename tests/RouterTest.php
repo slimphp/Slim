@@ -20,7 +20,8 @@ class RouterTest extends TestCase
 
     public function setUp()
     {
-        $this->router = new Router;
+        $responseFactory = $this->getResponseFactory();
+        $this->router = new Router($responseFactory);
     }
 
     public function testMap()
@@ -348,7 +349,8 @@ class RouterTest extends TestCase
 
         // instantiate a new router & load the cached routes file & see if
         // we can dispatch to the route we cached.
-        $router2 = new Router();
+        $responseFactory = $this->getResponseFactory();
+        $router2 = new Router($responseFactory);
         $router2->setCacheFile($cacheFile);
 
         $class = new \ReflectionClass($router2);
@@ -399,7 +401,11 @@ class RouterTest extends TestCase
         $data = ['name' => 'josh'];
         $queryParams = ['a' => 'b', 'c' => 'd'];
 
-        $router = $this->getMockBuilder(Router::class)->setMethods(['pathFor'])->getMock();
+        $router = $this
+            ->getMockBuilder(Router::class)
+            ->setConstructorArgs([$this->getResponseFactory()])
+            ->setMethods(['pathFor'])
+            ->getMock();
         $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
         $router->urlFor($name, $data, $queryParams);
 

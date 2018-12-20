@@ -111,10 +111,10 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw2 = function () {
+        $mw2 = function (ServerRequestInterface $request, ResponseInterface $response) {
             throw new Error('Oops..');
         };
-        $app->add($mw2);
+        $app->addLegacy($mw2);
 
         $handler = function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
