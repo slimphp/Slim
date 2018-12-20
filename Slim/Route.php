@@ -91,7 +91,8 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     public function __construct(
         $methods,
         string $pattern,
-        $callable, ResponseFactoryInterface $responseFactory,
+        $callable,
+        ResponseFactoryInterface $responseFactory,
         array $groups = [],
         int $identifier = 0
     ) {
