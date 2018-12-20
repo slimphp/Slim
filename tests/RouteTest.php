@@ -17,6 +17,7 @@ use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Middleware\LegacyMiddlewareWrapper;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
@@ -125,14 +126,18 @@ class RouteTest extends TestCase
 
         $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
             $called++;
-            return $response;
+            return $next($request, $response);
         };
         $route->addLegacy($mw);
+
+        $responseFactory = $this->getResponseFactory();
+        $mw2 = new LegacyMiddlewareWrapper($mw, $responseFactory);
+        $route->add($mw2);
 
         $request = $this->createServerRequest('/');
         $route->run($request);
 
-        $this->assertSame($called, 1);
+        $this->assertSame($called, 2);
     }
 
     public function testRefinalizing()
