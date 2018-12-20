@@ -14,9 +14,11 @@ namespace Slim\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-class OutputBufferingMiddleware
+class OutputBufferingMiddleware implements MiddlewareInterface
 {
     const APPEND = 'append';
     const PREPEND = 'prepend';
@@ -48,39 +50,33 @@ class OutputBufferingMiddleware
     }
 
     /**
-     * Invoke
-     *
-     * @param  ServerRequestInterface $request   PSR7 server request
-     * @param  ResponseInterface      $response  PSR7 response
-     * @param  callable               $next      Middleware callable
-     * @return ResponseInterface                 PSR7 response
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
      * @throws Throwable
      */
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        callable $next
-    ): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         try {
             ob_start();
-            /** @var ResponseInterface $newResponse */
-            $newResponse = $next($request, $response);
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
             $output = ob_get_clean();
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
         }
 
-        if (!empty($output) && $newResponse->getBody()->isWritable()) {
+        if (!empty($output) && $response->getBody()->isWritable()) {
             if ($this->style === static::PREPEND) {
                 $body = $this->streamFactory->createStream();
-                $body->write($output . $newResponse->getBody());
-                $newResponse = $newResponse->withBody($body);
+                $body->write($output . $response->getBody());
+                $response = $response->withBody($body);
             } elseif ($this->style === static::APPEND) {
-                $newResponse->getBody()->write($output);
+                $response->getBody()->write($output);
             }
         }
 
-        return $newResponse;
+        return $response;
     }
 }

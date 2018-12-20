@@ -13,25 +13,21 @@ namespace Slim\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Override HTTP Request method by given body param or custom header
  */
-class MethodOverrideMiddleware
+class MethodOverrideMiddleware implements MiddlewareInterface
 {
     /**
-     * Invoke
-     *
-     * @param  ServerRequestInterface $request   PSR7 server request
-     * @param  ResponseInterface      $response  PSR7 response
-     * @param  callable               $next      Middleware callable
-     * @return ResponseInterface                 PSR7 response
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
+     * @return ResponseInterface
      */
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        callable $next
-    ): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         $methodHeader = $request->getHeaderLine('X-Http-Method-Override');
 
         if ($methodHeader) {
@@ -48,6 +44,6 @@ class MethodOverrideMiddleware
             }
         }
 
-        return $next($request, $response);
+        return $handler->handle($request);
     }
 }

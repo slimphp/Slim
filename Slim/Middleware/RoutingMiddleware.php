@@ -14,6 +14,8 @@ namespace Slim\Middleware;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
@@ -22,7 +24,7 @@ use RuntimeException;
 /**
  * Perform routing and store matched route to the request's attributes
  */
-class RoutingMiddleware
+class RoutingMiddleware implements MiddlewareInterface
 {
     /**
      * @var RouterInterface
@@ -39,30 +41,24 @@ class RoutingMiddleware
     }
 
     /**
-     * Invoke
-     *
-     * @param  ServerRequestInterface $request   PSR7 server request
-     * @param  ResponseInterface      $response  PSR7 response
-     * @param  callable               $next      Middleware callable
-     * @return ResponseInterface                 PSR7 response
+     * @param ServerRequestInterface    $request
+     * @param RequestHandlerInterface   $handler
+     * @return ResponseInterface
      *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      * @throws RuntimeException
      */
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        callable $next
-    ): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         $request = $this->performRouting($request);
-        return $next($request, $response);
+        return $handler->handle($request);
     }
 
     /**
      * Perform routing
      *
-     * @param  ServerRequestInterface $request   PSR7 server request
+     * @param  ServerRequestInterface $request   PSR7 Server Request
      * @return ServerRequestInterface
      *
      * @throws HttpNotFoundException
