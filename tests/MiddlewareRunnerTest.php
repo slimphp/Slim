@@ -64,7 +64,9 @@ class MiddlewareRunnerTest extends TestCase
 
     /**
      * @expectedException RuntimeException
-     * @expectedExceptionMessage All middleware should implement `MiddlewareInterface`. For PSR-7 middleware use the `LegacyMiddlewareWrapper` class.
+     * @expectedExceptionMessage
+     * All middleware should implement `MiddlewareInterface`.
+     * For PSR-7 middleware use the `LegacyMiddlewareWrapper` class.
      */
     public function testMiddlewareNotImplementingInterfaceThrowsException()
     {

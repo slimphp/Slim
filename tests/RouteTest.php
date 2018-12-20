@@ -395,7 +395,12 @@ class RouteTest extends TestCase
         $resolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', 'NonExistent:toCall', $responseFactory); //Note that this doesn't actually exist
+        $route = new Route(
+            ['GET'],
+            '/',
+            'NonExistent:toCall',
+            $responseFactory
+        );
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
@@ -418,7 +423,12 @@ class RouteTest extends TestCase
         $resolver = new CallableResolver(new Psr11Container($pimple));
         $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', 'NonExistent:toCall', $responseFactory); //Note that this doesn't actually exist
+        $route = new Route(
+            ['GET'],
+            '/',
+            'NonExistent:toCall',
+            $responseFactory
+        );
         $route->setCallableResolver($resolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 

@@ -64,7 +64,10 @@ class MiddlewareRunner implements RequestHandlerInterface
         $this->stages = new SplObjectStorage();
         foreach ($this->middleware as $middleware) {
             if (! $middleware instanceof MiddlewareInterface) {
-                throw new RuntimeException('All middleware should implement `MiddlewareInterface`. For PSR-7 middleware use the `LegacyMiddlewareWrapper` class.');
+                throw new RuntimeException(
+                    'All middleware should implement `MiddlewareInterface`. '.
+                    'For PSR-7 middleware use the `LegacyMiddlewareWrapper` class.'
+                );
             }
 
             $this->stages->attach($middleware);

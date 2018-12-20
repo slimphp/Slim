@@ -88,8 +88,13 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      * @param RouteGroup[]              $groups The parent route groups
      * @param int                       $identifier The route identifier
      */
-    public function __construct($methods, string $pattern, $callable, ResponseFactoryInterface $responseFactory, array $groups = [], int $identifier = 0)
-    {
+    public function __construct(
+        $methods,
+        string $pattern,
+        $callable, ResponseFactoryInterface $responseFactory,
+        array $groups = [],
+        int $identifier = 0
+    ) {
         $this->methods  = is_string($methods) ? [$methods] : $methods;
         $this->pattern  = $pattern;
         $this->callable = $callable;

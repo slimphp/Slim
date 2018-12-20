@@ -227,7 +227,14 @@ class Router implements RouterInterface
      */
     protected function createRoute(array $methods, string $pattern, $callable): RouteInterface
     {
-        $route = new Route($methods, $pattern, $callable, $this->responseFactory, $this->routeGroups, $this->routeCounter);
+        $route = new Route(
+            $methods,
+            $pattern,
+            $callable,
+            $this->responseFactory,
+            $this->routeGroups,
+            $this->routeCounter
+        );
 
         if ($this->callableResolver) {
             $route->setCallableResolver($this->callableResolver);
