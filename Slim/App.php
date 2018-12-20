@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
@@ -23,6 +24,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Middleware\LegacyMiddlewareWrapper;
 use Slim\Middleware\RoutingMiddleware;
 
 /**
@@ -32,10 +34,8 @@ use Slim\Middleware\RoutingMiddleware;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  */
-class App implements RequestHandlerInterface
+class App implements RequestHandlerInterface, MiddlewareInterface
 {
-    use MiddlewareAwareTrait;
-
     /**
      * Current version
      *
@@ -54,6 +54,11 @@ class App implements RequestHandlerInterface
      * @var CallableResolverInterface
      */
     protected $callableResolver;
+
+    /**
+     * @var MiddlewareRunner
+     */
+    protected $middlewareRunner;
 
     /**
      * @var RouterInterface
@@ -92,6 +97,9 @@ class App implements RequestHandlerInterface
         $this->responseFactory = $responseFactory;
         $this->container = $container;
         $this->addSettings($settings);
+
+        $this->middlewareRunner = new MiddlewareRunner();
+        $this->add($this);
     }
 
     /**
@@ -112,22 +120,28 @@ class App implements RequestHandlerInterface
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
+
+        if ($this->callableResolver !== null) {
+            $this->callableResolver = new CallableResolver($container);
+        }
     }
 
     /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the app's middleware stack.
-     *
-     * @param  callable|string    $callable The callback routine
-     *
-     * @return static
+     * @param MiddlewareInterface $middleware
      */
-    public function add($callable)
+    public function add(MiddlewareInterface $middleware)
     {
-        return $this->addMiddleware(
-            new DeferredCallable($callable, $this->getCallableResolver())
-        );
+        $this->middlewareRunner->add($middleware);
+    }
+
+    /**
+     * @param callable|string $callable
+     */
+    public function addLegacy($callable)
+    {
+        $deferredCallable = new DeferredCallable($callable, $this->getCallableResolver());
+        $middleware = new LegacyMiddlewareWrapper($deferredCallable, $this->responseFactory);
+        $this->middlewareRunner->add($middleware);
     }
 
     /********************************************************************************
@@ -234,7 +248,7 @@ class App implements RequestHandlerInterface
     public function getRouter(): RouterInterface
     {
         if (! $this->router instanceof RouterInterface) {
-            $router = new Router();
+            $router = new Router($this->responseFactory);
             $resolver = $this->getCallableResolver();
             if ($resolver instanceof CallableResolverInterface) {
                 $router->setCallableResolver($resolver);
@@ -442,13 +456,7 @@ class App implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $httpVersion = $this->getSetting('httpVersion');
-        $response = $this->responseFactory
-            ->createResponse(200, '')
-            ->withProtocolVersion($httpVersion)
-            ->withHeader('Content-Type', 'text/html; charset=UTF-8');
-
-        $response = $this->callMiddlewareStack($request, $response);
+        $response = $this->middlewareRunner->run($request);
 
         /**
          * This is to be in compliance with RFC 2616, Section 9.
@@ -475,14 +483,14 @@ class App implements RequestHandlerInterface
      * the Request object to the appropriate Route callback routine.
      *
      * @param  ServerRequestInterface $request  The most recent Request object
-     * @param  ResponseInterface      $response The most recent Response object
+     * @param  RequestHandlerInterface $handler
      *
      * @return ResponseInterface
      *
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         /** @var RoutingResults|null $routingResults */
         $routingResults = $request->getAttribute('routingResults');
@@ -495,6 +503,6 @@ class App implements RequestHandlerInterface
         }
 
         $route = $request->getAttribute('route');
-        return $route->run($request, $response);
+        return $route->run($request);
     }
 }

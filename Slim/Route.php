@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
@@ -22,10 +24,8 @@ use Slim\Interfaces\RouteInterface;
 /**
  * Route
  */
-class Route extends Routable implements RouteInterface
+class Route extends Routable implements RouteInterface, MiddlewareInterface
 {
-    use MiddlewareAwareTrait;
-
     /**
      * HTTP methods supported by this route
      *
@@ -81,20 +81,23 @@ class Route extends Routable implements RouteInterface
     /**
      * Create new route
      *
-     * @param string|string[]   $methods The route HTTP methods
-     * @param string            $pattern The route pattern
-     * @param callable|string   $callable The route callable
-     * @param RouteGroup[]      $groups The parent route groups
-     * @param int               $identifier The route identifier
+     * @param string|string[]           $methods The route HTTP methods
+     * @param string                    $pattern The route pattern
+     * @param callable|string           $callable The route callable
+     * @param ResponseFactoryInterface  $responseFactory
+     * @param RouteGroup[]              $groups The parent route groups
+     * @param int                       $identifier The route identifier
      */
-    public function __construct($methods, string $pattern, $callable, array $groups = [], int $identifier = 0)
+    public function __construct($methods, string $pattern, $callable, ResponseFactoryInterface $responseFactory, array $groups = [], int $identifier = 0)
     {
         $this->methods  = is_string($methods) ? [$methods] : $methods;
         $this->pattern  = $pattern;
         $this->callable = $callable;
+        $this->responseFactory = $responseFactory;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
         $this->routeInvocationStrategy = new RequestResponse();
+        $this->middlewareRunner = new MiddlewareRunner();
     }
 
     /**
@@ -128,14 +131,14 @@ class Route extends Routable implements RouteInterface
 
         $groupMiddleware = [];
         foreach ($this->getGroups() as $group) {
-            $groupMiddleware = array_merge($group->getMiddleware(), $groupMiddleware);
+            foreach ($group->getMiddleware() as $middleware) {
+                array_unshift($groupMiddleware, $middleware);
+            }
         }
 
-        $this->middleware = array_merge($this->middleware, $groupMiddleware);
-
-        foreach ($this->getMiddleware() as $middleware) {
-            $this->addMiddleware($middleware);
-        }
+        $middleware = array_merge(array_reverse($groupMiddleware), $this->getMiddleware());
+        $middleware[] = $this;
+        $this->middlewareRunner->setMiddleware($middleware);
 
         $this->finalized = true;
     }
@@ -305,17 +308,16 @@ class Route extends Routable implements RouteInterface
      * back to the Application.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface      $response
      *
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function run(ServerRequestInterface $request): ResponseInterface
     {
         // Finalise route now that we are about to run it
         $this->finalize();
 
         // Traverse middleware stack and fetch updated response
-        return $this->callMiddlewareStack($request, $response);
+        return $this->middlewareRunner->run($request);
     }
 
     /**
@@ -325,12 +327,12 @@ class Route extends Routable implements RouteInterface
      * registered for the route, each callable middleware is invoked in
      * the order specified.
      *
-     * @param ServerRequestInterface $request  The current Request object
-     * @param ResponseInterface      $response The current Response object
+     * @param ServerRequestInterface $request   The current Request object
+     * @param RequestHandlerInterface $handler  The current RequestHandler object
      * @return \Psr\Http\Message\ResponseInterface
      * @throws \Exception  if the route callable throws an exception
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         /** @var callable $callable */
         $callable = $this->callable;
@@ -339,13 +341,14 @@ class Route extends Routable implements RouteInterface
         }
 
         /** @var InvocationStrategyInterface|RequestHandler $handler */
-        $handler = $this->routeInvocationStrategy;
+        $routeHandler = $this->routeInvocationStrategy;
         if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
             // callables that implement RequestHandlerInterface use the RequestHandler strategy
-            $handler = new RequestHandler();
+            $routeHandler = new RequestHandler();
         }
 
-        // invoke route callable via invokation strategy handler
-        return $handler($callable, $request, $response, $this->arguments);
+        // invoke route callable via invocation strategy handler
+        $response = $this->responseFactory->createResponse();
+        return $routeHandler($callable, $request, $response, $this->arguments);
     }
 }

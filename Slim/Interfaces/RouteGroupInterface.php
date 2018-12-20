@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
+use Psr\Http\Server\MiddlewareInterface;
 use Slim\App;
 
 /**
@@ -29,13 +30,20 @@ interface RouteGroupInterface
     public function getPattern(): string;
 
     /**
-     * Prepend middleware to the group middleware collection
+     * @param MiddlewareInterface $middleware
+     */
+    public function add(MiddlewareInterface $middleware);
+
+    /**
+     * Add middleware
+     *
+     * This method prepends new middleware to the route's middleware stack.
      *
      * @param callable|string $callable The callback routine
      *
-     * @return RouteGroupInterface
+     * @return RouteInterface
      */
-    public function add($callable);
+    public function addLegacy($callable);
 
     /**
      * Execute route group callable in the context of the Slim App

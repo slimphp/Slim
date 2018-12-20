@@ -15,6 +15,7 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
 use InvalidArgumentException;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
@@ -92,12 +93,19 @@ class Router implements RouterInterface
     protected $dispatcher;
 
     /**
+     * @var ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
      * Create new router
      *
-     * @param RouteParser   $parser
+     * @param ResponseFactoryInterface  $responseFactory
+     * @param RouteParser               $parser
      */
-    public function __construct(RouteParser $parser = null)
+    public function __construct(ResponseFactoryInterface $responseFactory, RouteParser $parser = null)
     {
+        $this->responseFactory = $responseFactory;
         $this->routeParser = $parser ?: new StdParser;
     }
 
@@ -219,7 +227,8 @@ class Router implements RouterInterface
      */
     protected function createRoute(array $methods, string $pattern, $callable): RouteInterface
     {
-        $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
+        $route = new Route($methods, $pattern, $callable, $this->responseFactory, $this->routeGroups, $this->routeCounter);
+
         if ($this->callableResolver) {
             $route->setCallableResolver($this->callableResolver);
         }
@@ -339,7 +348,7 @@ class Router implements RouterInterface
      */
     public function pushGroup(string $pattern, $callable): RouteGroupInterface
     {
-        $group = new RouteGroup($pattern, $callable);
+        $group = new RouteGroup($pattern, $callable, $this->responseFactory);
         $this->routeGroups[] = $group;
         return $group;
     }

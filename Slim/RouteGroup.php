@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Http\Message\ResponseFactoryInterface;
 use Slim\Interfaces\RouteGroupInterface;
 
 /**
@@ -23,13 +24,16 @@ class RouteGroup extends Routable implements RouteGroupInterface
     /**
      * Create a new RouteGroup
      *
-     * @param string   $pattern  The pattern prefix for the group
-     * @param callable $callable The group callable
+     * @param string                    $pattern  The pattern prefix for the group
+     * @param callable                  $callable The group callable
+     * @param ResponseFactoryInterface  $responseFactory
      */
-    public function __construct(string $pattern, $callable)
+    public function __construct(string $pattern, $callable, ResponseFactoryInterface $responseFactory)
     {
         $this->pattern = $pattern;
         $this->callable = $callable;
+        $this->responseFactory = $responseFactory;
+        $this->middlewareRunner = new MiddlewareRunner();
     }
 
     /**

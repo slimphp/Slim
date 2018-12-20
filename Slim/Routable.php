@@ -11,7 +11,10 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Middleware\LegacyMiddlewareWrapper;
 
 /**
  * A routable, middleware-aware object
@@ -34,11 +37,14 @@ abstract class Routable
     protected $callableResolver;
 
     /**
-     * Route middleware
-     *
-     * @var callable[]
+     * @var ResponseFactoryInterface
      */
-    protected $middleware = [];
+    protected $responseFactory;
+
+    /**
+     * @var MiddlewareRunner
+     */
+    protected $middlewareRunner;
 
     /**
      * Route pattern
@@ -48,13 +54,35 @@ abstract class Routable
     protected $pattern;
 
     /**
+     * @param MiddlewareInterface $middleware
+     * @return self
+     */
+    public function add(MiddlewareInterface $middleware)
+    {
+        $this->middlewareRunner->add($middleware);
+        return $this;
+    }
+
+    /**
+     * @param callable|string $callable
+     * @return self
+     */
+    public function addLegacy($callable)
+    {
+        $deferredCallable = new DeferredCallable($callable, $this->getCallableResolver());
+        $middleware = new LegacyMiddlewareWrapper($deferredCallable, $this->responseFactory);
+        $this->middlewareRunner->add($middleware);
+        return $this;
+    }
+
+    /**
      * Get the middleware registered for the group
      *
-     * @return callable[]
+     * @return MiddlewareInterface[]
      */
     public function getMiddleware(): array
     {
-        return $this->middleware;
+        return $this->middlewareRunner->getMiddleware();
     }
 
     /**
@@ -85,19 +113,6 @@ abstract class Routable
     public function getCallableResolver()
     {
         return $this->callableResolver;
-    }
-
-    /**
-     * Prepend middleware to the middleware collection
-     *
-     * @param callable|string $callable The callback routine
-     *
-     * @return static
-     */
-    public function add($callable)
-    {
-        $this->middleware[] = new DeferredCallable($callable, $this->callableResolver);
-        return $this;
     }
 
     /**
