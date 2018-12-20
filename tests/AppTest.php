@@ -94,6 +94,11 @@ class AppTest extends TestCase
         $container = new Psr11Container($pimple);
         $app->setContainer($container);
         $this->assertSame($container, $app->getContainer());
+
+        $container2 = new Psr11Container($pimple);
+        $app->setContainer($container2);
+        $callableResolver = $app->getCallableResolver();
+        $this->assertAttributeEquals($container2, 'container', $callableResolver);
     }
 
     public function testSetCallableResolver()
