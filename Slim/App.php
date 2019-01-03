@@ -453,7 +453,7 @@ class App
             $settings       = $this->container->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
 
-            $contentLength  = (int)$response->getHeaderLine('Content-Length');
+            $contentLength  = $response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
@@ -473,7 +473,7 @@ class App
                 }
             } else {
                 while (!$body->eof()) {
-                    echo $body->read($chunkSize);
+                    echo $body->read((int)$chunkSize);
                     if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }
