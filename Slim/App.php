@@ -453,7 +453,7 @@ class App
             $settings       = $this->container->get('settings');
             $chunkSize      = $settings['responseChunkSize'];
 
-            $contentLength  = $response->getHeaderLine('Content-Length');
+            $contentLength  = (int)$response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
