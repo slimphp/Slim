@@ -45,11 +45,6 @@ class RouteGroup extends Routable implements RouteGroupInterface
             $callable = $this->callableResolver->resolve($callable);
         }
 
-        // Bind RouteGroup to app instance
-        if ($callable instanceof \Closure && $app !== null) {
-            $callable = $callable->bindTo($app);
-        }
-
         $callable($app);
     }
 }
