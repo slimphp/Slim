@@ -151,6 +151,75 @@ class ErrorHandlerTest extends TestCase
         $this->assertEquals('text/html', $contentType);
     }
 
+    public function testDetermineContentTypeTextPlainMultiAcceptHeader()
+    {
+        $request = $this
+            ->createServerRequest('/', 'GET')
+            ->withHeader('Content-Type', 'text/plain')
+            ->withHeader('Accept', 'text/plain,text/xml');
+
+        $handler = $this
+            ->getMockBuilder(ErrorHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $knownContentTypes = [
+            'text/plain',
+            'text/xml',
+        ];
+
+        $class = new ReflectionClass(ErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('responseFactory');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($handler, $this->getResponseFactory());
+
+        $reflectionProperty = $class->getProperty('knownContentTypes');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($handler, $knownContentTypes);
+
+        $method = $class->getMethod('determineContentType');
+        $method->setAccessible(true);
+
+        $contentType = $method->invoke($handler, $request);
+
+        $this->assertEquals('text/xml', $contentType);
+    }
+
+    public function testDetermineContentTypeApplicationJsonOrXml()
+    {
+        $request = $this
+            ->createServerRequest('/', 'GET')
+            ->withHeader('Content-Type', 'text/json')
+            ->withHeader('Accept', 'application/xhtml+xml');
+
+        $handler = $this
+            ->getMockBuilder(ErrorHandler::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $knownContentTypes = [
+            'application/xml'
+        ];
+
+        $class = new ReflectionClass(ErrorHandler::class);
+
+        $reflectionProperty = $class->getProperty('responseFactory');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($handler, $this->getResponseFactory());
+
+        $reflectionProperty = $class->getProperty('knownContentTypes');
+        $reflectionProperty->setAccessible(true);
+        $reflectionProperty->setValue($handler, $knownContentTypes);
+
+        $method = $class->getMethod('determineContentType');
+        $method->setAccessible(true);
+
+        $contentType = $method->invoke($handler, $request);
+
+        $this->assertEquals('application/xml', $contentType);
+    }
+
     /**
      * Ensure that an acceptable media-type is found in the Accept header even
      * if it's not the first in the list.
