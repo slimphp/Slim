@@ -113,8 +113,10 @@ class ErrorMiddleware
 
         $exceptionType = get_class($exception);
         $handler = $this->getErrorHandler($exceptionType);
+        $response = $this->responseFactory->createResponse($exception->getCode());
         $params = [
             $request,
+            $response,
             $exception,
             $this->displayErrorDetails,
             $this->logErrors,
@@ -150,7 +152,9 @@ class ErrorMiddleware
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Psr\Http\Message\ResponseInterface
      * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
+     * 4. Boolean displayErrorDetails
+     * 5. Boolean logErrors
+     * 6. Boolean logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
@@ -172,7 +176,9 @@ class ErrorMiddleware
      * 1. Instance of \Psr\Http\Message\ServerRequestInterface
      * 2. Instance of \Psr\Http\Message\ResponseInterface
      * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
+     * 4. Boolean displayErrorDetails
+     * 5. Boolean logErrors
+     * 6. Boolean logErrorDetails
      *
      * The callable MUST return an instance of
      * \Psr\Http\Message\ResponseInterface.
