@@ -10,6 +10,7 @@ namespace Slim\Tests\Middleware;
 
 use Closure;
 use Error;
+use Throwable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
@@ -116,7 +117,7 @@ class ErrorMiddlewareTest extends TestCase
         };
         $app->add($mw2);
 
-        $handler = function (ServerRequestInterface $request, $exception) {
+        $handler = function (ServerRequestInterface $request, ResponseInterface $response, Throwable $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
