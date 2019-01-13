@@ -201,6 +201,6 @@ class ErrorMiddleware
             return $this->callableResolver->resolve($this->defaultErrorHandler);
         }
 
-        return new ErrorHandler($this->responseFactory);
+        return new ErrorHandler();
     }
 }
