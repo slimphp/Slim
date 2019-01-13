@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Handlers;
 
+use http\Env\Response;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -80,6 +81,11 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $request;
 
     /**
+     * @var ResponseInterface
+     */
+    protected $response;
+
+    /**
      * @var Throwable
      */
     protected $exception;
@@ -95,23 +101,10 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $statusCode;
 
     /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
-
-    /**
-     * ErrorHandler constructor.
-     * @param ResponseFactoryInterface $responseFactory
-     */
-    public function __construct(ResponseFactoryInterface $responseFactory)
-    {
-        $this->responseFactory = $responseFactory;
-    }
-
-    /**
      * Invoke error handler
      *
      * @param ServerRequestInterface $request   The most recent Request object
+     * @param ResponseInterface      $response  The most recent Response object
      * @param Throwable              $exception The caught Exception object
      * @param bool $displayErrorDetails Whether or not to display the error details
      * @param bool $logErrors Whether or not to log errors
@@ -121,6 +114,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     public function __invoke(
         ServerRequestInterface $request,
+        ResponseInterface $response,
         Throwable $exception,
         bool $displayErrorDetails,
         bool $logErrors,
@@ -130,6 +124,7 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->logErrors = $logErrors;
         $this->logErrorDetails = $logErrorDetails;
         $this->request = $request;
+        $this->response = $response;
         $this->exception = $exception;
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
@@ -253,7 +248,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function respond(): ResponseInterface
     {
-        $response = $this->responseFactory->createResponse($this->statusCode);
+        $response = $this->response->withStatus($this->statusCode);
         $response = $response->withHeader('Content-type', $this->contentType);
 
         if ($this->exception instanceof HttpMethodNotAllowedException) {

@@ -25,6 +25,7 @@ interface ErrorHandlerInterface
 {
     /**
      * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
      * @param Throwable $exception
      * @param bool $displayErrorDetails
      * @param bool $logErrors
@@ -33,6 +34,7 @@ interface ErrorHandlerInterface
      */
     public function __invoke(
         ServerRequestInterface $request,
+        ResponseInterface $response,
         Throwable $exception,
         bool $displayErrorDetails,
         bool $logErrors,

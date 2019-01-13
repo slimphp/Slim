@@ -97,10 +97,6 @@ class ErrorHandlerTest extends TestCase
             ->getMock();
         $class = new ReflectionClass(ErrorHandler::class);
 
-        $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $this->getResponseFactory());
-
         $reflectionProperty = $class->getProperty('exception');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($handler, new HttpNotFoundException($request));
@@ -135,10 +131,6 @@ class ErrorHandlerTest extends TestCase
 
         $class = new ReflectionClass(ErrorHandler::class);
 
-        $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $this->getResponseFactory());
-
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($handler, $newTypes);
@@ -166,10 +158,6 @@ class ErrorHandlerTest extends TestCase
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 
-        $reflectionProperty = $class->getProperty('responseFactory');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($class, $this->getResponseFactory());
-
         // use a mock object here as ErrorHandler cannot be directly instantiated
         $handler = $this
             ->getMockBuilder(ErrorHandler::class)
@@ -185,12 +173,13 @@ class ErrorHandlerTest extends TestCase
     public function testOptions()
     {
         $request = $this->createServerRequest('/', 'OPTIONS');
-        $handler = new ErrorHandler($this->getResponseFactory());
+        $handler = new ErrorHandler();
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['POST', 'PUT']);
+        $response = $this->getResponseFactory()->createResponse();
 
         /** @var ResponseInterface $res */
-        $res = $handler->__invoke($request, $exception, true, true, true);
+        $res = $handler->__invoke($request, $response, $exception, true, true, true);
 
         $this->assertSame(200, $res->getStatusCode());
         $this->assertTrue($res->hasHeader('Allow'));
@@ -203,8 +192,9 @@ class ErrorHandlerTest extends TestCase
             ->createServerRequest('/', 'GET')
             ->withHeader('Accept', 'application/json');
 
+        $response = $this->getResponseFactory()->createResponse();
+
         $handler = $this->getMockBuilder(ErrorHandler::class)
-            ->setConstructorArgs(['responseFactory' => $this->getResponseFactory()])
             ->setMethods(['writeToErrorLog', 'logError'])
             ->getMock();
 
@@ -213,6 +203,6 @@ class ErrorHandlerTest extends TestCase
         $handler->expects($this->once())
                 ->method('writeToErrorLog');
 
-        $handler->__invoke($request, $exception, true, true, true);
+        $handler->__invoke($request, $response, $exception, true, true, true);
     }
 }
