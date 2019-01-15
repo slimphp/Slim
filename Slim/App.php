@@ -473,7 +473,7 @@ class App
                 }
             } else {
                 while (!$body->eof()) {
-                    echo $body->read($chunkSize);
+                    echo $body->read((int)$chunkSize);
                     if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }
