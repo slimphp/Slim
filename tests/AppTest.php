@@ -1500,14 +1500,16 @@ class AppTest extends TestCase
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
+            $res->getBody()->write((string)count($args));
+            return $res;
         });
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo/bar', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo/bar', 'GET');
+        $res = $this->createResponse();
 
         // Invoke process with optional arg
         $resOut = $app($req, $res);
@@ -1516,8 +1518,8 @@ class AppTest extends TestCase
         $this->assertEquals('1', (string)$resOut->getBody());
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo', 'GET');
+        $res = $this->createResponse();
 
         // Invoke process without optional arg
         $resOut2 = $app($req, $res);
@@ -1528,14 +1530,16 @@ class AppTest extends TestCase
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
+            $res->getBody()->write((string)count($args));
+            return $res;
         })->setArgument('baz', 'quux');
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo/bar', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo/bar', 'GET');
+        $res = $this->createResponse();
 
         // Invoke process without optional arg
         $resOut = $app($req, $res);
@@ -1544,8 +1548,8 @@ class AppTest extends TestCase
         $this->assertEquals('2', (string)$resOut->getBody());
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo', 'GET');
+        $res = $this->createResponse();
 
         // Invoke process with optional arg
         $resOut2 = $app($req, $res);
@@ -1556,14 +1560,16 @@ class AppTest extends TestCase
 
     public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
     {
-        $app = new App();
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
         $route = $app->get('/foo[/{bar}]', function ($req, $res, $args) {
-            return $res->write(count($args));
+            $res->getBody()->write((string)count($args));
+            return $res;
         })->setArgument('baz', 'quux');
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo/bar', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo/bar', 'GET');
+        $res = $this->createResponse();
 
         // Invoke process with optional arg
         $resOut = $app($req, $res);
@@ -1572,8 +1578,8 @@ class AppTest extends TestCase
         $this->assertEquals('2', (string)$resOut->getBody());
 
         // Prepare request and response objects
-        $req = $this->requestFactory('/foo/bar', 'GET');
-        $res = new Response();
+        $req = $this->createServerRequest('/foo/bar', 'GET');
+        $res = $this->createResponse();
 
         // add another argument
         $route->setArgument('one', '1');

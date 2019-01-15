@@ -74,7 +74,7 @@ class Route extends Routable implements RouteInterface
     /**
      * Route arguments parameters
      *
-     * @var null|array
+     * @var array
      */
     protected $savedArguments = [];
 
