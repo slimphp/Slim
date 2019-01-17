@@ -30,9 +30,9 @@ interface RouteGroupInterface
     public function getPattern(): string;
 
     /**
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface|string $middleware
      */
-    public function add(MiddlewareInterface $middleware);
+    public function add($middleware);
 
     /**
      * Add middleware
