@@ -146,6 +146,12 @@ class CallableResolverTest extends TestCase
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
+    public function testGetContainer()
+    {
+        $resolver = new CallableResolver($this->container);
+        $this->assertSame($this->container, $resolver->getContainer());
+    }
+
     /**
      * @expectedException \RuntimeException
      */

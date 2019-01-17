@@ -21,6 +21,7 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Mocks\MockMiddleware;
 
 class AppTest extends TestCase
 {
@@ -980,6 +981,26 @@ class AppTest extends TestCase
         $app->handle($request);
 
         $this->assertSame($called, 1);
+    }
+
+    public function testAddMiddlewareUsingDeferredResolution()
+    {
+        $responseFactory = $this->getResponseFactory();
+
+        $pimple = new Pimple();
+        $pimple->offsetSet(MockMiddleware::class, new MockMiddleware($responseFactory));
+        $container = new Psr11Container($pimple);
+
+        $app = new App($responseFactory, $container);
+        $app->add(MockMiddleware::class);
+
+        $request = $this->createServerRequest('/');
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            return $response;
+        });
+        $response = $app->handle($request);
+
+        $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAddMiddlewareOnRoute()

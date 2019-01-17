@@ -22,6 +22,8 @@ use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
+use Slim\Tests\Mocks\MockMiddleware;
+use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
 class RouteTest extends TestCase
@@ -138,6 +140,23 @@ class RouteTest extends TestCase
         $route->run($request);
 
         $this->assertSame($called, 2);
+    }
+
+    public function testAddMiddlewareUsingDeferredResolution()
+    {
+        $route = $this->routeFactory();
+        $route->add(MockMiddlewareWithoutConstructor::class);
+
+        // Prepare request object
+        $output = '';
+        $appendToOutput = function (string $value) use (&$output) {
+            $output .= $value;
+        };
+        $request = $this->createServerRequest('/');
+        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $route->run($request);
+
+        $this->assertSame('Hello World', $output);
     }
 
     public function testRefinalizing()
