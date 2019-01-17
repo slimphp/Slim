@@ -14,6 +14,7 @@ namespace Slim;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
 use Slim\Middleware\LegacyMiddlewareWrapper;
 
 /**
@@ -54,11 +55,17 @@ abstract class Routable
     protected $pattern;
 
     /**
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface|string $middleware
      * @return self
      */
-    public function add(MiddlewareInterface $middleware)
+    public function add($middleware)
     {
+        if (is_string($middleware)) {
+            $callableResolver = $this->getCallableResolver();
+            $container = $callableResolver !== null ? $callableResolver->getContainer() : null;
+            $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $container);
+        }
+
         $this->middlewareRunner->add($middleware);
         return $this;
     }

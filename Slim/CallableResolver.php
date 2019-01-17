@@ -95,4 +95,12 @@ final class CallableResolver implements CallableResolverInterface
 
         return $resolved;
     }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    public function getContainer(): ?ContainerInterface
+    {
+        return $this->container;
+    }
 }

@@ -84,9 +84,9 @@ interface RouteInterface
     public function setName(string $name): self;
 
     /**
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface|string $middleware
      */
-    public function add(MiddlewareInterface $middleware);
+    public function add($middleware);
 
     /**
      * Add middleware

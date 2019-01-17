@@ -24,6 +24,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
 use Slim\Middleware\LegacyMiddlewareWrapper;
 use Slim\Middleware\RoutingMiddleware;
 
@@ -127,10 +128,14 @@ class App implements RequestHandlerInterface, MiddlewareInterface
     }
 
     /**
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface|string $middleware
      */
-    public function add(MiddlewareInterface $middleware)
+    public function add($middleware)
     {
+        if (is_string($middleware)) {
+            $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $this->container);
+        }
+
         $this->middlewareRunner->add($middleware);
     }
 

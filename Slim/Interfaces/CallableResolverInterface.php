@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Resolves a callable.
  *
@@ -27,4 +29,9 @@ interface CallableResolverInterface
      * @return callable
      */
     public function resolve($toResolve): callable;
+
+    /**
+     * @return ContainerInterface|null
+     */
+    public function getContainer(): ?ContainerInterface;
 }
