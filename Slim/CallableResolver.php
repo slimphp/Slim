@@ -79,7 +79,7 @@ final class CallableResolver implements CallableResolverInterface
         }
 
         if ($resolved instanceof RequestHandlerInterface) {
-            $resolved = [get_class($resolved), 'handle'];
+            $resolved = [$resolved, 'handle'];
         }
 
         if (!is_callable($resolved)) {
