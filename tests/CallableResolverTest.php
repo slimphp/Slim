@@ -152,6 +152,14 @@ class CallableResolverTest extends TestCase
         $this->assertSame($this->container, $resolver->getContainer());
     }
 
+    public function testSetContainer()
+    {
+        $newContainer = new Container($this->pimple);
+        $resolver = new CallableResolver($this->container);
+        $resolver->setContainer($newContainer);
+        $this->assertSame($newContainer, $resolver->getContainer());
+    }
+
     /**
      * @expectedException \RuntimeException
      */

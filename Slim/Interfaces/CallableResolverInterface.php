@@ -34,4 +34,9 @@ interface CallableResolverInterface
      * @return ContainerInterface|null
      */
     public function getContainer(): ?ContainerInterface;
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container);
 }

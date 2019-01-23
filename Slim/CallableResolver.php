@@ -103,4 +103,12 @@ final class CallableResolver implements CallableResolverInterface
     {
         return $this->container;
     }
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public function setContainer(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
 }
