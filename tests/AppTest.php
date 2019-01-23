@@ -368,6 +368,16 @@ class AppTest extends TestCase
     /********************************************************************************
      * Route Groups
      *******************************************************************************/
+    public function testGroupClosureIsBoundToThisClass()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $testCase = $this;
+        $app->group('/foo', function ($app) use ($testCase) {
+            $testCase->assertSame($testCase, $this);
+        });
+    }
+
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
     {
         $responseFactory = $this->getResponseFactory();

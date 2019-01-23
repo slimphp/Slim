@@ -36,7 +36,7 @@
 - [#2124](https://github.com/slimphp/Slim/pull/2124) Remove Slim\Exception\SlimException
 - [#2174](https://github.com/slimphp/Slim/pull/2174) Switch from Container-Interop to PSR-11
 - [#2290](https://github.com/slimphp/Slim/pull/2290) Removed container. Set your own using `App::setContainer()`
-
+- [#2560](https://github.com/slimphp/Slim/pull/2560) Remove binding of $this to group()
 
 ### Changed
 
