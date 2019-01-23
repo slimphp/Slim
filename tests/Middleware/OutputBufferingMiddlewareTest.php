@@ -10,7 +10,7 @@ namespace Slim\Tests\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\LegacyMiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareWrapper;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
@@ -47,7 +47,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         };
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new LegacyMiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $request = $this->createServerRequest('/', 'GET');
@@ -70,7 +70,7 @@ class OutputBufferingMiddlewareTest extends TestCase
         };
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new LegacyMiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');

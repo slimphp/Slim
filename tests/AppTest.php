@@ -13,6 +13,7 @@ use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
@@ -953,7 +954,7 @@ class AppTest extends TestCase
         $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
             return $response;
         };
-        $app->addLegacy($mw);
+        $app->add($mw);
 
         /** @var array $middleware */
         $middleware = $middlewareRunner->getMiddleware();
@@ -972,7 +973,7 @@ class AppTest extends TestCase
             $called++;
             return $response;
         };
-        $app->addLegacy($mw);
+        $app->add($mw);
 
         $request = $this->createServerRequest('/');
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -1012,13 +1013,13 @@ class AppTest extends TestCase
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('Center');
             return $response;
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $next($request, $response);
             $appendToOutput('Out1');
             return $response;
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In2');
             $response = $next($request, $response);
@@ -1052,13 +1053,13 @@ class AppTest extends TestCase
                 $appendToOutput('Center');
                 return $response;
             });
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $next($request, $response);
             $appendToOutput('Out1');
             return $response;
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In2');
             $response = $next($request, $response);
@@ -1092,14 +1093,14 @@ class AppTest extends TestCase
                     $appendToOutput('Center');
                     return $response;
                 });
-            })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
                 $appendToOutput = $request->getAttribute('appendToOutput');
                 $appendToOutput('In2');
                 $response = $next($request, $response);
                 $appendToOutput('Out2');
                 return $response;
             });
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $next($request, $response);
@@ -1132,21 +1133,21 @@ class AppTest extends TestCase
                     $appendToOutput = $request->getAttribute('appendToOutput');
                     $appendToOutput('Center');
                     return $response;
-                })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+                })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
                     $appendToOutput = $request->getAttribute('appendToOutput');
                     $appendToOutput('In3');
                     $response = $next($request, $response);
                     $appendToOutput('Out3');
                     return $response;
                 });
-            })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
                 $appendToOutput = $request->getAttribute('appendToOutput');
                 $appendToOutput('In2');
                 $response = $next($request, $response);
                 $appendToOutput('Out2');
                 return $response;
             });
-        })->addLegacy(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $next($request, $response);

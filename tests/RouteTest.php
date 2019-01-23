@@ -17,7 +17,7 @@ use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Interfaces\InvocationStrategyInterface;
-use Slim\Middleware\LegacyMiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareWrapper;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
@@ -111,7 +111,7 @@ class RouteTest extends TestCase
         $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
             return $response;
         };
-        $route->addLegacy($mw);
+        $route->add($mw);
         $route->finalize();
 
         /** @var array $middleware */
@@ -130,10 +130,10 @@ class RouteTest extends TestCase
             $called++;
             return $next($request, $response);
         };
-        $route->addLegacy($mw);
+        $route->add($mw);
 
         $responseFactory = $this->getResponseFactory();
-        $mw2 = new LegacyMiddlewareWrapper($mw, $responseFactory);
+        $mw2 = new Psr7MiddlewareWrapper($mw, $responseFactory);
         $route->add($mw2);
 
         $request = $this->createServerRequest('/');
@@ -169,7 +169,7 @@ class RouteTest extends TestCase
             return $response;
         };
 
-        $route->addLegacy($mw);
+        $route->add($mw);
 
         $route->finalize();
         $route->finalize();
@@ -200,7 +200,7 @@ class RouteTest extends TestCase
 
         $resolver = new CallableResolver();
         $route->setCallableResolver($resolver);
-        $route->addLegacy('\Slim\Tests\Mocks\MiddlewareStub:run');
+        $route->add('\Slim\Tests\Mocks\MiddlewareStub:run');
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -216,7 +216,7 @@ class RouteTest extends TestCase
         $pimple['MiddlewareStub'] = new MiddlewareStub();
         $resolver = new CallableResolver(new Psr11Container($pimple));
         $route->setCallableResolver($resolver);
-        $route->addLegacy('MiddlewareStub:run');
+        $route->add('MiddlewareStub:run');
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
