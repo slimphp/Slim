@@ -23,7 +23,6 @@ use Psr\Http\Server\MiddlewareInterface;
  */
 interface RouteInterface
 {
-
     /**
      * Retrieve a specific route argument
      *
@@ -87,17 +86,6 @@ interface RouteInterface
      * @param MiddlewareInterface|string $middleware
      */
     public function add($middleware);
-
-    /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the route's middleware stack.
-     *
-     * @param callable|string $callable The callback routine
-     *
-     * @return RouteInterface
-     */
-    public function addLegacy($callable);
 
     /**
      * Prepare the route for use

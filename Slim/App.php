@@ -25,7 +25,7 @@ use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
-use Slim\Middleware\LegacyMiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareWrapper;
 use Slim\Middleware\RoutingMiddleware;
 
 /**
@@ -128,25 +128,20 @@ class App implements RequestHandlerInterface, MiddlewareInterface
     }
 
     /**
-     * @param MiddlewareInterface|string $middleware
+     * @param MiddlewareInterface|callable|string $middleware
+     * @return self
      */
     public function add($middleware)
     {
-        if (is_string($middleware)) {
+        if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
             $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $this->container);
+        } elseif (!($middleware instanceof MiddlewareInterface)) {
+            $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
+            $middleware = new Psr7MiddlewareWrapper($deferredCallable, $this->responseFactory);
         }
 
         $this->middlewareRunner->add($middleware);
-    }
-
-    /**
-     * @param callable|string $callable
-     */
-    public function addLegacy($callable)
-    {
-        $deferredCallable = new DeferredCallable($callable, $this->getCallableResolver());
-        $middleware = new LegacyMiddlewareWrapper($deferredCallable, $this->responseFactory);
-        $this->middlewareRunner->add($middleware);
+        return $this;
     }
 
     /********************************************************************************

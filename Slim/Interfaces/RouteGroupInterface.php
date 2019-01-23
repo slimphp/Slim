@@ -35,17 +35,6 @@ interface RouteGroupInterface
     public function add($middleware);
 
     /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the route's middleware stack.
-     *
-     * @param callable|string $callable The callback routine
-     *
-     * @return RouteInterface
-     */
-    public function addLegacy($callable);
-
-    /**
      * Execute route group callable in the context of the Slim App
      *
      * This method invokes the route group object's callable, collecting

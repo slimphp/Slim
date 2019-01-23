@@ -21,7 +21,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  * Class LegacyMiddlewareWrapper
  * @package Slim\Middleware
  */
-class LegacyMiddlewareWrapper implements MiddlewareInterface
+class Psr7MiddlewareWrapper implements MiddlewareInterface
 {
     /**
      * @var callable

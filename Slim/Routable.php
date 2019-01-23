@@ -15,7 +15,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
-use Slim\Middleware\LegacyMiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareWrapper;
 
 /**
  * A routable, middleware-aware object
@@ -55,29 +55,20 @@ abstract class Routable
     protected $pattern;
 
     /**
-     * @param MiddlewareInterface|string $middleware
+     * @param MiddlewareInterface|callable|string $middleware
      * @return self
      */
     public function add($middleware)
     {
-        if (is_string($middleware)) {
+        if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
             $callableResolver = $this->getCallableResolver();
             $container = $callableResolver !== null ? $callableResolver->getContainer() : null;
             $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $container);
+        } elseif (!($middleware instanceof MiddlewareInterface)) {
+            $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
+            $middleware = new Psr7MiddlewareWrapper($deferredCallable, $this->responseFactory);
         }
 
-        $this->middlewareRunner->add($middleware);
-        return $this;
-    }
-
-    /**
-     * @param callable|string $callable
-     * @return self
-     */
-    public function addLegacy($callable)
-    {
-        $deferredCallable = new DeferredCallable($callable, $this->getCallableResolver());
-        $middleware = new LegacyMiddlewareWrapper($deferredCallable, $this->responseFactory);
         $this->middlewareRunner->add($middleware);
         return $this;
     }
