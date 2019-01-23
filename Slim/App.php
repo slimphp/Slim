@@ -123,7 +123,7 @@ class App implements RequestHandlerInterface, MiddlewareInterface
         $this->container = $container;
 
         if ($this->callableResolver !== null) {
-            $this->callableResolver = new CallableResolver($container);
+            $this->callableResolver->setContainer($container);
         }
     }
 
