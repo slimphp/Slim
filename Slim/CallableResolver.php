@@ -78,6 +78,10 @@ final class CallableResolver implements CallableResolverInterface
             }
         }
 
+        if ($resolved instanceof RequestHandlerInterface) {
+            $resolved = [$resolved, 'handle'];
+        }
+
         if (!is_callable($resolved)) {
             throw new RuntimeException(sprintf(
                 '%s is not resolvable',

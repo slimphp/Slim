@@ -31,6 +31,7 @@ class CallableResolverTest extends TestCase
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
+        RequestHandlerTest::$CalledCount = 0;
 
         $this->pimple = new Pimple;
         $this->container = new Container($this->pimple);
@@ -121,6 +122,26 @@ class CallableResolverTest extends TestCase
         $request = $this->createServerRequest('/', 'GET');
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(RequestHandlerTest::class);
+        $callable($request);
+        $this->assertEquals("1", RequestHandlerTest::$CalledCount);
+    }
+
+    public function testObjPsrRequestHandlerClass()
+    {
+        $obj = new RequestHandlerTest();
+        $request = $this->createServerRequest('/', 'GET');
+        $resolver = new CallableResolver(); // No container injected
+        $callable = $resolver->resolve($obj);
+        $callable($request);
+        $this->assertEquals("1", RequestHandlerTest::$CalledCount);
+    }
+
+    public function testObjPsrRequestHandlerClassInContainer()
+    {
+        $this->pimple['a_requesthandler'] = new RequestHandlerTest();
+        $request = $this->createServerRequest('/', 'GET');
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('a_requesthandler');
         $callable($request);
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
