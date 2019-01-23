@@ -36,8 +36,8 @@ class DeferredResolutionMiddlewareWrapper implements MiddlewareInterface
 
     /**
      * DeferredResolutionMiddlewareWrapper constructor.
-     * @param ContainerInterface|null $container
      * @param string $resolvable
+     * @param ContainerInterface|null $container
      */
     public function __construct(string $resolvable, ContainerInterface $container = null)
     {
