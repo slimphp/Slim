@@ -36,7 +36,7 @@ final class CallableResolver implements CallableResolverInterface
     }
 
     /**
-     * Resolve toResolve into a closure that that the router can dispatch.
+     * Resolve toResolve into a callable that that the router can dispatch.
      *
      * If toResolve is of the format 'class:method', then try to extract 'class'
      * from the container otherwise instantiate it and then dispatch 'method'.
@@ -50,9 +50,19 @@ final class CallableResolver implements CallableResolverInterface
      */
     public function resolve($toResolve): callable
     {
-        $resolved = $toResolve;
+        if ($toResolve instanceof RequestHandlerInterface) {
+            return [$toResolve, 'handle'];
+        }
 
-        if (!is_callable($toResolve) && is_string($toResolve)) {
+        if (is_callable($toResolve)) {
+            if ($toResolve instanceof \Closure && $this->container instanceof ContainerInterface) {
+                return $toResolve->bindTo($this->container);
+            }
+            return $toResolve;
+        }
+
+        $resolved = $toResolve;
+        if (is_string($toResolve)) {
             $class = $toResolve;
             $instance = null;
             $method = null;
@@ -76,14 +86,10 @@ final class CallableResolver implements CallableResolverInterface
             // For a class that implements RequestHandlerInterface, we will call handle()
             // if no method has been specified
             if ($instance instanceof RequestHandlerInterface && $method === null) {
-                $method = 'handle';
+                return [$instance, 'handle'];
             }
 
             $resolved = [$instance, $method ?? '__invoke'];
-        }
-
-        if ($resolved instanceof RequestHandlerInterface) {
-            $resolved = [$resolved, 'handle'];
         }
 
         if (!is_callable($resolved)) {
@@ -91,10 +97,6 @@ final class CallableResolver implements CallableResolverInterface
                 '%s is not resolvable',
                 is_array($toResolve) || is_object($toResolve) ? json_encode($toResolve) : $toResolve
             ));
-        }
-
-        if ($this->container instanceof ContainerInterface && $resolved instanceof \Closure) {
-            $resolved = $resolved->bindTo($this->container);
         }
 
         return $resolved;
