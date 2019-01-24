@@ -12,7 +12,7 @@ use Closure;
 use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\MiddlewareRunner;
 use Slim\RoutingResults;
 use Slim\Middleware\RoutingMiddleware;
@@ -46,7 +46,7 @@ class RoutingMiddlewareTest extends TestCase
 
         $responseFactory = $this->getResponseFactory();
         $router = $this->getRouter();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new RoutingMiddleware($router);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
@@ -78,7 +78,7 @@ class RoutingMiddlewareTest extends TestCase
 
         $responseFactory = $this->getResponseFactory();
         $router = $this->getRouter();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new RoutingMiddleware($router);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'POST');

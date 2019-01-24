@@ -11,7 +11,7 @@ namespace Slim\Tests\Middleware;
 use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
@@ -30,7 +30,7 @@ class MethodOverrideMiddlewareTest extends TestCase
         Closure::bind($callable, $this);
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -52,7 +52,7 @@ class MethodOverrideMiddlewareTest extends TestCase
         Closure::bind($callable, $this);
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -74,7 +74,7 @@ class MethodOverrideMiddlewareTest extends TestCase
         Closure::bind($callable, $this);
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -97,7 +97,7 @@ class MethodOverrideMiddlewareTest extends TestCase
         Closure::bind($callable, $this);
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this->createServerRequest('/', 'POST');

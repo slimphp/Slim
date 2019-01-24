@@ -19,10 +19,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 
 /**
- * Class DeferredResolutionMiddlewareWrapper
+ * Class DeferredResolutionMiddleware
  * @package Slim\Middleware
  */
-class DeferredResolutionMiddlewareWrapper implements MiddlewareInterface
+class DeferredResolutionMiddleware implements MiddlewareInterface
 {
     /**
      * @var ContainerInterface|null
@@ -35,7 +35,7 @@ class DeferredResolutionMiddlewareWrapper implements MiddlewareInterface
     private $resolvable;
 
     /**
-     * DeferredResolutionMiddlewareWrapper constructor.
+     * DeferredResolutionMiddleware constructor.
      * @param string $resolvable
      * @param ContainerInterface|null $container
      */

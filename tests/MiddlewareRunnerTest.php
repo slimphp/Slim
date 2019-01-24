@@ -11,7 +11,7 @@ namespace Slim\Tests;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\MiddlewareRunner;
 
 /**
@@ -27,7 +27,7 @@ class MiddlewareRunnerTest extends TestCase
         };
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
 
         $middleware = [$mw];
         $middlewareRunner = new MiddlewareRunner($middleware);
@@ -42,7 +42,7 @@ class MiddlewareRunnerTest extends TestCase
         };
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
 
         $middleware = [$mw];
         $middlewareRunner = new MiddlewareRunner();

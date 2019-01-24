@@ -17,7 +17,7 @@ use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Interfaces\InvocationStrategyInterface;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
@@ -133,7 +133,7 @@ class RouteTest extends TestCase
         $route->add($mw);
 
         $responseFactory = $this->getResponseFactory();
-        $mw2 = new Psr7MiddlewareWrapper($mw, $responseFactory);
+        $mw2 = new Psr7MiddlewareAdapter($mw, $responseFactory);
         $route->add($mw2);
 
         $request = $this->createServerRequest('/');

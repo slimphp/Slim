@@ -24,8 +24,8 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
-use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\DeferredResolutionMiddleware;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Middleware\RoutingMiddleware;
 
 /**
@@ -110,6 +110,7 @@ class App implements RequestHandlerInterface, MiddlewareInterface
      */
     public function getContainer()
     {
+
         return $this->container;
     }
 
@@ -134,10 +135,10 @@ class App implements RequestHandlerInterface, MiddlewareInterface
     public function add($middleware)
     {
         if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
-            $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $this->container);
+            $middleware = new DeferredResolutionMiddleware($middleware, $this->container);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
-            $middleware = new Psr7MiddlewareWrapper($deferredCallable, $this->responseFactory);
+            $middleware = new Psr7MiddlewareAdapter($deferredCallable, $this->responseFactory);
         }
 
         $this->middlewareRunner->add($middleware);

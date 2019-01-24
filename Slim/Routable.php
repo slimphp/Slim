@@ -14,8 +14,8 @@ namespace Slim;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\DeferredResolutionMiddleware;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 
 /**
  * A routable, middleware-aware object
@@ -63,10 +63,10 @@ abstract class Routable
         if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
             $callableResolver = $this->getCallableResolver();
             $container = $callableResolver !== null ? $callableResolver->getContainer() : null;
-            $middleware = new DeferredResolutionMiddlewareWrapper($middleware, $container);
+            $middleware = new DeferredResolutionMiddleware($middleware, $container);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
-            $middleware = new Psr7MiddlewareWrapper($deferredCallable, $this->responseFactory);
+            $middleware = new Psr7MiddlewareAdapter($deferredCallable, $this->responseFactory);
         }
 
         $this->middlewareRunner->add($middleware);

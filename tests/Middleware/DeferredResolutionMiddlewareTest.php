@@ -11,21 +11,21 @@ namespace Slim\Tests\Middleware;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use ReflectionClass;
-use Slim\Middleware\DeferredResolutionMiddlewareWrapper;
+use Slim\Middleware\DeferredResolutionMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\TestCase;
 use stdClass;
 
 /**
- * Class DeferredResolutionMiddlewareWrapperTest
+ * Class DeferredResolutionMiddlewareTest
  * @package Slim\Tests\Middleware
  */
-class DeferredResolutionMiddlewareWrapperTest extends TestCase
+class DeferredResolutionMiddlewareTest extends TestCase
 {
     public function testResolvableReturnsInstantiatedObject()
     {
-        $reflection = new ReflectionClass(DeferredResolutionMiddlewareWrapper::class);
-        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddlewareWrapper(
+        $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
+        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddleware(
             MockMiddlewareWithoutConstructor::class
         );
 
@@ -46,8 +46,8 @@ class DeferredResolutionMiddlewareWrapperTest extends TestCase
         $pimple->offsetSet('MiddlewareInterfaceNotImplemented', new stdClass());
         $container = new Psr11Container($pimple);
 
-        $reflection = new ReflectionClass(DeferredResolutionMiddlewareWrapper::class);
-        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddlewareWrapper(
+        $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
+        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddleware(
             'MiddlewareInterfaceNotImplemented',
             $container
         );
@@ -63,8 +63,8 @@ class DeferredResolutionMiddlewareWrapperTest extends TestCase
      */
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
-        $reflection = new ReflectionClass(DeferredResolutionMiddlewareWrapper::class);
-        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddlewareWrapper('Unresolvable::class');
+        $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
+        $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddleware('Unresolvable::class');
 
         $method = $reflection->getMethod('resolve');
         $method->setAccessible(true);

@@ -18,10 +18,10 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Class LegacyMiddlewareWrapper
+ * Class Psr7MiddlewareAdapter
  * @package Slim\Middleware
  */
-class Psr7MiddlewareWrapper implements MiddlewareInterface
+class Psr7MiddlewareAdapter implements MiddlewareInterface
 {
     /**
      * @var callable

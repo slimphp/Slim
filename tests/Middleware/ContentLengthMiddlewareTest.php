@@ -11,7 +11,7 @@ namespace Slim\Tests\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Middleware\Psr7MiddlewareWrapper;
+use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
 
@@ -26,7 +26,7 @@ class ContentLengthMiddlewareTest extends TestCase
             $response->getBody()->write('Body');
             return $response;
         };
-        $mw = new Psr7MiddlewareWrapper($callable, $responseFactory);
+        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
         $mw2 = new ContentLengthMiddleware();
 
         $middlewareRunner = new MiddlewareRunner();
