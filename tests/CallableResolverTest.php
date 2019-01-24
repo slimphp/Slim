@@ -146,6 +146,16 @@ class CallableResolverTest extends TestCase
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
+    public function testResolutionToAPsrRequestHandlerClassWithCustomMethod()
+    {
+        $request = $this->createServerRequest('/', 'GET');
+        $resolver = new CallableResolver(); // No container injected
+        $callable = $resolver->resolve(RequestHandlerTest::class . ':custom');
+        $this->assertInternalType('array', $callable);
+        $this->assertInstanceOf(RequestHandlerTest::class, $callable[0]);
+        $this->assertEquals('custom', $callable[1]);
+    }
+
     /**
      * @expectedException \RuntimeException
      */

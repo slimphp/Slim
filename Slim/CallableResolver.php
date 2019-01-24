@@ -54,7 +54,8 @@ final class CallableResolver implements CallableResolverInterface
 
         if (!is_callable($toResolve) && is_string($toResolve)) {
             $class = $toResolve;
-            $method = '__invoke';
+            $instance = null;
+            $method = null;
 
             // check for slim callable as "class:method"
             $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
@@ -64,18 +65,21 @@ final class CallableResolver implements CallableResolverInterface
             }
 
             if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
-                $resolved = [$this->container->get($class), $method];
+                $instance = $this->container->get($class);
             } else {
                 if (!class_exists($class)) {
                     throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
-                $resolved = [new $class($this->container), $method];
+                $instance = new $class($this->container);
             }
 
             // For a class that implements RequestHandlerInterface, we will call handle()
-            if ($resolved[0] instanceof RequestHandlerInterface) {
-                $resolved[1] = 'handle';
+            // if no method has been specified
+            if ($instance instanceof RequestHandlerInterface && $method === null) {
+                $method = 'handle';
             }
+
+            $resolved = [$instance, $method ?? '__invoke'];
         }
 
         if ($resolved instanceof RequestHandlerInterface) {
