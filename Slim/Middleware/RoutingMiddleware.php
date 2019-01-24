@@ -22,7 +22,8 @@ use Slim\Interfaces\RouterInterface;
 use RuntimeException;
 
 /**
- * Perform routing and store matched route to the request's attributes
+ * Class RoutingMiddleware
+ * @package Slim\Middleware
  */
 class RoutingMiddleware implements MiddlewareInterface
 {

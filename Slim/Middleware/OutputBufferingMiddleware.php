@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -18,6 +19,10 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
+/**
+ * Class OutputBufferingMiddleware
+ * @package Slim\Middleware
+ */
 class OutputBufferingMiddleware implements MiddlewareInterface
 {
     const APPEND = 'append';
@@ -45,7 +50,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         $this->style = $style;
 
         if (!in_array($style, [static::APPEND, static::PREPEND])) {
-            throw new \InvalidArgumentException('Invalid style. Must be one of: append, prepend');
+            throw new InvalidArgumentException("Invalid style `{$style}`. Must be `append` or `prepend`");
         }
     }
 
@@ -62,7 +67,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
             /** @var ResponseInterface $response */
             $response = $handler->handle($request);
             $output = ob_get_clean();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             ob_end_clean();
             throw $e;
         }

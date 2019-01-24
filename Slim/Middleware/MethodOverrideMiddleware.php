@@ -17,7 +17,8 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Override HTTP Request method by given body param or custom header
+ * Class MethodOverrideMiddleware
+ * @package Slim\Middleware
  */
 class MethodOverrideMiddleware implements MiddlewareInterface
 {

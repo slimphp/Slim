@@ -22,6 +22,10 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Throwable;
 
+/**
+ * Class ErrorMiddleware
+ * @package Slim\Middleware
+ */
 class ErrorMiddleware implements MiddlewareInterface
 {
     /**
