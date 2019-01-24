@@ -42,4 +42,9 @@ class RequestHandlerTest implements RequestHandlerInterface
 
         return $response;
     }
+
+    public function custom(ServerRequestInterface $request) : ResponseInterface
+    {
+        return $responseFactory->createResponse();
+    }
 }
