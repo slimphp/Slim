@@ -20,6 +20,7 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Mocks\Psr15MiddlewareTest;
 
 class AppTest extends TestCase
 {
@@ -972,6 +973,26 @@ class AppTest extends TestCase
         );
 
         $this->assertSame($called, 1);
+    }
+
+    public function testAddPsr15Middleware()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $method = new \ReflectionMethod('Slim\App', 'seedMiddlewareStack');
+        $method->setAccessible(true);
+        $method->invoke($app, function ($req, $res) {
+            return $res;
+        });
+
+        $app->add(new Psr15MiddlewareTest);
+
+        $app->callMiddlewareStack(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock()
+        );
+
+        $this->assertSame(Psr15MiddlewareTest::$CalledCount, 1);
     }
 
     public function testAddMiddlewareOnRoute()

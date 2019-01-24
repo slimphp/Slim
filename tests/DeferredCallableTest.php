@@ -13,6 +13,7 @@ use Pimple\Psr11\Container;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\Psr15MiddlewareTest;
 
 class DeferredCallableTest extends TestCase
 {
@@ -20,6 +21,7 @@ class DeferredCallableTest extends TestCase
     public function setUp()
     {
         CallableTest::$CalledCount = 0;
+        Psr15MiddlewareTest::$CalledCount = 0;
     }
 
     public function testItResolvesCallable()
@@ -32,6 +34,24 @@ class DeferredCallableTest extends TestCase
         $deferred();
 
         $this->assertEquals(1, CallableTest::$CalledCount);
+    }
+
+    public function testItResolvesPsr15Middleware()
+    {
+        $pimple = new Pimple();
+        $pimple['CallableTest'] = new Psr15MiddlewareTest;
+        $resolver = new CallableResolver(new Container($pimple));
+
+        $deferred = new DeferredCallable(Psr15MiddlewareTest::class, $resolver, true);
+        $deferred(
+            $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')->disableOriginalConstructor()->getMock(),
+            $this->getMockBuilder('Psr\Http\Message\ResponseInterface')->disableOriginalConstructor()->getMock(),
+            function ($req, $res) {
+                return $res;
+            }
+        );
+
+        $this->assertEquals(1, Psr15MiddlewareTest::$CalledCount);
     }
 
     public function testItBindsClosuresToContainer()

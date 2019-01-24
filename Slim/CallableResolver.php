@@ -12,8 +12,10 @@ declare(strict_types=1);
 namespace Slim;
 
 use Psr\Container\ContainerInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
+use Slim\Adapter\PsrMiddleware;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**
@@ -42,14 +44,19 @@ final class CallableResolver implements CallableResolverInterface
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
      * @param mixed $toResolve
+     * @param bool  $resolveMiddleware
      *
      * @return callable
      *
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
      */
-    public function resolve($toResolve): callable
+    public function resolve($toResolve, $resolveMiddleware = false): callable
     {
+        if ($resolveMiddleware && $toResolve instanceof MiddlewareInterface) {
+            return new PsrMiddleware($toResolve);
+        }
+
         if ($toResolve instanceof RequestHandlerInterface) {
             return [$toResolve, 'handle'];
         }
@@ -81,6 +88,10 @@ final class CallableResolver implements CallableResolverInterface
                     throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
                 $instance = new $class($this->container);
+            }
+
+            if ($resolveMiddleware && $instance instanceof MiddlewareInterface && $method === null) {
+                return new PsrMiddleware($instance);
             }
 
             // For a class that implements RequestHandlerInterface, we will call handle()

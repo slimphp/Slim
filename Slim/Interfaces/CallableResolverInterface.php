@@ -23,8 +23,9 @@ interface CallableResolverInterface
      * Resolve $toResolve into a callable
      *
      * @param mixed $toResolve
+     * @param bool  $resolveMiddleware
      *
      * @return callable
      */
-    public function resolve($toResolve): callable;
+    public function resolve($toResolve, $resolveMiddleware = false): callable;
 }

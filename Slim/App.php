@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
@@ -119,14 +120,14 @@ class App implements RequestHandlerInterface
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  callable|string    $callable The callback routine
+     * @param  MiddlewareInterface|callable|string    $middleware The middleware routine
      *
      * @return static
      */
-    public function add($callable)
+    public function add($middleware)
     {
         return $this->addMiddleware(
-            new DeferredCallable($callable, $this->getCallableResolver())
+            new DeferredCallable($middleware, $this->getCallableResolver(), true)
         );
     }
 

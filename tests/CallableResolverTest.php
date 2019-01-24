@@ -13,6 +13,7 @@ use Pimple\Psr11\Container;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
+use Slim\Tests\Mocks\Psr15MiddlewareTest;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
 class CallableResolverTest extends TestCase
@@ -115,6 +116,31 @@ class CallableResolverTest extends TestCase
         $callable = $resolver->resolve('Slim\Tests\Mocks\InvokableTest');
         $callable();
         $this->assertEquals(1, InvokableTest::$CalledCount);
+    }
+
+    public function testResolutionToAPsr15Middleware()
+    {
+        $resolver = new CallableResolver(); // No container injected
+        $middleware = new Psr15MiddlewareTest;
+        $callable = $resolver->resolve($middleware, true);
+        $this->assertInstanceOf('Slim\Adapter\PsrMiddleware', $callable);
+    }
+
+    public function testResolutionToAPsr15MiddlewareFromString()
+    {
+        $resolver = new CallableResolver(); // No container injected
+        $callable = $resolver->resolve('Slim\Tests\Mocks\Psr15MiddlewareTest', true);
+        $this->assertInstanceOf('Slim\Adapter\PsrMiddleware', $callable);
+    }
+
+    public function testResolutionToAPsr15MiddlewareInContainer()
+    {
+        $this->pimple['a_psr15_middleware'] = function ($c) {
+            return new Psr15MiddlewareTest();
+        };
+        $resolver = new CallableResolver($this->container);
+        $callable = $resolver->resolve('a_psr15_middleware', true);
+        $this->assertInstanceOf('Slim\Adapter\PsrMiddleware', $callable);
     }
 
     public function testResolutionToAPsrRequestHandlerClass()

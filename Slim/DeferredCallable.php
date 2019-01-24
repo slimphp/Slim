@@ -11,12 +11,13 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
 class DeferredCallable
 {
     /**
-     * @var callable|string
+     * @var MiddlewareInterface|callable|string
      */
     protected $callable;
 
@@ -26,15 +27,22 @@ class DeferredCallable
     protected $callableResolver;
 
     /**
+     * @var bool
+     */
+    protected $resolveMiddleware;
+
+    /**
      * DeferredMiddleware constructor.
      *
-     * @param callable|string $callable
+     * @param MiddlewareInterface|callable|string $callable
      * @param CallableResolverInterface|null $resolver
+     * @param bool $resolveMiddleware
      */
-    public function __construct($callable, CallableResolverInterface $resolver = null)
+    public function __construct($callable, CallableResolverInterface $resolver = null, $resolveMiddleware = false)
     {
         $this->callable = $callable;
         $this->callableResolver = $resolver;
+        $this->resolveMiddleware = $resolveMiddleware;
     }
 
     public function __invoke(...$args)
@@ -42,7 +50,7 @@ class DeferredCallable
         /** @var callable $callable */
         $callable = $this->callable;
         if ($this->callableResolver) {
-            $callable = $this->callableResolver->resolve($callable);
+            $callable = $this->callableResolver->resolve($callable, $this->resolveMiddleware);
         }
 
         return $callable(...$args);

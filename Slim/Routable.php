@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**
@@ -90,13 +91,13 @@ abstract class Routable
     /**
      * Prepend middleware to the middleware collection
      *
-     * @param callable|string $callable The callback routine
+     * @param MiddlewareInterface|callable|string $middleware The middleware routine
      *
      * @return static
      */
-    public function add($callable)
+    public function add($middleware)
     {
-        $this->middleware[] = new DeferredCallable($callable, $this->callableResolver);
+        $this->middleware[] = new DeferredCallable($middleware, $this->callableResolver, true);
         return $this;
     }
 
