@@ -23,6 +23,7 @@ use FastRoute\Dispatcher;
 use Slim\Exception\SlimException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
+use Slim\Exception\AlreadyRunException;
 use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
@@ -305,9 +306,14 @@ class App
      * @throws Exception
      * @throws MethodNotAllowedException
      * @throws NotFoundException
+     * @throws AlreadyRunException
      */
+    private $running = false;
     public function run($silent = false)
     {
+        if($running) {
+            throw new AlreadyRunException();
+        }
         $response = $this->container->get('response');
 
         try {
@@ -338,6 +344,7 @@ class App
             $this->respond($response);
         }
 
+        $running = true;
         return $response;
     }
 
