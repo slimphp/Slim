@@ -338,8 +338,6 @@ class App
             $this->respond($response);
         }
 
-        $body = $response->getBody()->getContents();
-
         return $response;
     }
 
