@@ -11,7 +11,6 @@ namespace Slim;
 use Exception;
 use Psr\Http\Message\UriInterface;
 use Slim\Exception\InvalidMethodException;
-use Slim\Http\Response;
 use Throwable;
 use Closure;
 use InvalidArgumentException;
@@ -27,7 +26,6 @@ use Slim\Http\Uri;
 use Slim\Http\Headers;
 use Slim\Http\Body;
 use Slim\Http\Request;
-use Slim\Interfaces\Http\EnvironmentInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
@@ -642,7 +640,7 @@ class App
     }
 
     /**
-     * Helper method, if the provided response must not output a body and false
+     * Helper method, which returns true if the provided response must not output a body and false
      * if the response could have a body.
      *
      * @see https://tools.ietf.org/html/rfc7231
