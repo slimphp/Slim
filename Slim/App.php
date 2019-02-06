@@ -445,7 +445,8 @@ class App
         }
 
         // Body
-        if (!$this->isEmptyResponse($response)) {
+        $request = $this->container->get('request');
+        if (!$this->isEmptyResponse($response) && !$this->isHeadRequest($request)) {
             $body = $response->getBody();
             if ($body->isSeekable()) {
                 $body->rewind();
@@ -615,7 +616,7 @@ class App
         ini_set('default_mimetype', '');
 
         $request = $this->container->get('request');
-        if ($this->isEmptyResponse($response) && $request->getMethod() !== 'HEAD') {
+        if ($this->isEmptyResponse($response) && !$this->isHeadRequest($request)) {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
@@ -636,8 +637,7 @@ class App
     }
 
     /**
-     * Helper method, which returns true if the request is a HEAD request or
-     * if the provided response must not output a body and false
+     * Helper method, if the provided response must not output a body and false
      * if the response could have a body.
      *
      * @see https://tools.ietf.org/html/rfc7231
@@ -647,16 +647,23 @@ class App
      */
     protected function isEmptyResponse(ResponseInterface $response)
     {
-        $request = $this->container->get('request');
-        if ($request->getMethod() === 'HEAD') {
-            return true;
-        }
-
         if (method_exists($response, 'isEmpty')) {
             return $response->isEmpty();
         }
 
         return in_array($response->getStatusCode(), [204, 205, 304]);
+    }
+
+    /**
+     * Helper method to check if the current request is a HEAD request
+     *
+     * @param RequestInterface $request
+     *
+     * @return bool
+     */
+    protected function isHeadRequest(RequestInterface $request)
+    {
+        return strtoupper($request->getMethod()) === 'HEAD';
     }
 
     /**

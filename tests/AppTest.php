@@ -9,6 +9,7 @@
 
 namespace Slim\Tests;
 
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 use Slim\App;
@@ -2323,6 +2324,34 @@ class AppTest extends \PHPUnit_Framework_TestCase
             ->willReturn(204);
 
         $result = $method->invoke(new App(), $response);
+        $this->assertTrue($result);
+    }
+
+    public function testIsHeadRequestWithGetRequest()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method->setAccessible(true);
+
+        /** @var Request $request */
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $request->method('getMethod')
+            ->willReturn('get');
+
+        $result = $method->invoke(new App(), $request);
+        $this->assertFalse($result);
+    }
+
+    public function testIsHeadRequestWithHeadRequest()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method->setAccessible(true);
+
+        /** @var Request $request */
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $request->method('getMethod')
+            ->willReturn('head');
+
+        $result = $method->invoke(new App(), $request);
         $this->assertTrue($result);
     }
 
