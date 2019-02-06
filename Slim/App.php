@@ -617,7 +617,7 @@ class App
         ini_set('default_mimetype', '');
 
         $request = $this->container->get('request');
-        if ($this->isEmptyResponse($response) && $request->getMethod !== 'HEAD') {
+        if ($this->isEmptyResponse($response) && $request->getMethod() !== 'HEAD') {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
