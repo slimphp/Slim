@@ -633,6 +633,11 @@ class App
             }
         }
 
+        // clear the body if this is a HEAD request
+        if ($this->isHeadRequest($request)) {
+            return $response->withBody(new Body(fopen('php://temp', 'r+')));
+        }
+
         return $response;
     }
 

@@ -25,6 +25,7 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
+use Slim\Http\StatusCode;
 use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Assets\HeaderStack;
@@ -1517,27 +1518,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     // TODO: Test run()
     public function testRun()
     {
-        $app = new App();
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
-
-        $app->get('/foo', function ($req, $res) {
-            echo 'bar';
-        });
+        $app = $this->getAppForTestingRunMethod();
 
         ob_start();
         $app->run();
@@ -1546,6 +1527,61 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', (string)$resOut);
     }
 
+    public function testRunReturnsEmptyResponseBodyWithHeadRequestMethod()
+    {
+        $app = $this->getAppForTestingRunMethod('HEAD');
+
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+
+        $this->assertEquals('', (string)$resOut);
+    }
+
+    public function testRunReturnsEmptyResponseBodyWithGetRequestMethodInSilentMode()
+    {
+        $app = $this->getAppForTestingRunMethod();
+        $response = $app->run(true);
+
+        $this->assertEquals('bar', $response->getBody()->__toString());
+    }
+
+    public function testRunReturnsEmptyResponseBodyWithHeadRequestMethodInSilentMode()
+    {
+        $app = $this->getAppForTestingRunMethod('HEAD');
+        $response = $app->run(true);
+
+        $this->assertEquals('', $response->getBody()->__toString());
+    }
+
+    private function getAppForTestingRunMethod($method = 'GET')
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => $method,
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response(StatusCode::HTTP_OK, null, $body);
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $app->get('/foo', function ($req, $res) {
+            $res->getBody()->write('bar');
+
+            return $res;
+        });
+
+        return $app;
+    }
 
     public function testRespond()
     {
