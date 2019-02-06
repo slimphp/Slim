@@ -338,6 +338,8 @@ class App
             $this->respond($response);
         }
 
+        $body = $response->getBody()->getContents();
+
         return $response;
     }
 
@@ -614,7 +616,8 @@ class App
         // stop PHP sending a Content-Type automatically
         ini_set('default_mimetype', '');
 
-        if ($this->isEmptyResponse($response)) {
+        $request = $this->container->get('request');
+        if ($this->isEmptyResponse($response) && $request->getMethod !== 'HEAD') {
             return $response->withoutHeader('Content-Type')->withoutHeader('Content-Length');
         }
 
@@ -635,7 +638,8 @@ class App
     }
 
     /**
-     * Helper method, which returns true if the provided response must not output a body and false
+     * Helper method, which returns true if the request is a HEAD request or
+     * if the provided response must not output a body and false
      * if the response could have a body.
      *
      * @see https://tools.ietf.org/html/rfc7231
@@ -645,6 +649,11 @@ class App
      */
     protected function isEmptyResponse(ResponseInterface $response)
     {
+        $request = $this->container->get('request');
+        if ($request->getMethod() === 'HEAD') {
+            return true;
+        }
+
         if (method_exists($response, 'isEmpty')) {
             return $response->isEmpty();
         }
