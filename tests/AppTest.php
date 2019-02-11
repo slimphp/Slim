@@ -13,13 +13,13 @@ use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Middleware\RoutingDetectionMiddleware;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 use Slim\Tests\Mocks\MockMiddleware;
@@ -941,7 +941,7 @@ class AppTest extends TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testBottomMiddlewareIsApp()
+    public function testBottomMiddlewareIsRoutingDetectionMiddleware()
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
@@ -960,7 +960,7 @@ class AppTest extends TestCase
         $middleware = $middlewareRunner->getMiddleware();
         $bottom = $middleware[1];
 
-        $this->assertInstanceOf(App::class, $bottom);
+        $this->assertInstanceOf(RoutingDetectionMiddleware::class, $bottom);
     }
 
     public function testAddMiddleware()
