@@ -13,6 +13,7 @@ use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
@@ -20,6 +21,7 @@ use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Middleware\RoutingDetectionMiddleware;
+use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 use Slim\Tests\Mocks\MockMiddleware;
@@ -135,7 +137,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->get($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
     }
 
@@ -149,7 +151,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->post($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
 
@@ -164,7 +166,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->put($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
     }
 
@@ -179,7 +181,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->patch($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('PATCH', 'methods', $route);
     }
 
@@ -194,7 +196,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->delete($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('DELETE', 'methods', $route);
     }
 
@@ -209,7 +211,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->options($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('OPTIONS', 'methods', $route);
     }
 
@@ -224,7 +226,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->any($path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
         $this->assertAttributeContains('PUT', 'methods', $route);
@@ -244,7 +246,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->map(['GET', 'POST'], $path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
     }
@@ -258,7 +260,7 @@ class AppTest extends TestCase
         $app = new App($this->getResponseFactory());
         $route = $app->map(['get'], $path, $callable);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('get', 'methods', $route);
     }
 
@@ -271,7 +273,7 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->redirect($source, $destination, 301);
 
-        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertInstanceOf(Route::class, $route);
         $this->assertAttributeContains('GET', 'methods', $route);
 
         $response = $route->run($this->createServerRequest($source), $this->createResponse());
@@ -305,7 +307,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
     }
 
@@ -1197,7 +1199,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(405, (string)$resOut->getStatusCode());
         $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
         $this->assertContains(
@@ -1221,7 +1223,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
     }
 
@@ -1240,7 +1242,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello world!', (string)$resOut->getBody());
     }
 
@@ -1259,7 +1261,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello there world!', (string)$resOut->getBody());
     }
 
@@ -1278,7 +1280,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello test!', (string)$resOut->getBody());
     }
 
@@ -1298,7 +1300,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello test!', (string)$resOut->getBody());
     }
 
@@ -1317,7 +1319,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello there test!', (string)$resOut->getBody());
     }
 
@@ -1339,7 +1341,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertAttributeEquals(404, 'status', $resOut);
     }
 
@@ -1368,7 +1370,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals('Hello', (string)$resOut->getBody());
     }
 
@@ -1416,7 +1418,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
     }
 
@@ -1570,7 +1572,7 @@ class AppTest extends TestCase
         // Invoke app
         $resOut = $app->handle($request);
 
-        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $resOut);
         $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
     }
 
@@ -1578,7 +1580,7 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $this->assertInstanceOf('Psr\Http\Server\RequestHandlerInterface', $app);
+        $this->assertInstanceOf(RequestHandlerInterface::class, $app);
     }
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
