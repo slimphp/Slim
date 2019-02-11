@@ -1639,7 +1639,10 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $route = $app->get('/foo[/{bar}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $route = $app->get('/foo[/{bar}]', function (
+            ServerRequestInterface $request,
+            ResponseInterface $response, $args
+        ) {
             $response->getBody()->write((string) count($args));
             return $response;
         })->setArgument('baz', 'quux');
