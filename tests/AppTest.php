@@ -1641,7 +1641,8 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $route = $app->get('/foo[/{bar}]', function (
             ServerRequestInterface $request,
-            ResponseInterface $response, $args
+            ResponseInterface $response,
+            $args
         ) {
             $response->getBody()->write((string) count($args));
             return $response;
