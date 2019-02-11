@@ -72,6 +72,13 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
+     * Route arguments parameters
+     *
+     * @var array
+     */
+    protected $savedArguments = [];
+
+    /**
      * Create new route
      *
      * @param string|string[]   $methods The route HTTP methods
@@ -211,11 +218,16 @@ class Route extends Routable implements RouteInterface
      *
      * @param string $name
      * @param string $value
+     * @param bool $includeInSavedArguments
      *
      * @return self
      */
-    public function setArgument(string $name, string $value): RouteInterface
+    public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
     {
+        if ($includeInSavedArguments) {
+            $this->savedArguments[$name] = $value;
+        }
+
         $this->arguments[$name] = $value;
         return $this;
     }
@@ -224,11 +236,16 @@ class Route extends Routable implements RouteInterface
      * Replace route arguments
      *
      * @param array $arguments
+     * @param bool $includeInSavedArguments
      *
      * @return self
      */
-    public function setArguments(array $arguments): RouteInterface
+    public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
+        if ($includeInSavedArguments) {
+            $this->savedArguments = $arguments;
+        }
+
         $this->arguments = $arguments;
         return $this;
     }
@@ -271,9 +288,12 @@ class Route extends Routable implements RouteInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments)
     {
+        // Remove temp arguments
+        $this->setArguments($this->savedArguments);
+
         // Add the arguments
         foreach ($arguments as $k => $v) {
-            $this->setArgument($k, $v);
+            $this->setArgument($k, $v, false);
         }
     }
 
