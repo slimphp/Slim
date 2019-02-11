@@ -18,15 +18,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Exception\HttpMethodNotAllowedException;
-use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\DeferredResolutionMiddleware;
 use Slim\Middleware\Psr7MiddlewareAdapter;
-use Slim\Middleware\RoutingMiddleware;
+use Slim\Middleware\RoutingDetectionMiddleware;
 
 /**
  * App
@@ -35,7 +33,7 @@ use Slim\Middleware\RoutingMiddleware;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  */
-class App implements RequestHandlerInterface, MiddlewareInterface
+class App implements RequestHandlerInterface
 {
     /**
      * Current version
@@ -99,8 +97,11 @@ class App implements RequestHandlerInterface, MiddlewareInterface
         $this->container = $container;
         $this->addSettings($settings);
 
+        $router = $this->getRouter();
+        $routingDetectionMiddleware = new RoutingDetectionMiddleware($router);
+
         $this->middlewareRunner = new MiddlewareRunner();
-        $this->add($this);
+        $this->middlewareRunner->add($routingDetectionMiddleware);
     }
 
     /**
@@ -473,37 +474,5 @@ class App implements RequestHandlerInterface, MiddlewareInterface
         }
 
         return $response;
-    }
-
-    /**
-     * Invoke application
-     *
-     * This method implements the middleware interface. It receives
-     * Request and Response objects, and it returns a Response object
-     * after compiling the routes registered in the Router and dispatching
-     * the Request object to the appropriate Route callback routine.
-     *
-     * @param  ServerRequestInterface $request  The most recent Request object
-     * @param  RequestHandlerInterface $handler
-     *
-     * @return ResponseInterface
-     *
-     * @throws HttpNotFoundException
-     * @throws HttpMethodNotAllowedException
-     */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
-    {
-        /** @var RoutingResults|null $routingResults */
-        $routingResults = $request->getAttribute('routingResults');
-
-        // If routing hasn't been done, then do it now so we can dispatch
-        if ($routingResults === null) {
-            $router = $this->getRouter();
-            $routingMiddleware = new RoutingMiddleware($router);
-            $request = $routingMiddleware->performRouting($request);
-        }
-
-        $route = $request->getAttribute('route');
-        return $route->run($request);
     }
 }
