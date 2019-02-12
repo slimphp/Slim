@@ -47,7 +47,8 @@ $responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new Strea
 $app = new App($responseFactory);
 
 // Add middleware (LIFO stack)
-$app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
+$errorMiddleware = new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true);
+$app->add($errorMiddleware);
 
 // Action
 $app->get('/hello/{name}', function ($request, $response, $args) {
