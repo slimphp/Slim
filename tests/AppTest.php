@@ -1469,6 +1469,34 @@ class AppTest extends TestCase
         $this->assertEmpty((string) $response->getBody());
     }
 
+    public function testCanBeReExecutedRecursivelyDuringDispatch()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $app->add(function (ServerRequestInterface $request) use ($app, $responseFactory) {
+            if ($request->hasHeader('X-NESTED')) {
+                return $responseFactory->createResponse(204)->withAddedHeader('X-TRACE', 'nested');
+            }
+
+            // Perform the subrequest, by invoking App::handle (again)
+            $response = $app->handle($request->withAddedHeader('X-NESTED', '1'));
+
+            return $response->withAddedHeader('X-TRACE', 'outer');
+        });
+        $app->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
+            $response = $next($request, $response);
+            $response->getBody()->write('1');
+            return $response;
+        });
+
+        $request = $this->createServerRequest('/');
+        $response = $app->handle($request);
+
+        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(['nested', 'outer'], $response->getHeader('X-TRACE'));
+        $this->assertEquals('11', (string) $response->getBody());
+    }
+
     // TODO: Re-add testUnsupportedMethodWithoutRoute
 
     // TODO: Re-add testUnsupportedMethodWithRoute
