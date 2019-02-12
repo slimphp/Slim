@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -28,17 +29,17 @@ use Slim\RoutingResults;
 class RoutingDetectionMiddleware implements MiddlewareInterface
 {
     /**
-     * @var RouterInterface
+     * @var Closure
      */
-    private $router;
+    private $deferredRouterResolver;
 
     /**
      * RoutingDetectionMiddleware constructor.
-     * @param RouterInterface $router
+     * @param Closure $deferredRouterResolver
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(Closure $deferredRouterResolver)
     {
-        $this->router = $router;
+        $this->deferredRouterResolver = $deferredRouterResolver;
     }
 
     /**
@@ -61,7 +62,9 @@ class RoutingDetectionMiddleware implements MiddlewareInterface
 
         // If routing hasn't been done, then do it now so we can dispatch
         if ($routingResults === null) {
-            $routingMiddleware = new RoutingMiddleware($this->router);
+            /** @var RouterInterface $router */
+            $router = ($this->deferredRouterResolver)();
+            $routingMiddleware = new RoutingMiddleware($router);
             $request = $routingMiddleware->performRouting($request);
         }
 

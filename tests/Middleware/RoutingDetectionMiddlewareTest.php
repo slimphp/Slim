@@ -34,7 +34,11 @@ class RoutingDetectionMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
 
-        $mw = new RoutingDetectionMiddleware($router);
+        $deferredRouterResolver = function () use ($router) {
+            return $router;
+        };
+        $mw = new RoutingDetectionMiddleware($deferredRouterResolver);
+
         $middlewareRunner = new MiddlewareRunner();
         $middlewareRunner->add($mw);
         $middlewareRunner->run($request);

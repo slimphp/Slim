@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -95,13 +96,9 @@ class App implements RequestHandlerInterface
     ) {
         $this->responseFactory = $responseFactory;
         $this->container = $container;
-        $this->addSettings($settings);
-
-        $router = $this->getRouter();
-        $routingDetectionMiddleware = new RoutingDetectionMiddleware($router);
-
         $this->middlewareRunner = new MiddlewareRunner();
-        $this->middlewareRunner->add($routingDetectionMiddleware);
+        $this->addRoutingDetectionMiddleware();
+        $this->addSettings($settings);
     }
 
     /**
@@ -111,7 +108,6 @@ class App implements RequestHandlerInterface
      */
     public function getContainer()
     {
-
         return $this->container;
     }
 
@@ -251,10 +247,12 @@ class App implements RequestHandlerInterface
     {
         if (! $this->router instanceof RouterInterface) {
             $router = new Router($this->responseFactory);
+
             $resolver = $this->getCallableResolver();
             if ($resolver instanceof CallableResolverInterface) {
                 $router->setCallableResolver($resolver);
             }
+
             $routerCacheFile = $this->getSetting('routerCacheFile', false);
             $router->setCacheFile($routerCacheFile);
 
@@ -418,10 +416,6 @@ class App implements RequestHandlerInterface
 
         /** @var RouteGroup $group */
         $group = $router->pushGroup($pattern, $callable);
-        if ($this->callableResolver instanceof CallableResolverInterface) {
-            $group->setCallableResolver($this->callableResolver);
-        }
-
         $group($this);
         $router->popGroup();
 
@@ -474,5 +468,19 @@ class App implements RequestHandlerInterface
         }
 
         return $response;
+    }
+
+    /**
+     * Seed middleware stack with RoutingDetectionMiddleware
+     */
+    protected function addRoutingDetectionMiddleware()
+    {
+        $deferredRouterResolver = function () {
+            return $this->getRouter();
+        };
+        Closure::bind($deferredRouterResolver, $this);
+
+        $routingDetectionMiddleware = new RoutingDetectionMiddleware($deferredRouterResolver);
+        $this->middlewareRunner->add($routingDetectionMiddleware);
     }
 }
