@@ -356,6 +356,11 @@ class Router implements RouterInterface
     public function pushGroup(string $pattern, $callable): RouteGroupInterface
     {
         $group = new RouteGroup($pattern, $callable, $this->responseFactory);
+
+        if ($this->callableResolver instanceof CallableResolverInterface) {
+            $group->setCallableResolver($this->callableResolver);
+        }
+
         $this->routeGroups[] = $group;
         return $group;
     }

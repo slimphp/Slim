@@ -8,8 +8,11 @@
  */
 namespace Slim\Tests;
 
+use ReflectionProperty;
+use Slim\CallableResolver;
 use Slim\Dispatcher;
 use Slim\Route;
+use Slim\RouteGroup;
 use Slim\RoutingResults;
 use Slim\Router;
 
@@ -51,6 +54,28 @@ class RouterTest extends TestCase
         $this->router->popGroup();
 
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
+    }
+
+    public function testCallableResolverFromRouterIsBeingSetOnRouteGroup()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $router = new Router($responseFactory);
+
+        $callableResolver = new CallableResolver();
+        $router->setCallableResolver($callableResolver);
+
+        $router->pushGroup('/group', function () {
+        });
+
+        $reflectionProperty = new ReflectionProperty(Router::class, 'routeGroups');
+        $reflectionProperty->setAccessible(true);
+
+        $groups = $reflectionProperty->getValue($router);
+
+        $reflectionProperty = new ReflectionProperty(RouteGroup::class, 'callableResolver');
+        $reflectionProperty->setAccessible(true);
+
+        $this->assertEquals($callableResolver, $reflectionProperty->getValue($groups[0]));
     }
 
     /**
