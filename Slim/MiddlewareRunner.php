@@ -66,7 +66,7 @@ class MiddlewareRunner implements RequestHandlerInterface
             if (! $middleware instanceof MiddlewareInterface) {
                 throw new RuntimeException(
                     'All middleware should implement `MiddlewareInterface`. '.
-                    'For PSR-7 middleware use the `LegacyMiddlewareWrapper` class.'
+                    'For PSR-7 middleware use the `Psr7MiddlewareAdapter` class.'
                 );
             }
 

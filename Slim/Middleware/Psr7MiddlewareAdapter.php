@@ -34,7 +34,7 @@ class Psr7MiddlewareAdapter implements MiddlewareInterface
     private $responseFactory;
 
     /**
-     * LegacyMiddlewareWrapper constructor.
+     * Psr7MiddlewareAdapter constructor.
      * @param callable $callable
      * @param ResponseFactoryInterface $responseFactory
      */
