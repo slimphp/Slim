@@ -112,16 +112,6 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Set container
-     *
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
-    /**
      * @return Closure
      */
     public function getDeferredContainerResolver(): Closure
@@ -132,23 +122,13 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * @return Closure
+     * Set container
+     *
+     * @param ContainerInterface $container
      */
-    public function getDeferredCallableResolver(): Closure
+    public function setContainer(ContainerInterface $container)
     {
-        return (function () {
-            return $this->getCallableResolver();
-        })->bindTo($this);
-    }
-
-    /**
-     * @return Closure
-     */
-    public function getDeferredRouterResolver(): Closure
-    {
-        return (function () {
-            return $this->getRouter();
-        })->bindTo($this);
+        $this->container = $container;
     }
 
     /**
@@ -249,18 +229,8 @@ class App implements RequestHandlerInterface
     }
 
     /********************************************************************************
-     * Setter and getter methods
+     * Getter and Setter methods
      *******************************************************************************/
-
-    /**
-     * Set callable resolver
-     *
-     * @param CallableResolverInterface $resolver
-     */
-    public function setCallableResolver(CallableResolverInterface $resolver)
-    {
-        $this->callableResolver = $resolver;
-    }
 
     /**
      * Get callable resolver
@@ -278,13 +248,33 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Set router
-     *
-     * @param RouterInterface $router
+     * @return Closure
      */
-    public function setRouter(RouterInterface $router)
+    public function getDeferredCallableResolver(): Closure
     {
-        $this->router = $router;
+        return (function () {
+            return $this->getCallableResolver();
+        })->bindTo($this);
+    }
+
+    /**
+     * Set callable resolver
+     *
+     * @param CallableResolverInterface $resolver
+     */
+    public function setCallableResolver(CallableResolverInterface $resolver)
+    {
+        $this->callableResolver = $resolver;
+    }
+
+    /**
+     * @return Closure
+     */
+    public function getDeferredRouterResolver(): Closure
+    {
+        return (function () {
+            return $this->getRouter();
+        })->bindTo($this);
     }
 
     /**
@@ -304,6 +294,16 @@ class App implements RequestHandlerInterface
         }
 
         return $this->router;
+    }
+
+    /**
+     * Set router
+     *
+     * @param RouterInterface $router
+     */
+    public function setRouter(RouterInterface $router)
+    {
+        $this->router = $router;
     }
 
     /********************************************************************************
