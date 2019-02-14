@@ -13,9 +13,9 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Middleware\DeferredResolutionMiddleware;
-use Slim\Middleware\Psr7MiddlewareAdapter;
 
 /**
  * A routable, middleware-aware object
@@ -55,18 +55,21 @@ abstract class Routable
     protected $pattern;
 
     /**
-     * @param MiddlewareInterface|callable|string $middleware
+     * @param MiddlewareInterface|string $middleware
      * @return self
      */
     public function add($middleware)
     {
-        if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
+        if (is_string($middleware)) {
             $callableResolver = $this->getCallableResolver();
             $container = $callableResolver !== null ? $callableResolver->getContainer() : null;
             $middleware = new DeferredResolutionMiddleware($middleware, $container);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
-            $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
-            $middleware = new Psr7MiddlewareAdapter($deferredCallable, $this->responseFactory);
+            $calledClass = get_called_class();
+            throw new RuntimeException(
+                "Parameter 1 of `{$calledClass}::add()` must be either an object or a class name ".
+                "referencing an implementation of MiddlewareInterface."
+            );
         }
 
         $this->middlewareRunner->add($middleware);

@@ -17,6 +17,7 @@ use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
@@ -24,6 +25,7 @@ use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MiddlewareStub;
 use Slim\Tests\Mocks\MockMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
+use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
 class RouteTest extends TestCase
@@ -108,9 +110,10 @@ class RouteTest extends TestCase
         $property->setAccessible(true);
         $middlewareRunner = $property->getValue($route);
 
-        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
-            return $response;
-        };
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$bottom, $responseFactory) {
+            return $responseFactory->createResponse();
+        });
         $route->add($mw);
         $route->finalize();
 
@@ -126,20 +129,16 @@ class RouteTest extends TestCase
         $route = $this->routeFactory();
         $called = 0;
 
-        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
             $called++;
-            return $next($request, $response);
-        };
+            return $handler->handle($request);
+        });
         $route->add($mw);
-
-        $responseFactory = $this->getResponseFactory();
-        $mw2 = new Psr7MiddlewareAdapter($mw, $responseFactory);
-        $route->add($mw2);
 
         $request = $this->createServerRequest('/');
         $route->run($request);
 
-        $this->assertSame($called, 2);
+        $this->assertSame($called, 1);
     }
 
     public function testAddMiddlewareUsingDeferredResolution()
@@ -159,16 +158,27 @@ class RouteTest extends TestCase
         $this->assertSame('Hello World', $output);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage
+     * Parameter 1 of `Slim\Route::add()` must be either an object or a class name
+     * referencing an implementation of MiddlewareInterface.
+     */
+    public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
+    {
+        $route = $this->routeFactory();
+        $route->add(new MockMiddlewareWithoutInterface());
+    }
+
     public function testRefinalizing()
     {
         $route = $this->routeFactory();
         $called = 0;
 
-        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
             $called++;
-            return $response;
-        };
-
+            return $handler->handle($request);
+        });
         $route->add($mw);
 
         $route->finalize();
@@ -192,36 +202,6 @@ class RouteTest extends TestCase
         $route = $this->routeFactory();
         $this->assertEquals($route, $route->setName('foo'));
         $this->assertEquals('foo', $route->getName());
-    }
-
-    public function testAddMiddlewareAsStringResolvesWithoutContainer()
-    {
-        $route = $this->routeFactory();
-
-        $resolver = new CallableResolver();
-        $route->setCallableResolver($resolver);
-        $route->add('\Slim\Tests\Mocks\MiddlewareStub:run');
-
-        $request = $this->createServerRequest('/');
-        $response = $route->run($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-    }
-
-    public function testAddMiddlewareAsStringResolvesWithContainer()
-    {
-        $route = $this->routeFactory();
-
-        $pimple = new Pimple();
-        $pimple['MiddlewareStub'] = new MiddlewareStub();
-        $resolver = new CallableResolver(new Psr11Container($pimple));
-        $route->setCallableResolver($resolver);
-        $route->add('MiddlewareStub:run');
-
-        $request = $this->createServerRequest('/');
-        $response = $route->run($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
     }
 
     public function testControllerMethodAsStringResolvesWithoutContainer()

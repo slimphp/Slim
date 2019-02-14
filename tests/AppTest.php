@@ -20,11 +20,13 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\RoutingDetectionMiddleware;
 use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 use Slim\Tests\Mocks\MockMiddleware;
+use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 
 class AppTest extends TestCase
 {
@@ -314,6 +316,7 @@ class AppTest extends TestCase
     /********************************************************************************
      * Route Patterns
      *******************************************************************************/
+
     public function testSegmentRouteThatDoesNotEndInASlash()
     {
         $responseFactory = $this->getResponseFactory();
@@ -377,6 +380,7 @@ class AppTest extends TestCase
     /********************************************************************************
      * Route Groups
      *******************************************************************************/
+
     public function testGroupClosureIsBoundToThisClass()
     {
         $responseFactory = $this->getResponseFactory();
@@ -953,9 +957,9 @@ class AppTest extends TestCase
         $property->setAccessible(true);
         $middlewareRunner = $property->getValue($app);
 
-        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$bottom) {
-            return $response;
-        };
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$bottom, $responseFactory) {
+            return $responseFactory->createResponse();
+        });
         $app->add($mw);
 
         /** @var array $middleware */
@@ -971,10 +975,10 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $called = 0;
 
-        $mw = function (ServerRequestInterface $request, ResponseInterface $response, $next) use (&$called) {
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called, $responseFactory) {
             $called++;
-            return $response;
-        };
+            return $responseFactory->createResponse();
+        });
         $app->add($mw);
 
         $request = $this->createServerRequest('/');
@@ -1011,23 +1015,29 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
 
+        $mw = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
+            $response = $handler->handle($request);
+            $appendToOutput('Out1');
+            return $response;
+        });
+
+        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
+            $response = $handler->handle($request);
+            $appendToOutput('Out2');
+            return $response;
+        });
+
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('Center');
             return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
-            $response = $next($request, $response);
-            $appendToOutput('Out1');
-            return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $next($request, $response);
-            $appendToOutput('Out2');
-            return $response;
-        });
+        })
+        ->add($mw)
+        ->add($mw2);
 
         // Prepare request object
         $output = '';
@@ -1049,25 +1059,31 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
 
+        $mw = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
+            $response = $handler->handle($request);
+            $appendToOutput('Out1');
+            return $response;
+        });
+
+        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
+            $response = $handler->handle($request);
+            $appendToOutput('Out2');
+            return $response;
+        });
+
         $app->group('/foo', function ($app) {
             $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 $appendToOutput = $request->getAttribute('appendToOutput');
                 $appendToOutput('Center');
                 return $response;
             });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
-            $response = $next($request, $response);
-            $appendToOutput('Out1');
-            return $response;
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $next($request, $response);
-            $appendToOutput('Out2');
-            return $response;
-        });
+        })
+        ->add($mw)
+        ->add($mw2);
 
         // Prepare request object
         $output = '';
@@ -1088,27 +1104,31 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
 
-        $app->group('/foo', function ($app) {
+        $mw = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
+            $response = $handler->handle($request);
+            $appendToOutput('Out2');
+            return $response;
+        });
+
+        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
+            $response = $handler->handle($request);
+            $appendToOutput('Out1');
+            return $response;
+        });
+
+        $app->group('/foo', function ($app) use ($mw) {
             $app->group('/baz', function ($app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     $appendToOutput = $request->getAttribute('appendToOutput');
                     $appendToOutput('Center');
                     return $response;
                 });
-            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('In2');
-                $response = $next($request, $response);
-                $appendToOutput('Out2');
-                return $response;
-            });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
-            $response = $next($request, $response);
-            $appendToOutput('Out1');
-            return $response;
-        });
+            })->add($mw);
+        })->add($mw2);
 
         // Prepare request object
         $output = '';
@@ -1129,33 +1149,39 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
 
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
+        $mw = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In3');
+            $response = $handler->handle($request);
+            $appendToOutput('Out3');
+            return $response;
+        });
+
+        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In2');
+            $response = $handler->handle($request);
+            $appendToOutput('Out2');
+            return $response;
+        });
+
+        $mw3 = new ClosureMiddleware(function ($request, $handler) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('In1');
+            $response = $handler->handle($request);
+            $appendToOutput('Out1');
+            return $response;
+        });
+
+        $app->group('/foo', function ($app) use ($mw, $mw2) {
+            $app->group('/baz', function ($app) use ($mw) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     $appendToOutput = $request->getAttribute('appendToOutput');
                     $appendToOutput('Center');
                     return $response;
-                })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('In3');
-                    $response = $next($request, $response);
-                    $appendToOutput('Out3');
-                    return $response;
-                });
-            })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('In2');
-                $response = $next($request, $response);
-                $appendToOutput('Out2');
-                return $response;
-            });
-        })->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
-            $response = $next($request, $response);
-            $appendToOutput('Out1');
-            return $response;
-        });
+                })->add($mw);
+            })->add($mw2);
+        })->add($mw3);
 
         // Prepare request object
         $output = '';
@@ -1171,6 +1197,18 @@ class AppTest extends TestCase
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
     }
 
+    /**
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage
+     * Parameter 1 of `Slim\App::add()` must be either an object or a class name
+     * referencing an implementation of MiddlewareInterface.
+     */
+    public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $app->add(new MockMiddlewareWithoutInterface());
+    }
 
     /********************************************************************************
      * Runner
@@ -1521,7 +1559,8 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->add(function (ServerRequestInterface $request) use ($app, $responseFactory) {
+
+        $mw = new ClosureMiddleware(function (ServerRequestInterface $request) use ($app, $responseFactory) {
             if ($request->hasHeader('X-NESTED')) {
                 return $responseFactory->createResponse(204)->withAddedHeader('X-TRACE', 'nested');
             }
@@ -1531,11 +1570,14 @@ class AppTest extends TestCase
 
             return $response->withAddedHeader('X-TRACE', 'outer');
         });
-        $app->add(function (ServerRequestInterface $request, ResponseInterface $response, $next) {
-            $response = $next($request, $response);
+        $app->add($mw);
+
+        $mw2 = new ClosureMiddleware(function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+            $response = $handler->handle($request);
             $response->getBody()->write('1');
             return $response;
         });
+        $app->add($mw2);
 
         $request = $this->createServerRequest('/');
         $response = $app->handle($request);

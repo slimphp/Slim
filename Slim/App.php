@@ -19,12 +19,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\DeferredResolutionMiddleware;
-use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Middleware\RoutingDetectionMiddleware;
 
 /**
@@ -126,20 +126,36 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * @param MiddlewareInterface|callable|string $middleware
+     * @param MiddlewareInterface|string $middleware
      * @return self
      */
     public function add($middleware)
     {
-        if (is_string($middleware) && is_subclass_of($middleware, MiddlewareInterface::class)) {
+        if (is_string($middleware)) {
             $middleware = new DeferredResolutionMiddleware($middleware, $this->container);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
-            $deferredCallable = new DeferredCallable($middleware, $this->getCallableResolver());
-            $middleware = new Psr7MiddlewareAdapter($deferredCallable, $this->responseFactory);
+            throw new RuntimeException(
+                'Parameter 1 of `Slim\App::add()` must be either an object or a class name '.
+                'referencing an implementation of MiddlewareInterface.'
+            );
         }
 
         $this->middlewareRunner->add($middleware);
         return $this;
+    }
+
+    /**
+     * Seed middleware stack with RoutingDetectionMiddleware
+     */
+    protected function addRoutingDetectionMiddleware()
+    {
+        $deferredRouterResolver = function () {
+            return $this->getRouter();
+        };
+        Closure::bind($deferredRouterResolver, $this);
+
+        $routingDetectionMiddleware = new RoutingDetectionMiddleware($deferredRouterResolver);
+        $this->middlewareRunner->add($routingDetectionMiddleware);
     }
 
     /********************************************************************************
@@ -468,19 +484,5 @@ class App implements RequestHandlerInterface
         }
 
         return $response;
-    }
-
-    /**
-     * Seed middleware stack with RoutingDetectionMiddleware
-     */
-    protected function addRoutingDetectionMiddleware()
-    {
-        $deferredRouterResolver = function () {
-            return $this->getRouter();
-        };
-        Closure::bind($deferredRouterResolver, $this);
-
-        $routingDetectionMiddleware = new RoutingDetectionMiddleware($deferredRouterResolver);
-        $this->middlewareRunner->add($routingDetectionMiddleware);
     }
 }
