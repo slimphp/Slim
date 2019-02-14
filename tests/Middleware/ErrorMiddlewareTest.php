@@ -15,6 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
@@ -111,9 +112,9 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw2 = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $mw2 = new ClosureMiddleware(function ($request, $handler) {
             throw new Error('Oops..');
-        };
+        });
         $app->add($mw2);
 
         $handler = function (ServerRequestInterface $request, $exception) {

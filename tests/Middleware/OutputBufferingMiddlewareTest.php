@@ -8,9 +8,7 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\Psr7MiddlewareAdapter;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
@@ -39,15 +37,14 @@ class OutputBufferingMiddlewareTest extends TestCase
 
     public function testAppend()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        };
-
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        });
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $request = $this->createServerRequest('/', 'GET');
@@ -62,15 +59,14 @@ class OutputBufferingMiddlewareTest extends TestCase
 
     public function testPrepend()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        };
-
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        });
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');

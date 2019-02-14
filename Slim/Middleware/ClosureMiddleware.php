@@ -11,37 +11,30 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
+use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Class Psr7MiddlewareAdapter
+ * Class ClosureMiddleware
  * @package Slim\Middleware
  */
-class Psr7MiddlewareAdapter implements MiddlewareInterface
+class ClosureMiddleware implements MiddlewareInterface
 {
     /**
      * @var callable
      */
-    private $callable;
+    private $closure;
 
     /**
-     * @var ResponseFactoryInterface
+     * ClosureMiddleware constructor.
+     * @param Closure $closure
      */
-    private $responseFactory;
-
-    /**
-     * Psr7MiddlewareAdapter constructor.
-     * @param callable $callable
-     * @param ResponseFactoryInterface $responseFactory
-     */
-    public function __construct(callable $callable, ResponseFactoryInterface $responseFactory)
+    public function __construct(Closure $closure)
     {
-        $this->callable = $callable;
-        $this->responseFactory = $responseFactory;
+        $this->closure = $closure;
     }
 
     /**
@@ -51,10 +44,6 @@ class Psr7MiddlewareAdapter implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $response = $this->responseFactory->createResponse();
-        $next = function (ServerRequestInterface $request) use ($handler) {
-            return $handler->handle($request);
-        };
-        return call_user_func($this->callable, $request, $response, $next);
+        return ($this->closure)($request, $handler);
     }
 }

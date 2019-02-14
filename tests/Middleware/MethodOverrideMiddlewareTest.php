@@ -9,9 +9,7 @@
 namespace Slim\Tests\Middleware;
 
 use Closure;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\Psr7MiddlewareAdapter;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
@@ -23,14 +21,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 {
     public function testHeader()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
-            return $response;
+            return $responseFactory->createResponse();
         };
         Closure::bind($callable, $this);
 
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -45,14 +43,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
     public function testBodyParam()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
-            return $response;
+            return $responseFactory->createResponse();
         };
         Closure::bind($callable, $this);
 
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -67,14 +65,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
     public function testHeaderPreferred()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('DELETE', $request->getMethod());
-            return $response;
+            return $responseFactory->createResponse();
         };
         Closure::bind($callable, $this);
 
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -90,14 +88,14 @@ class MethodOverrideMiddlewareTest extends TestCase
 
     public function testNoOverride()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('POST', $request->getMethod());
-            return $response;
+            return $responseFactory->createResponse();
         };
         Closure::bind($callable, $this);
 
-        $responseFactory = $this->getResponseFactory();
-        $mw = new Psr7MiddlewareAdapter($callable, $responseFactory);
+        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this->createServerRequest('/', 'POST');
