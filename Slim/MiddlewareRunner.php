@@ -61,20 +61,29 @@ class MiddlewareRunner implements RequestHandlerInterface
             throw new RuntimeException('Middleware queue should not be empty.');
         }
 
-        $this->stages = new SplObjectStorage();
+        $stages = $this->buildStages();
+        $runner = new MiddlewareRunner();
+        $runner->setStages($stages);
+        return $runner->handle($request);
+    }
+
+    /**
+     * @return SplObjectStorage
+     */
+    protected function buildStages(): SplObjectStorage
+    {
+        $stages = new SplObjectStorage();
         foreach ($this->middleware as $middleware) {
-            if (! $middleware instanceof MiddlewareInterface) {
+            if (!($middleware instanceof MiddlewareInterface)) {
                 throw new RuntimeException(
                     'All middleware should implement `MiddlewareInterface`. '.
                     'For PSR-7 middleware use the `Psr7MiddlewareAdapter` class.'
                 );
             }
-
-            $this->stages->attach($middleware);
+            $stages->attach($middleware);
         }
-        $this->stages->rewind();
-
-        return $this->handle($request);
+        $stages->rewind();
+        return $stages;
     }
 
     /**
@@ -83,6 +92,13 @@ class MiddlewareRunner implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        if (!($this->stages instanceof SplObjectStorage)) {
+            throw new RuntimeException(
+                'Middleware queue stages have not been set yet. '.
+                'Please use the `MiddlewareRunner::run()` method.'
+            );
+        }
+
         /** @var MiddlewareInterface $stage */
         $stage = $this->stages->current();
         $this->stages->next();
@@ -103,5 +119,13 @@ class MiddlewareRunner implements RequestHandlerInterface
     public function setMiddleware(array $middleware)
     {
         $this->middleware = $middleware;
+    }
+
+    /**
+     * @param SplObjectStorage $stages
+     */
+    public function setStages(SplObjectStorage $stages)
+    {
+        $this->stages = $stages;
     }
 }
