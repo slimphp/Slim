@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
@@ -42,11 +43,11 @@ class Router implements RouterInterface
     protected $routeParser;
 
     /**
-     * Callable resolver
+     * Deferred Callable Resolver
      *
-     * @var CallableResolverInterface|null
+     * @var Closure|null
      */
-    protected $callableResolver;
+    protected $deferredCallableResolver;
 
     /**
      * @var InvocationStrategyInterface|null
@@ -101,11 +102,16 @@ class Router implements RouterInterface
      * Create new router
      *
      * @param ResponseFactoryInterface  $responseFactory
+     * @param Closure                   $deferredCallableResolver
      * @param RouteParser               $parser
      */
-    public function __construct(ResponseFactoryInterface $responseFactory, RouteParser $parser = null)
-    {
+    public function __construct(
+        ResponseFactoryInterface $responseFactory,
+        Closure $deferredCallableResolver = null,
+        RouteParser $parser = null
+    ) {
         $this->responseFactory = $responseFactory;
+        $this->deferredCallableResolver = $deferredCallableResolver;
         $this->routeParser = $parser ?: new StdParser;
     }
 
@@ -127,6 +133,15 @@ class Router implements RouterInterface
     public function getDefaultInvocationStrategy()
     {
         return $this->routeInvocationStrategy;
+    }
+
+
+    /**
+     * @return CallableResolverInterface|null
+     */
+    public function getCallableResolver(): ?CallableResolverInterface
+    {
+        return $this->deferredCallableResolver ? ($this->deferredCallableResolver)() : null;
     }
 
     /**
@@ -160,23 +175,11 @@ class Router implements RouterInterface
         }
 
         $this->cacheFile = $cacheFile;
-
         if ($cacheFile !== false && !is_writable(dirname($cacheFile))) {
             throw new RuntimeException('Router cacheFile directory must be writable');
         }
 
-
         return $this;
-    }
-
-    /**
-     * Set callable resolver
-     *
-     * @param CallableResolverInterface $resolver
-     */
-    public function setCallableResolver(CallableResolverInterface $resolver)
-    {
-        $this->callableResolver = $resolver;
     }
 
     /**
@@ -232,13 +235,11 @@ class Router implements RouterInterface
             $pattern,
             $callable,
             $this->responseFactory,
+            $this->deferredCallableResolver,
             $this->routeGroups,
             $this->routeCounter
         );
 
-        if ($this->callableResolver) {
-            $route->setCallableResolver($this->callableResolver);
-        }
         if ($this->routeInvocationStrategy) {
             $route->setInvocationStrategy($this->routeInvocationStrategy);
         }
@@ -355,12 +356,7 @@ class Router implements RouterInterface
      */
     public function pushGroup(string $pattern, $callable): RouteGroupInterface
     {
-        $group = new RouteGroup($pattern, $callable, $this->responseFactory);
-
-        if ($this->callableResolver instanceof CallableResolverInterface) {
-            $group->setCallableResolver($this->callableResolver);
-        }
-
+        $group = new RouteGroup($pattern, $callable, $this->responseFactory, $this->deferredCallableResolver);
         $this->routeGroups[] = $group;
         return $group;
     }

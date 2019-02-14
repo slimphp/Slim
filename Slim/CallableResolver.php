@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -23,16 +24,16 @@ use Slim\Interfaces\CallableResolverInterface;
 final class CallableResolver implements CallableResolverInterface
 {
     /**
-     * @var ContainerInterface|null
+     * @var Closure|null
      */
-    private $container;
+    private $deferredContainerResolver;
 
     /**
-     * @param ContainerInterface|null $container
+     * @param Closure|null $deferredContainerResolver
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(Closure $deferredContainerResolver = null)
     {
-        $this->container = $container;
+        $this->deferredContainerResolver = $deferredContainerResolver;
     }
 
     /**
@@ -52,6 +53,11 @@ final class CallableResolver implements CallableResolverInterface
     {
         $resolved = $toResolve;
 
+        $container = null;
+        if ($deferredContainerResolver = $this->getDeferredContainerResolver()) {
+            $container = ($deferredContainerResolver)();
+        }
+
         if (!is_callable($toResolve) && is_string($toResolve)) {
             $class = $toResolve;
             $method = '__invoke';
@@ -63,13 +69,13 @@ final class CallableResolver implements CallableResolverInterface
                 $method = $matches[2];
             }
 
-            if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
-                $resolved = [$this->container->get($class), $method];
+            if ($container instanceof ContainerInterface && $container->has($class)) {
+                $resolved = [$container->get($class), $method];
             } else {
                 if (!class_exists($class)) {
                     throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
-                $resolved = [new $class($this->container), $method];
+                $resolved = [new $class($container), $method];
             }
 
             // For a class that implements RequestHandlerInterface, we will call handle()
@@ -89,26 +95,20 @@ final class CallableResolver implements CallableResolverInterface
             ));
         }
 
-        if ($this->container instanceof ContainerInterface && $resolved instanceof \Closure) {
-            $resolved = $resolved->bindTo($this->container);
+        if ($container instanceof ContainerInterface && $resolved instanceof \Closure) {
+            $resolved = $resolved->bindTo($container);
         }
 
         return $resolved;
     }
 
     /**
-     * @return ContainerInterface|null
+     * Returned Closure must return a ContainerInterface or null when called
+     *
+     * @return Closure|null
      */
-    public function getContainer(): ?ContainerInterface
+    public function getDeferredContainerResolver(): ?Closure
     {
-        return $this->container;
-    }
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public function setContainer(ContainerInterface $container)
-    {
-        $this->container = $container;
+        return $this->deferredContainerResolver;
     }
 }

@@ -119,20 +119,47 @@ class App implements RequestHandlerInterface
     public function setContainer(ContainerInterface $container)
     {
         $this->container = $container;
+    }
 
-        if ($this->callableResolver !== null) {
-            $this->callableResolver->setContainer($container);
-        }
+    /**
+     * @return Closure
+     */
+    public function getDeferredContainerResolver(): Closure
+    {
+        return (function () {
+            return $this->getContainer();
+        })->bindTo($this);
+    }
+
+    /**
+     * @return Closure
+     */
+    public function getDeferredCallableResolver(): Closure
+    {
+        return (function () {
+            return $this->getCallableResolver();
+        })->bindTo($this);
+    }
+
+    /**
+     * @return Closure
+     */
+    public function getDeferredRouterResolver(): Closure
+    {
+        return (function () {
+            return $this->getRouter();
+        })->bindTo($this);
     }
 
     /**
      * @param MiddlewareInterface|string $middleware
      * @return self
      */
-    public function add($middleware)
+    public function add($middleware): self
     {
         if (is_string($middleware)) {
-            $middleware = new DeferredResolutionMiddleware($middleware, $this->container);
+            $deferredContainerResolver = $this->getDeferredContainerResolver();
+            $middleware = new DeferredResolutionMiddleware($middleware, $deferredContainerResolver);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             throw new RuntimeException(
                 'Parameter 1 of `Slim\App::add()` must be either an object or a class name '.
@@ -140,6 +167,15 @@ class App implements RequestHandlerInterface
             );
         }
 
+        return $this->addMiddleware($middleware);
+    }
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return self
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): self
+    {
         $this->middlewareRunner->add($middleware);
         return $this;
     }
@@ -149,13 +185,9 @@ class App implements RequestHandlerInterface
      */
     protected function addRoutingDetectionMiddleware()
     {
-        $deferredRouterResolver = function () {
-            return $this->getRouter();
-        };
-        Closure::bind($deferredRouterResolver, $this);
-
+        $deferredRouterResolver = $this->getDeferredRouterResolver();
         $routingDetectionMiddleware = new RoutingDetectionMiddleware($deferredRouterResolver);
-        $this->middlewareRunner->add($routingDetectionMiddleware);
+        $this->addMiddleware($routingDetectionMiddleware);
     }
 
     /********************************************************************************
@@ -237,8 +269,9 @@ class App implements RequestHandlerInterface
      */
     public function getCallableResolver(): CallableResolverInterface
     {
-        if (! $this->callableResolver instanceof CallableResolverInterface) {
-            $this->callableResolver = new CallableResolver($this->container);
+        if (!($this->callableResolver instanceof CallableResolverInterface)) {
+            $deferredContainerResolver = $this->getDeferredContainerResolver();
+            $this->callableResolver = new CallableResolver($deferredContainerResolver);
         }
 
         return $this->callableResolver;
@@ -261,18 +294,13 @@ class App implements RequestHandlerInterface
      */
     public function getRouter(): RouterInterface
     {
-        if (! $this->router instanceof RouterInterface) {
-            $router = new Router($this->responseFactory);
-
-            $resolver = $this->getCallableResolver();
-            if ($resolver instanceof CallableResolverInterface) {
-                $router->setCallableResolver($resolver);
-            }
+        if (!($this->router instanceof RouterInterface)) {
+            $deferredCallableResolver = $this->getDeferredCallableResolver();
+            $router = new Router($this->responseFactory, $deferredCallableResolver);
+            $this->router = $router;
 
             $routerCacheFile = $this->getSetting('routerCacheFile', false);
             $router->setCacheFile($routerCacheFile);
-
-            $this->router = $router;
         }
 
         return $this->router;

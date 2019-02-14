@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,24 +26,24 @@ use RuntimeException;
 class DeferredResolutionMiddleware implements MiddlewareInterface
 {
     /**
-     * @var ContainerInterface|null
-     */
-    private $container;
-
-    /**
      * @var string
      */
     private $resolvable;
 
     /**
+     * @var Closure|null
+     */
+    private $deferredContainerResolver;
+
+    /**
      * DeferredResolutionMiddleware constructor.
      * @param string $resolvable
-     * @param ContainerInterface|null $container
+     * @param Closure|null $deferredContainerResolver
      */
-    public function __construct(string $resolvable, ContainerInterface $container = null)
+    public function __construct(string $resolvable, Closure $deferredContainerResolver = null)
     {
         $this->resolvable = $resolvable;
-        $this->container = $container;
+        $this->deferredContainerResolver = $deferredContainerResolver;
     }
 
     /**
@@ -50,8 +51,11 @@ class DeferredResolutionMiddleware implements MiddlewareInterface
      */
     protected function resolve(): MiddlewareInterface
     {
-        if ($this->container instanceof ContainerInterface && $this->container->has($this->resolvable)) {
-            $resolved = $this->container->get($this->resolvable);
+        /** @var ContainerInterface|null $container */
+        $container = $this->deferredContainerResolver ? ($this->deferredContainerResolver)() : null;
+
+        if ($container instanceof ContainerInterface && $container->has($this->resolvable)) {
+            $resolved = $container->get($this->resolvable);
         } else {
             if (!class_exists($this->resolvable)) {
                 throw new RuntimeException(sprintf('Middleware %s does not exist', $this->resolvable));

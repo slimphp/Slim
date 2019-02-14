@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use RuntimeException;
@@ -18,10 +19,8 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Middleware\DeferredResolutionMiddleware;
 
 /**
- * A routable, middleware-aware object
- *
+ * Class Routable
  * @package Slim
- * @since   3.0.0
  */
 abstract class Routable
 {
@@ -33,9 +32,9 @@ abstract class Routable
     protected $callable;
 
     /**
-     * @var CallableResolverInterface|null
+     * @var Closure|null
      */
-    protected $callableResolver;
+    protected $deferredCallableResolver;
 
     /**
      * @var ResponseFactoryInterface
@@ -62,8 +61,8 @@ abstract class Routable
     {
         if (is_string($middleware)) {
             $callableResolver = $this->getCallableResolver();
-            $container = $callableResolver !== null ? $callableResolver->getContainer() : null;
-            $middleware = new DeferredResolutionMiddleware($middleware, $container);
+            $deferredContainerResolver = $callableResolver !== null ? $callableResolver->getDeferredContainerResolver() : null;
+            $middleware = new DeferredResolutionMiddleware($middleware, $deferredContainerResolver);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             $calledClass = get_called_class();
             throw new RuntimeException(
@@ -72,6 +71,15 @@ abstract class Routable
             );
         }
 
+        return $this->addMiddleware($middleware);
+    }
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return self
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): self
+    {
         $this->middlewareRunner->add($middleware);
         return $this;
     }
@@ -97,23 +105,13 @@ abstract class Routable
     }
 
     /**
-     * Set callable resolver
-     *
-     * @param CallableResolverInterface $resolver
-     */
-    public function setCallableResolver(CallableResolverInterface $resolver)
-    {
-        $this->callableResolver = $resolver;
-    }
-
-    /**
      * Get callable resolver
      *
      * @return CallableResolverInterface|null
      */
-    public function getCallableResolver()
+    public function getCallableResolver(): ?CallableResolverInterface
     {
-        return $this->callableResolver;
+        return $this->deferredCallableResolver ? ($this->deferredCallableResolver)() : null;
     }
 
     /**

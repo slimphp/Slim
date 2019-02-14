@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -60,7 +61,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     private $finalized = false;
 
     /**
-     * @var \Slim\Interfaces\InvocationStrategyInterface
+     * @var InvocationStrategyInterface
      */
     protected $routeInvocationStrategy;
 
@@ -85,6 +86,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      * @param string                    $pattern The route pattern
      * @param callable|string           $callable The route callable
      * @param ResponseFactoryInterface  $responseFactory
+     * @param Closure|null              $deferredCallableResolver
      * @param RouteGroup[]              $groups The parent route groups
      * @param int                       $identifier The route identifier
      */
@@ -93,6 +95,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         string $pattern,
         $callable,
         ResponseFactoryInterface $responseFactory,
+        Closure $deferredCallableResolver = null,
         array $groups = [],
         int $identifier = 0
     ) {
@@ -100,6 +103,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         $this->pattern  = $pattern;
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
+        $this->deferredCallableResolver = $deferredCallableResolver;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
         $this->routeInvocationStrategy = new RequestResponse();
@@ -342,8 +346,9 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     {
         /** @var callable $callable */
         $callable = $this->callable;
-        if ($this->callableResolver) {
-            $callable = $this->callableResolver->resolve($callable);
+
+        if ($callableResolver = $this->getCallableResolver()) {
+            $callable = $callableResolver->resolve($callable);
         }
 
         /** @var InvocationStrategyInterface|RequestHandler $handler */
