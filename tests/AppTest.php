@@ -100,18 +100,14 @@ class AppTest extends TestCase
         $container = new Psr11Container($pimple);
         $app->setContainer($container);
         $this->assertSame($container, $app->getContainer());
-
-        $container2 = new Psr11Container($pimple);
-        $app->setContainer($container2);
-        $callableResolver = $app->getCallableResolver();
-        $this->assertAttributeEquals($container2, 'container', $callableResolver);
     }
 
     public function testSetCallableResolver()
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $callableResolver = new CallableResolver();
+        $deferredContainerResolver = $app->getDeferredContainerResolver();
+        $callableResolver = new CallableResolver($deferredContainerResolver);
         $app->setCallableResolver($callableResolver);
         $this->assertSame($callableResolver, $app->getCallableResolver());
     }
@@ -123,6 +119,53 @@ class AppTest extends TestCase
         $router = new Router($responseFactory);
         $app->setRouter($router);
         $this->assertSame($router, $app->getRouter());
+    }
+
+    public function testGetDeferredContainerResolver()
+    {
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $container2 = new Psr11Container($pimple);
+
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory, $container);
+
+        $deferredContainerResolver = $app->getDeferredContainerResolver();
+        $this->assertEquals($container, $deferredContainerResolver());
+
+        $app->setContainer($container2);
+        $this->assertEquals($container2, $deferredContainerResolver());
+    }
+
+    public function testGetDeferredRouterResolver()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory);
+        $router = $app->getRouter();
+        $router2 = new Router($responseFactory);
+
+        $deferredRouterResolver = $app->getDeferredRouterResolver();
+        $this->assertEquals($router, $deferredRouterResolver());
+
+        $app->setRouter($router2);
+        $this->assertEquals($router2, $deferredRouterResolver());
+    }
+
+    public function testGetDeferredCallableResolver()
+    {
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory, $container);
+        $callableResolver = $app->getCallableResolver();
+        $callableResolver2 = new CallableResolver();
+
+        $deferredCallableResolver = $app->getDeferredCallableResolver();
+        $this->assertEquals($callableResolver, $deferredCallableResolver());
+
+        $app->setCallableResolver($callableResolver2);
+        $this->assertEquals($callableResolver2, $deferredCallableResolver());
     }
 
     /********************************************************************************

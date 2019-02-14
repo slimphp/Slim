@@ -56,28 +56,6 @@ class RouterTest extends TestCase
         $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
     }
 
-    public function testCallableResolverFromRouterIsBeingSetOnRouteGroup()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory);
-
-        $callableResolver = new CallableResolver();
-        $router->setCallableResolver($callableResolver);
-
-        $router->pushGroup('/group', function () {
-        });
-
-        $reflectionProperty = new ReflectionProperty(Router::class, 'routeGroups');
-        $reflectionProperty->setAccessible(true);
-
-        $groups = $reflectionProperty->getValue($router);
-
-        $reflectionProperty = new ReflectionProperty(RouteGroup::class, 'callableResolver');
-        $reflectionProperty->setAccessible(true);
-
-        $this->assertEquals($callableResolver, $reflectionProperty->getValue($groups[0]));
-    }
-
     /**
      * Base path is ignored by relativePathFor()
      */

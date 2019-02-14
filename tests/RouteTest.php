@@ -206,12 +206,14 @@ class RouteTest extends TestCase
 
     public function testControllerMethodAsStringResolvesWithoutContainer()
     {
-        $resolver = new CallableResolver();
-        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $resolver);
         $responseFactory = $this->getResponseFactory();
+        $resolver = new CallableResolver();
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory);
-        $route->setCallableResolver($resolver);
+        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $resolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
 
         CallableTest::$CalledCount = 0;
 
@@ -226,13 +228,20 @@ class RouteTest extends TestCase
     {
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest();
-        $resolver = new CallableResolver(new Psr11Container($pimple));
+        $container = new Psr11Container($pimple);
+        $deferredContainerResolver = function () use ($container) {
+            return $container;
+        };
+
+        $resolver = new CallableResolver($deferredContainerResolver);
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory);
-        $route->setCallableResolver($resolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
 
         CallableTest::$CalledCount = 0;
 
@@ -329,10 +338,14 @@ class RouteTest extends TestCase
     public function testInvokeDeferredCallableWithNoContainer()
     {
         $resolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
 
-        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall', $responseFactory);
-        $route->setCallableResolver($resolver);
+        $responseFactory = $this->getResponseFactory();
+        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $request = $this->createServerRequest('/');
@@ -349,11 +362,20 @@ class RouteTest extends TestCase
     {
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest;
-        $resolver = new CallableResolver(new Psr11Container($pimple));
-        $responseFactory = $this->getResponseFactory();
+        $container = new Psr11Container($pimple);
+        $deferredContainerResolver = function () use ($container) {
+            return $container;
+        };
 
-        $route = new Route(['GET'], '/', '\Slim\Tests\Mocks\CallableTest:toCall', $responseFactory);
-        $route->setCallableResolver($resolver);
+        $resolver = new CallableResolver($deferredContainerResolver);
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
 
         $request = $this->createServerRequest('/');
@@ -367,11 +389,20 @@ class RouteTest extends TestCase
     {
         $pimple = new Pimple();
         $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
-        $resolver = new CallableResolver(new Psr11Container($pimple));
-        $responseFactory = $this->getResponseFactory();
+        $container = new Psr11Container($pimple);
+        $deferredContainerResolver = function () use ($container) {
+            return $container;
+        };
 
-        $route = new Route(['GET'], '/', RequestHandlerTest::class, $responseFactory);
-        $route->setCallableResolver($resolver);
+        $resolver = new CallableResolver($deferredContainerResolver);
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $deferred = RequestHandlerTest::class;
+
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
 
         $request = $this->createServerRequest('/', 'GET');
         $route->run($request);
@@ -397,17 +428,15 @@ class RouteTest extends TestCase
     public function testChangingCallableWithNoContainer()
     {
         $resolver = new CallableResolver();
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
+
         $responseFactory = $this->getResponseFactory();
+        $deferred = 'NonExistent:toCall';
 
-        $route = new Route(
-            ['GET'],
-            '/',
-            'NonExistent:toCall',
-            $responseFactory
-        );
-        $route->setCallableResolver($resolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
-
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
@@ -424,18 +453,21 @@ class RouteTest extends TestCase
     {
         $pimple = new Pimple();
         $pimple['CallableTest2'] = new CallableTest;
-        $resolver = new CallableResolver(new Psr11Container($pimple));
+        $container = new Psr11Container($pimple);
+        $deferredContainerResolver = function () use ($container) {
+            return $container;
+        };
+
+        $resolver = new CallableResolver($deferredContainerResolver);
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
+
         $responseFactory = $this->getResponseFactory();
+        $deferred = 'NonExistent:toCall';
 
-        $route = new Route(
-            ['GET'],
-            '/',
-            'NonExistent:toCall',
-            $responseFactory
-        );
-        $route->setCallableResolver($resolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
         $route->setInvocationStrategy(new InvocationStrategyTest());
-
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
