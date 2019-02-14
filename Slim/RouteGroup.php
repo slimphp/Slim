@@ -31,7 +31,8 @@ class RouteGroup extends Routable implements RouteGroupInterface
      * @param Closure|null              $deferredCallableResolver
      */
     public function __construct(
-        string $pattern, $callable,
+        string $pattern,
+        $callable,
         ResponseFactoryInterface $responseFactory,
         Closure $deferredCallableResolver = null
     ) {

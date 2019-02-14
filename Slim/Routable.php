@@ -61,7 +61,9 @@ abstract class Routable
     {
         if (is_string($middleware)) {
             $callableResolver = $this->getCallableResolver();
-            $deferredContainerResolver = $callableResolver !== null ? $callableResolver->getDeferredContainerResolver() : null;
+            $deferredContainerResolver = $callableResolver !== null
+                ? $callableResolver->getDeferredContainerResolver()
+                : null;
             $middleware = new DeferredResolutionMiddleware($middleware, $deferredContainerResolver);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             $calledClass = get_called_class();
