@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Middleware;
 
+use Exception;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\MiddlewareRunner;
@@ -77,5 +78,28 @@ class OutputBufferingMiddlewareTest extends TestCase
         $response = $middlewareRunner->run($request);
 
         $this->assertEquals('TestBody', $response->getBody());
+    }
+
+    public function testOutputBufferIsCleanedWhenThrowableIsCaught()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware((function ($request, $handler) use ($responseFactory) {
+            echo "Test";
+            $this->assertEquals('Test', ob_get_contents());
+            throw new Exception('Oops...');
+        })->bindTo($this));
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
+
+        $request = $this->createServerRequest('/', 'GET');
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+
+        try {
+            $middlewareRunner->run($request);
+        } catch (Exception $e) {
+            $this->assertEquals('', ob_get_contents());
+        }
     }
 }
