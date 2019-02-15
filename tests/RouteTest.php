@@ -476,4 +476,37 @@ class RouteTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
+
+    public function testRouteCallableIsResolvedUsingContainerWhenCallableResolverIsPresent()
+    {
+        $responseFactory = $this->getResponseFactory();
+
+        $pimple = new Pimple();
+        $pimple['CallableTest3'] = new CallableTest;
+        $pimple['ClosureMiddleware'] = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
+            $response->getBody()->write('Hello');
+            return $response;
+        });
+        $container = new Psr11Container($pimple);
+        $deferredContainerResolver = function () use ($container) {
+            return $container;
+        };
+
+        $resolver = new CallableResolver($deferredContainerResolver);
+        $deferredCallableResolver = function () use ($resolver) {
+            return $resolver;
+        };
+
+        $deferred = 'CallableTest3';
+
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
+        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $route->add('ClosureMiddleware');
+
+        $request = $this->createServerRequest('/');
+        $response = $route->run($request);
+
+        $this->assertEquals('Hello', (string) $response->getBody());
+    }
 }
