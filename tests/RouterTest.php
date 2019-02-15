@@ -8,13 +8,14 @@
  */
 namespace Slim\Tests;
 
-use ReflectionProperty;
+use FastRoute\RouteCollector;
+use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\Dispatcher;
 use Slim\Route;
-use Slim\RouteGroup;
 use Slim\RoutingResults;
 use Slim\Router;
+use Slim\Tests\Mocks\InvocationStrategyTest;
 
 class RouterTest extends TestCase
 {
@@ -186,7 +187,7 @@ class RouterTest extends TestCase
 
     public function testCreateDispatcher()
     {
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
         $this->assertInstanceOf(Dispatcher::class, $method->invoke($this->router));
@@ -194,14 +195,42 @@ class RouterTest extends TestCase
 
     public function testSetDispatcher()
     {
-        $this->router->setDispatcher(\FastRoute\simpleDispatcher(function ($r) {
-            $r->addRoute('GET', '/', function () {
-            });
-        }, ['dispatcher' => Dispatcher::class]));
-        $class = new \ReflectionClass($this->router);
+        /** @var Dispatcher $dispatcher */
+        $dispatcher = \FastRoute\simpleDispatcher(function (RouteCollector $r) {
+        }, ['dispatcher' => Dispatcher::class]);
+        $this->router->setDispatcher($dispatcher);
+
+        $class = new ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
-        $this->assertInstanceOf(Dispatcher::class, $prop->getValue($this->router));
+
+        $this->assertEquals($dispatcher, $prop->getValue($this->router));
+    }
+
+    public function testGetDefaultInvocationStrategy()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $router = new Router($responseFactory);
+
+        $invocationStrategy = new InvocationStrategyTest();
+        $router->setDefaultInvocationStrategy($invocationStrategy);
+
+        $this->assertEquals($invocationStrategy, $router->getDefaultInvocationStrategy());
+    }
+
+    public function testGetCallableResolver()
+    {
+        $responseFactory = $this->getResponseFactory();
+
+        $router = new Router($responseFactory);
+        $this->assertEquals(null, $router->getCallableResolver());
+
+        $callableResolver = new CallableResolver();
+        $deferredCallableResolver = function () use ($callableResolver) {
+            return $callableResolver;
+        };
+        $router = new Router($responseFactory, $deferredCallableResolver);
+        $this->assertEquals($callableResolver, $router->getCallableResolver());
     }
 
     /**
@@ -297,7 +326,7 @@ class RouterTest extends TestCase
     {
         $this->router->setCacheFile(false);
 
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $property = $class->getProperty('cacheFile');
         $property->setAccessible(true);
 
@@ -342,7 +371,7 @@ class RouterTest extends TestCase
 
         $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
         $this->router->setCacheFile($cacheFile);
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
@@ -356,7 +385,7 @@ class RouterTest extends TestCase
         $router2 = new Router($responseFactory);
         $router2->setCacheFile($cacheFile);
 
-        $class = new \ReflectionClass($router2);
+        $class = new ReflectionClass($router2);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
@@ -377,7 +406,7 @@ class RouterTest extends TestCase
      */
     public function testCreateDispatcherReturnsSameDispatcherASecondTime()
     {
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
