@@ -46,7 +46,7 @@ use Slim\Psr7\Factory\StreamFactory;
 $responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory());
 $app = new App($responseFactory);
 
-// Add middlweare (LIFO stack)
+// Add middleware (LIFO stack)
 $app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
 
 // Action
