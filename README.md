@@ -88,7 +88,8 @@ $serverRequestFactory = new ServerRequestCreator(
  */
 $app = new Slim\App($psr17Factory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
@@ -119,7 +120,8 @@ $serverRequestFactory = new ServerRequestFactory();
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
@@ -197,7 +199,8 @@ $responseFactory = new ResponseFactory();
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
