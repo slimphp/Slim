@@ -23,10 +23,10 @@ use Slim\Route;
 use Slim\RoutingResults;
 
 /**
- * Class RoutingDetectionMiddleware
+ * Class DispatchMiddleware
  * @package Slim\Middleware
  */
-class RoutingDetectionMiddleware implements MiddlewareInterface
+class DispatchMiddleware implements MiddlewareInterface
 {
     /**
      * @var Closure
@@ -34,7 +34,7 @@ class RoutingDetectionMiddleware implements MiddlewareInterface
     private $deferredRouterResolver;
 
     /**
-     * RoutingDetectionMiddleware constructor.
+     * DispatchMiddleware constructor.
      * @param Closure $deferredRouterResolver
      */
     public function __construct(Closure $deferredRouterResolver)

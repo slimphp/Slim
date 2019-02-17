@@ -25,7 +25,7 @@ use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\DeferredResolutionMiddleware;
-use Slim\Middleware\RoutingDetectionMiddleware;
+use Slim\Middleware\DispatchMiddleware;
 
 /**
  * App
@@ -161,12 +161,12 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Seed middleware stack with RoutingDetectionMiddleware
+     * Seed middleware stack with DispatchMiddleware
      */
     protected function addRoutingDetectionMiddleware()
     {
         $deferredRouterResolver = $this->getDeferredRouterResolver();
-        $routingDetectionMiddleware = new RoutingDetectionMiddleware($deferredRouterResolver);
+        $routingDetectionMiddleware = new DispatchMiddleware($deferredRouterResolver);
         $this->addMiddleware($routingDetectionMiddleware);
     }
 

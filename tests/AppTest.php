@@ -21,7 +21,7 @@ use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Middleware\ClosureMiddleware;
-use Slim\Middleware\RoutingDetectionMiddleware;
+use Slim\Middleware\DispatchMiddleware;
 use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
@@ -1009,7 +1009,7 @@ class AppTest extends TestCase
         $middleware = $middlewareRunner->getMiddleware();
         $bottom = $middleware[1];
 
-        $this->assertInstanceOf(RoutingDetectionMiddleware::class, $bottom);
+        $this->assertInstanceOf(DispatchMiddleware::class, $bottom);
     }
 
     public function testAddMiddleware()

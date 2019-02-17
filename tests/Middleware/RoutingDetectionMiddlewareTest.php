@@ -11,7 +11,7 @@ namespace Slim\Tests\Middleware;
 use Closure;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Slim\Middleware\RoutingDetectionMiddleware;
+use Slim\Middleware\DispatchMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\Router;
 use Slim\RoutingResults;
@@ -37,7 +37,7 @@ class RoutingDetectionMiddlewareTest extends TestCase
         $deferredRouterResolver = function () use ($router) {
             return $router;
         };
-        $mw = new RoutingDetectionMiddleware($deferredRouterResolver);
+        $mw = new DispatchMiddleware($deferredRouterResolver);
 
         $middlewareRunner = new MiddlewareRunner();
         $middlewareRunner->add($mw);
