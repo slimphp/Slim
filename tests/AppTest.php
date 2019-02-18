@@ -37,6 +37,43 @@ class AppTest extends TestCase
     }
 
     /********************************************************************************
+     * Getter methods
+     *******************************************************************************/
+
+    public function testGetContainer()
+    {
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory, $container);
+
+        $this->assertEquals($container, $app->getContainer());
+    }
+
+    public function testGetCallableResolver()
+    {
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $callableResolver = new CallableResolver($container);
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory, $container);
+
+        $this->assertEquals($callableResolver, $app->getCallableResolver());
+    }
+
+    public function testGetRouter()
+    {
+        $pimple = new Pimple();
+        $container = new Psr11Container($pimple);
+        $callableResolver = new CallableResolver($container);
+        $responseFactory = $this->getResponseFactory();
+        $router = new Router($responseFactory, $callableResolver);
+        $app = new App($responseFactory, $container);
+
+        $this->assertEquals($router, $app->getRouter());
+    }
+
+    /********************************************************************************
      * Settings management methods
      *******************************************************************************/
 
