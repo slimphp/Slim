@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,6 +18,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteInterface;
 
@@ -63,7 +63,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     /**
      * @var InvocationStrategyInterface
      */
-    protected $routeInvocationStrategy;
+    protected $invocationStrategy;
 
     /**
      * Route parameters
@@ -82,20 +82,22 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     /**
      * Create new route
      *
-     * @param string|string[]           $methods The route HTTP methods
-     * @param string                    $pattern The route pattern
-     * @param callable|string           $callable The route callable
-     * @param ResponseFactoryInterface  $responseFactory
-     * @param Closure|null              $deferredCallableResolver
-     * @param RouteGroup[]              $groups The parent route groups
-     * @param int                       $identifier The route identifier
+     * @param string|string[]                   $methods The route HTTP methods
+     * @param string                            $pattern The route pattern
+     * @param callable|string                   $callable The route callable
+     * @param ResponseFactoryInterface          $responseFactory
+     * @param CallableResolverInterface         $callableResolver
+     * @param InvocationStrategyInterface|null  $invocationStrategy
+     * @param RouteGroup[]                      $groups The parent route groups
+     * @param int                               $identifier The route identifier
      */
     public function __construct(
         $methods,
         string $pattern,
         $callable,
         ResponseFactoryInterface $responseFactory,
-        Closure $deferredCallableResolver = null,
+        CallableResolverInterface $callableResolver,
+        InvocationStrategyInterface $invocationStrategy = null,
         array $groups = [],
         int $identifier = 0
     ) {
@@ -103,23 +105,12 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         $this->pattern  = $pattern;
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
-        $this->deferredCallableResolver = $deferredCallableResolver;
+        $this->callableResolver = $callableResolver;
+        $this->invocationStrategy = $invocationStrategy ?? new RequestResponse();
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
-        $this->routeInvocationStrategy = new RequestResponse();
         $this->middlewareRunner = new MiddlewareRunner();
     }
-
-    /**
-     * Set route invocation strategy
-     *
-     * @param InvocationStrategyInterface $strategy
-     */
-    public function setInvocationStrategy(InvocationStrategyInterface $strategy)
-    {
-        $this->routeInvocationStrategy = $strategy;
-    }
-
     /**
      * Get route invocation strategy
      *
@@ -127,30 +118,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      */
     public function getInvocationStrategy(): InvocationStrategyInterface
     {
-        return $this->routeInvocationStrategy;
-    }
-
-    /**
-     * Finalize the route in preparation for dispatching
-     */
-    public function finalize()
-    {
-        if ($this->finalized) {
-            return;
-        }
-
-        $groupMiddleware = [];
-        foreach ($this->getGroups() as $group) {
-            foreach ($group->getMiddleware() as $middleware) {
-                array_unshift($groupMiddleware, $middleware);
-            }
-        }
-
-        $middleware = array_merge(array_reverse($groupMiddleware), $this->getMiddleware());
-        $middleware[] = $this;
-        $this->middlewareRunner->setMiddleware($middleware);
-
-        $this->finalized = true;
+        return $this->invocationStrategy;
     }
 
     /**
@@ -289,6 +257,26 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         return $default;
     }
 
+    /**
+     * @param MiddlewareInterface|string|callable $middleware
+     * @return RouteInterface
+     */
+    public function add($middleware): RouteInterface
+    {
+        $this->addRouteMiddleware($middleware);
+        return $this;
+    }
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return RouteInterface
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): RouteInterface
+    {
+        $this->addRouteMiddleware($middleware);
+        return $this;
+    }
+
     /********************************************************************************
      * Route Runner
      *******************************************************************************/
@@ -308,6 +296,29 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v, false);
         }
+    }
+
+    /**
+     * Finalize the route in preparation for dispatching
+     */
+    public function finalize()
+    {
+        if ($this->finalized) {
+            return;
+        }
+
+        $groupMiddleware = [];
+        foreach ($this->groups as $group) {
+            foreach ($group->getMiddleware() as $middleware) {
+                array_unshift($groupMiddleware, $middleware);
+            }
+        }
+
+        $middleware = array_merge(array_reverse($groupMiddleware), $this->getMiddleware());
+        $middleware[] = $this;
+        $this->middlewareRunner->setMiddleware($middleware);
+
+        $this->finalized = true;
     }
 
     /**
@@ -345,14 +356,10 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         /** @var callable $callable */
-        $callable = $this->callable;
-
-        if ($callableResolver = $this->getCallableResolver()) {
-            $callable = $callableResolver->resolve($callable);
-        }
+        $callable = $this->callableResolver->resolve($this->callable);
 
         /** @var InvocationStrategyInterface|RequestHandler $handler */
-        $routeHandler = $this->routeInvocationStrategy;
+        $routeHandler = $this->invocationStrategy;
         if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
             // callables that implement RequestHandlerInterface use the RequestHandler strategy
             $routeHandler = new RequestHandler();

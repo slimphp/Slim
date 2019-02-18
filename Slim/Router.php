@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Closure;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
@@ -19,6 +18,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
+use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
@@ -38,21 +38,19 @@ class Router implements RouterInterface
     /**
      * Parser
      *
-     * @var \FastRoute\RouteParser
+     * @var RouteParser
      */
     protected $routeParser;
 
     /**
-     * Deferred Callable Resolver
-     *
-     * @var Closure|null
+     * @var CallableResolverInterface
      */
-    protected $deferredCallableResolver;
+    protected $callableResolver;
 
     /**
-     * @var InvocationStrategyInterface|null
+     * @var InvocationStrategyInterface
      */
-    protected $routeInvocationStrategy;
+    protected $defaultInvocationStrategy;
 
     /**
      * Base path used in pathFor()
@@ -64,9 +62,9 @@ class Router implements RouterInterface
     /**
      * Path to fast route cache file. Set to false to disable route caching
      *
-     * @var string|False
+     * @var string|null
      */
-    protected $cacheFile = false;
+    protected $cacheFile = null;
 
     /**
      * Routes
@@ -77,6 +75,7 @@ class Router implements RouterInterface
 
     /**
      * Route counter incrementer
+     *
      * @var int
      */
     protected $routeCounter = 0;
@@ -101,47 +100,49 @@ class Router implements RouterInterface
     /**
      * Create new router
      *
-     * @param ResponseFactoryInterface  $responseFactory
-     * @param Closure                   $deferredCallableResolver
-     * @param RouteParser               $parser
+     * @param ResponseFactoryInterface      $responseFactory
+     * @param CallableResolverInterface     $callableResolver
+     * @param InvocationStrategyInterface   $defaultInvocationStrategy
+     * @param RouteParser                   $parser
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
-        Closure $deferredCallableResolver = null,
+        CallableResolverInterface $callableResolver,
+        InvocationStrategyInterface $defaultInvocationStrategy = null,
         RouteParser $parser = null
     ) {
         $this->responseFactory = $responseFactory;
-        $this->deferredCallableResolver = $deferredCallableResolver;
-        $this->routeParser = $parser ?: new StdParser;
-    }
-
-    /**
-     * Set default route invocation strategy
-     *
-     * @param InvocationStrategyInterface $strategy
-     */
-    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy)
-    {
-        $this->routeInvocationStrategy = $strategy;
+        $this->callableResolver = $callableResolver;
+        $this->defaultInvocationStrategy = $defaultInvocationStrategy ?? new RequestResponse();
+        $this->routeParser = $parser ?? new StdParser;
     }
 
     /**
      * Get default route invocation strategy
      *
-     * @return InvocationStrategyInterface|null
+     * @return InvocationStrategyInterface
      */
     public function getDefaultInvocationStrategy()
     {
-        return $this->routeInvocationStrategy;
+        return $this->defaultInvocationStrategy;
     }
 
+    /**
+     * @param InvocationStrategyInterface $strategy
+     * @return self
+     */
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy)
+    {
+        $this->defaultInvocationStrategy = $strategy;
+        return $this;
+    }
 
     /**
-     * @return CallableResolverInterface|null
+     * @return CallableResolverInterface
      */
-    public function getCallableResolver(): ?CallableResolverInterface
+    public function getCallableResolver(): CallableResolverInterface
     {
-        return $this->deferredCallableResolver ? ($this->deferredCallableResolver)() : null;
+        return $this->callableResolver;
     }
 
     /**
@@ -161,21 +162,17 @@ class Router implements RouterInterface
     /**
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
-     * @param string|bool $cacheFile
-     *
+     * @param string|null $cacheFile
      * @return self
      *
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
-    public function setCacheFile($cacheFile)
+    public function setCacheFile(?string $cacheFile): RouterInterface
     {
-        if (!is_string($cacheFile) && $cacheFile !== false) {
-            throw new InvalidArgumentException('Router cacheFile must be a string or false');
-        }
-
         $this->cacheFile = $cacheFile;
-        if ($cacheFile !== false && !is_writable(dirname($cacheFile))) {
+
+        if (is_string($cacheFile) && !is_writable(dirname($cacheFile))) {
             throw new RuntimeException('Router cacheFile directory must be writable');
         }
 
@@ -230,21 +227,16 @@ class Router implements RouterInterface
      */
     protected function createRoute(array $methods, string $pattern, $callable): RouteInterface
     {
-        $route = new Route(
+        return new Route(
             $methods,
             $pattern,
             $callable,
             $this->responseFactory,
-            $this->deferredCallableResolver,
+            $this->callableResolver,
+            $this->defaultInvocationStrategy,
             $this->routeGroups,
             $this->routeCounter
         );
-
-        if ($this->routeInvocationStrategy) {
-            $route->setInvocationStrategy($this->routeInvocationStrategy);
-        }
-
-        return $route;
     }
 
     /**
@@ -356,7 +348,7 @@ class Router implements RouterInterface
      */
     public function pushGroup(string $pattern, $callable): RouteGroupInterface
     {
-        $group = new RouteGroup($pattern, $callable, $this->responseFactory, $this->deferredCallableResolver);
+        $group = new RouteGroup($pattern, $callable, $this->responseFactory, $this->callableResolver);
         $this->routeGroups[] = $group;
         return $group;
     }

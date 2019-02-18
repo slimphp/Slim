@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\DeferredResolutionMiddleware;
 
 /**
@@ -32,9 +33,9 @@ abstract class Routable
     protected $callable;
 
     /**
-     * @var Closure|null
+     * @var CallableResolverInterface
      */
-    protected $deferredCallableResolver;
+    protected $callableResolver;
 
     /**
      * @var ResponseFactoryInterface
@@ -54,34 +55,23 @@ abstract class Routable
     protected $pattern;
 
     /**
-     * @param MiddlewareInterface|string $middleware
+     * @param MiddlewareInterface|string|callable $middleware
      * @return self
      */
-    public function add($middleware)
+    protected function addRouteMiddleware($middleware): self
     {
         if (is_string($middleware)) {
-            $callableResolver = $this->getCallableResolver();
-            $deferredContainerResolver = $callableResolver !== null
-                ? $callableResolver->getDeferredContainerResolver()
-                : null;
-            $middleware = new DeferredResolutionMiddleware($middleware, $deferredContainerResolver);
+            $middleware = new DeferredResolutionMiddleware($middleware, $this->callableResolver->getContainer());
+        } elseif ($middleware instanceof Closure) {
+            $middleware = new ClosureMiddleware($middleware);
         } elseif (!($middleware instanceof MiddlewareInterface)) {
             $calledClass = get_called_class();
             throw new RuntimeException(
-                "Parameter 1 of `{$calledClass}::add()` must be either an object or a class name ".
+                "Parameter 1 of `{$calledClass}::add()` must be a closure or an object/class name ".
                 "referencing an implementation of MiddlewareInterface."
             );
         }
 
-        return $this->addMiddleware($middleware);
-    }
-
-    /**
-     * @param MiddlewareInterface $middleware
-     * @return self
-     */
-    public function addMiddleware(MiddlewareInterface $middleware): self
-    {
         $this->middlewareRunner->add($middleware);
         return $this;
     }
@@ -109,11 +99,11 @@ abstract class Routable
     /**
      * Get callable resolver
      *
-     * @return CallableResolverInterface|null
+     * @return CallableResolverInterface
      */
-    public function getCallableResolver(): ?CallableResolverInterface
+    public function getCallableResolver(): CallableResolverInterface
     {
-        return $this->deferredCallableResolver ? ($this->deferredCallableResolver)() : null;
+        return $this->callableResolver;
     }
 
     /**

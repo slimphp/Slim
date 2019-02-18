@@ -13,6 +13,8 @@ namespace Slim;
 
 use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 
 /**
@@ -28,19 +30,39 @@ class RouteGroup extends Routable implements RouteGroupInterface
      * @param string                    $pattern  The pattern prefix for the group
      * @param callable                  $callable The group callable
      * @param ResponseFactoryInterface  $responseFactory
-     * @param Closure|null              $deferredCallableResolver
+     * @param CallableResolverInterface $callableResolver
      */
     public function __construct(
         string $pattern,
         $callable,
         ResponseFactoryInterface $responseFactory,
-        Closure $deferredCallableResolver = null
+        CallableResolverInterface $callableResolver
     ) {
         $this->pattern = $pattern;
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
-        $this->deferredCallableResolver = $deferredCallableResolver;
+        $this->callableResolver = $callableResolver;
         $this->middlewareRunner = new MiddlewareRunner();
+    }
+
+    /**
+     * @param MiddlewareInterface|string|callable $middleware
+     * @return RouteGroupInterface
+     */
+    public function add($middleware): RouteGroupInterface
+    {
+        $this->addRouteMiddleware($middleware);
+        return $this;
+    }
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return RouteGroupInterface
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface
+    {
+        $this->addRouteMiddleware($middleware);
+        return $this;
     }
 
     /**
@@ -51,12 +73,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
     public function __invoke(App $app = null)
     {
         /** @var callable $callable */
-        $callable = $this->callable;
-
-        if ($callableResolver = $this->getCallableResolver()) {
-            $callable = $callableResolver->resolve($callable);
-        }
-
+        $callable = $this->callableResolver->resolve($this->callable);
         $callable($app);
     }
 }
