@@ -232,7 +232,7 @@ For more information on how to configure your web server, see the [Documentation
 To execute the test suite, you'll need to install all development dependencies.
 
 ```bash
-$ git clone https://github.com/slimphp/Slim-Http
+$ git clone https://github.com/slimphp/Slim
 $ composer install
 $ composer test
 ```
