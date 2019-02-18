@@ -29,6 +29,15 @@ class AbstractErrorRendererTest extends TestCase
         $this->assertRegExp('/.*The application could not run because of the following error:.*/', $output);
     }
 
+    public function testHTMLErrorRendererNoErrorDetails()
+    {
+        $exception = new RuntimeException('Oops..');
+        $renderer = new HtmlErrorRenderer();
+        $output = $renderer->render($exception, false);
+
+        $this->assertRegExp('/.*A website error has occurred. Sorry for the temporary inconvenience.*/', $output);
+    }
+
     public function testHTMLErrorRendererRenderFragmentMethod()
     {
         $exception = new Exception('Oops..', 500);
