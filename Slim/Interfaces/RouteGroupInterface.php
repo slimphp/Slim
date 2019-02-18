@@ -30,9 +30,16 @@ interface RouteGroupInterface
     public function getPattern(): string;
 
     /**
-     * @param MiddlewareInterface|string $middleware
+     * @param MiddlewareInterface|string|callable $middleware
+     * @return RouteGroupInterface
      */
-    public function add($middleware);
+    public function add($middleware): RouteGroupInterface;
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return RouteGroupInterface
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface;
 
     /**
      * Execute route group callable in the context of the Slim App

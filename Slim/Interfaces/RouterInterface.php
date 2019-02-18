@@ -114,6 +114,12 @@ interface RouterInterface
     public function pathFor(string $name, array $data = [], array $queryParams = []): string;
 
     /**
+     * @param string|null $cacheFile
+     * @return RouterInterface
+     */
+    public function setCacheFile(?string $cacheFile): RouterInterface;
+
+    /**
      * Set default route invocation strategy
      *
      * @param InvocationStrategyInterface $strategy

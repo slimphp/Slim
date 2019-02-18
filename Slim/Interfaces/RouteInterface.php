@@ -83,9 +83,16 @@ interface RouteInterface
     public function setName(string $name): self;
 
     /**
-     * @param MiddlewareInterface|string $middleware
+     * @param MiddlewareInterface|string|callable $middleware
+     * @return RouteInterface
      */
-    public function add($middleware);
+    public function add($middleware): RouteInterface;
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return RouteInterface
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): RouteInterface;
 
     /**
      * Prepare the route for use
