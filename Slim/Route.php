@@ -101,13 +101,13 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         array $groups = [],
         int $identifier = 0
     ) {
-        $this->methods  = is_string($methods) ? [$methods] : $methods;
-        $this->pattern  = $pattern;
+        $this->methods = is_string($methods) ? [$methods] : $methods;
+        $this->pattern = $pattern;
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->invocationStrategy = $invocationStrategy ?? new RequestResponse();
-        $this->groups   = $groups;
+        $this->groups = $groups;
         $this->identifier = 'route' . $identifier;
         $this->middlewareRunner = new MiddlewareRunner();
     }

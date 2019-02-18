@@ -18,9 +18,11 @@ use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Handlers\Strategies\RequestHandler;
+use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Route;
+use Slim\RouteGroup;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
@@ -90,6 +92,53 @@ class RouteTest extends TestCase
         $this->assertTrue(is_callable($route->getCallable()));
     }
 
+    public function testGetCallableResolver()
+    {
+        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+
+        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver);
+
+        $this->assertEquals($callableResolver, $route->getCallableResolver());
+    }
+
+    public function testGetInvocationStrategy()
+    {
+        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+        $invocationStrategy = new RequestResponse();
+
+        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy);
+
+        $this->assertEquals($invocationStrategy, $route->getInvocationStrategy());
+    }
+
+    public function testGetGroups()
+    {
+        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+        $invocationStrategy = new RequestResponse();
+
+        $routeGroup = new RouteGroup('/group', $callable, $responseFactory, $callableResolver);
+        $groups = [$routeGroup];
+
+        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
+
+        $this->assertEquals($groups, $route->getGroups());
+    }
+
     public function testArgumentSetting()
     {
         $route = $this->createRoute();
@@ -128,6 +177,50 @@ class RouteTest extends TestCase
         $bottom = $middleware[1];
 
         $this->assertInstanceOf(Route::class, $bottom);
+    }
+
+    public function testAddMiddleware()
+    {
+        $route = $this->createRoute();
+        $called = 0;
+
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
+            $called++;
+            return $handler->handle($request);
+        });
+        $route->addMiddleware($mw);
+
+        $request = $this->createServerRequest('/');
+        $route->run($request);
+
+        $this->assertSame($called, 1);
+    }
+
+    public function testAddMiddlewareOnGroup()
+    {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+        $invocationStrategy = new RequestResponse();
+
+        $called = 0;
+        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
+            $called++;
+            return $handler->handle($request);
+        });
+        $routeGroup = new RouteGroup('/group', $callable, $responseFactory, $callableResolver);
+        $routeGroup->addMiddleware($mw);
+        $groups = [$routeGroup];
+
+        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
+
+        $request = $this->createServerRequest('/');
+        $route->run($request);
+
+        $this->assertSame($called, 1);
     }
 
     public function testAddClosureMiddleware()
