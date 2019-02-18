@@ -111,6 +111,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         $this->identifier = 'route' . $identifier;
         $this->middlewareRunner = new MiddlewareRunner();
     }
+
     /**
      * Get route invocation strategy
      *
@@ -135,10 +136,12 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      * This method enables you to override the Route's callable
      *
      * @param callable|string $callable
+     * @return self
      */
-    public function setCallable($callable)
+    public function setCallable($callable): self
     {
         $this->callable = $callable;
+        return $this;
     }
 
     /**
@@ -164,9 +167,9 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     /**
      * Get route name
      *
-     * @return null|string
+     * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
@@ -195,12 +198,26 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     }
 
     /**
+     * Retrieve a specific route argument
+     *
+     * @param string $name
+     * @param string|null $default
+     * @return mixed
+     */
+    public function getArgument(string $name, $default = null)
+    {
+        if (array_key_exists($name, $this->arguments)) {
+            return $this->arguments[$name];
+        }
+        return $default;
+    }
+
+    /**
      * Set a route argument
      *
      * @param string $name
      * @param string $value
      * @param bool $includeInSavedArguments
-     *
      * @return self
      */
     public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
@@ -210,24 +227,6 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         }
 
         $this->arguments[$name] = $value;
-        return $this;
-    }
-
-    /**
-     * Replace route arguments
-     *
-     * @param array $arguments
-     * @param bool $includeInSavedArguments
-     *
-     * @return self
-     */
-    public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
-    {
-        if ($includeInSavedArguments) {
-            $this->savedArguments = $arguments;
-        }
-
-        $this->arguments = $arguments;
         return $this;
     }
 
@@ -242,19 +241,20 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     }
 
     /**
-     * Retrieve a specific route argument
+     * Replace route arguments
      *
-     * @param string $name
-     * @param string|null $default
-     *
-     * @return mixed
+     * @param array $arguments
+     * @param bool $includeInSavedArguments
+     * @return self
      */
-    public function getArgument(string $name, $default = null)
+    public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
-        if (array_key_exists($name, $this->arguments)) {
-            return $this->arguments[$name];
+        if ($includeInSavedArguments) {
+            $this->savedArguments = $arguments;
         }
-        return $default;
+
+        $this->arguments = $arguments;
+        return $this;
     }
 
     /**
@@ -286,8 +286,9 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
+     * @return void
      */
-    public function prepare(ServerRequestInterface $request, array $arguments)
+    public function prepare(ServerRequestInterface $request, array $arguments): void
     {
         // Remove temp arguments
         $this->setArguments($this->savedArguments);
@@ -300,8 +301,9 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
 
     /**
      * Finalize the route in preparation for dispatching
+     * @return void
      */
-    public function finalize()
+    public function finalize(): void
     {
         if ($this->finalized) {
             return;
@@ -329,7 +331,6 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      * back to the Application.
      *
      * @param ServerRequestInterface $request
-     *
      * @return ResponseInterface
      */
     public function run(ServerRequestInterface $request): ResponseInterface
@@ -350,23 +351,18 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      *
      * @param ServerRequestInterface $request   The current Request object
      * @param RequestHandlerInterface $handler  The current RequestHandler object
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Exception  if the route callable throws an exception
+     * @return ResponseInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var callable $callable */
         $callable = $this->callableResolver->resolve($this->callable);
 
-        /** @var InvocationStrategyInterface|RequestHandler $handler */
-        $routeHandler = $this->invocationStrategy;
+        $strategy = $this->invocationStrategy;
         if (is_array($callable) && $callable[0] instanceof RequestHandlerInterface) {
-            // callables that implement RequestHandlerInterface use the RequestHandler strategy
-            $routeHandler = new RequestHandler();
+            $strategy = new RequestHandler();
         }
 
-        // invoke route callable via invocation strategy handler
         $response = $this->responseFactory->createResponse();
-        return $routeHandler($callable, $request, $response, $this->arguments);
+        return $strategy($callable, $request, $response, $this->arguments);
     }
 }
