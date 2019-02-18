@@ -24,10 +24,6 @@ use Slim\RoutingResults;
  */
 interface RouterInterface
 {
-    // array keys from route result
-    const DISPATCH_STATUS = 0;
-    const ALLOWED_METHODS = 1;
-
     /**
      * Add route
      *
