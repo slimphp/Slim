@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
-use Closure;
+use Psr\Container\ContainerInterface;
 
 /**
  * Resolves a callable.
@@ -30,9 +30,7 @@ interface CallableResolverInterface
     public function resolve($toResolve): callable;
 
     /**
-     * Returned Closure must return a ContainerInterface or null when called
-     *
-     * @return Closure|null
+     * @return ContainerInterface|null
      */
-    public function getDeferredContainerResolver(): ?Closure;
+    public function getContainer(): ?ContainerInterface;
 }

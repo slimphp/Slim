@@ -24,16 +24,16 @@ use Slim\Interfaces\CallableResolverInterface;
 final class CallableResolver implements CallableResolverInterface
 {
     /**
-     * @var Closure|null
+     * @var ContainerInterface|null
      */
-    private $deferredContainerResolver;
+    private $container;
 
     /**
-     * @param Closure|null $deferredContainerResolver
+     * @param ContainerInterface|null $container
      */
-    public function __construct(Closure $deferredContainerResolver = null)
+    public function __construct(ContainerInterface $container = null)
     {
-        $this->deferredContainerResolver = $deferredContainerResolver;
+        $this->container = $container;
     }
 
     /**
@@ -43,7 +43,6 @@ final class CallableResolver implements CallableResolverInterface
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
      * @param mixed $toResolve
-     *
      * @return callable
      *
      * @throws RuntimeException if the callable does not exist
@@ -52,11 +51,6 @@ final class CallableResolver implements CallableResolverInterface
     public function resolve($toResolve): callable
     {
         $resolved = $toResolve;
-
-        $container = null;
-        if ($deferredContainerResolver = $this->getDeferredContainerResolver()) {
-            $container = ($deferredContainerResolver)();
-        }
 
         if (!is_callable($toResolve) && is_string($toResolve)) {
             $class = $toResolve;
@@ -69,13 +63,13 @@ final class CallableResolver implements CallableResolverInterface
                 $method = $matches[2];
             }
 
-            if ($container instanceof ContainerInterface && $container->has($class)) {
-                $resolved = [$container->get($class), $method];
+            if ($this->container instanceof ContainerInterface && $this->container->has($class)) {
+                $resolved = [$this->container->get($class), $method];
             } else {
                 if (!class_exists($class)) {
                     throw new RuntimeException(sprintf('Callable %s does not exist', $class));
                 }
-                $resolved = [new $class($container), $method];
+                $resolved = [new $class($this->container), $method];
             }
 
             // For a class that implements RequestHandlerInterface, we will call handle()
@@ -95,20 +89,18 @@ final class CallableResolver implements CallableResolverInterface
             ));
         }
 
-        if ($container instanceof ContainerInterface && $resolved instanceof \Closure) {
-            $resolved = $resolved->bindTo($container);
+        if ($this->container instanceof ContainerInterface && $resolved instanceof Closure) {
+            $resolved = $resolved->bindTo($this->container);
         }
 
         return $resolved;
     }
 
     /**
-     * Returned Closure must return a ContainerInterface or null when called
-     *
-     * @return Closure|null
+     * @return ContainerInterface|null
      */
-    public function getDeferredContainerResolver(): ?Closure
+    public function getContainer(): ?ContainerInterface
     {
-        return $this->deferredContainerResolver;
+        return $this->container;
     }
 }
