@@ -8,11 +8,8 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
 

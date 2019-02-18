@@ -20,8 +20,6 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
-use Slim\Interfaces\RouterInterface;
-use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\DispatchMiddleware;
 use Slim\Route;
 use Slim\Router;

@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests;
 
-use Closure;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container;
 use Psr\Container\ContainerInterface;

@@ -9,14 +9,13 @@
 namespace Slim\Tests;
 
 use FastRoute\RouteCollector;
-use Grpc\Call;
 use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\Dispatcher;
 use Slim\Interfaces\RouteInterface;
 use Slim\Route;
-use Slim\RoutingResults;
 use Slim\Router;
+use Slim\RoutingResults;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 
 class RouterTest extends TestCase

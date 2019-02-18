@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;

@@ -11,9 +11,9 @@ namespace Slim\Tests\Middleware;
 use FastRoute\Dispatcher;
 use Slim\CallableResolver;
 use Slim\Middleware\ClosureMiddleware;
+use Slim\Middleware\RoutingMiddleware;
 use Slim\MiddlewareRunner;
 use Slim\RoutingResults;
-use Slim\Middleware\RoutingMiddleware;
 use Slim\Router;
 use Slim\Tests\TestCase;
 
