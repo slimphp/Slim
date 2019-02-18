@@ -21,7 +21,7 @@ use Slim\Interfaces\InvocationStrategyInterface;
 class RequestHandler implements InvocationStrategyInterface
 {
     /**
-     * Invoke a route callable that implments RequestHandlerInterface
+     * Invoke a route callable that implements RequestHandlerInterface
      *
      * @param callable               $callable
      * @param ServerRequestInterface $request
