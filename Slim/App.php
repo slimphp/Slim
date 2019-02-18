@@ -384,13 +384,9 @@ class App implements RequestHandlerInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        $router = $this->getRouter();
-
-        /** @var RouteGroup $group */
-        $group = $router->pushGroup($pattern, $callable);
+        $group = $this->router->pushGroup($pattern, $callable);
         $group($this);
-        $router->popGroup();
-
+        $this->router->popGroup();
         return $group;
     }
 
