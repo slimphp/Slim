@@ -11,6 +11,7 @@ namespace Slim\Tests\Middleware;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
 use ReflectionClass;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\DeferredResolutionMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\TestCase;
@@ -22,6 +23,25 @@ use stdClass;
  */
 class DeferredResolutionMiddlewareTest extends TestCase
 {
+    public function testDeferredResolvedCallableGetsWrappedInsideClosureMiddleware()
+    {
+        $pimple = new Pimple();
+        $pimple['callable'] = function () {
+            return function ($request, $handler) {
+            };
+        };
+        $container = new Psr11Container($pimple);
+
+        $deferredResolutionMiddleware = new DeferredResolutionMiddleware('callable', $container);
+
+        $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
+        $method = $reflection->getMethod('resolve');
+        $method->setAccessible(true);
+        $result = $method->invoke($deferredResolutionMiddleware);
+
+        $this->assertInstanceOf(ClosureMiddleware::class, $result);
+    }
+
     public function testResolvableReturnsInstantiatedObject()
     {
         $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);

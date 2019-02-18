@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,6 +53,9 @@ class DeferredResolutionMiddleware implements MiddlewareInterface
     {
         if ($this->container instanceof ContainerInterface && $this->container->has($this->resolvable)) {
             $resolved = $this->container->get($this->resolvable);
+            if ($resolved instanceof Closure) {
+                $resolved = new ClosureMiddleware($resolved);
+            }
         } else {
             if (!class_exists($this->resolvable)) {
                 throw new RuntimeException(sprintf('Middleware %s does not exist', $this->resolvable));
