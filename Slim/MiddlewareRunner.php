@@ -45,10 +45,12 @@ class MiddlewareRunner implements RequestHandlerInterface
 
     /**
      * @param MiddlewareInterface $middleware
+     * @return self
      */
-    public function add(MiddlewareInterface $middleware)
+    public function add(MiddlewareInterface $middleware): self
     {
         array_unshift($this->middleware, $middleware);
+        return $this;
     }
 
     /**
@@ -115,17 +117,21 @@ class MiddlewareRunner implements RequestHandlerInterface
 
     /**
      * @param MiddlewareInterface[] $middleware
+     * @return self
      */
-    public function setMiddleware(array $middleware)
+    public function setMiddleware(array $middleware): self
     {
         $this->middleware = $middleware;
+        return $this;
     }
 
     /**
      * @param SplObjectStorage $stages
+     * @return self
      */
-    public function setStages(SplObjectStorage $stages)
+    public function setStages(SplObjectStorage $stages): self
     {
         $this->stages = $stages;
+        return $this;
     }
 }
