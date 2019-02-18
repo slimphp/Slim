@@ -1337,9 +1337,9 @@ class AppTest extends TestCase
                 ->willReturn($response);
             return $mock;
         };
+        $container = new Psr11Container($pimple);
 
         $responseFactory = $this->getResponseFactory();
-        $container = new Psr11Container($pimple);
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
@@ -1362,9 +1362,9 @@ class AppTest extends TestCase
         $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
+        $container = new Psr11Container($pimple);
 
         $responseFactory = $this->getResponseFactory();
-        $container = new Psr11Container($pimple);
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
@@ -1381,9 +1381,9 @@ class AppTest extends TestCase
         $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
+        $container = new Psr11Container($pimple);
 
         $responseFactory = $this->getResponseFactory();
-        $container = new Psr11Container($pimple);
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
