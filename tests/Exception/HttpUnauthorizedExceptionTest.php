@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Slim\Exception\HttpUnauthorizedException;
 use Slim\Tests\TestCase;
 
