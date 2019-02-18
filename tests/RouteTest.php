@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Closure;
 use Exception;
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
@@ -16,41 +17,44 @@ use Psr\Http\Message\ServerRequestInterface;
 use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
+use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Middleware\ClosureMiddleware;
-use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\Route;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
-use Slim\Tests\Mocks\MiddlewareStub;
-use Slim\Tests\Mocks\MockMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
 class RouteTest extends TestCase
 {
-    public function routeFactory()
+    /**
+     * @param string|array $methods
+     * @param string $pattern
+     * @param Closure|string|null $callable
+     * @return Route
+     */
+    public function createRoute($methods = 'GET', string $pattern = '/', $callable = null): Route
     {
-        $methods = ['GET', 'POST'];
-        $pattern = '/hello/{name}';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             return $response;
         };
-        $responseFactory = $this->getResponseFactory();
 
-        return new Route($methods, $pattern, $callable, $responseFactory);
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+
+        return new Route($methods, $pattern, $callable, $responseFactory, $callableResolver);
     }
 
     public function testConstructor()
     {
         $methods = ['GET', 'POST'];
         $pattern = '/hello/{name}';
-        $callable = function ($req, $res, $args) {
-            // Do something
+        $callable = function ($request, $response, $args) {
+            return $response;
         };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route($methods, $pattern, $callable, $responseFactory);
+        $route = $this->createRoute($methods, $pattern, $callable);
 
         $this->assertAttributeEquals($methods, 'methods', $route);
         $this->assertAttributeEquals($pattern, 'pattern', $route);
@@ -59,39 +63,42 @@ class RouteTest extends TestCase
 
     public function testGetMethodsReturnsArrayWhenContructedWithString()
     {
-        $callable = function ($req, $res, $args) {
-            // Do something
-        };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route('GET', '/hello', $callable, $responseFactory);
+        $route = $this->createRoute();
 
         $this->assertEquals(['GET'], $route->getMethods());
     }
 
     public function testGetMethods()
     {
-        $this->assertEquals(['GET', 'POST'], $this->routeFactory()->getMethods());
+        $methods = ['GET', 'POST'];
+        $route = $this->createRoute($methods);
+
+        $this->assertEquals($methods, $route->getMethods());
     }
 
     public function testGetPattern()
     {
-        $this->assertEquals('/hello/{name}', $this->routeFactory()->getPattern());
+        $route = $this->createRoute();
+
+        $this->assertEquals('/', $route->getPattern());
     }
 
     public function testGetCallable()
     {
-        $callable = $this->routeFactory()->getCallable();
+        $route = $this->createRoute();
 
-        $this->assertTrue(is_callable($callable));
+        $this->assertTrue(is_callable($route->getCallable()));
     }
 
     public function testArgumentSetting()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $route->setArguments(['foo' => 'FOO', 'bar' => 'BAR']);
         $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'BAR']);
+
         $route->setArgument('bar', 'bar');
         $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar']);
+
         $route->setArgument('baz', 'BAZ');
         $this->assertSame($route->getArguments(), ['foo' => 'FOO', 'bar' => 'bar', 'baz' => 'BAZ']);
 
@@ -103,7 +110,7 @@ class RouteTest extends TestCase
 
     public function testBottomMiddlewareIsRoute()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
 
         $reflection = new ReflectionClass(Route::class);
         $property = $reflection->getProperty('middlewareRunner');
@@ -111,10 +118,9 @@ class RouteTest extends TestCase
         $middlewareRunner = $property->getValue($route);
 
         $responseFactory = $this->getResponseFactory();
-        $mw = new ClosureMiddleware(function ($request, $handler) use (&$bottom, $responseFactory) {
+        $route->add(function ($request, $handler) use (&$bottom, $responseFactory) {
             return $responseFactory->createResponse();
         });
-        $route->add($mw);
         $route->finalize();
 
         /** @var array $middleware */
@@ -124,16 +130,15 @@ class RouteTest extends TestCase
         $this->assertInstanceOf(Route::class, $bottom);
     }
 
-    public function testAddMiddleware()
+    public function testAddClosureMiddleware()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $called = 0;
 
-        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
+        $route->add(function ($request, $handler) use (&$called) {
             $called++;
             return $handler->handle($request);
         });
-        $route->add($mw);
 
         $request = $this->createServerRequest('/');
         $route->run($request);
@@ -143,16 +148,14 @@ class RouteTest extends TestCase
 
     public function testAddMiddlewareUsingDeferredResolution()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $route->add(MockMiddlewareWithoutConstructor::class);
 
-        // Prepare request object
         $output = '';
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
         };
-        $request = $this->createServerRequest('/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $request = $this->createServerRequest('/')->withAttribute('appendToOutput', $appendToOutput);
         $route->run($request);
 
         $this->assertSame('Hello World', $output);
@@ -161,25 +164,24 @@ class RouteTest extends TestCase
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage
-     * Parameter 1 of `Slim\Route::add()` must be either an object or a class name
+     * Parameter 1 of `Slim\Route::add()` must be a closure or an object/class name
      * referencing an implementation of MiddlewareInterface.
      */
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $route->add(new MockMiddlewareWithoutInterface());
     }
 
     public function testRefinalizing()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $called = 0;
 
-        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called) {
+        $route->add(function ($request, $handler) use (&$called) {
             $called++;
             return $handler->handle($request);
         });
-        $route->add($mw);
 
         $route->finalize();
         $route->finalize();
@@ -190,30 +192,26 @@ class RouteTest extends TestCase
         $this->assertSame($called, 1);
     }
 
-
     public function testIdentifier()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $this->assertEquals('route0', $route->getIdentifier());
     }
 
     public function testSetName()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $this->assertEquals($route, $route->setName('foo'));
         $this->assertEquals('foo', $route->getName());
     }
 
     public function testControllerMethodAsStringResolvesWithoutContainer()
     {
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $resolver = new CallableResolver();
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
 
-        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $resolver);
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
+        $deferred = new DeferredCallable('\Slim\Tests\Mocks\CallableTest:toCall', $callableResolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
 
         CallableTest::$CalledCount = 0;
 
@@ -229,19 +227,11 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest();
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
-
-        $resolver = new CallableResolver($deferredContainerResolver);
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
-        $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
+        $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
+        $deferred = new DeferredCallable('CallableTest:toCall', $callableResolver);
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
 
         CallableTest::$CalledCount = 0;
 
@@ -262,8 +252,7 @@ class RouteTest extends TestCase
             $response->getBody()->write('foo');
             return $response;
         };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route(['GET'], '/', $callable, $responseFactory);
+        $route = $this->createRoute('GET', '/', $callable);
 
         CallableTest::$CalledCount = 0;
 
@@ -283,8 +272,7 @@ class RouteTest extends TestCase
             echo "foo";
             return $response->withStatus(201);
         };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route(['GET'], '/', $callable, $responseFactory);
+        $route = $this->createRoute('GET', '/', $callable);
 
         $request = $this->createServerRequest('/');
 
@@ -308,8 +296,7 @@ class RouteTest extends TestCase
             $response->getBody()->write('foo');
             return $response;
         };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route(['GET'], '/', $callable, $responseFactory);
+        $route = $this->createRoute('GET', '/', $callable);
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -325,8 +312,7 @@ class RouteTest extends TestCase
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             throw new Exception();
         };
-        $responseFactory = $this->getResponseFactory();
-        $route = new Route(['GET'], '/', $callable, $responseFactory);
+        $route = $this->createRoute('GET', '/', $callable);
 
         $request = $this->createServerRequest('/');
         $route->run($request);
@@ -337,16 +323,12 @@ class RouteTest extends TestCase
      */
     public function testInvokeDeferredCallableWithNoContainer()
     {
-        $resolver = new CallableResolver();
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+        $invocationStrategy = new InvocationStrategyTest();
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
-        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $invocationStrategy);
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -363,20 +345,12 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest;
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
-
-        $resolver = new CallableResolver($deferredContainerResolver);
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
+        $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
-        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+        $invocationStrategy = new InvocationStrategyTest();
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
-        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $invocationStrategy);
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -390,26 +364,18 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
-
-        $resolver = new CallableResolver($deferredContainerResolver);
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
+        $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
-        $deferred = RequestHandlerTest::class;
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
+        $deferred = RequestHandlerTest::class;
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
 
         $request = $this->createServerRequest('/', 'GET');
         $route->run($request);
 
         /** @var InvocationStrategyInterface $strategy */
         $strategy = $pimple[RequestHandlerTest::class]::$strategy;
-        $this->assertEquals('Slim\Handlers\Strategies\RequestHandler', $strategy);
+        $this->assertEquals(RequestHandler::class, $strategy);
     }
 
     /**
@@ -417,8 +383,9 @@ class RouteTest extends TestCase
      */
     public function testPatternCanBeChanged()
     {
-        $route = $this->routeFactory();
+        $route = $this->createRoute();
         $route->setPattern('/hola/{nombre}');
+
         $this->assertEquals('/hola/{nombre}', $route->getPattern());
     }
 
@@ -427,16 +394,11 @@ class RouteTest extends TestCase
      */
     public function testChangingCallableWithNoContainer()
     {
-        $resolver = new CallableResolver();
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $deferred = 'NonExistent:toCall';
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
-        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $deferred = 'NonExistent:toCall';
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
@@ -454,20 +416,12 @@ class RouteTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest2'] = new CallableTest;
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
-
-        $resolver = new CallableResolver($deferredContainerResolver);
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
-
+        $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
-        $deferred = 'NonExistent:toCall';
+        $invocationStrategy = new InvocationStrategyTest();
 
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
-        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $deferred = 'NonExistent:toCall';
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $invocationStrategy);
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
@@ -489,19 +443,11 @@ class RouteTest extends TestCase
             return $response;
         });
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
-
-        $resolver = new CallableResolver($deferredContainerResolver);
-        $deferredCallableResolver = function () use ($resolver) {
-            return $resolver;
-        };
+        $callableResolver = new CallableResolver($container);
+        $invocationStrategy = new InvocationStrategyTest();
 
         $deferred = 'CallableTest3';
-
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $deferredCallableResolver);
-        $route->setInvocationStrategy(new InvocationStrategyTest());
+        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $invocationStrategy);
         $route->add('ClosureMiddleware');
 
         $request = $this->createServerRequest('/');

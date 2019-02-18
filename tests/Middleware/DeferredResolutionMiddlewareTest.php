@@ -45,14 +45,11 @@ class DeferredResolutionMiddlewareTest extends TestCase
         $pimple = new Pimple();
         $pimple->offsetSet('MiddlewareInterfaceNotImplemented', new stdClass());
         $container = new Psr11Container($pimple);
-        $deferredContainerResolver = function () use ($container) {
-            return $container;
-        };
 
         $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
         $deferredResolutionMiddlewareWrapper = new DeferredResolutionMiddleware(
             'MiddlewareInterfaceNotImplemented',
-            $deferredContainerResolver
+            $container
         );
 
         $method = $reflection->getMethod('resolve');

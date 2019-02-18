@@ -21,10 +21,7 @@ class DeferredCallableTest extends TestCase
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest;
         $container = new Container($pimple);
-        $deferredContainerResolver = (function () use ($container) {
-            return $container;
-        });
-        $resolver = new CallableResolver($deferredContainerResolver);
+        $resolver = new CallableResolver($container);
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $deferred();
@@ -41,11 +38,8 @@ class DeferredCallableTest extends TestCase
 
         $pimple = new Pimple();
         $container = new Container($pimple);
-        $deferredContainerResolver = (function () use ($container) {
-            return $container;
-        });
-        $resolver = new CallableResolver($deferredContainerResolver);
-        
+        $resolver = new CallableResolver($container);
+
         $test = $this;
         $closure = function () use ($container, $test, $assertCalled) {
             $assertCalled->foo();
@@ -60,10 +54,7 @@ class DeferredCallableTest extends TestCase
     {
         $pimple = new Pimple();
         $container = new Container($pimple);
-        $deferredContainerResolver = (function () use ($container) {
-            return $container;
-        });
-        $resolver = new CallableResolver($deferredContainerResolver);
+        $resolver = new CallableResolver($container);
 
         $test = $this;
         $foo = 'foo';

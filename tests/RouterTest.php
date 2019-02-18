@@ -9,9 +9,11 @@
 namespace Slim\Tests;
 
 use FastRoute\RouteCollector;
+use Grpc\Call;
 use ReflectionClass;
 use Slim\CallableResolver;
 use Slim\Dispatcher;
+use Slim\Interfaces\RouteInterface;
 use Slim\Route;
 use Slim\RoutingResults;
 use Slim\Router;
@@ -24,8 +26,9 @@ class RouterTest extends TestCase
 
     public function setUp()
     {
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $this->router = new Router($responseFactory);
+        $this->router = new Router($responseFactory, $callableResolver);
     }
 
     public function testMap()
@@ -37,7 +40,7 @@ class RouterTest extends TestCase
         };
         $route = $this->router->map($methods, $pattern, $callable);
 
-        $this->assertInstanceOf('\Slim\Interfaces\RouteInterface', $route);
+        $this->assertInstanceOf(RouteInterface::class, $route);
         $this->assertAttributeContains($route, 'routes', $this->router);
     }
 
@@ -207,29 +210,22 @@ class RouterTest extends TestCase
         $this->assertEquals($dispatcher, $prop->getValue($this->router));
     }
 
-    public function testGetDefaultInvocationStrategy()
+    public function testGetRouteInvocationStrategy()
     {
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory);
-
         $invocationStrategy = new InvocationStrategyTest();
-        $router->setDefaultInvocationStrategy($invocationStrategy);
+        $router = new Router($responseFactory, $callableResolver, $invocationStrategy);
 
         $this->assertEquals($invocationStrategy, $router->getDefaultInvocationStrategy());
     }
 
     public function testGetCallableResolver()
     {
-        $responseFactory = $this->getResponseFactory();
-
-        $router = new Router($responseFactory);
-        $this->assertEquals(null, $router->getCallableResolver());
-
         $callableResolver = new CallableResolver();
-        $deferredCallableResolver = function () use ($callableResolver) {
-            return $callableResolver;
-        };
-        $router = new Router($responseFactory, $deferredCallableResolver);
+        $responseFactory = $this->getResponseFactory();
+        $router = new Router($responseFactory, $callableResolver);
+
         $this->assertEquals($callableResolver, $router->getCallableResolver());
     }
 
@@ -320,31 +316,6 @@ class RouterTest extends TestCase
     }
 
     /**
-     * Test cacheFile may be set to false
-     */
-    public function testSettingCacheFileToFalse()
-    {
-        $this->router->setCacheFile(false);
-
-        $class = new ReflectionClass($this->router);
-        $property = $class->getProperty('cacheFile');
-        $property->setAccessible(true);
-
-        $this->assertFalse($property->getValue($this->router));
-    }
-
-    /**
-     * Test cacheFile should be a string or false
-     *
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Router cacheFile must be a string
-     */
-    public function testSettingInvalidCacheFileValue()
-    {
-        $this->router->setCacheFile(['invalid']);
-    }
-
-    /**
      * Test if cacheFile is not a writable directory
      *
      * @expectedException \RuntimeException
@@ -381,8 +352,9 @@ class RouterTest extends TestCase
 
         // instantiate a new router & load the cached routes file & see if
         // we can dispatch to the route we cached.
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $router2 = new Router($responseFactory);
+        $router2 = new Router($responseFactory, $callableResolver);
         $router2->setCacheFile($cacheFile);
 
         $class = new ReflectionClass($router2);
@@ -391,9 +363,7 @@ class RouterTest extends TestCase
 
         $dispatcher2 = $method->invoke($this->router);
 
-        /**
-         * @var RoutingResults $result
-         */
+        /** @var RoutingResults $result */
         $result = $dispatcher2->dispatch('GET', '/hello/josh/lockhart');
         $this->assertSame(Dispatcher::FOUND, $result->getRouteStatus());
 
@@ -433,9 +403,10 @@ class RouterTest extends TestCase
         $data = ['name' => 'josh'];
         $queryParams = ['a' => 'b', 'c' => 'd'];
 
+        /** @var Router $router */
         $router = $this
             ->getMockBuilder(Router::class)
-            ->setConstructorArgs([$this->getResponseFactory()])
+            ->setConstructorArgs([$this->getResponseFactory(), new CallableResolver()])
             ->setMethods(['pathFor'])
             ->getMock();
         $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);

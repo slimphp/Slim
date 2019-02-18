@@ -20,6 +20,7 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
+use Slim\Interfaces\RouterInterface;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\DispatchMiddleware;
 use Slim\Route;
@@ -90,82 +91,6 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $app->addSetting('foo', 'bar');
         $this->assertAttributeContains('bar', 'settings', $app);
-    }
-
-    public function testSetContainer()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
-        $app->setContainer($container);
-        $this->assertSame($container, $app->getContainer());
-    }
-
-    public function testSetCallableResolver()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $deferredContainerResolver = $app->getDeferredContainerResolver();
-        $callableResolver = new CallableResolver($deferredContainerResolver);
-        $app->setCallableResolver($callableResolver);
-        $this->assertSame($callableResolver, $app->getCallableResolver());
-    }
-
-    public function testSetRouter()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $router = new Router($responseFactory);
-        $app->setRouter($router);
-        $this->assertSame($router, $app->getRouter());
-    }
-
-    public function testGetDeferredContainerResolver()
-    {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
-        $container2 = new Psr11Container($pimple);
-
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
-
-        $deferredContainerResolver = $app->getDeferredContainerResolver();
-        $this->assertEquals($container, $deferredContainerResolver());
-
-        $app->setContainer($container2);
-        $this->assertEquals($container2, $deferredContainerResolver());
-    }
-
-    public function testGetDeferredRouterResolver()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $router = $app->getRouter();
-        $router2 = new Router($responseFactory);
-
-        $deferredRouterResolver = $app->getDeferredRouterResolver();
-        $this->assertEquals($router, $deferredRouterResolver());
-
-        $app->setRouter($router2);
-        $this->assertEquals($router2, $deferredRouterResolver());
-    }
-
-    public function testGetDeferredCallableResolver()
-    {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
-
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
-        $callableResolver = $app->getCallableResolver();
-        $callableResolver2 = new CallableResolver();
-
-        $deferredCallableResolver = $app->getDeferredCallableResolver();
-        $this->assertEquals($callableResolver, $deferredCallableResolver());
-
-        $app->setCallableResolver($callableResolver2);
-        $this->assertEquals($callableResolver2, $deferredCallableResolver());
     }
 
     /********************************************************************************
@@ -346,14 +271,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/новости');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello', (string)$response->getBody());
     }
 
     /********************************************************************************
@@ -367,7 +289,7 @@ class AppTest extends TestCase
         $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -379,7 +301,7 @@ class AppTest extends TestCase
         $app->get('/foo/', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -391,7 +313,7 @@ class AppTest extends TestCase
         $app->get('foo', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -403,7 +325,7 @@ class AppTest extends TestCase
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -415,7 +337,7 @@ class AppTest extends TestCase
         $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
             // Do something
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
@@ -429,7 +351,7 @@ class AppTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $testCase = $this;
-        $app->group('/foo', function ($app) use ($testCase) {
+        $app->group('/foo', function (App $app) use ($testCase) {
             $testCase->assertSame($testCase, $this);
         });
     }
@@ -438,12 +360,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
+        $app->group('/foo', function (App $app) {
             $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -452,12 +374,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
+        $app->group('/foo', function (App $app) {
             $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -466,12 +388,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
+        $app->group('/foo', function (App $app) {
             $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -480,12 +402,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
+        $app->group('/foo', function (App $app) {
             $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
     }
@@ -494,14 +416,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -510,14 +432,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -526,14 +448,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -542,14 +464,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -558,14 +480,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -574,14 +496,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -590,14 +512,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -606,14 +528,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/foo', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('/foo', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/foobar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -622,12 +544,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
             $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -636,12 +558,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
             $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -650,12 +572,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
             $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//', 'pattern', $router->lookupRoute('route0'));
     }
@@ -664,12 +586,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
             $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -678,14 +600,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -694,14 +616,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -710,14 +632,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -726,14 +648,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -742,14 +664,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('///bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -758,14 +680,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -774,14 +696,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -790,14 +712,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('/', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('/', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -806,12 +728,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
+        $app->group('', function (App $app) {
             $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -820,12 +742,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
+        $app->group('', function (App $app) {
             $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -834,12 +756,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
+        $app->group('', function (App $app) {
             $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -848,12 +770,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
+        $app->group('', function (App $app) {
             $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                 // Do something
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
     }
@@ -862,14 +784,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -878,14 +800,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/baz', 'pattern', $router->lookupRoute('route0'));
     }
@@ -894,14 +816,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/baz/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -910,14 +832,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/baz', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/baz', function (App $app) {
                 $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/baz/bar/', 'pattern', $router->lookupRoute('route0'));
     }
@@ -926,14 +848,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -942,14 +864,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('/', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('/', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -958,14 +880,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -974,14 +896,14 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-        $app->group('', function ($app) {
-            $app->group('', function ($app) {
+        $app->group('', function (App $app) {
+            $app->group('', function (App $app) {
                 $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
                     // Do something
                 });
             });
         });
-        /** @var \Slim\Router $router */
+
         $router = $app->getRouter();
         $this->assertAttributeEquals('bar', 'pattern', $router->lookupRoute('route0'));
     }
@@ -990,7 +912,7 @@ class AppTest extends TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testBottomMiddlewareIsRoutingDetectionMiddleware()
+    public function testBottomMiddlewareIsDispatchMiddleware()
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
@@ -1000,10 +922,9 @@ class AppTest extends TestCase
         $property->setAccessible(true);
         $middlewareRunner = $property->getValue($app);
 
-        $mw = new ClosureMiddleware(function ($request, $handler) use (&$bottom, $responseFactory) {
+        $app->add(function ($request, $handler) use (&$bottom, $responseFactory) {
             return $responseFactory->createResponse();
         });
-        $app->add($mw);
 
         /** @var array $middleware */
         $middleware = $middlewareRunner->getMiddleware();
@@ -1018,11 +939,10 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
         $called = 0;
 
-        $mw = new ClosureMiddleware(function ($request, $handler) use (&$called, $responseFactory) {
+        $app->add(function ($request, $handler) use (&$called, $responseFactory) {
             $called++;
             return $responseFactory->createResponse();
         });
-        $app->add($mw);
 
         $request = $this->createServerRequest('/');
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
@@ -1048,8 +968,8 @@ class AppTest extends TestCase
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
-        $response = $app->handle($request);
 
+        $response = $app->handle($request);
         $this->assertSame('Hello World', (string) $response->getBody());
     }
 
@@ -1057,16 +977,17 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-
-        $mw = new ClosureMiddleware(function ($request, $handler) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $appendToOutput = $request->getAttribute('appendToOutput');
+            $appendToOutput('Center');
+            return $response;
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $handler->handle($request);
             $appendToOutput('Out1');
             return $response;
-        });
-
-        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In2');
             $response = $handler->handle($request);
@@ -1074,15 +995,6 @@ class AppTest extends TestCase
             return $response;
         });
 
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('Center');
-            return $response;
-        })
-        ->add($mw)
-        ->add($mw2);
-
-        // Prepare request object
         $output = '';
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
@@ -1090,27 +1002,28 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/');
         $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
-        // Invoke app
         $app->run($request);
 
         $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
-
     public function testAddMiddlewareOnRouteGroup()
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-
-        $mw = new ClosureMiddleware(function ($request, $handler) {
+        $app->group('/foo', function (App $app) {
+            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('Center');
+                return $response;
+            });
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $handler->handle($request);
             $appendToOutput('Out1');
             return $response;
-        });
-
-        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In2');
             $response = $handler->handle($request);
@@ -1118,17 +1031,6 @@ class AppTest extends TestCase
             return $response;
         });
 
-        $app->group('/foo', function ($app) {
-            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('Center');
-                return $response;
-            });
-        })
-        ->add($mw)
-        ->add($mw2);
-
-        // Prepare request object
         $output = '';
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
@@ -1136,7 +1038,6 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/foo/');
         $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
-        // Invoke app
         $app->run($request);
 
         $this->assertEquals('In2In1CenterOut1Out2', $output);
@@ -1146,32 +1047,27 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-
-        $mw = new ClosureMiddleware(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $handler->handle($request);
-            $appendToOutput('Out2');
-            return $response;
-        });
-
-        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('Center');
+                    return $response;
+                });
+            })->add(function ($request, $handler) {
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('In2');
+                $response = $handler->handle($request);
+                $appendToOutput('Out2');
+                return $response;
+            });
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $handler->handle($request);
             $appendToOutput('Out1');
             return $response;
         });
-
-        $app->group('/foo', function ($app) use ($mw) {
-            $app->group('/baz', function ($app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('Center');
-                    return $response;
-                });
-            })->add($mw);
-        })->add($mw2);
 
         // Prepare request object
         $output = '';
@@ -1181,7 +1077,6 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/foo/baz/');
         $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
-        // Invoke app
         $app->run($request);
 
         $this->assertEquals('In1In2CenterOut2Out1', $output);
@@ -1191,24 +1086,27 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-
-        $mw = new ClosureMiddleware(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In3');
-            $response = $handler->handle($request);
-            $appendToOutput('Out3');
-            return $response;
-        });
-
-        $mw2 = new ClosureMiddleware(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $handler->handle($request);
-            $appendToOutput('Out2');
-            return $response;
-        });
-
-        $mw3 = new ClosureMiddleware(function ($request, $handler) {
+        $app->group('/foo', function (App $app) {
+            $app->group('/baz', function (App $app) {
+                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('Center');
+                    return $response;
+                })->add(function ($request, $handler) {
+                    $appendToOutput = $request->getAttribute('appendToOutput');
+                    $appendToOutput('In3');
+                    $response = $handler->handle($request);
+                    $appendToOutput('Out3');
+                    return $response;
+                });
+            })->add(function ($request, $handler) {
+                $appendToOutput = $request->getAttribute('appendToOutput');
+                $appendToOutput('In2');
+                $response = $handler->handle($request);
+                $appendToOutput('Out2');
+                return $response;
+            });
+        })->add(function ($request, $handler) {
             $appendToOutput = $request->getAttribute('appendToOutput');
             $appendToOutput('In1');
             $response = $handler->handle($request);
@@ -1216,17 +1114,6 @@ class AppTest extends TestCase
             return $response;
         });
 
-        $app->group('/foo', function ($app) use ($mw, $mw2) {
-            $app->group('/baz', function ($app) use ($mw) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('Center');
-                    return $response;
-                })->add($mw);
-            })->add($mw2);
-        })->add($mw3);
-
-        // Prepare request object
         $output = '';
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
@@ -1234,7 +1121,6 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/foo/baz/');
         $request = $request->withAttribute('appendToOutput', $appendToOutput);
 
-        // Invoke app
         $app->run($request);
 
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
@@ -1243,7 +1129,7 @@ class AppTest extends TestCase
     /**
      * @expectedException \RuntimeException
      * @expectedExceptionMessage
-     * Parameter 1 of `Slim\App::add()` must be either an object or a class name
+     * Parameter 1 of `Slim\App::add()` must be a closure or an object/class name
      * referencing an implementation of MiddlewareInterface.
      */
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
@@ -1269,23 +1155,19 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo', 'POST');
 
-        // Create Html Renderer and Assert Output
         $exception = new HttpMethodNotAllowedException($request);
         $exception->setAllowedMethods(['GET']);
-        $renderer = new HtmlErrorRenderer();
 
-        // Invoke app
-        $resOut = $app->handle($request);
+        $response = $app->handle($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(405, (string)$resOut->getStatusCode());
-        $this->assertEquals(['GET'], $resOut->getHeader('Allow'));
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(405, (string)$response->getStatusCode());
+        $this->assertEquals(['GET'], $response->getHeader('Allow'));
         $this->assertContains(
-            $renderer->render($exception, false),
-            (string)$resOut->getBody()
+            (new HtmlErrorRenderer())->render($exception, false),
+            (string)$response->getBody()
         );
     }
 
@@ -1298,14 +1180,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArgument()
@@ -1317,14 +1196,11 @@ class AppTest extends TestCase
             return $response;
         })->setArgument('attribute', 'world!');
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo/bar');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello world!', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello world!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments()
@@ -1336,14 +1212,11 @@ class AppTest extends TestCase
             return $response;
         })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo/bar');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello there world!', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello there world!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
@@ -1355,14 +1228,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello test!', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello test!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
@@ -1375,14 +1245,11 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello test!', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello test!', (string)$response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
@@ -1394,14 +1261,11 @@ class AppTest extends TestCase
             return $response;
         })->setArguments(['extra' => 'there', 'name' => 'world!']);
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo/test!');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello there test!', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello there test!', (string)$response->getBody());
     }
 
     /**
@@ -1416,19 +1280,15 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertAttributeEquals(404, 'status', $resOut);
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertAttributeEquals(404, 'status', $response);
     }
 
     public function testInvokeWithCallableRegisteredInContainer()
     {
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
         $response = $this->createResponse();
 
@@ -1448,11 +1308,10 @@ class AppTest extends TestCase
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
-        // Invoke app
-        $resOut = $app->handle($request);
+        $response = $app->handle($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals('Hello', (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello', (string)$response->getBody());
     }
 
     /**
@@ -1460,7 +1319,6 @@ class AppTest extends TestCase
      */
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
 
         $mock = $this->getMockBuilder('StdClass')->getMock();
@@ -1475,13 +1333,11 @@ class AppTest extends TestCase
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
-        // Invoke app
         $app->handle($request);
     }
 
     public function testInvokeWithCallableInContainerViaMagicMethod()
     {
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
 
         $mock = new MockAction();
@@ -1496,11 +1352,10 @@ class AppTest extends TestCase
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
-        // Invoke app
-        $resOut = $app->handle($request);
+        $response = $app->handle($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$response->getBody());
     }
 
     public function testInvokeFunctionName()
@@ -1509,23 +1364,18 @@ class AppTest extends TestCase
         $app = new App($responseFactory);
 
         // @codingStandardsIgnoreStart
-        function handle(ServerRequestInterface $request, ResponseInterface $response)
-        {
+        function handle(ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('foo');
-
             return $response;
         }
         // @codingStandardsIgnoreEnd
 
         $app->get('/foo', __NAMESPACE__ . '\handle');
 
-        // Prepare request object
         $request = $this->createServerRequest('/foo');
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-
-        $this->assertEquals('foo', (string)$resOut->getBody());
+        $this->assertEquals('foo', (string)$response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
@@ -1537,13 +1387,10 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
-        $request = $this->createServerRequest('/foo/rob');
-        $request = $request->withAttribute("one", 1);
+        $request = $this->createServerRequest('/foo/rob')->withAttribute("one", 1);
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-        $this->assertEquals('1rob', (string)$resOut->getBody());
+        $this->assertEquals('1rob', (string)$response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
@@ -1556,13 +1403,10 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
-        $request = $this->createServerRequest('/foo/rob');
-        $request = $request->withAttribute("one", 1);
+        $request = $this->createServerRequest('/foo/rob')->withAttribute("one", 1);
+        $response = $app->handle($request);
 
-        // Invoke app
-        $resOut = $app->handle($request);
-        $this->assertEquals('1rob', (string)$resOut->getBody());
+        $this->assertEquals('1rob', (string)$response->getBody());
     }
 
     public function testRun()
@@ -1602,8 +1446,7 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
-
-        $mw = new ClosureMiddleware(function (ServerRequestInterface $request) use ($app, $responseFactory) {
+        $app->add(function (ServerRequestInterface $request) use ($app, $responseFactory) {
             if ($request->hasHeader('X-NESTED')) {
                 return $responseFactory->createResponse(204)->withAddedHeader('X-TRACE', 'nested');
             }
@@ -1612,15 +1455,11 @@ class AppTest extends TestCase
             $response = $app->handle($request->withAddedHeader('X-NESTED', '1'));
 
             return $response->withAddedHeader('X-TRACE', 'outer');
-        });
-        $app->add($mw);
-
-        $mw2 = new ClosureMiddleware(function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+        })->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
             $response = $handler->handle($request);
             $response->getBody()->write('1');
             return $response;
         });
-        $app->add($mw2);
 
         $request = $this->createServerRequest('/');
         $response = $app->handle($request);
@@ -1636,29 +1475,24 @@ class AppTest extends TestCase
 
     public function testContainerSetToRoute()
     {
-        // Prepare request object
-        $request = $this->createServerRequest('/foo');
-
         $mock = new MockAction();
-
         $pimple = new Pimple();
         $pimple['foo'] = function () use ($mock) {
             return $mock;
         };
+        $container = new Psr11Container($pimple);
 
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->setContainer(new Psr11Container($pimple));
+        $app = new App($responseFactory, $container);
 
-        /** @var Router $router */
         $router = $app->getRouter();
         $router->map(['GET'], '/foo', 'foo:bar');
 
-        // Invoke app
-        $resOut = $app->handle($request);
+        $request = $this->createServerRequest('/foo');
+        $response = $app->handle($request);
 
-        $this->assertInstanceOf(ResponseInterface::class, $resOut);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$resOut->getBody());
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$response->getBody());
     }
 
     public function testAppIsARequestHandler()
@@ -1677,17 +1511,13 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request and response objects
         $request = $this->createServerRequest('/foo/bar', 'GET');
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals('1', (string) $response->getBody());
 
-        // Prepare request and response objects
         $request = $this->createServerRequest('/foo', 'GET');
-
-        // Invoke process without optional arg
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
@@ -1703,17 +1533,13 @@ class AppTest extends TestCase
             return $response;
         })->setArgument('baz', 'quux');
 
-        // Prepare request and response objects
         $request = $this->createServerRequest('/foo/bar', 'GET');
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals('2', (string) $response->getBody());
 
-        // Prepare request and response objects
         $request = $this->createServerRequest('/foo', 'GET');
-
-        // Invoke process with optional arg
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
@@ -1733,20 +1559,16 @@ class AppTest extends TestCase
             return $response;
         })->setArgument('baz', 'quux');
 
-        // Prepare request and response objects
         $request = $this->createServerRequest('/foo/bar', 'GET');
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals('2', (string) $response->getBody());
 
-        // Prepare request and response objects
-        $request = $this->createServerRequest('/foo/bar', 'GET');
-
-        // add another argument
+        // Add Another Argument To Route
         $route->setArgument('one', '1');
 
-        // Invoke process with optional arg
+        $request = $this->createServerRequest('/foo/bar', 'GET');
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);

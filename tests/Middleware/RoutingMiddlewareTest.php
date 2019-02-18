@@ -8,12 +8,9 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Closure;
 use FastRoute\Dispatcher;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\CallableResolver;
 use Slim\Middleware\ClosureMiddleware;
-use Slim\Middleware\Psr7MiddlewareAdapter;
 use Slim\MiddlewareRunner;
 use Slim\RoutingResults;
 use Slim\Middleware\RoutingMiddleware;
@@ -24,8 +21,9 @@ class RoutingMiddlewareTest extends TestCase
 {
     protected function getRouter()
     {
+        $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory);
+        $router = new Router($responseFactory, $callableResolver);
         $router->map(['GET'], '/hello/{name}', null);
         return $router;
     }
@@ -33,7 +31,7 @@ class RoutingMiddlewareTest extends TestCase
     public function testRouteIsStoredOnSuccessfulMatch()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             // route is available
             $route = $request->getAttribute('route');
             $this->assertNotNull($route);
@@ -43,8 +41,7 @@ class RoutingMiddlewareTest extends TestCase
             $routingResults = $request->getAttribute('routingResults');
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $router = $this->getRouter();
         $mw = new ClosureMiddleware($callable);
@@ -65,7 +62,7 @@ class RoutingMiddlewareTest extends TestCase
     {
 
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             // route is not available
             $route = $request->getAttribute('route');
             $this->assertNull($route);
@@ -76,8 +73,7 @@ class RoutingMiddlewareTest extends TestCase
             $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
 
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $router = $this->getRouter();
         $mw = new ClosureMiddleware($callable);
