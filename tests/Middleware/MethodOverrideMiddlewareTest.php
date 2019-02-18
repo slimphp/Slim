@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Closure;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\MiddlewareRunner;
@@ -22,11 +21,10 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testHeader()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
@@ -44,11 +42,10 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testBodyParam()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
@@ -66,11 +63,10 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testHeaderPreferred()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('DELETE', $request->getMethod());
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
@@ -89,11 +85,10 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testNoOverride()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = function ($request, $handler) use ($responseFactory) {
+        $callable = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('POST', $request->getMethod());
             return $responseFactory->createResponse();
-        };
-        Closure::bind($callable, $this);
+        })->bindTo($this);
 
         $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();

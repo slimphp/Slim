@@ -8,14 +8,12 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Closure;
 use Error;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\App;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
-use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
@@ -37,12 +35,11 @@ class ErrorMiddlewareTest extends TestCase
         $app->add($mw);
 
         $exception = HttpNotFoundException::class;
-        $handler = function () {
+        $handler = (function () {
             $response = $this->createResponse(500);
             $response->getBody()->write('Oops..');
             return $response;
-        };
-        Closure::bind($handler, $this);
+        })->bindTo($this);
 
         $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setErrorHandler($exception, $handler);
@@ -63,12 +60,11 @@ class ErrorMiddlewareTest extends TestCase
         $mw = new RoutingMiddleware($app->getRouter());
         $app->add($mw);
 
-        $handler = function () {
+        $handler = (function () {
             $response = $this->createResponse();
             $response->getBody()->write('Oops..');
             return $response;
-        };
-        Closure::bind($handler, $this);
+        })->bindTo($this);
 
         $mw2 = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw2->setDefaultErrorHandler($handler);
@@ -112,17 +108,15 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw2 = new ClosureMiddleware(function ($request, $handler) {
+        $app->add(function ($request, $handler) {
             throw new Error('Oops..');
         });
-        $app->add($mw2);
 
-        $handler = function (ServerRequestInterface $request, $exception) {
+        $handler = (function (ServerRequestInterface $request, $exception) {
             $response = $this->createResponse();
             $response->getBody()->write($exception->getMessage());
             return $response;
-        };
-        Closure::bind($handler, $this);
+        })->bindTo($this);
 
         $mw = new ErrorMiddleware($callableResolver, $this->getResponseFactory(), false, false, false);
         $mw->setDefaultErrorHandler($handler);
