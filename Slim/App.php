@@ -209,7 +209,7 @@ class App implements RequestHandlerInterface
      *
      * @return ContainerInterface|null
      */
-    public function getContainer()
+    public function getContainer(): ?ContainerInterface
     {
         return $this->container;
     }
