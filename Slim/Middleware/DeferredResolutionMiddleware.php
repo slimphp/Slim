@@ -37,8 +37,8 @@ class DeferredResolutionMiddleware implements MiddlewareInterface
 
     /**
      * DeferredResolutionMiddleware constructor.
-     * @param string                $resolvable
-     * @param ContainerInterface    $container
+     * @param string                    $resolvable
+     * @param ContainerInterface|null   $container
      */
     public function __construct(string $resolvable, ContainerInterface $container = null)
     {
@@ -51,26 +51,29 @@ class DeferredResolutionMiddleware implements MiddlewareInterface
      */
     protected function resolve(): MiddlewareInterface
     {
-        if ($this->container instanceof ContainerInterface && $this->container->has($this->resolvable)) {
+        $resolved = $this->resolvable;
+
+        if ($this->container && $this->container->has($this->resolvable)) {
             $resolved = $this->container->get($this->resolvable);
-            if ($resolved instanceof Closure) {
-                $resolved = new ClosureMiddleware($resolved);
+
+            if ($resolved instanceof MiddlewareInterface) {
+                return $resolved;
             }
-        } else {
-            if (!class_exists($this->resolvable)) {
-                throw new RuntimeException(sprintf('Middleware %s does not exist', $this->resolvable));
-            }
-            $resolved = new $this->resolvable;
         }
 
-        if (!($resolved instanceof MiddlewareInterface)) {
-            throw new RuntimeException(sprintf(
-                'Middleware %s does not implement MiddlewareInterface',
-                $this->resolvable
-            ));
+        if (is_subclass_of($resolved, MiddlewareInterface::class)) {
+            return new $resolved();
         }
 
-        return $resolved;
+        if (is_callable($resolved)) {
+            $closure = !($resolved instanceof Closure) ? Closure::fromCallable($resolved) : $resolved;
+            return new ClosureMiddleware($closure);
+        }
+
+        throw new RuntimeException(sprintf(
+            '%s is not resolvable',
+            $this->resolvable
+        ));
     }
 
     /**

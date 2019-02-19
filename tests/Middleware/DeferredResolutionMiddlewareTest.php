@@ -10,10 +10,14 @@ namespace Slim\Tests\Middleware;
 
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\DeferredResolutionMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
+use Slim\Tests\Mocks\MockRequestHandler;
 use Slim\Tests\TestCase;
 use stdClass;
 
@@ -23,11 +27,36 @@ use stdClass;
  */
 class DeferredResolutionMiddlewareTest extends TestCase
 {
+    public function testNamedFunctionIsResolved()
+    {
+        function testProcessRequest(ServerRequestInterface $request, RequestHandlerInterface $handler)
+        {
+            return $handler->handle($request);
+        }
+
+        $deferredResolutionMiddleware = new DeferredResolutionMiddleware(__NAMESPACE__ . '\testProcessRequest');
+
+        $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
+        $method = $reflection->getMethod('resolve');
+        $method->setAccessible(true);
+
+        /** @var MiddlewareInterface $result */
+        $result = $method->invoke($deferredResolutionMiddleware);
+        $this->assertInstanceOf(ClosureMiddleware::class, $result);
+
+        $request = $this->createServerRequest('/');
+        $handler = new MockRequestHandler();
+
+        $result->process($request, $handler);
+        $this->assertEquals(1, $handler->getCalledCount());
+    }
+
     public function testDeferredResolvedCallableGetsWrappedInsideClosureMiddleware()
     {
         $pimple = new Pimple();
         $pimple['callable'] = function () {
-            return function ($request, $handler) {
+            return function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+                return $handler->handle($request);
             };
         };
         $container = new Psr11Container($pimple);
@@ -37,9 +66,16 @@ class DeferredResolutionMiddlewareTest extends TestCase
         $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
         $method = $reflection->getMethod('resolve');
         $method->setAccessible(true);
-        $result = $method->invoke($deferredResolutionMiddleware);
 
+        /** @var MiddlewareInterface $result */
+        $result = $method->invoke($deferredResolutionMiddleware);
         $this->assertInstanceOf(ClosureMiddleware::class, $result);
+
+        $request = $this->createServerRequest('/');
+        $handler = new MockRequestHandler();
+
+        $result->process($request, $handler);
+        $this->assertEquals(1, $handler->getCalledCount());
     }
 
     public function testResolvableReturnsInstantiatedObject()
@@ -58,12 +94,12 @@ class DeferredResolutionMiddlewareTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Middleware MiddlewareInterfaceNotImplemented does not implement MiddlewareInterface
+     * @expectedExceptionMessage MiddlewareInterfaceNotImplemented is not resolvable
      */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
         $pimple = new Pimple();
-        $pimple->offsetSet('MiddlewareInterfaceNotImplemented', new stdClass());
+        $pimple['MiddlewareInterfaceNotImplemented'] = new stdClass();
         $container = new Psr11Container($pimple);
 
         $reflection = new ReflectionClass(DeferredResolutionMiddleware::class);
@@ -79,7 +115,7 @@ class DeferredResolutionMiddlewareTest extends TestCase
 
     /**
      * @expectedException \RuntimeException
-     * @expectedExceptionMessage Middleware Unresolvable::class does not exist
+     * @expectedExceptionMessage Unresolvable::class is not resolvable
      */
     public function testResolveThrowsExceptionWithoutContainerAndUnresolvableClass()
     {
