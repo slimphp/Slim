@@ -77,6 +77,16 @@ abstract class Routable
     }
 
     /**
+     * Get callable resolver
+     *
+     * @return CallableResolverInterface
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * Get the middleware registered for the group
      *
      * @return MiddlewareInterface[]
@@ -94,16 +104,6 @@ abstract class Routable
     public function getPattern(): string
     {
         return $this->pattern;
-    }
-
-    /**
-     * Get callable resolver
-     *
-     * @return CallableResolverInterface
-     */
-    public function getCallableResolver(): CallableResolverInterface
-    {
-        return $this->callableResolver;
     }
 
     /**
