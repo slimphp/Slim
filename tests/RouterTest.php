@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests;
 
-use Slim\Container;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -16,9 +16,19 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     /** @var Router */
     protected $router;
 
+    /** @var string */
+    protected $cacheFile;
+
     public function setUp()
     {
         $this->router = new Router;
+    }
+
+    public function tearDown()
+    {
+        if (file_exists($this->cacheFile)) {
+            unlink($this->cacheFile);
+        }
     }
 
     public function testMap()
@@ -343,14 +353,26 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCacheFileExistsAndIsNotWritable()
     {
-        $cacheFile = __DIR__ . '/RouterCache/NonWritableCache.php';
+        $this->cacheFile = __DIR__ . '/' . time() . '.cache';
+        file_put_contents($this->cacheFile, '<?php return []; ?>');
 
         $this->setExpectedException(
             '\RuntimeException',
-            sprintf('Router cache file `%s` is not writable', $cacheFile)
+            sprintf('Router cache file `%s` is not writable', $this->cacheFile)
         );
 
-	    $this->router->setCacheFile($cacheFile);
+        $mock = $this
+            ->getMockBuilder(Router::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['isCacheFileWritable'])
+            ->getMock();
+
+        $mock->expects($this->any())
+            ->method('isCacheFileWritable')
+            ->will($this->returnValue(false));
+
+        /** @var Router $mock */
+	    $mock->setCacheFile($this->cacheFile);
     }
 
     /**
@@ -358,14 +380,25 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
     {
-        $cacheFile = __DIR__ . '/RouterCache/NonWritableDirectory/WritableFile.php';
+        $cacheFile = __DIR__ . '/NonWritableDirectory/WritableFile.php';
 
         $this->setExpectedException(
             '\RuntimeException',
             sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
         );
 
-        $this->router->setCacheFile($cacheFile);
+        $mock = $this
+            ->getMockBuilder(Router::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['isCacheFileWritable'])
+            ->getMock();
+
+        $mock->expects($this->any())
+            ->method('isCacheFileWritable')
+            ->will($this->returnValue(false));
+
+        /** @var Router $mock */
+        $mock->setCacheFile($cacheFile);
     }
 
     /**
