@@ -353,7 +353,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCacheFileExistsAndIsNotReadable()
     {
-        $this->cacheFile = __DIR__ . '/' . time() . '.cache';
+        $this->cacheFile = __DIR__ . '/non-readable.cache';
         file_put_contents($this->cacheFile, '<?php return []; ?>');
 
         $this->setExpectedException(
@@ -361,18 +361,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             sprintf('Router cache file `%s` is not readable', $this->cacheFile)
         );
 
-        $mock = $this
-            ->getMockBuilder(Router::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['isCacheFileReadable'])
-            ->getMock();
-
-        $mock->expects($this->any())
-            ->method('isCacheFileReadable')
-            ->will($this->returnValue(false));
-
-        /** @var Router $mock */
-        $mock->setCacheFile($this->cacheFile);
+       $this->router->setCacheFile($this->cacheFile);
     }
 
     /**
@@ -380,25 +369,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
     {
-        $cacheFile = __DIR__ . '/NonWritableDirectory/WritableFile.php';
+        $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
 
         $this->setExpectedException(
             '\RuntimeException',
             sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
         );
 
-        $mock = $this
-            ->getMockBuilder(Router::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['isCacheDirWritable'])
-            ->getMock();
-
-        $mock->expects($this->any())
-            ->method('isCacheDirWritable')
-            ->will($this->returnValue(false));
-
-        /** @var Router $mock */
-        $mock->setCacheFile($cacheFile);
+        $this->router->setCacheFile($cacheFile);
     }
 
     /**
