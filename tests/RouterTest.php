@@ -361,7 +361,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             sprintf('Router cache file `%s` is not readable', $this->cacheFile)
         );
 
-       $this->router->setCacheFile($this->cacheFile);
+        $this->router->setCacheFile($this->cacheFile);
     }
 
     /**
