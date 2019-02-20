@@ -137,11 +137,15 @@ class Router implements RouterInterface
         }
 
         if ($cacheFile && file_exists($cacheFile) && !$this->isCacheFileWritable($cacheFile)) {
-            throw new RuntimeException(sprintf('Router cache file `%s` is not writable', $cacheFile));
+            throw new RuntimeException(
+                sprintf('Router cache file `%s` is not writable', $cacheFile)
+            );
         }
 
         if ($cacheFile && !file_exists($cacheFile) && !$this->isCacheFileWritable(dirname($cacheFile))) {
-            throw new RuntimeException(sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile)));
+            throw new RuntimeException(
+                sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
+            );
         }
 
         return $this;
