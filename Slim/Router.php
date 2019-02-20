@@ -136,13 +136,13 @@ class Router implements RouterInterface
             throw new InvalidArgumentException('Router cache file must be a string or false');
         }
 
-        if ($cacheFile && file_exists($cacheFile) && !$this->isCacheFileWritable($cacheFile)) {
+        if ($cacheFile && file_exists($cacheFile) && !$this->isCacheFileReadable($cacheFile)) {
             throw new RuntimeException(
-                sprintf('Router cache file `%s` is not writable', $cacheFile)
+                sprintf('Router cache file `%s` is not readable', $cacheFile)
             );
         }
 
-        if ($cacheFile && !file_exists($cacheFile) && !$this->isCacheFileWritable(dirname($cacheFile))) {
+        if ($cacheFile && !file_exists($cacheFile) && !$this->isCacheDirWritable(dirname($cacheFile))) {
             throw new RuntimeException(
                 sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
             );
@@ -153,11 +153,24 @@ class Router implements RouterInterface
 
     /**
      * This method is in place to facilitate unit tests
+     *
      * @param $cacheFile
      *
      * @return bool
      */
-    protected function isCacheFileWritable($cacheFile)
+    protected function isCacheFileReadable($cacheFile)
+    {
+        return is_readable($cacheFile);
+    }
+
+    /**
+     * This method is in place to facilitate unit tests
+     *
+     * @param $cacheFile
+     *
+     * @return bool
+     */
+    protected function isCacheDirWritable($cacheFile)
     {
         return is_writable($cacheFile);
     }
