@@ -166,13 +166,13 @@ class Router implements RouterInterface
     /**
      * This method is in place to facilitate unit tests
      *
-     * @param $cacheFile
+     * @param $cacheDir
      *
      * @return bool
      */
-    protected function isCacheDirWritable($cacheFile)
+    protected function isCacheDirWritable($cacheDir)
     {
-        return is_writable($cacheFile);
+        return is_writable($cacheDir);
     }
 
     /**
