@@ -372,7 +372,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             ->will($this->returnValue(false));
 
         /** @var Router $mock */
-	    $mock->setCacheFile($this->cacheFile);
+        $mock->setCacheFile($this->cacheFile);
     }
 
     /**
