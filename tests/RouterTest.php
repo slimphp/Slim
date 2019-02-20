@@ -333,24 +333,39 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             '\InvalidArgumentException',
-            'Router cacheFile must be a string'
+            'Router cache file must be a string'
         );
         $this->router->setCacheFile(['invalid']);
     }
 
     /**
-     * Test if cacheFile is not a writable directory
+     * Test cache file exists but is not writable
      */
-    public function testSettingInvalidCacheFileNotExisting()
+    public function testCacheFileExistsAndIsNotWritable()
     {
+        $cacheFile = __DIR__ . '/RouterCache/NonWritableCache.php';
+
         $this->setExpectedException(
             '\RuntimeException',
-            'Router cacheFile directory must be writable'
+            sprintf('Router cache file `%s` is not writable', $cacheFile)
         );
 
-        $this->router->setCacheFile(
-            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+	    $this->router->setCacheFile($cacheFile);
+    }
+
+    /**
+     * Test cache file does not exist and directory is not writable
+     */
+    public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
+    {
+        $cacheFile = __DIR__ . '/RouterCache/NonWritableDirectory/WritableFile.php';
+
+        $this->setExpectedException(
+            '\RuntimeException',
+            sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
         );
+
+        $this->router->setCacheFile($cacheFile);
     }
 
     /**
