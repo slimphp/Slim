@@ -130,8 +130,6 @@ class Router implements RouterInterface
      */
     public function setCacheFile($cacheFile)
     {
-        $this->cacheFile = $cacheFile;
-
         if (!is_string($cacheFile) && $cacheFile !== false) {
             throw new InvalidArgumentException('Router cache file must be a string or false');
         }
@@ -148,6 +146,7 @@ class Router implements RouterInterface
             );
         }
 
+        $this->cacheFile = $cacheFile;
         return $this;
     }
 
