@@ -36,11 +36,11 @@ class MiddlewareRunner implements RequestHandlerInterface
 
     /**
      * MiddlewareRunner constructor.
-     * @param array $middleware
+     * @param array $middleware List of middleware in LIFO order
      */
     public function __construct(array $middleware = [])
     {
-        $this->middleware = $middleware;
+        $this->setMiddleware($middleware);
     }
 
     /**
@@ -76,12 +76,6 @@ class MiddlewareRunner implements RequestHandlerInterface
     {
         $stages = new SplObjectStorage();
         foreach ($this->middleware as $middleware) {
-            if (!($middleware instanceof MiddlewareInterface)) {
-                throw new RuntimeException(
-                    'All middleware should implement `MiddlewareInterface`. '.
-                    'For PSR-7 middleware use the `Psr7MiddlewareAdapter` class.'
-                );
-            }
             $stages->attach($middleware);
         }
         $stages->rewind();
@@ -116,12 +110,15 @@ class MiddlewareRunner implements RequestHandlerInterface
     }
 
     /**
-     * @param MiddlewareInterface[] $middleware
+     * @param MiddlewareInterface[] $middleware List of middleware in LIFO order
      * @return self
      */
     public function setMiddleware(array $middleware): self
     {
-        $this->middleware = $middleware;
+        $this->middleware = [];
+        while ($item = array_pop($middleware)) {
+            $this->add($item);
+        }
         return $this;
     }
 

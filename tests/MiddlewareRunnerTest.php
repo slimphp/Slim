@@ -78,7 +78,7 @@ class MiddlewareRunnerTest extends TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException Error
      * @expectedExceptionMessage
      * All middleware should implement `MiddlewareInterface`.
      * For PSR-7 middleware use the `Psr7MiddlewareAdapter` class.
