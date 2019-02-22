@@ -6,22 +6,33 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
+namespace Slim\Tests\Mocks;
 
-declare(strict_types=1);
-
-namespace Slim\Middleware;
-
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * Class ContentLengthMiddleware
- * @package Slim\Middleware
+ * Mock object for Slim\Tests\AppTest
  */
-class ContentLengthMiddleware implements MiddlewareInterface
+class MockMiddleware implements MiddlewareInterface
 {
+    /**
+     * @var ResponseFactoryInterface
+     */
+    private $responseFactory;
+
+    /**
+     * MockMiddleware constructor.
+     * @param ResponseFactoryInterface $responseFactory
+     */
+    public function __construct(ResponseFactoryInterface $responseFactory)
+    {
+        $this->responseFactory = $responseFactory;
+    }
+
     /**
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
@@ -29,15 +40,8 @@ class ContentLengthMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var ResponseInterface $response */
-        $response = $handler->handle($request);
-
-        // Add Content-Length header if not already added
-        $size = $response->getBody()->getSize();
-        if ($size !== null && !$response->hasHeader('Content-Length')) {
-            $response = $response->withHeader('Content-Length', (string) $size);
-        }
-
+        $response = $this->responseFactory->createResponse(200);
+        $response->getBody()->write('Hello World');
         return $response;
     }
 }

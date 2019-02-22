@@ -8,27 +8,30 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\ContentLengthMiddleware;
+use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
 {
-    public function testAddsContentLenght()
+    public function testAddsContentLength()
     {
-        $mw = new ContentLengthMiddleware();
+        $request = $this->createServerRequest('/');
+        $responseFactory = $this->getResponseFactory();
 
-        $request = $this->createServerRequest('https://example.com:443/foo/bar?abc=123');
-        $response = $this->createResponse();
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             return $response;
-        };
+        });
+        $mw2 = new ContentLengthMiddleware();
 
-        $newResponse = $mw($request, $response, $next);
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $response = $middlewareRunner->run($request);
 
-        $this->assertEquals(4, $newResponse->getHeaderLine('Content-Length'));
+        $this->assertEquals(4, $response->getHeaderLine('Content-Length'));
     }
 }

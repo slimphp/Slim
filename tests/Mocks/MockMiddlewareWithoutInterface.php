@@ -9,12 +9,9 @@
 namespace Slim\Tests\Mocks;
 
 /**
- * Mock object for Slim\Tests\RouteTest
+ * Class MockMiddlewareWithoutInterface
+ * @package Slim\Tests\Mocks
  */
-class MiddlewareStub
+class MockMiddlewareWithoutInterface
 {
-    public function run($request, $response, $next)
-    {
-        return $response; //$next($request, $response);
-    }
 }

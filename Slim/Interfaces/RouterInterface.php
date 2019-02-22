@@ -24,10 +24,6 @@ use Slim\RoutingResults;
  */
 interface RouterInterface
 {
-    // array keys from route result
-    const DISPATCH_STATUS = 0;
-    const ALLOWED_METHODS = 1;
-
     /**
      * Add route
      *
@@ -112,6 +108,12 @@ interface RouterInterface
      * @throws InvalidArgumentException If required data not provided
      */
     public function pathFor(string $name, array $data = [], array $queryParams = []): string;
+
+    /**
+     * @param string|null $cacheFile
+     * @return RouterInterface
+     */
+    public function setCacheFile(?string $cacheFile): RouterInterface;
 
     /**
      * Set default route invocation strategy

@@ -14,13 +14,19 @@ namespace Slim\Middleware;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Throwable;
 
-class ErrorMiddleware
+/**
+ * Class ErrorMiddleware
+ * @package Slim\Middleware
+ */
+class ErrorMiddleware implements MiddlewareInterface
 {
     /**
      * @var CallableResolverInterface
@@ -80,21 +86,14 @@ class ErrorMiddleware
     }
 
     /**
-     * Invoke error handler
-     *
-     * @param ServerRequestInterface $request   The most recent Request object
-     * @param ResponseInterface      $response  The most recent Response object
-     * @param callable $next
-     *
+     * @param ServerRequestInterface $request
+     * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      */
-    public function __invoke(
-        ServerRequestInterface $request,
-        ResponseInterface $response,
-        callable $next
-    ): ResponseInterface {
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    {
         try {
-            return $next($request, $response);
+            return $handler->handle($request);
         } catch (Throwable $e) {
             return $this->handleException($request, $e);
         }

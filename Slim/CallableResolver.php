@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
@@ -42,7 +43,6 @@ final class CallableResolver implements CallableResolverInterface
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
      * @param mixed $toResolve
-     *
      * @return callable
      *
      * @throws RuntimeException if the callable does not exist
@@ -89,10 +89,18 @@ final class CallableResolver implements CallableResolverInterface
             ));
         }
 
-        if ($this->container instanceof ContainerInterface && $resolved instanceof \Closure) {
+        if ($this->container instanceof ContainerInterface && $resolved instanceof Closure) {
             $resolved = $resolved->bindTo($this->container);
         }
 
         return $resolved;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    public function getContainer(): ?ContainerInterface
+    {
+        return $this->container;
     }
 }

@@ -46,8 +46,9 @@ use Slim\Psr7\Factory\StreamFactory;
 $responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory());
 $app = new App($responseFactory);
 
-// Add middlweare (LIFO stack)
-$app->add(new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true));
+// Add middleware (LIFO stack)
+$errorMiddleware = new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true);
+$app->add($errorMiddleware);
 
 // Action
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -80,14 +81,17 @@ $serverRequestFactory = new ServerRequestCreator(
 );
 
 /**
- * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
+ * @param CallableResolverInterface|null Any implementation of a CallableResolver
+ * @param RouterInterface|null Any implementation of a Router
  */
 $app = new Slim\App($psr17Factory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
@@ -111,14 +115,17 @@ $responseFactory = new ResponseFactory();
 $serverRequestFactory = new ServerRequestFactory();
 
 /**
- * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
+ * @param CallableResolverInterface|null Any implementation of a CallableResolver
+ * @param RouterInterface|null Any implementation of a Router
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
@@ -155,12 +162,14 @@ $decoratedResponseFactory = new DecoratedResponseFactory($responseFactory, $stre
 $serverRequestFactory = new ServerRequestFactory();
 
 /**
- * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * Note that we pass in the decorated response factory which will give us access to the Slim\Http
  * decorated Response methods like withJson()
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
+ * @param CallableResolverInterface|null Any implementation of a CallableResolver
+ * @param RouterInterface|null Any implementation of a Router
  */
 $app = new Slim\App($decoratedResponseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -189,14 +198,17 @@ use Http\Factory\Guzzle\ResponseFactory;
 $responseFactory = new ResponseFactory();
 
 /**
- * The App::__constructor() method takes 1 mandatory parameter and 2 optional parameters
+ * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
  * @param array Settings array
+ * @param CallableResolverInterface|null Any implementation of a CallableResolver
+ * @param RouterInterface|null Any implementation of a Router
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 /**
@@ -220,7 +232,7 @@ For more information on how to configure your web server, see the [Documentation
 To execute the test suite, you'll need to install all development dependencies.
 
 ```bash
-$ git clone https://github.com/slimphp/Slim-Http
+$ git clone https://github.com/slimphp/Slim
 $ composer install
 $ composer test
 ```

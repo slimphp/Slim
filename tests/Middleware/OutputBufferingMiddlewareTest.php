@@ -8,9 +8,10 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Exception;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
+use Slim\MiddlewareRunner;
 use Slim\Tests\TestCase;
 
 class OutputBufferingMiddlewareTest extends TestCase
@@ -32,42 +33,73 @@ class OutputBufferingMiddlewareTest extends TestCase
      */
     public function testStyleCustomInvalid()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
+        new OutputBufferingMiddleware($this->getStreamFactory(), 'foo');
     }
 
     public function testAppend()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        };
+        });
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $request = $this->createServerRequest('/', 'GET');
-        $response = $this->createResponse();
-        $result = $mw($request, $response, $next);
 
-        $this->assertEquals('BodyTest', $result->getBody());
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $response = $middlewareRunner->run($request);
+
+        $this->assertEquals('BodyTest', $response->getBody());
     }
 
     public function testPrepend()
     {
-        $mw = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+            $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        };
+        });
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');
-        $response = $this->createResponse();
-        $result = $mw($request, $response, $next);
 
-        $this->assertEquals('TestBody', $result->getBody());
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $response = $middlewareRunner->run($request);
+
+        $this->assertEquals('TestBody', $response->getBody());
+    }
+
+    public function testOutputBufferIsCleanedWhenThrowableIsCaught()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $mw = new ClosureMiddleware((function ($request, $handler) use ($responseFactory) {
+            echo "Test";
+            $this->assertEquals('Test', ob_get_contents());
+            throw new Exception('Oops...');
+        })->bindTo($this));
+        $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
+
+        $request = $this->createServerRequest('/', 'GET');
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+
+        try {
+            $middlewareRunner->run($request);
+        } catch (Exception $e) {
+            $this->assertEquals('', ob_get_contents());
+        }
     }
 }

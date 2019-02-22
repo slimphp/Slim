@@ -10,6 +10,7 @@ namespace Slim\Tests;
 
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container;
+use Psr\Container\ContainerInterface;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
@@ -18,7 +19,7 @@ use Slim\Tests\Mocks\RequestHandlerTest;
 class CallableResolverTest extends TestCase
 {
     /**
-     * @var Container
+     * @var ContainerInterface
      */
     private $container;
 
@@ -40,29 +41,24 @@ class CallableResolverTest extends TestCase
     public function testClosure()
     {
         $test = function () {
-            static $called_count = 0;
-            return $called_count++;
+            return true;
         };
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve($test);
-        $callable();
-        $this->assertEquals(1, $callable());
+
+        $this->assertEquals(true, $callable());
     }
 
     public function testFunctionName()
     {
-        // @codingStandardsIgnoreStart
         function testCallable()
         {
-            static $called_count = 0;
-            return $called_count++;
-        };
-        // @codingStandardsIgnoreEnd
-
+            return true;
+        }
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
-        $callable();
-        $this->assertEquals(1, $callable());
+        
+        $this->assertEquals(true, $callable());
     }
 
     public function testObjMethodArray()
@@ -71,6 +67,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve([$obj, 'toCall']);
         $callable();
+
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -79,6 +76,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve('Slim\Tests\Mocks\CallableTest:toCall');
         $callable();
+
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -86,6 +84,7 @@ class CallableResolverTest extends TestCase
     {
         $resolver = new CallableResolver($this->container);
         $resolver->resolve('Slim\Tests\Mocks\CallableTest:toCall');
+
         $this->assertEquals($this->container, CallableTest::$CalledContainer);
     }
 
@@ -95,6 +94,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('callable_service:toCall');
         $callable();
+
         $this->assertEquals(1, CallableTest::$CalledCount);
     }
 
@@ -106,6 +106,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('an_invokable');
         $callable();
+
         $this->assertEquals(1, InvokableTest::$CalledCount);
     }
 
@@ -114,6 +115,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve('Slim\Tests\Mocks\InvokableTest');
         $callable();
+
         $this->assertEquals(1, InvokableTest::$CalledCount);
     }
 
@@ -123,6 +125,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(RequestHandlerTest::class);
         $callable($request);
+
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
@@ -133,6 +136,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve($obj);
         $callable($request);
+
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
@@ -143,6 +147,7 @@ class CallableResolverTest extends TestCase
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('a_requesthandler');
         $callable($request);
+
         $this->assertEquals("1", RequestHandlerTest::$CalledCount);
     }
 
@@ -153,7 +158,7 @@ class CallableResolverTest extends TestCase
     {
         $this->pimple['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
-        $resolver->resolve('callable_service:noFound');
+        $resolver->resolve('callable_service:notFound');
     }
 
     /**
@@ -162,7 +167,7 @@ class CallableResolverTest extends TestCase
     public function testFunctionNotFoundThrowException()
     {
         $resolver = new CallableResolver($this->container);
-        $resolver->resolve('noFound');
+        $resolver->resolve('notFound');
     }
 
     /**

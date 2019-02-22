@@ -11,13 +11,17 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Middleware\ClosureMiddleware;
+use Slim\Middleware\DeferredResolutionMiddleware;
 
 /**
- * A routable, middleware-aware object
- *
+ * Class Routable
  * @package Slim
- * @since   3.0.0
  */
 abstract class Routable
 {
@@ -29,16 +33,19 @@ abstract class Routable
     protected $callable;
 
     /**
-     * @var CallableResolverInterface|null
+     * @var CallableResolverInterface
      */
     protected $callableResolver;
 
     /**
-     * Route middleware
-     *
-     * @var callable[]
+     * @var ResponseFactoryInterface
      */
-    protected $middleware = [];
+    protected $responseFactory;
+
+    /**
+     * @var MiddlewareRunner
+     */
+    protected $middlewareRunner;
 
     /**
      * Route pattern
@@ -48,13 +55,45 @@ abstract class Routable
     protected $pattern;
 
     /**
+     * @param MiddlewareInterface|string|callable $middleware
+     * @return self
+     */
+    protected function addRouteMiddleware($middleware): self
+    {
+        if (is_string($middleware)) {
+            $middleware = new DeferredResolutionMiddleware($middleware, $this->callableResolver->getContainer());
+        } elseif ($middleware instanceof Closure) {
+            $middleware = new ClosureMiddleware($middleware);
+        } elseif (!($middleware instanceof MiddlewareInterface)) {
+            $calledClass = get_called_class();
+            throw new RuntimeException(
+                "Parameter 1 of `{$calledClass}::add()` must be a closure or an object/class name ".
+                "referencing an implementation of MiddlewareInterface."
+            );
+        }
+
+        $this->middlewareRunner->add($middleware);
+        return $this;
+    }
+
+    /**
+     * Get callable resolver
+     *
+     * @return CallableResolverInterface
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * Get the middleware registered for the group
      *
-     * @return callable[]
+     * @return MiddlewareInterface[]
      */
     public function getMiddleware(): array
     {
-        return $this->middleware;
+        return $this->middlewareRunner->getMiddleware();
     }
 
     /**
@@ -65,39 +104,6 @@ abstract class Routable
     public function getPattern(): string
     {
         return $this->pattern;
-    }
-
-    /**
-     * Set callable resolver
-     *
-     * @param CallableResolverInterface $resolver
-     */
-    public function setCallableResolver(CallableResolverInterface $resolver)
-    {
-        $this->callableResolver = $resolver;
-    }
-
-    /**
-     * Get callable resolver
-     *
-     * @return CallableResolverInterface|null
-     */
-    public function getCallableResolver()
-    {
-        return $this->callableResolver;
-    }
-
-    /**
-     * Prepend middleware to the middleware collection
-     *
-     * @param callable|string $callable The callback routine
-     *
-     * @return static
-     */
-    public function add($callable)
-    {
-        $this->middleware[] = new DeferredCallable($callable, $this->callableResolver);
-        return $this;
     }
 
     /**

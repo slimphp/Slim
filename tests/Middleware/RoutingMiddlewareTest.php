@@ -8,12 +8,12 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Closure;
 use FastRoute\Dispatcher;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Slim\RoutingResults;
+use Slim\CallableResolver;
+use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\RoutingMiddleware;
+use Slim\MiddlewareRunner;
+use Slim\RoutingResults;
 use Slim\Router;
 use Slim\Tests\TestCase;
 
@@ -21,17 +21,17 @@ class RoutingMiddlewareTest extends TestCase
 {
     protected function getRouter()
     {
-        $router = new Router();
+        $callableResolver = new CallableResolver();
+        $responseFactory = $this->getResponseFactory();
+        $router = new Router($responseFactory, $callableResolver);
         $router->map(['GET'], '/hello/{name}', null);
         return $router;
     }
 
     public function testRouteIsStoredOnSuccessfulMatch()
     {
-        $router = $this->getRouter();
-        $mw = new RoutingMiddleware($router);
-
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = (function ($request, $handler) use ($responseFactory) {
             // route is available
             $route = $request->getAttribute('route');
             $this->assertNotNull($route);
@@ -40,13 +40,19 @@ class RoutingMiddlewareTest extends TestCase
             // routingResults is available
             $routingResults = $request->getAttribute('routingResults');
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
-            return $response;
-        };
-        Closure::bind($next, $this);
+            return $responseFactory->createResponse();
+        })->bindTo($this);
 
-        $request = $this->createServerRequest('https://example.com:443/hello/foo');
-        $response = $this->createResponse();
-        $mw($request, $response, $next);
+        $router = $this->getRouter();
+        $mw = new ClosureMiddleware($callable);
+        $mw2 = new RoutingMiddleware($router);
+
+        $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $middlewareRunner->run($request);
     }
 
     /**
@@ -54,10 +60,9 @@ class RoutingMiddlewareTest extends TestCase
      */
     public function testRouteIsNotStoredOnMethodNotAllowed()
     {
-        $router = $this->getRouter();
-        $mw = new RoutingMiddleware($router);
 
-        $next = function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactory = $this->getResponseFactory();
+        $callable = (function ($request, $handler) use ($responseFactory) {
             // route is not available
             $route = $request->getAttribute('route');
             $this->assertNull($route);
@@ -67,12 +72,18 @@ class RoutingMiddlewareTest extends TestCase
             $this->assertInstanceOf(RoutingResults::class, $routingResults);
             $this->assertEquals(Dispatcher::METHOD_NOT_ALLOWED, $routingResults->getRouteStatus());
 
-            return $response;
-        };
-        Closure::bind($next, $this);
+            return $responseFactory->createResponse();
+        })->bindTo($this);
+
+        $router = $this->getRouter();
+        $mw = new ClosureMiddleware($callable);
+        $mw2 = new RoutingMiddleware($router);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'POST');
-        $response = $this->createResponse();
-        $mw($request, $response, $next);
+
+        $middlewareRunner = new MiddlewareRunner();
+        $middlewareRunner->add($mw);
+        $middlewareRunner->add($mw2);
+        $middlewareRunner->run($request);
     }
 }

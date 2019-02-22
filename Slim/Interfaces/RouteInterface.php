@@ -13,6 +13,7 @@ namespace Slim\Interfaces;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 
 /**
  * Route Interface
@@ -22,7 +23,6 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 interface RouteInterface
 {
-
     /**
      * Retrieve a specific route argument
      *
@@ -83,15 +83,16 @@ interface RouteInterface
     public function setName(string $name): self;
 
     /**
-     * Add middleware
-     *
-     * This method prepends new middleware to the route's middleware stack.
-     *
-     * @param callable|string $callable The callback routine
-     *
+     * @param MiddlewareInterface|string|callable $middleware
      * @return RouteInterface
      */
-    public function add($callable);
+    public function add($middleware): RouteInterface;
+
+    /**
+     * @param MiddlewareInterface $middleware
+     * @return RouteInterface
+     */
+    public function addMiddleware(MiddlewareInterface $middleware): RouteInterface;
 
     /**
      * Prepare the route for use
@@ -109,22 +110,7 @@ interface RouteInterface
      * back to the Application.
      *
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
      */
-    public function run(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
-
-    /**
-     * Dispatch route callable against current Request and Response objects
-     *
-     * This method invokes the route object's callable. If middleware is
-     * registered for the route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * @param ServerRequestInterface $request  The current Request object
-     * @param ResponseInterface      $response The current Response object
-     *
-     * @return ResponseInterface
-     */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface;
+    public function run(ServerRequestInterface $request): ResponseInterface;
 }

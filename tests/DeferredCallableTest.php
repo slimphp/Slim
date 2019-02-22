@@ -20,7 +20,8 @@ class DeferredCallableTest extends TestCase
     {
         $pimple = new Pimple();
         $pimple['CallableTest'] = new CallableTest;
-        $resolver = new CallableResolver(new Container($pimple));
+        $container = new Container($pimple);
+        $resolver = new CallableResolver($container);
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $deferred();
@@ -38,8 +39,8 @@ class DeferredCallableTest extends TestCase
         $pimple = new Pimple();
         $container = new Container($pimple);
         $resolver = new CallableResolver($container);
-        $test = $this;
 
+        $test = $this;
         $closure = function () use ($container, $test, $assertCalled) {
             $assertCalled->foo();
             $test->assertSame($container, $this);
@@ -52,7 +53,9 @@ class DeferredCallableTest extends TestCase
     public function testItReturnsInvokedCallableResponse()
     {
         $pimple = new Pimple();
-        $resolver = new CallableResolver(new Container($pimple));
+        $container = new Container($pimple);
+        $resolver = new CallableResolver($container);
+
         $test = $this;
         $foo = 'foo';
         $bar = 'bar';
