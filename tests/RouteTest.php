@@ -46,6 +46,7 @@ class RouteTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $callableResolver = new CallableResolver();
 
+        $methods = is_string($methods) ? [$methods] : $methods;
         return new Route($methods, $pattern, $callable, $responseFactory, $callableResolver);
     }
 
@@ -101,7 +102,7 @@ class RouteTest extends TestCase
         $responseFactory = $this->getResponseFactory();
         $callableResolver = new CallableResolver();
 
-        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver);
+        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver);
 
         $this->assertEquals($callableResolver, $route->getCallableResolver());
     }
@@ -116,7 +117,7 @@ class RouteTest extends TestCase
         $callableResolver = new CallableResolver();
         $invocationStrategy = new RequestResponse();
 
-        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy);
+        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, $invocationStrategy);
 
         $this->assertEquals($invocationStrategy, $route->getInvocationStrategy());
     }
@@ -134,7 +135,7 @@ class RouteTest extends TestCase
         $routeGroup = new RouteGroup('/group', $callable, $responseFactory, $callableResolver);
         $groups = [$routeGroup];
 
-        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
+        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
 
         $this->assertEquals($groups, $route->getGroups());
     }
@@ -215,7 +216,7 @@ class RouteTest extends TestCase
         $routeGroup->addMiddleware($mw);
         $groups = [$routeGroup];
 
-        $route = new Route('GET', '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
+        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, $invocationStrategy, $groups);
 
         $request = $this->createServerRequest('/');
         $route->run($request);
@@ -345,7 +346,7 @@ class RouteTest extends TestCase
             $response->getBody()->write('foo');
             return $response;
         };
-        $route = $this->createRoute('GET', '/', $callable);
+        $route = $this->createRoute(['GET'], '/', $callable);
 
         CallableTest::$CalledCount = 0;
 
@@ -365,7 +366,7 @@ class RouteTest extends TestCase
             echo "foo";
             return $response->withStatus(201);
         };
-        $route = $this->createRoute('GET', '/', $callable);
+        $route = $this->createRoute(['GET'], '/', $callable);
 
         $request = $this->createServerRequest('/');
 
@@ -389,7 +390,7 @@ class RouteTest extends TestCase
             $response->getBody()->write('foo');
             return $response;
         };
-        $route = $this->createRoute('GET', '/', $callable);
+        $route = $this->createRoute(['GET'], '/', $callable);
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -405,7 +406,7 @@ class RouteTest extends TestCase
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             throw new Exception();
         };
-        $route = $this->createRoute('GET', '/', $callable);
+        $route = $this->createRoute(['GET'], '/', $callable);
 
         $request = $this->createServerRequest('/');
         $route->run($request);

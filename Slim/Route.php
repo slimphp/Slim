@@ -82,7 +82,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
     /**
      * Create new route
      *
-     * @param string|string[]                   $methods The route HTTP methods
+     * @param string[]                          $methods The route HTTP methods
      * @param string                            $pattern The route pattern
      * @param callable|string                   $callable The route callable
      * @param ResponseFactoryInterface          $responseFactory
@@ -92,7 +92,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
      * @param int                               $identifier The route identifier
      */
     public function __construct(
-        $methods,
+        array $methods,
         string $pattern,
         $callable,
         ResponseFactoryInterface $responseFactory,
@@ -101,7 +101,7 @@ class Route extends Routable implements RouteInterface, MiddlewareInterface
         array $groups = [],
         int $identifier = 0
     ) {
-        $this->methods = is_string($methods) ? [$methods] : $methods;
+        $this->methods = $methods;
         $this->pattern = $pattern;
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
