@@ -66,7 +66,7 @@ class DeferredResolutionMiddleware implements MiddlewareInterface
         }
 
         if (is_callable($resolved)) {
-            $closure = !($resolved instanceof Closure) ? Closure::fromCallable($resolved) : $resolved;
+            $closure = ($resolved instanceof Closure) ? $resolved : Closure::fromCallable($resolved);
             return new ClosureMiddleware($closure);
         }
 
