@@ -6,9 +6,9 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests;
 
-use Slim\Container;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -16,9 +16,19 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     /** @var Router */
     protected $router;
 
+    /** @var string */
+    protected $cacheFile;
+
     public function setUp()
     {
         $this->router = new Router;
+    }
+
+    public function tearDown()
+    {
+        if (file_exists($this->cacheFile)) {
+            unlink($this->cacheFile);
+        }
     }
 
     public function testMap()
@@ -333,24 +343,40 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             '\InvalidArgumentException',
-            'Router cacheFile must be a string'
+            'Router cache file must be a string'
         );
         $this->router->setCacheFile(['invalid']);
     }
 
     /**
-     * Test if cacheFile is not a writable directory
+     * Test cache file exists but is not writable
      */
-    public function testSettingInvalidCacheFileNotExisting()
+    public function testCacheFileExistsAndIsNotReadable()
     {
+        $this->cacheFile = __DIR__ . '/non-readable.cache';
+        file_put_contents($this->cacheFile, '<?php return []; ?>');
+
         $this->setExpectedException(
             '\RuntimeException',
-            'Router cacheFile directory must be writable'
+            sprintf('Router cache file `%s` is not readable', $this->cacheFile)
         );
 
-        $this->router->setCacheFile(
-            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+        $this->router->setCacheFile($this->cacheFile);
+    }
+
+    /**
+     * Test cache file does not exist and directory is not writable
+     */
+    public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
+    {
+        $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
+
+        $this->setExpectedException(
+            '\RuntimeException',
+            sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
         );
+
+        $this->router->setCacheFile($cacheFile);
     }
 
     /**
