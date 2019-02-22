@@ -214,7 +214,7 @@ class RouterTest extends TestCase
         $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
         $invocationStrategy = new InvocationStrategyTest();
-        $router = new Router($responseFactory, $callableResolver, $invocationStrategy);
+        $router = new Router($responseFactory, $callableResolver, null, $invocationStrategy);
 
         $this->assertEquals($invocationStrategy, $router->getDefaultInvocationStrategy());
     }

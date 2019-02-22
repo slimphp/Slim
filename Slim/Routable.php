@@ -13,11 +13,7 @@ namespace Slim;
 
 use Closure;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Middleware\ClosureMiddleware;
-use Slim\Middleware\DeferredResolutionMiddleware;
 
 /**
  * Class Routable
@@ -43,38 +39,11 @@ abstract class Routable
     protected $responseFactory;
 
     /**
-     * @var MiddlewareRunner
-     */
-    protected $middlewareRunner;
-
-    /**
      * Route pattern
      *
      * @var string
      */
     protected $pattern;
-
-    /**
-     * @param MiddlewareInterface|string|callable $middleware
-     * @return self
-     */
-    protected function addRouteMiddleware($middleware): self
-    {
-        if (is_string($middleware)) {
-            $middleware = new DeferredResolutionMiddleware($middleware, $this->callableResolver->getContainer());
-        } elseif ($middleware instanceof Closure) {
-            $middleware = new ClosureMiddleware($middleware);
-        } elseif (!($middleware instanceof MiddlewareInterface)) {
-            $calledClass = get_called_class();
-            throw new RuntimeException(
-                "Parameter 1 of `{$calledClass}::add()` must be a closure or an object/class name ".
-                "referencing an implementation of MiddlewareInterface."
-            );
-        }
-
-        $this->middlewareRunner->add($middleware);
-        return $this;
-    }
 
     /**
      * Get callable resolver
@@ -84,16 +53,6 @@ abstract class Routable
     public function getCallableResolver(): CallableResolverInterface
     {
         return $this->callableResolver;
-    }
-
-    /**
-     * Get the middleware registered for the group
-     *
-     * @return MiddlewareInterface[]
-     */
-    public function getMiddleware(): array
-    {
-        return $this->middlewareRunner->getMiddleware();
     }
 
     /**

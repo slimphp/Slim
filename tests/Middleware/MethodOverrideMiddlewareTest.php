@@ -8,9 +8,9 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Slim\Middleware\ClosureMiddleware;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Middleware\MethodOverrideMiddleware;
-use Slim\MiddlewareRunner;
+use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 /**
@@ -21,54 +21,50 @@ class MethodOverrideMiddlewareTest extends TestCase
     public function testHeader()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
-
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
             ->createServerRequest('/', 'POST')
             ->withHeader('X-Http-Method-Override', 'PUT');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 
     public function testBodyParam()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('PUT', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
             ->createServerRequest('/', 'POST')
             ->withParsedBody(['_METHOD' => 'PUT']);
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 
     public function testHeaderPreferred()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('DELETE', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this
@@ -76,28 +72,27 @@ class MethodOverrideMiddlewareTest extends TestCase
             ->withHeader('X-Http-Method-Override', 'DELETE')
             ->withParsedBody((object) ['_METHOD' => 'PUT']);
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 
     public function testNoOverride()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             $this->assertEquals('POST', $request->getMethod());
             return $responseFactory->createResponse();
         })->bindTo($this);
 
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new MethodOverrideMiddleware();
 
         $request = $this->createServerRequest('/', 'POST');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 }

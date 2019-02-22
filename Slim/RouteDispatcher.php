@@ -9,23 +9,21 @@
 
 declare(strict_types=1);
 
-namespace Slim\Middleware;
+namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouterInterface;
-use Slim\Route;
-use Slim\RoutingResults;
+use Slim\Middleware\RoutingMiddleware;
 
 /**
- * Class DispatchMiddleware
- * @package Slim\Middleware
+ * RouteDispatcher
+ * @package Slim
  */
-class DispatchMiddleware implements MiddlewareInterface
+class RouteDispatcher implements RequestHandlerInterface
 {
     /**
      * @var RouterInterface
@@ -33,7 +31,6 @@ class DispatchMiddleware implements MiddlewareInterface
     private $router;
 
     /**
-     * DispatchMiddleware constructor.
      * @param RouterInterface $router
      */
     public function __construct(RouterInterface $router)
@@ -42,19 +39,18 @@ class DispatchMiddleware implements MiddlewareInterface
     }
 
     /**
-     * This middleware is instantiated automatically in App::__construct()
+     * This request handler is instantiated automatically in App::__construct()
      * It is at the very tip of the middleware queue meaning it will be executed
      * last and it detects whether or not routing has been performed in the user
-     * defined middleware queue. In the event that the user did not perform routing
+     * defined middleware stack. In the event that the user did not perform routing
      * it is done here
      *
      * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      * @throws HttpNotFoundException
      * @throws HttpMethodNotAllowedException
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         // If routing hasn't been done, then do it now so we can dispatch
         if ($request->getAttribute('routingResults') === null) {
