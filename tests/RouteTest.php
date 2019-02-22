@@ -95,7 +95,7 @@ class RouteTest extends TestCase
 
     public function testGetCallableResolver()
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             return $response;
         };
 
@@ -109,7 +109,7 @@ class RouteTest extends TestCase
 
     public function testGetInvocationStrategy()
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             return $response;
         };
 
@@ -124,7 +124,7 @@ class RouteTest extends TestCase
 
     public function testGetGroups()
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             return $response;
         };
 
