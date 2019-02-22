@@ -22,7 +22,7 @@ use Psr\Container\ContainerInterface;
 interface CallableResolverInterface
 {
     /**
-     * Invoke the resolved callable.
+     * Resolve $toResolve into a callable
      *
      * @param mixed $toResolve
      * @return callable
