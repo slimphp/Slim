@@ -8,6 +8,8 @@
  */
 namespace Slim;
 
+use Slim\Tests\Assets\HeaderStack;
+
 /**
  * Zend Framework (http://framework.zend.com/)
  *
@@ -29,63 +31,6 @@ namespace Slim;
  */
 
 /**
- * Store output artifacts
- */
-class HeaderStackTestAsset
-{
-    /**
-     * @var string[][]
-     */
-    private static $data = [];
-
-    /**
-     * Reset state
-     */
-    public static function reset()
-    {
-        self::$data = [];
-    }
-
-    /**
-     * Push a header on the stack
-     *
-     * @param array $header
-     */
-    public static function push(array $header)
-    {
-        self::$data[] = $header;
-    }
-
-    /**
-     * Return the current header stack
-     *
-     * @return string[][]
-     */
-    public static function stack()
-    {
-        return self::$data;
-    }
-
-    /**
-     * Verify if there's a header line on the stack
-     *
-     * @param string $header
-     *
-     * @return bool
-     */
-    public static function has($header)
-    {
-        foreach (self::$data as $item) {
-            if ($item['header'] === $header) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
-/**
  * Have headers been sent?
  *
  * @return false
@@ -104,11 +49,39 @@ function headers_sent()
  */
 function header($string, $replace = true, $statusCode = null)
 {
-    HeaderStackTestAsset::push(
+    HeaderStack::push(
         [
             'header'      => $string,
             'replace'     => $replace,
             'status_code' => $statusCode,
         ]
     );
+}
+
+/**
+ * Is a file descriptor writable
+ *
+ * @param $file
+ * @return bool
+ */
+function is_readable($file)
+{
+    if (stripos($file, 'non-readable.cache') !== false) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Is a path writable
+ *
+ * @param $path
+ * @return bool
+ */
+function is_writable($path)
+{
+    if (stripos($path, 'non-writable-directory') !== false) {
+        return false;
+    }
+    return true;
 }
