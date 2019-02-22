@@ -56,11 +56,8 @@ class DispatchMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        /** @var RoutingResults|null $routingResults */
-        $routingResults = $request->getAttribute('routingResults');
-
         // If routing hasn't been done, then do it now so we can dispatch
-        if ($routingResults === null) {
+        if ($request->getAttribute('routingResults') === null) {
             $routingMiddleware = new RoutingMiddleware($this->router);
             $request = $routingMiddleware->performRouting($request);
         }
