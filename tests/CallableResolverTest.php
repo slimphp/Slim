@@ -45,7 +45,6 @@ class CallableResolverTest extends TestCase
         };
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve($test);
-        $callable();
 
         $this->assertEquals(true, $callable());
     }
@@ -58,6 +57,7 @@ class CallableResolverTest extends TestCase
         }
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
+        
         $this->assertEquals(true, $callable());
     }
 
