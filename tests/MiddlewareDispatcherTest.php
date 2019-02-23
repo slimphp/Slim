@@ -10,6 +10,8 @@ namespace Slim\Tests;
 
 use Pimple\Container as Pimple;
 use Pimple\Psr11\Container as Psr11Container;
+use Prophecy\Argument;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -17,6 +19,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Slim\MiddlewareDispatcher;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockRequestHandler;
+use Slim\Tests\Mocks\MockSequenceMiddleware;
 use stdClass;
 
 /**
@@ -121,5 +124,238 @@ class MiddlewareDispatcherTest extends TestCase
 
         $request = $this->createServerRequest('/');
         $middlewareDispatcher->handle($request);
+    }
+
+    public function testExecutesKernelWithEmptyMiddlewareStack()
+    {
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->willReturn($responseProphecy->reveal());
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+
+        $response = $dispatcher->handle($requestProphecy->reveal());
+
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldHaveBeenCalled();
+        $this->assertEquals($responseProphecy->reveal(), $response);
+    }
+
+    public function testExecutesMiddlewareLastInFirstOut()
+    {
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getHeader(Argument::type('string'))->willReturn([]);
+        $requestProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
+            $headers = $this->reveal()->getHeader($args[0]);
+
+            $clone = clone $this;
+            $headers[] = $args[1];
+            $clone->getHeader($args[0])->willReturn($headers);
+            $clone->hasHeader($args[0])->willReturn(true);
+            return $clone;
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getHeader(Argument::type('string'))->willReturn([]);
+        $responseProphecy->withHeader(Argument::type('string'), Argument::type('array'))->will(function ($args) {
+            $clone = clone $this;
+            $clone->getHeader($args[0])->willReturn($args[1]);
+            $clone->hasHeader($args[0])->willReturn(true);
+            return $clone;
+        });
+        $responseProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
+            $headers = $this->reveal()->getHeader($args[0]);
+
+            $clone = clone $this;
+            $headers[] = $args[1];
+            $clone->getHeader($args[0])->willReturn($headers);
+            $clone->hasHeader($args[0])->willReturn(true);
+            return $clone;
+        });
+        $responseProphecy->withStatus(Argument::type('int'))->will(function ($args) {
+            $clone = clone $this;
+            $clone->getStatusCode()->willReturn($args[0]);
+            return $clone;
+        });
+
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))
+            ->will(function ($args) use ($responseProphecy): ResponseInterface {
+                $request = $args[0];
+                return $responseProphecy->reveal()
+                    ->withStatus(204)
+                    ->withHeader('X-SEQ-PRE-REQ-HANDLER', $request->getHeader('X-SEQ-PRE-REQ-HANDLER'));
+            });
+
+        $middleware0Prophecy = $this->prophesize(MiddlewareInterface::class);
+        $middleware0Prophecy
+            ->process(
+                Argument::type(ServerRequestInterface::class),
+                Argument::type(RequestHandlerInterface::class)
+            )
+            ->will(function ($args): ResponseInterface {
+                return $args[1]->handle($args[0]->withAddedHeader('X-SEQ-PRE-REQ-HANDLER', '0'))
+                    ->withAddedHeader('X-SEQ-POST-REQ-HANDLER', '0');
+            });
+
+        $middleware1Prophecy = $this->prophesize(MiddlewareInterface::class);
+        $middleware1Prophecy
+            ->process(
+                Argument::type(ServerRequestInterface::class),
+                Argument::type(RequestHandlerInterface::class)
+            )
+            ->will(function ($args): ResponseInterface {
+                return $args[1]->handle($args[0]->withAddedHeader('X-SEQ-PRE-REQ-HANDLER', '1'))
+                    ->withAddedHeader('X-SEQ-POST-REQ-HANDLER', '1');
+            });
+
+        MockSequenceMiddleware::$id = '2';
+
+        $middleware3Prophecy = $this->prophesize(MiddlewareInterface::class);
+        $middleware3Prophecy
+            ->process(
+                Argument::type(ServerRequestInterface::class),
+                Argument::type(RequestHandlerInterface::class)
+            )
+            ->will(function ($args): ResponseInterface {
+                return $args[1]->handle($args[0]->withAddedHeader('X-SEQ-PRE-REQ-HANDLER', '3'))
+                    ->withAddedHeader('X-SEQ-POST-REQ-HANDLER', '3');
+            });
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        $dispatcher->add($middleware0Prophecy->reveal());
+        $dispatcher->addMiddleware($middleware1Prophecy->reveal());
+        $dispatcher->addDeferred(MockSequenceMiddleware::class);
+        $dispatcher->add($middleware3Prophecy->reveal());
+
+        $response = $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertSame(['3', '2', '1', '0'], $response->getHeader('X-SEQ-PRE-REQ-HANDLER'));
+        $this->assertSame(['0', '1', '2', '3'], $response->getHeader('X-SEQ-POST-REQ-HANDLER'));
+        $this->assertSame(204, $response->getStatusCode());
+    }
+
+    public function testDoesNotInstantiateLazyMiddlewareInCaseOfAnEarlyReturningOuterMiddleware()
+    {
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+
+        MockSequenceMiddleware::$hasBeenInstantiated = false;
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        $dispatcher->addDeferred(MockSequenceMiddleware::class);
+        $dispatcher->addMiddleware($middlewareProphecy->reveal());
+        $response = $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertFalse(MockSequenceMiddleware::$hasBeenInstantiated);
+        $this->assertEquals($responseProphecy->reveal(), $response);
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
+    }
+
+    public function testThrowsExceptionForLazyNonMiddlewareInterfaceClasses()
+    {
+        $this->expectException(\RuntimeException::class);
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        $dispatcher->addDeferred(\stdClass::class);
+        $dispatcher->handle($requestProphecy->reveal());
+
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
+    }
+
+    public function testCanBeExcutedMultipleTimes()
+    {
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+        $dispatcher->add($middlewareProphecy->reveal());
+
+        $response1 = $dispatcher->handle($requestProphecy->reveal());
+        $response2 = $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertEquals($responseProphecy->reveal(), $response1);
+        $this->assertEquals($responseProphecy->reveal(), $response2);
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
+    }
+
+    public function testCanBeReExecutedRecursivelyDuringDispatch()
+    {
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+
+        $requestProphecy->hasHeader('X-NESTED')->willReturn(false);
+        $requestProphecy->withAddedHeader('X-NESTED', '1')->will(function () {
+            $clone = clone $this;
+            $clone->hasHeader('X-NESTED')->willReturn(true);
+            return $clone;
+        });
+
+        $responseProphecy->getHeader(Argument::type('string'))->willReturn([]);
+        $responseProphecy->withAddedHeader(Argument::type('string'), Argument::type('string'))->will(function ($args) {
+            $headers = $this->reveal()->getHeader($args[0]);
+
+            $clone = clone $this;
+            $headers[] = $args[1];
+            $clone->getHeader($args[0])->willReturn($headers);
+            $clone->hasHeader($args[0])->willReturn(true);
+            return $clone;
+        });
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy
+            ->process(
+                Argument::type(ServerRequestInterface::class),
+                Argument::type(RequestHandlerInterface::class)
+            )
+            ->will(function ($args) use ($dispatcher, $responseProphecy): ResponseInterface {
+                $request = $args[0];
+                if ($request->hasHeader('X-NESTED')) {
+                    return $responseProphecy->reveal()->withAddedHeader('X-TRACE', 'nested');
+                }
+
+                $response = $dispatcher->handle($request->withAddedHeader('X-NESTED', '1'));
+
+                return $response->withAddedHeader('X-TRACE', 'outer');
+            });
+        $dispatcher->add($middlewareProphecy->reveal());
+
+        $response = $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertSame(['nested', 'outer'], $response->getHeader('X-TRACE'));
+    }
+
+    public function testFetchesMiddlewareFromContainer()
+    {
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+
+
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('somemiddlewarename')->willReturn(true);
+        $containerProphecy->get('somemiddlewarename')->willReturn($middlewareProphecy->reveal());
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal(), $containerProphecy->reveal());
+        $dispatcher->addDeferred('somemiddlewarename');
+        $response = $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertEquals($responseProphecy->reveal(), $response);
+        $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
     }
 }
