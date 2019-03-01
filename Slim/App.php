@@ -71,14 +71,6 @@ class App implements RequestHandlerInterface
      */
     protected $responseFactory;
 
-    /**
-     * @var array
-     */
-    protected $settings = [
-        'httpVersion' => '1.1',
-        'routerCacheFile' => null,
-    ];
-
     /********************************************************************************
      * Constructor
      *******************************************************************************/
@@ -88,26 +80,19 @@ class App implements RequestHandlerInterface
      *
      * @param ResponseFactoryInterface  $responseFactory
      * @param ContainerInterface|null   $container
-     * @param array                     $settings
      * @param CallableResolverInterface $callableResolver
      * @param RouterInterface           $router
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         ContainerInterface $container = null,
-        array $settings = [],
         CallableResolverInterface $callableResolver = null,
         RouterInterface $router = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->container = $container;
         $this->callableResolver = $callableResolver ?? new CallableResolver($container);
-        $this->addSettings($settings);
-
         $this->router = $router ?? new Router($responseFactory, $this->callableResolver);
-        $routerCacheFile = $this->getSetting('routerCacheFile', null);
-        $this->router->setCacheFile($routerCacheFile);
-
         $this->middlewareRunner = new MiddlewareRunner();
         $this->addMiddleware(new DispatchMiddleware($this->router));
     }
@@ -140,64 +125,6 @@ class App implements RequestHandlerInterface
     {
         $this->middlewareRunner->add($middleware);
         return $this;
-    }
-
-    /********************************************************************************
-     * Settings management
-     *******************************************************************************/
-
-    /**
-     * Does app have a setting with given key?
-     *
-     * @param string $key
-     * @return bool
-     */
-    public function hasSetting(string $key): bool
-    {
-        return isset($this->settings[$key]);
-    }
-
-    /**
-     * Get app settings
-     *
-     * @return array
-     */
-    public function getSettings(): array
-    {
-        return $this->settings;
-    }
-
-    /**
-     * Get app setting with given key
-     *
-     * @param string $key
-     * @param mixed $defaultValue
-     * @return mixed
-     */
-    public function getSetting(string $key, $defaultValue = null)
-    {
-        return $this->hasSetting($key) ? $this->settings[$key] : $defaultValue;
-    }
-
-    /**
-     * Merge a key-value array with existing app settings
-     *
-     * @param array $settings
-     */
-    public function addSettings(array $settings)
-    {
-        $this->settings = array_merge($this->settings, $settings);
-    }
-
-    /**
-     * Add single app setting
-     *
-     * @param string $key
-     * @param mixed $value
-     */
-    public function addSetting(string $key, $value)
-    {
-        $this->settings[$key] = $value;
     }
 
     /********************************************************************************

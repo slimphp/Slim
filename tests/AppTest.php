@@ -72,63 +72,6 @@ class AppTest extends TestCase
     }
 
     /********************************************************************************
-     * Settings management methods
-     *******************************************************************************/
-
-    public function testHasSetting()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $this->assertTrue($app->hasSetting('httpVersion'));
-        $this->assertFalse($app->hasSetting('foo'));
-    }
-
-    public function testGetSettings()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $appSettings = $app->getSettings();
-        $this->assertAttributeEquals($appSettings, 'settings', $app);
-    }
-
-    public function testGetSettingExists()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $this->assertEquals('1.1', $app->getSetting('httpVersion'));
-    }
-
-    public function testGetSettingNotExists()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $this->assertNull($app->getSetting('foo'));
-    }
-
-    public function testGetSettingNotExistsWithDefault()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $this->assertEquals('what', $app->getSetting('foo', 'what'));
-    }
-
-    public function testAddSettings()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->addSettings(['foo' => 'bar']);
-        $this->assertAttributeContains('bar', 'settings', $app);
-    }
-
-    public function testAddSetting()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->addSetting('foo', 'bar');
-        $this->assertAttributeContains('bar', 'settings', $app);
-    }
-
-    /********************************************************************************
      * Router proxy methods
      *******************************************************************************/
 
