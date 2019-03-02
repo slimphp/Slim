@@ -8,19 +8,17 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
+use Slim\Tests\Mocks\MockContainer;
 
 class DeferredCallableTest extends TestCase
 {
     public function testItResolvesCallable()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest;
-        $container = new Container($pimple);
+        $container = new MockContainer();
+        $container['CallableTest'] = new CallableTest;
         $resolver = new CallableResolver($container);
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
@@ -31,14 +29,13 @@ class DeferredCallableTest extends TestCase
 
     public function testItBindsClosuresToContainer()
     {
+        $container = new MockContainer();
+        $resolver = new CallableResolver($container);
+
         $assertCalled = $this->getMockBuilder('StdClass')->setMethods(['foo'])->getMock();
         $assertCalled
             ->expects($this->once())
             ->method('foo');
-
-        $pimple = new Pimple();
-        $container = new Container($pimple);
-        $resolver = new CallableResolver($container);
 
         $test = $this;
         $closure = function () use ($container, $test, $assertCalled) {
@@ -52,8 +49,7 @@ class DeferredCallableTest extends TestCase
 
     public function testItReturnsInvokedCallableResponse()
     {
-        $pimple = new Pimple();
-        $container = new Container($pimple);
+        $container = new MockContainer();
         $resolver = new CallableResolver($container);
 
         $test = $this;
