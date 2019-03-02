@@ -235,7 +235,7 @@ class MiddlewareDispatcherTest extends TestCase
         $this->assertSame(204, $response->getStatusCode());
     }
 
-    public function testDoesNotInstantiateLazyMiddlewareInCaseOfAnEarlyReturningOuterMiddleware()
+    public function testDoesNotInstantiateDeferredMiddlewareInCaseOfAnEarlyReturningOuterMiddleware()
     {
         $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
@@ -255,7 +255,7 @@ class MiddlewareDispatcherTest extends TestCase
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
     }
 
-    public function testThrowsExceptionForLazyNonMiddlewareInterfaceClasses()
+    public function testThrowsExceptionForDeferredNonMiddlewareInterfaceClasses()
     {
         $this->expectException(\RuntimeException::class);
 
