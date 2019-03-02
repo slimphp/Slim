@@ -8,12 +8,11 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container;
 use Psr\Container\ContainerInterface;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
+use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
 class CallableResolverTest extends TestCase
@@ -23,19 +22,13 @@ class CallableResolverTest extends TestCase
      */
     private $container;
 
-    /**
-     * @var Pimple
-     */
-    private $pimple;
-
     public function setUp()
     {
         CallableTest::$CalledCount = 0;
         InvokableTest::$CalledCount = 0;
         RequestHandlerTest::$CalledCount = 0;
 
-        $this->pimple = new Pimple;
-        $this->container = new Container($this->pimple);
+        $this->container = new MockContainer();
     }
 
     public function testClosure()
@@ -57,7 +50,7 @@ class CallableResolverTest extends TestCase
         }
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
-        
+
         $this->assertEquals(true, $callable());
     }
 
@@ -90,7 +83,7 @@ class CallableResolverTest extends TestCase
 
     public function testContainer()
     {
-        $this->pimple['callable_service'] = new CallableTest();
+        $this->container['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('callable_service:toCall');
         $callable();
@@ -100,9 +93,7 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAnInvokableClassInContainer()
     {
-        $this->pimple['an_invokable'] = function ($c) {
-            return new InvokableTest();
-        };
+        $this->container['an_invokable'] = new InvokableTest();
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('an_invokable');
         $callable();
@@ -142,7 +133,7 @@ class CallableResolverTest extends TestCase
 
     public function testObjPsrRequestHandlerClassInContainer()
     {
-        $this->pimple['a_requesthandler'] = new RequestHandlerTest();
+        $this->container['a_requesthandler'] = new RequestHandlerTest();
         $request = $this->createServerRequest('/', 'GET');
         $resolver = new CallableResolver($this->container);
         $callable = $resolver->resolve('a_requesthandler');
@@ -153,7 +144,6 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAPsrRequestHandlerClassWithCustomMethod()
     {
-        $request = $this->createServerRequest('/', 'GET');
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(RequestHandlerTest::class . ':custom');
         $this->assertInternalType('array', $callable);
@@ -166,7 +156,7 @@ class CallableResolverTest extends TestCase
      */
     public function testMethodNotFoundThrowException()
     {
-        $this->pimple['callable_service'] = new CallableTest();
+        $this->container['callable_service'] = new CallableTest();
         $resolver = new CallableResolver($this->container);
         $resolver->resolve('callable_service:notFound');
     }
