@@ -8,8 +8,6 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,15 +15,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\MiddlewareDispatcher;
+use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockRequestHandler;
 use Slim\Tests\Mocks\MockSequenceMiddleware;
 use stdClass;
 
-/**
- * Class MiddlewareDispatcherTest
- * @package Slim\Tests
- */
 class MiddlewareDispatcherTest extends TestCase
 {
     public function testAddMiddleware()
@@ -61,13 +56,10 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testDeferredResolvedCallable()
     {
-        $pimple = new Pimple();
-        $pimple['callable'] = function () {
-            return function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
-                return $handler->handle($request);
-            };
+        $container = new MockContainer();
+        $container['callable'] = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+            return $handler->handle($request);
         };
-        $container = new Psr11Container($pimple);
 
         $handler = new MockRequestHandler();
         $middlewareDispatcher = new MiddlewareDispatcher($handler, $container);
@@ -100,9 +92,8 @@ class MiddlewareDispatcherTest extends TestCase
      */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
-        $pimple = new Pimple();
-        $pimple['MiddlewareInterfaceNotImplemented'] = new stdClass();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['MiddlewareInterfaceNotImplemented'] = new stdClass();
 
         $handler = new MockRequestHandler();
         $middlewareDispatcher = new MiddlewareDispatcher($handler, $container);
