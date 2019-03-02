@@ -10,8 +10,6 @@ namespace Slim\Tests;
 
 use Closure;
 use Exception;
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
@@ -23,6 +21,7 @@ use Slim\Route;
 use Slim\RouteGroup;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
+use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 use Slim\Tests\Mocks\RequestHandlerTest;
@@ -294,9 +293,8 @@ class RouteTest extends TestCase
 
     public function testControllerMethodAsStringResolvesWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['CallableTest'] = new CallableTest();
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
 
@@ -412,9 +410,8 @@ class RouteTest extends TestCase
      */
     public function testInvokeDeferredCallableWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest;
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['CallableTest'] = new CallableTest;
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $strategy = new InvocationStrategyTest();
@@ -431,9 +428,8 @@ class RouteTest extends TestCase
 
     public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
     {
-        $pimple = new Pimple();
-        $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container[RequestHandlerTest::class] = new RequestHandlerTest();
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
 
@@ -444,7 +440,7 @@ class RouteTest extends TestCase
         $route->run($request);
 
         /** @var InvocationStrategyInterface $strategy */
-        $strategy = $pimple[RequestHandlerTest::class]::$strategy;
+        $strategy = $container[RequestHandlerTest::class]::$strategy;
         $this->assertEquals(RequestHandler::class, $strategy);
     }
 
@@ -483,9 +479,8 @@ class RouteTest extends TestCase
      */
     public function testChangingCallableWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest2'] = new CallableTest;
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['CallableTest2'] = new CallableTest;
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $strategy = new InvocationStrategyTest();
@@ -498,21 +493,20 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+        $this->assertEquals([$container['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
     public function testRouteCallableIsResolvedUsingContainerWhenCallableResolverIsPresent()
     {
         $responseFactory = $this->getResponseFactory();
 
-        $pimple = new Pimple();
-        $pimple['CallableTest3'] = new CallableTest;
-        $pimple['ClosureMiddleware'] = $pimple->protect(function ($request, $handler) use ($responseFactory) {
+        $container = new MockContainer();
+        $container['CallableTest3'] = new CallableTest;
+        $container['ClosureMiddleware'] = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Hello');
             return $response;
-        });
-        $container = new Psr11Container($pimple);
+        };
         $callableResolver = new CallableResolver($container);
         $strategy = new InvocationStrategyTest();
 
