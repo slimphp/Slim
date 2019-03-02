@@ -8,13 +8,10 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
@@ -23,6 +20,7 @@ use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
+use Slim\Tests\Mocks\MockContainer;
 use Slim\Tests\Mocks\MockMiddleware;
 use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
 
@@ -39,8 +37,7 @@ class AppTest extends TestCase
 
     public function testGetContainer()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
 
@@ -49,8 +46,7 @@ class AppTest extends TestCase
 
     public function testGetCallableResolver()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
@@ -60,8 +56,7 @@ class AppTest extends TestCase
 
     public function testGetRouter()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $router = new Router($responseFactory, $callableResolver, $container);
@@ -900,10 +895,11 @@ class AppTest extends TestCase
             return $responseFactory->createResponse();
         });
 
-        $request = $this->createServerRequest('/');
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
+
+        $request = $this->createServerRequest('/');
         $app->handle($request);
 
         $this->assertSame($called, 1);
@@ -913,19 +909,19 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
 
-        $pimple = new Pimple();
-        $pimple->offsetSet(MockMiddleware::class, new MockMiddleware($responseFactory));
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container[MockMiddleware::class] = new MockMiddleware($responseFactory);
 
         $app = new App($responseFactory, $container);
         $app->add(MockMiddleware::class);
 
-        $request = $this->createServerRequest('/');
         $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
 
+        $request = $this->createServerRequest('/');
         $response = $app->handle($request);
+
         $this->assertSame('Hello World', (string) $response->getBody());
     }
 
@@ -955,8 +951,9 @@ class AppTest extends TestCase
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
         };
-        $request = $this->createServerRequest('/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $request = $this
+            ->createServerRequest('/')
+            ->withAttribute('appendToOutput', $appendToOutput);
 
         $app->run($request);
 
@@ -991,8 +988,9 @@ class AppTest extends TestCase
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
         };
-        $request = $this->createServerRequest('/foo/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $request = $this
+            ->createServerRequest('/foo/')
+            ->withAttribute('appendToOutput', $appendToOutput);
 
         $app->run($request);
 
@@ -1025,13 +1023,13 @@ class AppTest extends TestCase
             return $response;
         });
 
-        // Prepare request object
         $output = '';
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
         };
-        $request = $this->createServerRequest('/foo/baz/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $request = $this
+            ->createServerRequest('/foo/baz/')
+            ->withAttribute('appendToOutput', $appendToOutput);
 
         $app->run($request);
 
@@ -1074,8 +1072,9 @@ class AppTest extends TestCase
         $appendToOutput = function (string $value) use (&$output) {
             $output .= $value;
         };
-        $request = $this->createServerRequest('/foo/baz/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $request = $this
+            ->createServerRequest('/foo/baz/')
+            ->withAttribute('appendToOutput', $appendToOutput);
 
         $app->run($request);
 
@@ -1247,18 +1246,15 @@ class AppTest extends TestCase
     {
         $request = $this->createServerRequest('/foo');
         $response = $this->createResponse();
+        $response->getBody()->write('Hello');
 
         $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
+        $mock
+            ->method('bar')
+            ->willReturn($response);
 
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock, $response) {
-            $response->getBody()->write('Hello');
-            $mock
-                ->method('bar')
-                ->willReturn($response);
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['foo'] = $mock;
 
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
@@ -1275,39 +1271,29 @@ class AppTest extends TestCase
      */
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
-        $request = $this->createServerRequest('/foo');
-
         $mock = $this->getMockBuilder('StdClass')->getMock();
-
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['foo'] = $mock;
 
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
+        $request = $this->createServerRequest('/foo');
         $app->handle($request);
     }
 
     public function testInvokeWithCallableInContainerViaMagicMethod()
     {
-        $request = $this->createServerRequest('/foo');
-
         $mock = new MockAction();
-
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['foo'] = $mock;
 
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
         $app->get('/foo', 'foo:bar');
 
+        $request = $this->createServerRequest('/foo');
         $response = $app->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
@@ -1343,7 +1329,9 @@ class AppTest extends TestCase
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/rob')->withAttribute("one", 1);
+        $request = $this
+            ->createServerRequest('/foo/rob')
+            ->withAttribute("one", 1);
         $response = $app->handle($request);
 
         $this->assertEquals('1rob', (string)$response->getBody());
@@ -1432,11 +1420,8 @@ class AppTest extends TestCase
     public function testContainerSetToRoute()
     {
         $mock = new MockAction();
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $container = new MockContainer();
+        $container['foo'] = $mock;
 
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory, $container);
