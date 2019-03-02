@@ -20,7 +20,6 @@ use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
-use Slim\Middleware\DispatchMiddleware;
 use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
@@ -65,7 +64,7 @@ class AppTest extends TestCase
         $container = new Psr11Container($pimple);
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory, $callableResolver);
+        $router = new Router($responseFactory, $callableResolver, $container);
         $app = new App($responseFactory, $container);
 
         $this->assertEquals($router, $app->getRouter());
@@ -890,27 +889,6 @@ class AppTest extends TestCase
      * Middleware
      *******************************************************************************/
 
-    public function testBottomMiddlewareIsDispatchMiddleware()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-
-        $reflection = new ReflectionClass(App::class);
-        $property = $reflection->getProperty('middlewareRunner');
-        $property->setAccessible(true);
-        $middlewareRunner = $property->getValue($app);
-
-        $app->add(function ($request, $handler) use (&$bottom, $responseFactory) {
-            return $responseFactory->createResponse();
-        });
-
-        /** @var array $middleware */
-        $middleware = $middlewareRunner->getMiddleware();
-        $bottom = $middleware[1];
-
-        $this->assertInstanceOf(DispatchMiddleware::class, $bottom);
-    }
-
     public function testAddMiddleware()
     {
         $responseFactory = $this->getResponseFactory();
@@ -1104,14 +1082,14 @@ class AppTest extends TestCase
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage
-     * Parameter 1 of `Slim\App::add()` must be a closure or an object/class name
-     * referencing an implementation of MiddlewareInterface.
-     */
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
     {
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage(
+            'A middleware must be an object/class name referencing an implementation of ' .
+            'MiddlewareInterface or a callable with a matching signature.'
+        );
+
         $responseFactory = $this->getResponseFactory();
         $app = new App($responseFactory);
         $app->add(new MockMiddlewareWithoutInterface());

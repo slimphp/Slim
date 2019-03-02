@@ -9,10 +9,10 @@
 namespace Slim\Tests\Middleware;
 
 use FastRoute\Dispatcher;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
-use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\RoutingMiddleware;
-use Slim\MiddlewareRunner;
+use Slim\MiddlewareDispatcher;
 use Slim\RoutingResults;
 use Slim\Router;
 use Slim\Tests\TestCase;
@@ -31,7 +31,7 @@ class RoutingMiddlewareTest extends TestCase
     public function testRouteIsStoredOnSuccessfulMatch()
     {
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             // route is available
             $route = $request->getAttribute('route');
             $this->assertNotNull($route);
@@ -44,15 +44,14 @@ class RoutingMiddlewareTest extends TestCase
         })->bindTo($this);
 
         $router = $this->getRouter();
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new RoutingMiddleware($router);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 
     /**
@@ -62,7 +61,7 @@ class RoutingMiddlewareTest extends TestCase
     {
 
         $responseFactory = $this->getResponseFactory();
-        $callable = (function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             // route is not available
             $route = $request->getAttribute('route');
             $this->assertNull($route);
@@ -76,14 +75,13 @@ class RoutingMiddlewareTest extends TestCase
         })->bindTo($this);
 
         $router = $this->getRouter();
-        $mw = new ClosureMiddleware($callable);
         $mw2 = new RoutingMiddleware($router);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'POST');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $middlewareDispatcher->handle($request);
     }
 }

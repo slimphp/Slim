@@ -8,10 +8,10 @@
  */
 namespace Slim\Tests\Middleware;
 
+use Psr\Http\Server\RequestHandlerInterface;
 use Exception;
-use Slim\Middleware\ClosureMiddleware;
 use Slim\Middleware\OutputBufferingMiddleware;
-use Slim\MiddlewareRunner;
+use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class OutputBufferingMiddlewareTest extends TestCase
@@ -39,21 +39,21 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testAppend()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+        $mw = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        });
+        };
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'append');
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $response = $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $response = $middlewareDispatcher->handle($request);
 
         $this->assertEquals('BodyTest', $response->getBody());
     }
@@ -61,21 +61,21 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testPrepend()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+        $mw = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             echo 'Test';
 
             return $response;
-        });
+        };
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $response = $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $response = $middlewareDispatcher->handle($request);
 
         $this->assertEquals('TestBody', $response->getBody());
     }
@@ -83,21 +83,21 @@ class OutputBufferingMiddlewareTest extends TestCase
     public function testOutputBufferIsCleanedWhenThrowableIsCaught()
     {
         $responseFactory = $this->getResponseFactory();
-        $mw = new ClosureMiddleware((function ($request, $handler) use ($responseFactory) {
+        $mw = (function ($request, $handler) use ($responseFactory) {
             echo "Test";
             $this->assertEquals('Test', ob_get_contents());
             throw new Exception('Oops...');
-        })->bindTo($this));
+        })->bindTo($this);
         $mw2 = new OutputBufferingMiddleware($this->getStreamFactory(), 'prepend');
 
         $request = $this->createServerRequest('/', 'GET');
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
 
         try {
-            $middlewareRunner->run($request);
+            $middlewareDispatcher->handle($request);
         } catch (Exception $e) {
             $this->assertEquals('', ob_get_contents());
         }

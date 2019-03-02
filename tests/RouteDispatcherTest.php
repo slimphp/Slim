@@ -6,18 +6,18 @@
  * @copyright Copyright (c) 2011-2018 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
-namespace Slim\Tests\Middleware;
+namespace Slim\Tests;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
-use Slim\Middleware\DispatchMiddleware;
-use Slim\MiddlewareRunner;
+use Slim\MiddlewareDispatcher;
+use Slim\RouteDispatcher;
 use Slim\Router;
 use Slim\RoutingResults;
 use Slim\Tests\TestCase;
 
-class DispatchMiddlewareTest extends TestCase
+class RouteDispatcherTest extends TestCase
 {
     public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
     {
@@ -33,10 +33,9 @@ class DispatchMiddlewareTest extends TestCase
         $router->map(['GET'], '/hello/{name}', $handler);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
-        $mw = new DispatchMiddleware($router);
+        $dispatcher = new RouteDispatcher($router);
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($dispatcher);
+        $middlewareDispatcher->handle($request);
     }
 }

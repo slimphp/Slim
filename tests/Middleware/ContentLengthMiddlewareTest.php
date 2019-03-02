@@ -8,9 +8,9 @@
  */
 namespace Slim\Tests\Middleware;
 
-use Slim\Middleware\ClosureMiddleware;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Middleware\ContentLengthMiddleware;
-use Slim\MiddlewareRunner;
+use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
 class ContentLengthMiddlewareTest extends TestCase
@@ -20,17 +20,17 @@ class ContentLengthMiddlewareTest extends TestCase
         $request = $this->createServerRequest('/');
         $responseFactory = $this->getResponseFactory();
 
-        $mw = new ClosureMiddleware(function ($request, $handler) use ($responseFactory) {
+        $mw = function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Body');
             return $response;
-        });
+        };
         $mw2 = new ContentLengthMiddleware();
 
-        $middlewareRunner = new MiddlewareRunner();
-        $middlewareRunner->add($mw);
-        $middlewareRunner->add($mw2);
-        $response = $middlewareRunner->run($request);
+        $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandlerInterface::class));
+        $middlewareDispatcher->addCallable($mw);
+        $middlewareDispatcher->addMiddleware($mw2);
+        $response = $middlewareDispatcher->handle($request);
 
         $this->assertEquals(4, $response->getHeaderLine('Content-Length'));
     }

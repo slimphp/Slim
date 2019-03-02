@@ -15,15 +15,19 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
 use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Handlers\Strategies\RequestResponse;
+use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Slim\Middleware\RoutingMiddleware;
 
 /**
  * Router
@@ -46,6 +50,11 @@ class Router implements RouterInterface
      * @var CallableResolverInterface
      */
     protected $callableResolver;
+
+    /**
+     * @var ContainerInterface|null
+     */
+    protected $container;
 
     /**
      * @var InvocationStrategyInterface
@@ -102,17 +111,20 @@ class Router implements RouterInterface
      *
      * @param ResponseFactoryInterface      $responseFactory
      * @param CallableResolverInterface     $callableResolver
+     * @param ContainerInterface|null       $container
      * @param InvocationStrategyInterface   $defaultInvocationStrategy
      * @param RouteParser                   $parser
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
+        ContainerInterface $container = null,
         InvocationStrategyInterface $defaultInvocationStrategy = null,
         RouteParser $parser = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
+        $this->container = $container;
         $this->defaultInvocationStrategy = $defaultInvocationStrategy ?? new RequestResponse();
         $this->routeParser = $parser ?? new StdParser;
     }
@@ -233,6 +245,7 @@ class Router implements RouterInterface
             $callable,
             $this->responseFactory,
             $this->callableResolver,
+            $this->container,
             $this->defaultInvocationStrategy,
             $this->routeGroups,
             $this->routeCounter

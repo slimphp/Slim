@@ -24,6 +24,13 @@ use Slim\Interfaces\RouteGroupInterface;
 class RouteGroup extends Routable implements RouteGroupInterface
 {
     /**
+     * middleware
+     *
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * Create a new RouteGroup
      *
      * @param string                    $pattern  The pattern prefix for the group
@@ -41,7 +48,6 @@ class RouteGroup extends Routable implements RouteGroupInterface
         $this->callable = $callable;
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
-        $this->middlewareRunner = new MiddlewareRunner();
     }
 
     /**
@@ -50,7 +56,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
      */
     public function add($middleware): RouteGroupInterface
     {
-        $this->addRouteMiddleware($middleware);
+        $this->middleware[] = $middleware;
         return $this;
     }
 
@@ -60,8 +66,18 @@ class RouteGroup extends Routable implements RouteGroupInterface
      */
     public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface
     {
-        $this->addRouteMiddleware($middleware);
+        $this->middleware[] = $middleware;
         return $this;
+    }
+
+    /**
+     * Get the middleware registered for the group
+     *
+     * @return mixed[]
+     */
+    public function getMiddleware(): array
+    {
+        return $this->middleware;
     }
 
     /**
