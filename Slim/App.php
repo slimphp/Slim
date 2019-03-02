@@ -276,8 +276,9 @@ class App implements RequestHandlerInterface
      */
     public function redirect(string $from, $to, int $status = 302): RouteInterface
     {
-        $handler = function (ServerRequestInterface $request, ResponseInterface $response) use ($to, $status) {
-            return $response->withHeader('Location', (string)$to)->withStatus($status);
+        $handler = function () use ($to, $status) {
+            $response = $this->responseFactory->createResponse($status);
+            return $response->withHeader('Location', (string)$to);
         };
 
         return $this->get($from, $handler);
