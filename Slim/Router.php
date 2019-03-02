@@ -182,12 +182,19 @@ class Router implements RouterInterface
      */
     public function setCacheFile(?string $cacheFile): RouterInterface
     {
-        $this->cacheFile = $cacheFile;
-
-        if (is_string($cacheFile) && !is_writable(dirname($cacheFile))) {
-            throw new RuntimeException('Router cacheFile directory must be writable');
+        if ($cacheFile && file_exists($cacheFile) && !is_readable($cacheFile)) {
+            throw new RuntimeException(
+                sprintf('Router cache file `%s` is not readable', $cacheFile)
+            );
         }
 
+        if ($cacheFile && !file_exists($cacheFile) && !is_writable(dirname($cacheFile))) {
+            throw new RuntimeException(
+                sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
+            );
+        }
+
+        $this->cacheFile = $cacheFile;
         return $this;
     }
 

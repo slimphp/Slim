@@ -23,6 +23,16 @@ class RouterTest extends TestCase
     /** @var Router */
     protected $router;
 
+    /** @var string */
+    protected $cacheFile;
+
+    public function tearDown()
+    {
+        if (file_exists($this->cacheFile)) {
+            unlink($this->cacheFile);
+        }
+    }
+
     public function setUp()
     {
         $callableResolver = new CallableResolver();
@@ -315,16 +325,33 @@ class RouterTest extends TestCase
     }
 
     /**
-     * Test if cacheFile is not a writable directory
-     *
-     * @expectedException \RuntimeException
-     * @expectedExceptionMessage Router cacheFile directory must be writable
+     * Test cache file exists but is not writable
      */
-    public function testSettingInvalidCacheFileNotExisting()
+    public function testCacheFileExistsAndIsNotReadable()
     {
-        $this->router->setCacheFile(
-            dirname(__FILE__) . uniqid(microtime(true)) . '/' . uniqid(microtime(true))
+        $this->cacheFile = __DIR__ . '/non-readable.cache';
+        file_put_contents($this->cacheFile, '<?php return []; ?>');
+
+        $this->expectException(
+            '\RuntimeException',
+            sprintf('Router cache file `%s` is not readable', $this->cacheFile)
         );
+
+        $this->router->setCacheFile($this->cacheFile);
+    }
+    /**
+     * Test cache file does not exist and directory is not writable
+     */
+    public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
+    {
+        $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
+
+        $this->expectException(
+            '\RuntimeException',
+            sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
+        );
+
+        $this->router->setCacheFile($cacheFile);
     }
 
     /**

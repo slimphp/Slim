@@ -8,8 +8,8 @@
  */
 namespace Slim\Tests;
 
-use Slim\HeaderStackTestAsset;
 use Slim\ResponseEmitter;
+use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockStream;
 use Slim\Tests\Mocks\SmallChunksStream;
 
@@ -21,12 +21,12 @@ class ResponseEmitterTest extends TestCase
 {
     public function setUp()
     {
-        HeaderStackTestAsset::reset();
+        HeaderStack::reset();
     }
 
     public function tearDown()
     {
-        HeaderStackTestAsset::reset();
+        HeaderStack::reset();
     }
 
     public function testRespond()
@@ -47,8 +47,8 @@ class ResponseEmitterTest extends TestCase
         $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);
 
-        $this->assertEquals(false, HeaderStackTestAsset::has('Content-Type'));
-        $this->assertEquals(false, HeaderStackTestAsset::has('Content-Length'));
+        $this->assertEquals(false, HeaderStack::has('Content-Type'));
+        $this->assertEquals(false, HeaderStack::has('Content-Length'));
         $this->expectOutputString('');
     }
 
@@ -143,7 +143,7 @@ class ResponseEmitterTest extends TestCase
             ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
+        $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
     public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
@@ -161,7 +161,7 @@ class ResponseEmitterTest extends TestCase
             ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
         ];
 
-        $this->assertSame($expectedStack, HeaderStackTestAsset::stack());
+        $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
     public function testIsResponseEmptyWithNonEmptyBodyAndTriggeringStatusCode()
