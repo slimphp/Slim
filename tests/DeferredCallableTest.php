@@ -8,8 +8,7 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container;
+use Psr\Container\ContainerInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Tests\Mocks\CallableTest;
@@ -18,10 +17,10 @@ class DeferredCallableTest extends TestCase
 {
     public function testItResolvesCallable()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest;
-        $container = new Container($pimple);
-        $resolver = new CallableResolver($container);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('CallableTest')->willReturn(true);
+        $containerProphecy->get('CallableTest')->willReturn(new CallableTest());
+        $resolver = new CallableResolver($containerProphecy->reveal());
 
         $deferred = new DeferredCallable('CallableTest:toCall', $resolver);
         $deferred();
@@ -31,19 +30,18 @@ class DeferredCallableTest extends TestCase
 
     public function testItBindsClosuresToContainer()
     {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $resolver = new CallableResolver($containerProphecy->reveal());
+
         $assertCalled = $this->getMockBuilder('StdClass')->setMethods(['foo'])->getMock();
         $assertCalled
             ->expects($this->once())
             ->method('foo');
 
-        $pimple = new Pimple();
-        $container = new Container($pimple);
-        $resolver = new CallableResolver($container);
-
         $test = $this;
-        $closure = function () use ($container, $test, $assertCalled) {
+        $closure = function () use ($containerProphecy, $test, $assertCalled) {
             $assertCalled->foo();
-            $test->assertSame($container, $this);
+            $test->assertSame($containerProphecy->reveal(), $this);
         };
 
         $deferred = new DeferredCallable($closure, $resolver);
@@ -52,9 +50,8 @@ class DeferredCallableTest extends TestCase
 
     public function testItReturnsInvokedCallableResponse()
     {
-        $pimple = new Pimple();
-        $container = new Container($pimple);
-        $resolver = new CallableResolver($container);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $resolver = new CallableResolver($containerProphecy->reveal());
 
         $test = $this;
         $foo = 'foo';

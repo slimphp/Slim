@@ -8,8 +8,6 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -22,10 +20,6 @@ use Slim\Tests\Mocks\MockRequestHandler;
 use Slim\Tests\Mocks\MockSequenceMiddleware;
 use stdClass;
 
-/**
- * Class MiddlewareDispatcherTest
- * @package Slim\Tests
- */
 class MiddlewareDispatcherTest extends TestCase
 {
     public function testAddMiddleware()
@@ -61,16 +55,15 @@ class MiddlewareDispatcherTest extends TestCase
 
     public function testDeferredResolvedCallable()
     {
-        $pimple = new Pimple();
-        $pimple['callable'] = function () {
-            return function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
-                return $handler->handle($request);
-            };
+        $callable = function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
+            return $handler->handle($request);
         };
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('callable')->willReturn(true);
+        $containerProphecy->get('callable')->willReturn($callable);
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $container);
+        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addDeferred('callable');
 
         $request = $this->createServerRequest('/');
@@ -100,12 +93,12 @@ class MiddlewareDispatcherTest extends TestCase
      */
     public function testResolveThrowsExceptionWhenResolvableDoesNotImplementMiddlewareInterface()
     {
-        $pimple = new Pimple();
-        $pimple['MiddlewareInterfaceNotImplemented'] = new stdClass();
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('MiddlewareInterfaceNotImplemented')->willReturn(true);
+        $containerProphecy->get('MiddlewareInterfaceNotImplemented')->willReturn(new stdClass());
 
         $handler = new MockRequestHandler();
-        $middlewareDispatcher = new MiddlewareDispatcher($handler, $container);
+        $middlewareDispatcher = new MiddlewareDispatcher($handler, $containerProphecy->reveal());
         $middlewareDispatcher->addDeferred('MiddlewareInterfaceNotImplemented');
 
         $request = $this->createServerRequest('/');
