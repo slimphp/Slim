@@ -10,8 +10,7 @@ namespace Slim\Tests;
 
 use Closure;
 use Exception;
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
@@ -294,10 +293,11 @@ class RouteTest extends TestCase
 
     public function testControllerMethodAsStringResolvesWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest();
-        $container = new Psr11Container($pimple);
-        $callableResolver = new CallableResolver($container);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('CallableTest')->willReturn(true);
+        $containerProphecy->get('CallableTest')->willReturn(new CallableTest());
+
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $responseFactory = $this->getResponseFactory();
 
         $deferred = new DeferredCallable('CallableTest:toCall', $callableResolver);
@@ -412,9 +412,11 @@ class RouteTest extends TestCase
      */
     public function testInvokeDeferredCallableWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['\Slim\Tests\Mocks\CallableTest'] = new CallableTest;
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('\Slim\Tests\Mocks\CallableTest')->willReturn(true);
+        $containerProphecy->get('\Slim\Tests\Mocks\CallableTest')->willReturn(new CallableTest());
+        $container = $containerProphecy->reveal();
+
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $strategy = new InvocationStrategyTest();
@@ -431,9 +433,11 @@ class RouteTest extends TestCase
 
     public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
     {
-        $pimple = new Pimple();
-        $pimple[RequestHandlerTest::class] = new RequestHandlerTest();
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
+        $containerProphecy->get(RequestHandlerTest::class)->willReturn(new RequestHandlerTest());
+        $container = $containerProphecy->reveal();
+
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
 
@@ -444,7 +448,7 @@ class RouteTest extends TestCase
         $route->run($request);
 
         /** @var InvocationStrategyInterface $strategy */
-        $strategy = $pimple[RequestHandlerTest::class]::$strategy;
+        $strategy = $container->get(RequestHandlerTest::class)::$strategy;
         $this->assertEquals(RequestHandler::class, $strategy);
     }
 
@@ -483,9 +487,11 @@ class RouteTest extends TestCase
      */
     public function testChangingCallableWithContainer()
     {
-        $pimple = new Pimple();
-        $pimple['CallableTest2'] = new CallableTest;
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('CallableTest2')->willReturn(true);
+        $containerProphecy->get('CallableTest2')->willReturn(new CallableTest());
+        $container = $containerProphecy->reveal();
+
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
         $strategy = new InvocationStrategyTest();
@@ -498,21 +504,24 @@ class RouteTest extends TestCase
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals([$pimple['CallableTest2'], 'toCall'], InvocationStrategyTest::$LastCalledFor);
+        $this->assertEquals([$container->get('CallableTest2'), 'toCall'], InvocationStrategyTest::$LastCalledFor);
     }
 
     public function testRouteCallableIsResolvedUsingContainerWhenCallableResolverIsPresent()
     {
         $responseFactory = $this->getResponseFactory();
 
-        $pimple = new Pimple();
-        $pimple['CallableTest3'] = new CallableTest;
-        $pimple['ClosureMiddleware'] = $pimple->protect(function ($request, $handler) use ($responseFactory) {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('CallableTest3')->willReturn(true);
+        $containerProphecy->get('CallableTest3')->willReturn(new CallableTest());
+        $containerProphecy->has('ClosureMiddleware')->willReturn(true);
+        $containerProphecy->get('ClosureMiddleware')->willReturn(function ($request, $handler) use ($responseFactory) {
             $response = $responseFactory->createResponse();
             $response->getBody()->write('Hello');
             return $response;
         });
-        $container = new Psr11Container($pimple);
+        $container = $containerProphecy->reveal();
+
         $callableResolver = new CallableResolver($container);
         $strategy = new InvocationStrategyTest();
 
