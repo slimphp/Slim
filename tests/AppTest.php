@@ -1819,18 +1819,15 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handlerMock = $this->getMockBuilder('MockRouteHandler')
-            ->disableOriginalClone()
-            ->setMethods(['foo'])
-            ->getMock();
-
-        $handlerMock
-            ->method('foo')
-            ->willReturn($responseProphecy->reveal());
+        $handler = new Class {
+            public function foo(ServerRequestInterface $request, ResponseInterface $response) {
+                return $response;
+            }
+        };
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(Argument::exact('handler'))->willReturn(true);
-        $containerProphecy->get(Argument::exact('handler'))->willReturn($handlerMock);
+        $containerProphecy->get(Argument::exact('handler'))->willReturn($handler);
 
         $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
         $app->get('/', 'handler:foo');
@@ -1863,13 +1860,12 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handlerMock = $this
-            ->getMockBuilder(stdClass::class)
-            ->getMock();
+        $handler = new Class {
+        };
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(Argument::exact('handler'))->willReturn(true);
-        $containerProphecy->get(Argument::exact('handler'))->willReturn($handlerMock);
+        $containerProphecy->get(Argument::exact('handler'))->willReturn($handler);
 
         $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
         $app->get('/', 'handler:method_does_not_exist');
