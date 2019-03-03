@@ -8,8 +8,8 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Slim\CallableResolver;
 use Slim\Tests\Mocks\CallableTest;
@@ -19,14 +19,9 @@ use Slim\Tests\Mocks\RequestHandlerTest;
 class CallableResolverTest extends TestCase
 {
     /**
-     * @var ContainerInterface
+     * @var ObjectProphecy
      */
-    private $container;
-
-    /**
-     * @var Pimple
-     */
-    private $pimple;
+    private $containerProphecy;
 
     public function setUp()
     {
@@ -34,8 +29,8 @@ class CallableResolverTest extends TestCase
         InvokableTest::$CalledCount = 0;
         RequestHandlerTest::$CalledCount = 0;
 
-        $this->pimple = new Pimple;
-        $this->container = new Container($this->pimple);
+        $this->containerProphecy = $this->prophesize(ContainerInterface::class);
+        $this->containerProphecy->has(Argument::type('string'))->willReturn(false);
     }
 
     public function testClosure()
@@ -57,7 +52,7 @@ class CallableResolverTest extends TestCase
         }
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
-        
+
         $this->assertEquals(true, $callable());
     }
 
@@ -82,16 +77,17 @@ class CallableResolverTest extends TestCase
 
     public function testSlimCallableContainer()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $resolver->resolve('Slim\Tests\Mocks\CallableTest:toCall');
 
-        $this->assertEquals($this->container, CallableTest::$CalledContainer);
+        $this->assertEquals($this->containerProphecy->reveal(), CallableTest::$CalledContainer);
     }
 
     public function testContainer()
     {
-        $this->pimple['callable_service'] = new CallableTest();
-        $resolver = new CallableResolver($this->container);
+        $this->containerProphecy->has('callable_service')->willReturn(true);
+        $this->containerProphecy->get('callable_service')->willReturn(new CallableTest());
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $callable = $resolver->resolve('callable_service:toCall');
         $callable();
 
@@ -100,10 +96,9 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAnInvokableClassInContainer()
     {
-        $this->pimple['an_invokable'] = function ($c) {
-            return new InvokableTest();
-        };
-        $resolver = new CallableResolver($this->container);
+        $this->containerProphecy->has('an_invokable')->willReturn(true);
+        $this->containerProphecy->get('an_invokable')->willReturn(new InvokableTest());
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $callable = $resolver->resolve('an_invokable');
         $callable();
 
@@ -142,9 +137,10 @@ class CallableResolverTest extends TestCase
 
     public function testObjPsrRequestHandlerClassInContainer()
     {
-        $this->pimple['a_requesthandler'] = new RequestHandlerTest();
+        $this->containerProphecy->has('a_requesthandler')->willReturn(true);
+        $this->containerProphecy->get('a_requesthandler')->willReturn(new RequestHandlerTest());
         $request = $this->createServerRequest('/', 'GET');
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $callable = $resolver->resolve('a_requesthandler');
         $callable($request);
 
@@ -153,7 +149,6 @@ class CallableResolverTest extends TestCase
 
     public function testResolutionToAPsrRequestHandlerClassWithCustomMethod()
     {
-        $request = $this->createServerRequest('/', 'GET');
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(RequestHandlerTest::class . ':custom');
         $this->assertInternalType('array', $callable);
@@ -166,8 +161,9 @@ class CallableResolverTest extends TestCase
      */
     public function testMethodNotFoundThrowException()
     {
-        $this->pimple['callable_service'] = new CallableTest();
-        $resolver = new CallableResolver($this->container);
+        $this->containerProphecy->has('callable_service')->willReturn(true);
+        $this->containerProphecy->get('callable_service')->willReturn(new CallableTest);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $resolver->resolve('callable_service:notFound');
     }
 
@@ -176,7 +172,7 @@ class CallableResolverTest extends TestCase
      */
     public function testFunctionNotFoundThrowException()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $resolver->resolve('notFound');
     }
 
@@ -186,7 +182,7 @@ class CallableResolverTest extends TestCase
      */
     public function testClassNotFoundThrowException()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $resolver->resolve('Unknown:notFound');
     }
 
@@ -196,7 +192,7 @@ class CallableResolverTest extends TestCase
      */
     public function testCallableClassNotFoundThrowException()
     {
-        $resolver = new CallableResolver($this->container);
+        $resolver = new CallableResolver($this->containerProphecy->reveal());
         $resolver->resolve(['Unknown', 'notFound']);
     }
 }
