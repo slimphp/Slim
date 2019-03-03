@@ -14,7 +14,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionClass;
 use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
