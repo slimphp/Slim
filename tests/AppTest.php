@@ -1571,13 +1571,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithSetArgument()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1613,13 +1612,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithSetArguments()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1655,13 +1653,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1697,13 +1694,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1740,13 +1736,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1877,13 +1872,12 @@ class AppTest extends TestCase
 
     public function testInvokeWithCallableInContainerViaCallMagicMethod()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1923,13 +1917,12 @@ class AppTest extends TestCase
 
     public function testInvokeFunctionName()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -1969,13 +1962,12 @@ class AppTest extends TestCase
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -2011,13 +2003,12 @@ class AppTest extends TestCase
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -2054,16 +2045,15 @@ class AppTest extends TestCase
 
     public function testRun()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
-        });
-        $streamProphecy->read(11)->will(function () use (&$streamBody) {
-            return $streamBody;
+        $streamProphecy->read('11')->will(function () {
+            return $this->reveal()->__toString();
         });
         $streamProphecy->eof()->will(function () {
             $this->eof()->willReturn(true);
@@ -2109,19 +2099,18 @@ class AppTest extends TestCase
 
     public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
         $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
-        $responseProphecy->withBody(Argument::any())->will(function ($args) use (&$streamBody) {
-            $streamBody = '';
+        $responseProphecy->withBody(Argument::any())->will(function ($args) use ($streamProphecy) {
+            $streamProphecy->__toString()->willReturn('');
             $clone = clone $this;
             $clone->getBody()->willReturn($args[0]);
             return $clone;
@@ -2159,13 +2148,12 @@ class AppTest extends TestCase
 
     public function testCanBeReExecutedRecursivelyDuringDispatch()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseHeaders = [];
@@ -2329,13 +2317,12 @@ class AppTest extends TestCase
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -2379,20 +2366,19 @@ class AppTest extends TestCase
             return $clone;
         });
 
-        $streamBody = '';
+        $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy2->reveal());
         $this->assertEquals('0', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -2436,20 +2422,19 @@ class AppTest extends TestCase
             return $clone;
         });
 
-        $streamBody = '';
+        $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy2->reveal());
         $this->assertEquals('1', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
     {
-        $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
-        $streamProphecy->__toString()->will(function () use (&$streamBody) {
-            return $streamBody;
-        });
-        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
-            $streamBody .= $args[0];
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
         });
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
@@ -2483,7 +2468,7 @@ class AppTest extends TestCase
 
         $route->setArgument('extra2', 'value2');
 
-        $streamBody = '';
+        $streamProphecy->__toString()->willReturn('');
         $response = $app->handle($requestProphecy->reveal());
         $this->assertEquals('3', (string) $response->getBody());
     }
