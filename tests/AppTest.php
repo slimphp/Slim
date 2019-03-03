@@ -2054,7 +2054,6 @@ class AppTest extends TestCase
 
     public function testRun()
     {
-        $hasBeenRead = false;
         $streamBody = '';
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->will(function () use (&$streamBody) {
@@ -2063,12 +2062,12 @@ class AppTest extends TestCase
         $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
             $streamBody .= $args[0];
         });
-        $streamProphecy->read(11)->will(function () use (&$hasBeenRead, &$streamBody) {
-            $hasBeenRead = true;
+        $streamProphecy->read(11)->will(function () use (&$streamBody) {
             return $streamBody;
         });
-        $streamProphecy->eof()->will(function () use (&$hasBeenRead) {
-            return $hasBeenRead;
+        $streamProphecy->eof()->will(function () {
+            $this->eof()->willReturn(true);
+            return false;
         });
         $streamProphecy->isSeekable()->willReturn(true);
         $streamProphecy->rewind()->willReturn(true);
