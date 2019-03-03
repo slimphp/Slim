@@ -57,12 +57,21 @@ class AppTest extends TestCase
         $this->assertEquals($containerProphecy->reveal(), $app->getContainer());
     }
 
-    public function testGetCallableResolver()
+    public function testGetCallableResolverReturnsInjectedInstance()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $app = new App($responseFactory, null, $callableResolverProphecy->reveal());
+
+        $this->assertSame($callableResolverProphecy->reveal(), $app->getCallableResolver());
+    }
+
+    public function testCreatesCallableResolverWhenNull()
     {
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolver = new CallableResolver($containerProphecy->reveal());
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
+        $app = new App($responseFactory, $containerProphecy->reveal(), null);
 
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
