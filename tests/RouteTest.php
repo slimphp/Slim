@@ -413,7 +413,7 @@ class RouteTest extends TestCase
     public function testInvokeDeferredCallableWithContainer()
     {
         $pimple = new Pimple();
-        $pimple['CallableTest'] = new CallableTest;
+        $pimple['\Slim\Tests\Mocks\CallableTest'] = new CallableTest;
         $container = new Psr11Container($pimple);
         $callableResolver = new CallableResolver($container);
         $responseFactory = $this->getResponseFactory();
