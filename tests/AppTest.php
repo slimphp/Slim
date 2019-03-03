@@ -10,22 +10,26 @@ namespace Slim\Tests;
 
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use ReflectionProperty;
+use RuntimeException;
 use Slim\App;
 use Slim\CallableResolver;
-use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Exception\HttpNotFoundException;
+use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouterInterface;
-use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
-use Slim\Tests\Mocks\MockMiddleware;
-use Slim\Tests\Mocks\MockMiddlewareWithoutInterface;
+use stdClass;
 
 class AppTest extends TestCase
 {
@@ -36,9 +40,9 @@ class AppTest extends TestCase
 
     public function testDoesNotUseContainerAsServiceLocator()
     {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
 
         $containerProphecy->has(Argument::type('string'))->shouldNotHaveBeenCalled();
         $containerProphecy->get(Argument::type('string'))->shouldNotHaveBeenCalled();
@@ -50,48 +54,57 @@ class AppTest extends TestCase
 
     public function testGetContainer()
     {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
 
-        $this->assertEquals($containerProphecy->reveal(), $app->getContainer());
+        $this->assertSame($containerProphecy->reveal(), $app->getContainer());
     }
 
     public function testGetCallableResolverReturnsInjectedInstance()
     {
-        $responseFactory = $this->getResponseFactory();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
-        $app = new App($responseFactory, null, $callableResolverProphecy->reveal());
+        $app = new App($responseFactoryProphecy->reveal(), null, $callableResolverProphecy->reveal());
 
         $this->assertSame($callableResolverProphecy->reveal(), $app->getCallableResolver());
     }
 
     public function testCreatesCallableResolverWhenNull()
     {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolver = new CallableResolver($containerProphecy->reveal());
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal(), null);
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal(), null);
 
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
 
     public function testGetRouterReturnsInjectedInstance()
     {
-        $responseFactory = $this->getResponseFactory();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $routerProphecy = $this->prophesize(RouterInterface::class);
-        $app = new App($responseFactory, null, null, $routerProphecy->reveal());
+        $app = new App($responseFactoryProphecy->reveal(), null, null, $routerProphecy->reveal());
 
         $this->assertSame($routerProphecy->reveal(), $app->getRouter());
     }
 
     public function testCreatesRouterWhenNullWithInjectedContainer()
     {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
-        $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory, $callableResolverProphecy->reveal(), $containerProphecy->reveal(), null);
-        $app = new App($responseFactory, $containerProphecy->reveal(), $callableResolverProphecy->reveal());
+        $router = new Router(
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            $containerProphecy->reveal(),
+            null
+        );
+        $app = new App(
+            $responseFactoryProphecy->reveal(),
+            $containerProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
 
         $this->assertEquals($router, $app->getRouter());
     }
@@ -102,183 +115,198 @@ class AppTest extends TestCase
 
     public function testGetRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->get($path, $callable);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->get('/', function () {
+        });
+
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('GET', 'methods', $route);
+        $this->assertEquals(['GET'], $methodsProperty->getValue($route));
     }
 
     public function testPostRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->post($path, $callable);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->post('/', function () {
+        });
+
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('POST', 'methods', $route);
+        $this->assertEquals(['POST'], $methodsProperty->getValue($route));
     }
 
     public function testPutRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->put('/', function () {
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->put($path, $callable);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('PUT', 'methods', $route);
-    }
-
-    public function testPatchRoute()
-    {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
-
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->patch($path, $callable);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('PATCH', 'methods', $route);
+        $this->assertEquals(['PUT'], $methodsProperty->getValue($route));
     }
 
     public function testDeleteRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->delete('/', function () {
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->delete($path, $callable);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('DELETE', 'methods', $route);
+        $this->assertEquals(['DELETE'], $methodsProperty->getValue($route));
     }
 
     public function testOptionsRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->options('/', function () {
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->options($path, $callable);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('OPTIONS', 'methods', $route);
+        $this->assertEquals(['OPTIONS'], $methodsProperty->getValue($route));
     }
 
     public function testAnyRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->any('/', function () {
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->any($path, $callable);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('GET', 'methods', $route);
-        $this->assertAttributeContains('POST', 'methods', $route);
-        $this->assertAttributeContains('PUT', 'methods', $route);
-        $this->assertAttributeContains('PATCH', 'methods', $route);
-        $this->assertAttributeContains('DELETE', 'methods', $route);
-        $this->assertAttributeContains('OPTIONS', 'methods', $route);
+        $this->assertEquals(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $methodsProperty->getValue($route));
     }
 
     public function testMapRoute()
     {
-        $path = '/foo';
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->map(['GET', 'POST'], '/', function () {
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->map(['GET', 'POST'], $path, $callable);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('GET', 'methods', $route);
-        $this->assertAttributeContains('POST', 'methods', $route);
+        $this->assertEquals(['GET', 'POST'], $methodsProperty->getValue($route));
     }
 
     public function testMapRouteWithLowercaseMethod()
     {
-        $path = '/foo';
-        $callable = function ($req, $res) {
-            // Do something
-        };
-        $app = new App($this->getResponseFactory());
-        $route = $app->map(['get'], $path, $callable);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->map(['get'], '/', function () {
+        });
+
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
         $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('get', 'methods', $route);
+        $this->assertEquals(['get'], $methodsProperty->getValue($route));
     }
 
     public function testRedirectRoute()
     {
-        $source = '/foo';
-        $destination = '/bar';
+        $from = '/from';
+        $to = '/to';
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->redirect($source, $destination, 301);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
 
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertAttributeContains('GET', 'methods', $route);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse(Argument::any())->will(function ($args) use ($responseProphecy, $to) {
+            $responseProphecy->getStatusCode()->willReturn(isset($args[0]) ? $args[0] : 200);
+            $responseProphecy->getHeaderLine(Argument::exact('Location'))->willReturn($to);
+            $responseProphecy->withHeader(
+                Argument::type('string'),
+                Argument::type('string')
+            )->will(function ($args) {
+                $clone = clone $this;
+                $clone->getHeader($args[0])->willReturn($args[1]);
+                return $clone;
+            });
+            return $responseProphecy->reveal();
+        });
 
-        $response = $route->run($this->createServerRequest($source), $this->createResponse());
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn($from);
+        $uriProphecy->__toString()->willReturn($to);
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+
+        // Test with provided status code
+        $route = $app->redirect($from, $to, 301);
+        $response = $route->run($requestProphecy->reveal());
         $this->assertEquals(301, $response->getStatusCode());
-        $this->assertEquals($destination, $response->getHeaderLine('Location'));
 
-        $routeWithDefaultStatus = $app->redirect($source, $destination);
-        $response = $routeWithDefaultStatus->run($this->createServerRequest($source), $this->createResponse());
+        // Test with default App::redirect() status code
+        $route = $app->redirect($from, $to);
+        $response = $route->run($requestProphecy->reveal());
         $this->assertEquals(302, $response->getStatusCode());
 
-        $uri = $this->getMockBuilder(UriInterface::class)->getMock();
-        $uri->expects($this->once())->method('__toString')->willReturn($destination);
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
 
-        $routeToUri = $app->redirect($source, $uri);
-        $response = $routeToUri->run($this->createServerRequest($source), $this->createResponse());
-        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertEquals(['GET'], $methodsProperty->getValue($route));
     }
 
     public function testRouteWithInternationalCharacters()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/новости', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('Hello');
-            return $response;
+        $path = '/новости';
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get($path, function () use ($responseProphecy) {
+            return $responseProphecy->reveal();
         });
 
-        $request = $this->createServerRequest('/новости');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn($path);
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     /********************************************************************************
@@ -287,62 +315,87 @@ class AppTest extends TestCase
 
     public function testSegmentRouteThatDoesNotEndInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/foo', function () {
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testSegmentRouteThatEndsInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/foo/', function () {
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/', $patternProperty->getValue($route));
     }
 
     public function testSegmentRouteThatDoesNotStartWithASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('foo', function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('foo', function () {
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('foo', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('foo', $patternProperty->getValue($route));
     }
 
     public function testSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function () {
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/', $patternProperty->getValue($route));
     }
 
     public function testEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-            // Do something
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('', function () {
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('', $patternProperty->getValue($route));
     }
 
     /********************************************************************************
@@ -351,564 +404,709 @@ class AppTest extends TestCase
 
     public function testGroupClosureIsBoundToThisClass()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+
         $testCase = $this;
-        $app->group('/foo', function (App $app) use ($testCase) {
+        $app->group('/foo', function () use ($testCase) {
             $testCase->assertSame($testCase, $this);
         });
     }
 
     public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/bar', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithSegmentRouteThatEndsInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/bar/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testTwoGroupSegmentsWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/bar', function (App $app) {
+                $app->get('/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/baz/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
     }
 
     public function testTwoGroupSegmentsWithAnEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/bar', function (App $app) {
+                $app->get('', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/baz', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
     }
 
     public function testTwoGroupSegmentsWithSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/bar', function (App $app) {
+                $app->get('/baz', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/baz/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar/baz', $patternProperty->getValue($route));
     }
 
     public function testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/bar', function (App $app) {
+                $app->get('/baz/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/baz/bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar/baz/', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo//bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo//bar', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foo/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
     }
 
     public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/foobar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foobar', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/foo', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/foo/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo/', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//baz/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo/', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//baz', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//baz/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo/bar', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/bar/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//baz/bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo/bar/', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('///bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('///foo', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo', $patternProperty->getValue($route));
     }
 
     public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('/', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/foo', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithSegmentRouteThatEndsInASlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/foo/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('/', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                // Do something
+            $app->get('', function () {
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/baz/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/baz', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/bar', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/baz/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/bar/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+            $app->group('/foo', function (App $app) {
+                $app->get('/bar/', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/baz/bar/', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('//bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('//foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
             $app->group('/', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('/foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('/bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('/foo', $patternProperty->getValue($route));
     }
 
     public function testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
         $app->group('', function (App $app) {
             $app->group('', function (App $app) {
-                $app->get('bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    // Do something
+                $app->get('foo', function () {
                 });
             });
         });
 
         $router = $app->getRouter();
-        $this->assertAttributeEquals('bar', 'pattern', $router->lookupRoute('route0'));
+        $route = $router->lookupRoute('route0');
+
+        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
+        $patternProperty->setAccessible(true);
+
+        $this->assertEquals('foo', $patternProperty->getValue($route));
     }
 
     /********************************************************************************
@@ -917,499 +1115,1015 @@ class AppTest extends TestCase
 
     public function testAddMiddleware()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $called = 0;
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
 
-        $app->add(function ($request, $handler) use (&$called, $responseFactory) {
-            $called++;
-            return $responseFactory->createResponse();
-        });
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
 
-        $request = $this->createServerRequest('/');
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+
+        $app->add($middlewareProphecy->reveal());
+        $app->get('/', function ($request, $response) {
             return $response;
         });
-        $app->handle($request);
 
-        $this->assertSame($called, 1);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+        $this->assertSame($responseProphecy->reveal(), $response);
     }
 
     public function testAddMiddlewareUsingDeferredResolution()
     {
-        $responseFactory = $this->getResponseFactory();
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
 
-        $mw = new MockMiddleware($responseFactory);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has(MockMiddleware::class)->willReturn(true);
-        $containerProphecy->get(MockMiddleware::class)->willReturn($mw);
+        $containerProphecy
+            ->has(Argument::exact('middleware'))
+            ->willReturn(true);
 
-        $app = new App($responseFactory, $containerProphecy->reveal());
-        $app->add(MockMiddleware::class);
+        $containerProphecy
+            ->get(Argument::exact('middleware'))
+            ->willReturn($middlewareProphecy);
 
-        $request = $this->createServerRequest('/');
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
+        $app->add('middleware');
+        $app->get('/', function ($request, ResponseInterface $response) {
             return $response;
         });
 
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+
+        $response = $app->handle($requestProphecy->reveal());
         $this->assertSame('Hello World', (string) $response->getBody());
     }
 
     public function testAddMiddlewareOnRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('Center');
-            return $response;
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
+        $output = '';
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In1';
+
+            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
-            $appendToOutput('Out1');
-            return $response;
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $handler->handle($request);
-            $appendToOutput('Out2');
+
+            $output .= 'Out1';
+
             return $response;
         });
 
-        $output = '';
-        $appendToOutput = function (string $value) use (&$output) {
-            $output .= $value;
-        };
-        $request = $this->createServerRequest('/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy2->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
 
-        $app->run($request);
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In2';
+
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
+
+            $output .= 'Out2';
+
+            return $response;
+        });
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, ResponseInterface $response) use (&$output) {
+            $output .= 'Center';
+            return $response;
+        })
+            ->add($middlewareProphecy->reveal())
+            ->add($middlewareProphecy2->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $app->handle($requestProphecy->reveal());
 
         $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
     public function testAddMiddlewareOnRouteGroup()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->group('/foo', function (App $app) {
-            $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('Center');
-                return $response;
-            });
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
+        $output = '';
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In1';
+
+            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
-            $appendToOutput('Out1');
-            return $response;
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In2');
-            $response = $handler->handle($request);
-            $appendToOutput('Out2');
+
+            $output .= 'Out1';
+
             return $response;
         });
 
-        $output = '';
-        $appendToOutput = function (string $value) use (&$output) {
-            $output .= $value;
-        };
-        $request = $this->createServerRequest('/foo/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy2->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
 
-        $app->run($request);
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In2';
+
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
+
+            $output .= 'Out2';
+
+            return $response;
+        });
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->group('/foo', function (App $app) use (&$output) {
+            $app->get('/bar', function ($request, ResponseInterface $response) use (&$output) {
+                $output .= 'Center';
+                return $response;
+            });
+        })
+            ->add($middlewareProphecy->reveal())
+            ->add($middlewareProphecy2->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/foo/bar');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $app->handle($requestProphecy->reveal());
 
         $this->assertEquals('In2In1CenterOut1Out2', $output);
     }
 
     public function testAddMiddlewareOnTwoRouteGroup()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('Center');
-                    return $response;
-                });
-            })->add(function ($request, $handler) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('In2');
-                $response = $handler->handle($request);
-                $appendToOutput('Out2');
-                return $response;
-            });
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
+        $output = '';
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In1';
+
+            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
-            $appendToOutput('Out1');
+
+            $output .= 'Out1';
+
             return $response;
         });
 
-        // Prepare request object
-        $output = '';
-        $appendToOutput = function (string $value) use (&$output) {
-            $output .= $value;
-        };
-        $request = $this->createServerRequest('/foo/baz/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy2->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
 
-        $app->run($request);
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
 
-        $this->assertEquals('In1In2CenterOut2Out1', $output);
-    }
+            $output .= 'In2';
 
-    public function testAddMiddlewareOnRouteAndOnTwoRouteGroup()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->group('/foo', function (App $app) {
-            $app->group('/baz', function (App $app) {
-                $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('Center');
-                    return $response;
-                })->add(function ($request, $handler) {
-                    $appendToOutput = $request->getAttribute('appendToOutput');
-                    $appendToOutput('In3');
-                    $response = $handler->handle($request);
-                    $appendToOutput('Out3');
-                    return $response;
-                });
-            })->add(function ($request, $handler) {
-                $appendToOutput = $request->getAttribute('appendToOutput');
-                $appendToOutput('In2');
-                $response = $handler->handle($request);
-                $appendToOutput('Out2');
-                return $response;
-            });
-        })->add(function ($request, $handler) {
-            $appendToOutput = $request->getAttribute('appendToOutput');
-            $appendToOutput('In1');
+            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
-            $appendToOutput('Out1');
+
+            $output .= 'Out2';
+
             return $response;
         });
 
-        $output = '';
-        $appendToOutput = function (string $value) use (&$output) {
-            $output .= $value;
-        };
-        $request = $this->createServerRequest('/foo/baz/');
-        $request = $request->withAttribute('appendToOutput', $appendToOutput);
+        $middlewareProphecy3 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy3->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$output) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
 
-        $app->run($request);
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            $output .= 'In3';
+
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
+
+            $output .= 'Out3';
+
+            return $response;
+        });
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->group('/foo', function (App $app) use ($middlewareProphecy2, $middlewareProphecy3, &$output) {
+            $app->group('/bar', function (App $app) use ($middlewareProphecy3, &$output) {
+                $app->get('/baz', function ($request, ResponseInterface $response) use (&$output) {
+                    $output .= 'Center';
+                    return $response;
+                })->add($middlewareProphecy3->reveal());
+            })->add($middlewareProphecy2->reveal());
+        })->add($middlewareProphecy->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/foo/bar/baz');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $app->handle($requestProphecy->reveal());
 
         $this->assertEquals('In1In2In3CenterOut3Out2Out1', $output);
     }
 
     public function testAddMiddlewareAsStringNotImplementingInterfaceThrowsException()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(
             'A middleware must be an object/class name referencing an implementation of ' .
             'MiddlewareInterface or a callable with a matching signature.'
         );
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->add(new MockMiddlewareWithoutInterface());
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->add(new stdClass());
     }
 
     /********************************************************************************
      * Runner
      *******************************************************************************/
 
-    /**
-     * @expectedException \Slim\Exception\HttpMethodNotAllowedException
-     */
     public function testInvokeReturnMethodNotAllowed()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('Hello');
-            return $response;
+        $this->expectException(HttpMethodNotAllowedException::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function () {
         });
 
-        $request = $this->createServerRequest('/foo', 'POST');
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
 
-        $exception = new HttpMethodNotAllowedException($request);
-        $exception->setAllowedMethods(['GET']);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('POST');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
 
-        $response = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(405, (string)$response->getStatusCode());
-        $this->assertEquals(['GET'], $response->getHeader('Allow'));
-        $this->assertContains(
-            (new HtmlErrorRenderer())->render($exception, false),
-            (string)$response->getBody()
-        );
+        $app->handle($requestProphecy->reveal());
     }
 
     public function testInvokeWithMatchingRoute()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('Hello');
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, $response) {
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArgument()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/bar', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write("Hello {$args['attribute']}");
-            return $response;
-        })->setArgument('attribute', 'world!');
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
 
-        $request = $this->createServerRequest('/foo/bar');
-        $response = $app->handle($request);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['name']}");
+            return $response;
+        })->setArgument('name', 'World');
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello world!', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithSetArguments()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/bar', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write("Hello {$args['attribute1']} {$args['attribute2']}");
-            return $response;
-        })->setArguments(['attribute1' => 'there', 'attribute2' => 'world!']);
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
 
-        $request = $this->createServerRequest('/foo/bar');
-        $response = $app->handle($request);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, ResponseInterface $response, $args) {
+            $response->getBody()->write("{$args['greeting']} {$args['name']}");
+            return $response;
+        })->setArguments(['greeting' => 'Hello', 'name' => 'World']);
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello there world!', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameter()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
             $response->getBody()->write("Hello {$args['name']}");
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/test!');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello test!', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
+        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $name) {
             $response->getBody()->write("Hello {$name}");
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/test!');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello test!', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testInvokeWithMatchingRouteWithNamedParameterOverwritesSetArgument()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write("Hello {$args['extra']} {$args['name']}");
-            return $response;
-        })->setArguments(['extra' => 'there', 'name' => 'world!']);
-
-        $request = $this->createServerRequest('/foo/test!');
-        $response = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello there test!', (string)$response->getBody());
-    }
-
-    /**
-     * @expectedException \Slim\Exception\HttpNotFoundException
-     */
-    public function testInvokeWithoutMatchingRoute()
-    {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('Hello');
-            return $response;
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
         });
 
-        $request = $this->createServerRequest('/foo');
-        $response = $app->handle($request);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
+            $response->getBody()->write("Hello {$args['name']}");
+            return $response;
+        })->setArgument('name', 'World!');
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertAttributeEquals(404, 'status', $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
+    }
+
+    public function testInvokeWithoutMatchingRoute()
+    {
+        $this->expectException(HttpNotFoundException::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $app->handle($requestProphecy->reveal());
     }
 
     public function testInvokeWithCallableRegisteredInContainer()
     {
-        $request = $this->createServerRequest('/foo');
-        $response = $this->createResponse();
-        $response->getBody()->write('Hello');
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
 
-        $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
-        $mock->method('bar')->willReturn($response);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $handlerMock = $this->getMockBuilder('MockRouteHandler')
+            ->disableOriginalClone()
+            ->setMethods(['foo'])
+            ->getMock();
+
+        $handlerMock
+            ->method('foo')
+            ->willReturn($responseProphecy->reveal());
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('foo')->willReturn(true);
-        $containerProphecy->get('foo')->willReturn($mock);
+        $containerProphecy->has(Argument::exact('handler'))->willReturn(true);
+        $containerProphecy->get(Argument::exact('handler'))->willReturn($handlerMock);
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
-        $app->get('/foo', 'foo:bar');
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
+        $app->get('/', 'handler:foo');
 
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals('Hello', (string)$response->getBody());
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testInvokeWithNonExistentMethodOnCallableRegisteredInContainer()
     {
-        $request = $this->createServerRequest('/foo');
+        $this->expectException(RuntimeException::class);
 
-        $mock = $this->getMockBuilder('StdClass')->getMock();
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $handlerMock = $this
+            ->getMockBuilder(stdClass::class)
+            ->getMock();
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('foo')->willReturn(true);
-        $containerProphecy->get('foo')->willReturn($mock);
+        $containerProphecy->has(Argument::exact('handler'))->willReturn(true);
+        $containerProphecy->get(Argument::exact('handler'))->willReturn($handlerMock);
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
-        $app->get('/foo', 'foo:bar');
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
+        $app->get('/', 'handler:method_does_not_exist');
 
-        $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+
+        $app->handle($requestProphecy->reveal());
     }
 
-    public function testInvokeWithCallableInContainerViaMagicMethod()
+    public function testInvokeWithCallableInContainerViaCallMagicMethod()
     {
-        $request = $this->createServerRequest('/foo');
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
 
-        $mock = new MockAction();
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $mockAction = new MockAction();
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('foo')->willReturn(true);
-        $containerProphecy->get('foo')->willReturn($mock);
+        $containerProphecy->has(Argument::exact('handler'))->willReturn(true);
+        $containerProphecy->get(Argument::exact('handler'))->willReturn($mockAction);
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
-        $app->get('/foo', 'foo:bar');
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
+        $app->get('/', 'handler:foo');
 
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
 
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $expectedPayload = json_encode(['name'=>'foo', 'arguments' => []]);
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$response->getBody());
+        $this->assertEquals($expectedPayload, (string) $response->getBody());
     }
 
     public function testInvokeFunctionName()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         // @codingStandardsIgnoreStart
-        function handle(ServerRequestInterface $request, ResponseInterface $response) {
-            $response->getBody()->write('foo');
+        function handle($request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
             return $response;
         }
         // @codingStandardsIgnoreEnd
 
-        $app->get('/foo', __NAMESPACE__ . '\handle');
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', __NAMESPACE__ . '\handle');
 
-        $request = $this->createServerRequest('/foo');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
 
-        $this->assertEquals('foo', (string)$response->getBody());
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArguments()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
-            $response->getBody()->write($request->getAttribute('one') . $args['name']);
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
+            $response->getBody()->write($request->getAttribute('greeting') . ' ' . $args['name']);
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/rob')->withAttribute("one", 1);
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
 
-        $this->assertEquals('1rob', (string)$response->getBody());
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testCurrentRequestAttributesAreNotLostWhenAddingRouteArgumentsRequestResponseArg()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/foo/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
-            $response->getBody()->write($request->getAttribute('one') . $name);
+        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $name) {
+            $response->getBody()->write($request->getAttribute('greeting') . ' ' . $name);
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/rob')->withAttribute("one", 1);
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
 
-        $this->assertEquals('1rob', (string)$response->getBody());
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal()->withAttribute('greeting', 'Hello'));
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testRun()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+        $hasBeenRead = false;
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+        $streamProphecy->read(Argument::exact(11))->will(function () use (&$hasBeenRead, &$streamBody) {
+            $hasBeenRead = true;
+            return $streamBody;
+        });
+        $streamProphecy->eof()->will(function () use (&$hasBeenRead) {
+            return $hasBeenRead;
+        });
+        $streamProphecy->isSeekable()->willReturn(true);
+        $streamProphecy->rewind()->willReturn(true);
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+        $responseProphecy->getStatusCode()->willReturn(200);
+        $responseProphecy->getHeaders()->willReturn(['Content-Length' => ['11']]);
+        $responseProphecy->getProtocolVersion()->willReturn('1.1');
+        $responseProphecy->getReasonPhrase()->willReturn('');
+        $responseProphecy->getHeaderLine('Content-Length')->willReturn('11');
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
             return $response;
         });
 
-        $request = $this->createServerRequest('/');
-        $app->run($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $app->run($requestProphecy->reveal());
 
         $this->expectOutputString('Hello World');
     }
 
     public function testHandleReturnsEmptyResponseBodyWithHeadRequestMethod()
     {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+        $responseProphecy->withBody(Argument::any())->will(function ($args) use (&$streamBody) {
+            $streamBody = '';
+            $clone = clone $this;
+            $clone->getBody()->willReturn($args[0]);
+            return $clone;
+        });
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
         $called = 0;
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use (&$called) {
-            $called += 1;
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function ($request, ResponseInterface $response) use (&$called) {
+            $called++;
             $response->getBody()->write('Hello World');
             return $response;
         });
 
-        $request = $this->createServerRequest('/', 'HEAD');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('HEAD');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertEquals(1, $called);
         $this->assertEmpty((string) $response->getBody());
@@ -1417,25 +2131,117 @@ class AppTest extends TestCase
 
     public function testCanBeReExecutedRecursivelyDuringDispatch()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->add(function (ServerRequestInterface $request) use ($app, $responseFactory) {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseHeaders = [];
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+        $responseProphecy->getStatusCode()->willReturn(200);
+        $responseProphecy->getHeader(Argument::type('string'))->will(function ($args) use (&$responseHeaders) {
+            return $responseHeaders[$args[0]];
+        });
+        $responseProphecy->withAddedHeader(
+            Argument::type('string'),
+            Argument::type('string')
+        )->will(function ($args) use (&$responseHeaders) {
+            $key = $args[0];
+            $value = $args[1];
+            if (!isset($responseHeaders[$key])) {
+                $responseHeaders[$key] = [];
+            }
+            $responseHeaders[$key][] = $value;
+            return $this;
+        });
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse(Argument::type('integer'))
+            ->will(function ($args) use ($responseProphecy) {
+                $clone = clone $responseProphecy;
+                $clone->getStatusCode()->willReturn($args[0]);
+                return $clone;
+            });
+
+        $app = new App($responseFactoryProphecy->reveal());
+
+        $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use ($app, $responseFactoryProphecy) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
             if ($request->hasHeader('X-NESTED')) {
-                return $responseFactory->createResponse(204)->withAddedHeader('X-TRACE', 'nested');
+                return $responseFactoryProphecy
+                    ->reveal()
+                    ->createResponse(204)
+                    ->withAddedHeader('X-TRACE', 'nested');
             }
 
-            // Perform the subrequest, by invoking App::handle (again)
+            /** @var ResponseInterface $response */
             $response = $app->handle($request->withAddedHeader('X-NESTED', '1'));
+            $response = $response->withAddedHeader('X-TRACE', 'outer');
 
-            return $response->withAddedHeader('X-TRACE', 'outer');
-        })->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) {
-            $response = $handler->handle($request);
-            $response->getBody()->write('1');
             return $response;
         });
 
-        $request = $this->createServerRequest('/');
-        $response = $app->handle($request);
+        $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy2->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use ($app) {
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
+            $response->getBody()->write('1');
+
+            return $response;
+        });
+
+        $app
+            ->add($middlewareProphecy->reveal())
+            ->add($middlewareProphecy2->reveal());
+        $app->get('/', function ($request, ResponseInterface $response) {
+            return $response;
+        });
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $responseHeaders = [];
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->hasHeader(Argument::type('string'))->will(function ($args) use (&$responseHeaders) {
+            return array_key_exists($args[0], $responseHeaders);
+        });
+        $requestProphecy->withAddedHeader(
+            Argument::type('string'),
+            Argument::type('string')
+        )->will(function ($args) use (&$responseHeaders) {
+            $key = $args[0];
+            $value = $args[1];
+            if (!isset($responseHeaders[$key])) {
+                $responseHeaders[$key] = [];
+            }
+            $responseHeaders[$key][] = $value;
+            return $this;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
 
         $this->assertSame(204, $response->getStatusCode());
         $this->assertSame(['nested', 'outer'], $response->getHeader('X-TRACE'));
@@ -1448,101 +2254,209 @@ class AppTest extends TestCase
 
     public function testContainerSetToRoute()
     {
-        $mock = new MockAction();
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('foo')->willReturn(true);
-        $containerProphecy->get('foo')->willReturn($mock);
+        $containerProphecy->has('handler')->willReturn(true);
+        $containerProphecy->get('handler')->willReturn(function () use ($responseProphecy) {
+            return $responseProphecy->reveal();
+        });
 
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $containerProphecy->reveal());
-
+        $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
         $router = $app->getRouter();
-        $router->map(['GET'], '/foo', 'foo:bar');
+        $router->map(['GET'], '/', 'handler');
 
-        $request = $this->createServerRequest('/foo');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(json_encode(['name'=>'bar', 'arguments' => []]), (string)$response->getBody());
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testAppIsARequestHandler()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+
         $this->assertInstanceOf(RequestHandlerInterface::class, $app);
     }
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo[/{bar}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
             $response->getBody()->write((string) count($args));
             return $response;
         });
 
-        $request = $this->createServerRequest('/foo/bar', 'GET');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
         $this->assertEquals('1', (string) $response->getBody());
 
-        $request = $this->createServerRequest('/foo', 'GET');
-        $response = $app->handle($request);
+        $uriProphecy2 = $this->prophesize(UriInterface::class);
+        $uriProphecy2->getPath()->willReturn('/Hello');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $requestProphecy2 = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy2->getMethod()->willReturn('GET');
+        $requestProphecy2->getUri()->willReturn($uriProphecy2->reveal());
+        $requestProphecy2->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy2->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $streamBody = '';
+        $response = $app->handle($requestProphecy2->reveal());
         $this->assertEquals('0', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $app->get('/foo[/{bar}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
             $response->getBody()->write((string) count($args));
             return $response;
-        })->setArgument('baz', 'quux');
+        })->setArgument('extra', 'value');
 
-        $request = $this->createServerRequest('/foo/bar', 'GET');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
         $this->assertEquals('2', (string) $response->getBody());
 
-        $request = $this->createServerRequest('/foo', 'GET');
-        $response = $app->handle($request);
+        $uriProphecy2 = $this->prophesize(UriInterface::class);
+        $uriProphecy2->getPath()->willReturn('/Hello');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $requestProphecy2 = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy2->getMethod()->willReturn('GET');
+        $requestProphecy2->getUri()->willReturn($uriProphecy2->reveal());
+        $requestProphecy2->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy2->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $streamBody = '';
+        $response = $app->handle($requestProphecy2->reveal());
         $this->assertEquals('1', (string) $response->getBody());
     }
 
     public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
     {
-        $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory);
-        $route = $app->get('/foo[/{bar}]', function (
-            ServerRequestInterface $request,
-            ResponseInterface $response,
-            $args
-        ) {
+        $streamBody = '';
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->will(function () use (&$streamBody) {
+            return $streamBody;
+        });
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) use (&$streamBody) {
+            $streamBody .= $args[0];
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
             $response->getBody()->write((string) count($args));
             return $response;
-        })->setArgument('baz', 'quux');
+        })->setArgument('extra', 'value');
 
-        $request = $this->createServerRequest('/foo/bar', 'GET');
-        $response = $app->handle($request);
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
 
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute(Argument::exact('route'))->willReturn($route);
+        $requestProphecy->getAttribute(Argument::exact('routingResults'))->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
         $this->assertEquals('2', (string) $response->getBody());
 
-        // Add Another Argument To Route
-        $route->setArgument('one', '1');
+        $route->setArgument('extra2', 'value2');
 
-        $request = $this->createServerRequest('/foo/bar', 'GET');
-        $response = $app->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $streamBody = '';
+        $response = $app->handle($requestProphecy->reveal());
         $this->assertEquals('3', (string) $response->getBody());
     }
 }
