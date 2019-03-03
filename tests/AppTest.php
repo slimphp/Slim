@@ -1810,7 +1810,8 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $handler = new Class {
-            public function foo(ServerRequestInterface $request, ResponseInterface $response) {
+            public function foo(ServerRequestInterface $request, ResponseInterface $response)
+            {
                 return $response;
             }
         };
@@ -2053,12 +2054,10 @@ class AppTest extends TestCase
             $this->__toString()->willReturn($body);
         });
         $streamProphecy->read('11')->will(function () {
+            $this->eof()->willReturn(true);
             return $this->reveal()->__toString();
         });
-        $streamProphecy->eof()->will(function () {
-            $this->eof()->willReturn(true);
-            return false;
-        });
+        $streamProphecy->eof()->willReturn(false);
         $streamProphecy->isSeekable()->willReturn(true);
         $streamProphecy->rewind()->willReturn(true);
 
@@ -2109,15 +2108,24 @@ class AppTest extends TestCase
 
         $responseProphecy = $this->prophesize(ResponseInterface::class);
         $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
-        $responseProphecy->withBody(Argument::any())->will(function ($args) use ($streamProphecy) {
-            $streamProphecy->__toString()->willReturn('');
-            $clone = clone $this;
-            $clone->getBody()->willReturn($args[0]);
-            return $clone;
-        });
+        $responseProphecy
+            ->withBody(Argument::type(StreamInterface::class))
+            ->will(function ($args) use ($streamProphecy) {
+                $clone = clone $this;
+                $clone->getBody()->willReturn($args[0]);
+                return $clone;
+            });
+
+        $emptyStreamProphecy = $this->prophesize(StreamInterface::class);
+        $emptyStreamProphecy->__toString()->willReturn('');
+        $emptyResponseProphecy = $this->prophesize(ResponseInterface::class);
+        $emptyResponseProphecy->getBody()->willReturn($emptyStreamProphecy->reveal());
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+        $responseFactoryProphecy->createResponse()->willReturn(
+            $responseProphecy->reveal(),
+            $emptyResponseProphecy->reveal()
+        );
 
         $called = 0;
         $app = new App($responseFactoryProphecy->reveal());
