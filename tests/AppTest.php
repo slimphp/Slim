@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -31,6 +32,16 @@ class AppTest extends TestCase
     public static function setupBeforeClass()
     {
         ini_set('error_log', tempnam(sys_get_temp_dir(), 'slim'));
+    }
+
+    public function testDoesNotUseContainerAsServiceLocator()
+    {
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $responseFactory = $this->getResponseFactory();
+        $app = new App($responseFactory, $containerProphecy->reveal());
+
+        $containerProphecy->has(Argument::type('string'))->shouldNotHaveBeenCalled();
+        $containerProphecy->get(Argument::type('string'))->shouldNotHaveBeenCalled();
     }
 
     /********************************************************************************
