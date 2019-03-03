@@ -155,6 +155,20 @@ class AppTest extends TestCase
         $this->assertEquals(['PUT'], $methodsProperty->getValue($route));
     }
 
+    public function testPatchRoute()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $app = new App($responseFactoryProphecy->reveal());
+        $route = $app->patch('/', function () {
+        });
+
+        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
+        $methodsProperty->setAccessible(true);
+
+        $this->assertInstanceOf(Route::class, $route);
+        $this->assertEquals(['PATCH'], $methodsProperty->getValue($route));
+    }
+
     public function testDeleteRoute()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
