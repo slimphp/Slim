@@ -1129,6 +1129,8 @@ class AppTest extends TestCase
 
     public function testAddMiddleware()
     {
+        $called = 0;
+
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
 
@@ -1141,9 +1143,29 @@ class AppTest extends TestCase
         $app = new App($responseFactoryProphecy->reveal());
 
         $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
-        $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
+        $middlewareProphecy->process(Argument::cetera())->will(function () use (&$called, $responseProphecy) {
+            $called++;
+            return $responseProphecy->reveal();
+        });
+
+        $middlewareProphecy2 = $this->prophesize(MiddlewareInterface::class);
+        $middlewareProphecy2->process(
+            Argument::type(ServerRequestInterface::class),
+            Argument::type(RequestHandlerInterface::class)
+        )->will(function ($args) use (&$called, $responseProphecy) {
+            $called++;
+
+            /** @var ServerRequestInterface $request */
+            $request = $args[0];
+
+            /** @var RequestHandlerInterface $handler */
+            $handler = $args[1];
+
+            return $handler->handle($request);
+        });
 
         $app->add($middlewareProphecy->reveal());
+        $app->add($middlewareProphecy2->reveal());
         $app->get('/', function ($request, $response) {
             return $response;
         });
@@ -1162,6 +1184,8 @@ class AppTest extends TestCase
         });
 
         $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertEquals(2, $called);
         $this->assertSame($responseProphecy->reveal(), $response);
     }
 
