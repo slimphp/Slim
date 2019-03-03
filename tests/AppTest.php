@@ -17,6 +17,8 @@ use Slim\App;
 use Slim\CallableResolver;
 use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\RouterInterface;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Route;
 use Slim\Router;
@@ -54,13 +56,22 @@ class AppTest extends TestCase
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
 
-    public function testGetRouter()
+    public function testGetRouterReturnsInjectedInstance()
+    {
+        $responseFactory = $this->getResponseFactory();
+        $routerProphecy = $this->prophesize(RouterInterface::class);
+        $app = new App($responseFactory, null, null, $routerProphecy->reveal());
+
+        $this->assertSame($routerProphecy->reveal(), $app->getRouter());
+    }
+
+    public function testCreatesRouterWhenNullWithInjectedContainer()
     {
         $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $callableResolver = new CallableResolver($containerProphecy->reveal());
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory, $callableResolver, $containerProphecy->reveal());
-        $app = new App($responseFactory, $containerProphecy->reveal());
+        $router = new Router($responseFactory, $callableResolverProphecy->reveal(), $containerProphecy->reveal(), null);
+        $app = new App($responseFactory, $containerProphecy->reveal(), $callableResolverProphecy->reveal());
 
         $this->assertEquals($router, $app->getRouter());
     }
