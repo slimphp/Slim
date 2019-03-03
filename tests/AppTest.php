@@ -8,8 +8,7 @@
  */
 namespace Slim\Tests;
 
-use Pimple\Container as Pimple;
-use Pimple\Psr11\Container as Psr11Container;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
@@ -38,33 +37,30 @@ class AppTest extends TestCase
 
     public function testGetContainer()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
 
-        $this->assertEquals($container, $app->getContainer());
+        $this->assertEquals($containerProphecy->reveal(), $app->getContainer());
     }
 
     public function testGetCallableResolver()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
-        $callableResolver = new CallableResolver($container);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
 
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
 
     public function testGetRouter()
     {
-        $pimple = new Pimple();
-        $container = new Psr11Container($pimple);
-        $callableResolver = new CallableResolver($container);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory, $callableResolver, $container);
-        $app = new App($responseFactory, $container);
+        $router = new Router($responseFactory, $callableResolver, $containerProphecy->reveal());
+        $app = new App($responseFactory, $containerProphecy->reveal());
 
         $this->assertEquals($router, $app->getRouter());
     }
@@ -912,11 +908,12 @@ class AppTest extends TestCase
     {
         $responseFactory = $this->getResponseFactory();
 
-        $pimple = new Pimple();
-        $pimple->offsetSet(MockMiddleware::class, new MockMiddleware($responseFactory));
-        $container = new Psr11Container($pimple);
+        $mw = new MockMiddleware($responseFactory);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has(MockMiddleware::class)->willReturn(true);
+        $containerProphecy->get(MockMiddleware::class)->willReturn($mw);
 
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
         $app->add(MockMiddleware::class);
 
         $request = $this->createServerRequest('/');
@@ -1246,21 +1243,17 @@ class AppTest extends TestCase
     {
         $request = $this->createServerRequest('/foo');
         $response = $this->createResponse();
+        $response->getBody()->write('Hello');
 
         $mock = $this->getMockBuilder('StdClass')->setMethods(['bar'])->getMock();
+        $mock->method('bar')->willReturn($response);
 
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock, $response) {
-            $response->getBody()->write('Hello');
-            $mock
-                ->method('bar')
-                ->willReturn($response);
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('foo')->willReturn(true);
+        $containerProphecy->get('foo')->willReturn($mock);
 
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
         $app->get('/foo', 'foo:bar');
 
         $response = $app->handle($request);
@@ -1277,15 +1270,12 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/foo');
 
         $mock = $this->getMockBuilder('StdClass')->getMock();
-
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('foo')->willReturn(true);
+        $containerProphecy->get('foo')->willReturn($mock);
 
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
         $app->get('/foo', 'foo:bar');
 
         $app->handle($request);
@@ -1296,15 +1286,12 @@ class AppTest extends TestCase
         $request = $this->createServerRequest('/foo');
 
         $mock = new MockAction();
-
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('foo')->willReturn(true);
+        $containerProphecy->get('foo')->willReturn($mock);
 
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
         $app->get('/foo', 'foo:bar');
 
         $response = $app->handle($request);
@@ -1431,14 +1418,12 @@ class AppTest extends TestCase
     public function testContainerSetToRoute()
     {
         $mock = new MockAction();
-        $pimple = new Pimple();
-        $pimple['foo'] = function () use ($mock) {
-            return $mock;
-        };
-        $container = new Psr11Container($pimple);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has('foo')->willReturn(true);
+        $containerProphecy->get('foo')->willReturn($mock);
 
         $responseFactory = $this->getResponseFactory();
-        $app = new App($responseFactory, $container);
+        $app = new App($responseFactory, $containerProphecy->reveal());
 
         $router = $app->getRouter();
         $router->map(['GET'], '/foo', 'foo:bar');
