@@ -45,6 +45,7 @@ class RouteGroup implements RouteGroupInterface
     public function collectRoutes(Closure $callback): RouteGroupInterface
     {
         $callback($this->routeCollectorProxy);
+        return $this;
     }
 
     /**
