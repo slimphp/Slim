@@ -15,12 +15,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
-/**
- * Route Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface RouteInterface
 {
     /**
@@ -99,8 +93,9 @@ interface RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
+     * @return RouteInterface
      */
-    public function prepare(ServerRequestInterface $request, array $arguments);
+    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface;
 
     /**
      * Run route

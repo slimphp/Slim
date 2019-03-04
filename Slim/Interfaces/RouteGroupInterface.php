@@ -11,23 +11,16 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
+use Closure;
 use Psr\Http\Server\MiddlewareInterface;
-use Slim\App;
 
-/**
- * RouteGroup Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface RouteGroupInterface
 {
     /**
-     * Get route pattern
-     *
-     * @return string
+     * @param Closure $callable
+     * @return RouteGroupInterface
      */
-    public function getPattern(): string;
+    public function collectRoutes(Closure $callable): RouteGroupInterface;
 
     /**
      * @param MiddlewareInterface|string|callable $middleware
@@ -42,12 +35,7 @@ interface RouteGroupInterface
     public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface;
 
     /**
-     * Execute route group callable in the context of the Slim App
-     *
-     * This method invokes the route group object's callable, collecting
-     * nested route objects
-     *
-     * @param App $app
+     * @return array
      */
-    public function __invoke(App $app);
+    public function getMiddleware(): array;
 }
