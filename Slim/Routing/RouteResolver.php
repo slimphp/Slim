@@ -18,10 +18,6 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteResolverInterface;
 
-/**
- * Class RouteResolver
- * @package Slim
- */
 class RouteResolver implements RouteResolverInterface
 {
     /**

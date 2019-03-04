@@ -24,9 +24,6 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 
-/**
- * This class collects all of the routes for App
- */
 class RouteCollector implements RouteCollectorInterface
 {
     /**
