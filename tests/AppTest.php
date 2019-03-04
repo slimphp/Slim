@@ -244,47 +244,45 @@ class AppTest extends TestCase
         $from = '/from';
         $to = '/to';
 
-        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $routeCreatedResponse = $this->prophesize(ResponseInterface::class);
+
+        $handlerCreatedResponse = $this->prophesize(ResponseInterface::class);
+        $handlerCreatedResponse->getStatusCode()->willReturn(301);
+        $handlerCreatedResponse->getHeaderLine('Location')->willReturn($to);
+        $handlerCreatedResponse->withHeader(
+            Argument::type('string'),
+            Argument::type('string')
+        )->will(function ($args) {
+            $clone = clone $this;
+            $clone->getHeader($args[0])->willReturn($args[1]);
+            return $clone;
+        });
 
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $responseFactoryProphecy->createResponse(Argument::any())->will(function ($args) use ($responseProphecy, $to) {
-            $responseProphecy->getStatusCode()->willReturn(isset($args[0]) ? $args[0] : 200);
-            $responseProphecy->getHeaderLine('Location')->willReturn($to);
-            $responseProphecy->withHeader(
-                Argument::type('string'),
-                Argument::type('string')
-            )->will(function ($args) {
-                $clone = clone $this;
-                $clone->getHeader($args[0])->willReturn($args[1]);
-                return $clone;
-            });
-            return $responseProphecy->reveal();
-        });
+        $responseFactoryProphecy->createResponse()->willReturn($routeCreatedResponse->reveal());
+        $responseFactoryProphecy->createResponse(301)->willReturn($handlerCreatedResponse->reveal());
 
         $uriProphecy = $this->prophesize(UriInterface::class);
         $uriProphecy->getPath()->willReturn($from);
         $uriProphecy->__toString()->willReturn($to);
 
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute('routingResults')->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
 
         $app = new App($responseFactoryProphecy->reveal());
+        $app->redirect($from, $to, 301);
+        $response = $app->handle($requestProphecy->reveal());
 
-        // Test with provided status code
-        $route = $app->redirect($from, $to, 301);
-        $response = $route->run($requestProphecy->reveal());
+        $responseFactoryProphecy->createResponse(301)->shouldHaveBeenCalled();
         $this->assertEquals(301, $response->getStatusCode());
-
-        // Test with default App::redirect() status code
-        $route = $app->redirect($from, $to);
-        $response = $route->run($requestProphecy->reveal());
-        $this->assertEquals(302, $response->getStatusCode());
-
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['GET'], $methodsProperty->getValue($route));
+        $this->assertEquals($to, $response->getHeaderLine('Location'));
     }
 
     public function testRouteWithInternationalCharacters()
