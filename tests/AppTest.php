@@ -113,130 +113,139 @@ class AppTest extends TestCase
      * Router proxy methods
      *******************************************************************************/
 
-    public function testGetRoute()
+    public function upperCaseRequestMethodsProvider()
     {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->get('/', function () {
-        });
-
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['GET'], $methodsProperty->getValue($route));
+        return [
+            ['GET'],
+            ['POST'],
+            ['PUT'],
+            ['PATCH'],
+            ['DELETE'],
+            ['OPTIONS'],
+        ];
     }
 
-    public function testPostRoute()
+    public function lowerCaseRequestMethodsProvider()
     {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->post('/', function () {
-        });
-
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['POST'], $methodsProperty->getValue($route));
+        return [
+            ['get'],
+            ['post'],
+            ['put'],
+            ['patch'],
+            ['delete'],
+            ['options'],
+        ];
     }
 
-    public function testPutRoute()
+    /**
+     * @dataProvider upperCaseRequestMethodsProvider()
+     */
+    public function testGetPostPutPatchDeleteOptionsMethods($method)
     {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->put('/', function () {
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn($method);
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute('routingResults')->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
         });
 
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['PUT'], $methodsProperty->getValue($route));
-    }
-
-    public function testPatchRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $methodName = strtolower($method);
         $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->patch('/', function () {
+        $app->$methodName('/', function ($request, ResponseInterface $response) {
+            return $response;
         });
+        $response = $app->handle($requestProphecy->reveal());
 
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['PATCH'], $methodsProperty->getValue($route));
-    }
-
-    public function testDeleteRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->delete('/', function () {
-        });
-
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['DELETE'], $methodsProperty->getValue($route));
-    }
-
-    public function testOptionsRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->options('/', function () {
-        });
-
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['OPTIONS'], $methodsProperty->getValue($route));
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testAnyRoute()
     {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
         $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->any('/', function () {
+        $app->any('/', function ($request, ResponseInterface $response) {
+            return $response;
         });
 
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
+        $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
+        foreach ($methods as $method) {
+            $uriProphecy = $this->prophesize(UriInterface::class);
+            $uriProphecy->getPath()->willReturn('/');
 
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $methodsProperty->getValue($route));
+            $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+            $requestProphecy->getMethod()->willReturn($method);
+            $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+            $requestProphecy->getAttribute('routingResults')->willReturn(null);
+            $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+                $clone = clone $this;
+                $clone->getAttribute($args[0])->willReturn($args[1]);
+                return $clone;
+            });
+
+            $response = $app->handle($requestProphecy->reveal());
+
+            $this->assertEquals('Hello World', (string) $response->getBody());
+        }
     }
 
-    public function testMapRoute()
+    /**
+     * @dataProvider lowerCaseRequestMethodsProvider
+     * @dataProvider upperCaseRequestMethodsProvider
+     */
+    public function testMapRoute($method)
     {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('Hello World');
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->map(['GET', 'POST'], '/', function () {
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn($method);
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute('routingResults')->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
         });
 
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['GET', 'POST'], $methodsProperty->getValue($route));
-    }
-
-    public function testMapRouteWithLowercaseMethod()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->map(['get'], '/', function () {
+        $app->map([$method], '/', function ($request, ResponseInterface $response) {
+            return $response;
         });
+        $response = $app->handle($requestProphecy->reveal());
 
-        $methodsProperty = new ReflectionProperty(Route::class, 'methods');
-        $methodsProperty->setAccessible(true);
-
-        $this->assertInstanceOf(Route::class, $route);
-        $this->assertEquals(['get'], $methodsProperty->getValue($route));
+        $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
     public function testRedirectRoute()
