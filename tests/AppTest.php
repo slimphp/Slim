@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Closure;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -373,6 +374,48 @@ class AppTest extends TestCase
      * Route Groups
      *******************************************************************************/
 
+    public function routeGroupsDataProvider()
+    {
+        return [
+            [['', ''], ''], // testEmptyGroupWithEmptyRoute
+            [['', '/'], '/'], // testEmptyGroupWithSingleSlashRoute
+            [['', '/foo'], '/foo'], // testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash
+            [['', '/foo/'], '/foo/'], // testEmptyGroupWithSegmentRouteThatEndsInASlash
+            [['/', ''], '/'], // testGroupSingleSlashWithEmptyRoute
+            [['/', '/'], '//'], // testGroupSingleSlashWithSingleSlashRoute
+            [['/', '/foo'], '//foo'], // testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash
+            [['/', '/foo/'], '//foo/'], // testGroupSingleSlashWithSegmentRouteThatEndsInASlash
+            [['/foo', ''], '/foo'], // testGroupSegmentWithEmptyRoute
+            [['/foo', '/'], '/foo/'], // testGroupSegmentWithSingleSlashRoute
+            [['/foo', '/bar'], '/foo/bar'], // testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash
+            [['/foo', '/bar/'], '/foo/bar/'], // testGroupSegmentWithSegmentRouteThatEndsInASlash
+            [['', '/foo', ''], '/foo'], // testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute
+            [['', '/foo', '/'], '/foo/'], // testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute
+            [['/', '', 'foo'], '/foo'], // testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
+            [['/', '', '/foo'], '//foo'], // testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute
+            [['/', '/', 'foo'], '//foo'], // testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash
+            [['/', '/', '/foo'], '///foo'], // testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute
+            [['/', '/foo', ''], '//foo'], // testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute
+            [['/', '/foo', '/'], '//foo/'], // testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute
+            [['/', '/foo', '/bar'], '//foo/bar'], // testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute
+            [['/', '/foo', '/bar/'], '//foo/bar/'], // testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash
+            [['', '', 'foo'], 'foo'], // testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
+            [['', '', '/foo'], '/foo'], // testEmptyGroupWithEmptyNestedGroupAndSegmentRoute
+            [['', '/', 'foo'], '/foo'], // testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash
+            [['', '/', '/foo'], '//foo'], // testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute
+            [['', '/foo', '/bar'], '/foo/bar'], // testEmptyGroupWithNestedGroupSegmentWithSegmentRoute
+            [['', '/foo', '/bar/'], '/foo/bar/'], // testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash
+            [['/foo', '', 'bar'], '/foobar'], // testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
+            [['/foo', '', '/bar'], '/foo/bar'], // testGroupSegmentWithEmptyNestedGroupAndSegmentRoute
+            [['/foo', '/', 'bar'], '/foo/bar'], // testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute
+            [['/foo', '/', '/bar'], '/foo//bar'], // testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute
+            [['/foo', '/bar', ''], '/foo/bar'], // testTwoGroupSegmentsWithSingleSlashRoute
+            [['/foo', '/bar', '/'], '/foo/bar/'], // testTwoGroupSegmentsWithSingleSlashRoute
+            [['/foo', '/bar', '/baz'], '/foo/bar/baz'], // testTwoGroupSegmentsWithSegmentRoute
+            [['/foo', '/bar', '/baz/'], '/foo/bar/baz/'], // testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash
+        ];
+    }
+
     public function testGroupClosureIsBoundToThisClass()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
@@ -384,108 +427,32 @@ class AppTest extends TestCase
         });
     }
 
-    public function testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash()
+    /**
+     * @dataProvider routeGroupsDataProvider
+     */
+    public function testRouteGroupCombinations(array $sequence, string $expectedPath)
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->get('/bar', function () {
-            });
-        });
 
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
+        $processSequence = function (App $app, array $sequence, $processSequence) {
+            $path = array_shift($sequence);
 
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithSegmentRouteThatEndsInASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->get('/bar/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->get('/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->get('', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testTwoGroupSegmentsWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/bar', function (App $app) {
-                $app->get('/', function () {
+            /**
+             * If sequence isn't on last element we use $app->group()
+             * The very tail of the sequence uses the $app->get() method
+             */
+            if (count($sequence)) {
+                $app->group($path, function () use ($app, &$sequence, $processSequence) {
+                    $processSequence($app, $sequence, $processSequence);
                 });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
-    }
-
-    public function testTwoGroupSegmentsWithAnEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/bar', function (App $app) {
-                $app->get('', function () {
+            } else {
+                $app->get($path, function () {
                 });
-            });
-        });
+            }
+        };
+
+        $processSequence($app, $sequence, $processSequence);
 
         $router = $app->getRouter();
         $route = $router->lookupRoute('route0');
@@ -493,591 +460,7 @@ class AppTest extends TestCase
         $patternProperty = new ReflectionProperty(Route::class, 'pattern');
         $patternProperty->setAccessible(true);
 
-        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testTwoGroupSegmentsWithSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/bar', function (App $app) {
-                $app->get('/baz', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar/baz', $patternProperty->getValue($route));
-    }
-
-    public function testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/bar', function (App $app) {
-                $app->get('/baz/', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar/baz/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('/bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo//bar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithEmptyNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('/bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foobar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->get('/foo', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithSegmentRouteThatEndsInASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->get('/foo/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->get('/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->get('', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/bar/', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo/bar/', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('/foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('///foo', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('/foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo', $patternProperty->getValue($route));
-    }
-
-    public function testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->get('/foo', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithSegmentRouteThatEndsInASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->get('/foo/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->get('/', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->get('', function () {
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithNestedGroupSegmentWithSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/bar', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/foo', function (App $app) {
-                $app->get('/bar/', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo/bar/', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('/foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('//foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('/', function (App $app) {
-                $app->get('foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithEmptyNestedGroupAndSegmentRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('/foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->group('', function (App $app) {
-            $app->group('', function (App $app) {
-                $app->get('foo', function () {
-                });
-            });
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('foo', $patternProperty->getValue($route));
+        $this->assertEquals($expectedPath, $patternProperty->getValue($route));
     }
 
     /********************************************************************************
