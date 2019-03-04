@@ -8,7 +8,6 @@
  */
 namespace Slim\Tests;
 
-use Closure;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
