@@ -138,9 +138,10 @@ class AppTest extends TestCase
     }
 
     /**
+     * @param string $method
      * @dataProvider upperCaseRequestMethodsProvider()
      */
-    public function testGetPostPutPatchDeleteOptionsMethods($method)
+    public function testGetPostPutPatchDeleteOptionsMethods(string $method)
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -212,10 +213,11 @@ class AppTest extends TestCase
     }
 
     /**
+     * @param string $method
      * @dataProvider lowerCaseRequestMethodsProvider
      * @dataProvider upperCaseRequestMethodsProvider
      */
-    public function testMapRoute($method)
+    public function testMapRoute(string $method)
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
         $streamProphecy->__toString()->willReturn('Hello World');
@@ -232,6 +234,7 @@ class AppTest extends TestCase
         $requestProphecy = $this->prophesize(ServerRequestInterface::class);
         $requestProphecy->getMethod()->willReturn($method);
         $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute('routingResults')->willReturn(null);
         $requestProphecy->getAttribute('routingResults')->willReturn(null);
         $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
             $clone = clone $this;
@@ -334,29 +337,27 @@ class AppTest extends TestCase
      * Route Patterns
      *******************************************************************************/
 
-    public function testSegmentRouteThatDoesNotEndInASlash()
+    public function routePatternsProvider()
     {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/foo', function () {
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/foo', $patternProperty->getValue($route));
+        return [
+            [''], // Empty Route
+            ['/'], // Single Slash Route
+            ['foo'], // Route That Does Not Start With A Slash
+            ['/foo'], // Route That Does Not End In A Slash
+            ['/foo/'], // Route That Ends In A Slash
+        ];
     }
 
-    public function testSegmentRouteThatEndsInASlash()
+    /**
+     * @param string $pattern
+     * @dataProvider  routePatternsProvider
+     */
+    public function testRoutePatterns(string $pattern)
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/foo/', function () {
+        $app->get($pattern, function () {
         });
 
         $router = $app->getRouter();
@@ -365,58 +366,7 @@ class AppTest extends TestCase
         $patternProperty = new ReflectionProperty(Route::class, 'pattern');
         $patternProperty->setAccessible(true);
 
-        $this->assertEquals('/foo/', $patternProperty->getValue($route));
-    }
-
-    public function testSegmentRouteThatDoesNotStartWithASlash()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->get('foo', function () {
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('foo', $patternProperty->getValue($route));
-    }
-
-    public function testSingleSlashRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function () {
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('/', $patternProperty->getValue($route));
-    }
-
-    public function testEmptyRoute()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-
-        $app = new App($responseFactoryProphecy->reveal());
-        $app->get('', function () {
-        });
-
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
-
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals('', $patternProperty->getValue($route));
+        $this->assertEquals($pattern, $patternProperty->getValue($route));
     }
 
     /********************************************************************************
