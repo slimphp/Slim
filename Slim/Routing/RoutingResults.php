@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use Slim\Dispatcher;
-
 class RoutingResults
 {
     /**
