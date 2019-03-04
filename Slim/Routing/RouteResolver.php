@@ -14,7 +14,6 @@ namespace Slim\Routing;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
-use Slim\Dispatcher;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteResolverInterface;
