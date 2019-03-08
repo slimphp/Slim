@@ -17,7 +17,6 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionProperty;
 use RuntimeException;
 use Slim\App;
 use Slim\CallableResolver;
@@ -363,10 +362,7 @@ class AppTest extends TestCase
         $router = $app->getRouter();
         $route = $router->lookupRoute('route0');
 
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals($pattern, $patternProperty->getValue($route));
+        $this->assertEquals($pattern, $route->getPattern());
     }
 
     /********************************************************************************
@@ -456,10 +452,7 @@ class AppTest extends TestCase
         $router = $app->getRouter();
         $route = $router->lookupRoute('route0');
 
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals($expectedPath, $patternProperty->getValue($route));
+        $this->assertEquals($expectedPath, $route->getPattern());
     }
 
     /********************************************************************************
