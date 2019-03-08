@@ -17,7 +17,6 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionProperty;
 use RuntimeException;
 use Slim\App;
 use Slim\CallableResolver;
@@ -363,10 +362,7 @@ class AppTest extends TestCase
         $router = $app->getRouter();
         $route = $router->lookupRoute('route0');
 
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals($pattern, $patternProperty->getValue($route));
+        $this->assertEquals($pattern, $route->getPattern());
     }
 
     /********************************************************************************
@@ -376,42 +372,114 @@ class AppTest extends TestCase
     public function routeGroupsDataProvider()
     {
         return [
-            [['', ''], ''], // testEmptyGroupWithEmptyRoute
-            [['', '/'], '/'], // testEmptyGroupWithSingleSlashRoute
-            [['', '/foo'], '/foo'], // testEmptyGroupWithSegmentRouteThatDoesNotEndInASlash
-            [['', '/foo/'], '/foo/'], // testEmptyGroupWithSegmentRouteThatEndsInASlash
-            [['/', ''], '/'], // testGroupSingleSlashWithEmptyRoute
-            [['/', '/'], '//'], // testGroupSingleSlashWithSingleSlashRoute
-            [['/', '/foo'], '//foo'], // testGroupSingleSlashWithSegmentRouteThatDoesNotEndInASlash
-            [['/', '/foo/'], '//foo/'], // testGroupSingleSlashWithSegmentRouteThatEndsInASlash
-            [['/foo', ''], '/foo'], // testGroupSegmentWithEmptyRoute
-            [['/foo', '/'], '/foo/'], // testGroupSegmentWithSingleSlashRoute
-            [['/foo', '/bar'], '/foo/bar'], // testGroupSegmentWithSegmentRouteThatDoesNotEndInASlash
-            [['/foo', '/bar/'], '/foo/bar/'], // testGroupSegmentWithSegmentRouteThatEndsInASlash
-            [['', '/foo', ''], '/foo'], // testEmptyGroupWithNestedGroupSegmentWithAnEmptyRoute
-            [['', '/foo', '/'], '/foo/'], // testEmptyGroupWithNestedGroupSegmentWithSingleSlashRoute
-            [['/', '', 'foo'], '/foo'], // testGroupSingleSlashWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
-            [['/', '', '/foo'], '//foo'], // testGroupSingleSlashWithEmptyNestedGroupAndSegmentRoute
-            [['/', '/', 'foo'], '//foo'], // testGroupSingleSlashWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash
-            [['/', '/', '/foo'], '///foo'], // testGroupSingleSlashWithSingleSlashNestedGroupAndSegmentRoute
-            [['/', '/foo', ''], '//foo'], // testGroupSingleSlashWithNestedGroupSegmentWithAnEmptyRoute
-            [['/', '/foo', '/'], '//foo/'], // testGroupSingleSlashWithNestedGroupSegmentWithSingleSlashRoute
-            [['/', '/foo', '/bar'], '//foo/bar'], // testGroupSingleSlashWithNestedGroupSegmentWithSegmentRoute
-            [['/', '/foo', '/bar/'], '//foo/bar/'], // testGroupSingleSlashWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash
-            [['', '', 'foo'], 'foo'], // testEmptyGroupWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
-            [['', '', '/foo'], '/foo'], // testEmptyGroupWithEmptyNestedGroupAndSegmentRoute
-            [['', '/', 'foo'], '/foo'], // testEmptyGroupWithSingleSlashGroupAndSegmentRouteWithoutLeadingSlash
-            [['', '/', '/foo'], '//foo'], // testEmptyGroupWithSingleSlashNestedGroupAndSegmentRoute
-            [['', '/foo', '/bar'], '/foo/bar'], // testEmptyGroupWithNestedGroupSegmentWithSegmentRoute
-            [['', '/foo', '/bar/'], '/foo/bar/'], // testEmptyGroupWithNestedGroupSegmentWithSegmentRouteThatHasATrailingSlash
-            [['/foo', '', 'bar'], '/foobar'], // testGroupSegmentWithEmptyNestedGroupAndSegmentRouteWithoutLeadingSlash
-            [['/foo', '', '/bar'], '/foo/bar'], // testGroupSegmentWithEmptyNestedGroupAndSegmentRoute
-            [['/foo', '/', 'bar'], '/foo/bar'], // testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute
-            [['/foo', '/', '/bar'], '/foo//bar'], // testGroupSegmentWithSingleSlashNestedGroupAndSegmentRoute
-            [['/foo', '/bar', ''], '/foo/bar'], // testTwoGroupSegmentsWithSingleSlashRoute
-            [['/foo', '/bar', '/'], '/foo/bar/'], // testTwoGroupSegmentsWithSingleSlashRoute
-            [['/foo', '/bar', '/baz'], '/foo/bar/baz'], // testTwoGroupSegmentsWithSegmentRoute
-            [['/foo', '/bar', '/baz/'], '/foo/bar/baz/'], // testTwoGroupSegmentsWithSegmentRouteThatHasATrailingSlash
+            'empty group with empty route' => [
+                ['', ''], ''
+            ],
+            'empty group with single slash route' => [
+                ['', '/'], '/'
+            ],
+            'empty group with segment route that does not end in aSlash' => [
+                ['', '/foo'], '/foo'
+            ],
+            'empty group with segment route that ends in aSlash' => [
+                ['', '/foo/'], '/foo/'
+            ],
+            'group single slash with empty route' => [
+                ['/', ''], '/'
+            ],
+            'group single slash with single slash route' => [
+                ['/', '/'], '//'
+            ],
+            'group single slash with segment route that does not end in aSlash' => [
+                ['/', '/foo'], '//foo'
+            ],
+            'group single slash with segment route that ends in aSlash' => [
+                ['/', '/foo/'], '//foo/'
+            ],
+            'group segment with empty route' => [
+                ['/foo', ''], '/foo'
+            ],
+            'group segment with single slash route' => [
+                ['/foo', '/'], '/foo/'
+            ],
+            'group segment with segment route that does not end in aSlash' => [
+                ['/foo', '/bar'], '/foo/bar'
+            ],
+            'group segment with segment route that ends in aSlash' => [
+                ['/foo', '/bar/'], '/foo/bar/'
+            ],
+            'empty group with nested group segment with an empty route' => [
+                ['', '/foo', ''], '/foo'
+            ],
+            'empty group with nested group segment with single slash route' => [
+                ['', '/foo', '/'], '/foo/'
+            ],
+            'group single slash with empty nested group and segment route without leading slash' => [
+                ['/', '', 'foo'], '/foo'
+            ],
+            'group single slash with empty nested group and segment route' => [
+                ['/', '', '/foo'], '//foo'
+            ],
+            'group single slash with single slash group and segment route without leading slash' => [
+                ['/', '/', 'foo'], '//foo'
+            ],
+            'group single slash with single slash nested group and segment route' => [
+                ['/', '/', '/foo'], '///foo'
+            ],
+            'group single slash with nested group segment with an empty route' => [
+                ['/', '/foo', ''], '//foo'
+            ],
+            'group single slash with nested group segment with single slash route' => [
+                ['/', '/foo', '/'], '//foo/'
+            ],
+            'group single slash with nested group segment with segment route' => [
+                ['/', '/foo', '/bar'], '//foo/bar'
+            ],
+            'group single slash with nested group segment with segment route that has aTrailing slash' => [
+                ['/', '/foo', '/bar/'], '//foo/bar/'
+            ],
+            'empty group with empty nested group and segment route without leading slash' => [
+                ['', '', 'foo'], 'foo'
+            ],
+            'empty group with empty nested group and segment route' => [
+                ['', '', '/foo'], '/foo'
+            ],
+            'empty group with single slash group and segment route without leading slash' => [
+                ['', '/', 'foo'], '/foo'
+            ],
+            'empty group with single slash nested group and segment route' => [
+                ['', '/', '/foo'], '//foo'
+            ],
+            'empty group with nested group segment with segment route' => [
+                ['', '/foo', '/bar'], '/foo/bar'
+            ],
+            'empty group with nested group segment with segment route that has aTrailing slash' => [
+                ['', '/foo', '/bar/'], '/foo/bar/'
+            ],
+            'group segment with empty nested group and segment route without leading slash' => [
+                ['/foo', '', 'bar'], '/foobar'
+            ],
+            'group segment with empty nested group and segment route' => [
+                ['/foo', '', '/bar'], '/foo/bar'
+            ],
+            'group segment with single slash nested group and segment route' => [
+                ['/foo', '/', 'bar'], '/foo/bar'
+            ],
+            'group segment with single slash nested group and segment route' => [
+                ['/foo', '/', '/bar'], '/foo//bar'
+            ],
+            'two group segments with single slash route' => [
+                ['/foo', '/bar', ''], '/foo/bar'
+            ],
+            'two group segments with single slash route' => [
+                ['/foo', '/bar', '/'], '/foo/bar/'
+            ],
+            'two group segments with segment route' => [
+                ['/foo', '/bar', '/baz'], '/foo/bar/baz'
+            ],
+            'two group segments with segment route that has aTrailing slash' => [
+                ['/foo', '/bar', '/baz/'], '/foo/bar/baz/'
+            ],
         ];
     }
 
@@ -456,10 +524,7 @@ class AppTest extends TestCase
         $router = $app->getRouter();
         $route = $router->lookupRoute('route0');
 
-        $patternProperty = new ReflectionProperty(Route::class, 'pattern');
-        $patternProperty->setAccessible(true);
-
-        $this->assertEquals($expectedPath, $patternProperty->getValue($route));
+        $this->assertEquals($expectedPath, $route->getPattern());
     }
 
     /********************************************************************************
