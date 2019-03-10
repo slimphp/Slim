@@ -1320,7 +1320,7 @@ class AppTest extends TestCase
 
         $response = $app->handle($requestProphecy->reveal());
 
-        $expectedPayload = json_encode(['name'=> 'foo', 'arguments' => []]);
+        $expectedPayload = json_encode(['name' => 'foo', 'arguments' => []]);
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals($expectedPayload, (string) $response->getBody());
     }
