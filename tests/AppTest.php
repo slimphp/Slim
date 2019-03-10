@@ -166,7 +166,7 @@ class AppTest extends TestCase
 
         $methodName = strtolower($method);
         $app = new App($responseFactoryProphecy->reveal());
-        $app->$methodName('/', function ($request, ResponseInterface $response) {
+        $app->$methodName('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
         $response = $app->handle($requestProphecy->reveal());
@@ -186,7 +186,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->any('/', function ($request, ResponseInterface $response) {
+        $app->any('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
 
@@ -242,7 +242,7 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->map([$method], '/', function ($request, ResponseInterface $response) {
+        $app->map([$method], '/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
         $response = $app->handle($requestProphecy->reveal());
@@ -570,7 +570,7 @@ class AppTest extends TestCase
 
         $app->add($middlewareProphecy->reveal());
         $app->add($middlewareProphecy2->reveal());
-        $app->get('/', function ($request, $response) {
+        $app->get('/', function (ServerRequestInterface $request, $response) {
             return $response;
         });
 
@@ -613,7 +613,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
         $app->add('middleware');
-        $app->get('/', function ($request, ResponseInterface $response) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
 
@@ -684,7 +684,7 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, ResponseInterface $response) use (&$output) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use (&$output) {
             $output .= 'Center';
             return $response;
         })
@@ -766,7 +766,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) use (&$output) {
-            $app->get('/bar', function ($request, ResponseInterface $response) use (&$output) {
+            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) use (&$output) {
                 $output .= 'Center';
                 return $response;
             });
@@ -871,7 +871,10 @@ class AppTest extends TestCase
         $app = new App($responseFactoryProphecy->reveal());
         $app->group('/foo', function (App $app) use ($middlewareProphecy2, $middlewareProphecy3, &$output) {
             $app->group('/bar', function (App $app) use ($middlewareProphecy3, &$output) {
-                $app->get('/baz', function ($request, ResponseInterface $response) use (&$output) {
+                $app->get('/baz', function (
+                    ServerRequestInterface $request,
+                    ResponseInterface $response
+                ) use (&$output) {
                     $output .= 'Center';
                     return $response;
                 })->add($middlewareProphecy3->reveal());
@@ -950,7 +953,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, $response) {
+        $app->get('/', function (ServerRequestInterface $request, $response) {
             return $response;
         });
 
@@ -990,7 +993,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, ResponseInterface $response, $args) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write("Hello {$args['name']}");
             return $response;
         })->setArgument('name', 'World');
@@ -1031,7 +1034,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, ResponseInterface $response, $args) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write("{$args['greeting']} {$args['name']}");
             return $response;
         })->setArguments(['greeting' => 'Hello', 'name' => 'World']);
@@ -1072,7 +1075,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
+        $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write("Hello {$args['name']}");
             return $response;
         });
@@ -1114,7 +1117,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal());
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $name) {
+        $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write("Hello {$name}");
             return $response;
         });
@@ -1155,7 +1158,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
+        $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write("Hello {$args['name']}");
             return $response;
         })->setArgument('name', 'World!');
@@ -1382,7 +1385,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $args) {
+        $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write($request->getAttribute('greeting') . ' ' . $args['name']);
             return $response;
         });
@@ -1424,7 +1427,7 @@ class AppTest extends TestCase
 
         $app = new App($responseFactoryProphecy->reveal());
         $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
-        $app->get('/Hello/{name}', function ($request, ResponseInterface $response, $name) {
+        $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write($request->getAttribute('greeting') . ' ' . $name);
             return $response;
         });
@@ -1477,7 +1480,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, ResponseInterface $response) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('Hello World');
             return $response;
         });
@@ -1533,7 +1536,7 @@ class AppTest extends TestCase
 
         $called = 0;
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/', function ($request, ResponseInterface $response) use (&$called) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) use (&$called) {
             $called++;
             $response->getBody()->write('Hello World');
             return $response;
@@ -1642,7 +1645,7 @@ class AppTest extends TestCase
         $app
             ->add($middlewareProphecy->reveal())
             ->add($middlewareProphecy2->reveal());
-        $app->get('/', function ($request, ResponseInterface $response) {
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         });
 
@@ -1744,7 +1747,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
+        $app->get('/Hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write((string) count($args));
             return $response;
         });
@@ -1800,7 +1803,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
+        $app->get('/Hello[/{name}]', function (ServerRequestInterface $request, ResponseInterface $response, $args) {
             $response->getBody()->write((string) count($args));
             return $response;
         })->setArgument('extra', 'value');
@@ -1856,7 +1859,11 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $route = $app->get('/Hello[/{name}]', function ($request, ResponseInterface $response, $args) {
+        $route = $app->get('/Hello[/{name}]', function (
+            ServerRequestInterface $request,
+            ResponseInterface $response,
+            $args
+        ) {
             $response->getBody()->write((string) count($args));
             return $response;
         })->setArgument('extra', 'value');
