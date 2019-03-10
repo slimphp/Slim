@@ -78,7 +78,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         $routeRunner = new RouteRunner($routeResolver);
         $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container);
 
-        parent::__construct($responseFactory, $container, $callableResolver, $routeCollector);
+        parent::__construct($responseFactory, $callableResolver, $routeCollector, $container);
     }
 
     /**
@@ -104,16 +104,6 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     /********************************************************************************
      * Getter methods
      *******************************************************************************/
-
-    /**
-     * Get container
-     *
-     * @return ContainerInterface|null
-     */
-    public function getContainer(): ?ContainerInterface
-    {
-        return $this->container;
-    }
 
     /**
      * Get callable resolver
