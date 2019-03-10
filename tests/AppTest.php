@@ -190,8 +190,8 @@ class AppTest extends TestCase
             return $response;
         });
 
-        $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'];
-        foreach ($methods as $method) {
+        foreach ($this->upperCaseRequestMethodsProvider() as $methods) {
+            $method = $methods[0];
             $uriProphecy = $this->prophesize(UriInterface::class);
             $uriProphecy->getPath()->willReturn('/');
 
