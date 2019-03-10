@@ -32,7 +32,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     protected $responseFactory;
 
     /**
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
     protected $container;
 
@@ -50,22 +50,22 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      * RouteCollectorProxy constructor.
      *
      * @param ResponseFactoryInterface  $responseFactory
-     * @param ContainerInterface        $container
      * @param CallableResolverInterface $callableResolver,
      * @param RouteCollectorInterface   $routeCollector
+     * @param ContainerInterface|null   $container
      * @param string                    $basePath
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
-        ContainerInterface $container,
         CallableResolverInterface $callableResolver,
         RouteCollectorInterface $routeCollector,
+        ContainerInterface $container = null,
         string $basePath = ''
     ) {
         $this->responseFactory = $responseFactory;
-        $this->container = $container;
         $this->callableResolver = $callableResolver;
         $this->routeCollector = $routeCollector;
+        $this->container = $container;
         $this->basePath = $basePath;
     }
 
@@ -174,5 +174,13 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     {
         $this->basePath = $path;
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContainer(): ?ContainerInterface
+    {
+        return $this->container;
     }
 }

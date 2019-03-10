@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\UriInterface;
 
 interface RouteCollectorProxyInterface
@@ -135,5 +136,10 @@ interface RouteCollectorProxyInterface
      * @return RouteCollectorProxyInterface
      */
     public function setBasePath(string $path): RouteCollectorProxyInterface;
+
+    /**
+     * @return ContainerInterface|null
+     */
+    public function getContainer(): ?ContainerInterface;
 }
 
