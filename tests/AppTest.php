@@ -349,7 +349,7 @@ class AppTest extends TestCase
 
     /**
      * @param string $pattern
-     * @dataProvider  routePatternsProvider
+     * @dataProvider routePatternsProvider
      */
     public function testRoutePatterns(string $pattern)
     {
