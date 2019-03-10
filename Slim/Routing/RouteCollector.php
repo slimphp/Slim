@@ -251,17 +251,16 @@ class RouteCollector implements RouteCollectorInterface
     {
         $routeCollectorProxy = new RouteCollectorProxy(
             $this->responseFactory,
-            $this->container,
             $this->callableResolver,
             $this,
+            $this->container,
             $pattern
         );
 
-        $routeGroup = new RouteGroup($routeCollectorProxy);
-        $this->routeGroups[] = $routeGroup;
+        $routeGroup = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
 
-        $callable = $this->callableResolver->resolve($callable);
-        $routeGroup->collectRoutes($callable);
+        $this->routeGroups[] = $routeGroup;
+        $routeGroup->collectRoutes();
         array_shift($this->routeGroups);
 
         return $routeGroup;

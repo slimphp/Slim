@@ -11,13 +11,28 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use Closure;
 use Psr\Http\Server\MiddlewareInterface;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 
 class RouteGroup implements RouteGroupInterface
 {
+    /**
+     * @var string
+     */
+    protected $pattern;
+
+    /**
+     * @var callable|string
+     */
+    protected $callable;
+
+    /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
     /**
      * @var RouteCollectorProxyInterface
      */
@@ -33,18 +48,30 @@ class RouteGroup implements RouteGroupInterface
     /**
      * Create a new RouteGroup
      *
+     * @param string                        $pattern
+     * @param callable|string               $callable
+     * @param CallableResolverInterface     $callableResolver
      * @param RouteCollectorProxyInterface  $routeCollectorProxy
      */
-    public function __construct(RouteCollectorProxyInterface $routeCollectorProxy) {
+    public function __construct(
+        string $pattern,
+        $callable,
+        CallableResolverInterface $callableResolver,
+        RouteCollectorProxyInterface $routeCollectorProxy
+    ) {
+        $this->pattern = $pattern;
+        $this->callable = $callable;
+        $this->callableResolver = $callableResolver;
         $this->routeCollectorProxy = $routeCollectorProxy;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function collectRoutes(Closure $callback): RouteGroupInterface
+    public function collectRoutes(): RouteGroupInterface
     {
-        $callback($this->routeCollectorProxy);
+        $callable = $this->callableResolver->resolve($this->callable);
+        $callable($this->routeCollectorProxy);
         return $this;
     }
 
@@ -72,5 +99,13 @@ class RouteGroup implements RouteGroupInterface
     public function getMiddleware(): array
     {
         return $this->middleware;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPattern(): string
+    {
+        return $this->pattern;
     }
 }

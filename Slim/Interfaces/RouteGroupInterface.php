@@ -11,16 +11,14 @@ declare(strict_types=1);
 
 namespace Slim\Interfaces;
 
-use Closure;
 use Psr\Http\Server\MiddlewareInterface;
 
 interface RouteGroupInterface
 {
     /**
-     * @param Closure $callable
      * @return RouteGroupInterface
      */
-    public function collectRoutes(Closure $callable): RouteGroupInterface;
+    public function collectRoutes(): RouteGroupInterface;
 
     /**
      * @param MiddlewareInterface|string|callable $middleware
@@ -38,4 +36,9 @@ interface RouteGroupInterface
      * @return array
      */
     public function getMiddleware(): array;
+
+    /**
+     * @return string
+     */
+    public function getPattern(): string;
 }
