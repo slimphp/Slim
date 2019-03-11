@@ -149,7 +149,7 @@ class ErrorMiddleware implements MiddlewareInterface
      * @param callable|ErrorHandlerInterface $handler
      * @return self
      */
-    public function setErrorHandler(string $type, $handler): ErrorMiddleware
+    public function setErrorHandler(string $type, $handler): self
     {
         $this->handlers[$type] = $handler;
         return $this;
@@ -172,7 +172,7 @@ class ErrorMiddleware implements MiddlewareInterface
      * @param callable|ErrorHandler $handler
      * @return self
      */
-    public function setDefaultErrorHandler($handler): ErrorMiddleware
+    public function setDefaultErrorHandler($handler): self
     {
         $this->defaultErrorHandler = $handler;
         return $this;
