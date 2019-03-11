@@ -311,6 +311,7 @@ class App implements RequestHandlerInterface
      * resultant Response object to the HTTP client.
      *
      * @param ServerRequestInterface $request
+     * @return void
      */
     public function run(ServerRequestInterface $request): void
     {
