@@ -78,7 +78,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * @param MiddlewareInterface|string|callable $middleware
      * @return self
      */
-    public function add($middleware): MiddlewareDispatcher
+    public function add($middleware): self
     {
         if ($middleware instanceof MiddlewareInterface) {
             return $this->addMiddleware($middleware);
@@ -104,7 +104,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * @param MiddlewareInterface $middleware
      * @return self
      */
-    public function addMiddleware(MiddlewareInterface $middleware): MiddlewareDispatcher
+    public function addMiddleware(MiddlewareInterface $middleware): self
     {
         $next = $this->tip;
         $this->tip = new class($middleware, $next) implements RequestHandlerInterface {
@@ -136,7 +136,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * @param string $middleware
      * @return self
      */
-    public function addDeferred(string $middleware): MiddlewareDispatcher
+    public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
         $this->tip = new class($middleware, $next, $this->container) implements RequestHandlerInterface {
@@ -189,7 +189,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      * @param callable $middleware
      * @return self
      */
-    public function addCallable(callable $middleware): MiddlewareDispatcher
+    public function addCallable(callable $middleware): self
     {
         $next = $this->tip;
         $this->tip = new class($middleware, $next) implements RequestHandlerInterface {
