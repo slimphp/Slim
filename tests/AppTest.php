@@ -25,7 +25,6 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouterInterface;
-use Slim\Route;
 use Slim\Router;
 use Slim\Tests\Mocks\MockAction;
 use stdClass;
