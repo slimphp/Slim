@@ -21,15 +21,19 @@ use Slim\Tests\Mocks\InvocationStrategyTest;
 
 class RouterTest extends TestCase
 {
-    /** @var Router */
+    /**
+     * @var Router
+     */
     protected $router;
 
-    /** @var string */
-    protected $cacheFile = '';
+    /**
+     * @var null|string
+     */
+    protected $cacheFile;
 
     public function tearDown()
     {
-        if (file_exists($this->cacheFile)) {
+        if ($this->cacheFile && file_exists($this->cacheFile)) {
             unlink($this->cacheFile);
         }
     }
