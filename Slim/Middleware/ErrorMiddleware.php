@@ -100,9 +100,9 @@ class ErrorMiddleware implements MiddlewareInterface
     /**
      * @param ServerRequestInterface $request
      * @param Throwable $exception
-     * @return mixed
+     * @return ResponseInterface
      */
-    public function handleException(ServerRequestInterface $request, Throwable $exception)
+    public function handleException(ServerRequestInterface $request, Throwable $exception): ResponseInterface
     {
         if ($exception instanceof HttpException) {
             $request = $exception->getRequest();
@@ -147,10 +147,12 @@ class ErrorMiddleware implements MiddlewareInterface
      *
      * @param string $type Exception/Throwable name. ie: RuntimeException::class
      * @param callable|ErrorHandlerInterface $handler
+     * @return self
      */
-    public function setErrorHandler(string $type, $handler)
+    public function setErrorHandler(string $type, $handler): ErrorMiddleware
     {
         $this->handlers[$type] = $handler;
+        return $this;
     }
 
     /**
@@ -168,10 +170,12 @@ class ErrorMiddleware implements MiddlewareInterface
      * \Psr\Http\Message\ResponseInterface.
      *
      * @param callable|ErrorHandler $handler
+     * @return self
      */
-    public function setDefaultErrorHandler($handler)
+    public function setDefaultErrorHandler($handler): ErrorMiddleware
     {
         $this->defaultErrorHandler = $handler;
+        return $this;
     }
 
     /**

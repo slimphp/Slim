@@ -152,7 +152,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
      * @param callable|string $callable
      * @return self
      */
-    public function setCallable($callable): self
+    public function setCallable($callable): RouteInterface
     {
         $this->callable = $callable;
         return $this;
@@ -300,9 +300,9 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
-     * @return void
+     * @return self
      */
-    public function prepare(ServerRequestInterface $request, array $arguments): void
+    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface
     {
         // Remove temp arguments
         $this->setArguments($this->savedArguments);
@@ -311,6 +311,8 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
         foreach ($arguments as $k => $v) {
             $this->setArgument($k, $v, false);
         }
+
+        return $this;
     }
 
     /**

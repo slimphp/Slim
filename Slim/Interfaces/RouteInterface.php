@@ -43,7 +43,7 @@ interface RouteInterface
      *
      * @return null|string
      */
-    public function getName();
+    public function getName(): ?string;
 
     /**
      * Get route pattern
@@ -60,7 +60,7 @@ interface RouteInterface
      *
      * @return self
      */
-    public function setArgument(string $name, string $value): self;
+    public function setArgument(string $name, string $value): RouteInterface;
 
     /**
      * Replace route arguments
@@ -69,7 +69,7 @@ interface RouteInterface
      *
      * @return self
      */
-    public function setArguments(array $arguments): self;
+    public function setArguments(array $arguments): RouteInterface;
 
     /**
      * Set route name
@@ -78,7 +78,7 @@ interface RouteInterface
      *
      * @return static
      */
-    public function setName(string $name): self;
+    public function setName(string $name): RouteInterface;
 
     /**
      * @param MiddlewareInterface|string|callable $middleware
@@ -97,8 +97,9 @@ interface RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param array $arguments
+     * @return RouteInterface
      */
-    public function prepare(ServerRequestInterface $request, array $arguments);
+    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface;
 
     /**
      * Run route

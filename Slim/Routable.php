@@ -66,9 +66,11 @@ abstract class Routable
      * Set the route pattern
      *
      * @param string $newPattern
+     * @return self
      */
-    public function setPattern(string $newPattern)
+    public function setPattern(string $newPattern): self
     {
         $this->pattern = $newPattern;
+        return $this;
     }
 }
