@@ -1,2 +1,8 @@
 <?php
+/**
+ * Slim Framework (https://slimframework.com)
+ *
+ * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
+ */
+
 require __DIR__ . '/../vendor/autoload.php';
