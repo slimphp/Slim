@@ -14,7 +14,6 @@ use Slim\MiddlewareDispatcher;
 use Slim\RouteDispatcher;
 use Slim\Router;
 use Slim\RoutingResults;
-use Slim\Tests\TestCase;
 
 class RouteDispatcherTest extends TestCase
 {
