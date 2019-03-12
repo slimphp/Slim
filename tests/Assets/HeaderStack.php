@@ -6,6 +6,9 @@
  * We put these into the Slim namespace, so that Slim\App will use these versions of header() and
  * headers_sent() when we test its output.
  */
+
+declare(strict_types=1);
+
 namespace Slim\Tests\Assets;
 
 /**

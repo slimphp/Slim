@@ -5,6 +5,8 @@
  * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
  */
 
+declare(strict_types=1);
+
 namespace Slim\Tests;
 
 use FastRoute\RouteCollector;
@@ -23,7 +25,7 @@ class RouterTest extends TestCase
     protected $router;
 
     /** @var string */
-    protected $cacheFile;
+    protected $cacheFile = '';
 
     public function tearDown()
     {
@@ -365,7 +367,7 @@ class RouterTest extends TestCase
         };
         $route = $this->router->map($methods, $pattern, $callable)->setName('foo');
 
-        $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
+        $cacheFile = dirname(__FILE__) . '/' . uniqid((string) microtime(true));
         $this->router->setCacheFile($cacheFile);
         $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
