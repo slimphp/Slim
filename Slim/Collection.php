@@ -88,16 +88,6 @@ class Collection implements CollectionInterface
     }
 
     /**
-     * Get collection keys
-     *
-     * @return array The collection's source data keys
-     */
-    public function keys()
-    {
-        return array_keys($this->data);
-    }
-
-    /**
      * Does this collection have a given key?
      *
      * @param string $key The data key

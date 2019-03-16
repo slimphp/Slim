@@ -90,16 +90,6 @@ class CollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($data, $this->bag->all());
     }
 
-    public function testKeys()
-    {
-        $data = [
-            'abc' => '123',
-            'foo' => 'bar',
-        ];
-        $this->property->setValue($this->bag, $data);
-        $this->assertEquals(['abc', 'foo'], $this->bag->keys());
-    }
-
     public function testHas()
     {
         $this->property->setValue($this->bag, ['foo' => 'bar']);
