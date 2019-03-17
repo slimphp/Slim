@@ -7,6 +7,9 @@
  * at https://github.com/zendframework/zend-diactoros/blob/master/LICENSE.md.
  *
  */
+
+declare(strict_types=1);
+
 namespace Slim;
 
 use Slim\Tests\Assets\HeaderStack;

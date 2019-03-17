@@ -49,18 +49,22 @@ class HttpException extends Exception
 
     /**
      * @param string $title
+     * @return self
      */
-    public function setTitle(string $title)
+    public function setTitle(string $title): self
     {
         $this->title = $title;
+        return $this;
     }
 
     /**
      * @param string $description
+     * @return self
      */
-    public function setDescription(string $description)
+    public function setDescription(string $description): self
     {
         $this->description = $description;
+        return $this;
     }
 
     /**

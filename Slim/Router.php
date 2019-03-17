@@ -129,7 +129,7 @@ class Router implements RouterInterface
      *
      * @return InvocationStrategyInterface
      */
-    public function getDefaultInvocationStrategy()
+    public function getDefaultInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->defaultInvocationStrategy;
     }
@@ -138,7 +138,7 @@ class Router implements RouterInterface
      * @param InvocationStrategyInterface $strategy
      * @return self
      */
-    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy)
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouterInterface
     {
         $this->defaultInvocationStrategy = $strategy;
         return $this;
@@ -162,7 +162,6 @@ class Router implements RouterInterface
     public function setBasePath(string $basePath): self
     {
         $this->basePath = $basePath;
-
         return $this;
     }
 
@@ -290,10 +289,12 @@ class Router implements RouterInterface
 
     /**
      * @param Dispatcher $dispatcher
+     * @return RouterInterface
      */
-    public function setDispatcher(Dispatcher $dispatcher)
+    public function setDispatcher(Dispatcher $dispatcher): RouterInterface
     {
         $this->dispatcher = $dispatcher;
+        return $this;
     }
 
     /**
@@ -329,14 +330,15 @@ class Router implements RouterInterface
      * Remove named route
      *
      * @param string $name        Route name
-     *
+     * @return self
      * @throws RuntimeException   If named route does not exist
      */
-    public function removeNamedRoute(string $name)
+    public function removeNamedRoute(string $name): self
     {
         /** @var Route $route */
         $route = $this->getNamedRoute($name);
         unset($this->routes[$route->getIdentifier()]);
+        return $this;
     }
 
     /**

@@ -82,11 +82,13 @@ class RouteGroup extends Routable implements RouteGroupInterface
      * Invoke the group to register any Routable objects within it.
      *
      * @param App $app The App instance to bind/pass to the group callable
+     * @return self
      */
-    public function __invoke(App $app = null)
+    public function __invoke(App $app = null): RouteGroupInterface
     {
         /** @var callable $callable */
         $callable = $this->callableResolver->resolve($this->callable);
         $callable($app);
+        return $this;
     }
 }

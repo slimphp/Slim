@@ -283,8 +283,9 @@ class ErrorHandler implements ErrorHandlerInterface
      * Wraps the error_log function so that this can be easily tested
      *
      * @param string $error
+     * @return void
      */
-    protected function logError(string $error)
+    protected function logError(string $error): void
     {
         error_log($error);
     }

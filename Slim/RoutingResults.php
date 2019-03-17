@@ -107,7 +107,7 @@ class RoutingResults
     /**
      * @return null|string
      */
-    public function getRouteIdentifier()
+    public function getRouteIdentifier(): ?string
     {
         return $this->routeIdentifier;
     }

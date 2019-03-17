@@ -117,6 +117,7 @@ interface RouterInterface
      * Set default route invocation strategy
      *
      * @param InvocationStrategyInterface $strategy
+     * @return RouterInterface
      */
-    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy);
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouterInterface;
 }
