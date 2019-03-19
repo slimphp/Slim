@@ -313,7 +313,7 @@ class Route implements RouteInterface, RequestHandlerInterface
             $this->setArgument($k, $v, false);
         }
 
-        // Add Middleware From Groups
+        // Add middleware from Groups
         $inner = $this->middlewareDispatcher;
         $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->container);
 
