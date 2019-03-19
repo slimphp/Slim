@@ -33,6 +33,21 @@ interface RouteInterface
     public function getArguments(): array;
 
     /**
+     * Get route callable
+     *
+     * @return callable|string
+     */
+    public function getCallable();
+
+    /**
+     * Set route callable
+     *
+     * @param $callable
+     * @return RouteInterface
+     */
+    public function setCallable($callable): RouteInterface;
+
+    /**
      * Get route name
      *
      * @return null|string

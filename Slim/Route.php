@@ -162,7 +162,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function setCallable($callable): self
+    public function setCallable($callable): RouteInterface
     {
         $this->callable = $callable;
         return $this;
