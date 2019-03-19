@@ -13,12 +13,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
-/**
- * Route Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface RouteInterface
 {
     /**

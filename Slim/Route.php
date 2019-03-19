@@ -19,12 +19,10 @@ use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 
-/**
- * Route
- */
-class Route extends Routable implements RouteInterface, RequestHandlerInterface
+class Route implements RouteInterface, RequestHandlerInterface
 {
     /**
      * HTTP methods supported by this route
@@ -50,14 +48,9 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     /**
      * Parent route groups
      *
-     * @var RouteGroup[]
+     * @var RouteGroupInterface[]
      */
     protected $groups;
-
-    /**
-     * @var bool
-     */
-    private $finalized = false;
 
     /**
      * @var InvocationStrategyInterface
@@ -89,6 +82,30 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
      * @var MiddlewareDispatcher
      */
     protected $middlewareDispatcher;
+
+    /**
+     * Route callable
+     *
+     * @var callable|string
+     */
+    protected $callable;
+
+    /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
+    /**
+     * @var ResponseFactoryInterface
+     */
+    protected $responseFactory;
+
+    /**
+     * Route pattern
+     *
+     * @var string
+     */
+    protected $pattern;
 
     /**
      * Create new route
@@ -127,9 +144,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Get route invocation strategy
-     *
-     * @return InvocationStrategyInterface
+     * {@inheritdoc}
      */
     public function getInvocationStrategy(): InvocationStrategyInterface
     {
@@ -137,9 +152,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Get route callable
-     *
-     * @return callable|string
+     * {@inheritdoc}
      */
     public function getCallable()
     {
@@ -147,21 +160,16 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * This method enables you to override the Route's callable
-     *
-     * @param callable|string $callable
-     * @return self
+     * {@inheritdoc}
      */
-    public function setCallable($callable): RouteInterface
+    public function setCallable($callable): self
     {
         $this->callable = $callable;
         return $this;
     }
 
     /**
-     * Get route methods
-     *
-     * @return string[]
+     * {@inheritdoc}
      */
     public function getMethods(): array
     {
@@ -169,9 +177,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Get parent route groups
-     *
-     * @return RouteGroup[]
+     * {@inheritdoc}
      */
     public function getGroups(): array
     {
@@ -179,9 +185,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Get route name
-     *
-     * @return string|null
+     * {@inheritdoc}
      */
     public function getName(): ?string
     {
@@ -189,9 +193,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Get route identifier
-     *
-     * @return string
+     * {@inheritdoc}
      */
     public function getIdentifier(): string
     {
@@ -199,11 +201,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Set route name
-     *
-     * @param string $name
-     *
-     * @return self
+     * {@inheritdoc}
      */
     public function setName(string $name): RouteInterface
     {
@@ -212,11 +210,31 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Retrieve a specific route argument
-     *
-     * @param string $name
-     * @param string|null $default
-     * @return mixed
+     * {@inheritdoc}
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPattern(): string
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPattern(string $newPattern)
+    {
+        $this->pattern = $newPattern;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getArgument(string $name, $default = null)
     {
@@ -227,12 +245,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Set a route argument
-     *
-     * @param string $name
-     * @param string $value
-     * @param bool $includeInSavedArguments
-     * @return self
+     * {@inheritdoc}
      */
     public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
     {
@@ -245,9 +258,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Retrieve route arguments
-     *
-     * @return array
+     * {@inheritdoc}
      */
     public function getArguments(): array
     {
@@ -255,11 +266,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * Replace route arguments
-     *
-     * @param array $arguments
-     * @param bool $includeInSavedArguments
-     * @return self
+     * {@inheritdoc}
      */
     public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
@@ -272,8 +279,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * @param MiddlewareInterface|string|callable $middleware
-     * @return RouteInterface
+     * {@inheritdoc}
      */
     public function add($middleware): RouteInterface
     {
@@ -282,8 +288,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
     }
 
     /**
-     * @param MiddlewareInterface $middleware
-     * @return RouteInterface
+     * {@inheritdoc}
      */
     public function addMiddleware(MiddlewareInterface $middleware): RouteInterface
     {
@@ -296,11 +301,7 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
      *******************************************************************************/
 
     /**
-     * Prepare the route for use
-     *
-     * @param ServerRequestInterface $request
-     * @param array $arguments
-     * @return self
+     * {@inheritdoc}
      */
     public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface
     {
@@ -312,61 +313,29 @@ class Route extends Routable implements RouteInterface, RequestHandlerInterface
             $this->setArgument($k, $v, false);
         }
 
+        // Add Middleware From Groups
+        $inner = $this->middlewareDispatcher;
+        $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->container);
+
+        /** @var RouteGroupInterface $group */
+        foreach (array_reverse($this->groups) as $group) {
+            $group->appendMiddlewareToDispatcher($this->middlewareDispatcher);
+        }
+
         return $this;
     }
 
     /**
-     * Finalize the route in preparation for dispatching
-     * @return void
-     */
-    public function finalize(): void
-    {
-        if ($this->finalized) {
-            return;
-        }
-
-        // Chain a new (outer) middleware dispatcher for route-group-middleware
-        // to the existing route-middleware dispatcher
-        $inner = $this->middlewareDispatcher;
-        $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->container);
-
-        foreach (array_reverse($this->groups) as $group) {
-            foreach ($group->getMiddleware() as $middleware) {
-                $this->middlewareDispatcher->add($middleware);
-            }
-        }
-
-        $this->finalized = true;
-    }
-
-    /**
-     * Run route
-     *
-     * This method traverses the middleware stack, including the route's callable
-     * and captures the resultant HTTP response object. It then sends the response
-     * back to the Application.
-     *
-     * @param ServerRequestInterface $request
-     * @return ResponseInterface
+     * {@inheritdoc}
      */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
-        // Finalise route now that we are about to run it
-        $this->finalize();
-
         // Traverse middleware stack and fetch updated response
         return $this->middlewareDispatcher->handle($request);
     }
 
     /**
-     * Dispatch route callable against current Request and Response objects
-     *
-     * This method invokes the route object's callable. If middleware is
-     * registered for the route, each callable middleware is invoked in
-     * the order specified.
-     *
-     * @param ServerRequestInterface $request   The current Request object
-     * @return ResponseInterface
+     * {@inheritdoc}
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
