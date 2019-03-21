@@ -130,7 +130,7 @@ class RouteTest extends TestCase
         $callableResolver = new CallableResolver();
         $strategy = new RequestResponse();
 
-        $routeGroup = new RouteGroup('/group', $callable, $responseFactory, $callableResolver);
+        $routeGroup = new RouteGroup('/group', $callable, $callableResolver);
         $groups = [$routeGroup];
 
         $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, null, $strategy, $groups);
@@ -188,7 +188,7 @@ class RouteTest extends TestCase
             $called++;
             return $handler->handle($request);
         };
-        $routeGroup = new RouteGroup('/group', $callable, $responseFactory, $callableResolver);
+        $routeGroup = new RouteGroup('/group', $callable, $callableResolver);
         $routeGroup->add($mw);
         $groups = [$routeGroup];
 
@@ -241,25 +241,6 @@ class RouteTest extends TestCase
 
         $route = $this->createRoute();
         $route->add(new MockMiddlewareWithoutInterface());
-    }
-
-    public function testRefinalizing()
-    {
-        $route = $this->createRoute();
-        $called = 0;
-
-        $route->add(function ($request, $handler) use (&$called) {
-            $called++;
-            return $handler->handle($request);
-        });
-
-        $route->finalize();
-        $route->finalize();
-
-        $request = $this->createServerRequest('/');
-        $route->run($request);
-
-        $this->assertSame($called, 1);
     }
 
     public function testIdentifier()
