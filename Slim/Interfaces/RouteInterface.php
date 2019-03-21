@@ -104,11 +104,10 @@ interface RouteInterface
     /**
      * Prepare the route for use
      *
-     * @param ServerRequestInterface $request
      * @param array $arguments
      * @return RouteInterface
      */
-    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface;
+    public function prepare(array $arguments): RouteInterface;
 
     /**
      * Run route

@@ -108,6 +108,11 @@ class Route implements RouteInterface, RequestHandlerInterface
     protected $pattern;
 
     /**
+     * @var bool
+     */
+    protected $groupMiddlewareAppended = false;
+
+    /**
      * Create new route
      *
      * @param string[]                          $methods The route HTTP methods
@@ -303,7 +308,7 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface
+    public function prepare(array $arguments): RouteInterface
     {
         // Remove temp arguments
         $this->setArguments($this->savedArguments);
@@ -313,7 +318,14 @@ class Route implements RouteInterface, RequestHandlerInterface
             $this->setArgument($k, $v, false);
         }
 
-        // Add middleware from Groups
+        return $this;
+    }
+
+    /**
+     * @return void
+     */
+    protected function appendGroupMiddlewareToRoute(): void
+    {
         $inner = $this->middlewareDispatcher;
         $this->middlewareDispatcher = new MiddlewareDispatcher($inner, $this->container);
 
@@ -322,7 +334,7 @@ class Route implements RouteInterface, RequestHandlerInterface
             $group->appendMiddlewareToDispatcher($this->middlewareDispatcher);
         }
 
-        return $this;
+        $this->groupMiddlewareAppended = true;
     }
 
     /**
@@ -330,7 +342,10 @@ class Route implements RouteInterface, RequestHandlerInterface
      */
     public function run(ServerRequestInterface $request): ResponseInterface
     {
-        // Traverse middleware stack and fetch updated response
+        if (!$this->groupMiddlewareAppended) {
+            $this->appendGroupMiddlewareToRoute();
+        }
+
         return $this->middlewareDispatcher->handle($request);
     }
 
