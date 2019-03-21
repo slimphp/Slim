@@ -42,7 +42,7 @@ interface RouteInterface
     /**
      * Set route callable
      *
-     * @param $callable
+     * @param callable|string $callable
      * @return RouteInterface
      */
     public function setCallable($callable): RouteInterface;
