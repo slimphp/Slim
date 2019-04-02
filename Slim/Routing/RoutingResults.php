@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Slim;
+namespace Slim\Routing;
 
 class RoutingResults
 {

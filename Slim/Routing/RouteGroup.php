@@ -7,11 +7,13 @@
 
 declare(strict_types=1);
 
-namespace Slim;
+namespace Slim\Routing;
 
 use Psr\Http\Server\MiddlewareInterface;
+use Slim\App;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
+use Slim\MiddlewareDispatcher;
 
 class RouteGroup implements RouteGroupInterface
 {
