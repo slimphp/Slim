@@ -24,6 +24,7 @@
 
 ### Removed
 
+- [#2612](https://github.com/slimphp/Slim/pull/2612) Remove Routable, refactored RouteGroup and Route interface
 - [#2589](https://github.com/slimphp/Slim/pull/2589) Remove App::$settings altogether
 - [#2587](https://github.com/slimphp/Slim/pull/2587) Remove Pimple as a dev-dependency
 - [#2398](https://github.com/slimphp/Slim/pull/2398) Slim no longer has error handling built into App. Add ErrorMiddleware() as the outermost middleware.
