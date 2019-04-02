@@ -13,12 +13,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 
-/**
- * Route Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface RouteInterface
 {
     /**
@@ -37,6 +31,21 @@ interface RouteInterface
      * @return string[]
      */
     public function getArguments(): array;
+
+    /**
+     * Get route callable
+     *
+     * @return callable|string
+     */
+    public function getCallable();
+
+    /**
+     * Set route callable
+     *
+     * @param callable|string $callable
+     * @return RouteInterface
+     */
+    public function setCallable($callable): RouteInterface;
 
     /**
      * Get route name
@@ -95,11 +104,10 @@ interface RouteInterface
     /**
      * Prepare the route for use
      *
-     * @param ServerRequestInterface $request
      * @param array $arguments
      * @return RouteInterface
      */
-    public function prepare(ServerRequestInterface $request, array $arguments): RouteInterface;
+    public function prepare(array $arguments): RouteInterface;
 
     /**
      * Run route

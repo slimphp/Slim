@@ -11,22 +11,10 @@ namespace Slim\Interfaces;
 
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\App;
+use Slim\MiddlewareDispatcher;
 
-/**
- * RouteGroup Interface
- *
- * @package Slim
- * @since   3.0.0
- */
 interface RouteGroupInterface
 {
-    /**
-     * Get route pattern
-     *
-     * @return string
-     */
-    public function getPattern(): string;
-
     /**
      * @param MiddlewareInterface|string|callable $middleware
      * @return RouteGroupInterface
@@ -38,6 +26,19 @@ interface RouteGroupInterface
      * @return RouteGroupInterface
      */
     public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface;
+
+    /**
+     * @param MiddlewareDispatcher $dispatcher
+     * @return RouteGroupInterface
+     */
+    public function appendMiddlewareToDispatcher(MiddlewareDispatcher $dispatcher): RouteGroupInterface;
+
+    /**
+     * Get route pattern
+     *
+     * @return string
+     */
+    public function getPattern(): string;
 
     /**
      * Execute route group callable in the context of the Slim App

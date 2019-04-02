@@ -9,48 +9,51 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteGroupInterface;
 
-/**
- * A collector for Routable objects with a common middleware stack
- *
- * @package Slim
- */
-class RouteGroup extends Routable implements RouteGroupInterface
+class RouteGroup implements RouteGroupInterface
 {
     /**
-     * middleware
-     *
-     * @var array
+     * @var callable|string
+     */
+    protected $callable;
+
+    /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
+    /**
+     * @var MiddlewareInterface[]|string[]|callable[]
      */
     protected $middleware = [];
+
+    /**
+     * @var string
+     */
+    protected $pattern;
 
     /**
      * Create a new RouteGroup
      *
      * @param string                    $pattern  The pattern prefix for the group
      * @param callable                  $callable The group callable
-     * @param ResponseFactoryInterface  $responseFactory
      * @param CallableResolverInterface $callableResolver
      */
     public function __construct(
         string $pattern,
         $callable,
-        ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver
     ) {
         $this->pattern = $pattern;
         $this->callable = $callable;
-        $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
     }
 
     /**
-     * @param MiddlewareInterface|string|callable $middleware
-     * @return RouteGroupInterface
+     * {@inheritdoc}
      */
     public function add($middleware): RouteGroupInterface
     {
@@ -59,8 +62,7 @@ class RouteGroup extends Routable implements RouteGroupInterface
     }
 
     /**
-     * @param MiddlewareInterface $middleware
-     * @return RouteGroupInterface
+     * {@inheritdoc}
      */
     public function addMiddleware(MiddlewareInterface $middleware): RouteGroupInterface
     {
@@ -69,20 +71,27 @@ class RouteGroup extends Routable implements RouteGroupInterface
     }
 
     /**
-     * Get the middleware registered for the group
-     *
-     * @return mixed[]
+     * {@inheritdoc}
      */
-    public function getMiddleware(): array
+    public function appendMiddlewareToDispatcher(MiddlewareDispatcher $dispatcher): RouteGroupInterface
     {
-        return $this->middleware;
+        foreach ($this->middleware as $middleware) {
+            $dispatcher->add($middleware);
+        }
+
+        return $this;
     }
 
     /**
-     * Invoke the group to register any Routable objects within it.
-     *
-     * @param App $app The App instance to bind/pass to the group callable
-     * @return self
+     * {@inheritdoc}
+     */
+    public function getPattern(): string
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function __invoke(App $app = null): RouteGroupInterface
     {
