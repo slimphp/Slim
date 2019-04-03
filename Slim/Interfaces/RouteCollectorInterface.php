@@ -16,32 +16,52 @@ use Slim\Routing\Route;
 interface RouteCollectorInterface
 {
     /**
-     * Add route
+     * Get default route invocation strategy
      *
-     * @param string[] $methods Array of HTTP methods
-     * @param string   $pattern The route pattern
-     * @param callable $handler The route callable
-     *
-     * @return RouteInterface
+     * @return InvocationStrategyInterface
      */
-    public function map(array $methods, string $pattern, $handler): RouteInterface;
+    public function getDefaultInvocationStrategy(): InvocationStrategyInterface;
 
     /**
-     * Add a route group to the array
+     * Set default route invocation strategy
      *
-     * @param string   $pattern The group pattern
-     * @param callable $callable A group callable
-     *
-     * @return RouteGroupInterface
+     * @param InvocationStrategyInterface $strategy
+     * @return RouteCollectorInterface
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface;
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouteCollectorInterface;
 
     /**
-     * Removes the last route group from the array
-     *
-     * @return RouteGroupInterface|null
+     * @return null|string
      */
-    public function popGroup();
+    public function getCacheFile(): ?string;
+
+    /**
+     * Set path to fast route cache file. If this is false then route caching is disabled.
+     *
+     * @param string|null $cacheFile
+     * @return RouteCollectorInterface
+     *
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
+     */
+    public function setCacheFile(?string $cacheFile): RouteCollectorInterface;
+
+    /**
+     * Get the base path used in pathFor()
+     *
+     * @param string $basePath
+     *
+     * @return string
+     */
+    public function getBasePath(string $basePath): string;
+
+    /**
+     * Set the base path used in pathFor()
+     *
+     * @param string $basePath
+     * @return RouteCollectorInterface
+     */
+    public function setBasePath(string $basePath): RouteCollectorInterface;
 
     /**
      * Get route objects
@@ -75,8 +95,38 @@ interface RouteCollectorInterface
      * @param string $identifier
      *
      * @return RouteInterface
+     *
+     * @throws RuntimeException
      */
     public function lookupRoute(string $identifier): RouteInterface;
+
+    /**
+     * Add a route group to the array
+     *
+     * @param string   $pattern The group pattern
+     * @param callable $callable A group callable
+     *
+     * @return RouteGroupInterface
+     */
+    public function pushGroup(string $pattern, $callable): RouteGroupInterface;
+
+    /**
+     * Removes the last route group from the array
+     *
+     * @return RouteGroupInterface|null
+     */
+    public function popGroup();
+
+    /**
+     * Add route
+     *
+     * @param string[] $methods Array of HTTP methods
+     * @param string   $pattern The route pattern
+     * @param callable $handler The route callable
+     *
+     * @return RouteInterface
+     */
+    public function map(array $methods, string $pattern, $handler): RouteInterface;
 
     /**
      * Build the path for a named route excluding the base path
@@ -121,36 +171,4 @@ interface RouteCollectorInterface
      * @throws InvalidArgumentException If required data not provided
      */
     public function urlFor(string $name, array $data = [], array $queryParams = []): string;
-
-    /**
-     * Set the base path used in pathFor()
-     *
-     * @param string $basePath
-     *
-     * @return RouteCollectorInterface
-     */
-    public function setBasePath(string $basePath): RouteCollectorInterface;
-
-    /**
-     * Set default route invocation strategy
-     *
-     * @param InvocationStrategyInterface $strategy
-     */
-    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy);
-
-    /**
-     * @return null|string
-     */
-    public function getCacheFile(): ?string;
-
-    /**
-     * Set path to fast route cache file. If this is false then route caching is disabled.
-     *
-     * @param string|null $cacheFile
-     * @return self
-     *
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     */
-    public function setCacheFile(?string $cacheFile): RouteCollectorInterface;
 }

@@ -68,7 +68,7 @@ class RouteCollector implements RouteCollectorInterface
     protected $routes = [];
 
     /**
-     * Route Groups
+     * Route groups
      *
      * @var RouteGroup[]
      */
@@ -110,11 +110,19 @@ class RouteCollector implements RouteCollectorInterface
     }
 
     /**
+     * @return CallableResolverInterface
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * Get default route invocation strategy
      *
      * @return InvocationStrategyInterface
      */
-    public function getDefaultInvocationStrategy()
+    public function getDefaultInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->defaultInvocationStrategy;
     }
@@ -123,18 +131,47 @@ class RouteCollector implements RouteCollectorInterface
      * @param InvocationStrategyInterface $strategy
      * @return self
      */
-    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy)
+    public function setDefaultInvocationStrategy(InvocationStrategyInterface $strategy): RouteCollectorInterface
     {
         $this->defaultInvocationStrategy = $strategy;
         return $this;
     }
 
     /**
-     * @return CallableResolverInterface
+     * {@inheritdoc}
      */
-    public function getCallableResolver(): CallableResolverInterface
+    public function getCacheFile(): ?string
     {
-        return $this->callableResolver;
+        return $this->cacheFile;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCacheFile(?string $cacheFile): RouteCollectorInterface
+    {
+        if ($cacheFile && file_exists($cacheFile) && !is_readable($cacheFile)) {
+            throw new RuntimeException(
+                sprintf('Route collector cache file `%s` is not readable', $cacheFile)
+            );
+        }
+
+        if ($cacheFile && !file_exists($cacheFile) && !is_writable(dirname($cacheFile))) {
+            throw new RuntimeException(
+                sprintf('Route collector cache file directory `%s` is not writable', dirname($cacheFile))
+            );
+        }
+
+        $this->cacheFile = $cacheFile;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBasePath(string $basePath): string
+    {
+        return $this->basePath;
     }
 
     /**
@@ -154,30 +191,83 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function getCacheFile(): ?string
+    public function getRoutes(): array
     {
-        return $this->cacheFile;
+        return $this->routes;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setCacheFile(?string $cacheFile): RouteCollectorInterface
+    public function getNamedRoute(string $name): RouteInterface
     {
-        if ($cacheFile && file_exists($cacheFile) && !is_readable($cacheFile)) {
-            throw new RuntimeException(
-                sprintf('Router cache file `%s` is not readable', $cacheFile)
-            );
+        foreach ($this->routes as $route) {
+            if ($name == $route->getName()) {
+                return $route;
+            }
         }
+        throw new RuntimeException('Named route does not exist for name: ' . $name);
+    }
 
-        if ($cacheFile && !file_exists($cacheFile) && !is_writable(dirname($cacheFile))) {
-            throw new RuntimeException(
-                sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
-            );
-        }
-
-        $this->cacheFile = $cacheFile;
+    /**
+     * {@inheritdoc}
+     */
+    public function removeNamedRoute(string $name): RouteCollectorInterface
+    {
+        /** @var Route $route */
+        $route = $this->getNamedRoute($name);
+        unset($this->routes[$route->getIdentifier()]);
         return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function lookupRoute(string $identifier): RouteInterface
+    {
+        if (!isset($this->routes[$identifier])) {
+            throw new RuntimeException('Route not found, looks like your route cache is stale.');
+        }
+        return $this->routes[$identifier];
+    }
+
+    /**
+     * Add a route group to the array
+     *
+     * @param string   $pattern
+     * @param callable $callable
+     *
+     * @return RouteGroupInterface
+     */
+    public function pushGroup(string $pattern, $callable): RouteGroupInterface
+    {
+        $group = new RouteGroup($pattern, $callable, $this->callableResolver);
+        $this->routeGroups[] = $group;
+        return $group;
+    }
+
+    /**
+     * Removes the last route group from the array
+     *
+     * @return RouteGroupInterface|null The last RouteGroup, if one exists
+     */
+    public function popGroup(): ?RouteGroupInterface
+    {
+        return array_pop($this->routeGroups);
+    }
+
+    /**
+     * Process route groups
+     *
+     * @return string A group pattern to prefix routes with
+     */
+    protected function processGroups(): string
+    {
+        $pattern = "";
+        foreach ($this->routeGroups as $group) {
+            $pattern .= $group->getPattern();
+        }
+        return $pattern;
     }
 
     /**
@@ -214,88 +304,6 @@ class RouteCollector implements RouteCollectorInterface
             $this->routeGroups,
             $this->routeCounter
         );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRoutes(): array
-    {
-        return $this->routes;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getNamedRoute(string $name): RouteInterface
-    {
-        foreach ($this->routes as $route) {
-            if ($name == $route->getName()) {
-                return $route;
-            }
-        }
-        throw new RuntimeException('Named route does not exist for name: ' . $name);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeNamedRoute(string $name): RouteCollectorInterface
-    {
-        /** @var Route $route */
-        $route = $this->getNamedRoute($name);
-        unset($this->routes[$route->getIdentifier()]);
-        return $this;
-    }
-
-    /**
-     * Process route groups
-     *
-     * @return string A group pattern to prefix routes with
-     */
-    protected function processGroups(): string
-    {
-        $pattern = "";
-        foreach ($this->routeGroups as $group) {
-            $pattern .= $group->getPattern();
-        }
-        return $pattern;
-    }
-
-    /**
-     * Add a route group to the array
-     *
-     * @param string   $pattern
-     * @param callable $callable
-     *
-     * @return RouteGroupInterface
-     */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface
-    {
-        $group = new RouteGroup($pattern, $callable, $this->callableResolver);
-        $this->routeGroups[] = $group;
-        return $group;
-    }
-
-    /**
-     * Removes the last route group from the array
-     *
-     * @return RouteGroupInterface|null The last RouteGroup, if one exists
-     */
-    public function popGroup(): ?RouteGroupInterface
-    {
-        return array_pop($this->routeGroups);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function lookupRoute(string $identifier): RouteInterface
-    {
-        if (!isset($this->routes[$identifier])) {
-            throw new RuntimeException('Route not found, looks like your route cache is stale.');
-        }
-        return $this->routes[$identifier];
     }
 
     /**
