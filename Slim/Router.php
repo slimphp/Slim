@@ -450,7 +450,6 @@ class Router implements RouterInterface
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
         return $this->pathFor($name, $data, $queryParams);
     }
 
