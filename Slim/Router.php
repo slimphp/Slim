@@ -435,6 +435,26 @@ class Router implements RouterInterface
     }
 
     /**
+     * Build the path for a named route.
+     *
+     * This method is deprecated. Use pathFor() from now on.
+     *
+     * @param string $name        Route name
+     * @param array  $data        Named argument replacement data
+     * @param array  $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     * @throws RuntimeException         If named route does not exist
+     * @throws InvalidArgumentException If required data not provided
+     */
+    public function urlFor($name, array $data = [], array $queryParams = [])
+    {
+        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
+        return $this->pathFor($name, $data, $queryParams);
+    }
+
+    /**
      * Get fully qualified URL for named route
      *
      * @param string $name Route name
