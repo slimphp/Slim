@@ -22,6 +22,10 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 
+/**
+ * RouteCollector is used to collect routes and route groups
+ * as well as generate paths and URLs relative to its environment
+ */
 class RouteCollector implements RouteCollectorInterface
 {
     /**

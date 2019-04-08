@@ -16,6 +16,10 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteResolverInterface;
 
+/**
+ * RouteResolver instantiates the FastRoute dispatcher
+ * and computes the routing results of a given URI and request method
+ */
 class RouteResolver implements RouteResolverInterface
 {
     /**
