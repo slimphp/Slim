@@ -36,7 +36,7 @@ interface RouteCollectorInterface
     public function getCacheFile(): ?string;
 
     /**
-     * Set path to fast route cache file. If this is false then route caching is disabled.
+     * Set path to FastRoute cache file
      *
      * @param string|null $cacheFile
      * @return RouteCollectorInterface
