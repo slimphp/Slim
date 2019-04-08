@@ -446,7 +446,7 @@ class Router implements RouterInterface
      * @throws \Psr\Container\ContainerExceptionInterface
      * @throws RuntimeException If named route does not exist or Request not initialized
      */
-    public function urlFor($name, array $data = [], array $queryParams = [])
+    public function fullUrlFor($name, array $data = [], array $queryParams = [])
     {
         // Check if container['request'] is initialized.
         if (!$this->container->has('request')) {

@@ -415,7 +415,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      *
      * @throws ContainerExceptionInterface
      */
-    public function testUrlFor()
+    public function testFullUrlFor()
     {
         $app = new \Slim\App();
         $container = $app->getContainer();
@@ -438,7 +438,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         /** @var Router $router */
         $router = $container->get('router');
         $router->setBasePath('/app'); // test URL with sub directory
-        $result = $router->urlFor('testRoute', ['token' => 'randomToken']);
+        $result = $router->fullUrlFor('testRoute', ['token' => 'randomToken']);
 
         $expected = 'http://example.com:8000/app/token/randomToken';
 
