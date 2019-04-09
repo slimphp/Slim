@@ -16,6 +16,13 @@ use Psr\Http\Server\MiddlewareInterface;
 interface RouteInterface
 {
     /**
+     * Get the route's unique identifier
+     *
+     * @return string
+     */
+    public function getIdentifier(): string;
+
+    /**
      * Retrieve a specific route argument
      *
      * @param string $name

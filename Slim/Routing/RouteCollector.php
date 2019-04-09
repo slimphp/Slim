@@ -284,7 +284,6 @@ class RouteCollector implements RouteCollectorInterface
             $pattern = $this->processGroups() . $pattern;
         }
 
-        /** @var Route $route */
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
