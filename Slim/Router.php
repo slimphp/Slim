@@ -448,7 +448,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * Build the path for a named route.
+     * Build the path for a named route including the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
