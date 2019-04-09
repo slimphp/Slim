@@ -425,13 +425,7 @@ class Router implements RouterInterface
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
-        $url = $this->relativePathFor($name, $data, $queryParams);
-
-        if ($this->basePath) {
-            $url = $this->basePath . $url;
-        }
-
-        return $url;
+        return $this->urlFor($name, $data, $queryParams);
     }
 
     /**
@@ -450,7 +444,13 @@ class Router implements RouterInterface
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {
-        return $this->pathFor($name, $data, $queryParams);
+        $url = $this->relativePathFor($name, $data, $queryParams);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
+        }
+
+        return $url;
     }
 
     /**
