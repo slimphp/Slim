@@ -3,10 +3,8 @@
  * This is a direct copy of zend-diactoros/test/TestAsset/Functions.php and is used to override
  * header() and headers_sent() so we can test that they do the right thing.
  *
- * We put these into the Slim namespace, so that Slim\App will use these versions of header() and
- * headers_sent() when we test its output.
  */
-namespace Slim;
+namespace Slim\Tests\Assets;
 
 /**
  * Zend Framework (http://framework.zend.com/)
@@ -31,7 +29,7 @@ namespace Slim;
 /**
  * Store output artifacts
  */
-class HeaderStackTestAsset
+class HeaderStack
 {
     /**
      * @var string[][]
@@ -83,32 +81,4 @@ class HeaderStackTestAsset
 
         return false;
     }
-}
-
-/**
- * Have headers been sent?
- *
- * @return false
- */
-function headers_sent()
-{
-    return false;
-}
-
-/**
- * Emit a header, without creating actual output artifacts
- *
- * @param string   $string
- * @param bool     $replace
- * @param int|null $statusCode
- */
-function header($string, $replace = true, $statusCode = null)
-{
-    HeaderStackTestAsset::push(
-        [
-            'header'      => $string,
-            'replace'     => $replace,
-            'status_code' => $statusCode,
-        ]
-    );
 }
