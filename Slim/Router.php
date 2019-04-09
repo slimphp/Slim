@@ -433,6 +433,8 @@ class Router implements RouterInterface
     /**
      * Build the path for a named route including the base path
      *
+     * This method will be deprecated in Slim 4. Use urlFor() from now on.
+     *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
