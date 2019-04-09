@@ -450,8 +450,6 @@ class Router implements RouterInterface
     /**
      * Build the path for a named route.
      *
-     * This method is deprecated. Use pathFor() from now on.
-     *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
