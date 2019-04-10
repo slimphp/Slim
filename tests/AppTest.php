@@ -25,8 +25,9 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\RouterInterface;
-use Slim\Router;
+use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteResolverInterface;
+use Slim\Routing\RouteCollector;
 use Slim\Tests\Mocks\MockAction;
 use stdClass;
 
@@ -79,25 +80,40 @@ class AppTest extends TestCase
         $this->assertEquals($callableResolver, $app->getCallableResolver());
     }
 
-    public function testGetRouterReturnsInjectedInstance()
+    public function testGetRouteCollectorReturnsInjectedInstance()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $routerProphecy = $this->prophesize(RouterInterface::class);
-        $app = new App($responseFactoryProphecy->reveal(), null, null, $routerProphecy->reveal());
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $app = new App($responseFactoryProphecy->reveal(), null, null, $routeCollectorProphecy->reveal());
 
-        $this->assertSame($routerProphecy->reveal(), $app->getRouter());
+        $this->assertSame($routeCollectorProphecy->reveal(), $app->getRouteCollector());
     }
 
-    public function testCreatesRouterWhenNullWithInjectedContainer()
+    public function testGetRouteResolverReturnsInjectedInstance()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+        $app = new App(
+            $responseFactoryProphecy->reveal(),
+            null,
+            null,
+            $routeCollectorProphecy->reveal(),
+            $routeResolverProphecy->reveal()
+        );
+
+        $this->assertSame($routeResolverProphecy->reveal(), $app->getRouteResolver());
+    }
+
+    public function testCreatesRouteCollectorWhenNullWithInjectedContainer()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
-        $router = new Router(
+        $routeCollector = new RouteCollector(
             $responseFactoryProphecy->reveal(),
             $callableResolverProphecy->reveal(),
-            $containerProphecy->reveal(),
-            null
+            $containerProphecy->reveal()
         );
         $app = new App(
             $responseFactoryProphecy->reveal(),
@@ -105,11 +121,11 @@ class AppTest extends TestCase
             $callableResolverProphecy->reveal()
         );
 
-        $this->assertEquals($router, $app->getRouter());
+        $this->assertEquals($routeCollector, $app->getRouteCollector());
     }
 
     /********************************************************************************
-     * Router proxy methods
+     * Route collector proxy methods
      *******************************************************************************/
 
     public function upperCaseRequestMethodsProvider()
@@ -359,8 +375,8 @@ class AppTest extends TestCase
         $app->get($pattern, function () {
         });
 
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
+        $routeCollector = $app->getRouteCollector();
+        $route = $routeCollector->lookupRoute('route0');
 
         $this->assertEquals($pattern, $route->getPattern());
     }
@@ -465,10 +481,10 @@ class AppTest extends TestCase
             'group segment with single slash nested group and segment route' => [
                 ['/foo', '/', 'bar'], '/foo/bar'
             ],
-            'group segment with single slash nested group and segment route' => [
+            'group segment with single slash nested group and slash segment route' => [
                 ['/foo', '/', '/bar'], '/foo//bar'
             ],
-            'two group segments with single slash route' => [
+            'two group segments with empty route' => [
                 ['/foo', '/bar', ''], '/foo/bar'
             ],
             'two group segments with single slash route' => [
@@ -496,6 +512,8 @@ class AppTest extends TestCase
 
     /**
      * @dataProvider routeGroupsDataProvider
+     * @param array $sequence
+     * @param string $expectedPath
      */
     public function testRouteGroupCombinations(array $sequence, string $expectedPath)
     {
@@ -521,8 +539,8 @@ class AppTest extends TestCase
 
         $processSequence($app, $sequence, $processSequence);
 
-        $router = $app->getRouter();
-        $route = $router->lookupRoute('route0');
+        $routeCollector = $app->getRouteCollector();
+        $route = $routeCollector->lookupRoute('route0');
 
         $this->assertEquals($expectedPath, $route->getPattern());
     }
@@ -1118,7 +1136,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponseArgs());
         $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write("Hello {$name}");
             return $response;
@@ -1428,7 +1446,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->getRouter()->setDefaultInvocationStrategy(new RequestResponseArgs());
+        $app->getRouteCollector()->setDefaultInvocationStrategy(new RequestResponseArgs());
         $app->get('/Hello/{name}', function (ServerRequestInterface $request, ResponseInterface $response, $name) {
             $response->getBody()->write($request->getAttribute('greeting') . ' ' . $name);
             return $response;
@@ -1703,8 +1721,8 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal(), $containerProphecy->reveal());
-        $router = $app->getRouter();
-        $router->map(['GET'], '/', 'handler');
+        $routeCollector = $app->getRouteCollector();
+        $routeCollector->map(['GET'], '/', 'handler');
 
         $uriProphecy = $this->prophesize(UriInterface::class);
         $uriProphecy->getPath()->willReturn('/');

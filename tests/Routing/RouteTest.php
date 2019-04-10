@@ -14,13 +14,14 @@ use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\InvocationStrategyInterface;
-use Slim\Route;
-use Slim\RouteGroup;
+use Slim\Routing\Route;
+use Slim\Routing\RouteGroup;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
@@ -184,7 +185,7 @@ class RouteTest extends TestCase
         $strategy = new RequestResponse();
 
         $called = 0;
-        $mw = function ($request, $handler) use (&$called) {
+        $mw = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use (&$called) {
             $called++;
             return $handler->handle($request);
         };
