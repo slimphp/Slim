@@ -38,13 +38,13 @@ interface RouteCollectorInterface
     /**
      * Set path to FastRoute cache file
      *
-     * @param string|null $cacheFile
+     * @param string $cacheFile
      * @return RouteCollectorInterface
      *
      * @throws InvalidArgumentException
      * @throws RuntimeException
      */
-    public function setCacheFile(?string $cacheFile): RouteCollectorInterface;
+    public function setCacheFile(string $cacheFile): RouteCollectorInterface;
 
     /**
      * Get the base path used in pathFor()
