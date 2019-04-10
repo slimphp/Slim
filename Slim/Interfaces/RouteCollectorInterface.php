@@ -11,7 +11,6 @@ namespace Slim\Interfaces;
 
 use InvalidArgumentException;
 use RuntimeException;
-use Slim\Routing\Route;
 
 interface RouteCollectorInterface
 {
@@ -66,7 +65,7 @@ interface RouteCollectorInterface
     /**
      * Get route objects
      *
-     * @return Route[]
+     * @return RouteInterface[]
      */
     public function getRoutes(): array;
 
@@ -122,7 +121,7 @@ interface RouteCollectorInterface
      *
      * @param string[] $methods Array of HTTP methods
      * @param string   $pattern The route pattern
-     * @param callable $handler The route callable
+     * @param callable|string $handler The route callable
      *
      * @return RouteInterface
      */

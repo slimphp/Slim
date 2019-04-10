@@ -67,7 +67,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * Routes
      *
-     * @var Route[]
+     * @var RouteInterface[]
      */
     protected $routes = [];
 

@@ -69,6 +69,13 @@ interface RouteInterface
     public function getPattern(): string;
 
     /**
+     * Get route methods
+     *
+     * @return string[]
+     */
+    public function getMethods(): array;
+
+    /**
      * Set a route argument
      *
      * @param string $name
