@@ -173,7 +173,7 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function getBasePath(string $basePath): string
+    public function getBasePath(): string
     {
         return $this->basePath;
     }

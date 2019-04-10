@@ -48,11 +48,9 @@ interface RouteCollectorInterface
     /**
      * Get the base path used in pathFor()
      *
-     * @param string $basePath
-     *
      * @return string
      */
-    public function getBasePath(string $basePath): string;
+    public function getBasePath(): string;
 
     /**
      * Set the base path used in pathFor()

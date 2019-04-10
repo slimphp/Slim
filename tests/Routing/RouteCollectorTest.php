@@ -42,6 +42,15 @@ class RouteCollectorTest extends TestCase
         $this->routeCollector = new RouteCollector($responseFactory, $callableResolver);
     }
 
+    public function testGetSetBasePath()
+    {
+        $basePath = '/base/path';
+
+        $this->routeCollector->setBasePath($basePath);
+
+        $this->assertEquals($basePath, $this->routeCollector->getBasePath());
+    }
+
     public function testMap()
     {
         $methods = ['GET'];
