@@ -57,5 +57,5 @@
             "phpunit",
             "phpcs"
         ]
-    },
+    }
 }
