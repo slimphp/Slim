@@ -292,7 +292,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotEquals($response->getStatusCode(), $originalResponse->getStatusCode());
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json;charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $this->assertEquals('application/json', $response->getHeaderLine('Content-Type'));
 
         $body = $response->getBody();
         $body->rewind();
