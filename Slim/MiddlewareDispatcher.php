@@ -167,7 +167,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                     return (new $resolved)->process($request, $this->next);
                 }
                 if (is_callable($resolved)) {
-                    return ($resolved)($request, $this->next);
+                    return $resolved($request, $this->next);
                 }
                 throw new RuntimeException(sprintf(
                     '%s is not resolvable',
