@@ -94,8 +94,8 @@ class App implements RequestHandlerInterface
         RouteCollectorInterface $routeCollector = null,
         RouteResolverInterface $routeResolver = null
     ) {
-        $this->container = $container;
         $this->responseFactory = $responseFactory;
+        $this->container = $container;
         $this->callableResolver = $callableResolver ?? new CallableResolver($container);
         $this->routeCollector = $routeCollector ?? new RouteCollector(
             $responseFactory,
