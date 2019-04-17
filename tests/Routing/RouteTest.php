@@ -121,6 +121,22 @@ class RouteTest extends TestCase
         $this->assertEquals($strategy, $route->getInvocationStrategy());
     }
 
+    public function testSetInvocationStrategy()
+    {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+            return $response;
+        };
+
+        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver();
+        $strategy = new RequestResponse();
+
+        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver);
+        $route->setInvocationStrategy($strategy);
+
+        $this->assertEquals($strategy, $route->getInvocationStrategy());
+    }
+
     public function testGetGroups()
     {
         $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
