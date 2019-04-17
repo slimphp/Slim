@@ -63,7 +63,7 @@
             "@phpcs",
             "@phpstan"
         ],
-        "phpunit": "php vendor/bin/phpunit --process-isolation",
+        "phpunit": "php vendor/bin/phpunit",
         "phpcs": "php vendor/bin/phpcs",
         "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Slim"
     }
