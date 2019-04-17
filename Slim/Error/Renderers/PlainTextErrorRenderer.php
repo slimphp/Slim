@@ -65,7 +65,7 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
 
         $trace = $exception->getTraceAsString();
         if ($trace !== null) {
-            $text .= sprintf("Trace: %s", $trace);
+            $text .= sprintf('Trace: %s', $trace);
         }
 
         return $text;

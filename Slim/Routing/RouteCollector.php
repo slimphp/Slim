@@ -267,7 +267,7 @@ class RouteCollector implements RouteCollectorInterface
      */
     protected function processGroups(): string
     {
-        $pattern = "";
+        $pattern = '';
         foreach ($this->routeGroups as $group) {
             $pattern .= $group->getPattern();
         }
