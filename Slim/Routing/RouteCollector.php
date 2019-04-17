@@ -320,7 +320,7 @@ class RouteCollector implements RouteCollectorInterface
         $segments = [];
         $segmentName = '';
 
-        /**
+        /*
          * $routes is an associative array of expressions representing a route as multiple segments
          * There is an expression for each optional parameter plus one without the optional parameters
          * The most specific is last, hence why we reverse the array before iterating over it
@@ -328,7 +328,7 @@ class RouteCollector implements RouteCollectorInterface
         $expressions = array_reverse($this->routeParser->parse($pattern));
         foreach ($expressions as $expression) {
             foreach ($expression as $segment) {
-                /**
+                /*
                  * Each $segment is either a string or an array of strings
                  * containing optional parameters of an expression
                  */
@@ -337,7 +337,7 @@ class RouteCollector implements RouteCollectorInterface
                     continue;
                 }
 
-                /**
+                /*
                  * If we don't have a data element for this segment in the provided $data
                  * we cancel testing to move onto the next expression with a less specific item
                  */
@@ -350,7 +350,7 @@ class RouteCollector implements RouteCollectorInterface
                 $segments[] = $data[$segment[0]];
             }
 
-            /**
+            /*
              * If we get to this logic block we have found all the parameters
              * for the provided $data which means we don't need to continue testing
              * less specific expressions
