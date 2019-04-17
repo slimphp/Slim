@@ -79,9 +79,11 @@ class Headers extends Collection implements HeadersInterface
 
         if (empty($authorization) && is_callable('getallheaders')) {
             $headers = getallheaders();
-            $headers = array_change_key_case($headers, CASE_LOWER);
-            if (isset($headers['authorization'])) {
-                $environment->set('HTTP_AUTHORIZATION', $headers['authorization']);
+            if (is_array($headers)) {
+                $headers = array_change_key_case($headers, CASE_LOWER);
+                if (isset($headers['authorization'])) {
+                    $environment->set('HTTP_AUTHORIZATION', $headers['authorization']);
+                }
             }
         }
 
