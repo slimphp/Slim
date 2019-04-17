@@ -173,7 +173,7 @@ class ErrorHandler implements ErrorHandlerInterface
 
         if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
             $mediaType = 'application/' . $matches[1];
-            if (in_array($mediaType, $this->knownContentTypes)) {
+            if (in_array($mediaType, $this->knownContentTypes, true)) {
                 return $mediaType;
             }
         }
@@ -196,7 +196,7 @@ class ErrorHandler implements ErrorHandlerInterface
         if ($renderer !== null
             && (
                 (is_string($renderer) && !class_exists($renderer))
-                || !in_array(ErrorRendererInterface::class, class_implements($renderer))
+                || !in_array(ErrorRendererInterface::class, class_implements($renderer), true)
             )
         ) {
             throw new RuntimeException(

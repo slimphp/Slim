@@ -47,7 +47,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         $this->streamFactory = $streamFactory;
         $this->style = $style;
 
-        if (!in_array($style, [static::APPEND, static::PREPEND])) {
+        if (!in_array($style, [static::APPEND, static::PREPEND], true)) {
             throw new InvalidArgumentException("Invalid style `{$style}`. Must be `append` or `prepend`");
         }
     }
