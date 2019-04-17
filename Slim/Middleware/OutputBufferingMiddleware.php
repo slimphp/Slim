@@ -23,8 +23,8 @@ use Throwable;
  */
 class OutputBufferingMiddleware implements MiddlewareInterface
 {
-    const APPEND = 'append';
-    const PREPEND = 'prepend';
+    public const APPEND = 'append';
+    public const PREPEND = 'prepend';
 
     /**
      * @var StreamFactoryInterface
