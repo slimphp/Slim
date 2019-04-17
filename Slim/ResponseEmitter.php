@@ -126,14 +126,14 @@ class ResponseEmitter
 
                 $amountToRead -= strlen($data);
 
-                if (connection_status() != CONNECTION_NORMAL) {
+                if (connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }
         } else {
             while (!$body->eof()) {
                 echo $body->read($this->responseChunkSize);
-                if (connection_status() != CONNECTION_NORMAL) {
+                if (connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }

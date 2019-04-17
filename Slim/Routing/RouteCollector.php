@@ -206,7 +206,7 @@ class RouteCollector implements RouteCollectorInterface
     public function getNamedRoute(string $name): RouteInterface
     {
         foreach ($this->routes as $route) {
-            if ($name == $route->getName()) {
+            if ($name === $route->getName()) {
                 return $route;
             }
         }
