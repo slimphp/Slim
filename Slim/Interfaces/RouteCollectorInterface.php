@@ -114,7 +114,7 @@ interface RouteCollectorInterface
      *
      * @return RouteGroupInterface|null
      */
-    public function popGroup();
+    public function popGroup(): ?RouteGroupInterface;
 
     /**
      * Add route

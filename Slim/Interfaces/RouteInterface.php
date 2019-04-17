@@ -90,7 +90,7 @@ interface RouteInterface
      *
      * @return string|null
      */
-    public function getArgument(string $name, $default = null);
+    public function getArgument(string $name, $default = null): ?string;
 
     /**
      * Get route arguments
