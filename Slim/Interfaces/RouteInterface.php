@@ -23,6 +23,14 @@ interface RouteInterface
     public function getInvocationStrategy(): InvocationStrategyInterface;
 
     /**
+     * Set route invocation strategy
+     *
+     * @param InvocationStrategyInterface $invocationStrategy
+     * @return RouteInterface
+     */
+    public function setInvocationStrategy(InvocationStrategyInterface $invocationStrategy): RouteInterface;
+
+    /**
      * Get route methods
      *
      * @return string[]
