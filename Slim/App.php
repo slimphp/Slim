@@ -40,7 +40,7 @@ class App implements RequestHandlerInterface
      *
      * @var string
      */
-    const VERSION = '4.0.0-dev';
+    public const VERSION = '4.0.0-dev';
 
     /**
      * Container

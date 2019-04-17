@@ -107,7 +107,7 @@ class RouteResolver implements RouteResolverInterface
     /**
      * @param Dispatcher $dispatcher
      */
-    public function setDispatcher(Dispatcher $dispatcher)
+    public function setDispatcher(Dispatcher $dispatcher): void
     {
         $this->dispatcher = $dispatcher;
     }

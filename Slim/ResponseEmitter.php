@@ -42,7 +42,7 @@ class ResponseEmitter
     public function isResponseEmpty(ResponseInterface $response): bool
     {
         $contents = (string) $response->getBody();
-        return empty($contents) || in_array($response->getStatusCode(), [204, 205, 304]);
+        return empty($contents) || in_array($response->getStatusCode(), [204, 205, 304], true);
     }
 
     /**
@@ -126,14 +126,14 @@ class ResponseEmitter
 
                 $amountToRead -= strlen($data);
 
-                if (connection_status() != CONNECTION_NORMAL) {
+                if (connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }
         } else {
             while (!$body->eof()) {
                 echo $body->read($this->responseChunkSize);
-                if (connection_status() != CONNECTION_NORMAL) {
+                if (connection_status() !== CONNECTION_NORMAL) {
                     break;
                 }
             }

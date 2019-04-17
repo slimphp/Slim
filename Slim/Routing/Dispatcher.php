@@ -46,7 +46,7 @@ class Dispatcher extends GroupCountBased
         if (isset($varRouteData[$httpMethod])) {
             $result = $this->dispatchVariableRoute($varRouteData[$httpMethod], $uri);
             $routingResults = $this->routingResultsFromVariableRouteResults($result);
-            if ($routingResults->getRouteStatus() === Dispatcher::FOUND) {
+            if ($routingResults->getRouteStatus() === self::FOUND) {
                 return $routingResults;
             }
         }

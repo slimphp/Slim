@@ -23,8 +23,8 @@ use Throwable;
  */
 class OutputBufferingMiddleware implements MiddlewareInterface
 {
-    const APPEND = 'append';
-    const PREPEND = 'prepend';
+    public const APPEND = 'append';
+    public const PREPEND = 'prepend';
 
     /**
      * @var StreamFactoryInterface
@@ -47,7 +47,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
         $this->streamFactory = $streamFactory;
         $this->style = $style;
 
-        if (!in_array($style, [static::APPEND, static::PREPEND])) {
+        if (!in_array($style, [static::APPEND, static::PREPEND], true)) {
             throw new InvalidArgumentException("Invalid style `{$style}`. Must be `append` or `prepend`");
         }
     }

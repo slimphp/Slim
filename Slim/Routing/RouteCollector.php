@@ -62,7 +62,7 @@ class RouteCollector implements RouteCollectorInterface
      *
      * @var string|null
      */
-    protected $cacheFile = null;
+    protected $cacheFile;
 
     /**
      * Routes
@@ -206,7 +206,7 @@ class RouteCollector implements RouteCollectorInterface
     public function getNamedRoute(string $name): RouteInterface
     {
         foreach ($this->routes as $route) {
-            if ($name == $route->getName()) {
+            if ($name === $route->getName()) {
                 return $route;
             }
         }
@@ -267,7 +267,7 @@ class RouteCollector implements RouteCollectorInterface
      */
     protected function processGroups(): string
     {
-        $pattern = "";
+        $pattern = '';
         foreach ($this->routeGroups as $group) {
             $pattern .= $group->getPattern();
         }

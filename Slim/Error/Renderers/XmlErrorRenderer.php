@@ -29,16 +29,16 @@ class XmlErrorRenderer extends AbstractErrorRenderer
         if ($displayErrorDetails) {
             do {
                 $xml .= "  <exception>\n";
-                $xml .= "    <type>" . get_class($exception) . "</type>\n";
-                $xml .= "    <code>" . $exception->getCode() . "</code>\n";
-                $xml .= "    <message>" . $this->createCdataSection($exception->getMessage()) . "</message>\n";
-                $xml .= "    <file>" . $exception->getFile() . "</file>\n";
-                $xml .= "    <line>" . $exception->getLine() . "</line>\n";
+                $xml .= '    <type>' . get_class($exception) . "</type>\n";
+                $xml .= '    <code>' . $exception->getCode() . "</code>\n";
+                $xml .= '    <message>' . $this->createCdataSection($exception->getMessage()) . "</message>\n";
+                $xml .= '    <file>' . $exception->getFile() . "</file>\n";
+                $xml .= '    <line>' . $exception->getLine() . "</line>\n";
                 $xml .= "  </exception>\n";
             } while ($exception = $exception->getPrevious());
         }
 
-        $xml .= "</error>";
+        $xml .= '</error>';
 
         return $xml;
     }

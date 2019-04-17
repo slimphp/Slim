@@ -82,16 +82,20 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     {
         if ($middleware instanceof MiddlewareInterface) {
             return $this->addMiddleware($middleware);
-        } elseif (is_string($middleware)) {
-            return $this->addDeferred($middleware);
-        } elseif (is_callable($middleware)) {
-            return $this->addCallable($middleware);
-        } else {
-            throw new RuntimeException(
-                'A middleware must be an object/class name referencing an implementation of ' .
-                'MiddlewareInterface or a callable with a matching signature.'
-            );
         }
+
+        if (is_string($middleware)) {
+            return $this->addDeferred($middleware);
+        }
+
+        if (is_callable($middleware)) {
+            return $this->addCallable($middleware);
+        }
+
+        throw new RuntimeException(
+            'A middleware must be an object/class name referencing an implementation of ' .
+            'MiddlewareInterface or a callable with a matching signature.'
+        );
     }
 
     /**
@@ -167,7 +171,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                     return (new $resolved)->process($request, $this->next);
                 }
                 if (is_callable($resolved)) {
-                    return ($resolved)($request, $this->next);
+                    return $resolved($request, $this->next);
                 }
                 throw new RuntimeException(sprintf(
                     '%s is not resolvable',

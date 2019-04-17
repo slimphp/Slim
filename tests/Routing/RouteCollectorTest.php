@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Interfaces\RouteInterface;
 use Slim\Routing\Route;
@@ -321,10 +322,8 @@ class RouteCollectorTest extends TestCase
         $this->cacheFile = __DIR__ . '/non-readable.cache';
         file_put_contents($this->cacheFile, '<?php return []; ?>');
 
-        $this->expectException(
-            '\RuntimeException',
-            sprintf('Route collector cache file `%s` is not readable', $this->cacheFile)
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(sprintf('Route collector cache file `%s` is not readable', $this->cacheFile));
 
         $this->routeCollector->setCacheFile($this->cacheFile);
     }
@@ -335,10 +334,11 @@ class RouteCollectorTest extends TestCase
     {
         $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
 
-        $this->expectException(
-            '\RuntimeException',
-            sprintf('Route collector cache file directory `%s` is not writable', dirname($cacheFile))
-        );
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(sprintf(
+            'Route collector cache file directory `%s` is not writable',
+            dirname($cacheFile)
+        ));
 
         $this->routeCollector->setCacheFile($cacheFile);
     }
