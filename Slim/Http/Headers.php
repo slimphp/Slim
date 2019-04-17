@@ -76,15 +76,11 @@ class Headers extends Collection implements HeadersInterface
     public static function determineAuthorization(Environment $environment)
     {
         $authorization = $environment->get('HTTP_AUTHORIZATION');
-        if (!empty($authorization)) {
+        if (!empty($authorization) || !is_callable('getallheaders')) {
             return $environment;
         }
         
-        if (!is_callable('getallheaders')) {
-            return $environment;
-        }
         $headers = getallheaders();
-        
         if (!is_array($headers)) {
             return $environment;
         }
