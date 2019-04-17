@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim;
 
+use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,9 +18,13 @@ use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
-use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\RouteResolverInterface;
+use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteResolver;
+use Slim\Routing\RouteRunner;
 
 /**
  * App
@@ -55,9 +60,14 @@ class App implements RequestHandlerInterface
     protected $middlewareDispatcher;
 
     /**
-     * @var RouterInterface
+     * @var RouteCollectorInterface
      */
-    protected $router;
+    protected $routeCollector;
+
+    /**
+     * @var RouteResolverInterface
+     */
+    protected $routeResolver;
 
     /**
      * @var ResponseFactoryInterface
@@ -74,19 +84,28 @@ class App implements RequestHandlerInterface
      * @param ResponseFactoryInterface  $responseFactory
      * @param ContainerInterface|null   $container
      * @param CallableResolverInterface $callableResolver
-     * @param RouterInterface           $router
+     * @param RouteCollectorInterface   $routeCollector
+     * @param RouteResolverInterface    $routeResolver
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         ContainerInterface $container = null,
         CallableResolverInterface $callableResolver = null,
-        RouterInterface $router = null
+        RouteCollectorInterface $routeCollector = null,
+        RouteResolverInterface $routeResolver = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->container = $container;
         $this->callableResolver = $callableResolver ?? new CallableResolver($container);
-        $this->router = $router ?? new Router($responseFactory, $this->callableResolver, $this->container);
-        $this->middlewareDispatcher = new MiddlewareDispatcher(new RouteDispatcher($this->router), $container);
+        $this->routeCollector = $routeCollector ?? new RouteCollector(
+            $responseFactory,
+            $this->callableResolver,
+            $container
+        );
+        $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
+
+        $routeRunner = new RouteRunner($this->routeResolver);
+        $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container);
     }
 
     /**
@@ -134,13 +153,23 @@ class App implements RequestHandlerInterface
     }
 
     /**
-     * Get router
+     * Get route collector
      *
-     * @return RouterInterface
+     * @return RouteCollectorInterface
      */
-    public function getRouter(): RouterInterface
+    public function getRouteCollector(): RouteCollectorInterface
     {
-        return $this->router;
+        return $this->routeCollector;
+    }
+
+    /**
+     * Get route resolver
+     *
+     * @return RouteResolverInterface
+     */
+    public function getRouteResolver(): RouteResolverInterface
+    {
+        return $this->routeResolver;
     }
 
     /********************************************************************************
@@ -250,15 +279,11 @@ class App implements RequestHandlerInterface
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
         // Bind route callable to container, if present
-        if ($this->container instanceof ContainerInterface && $callable instanceof \Closure) {
+        if ($this->container instanceof ContainerInterface && $callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }
 
-        /** @var Router $router */
-        $router = $this->getRouter();
-        $route = $router->map($methods, $pattern, $callable);
-
-        return $route;
+        return $this->routeCollector->map($methods, $pattern, $callable);
     }
 
     /**
@@ -294,9 +319,9 @@ class App implements RequestHandlerInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface
     {
-        $group = $this->router->pushGroup($pattern, $callable);
+        $group = $this->routeCollector->pushGroup($pattern, $callable);
         $group($this);
-        $this->router->popGroup();
+        $this->routeCollector->popGroup();
         return $group;
     }
 

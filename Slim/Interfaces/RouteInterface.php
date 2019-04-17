@@ -16,21 +16,33 @@ use Psr\Http\Server\MiddlewareInterface;
 interface RouteInterface
 {
     /**
-     * Retrieve a specific route argument
+     * Get route invocation strategy
      *
-     * @param string $name
-     * @param string|null $default
-     *
-     * @return string|null
+     * @return InvocationStrategyInterface
      */
-    public function getArgument(string $name, $default = null);
+    public function getInvocationStrategy(): InvocationStrategyInterface;
 
     /**
-     * Get route arguments
+     * Get route methods
      *
      * @return string[]
      */
-    public function getArguments(): array;
+    public function getMethods(): array;
+
+    /**
+     * Get route pattern
+     *
+     * @return string
+     */
+    public function getPattern(): string;
+
+    /**
+     * Set route pattern
+     *
+     * @param string $pattern
+     * @return RouteInterface
+     */
+    public function setPattern(string $pattern): RouteInterface;
 
     /**
      * Get route callable
@@ -55,11 +67,37 @@ interface RouteInterface
     public function getName(): ?string;
 
     /**
-     * Get route pattern
+     * Set route name
+     *
+     * @param string $name
+     *
+     * @return static
+     */
+    public function setName(string $name): RouteInterface;
+
+    /**
+     * Get the route's unique identifier
      *
      * @return string
      */
-    public function getPattern(): string;
+    public function getIdentifier(): string;
+
+    /**
+     * Retrieve a specific route argument
+     *
+     * @param string $name
+     * @param string|null $default
+     *
+     * @return string|null
+     */
+    public function getArgument(string $name, $default = null);
+
+    /**
+     * Get route arguments
+     *
+     * @return string[]
+     */
+    public function getArguments(): array;
 
     /**
      * Set a route argument
@@ -79,15 +117,6 @@ interface RouteInterface
      * @return self
      */
     public function setArguments(array $arguments): RouteInterface;
-
-    /**
-     * Set route name
-     *
-     * @param string $name
-     *
-     * @return static
-     */
-    public function setName(string $name): RouteInterface;
 
     /**
      * @param MiddlewareInterface|string|callable $middleware

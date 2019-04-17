@@ -53,7 +53,8 @@
     },
     "autoload-dev": {
         "files": [
-            "tests/Assets/PhpFunctionOverrides.php"
+            "tests/Assets/PhpFunctionOverrides.php",
+            "tests/Assets/PhpRoutingFunctionOverrides.php"
         ]
     },
     "scripts": {

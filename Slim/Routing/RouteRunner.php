@@ -7,33 +7,29 @@
 
 declare(strict_types=1);
 
-namespace Slim;
+namespace Slim\Routing;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\RoutingMiddleware;
 
-/**
- * RouteDispatcher
- * @package Slim
- */
-class RouteDispatcher implements RequestHandlerInterface
+class RouteRunner implements RequestHandlerInterface
 {
     /**
-     * @var RouterInterface
+     * @var RouteResolverInterface
      */
-    private $router;
+    private $routeResolver;
 
     /**
-     * @param RouterInterface $router
+     * @param RouteResolverInterface $routeResolver
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(RouteResolverInterface $routeResolver)
     {
-        $this->router = $router;
+        $this->routeResolver = $routeResolver;
     }
 
     /**
@@ -52,7 +48,7 @@ class RouteDispatcher implements RequestHandlerInterface
     {
         // If routing hasn't been done, then do it now so we can dispatch
         if ($request->getAttribute('routingResults') === null) {
-            $routingMiddleware = new RoutingMiddleware($this->router);
+            $routingMiddleware = new RoutingMiddleware($this->routeResolver);
             $request = $routingMiddleware->performRouting($request);
         }
 

@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace Slim;
+namespace Slim\Routing;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -21,6 +21,7 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\MiddlewareDispatcher;
 
 class Route implements RouteInterface, RequestHandlerInterface
 {
@@ -149,11 +150,44 @@ class Route implements RouteInterface, RequestHandlerInterface
     }
 
     /**
+     * @return CallableResolverInterface
+     */
+    public function getCallableResolver(): CallableResolverInterface
+    {
+        return $this->callableResolver;
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getInvocationStrategy(): InvocationStrategyInterface
     {
         return $this->invocationStrategy;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getMethods(): array
+    {
+        return $this->methods;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPattern(): string
+    {
+        return $this->pattern;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPattern(string $pattern): RouteInterface
+    {
+        $this->pattern = $pattern;
+        return $this;
     }
 
     /**
@@ -176,33 +210,9 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function getMethods(): array
-    {
-        return $this->methods;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getGroups(): array
-    {
-        return $this->groups;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getName(): ?string
     {
         return $this->name;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getIdentifier(): string
-    {
-        return $this->identifier;
     }
 
     /**
@@ -217,25 +227,9 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function getCallableResolver(): CallableResolverInterface
+    public function getIdentifier(): string
     {
-        return $this->callableResolver;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPattern(): string
-    {
-        return $this->pattern;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPattern(string $newPattern)
-    {
-        $this->pattern = $newPattern;
+        return $this->identifier;
     }
 
     /**
@@ -247,6 +241,14 @@ class Route implements RouteInterface, RequestHandlerInterface
             return $this->arguments[$name];
         }
         return $default;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getArguments(): array
+    {
+        return $this->arguments;
     }
 
     /**
@@ -265,14 +267,6 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function getArguments(): array
-    {
-        return $this->arguments;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
         if ($includeInSavedArguments) {
@@ -281,6 +275,14 @@ class Route implements RouteInterface, RequestHandlerInterface
 
         $this->arguments = $arguments;
         return $this;
+    }
+
+    /**
+     * @return RouteGroupInterface[]
+     */
+    public function getGroups(): array
+    {
+        return $this->groups;
     }
 
     /**

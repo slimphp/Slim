@@ -7,12 +7,13 @@
 
 declare(strict_types=1);
 
-namespace Slim\Tests;
+namespace Slim\Tests\Routing;
 
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
-use Slim\Dispatcher;
-use Slim\RoutingResults;
+use Slim\Routing\Dispatcher;
+use Slim\Routing\RoutingResults;
+use Slim\Tests\TestCase;
 
 /**
  * Class DispatcherTest

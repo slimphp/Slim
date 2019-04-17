@@ -7,17 +7,19 @@
 
 declare(strict_types=1);
 
-namespace Slim\Tests;
+namespace Slim\Tests\Routing;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
 use Slim\MiddlewareDispatcher;
-use Slim\RouteDispatcher;
-use Slim\Router;
-use Slim\RoutingResults;
+use Slim\Routing\RouteResolver;
+use Slim\Routing\RouteRunner;
+use Slim\Routing\RouteCollector;
+use Slim\Routing\RoutingResults;
+use Slim\Tests\TestCase;
 
-class RouteDispatcherTest extends TestCase
+class RouteRunnerTest extends TestCase
 {
     public function testRoutingIsPerformedIfRoutingResultsAreUnavailable()
     {
@@ -29,11 +31,14 @@ class RouteDispatcherTest extends TestCase
 
         $callableResolver = new CallableResolver();
         $responseFactory = $this->getResponseFactory();
-        $router = new Router($responseFactory, $callableResolver);
-        $router->map(['GET'], '/hello/{name}', $handler);
+
+        $routeCollector = new RouteCollector($responseFactory, $callableResolver);
+        $routeCollector->map(['GET'], '/hello/{name}', $handler);
+
+        $routeResolver = new RouteResolver($routeCollector);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
-        $dispatcher = new RouteDispatcher($router);
+        $dispatcher = new RouteRunner($routeResolver);
 
         $middlewareDispatcher = new MiddlewareDispatcher($dispatcher);
         $middlewareDispatcher->handle($request);

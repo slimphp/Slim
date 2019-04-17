@@ -17,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
-use Slim\Interfaces\RouterInterface;
+use Slim\Interfaces\RouteResolverInterface;
 
 /**
  * Class RoutingMiddleware
@@ -26,17 +26,18 @@ use Slim\Interfaces\RouterInterface;
 class RoutingMiddleware implements MiddlewareInterface
 {
     /**
-     * @var RouterInterface
+     * @var RouteResolverInterface
      */
-    protected $router;
+    protected $routeResolver;
 
     /**
      * RoutingMiddleware constructor.
-     * @param RouterInterface $router
+     *
+     * @param RouteResolverInterface $routeResolver
      */
-    public function __construct(RouterInterface $router)
+    public function __construct(RouteResolverInterface $routeResolver)
     {
-        $this->router = $router;
+        $this->routeResolver = $routeResolver;
     }
 
     /**
@@ -66,15 +67,19 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function performRouting(ServerRequestInterface $request): ServerRequestInterface
     {
-        $routingResults = $this->router->dispatch($request);
+        $routingResults = $this->routeResolver->computeRoutingResults(
+            $request->getUri()->getPath(),
+            $request->getMethod()
+        );
         $routeStatus = $routingResults->getRouteStatus();
 
         switch ($routeStatus) {
             case Dispatcher::FOUND:
                 $routeArguments = $routingResults->getRouteArguments();
                 $routeIdentifier = $routingResults->getRouteIdentifier() ?? '';
-                $route = $this->router->lookupRoute($routeIdentifier);
-                $route->prepare($routeArguments);
+                $route = $this->routeResolver
+                    ->resolveRoute($routeIdentifier)
+                    ->prepare($routeArguments);
                 return $request
                     ->withAttribute('route', $route)
                     ->withAttribute('routingResults', $routingResults);
