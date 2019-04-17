@@ -62,7 +62,7 @@ class RouteCollector implements RouteCollectorInterface
      *
      * @var string|null
      */
-    protected $cacheFile = null;
+    protected $cacheFile;
 
     /**
      * Routes

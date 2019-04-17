@@ -85,7 +85,7 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * @var ErrorRendererInterface|null
      */
-    protected $renderer = null;
+    protected $renderer;
 
     /**
      * @var int
