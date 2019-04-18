@@ -134,7 +134,7 @@ class RouteTest extends TestCase
         $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver);
         $route->setInvocationStrategy($strategy);
 
-        $this->assertEquals($strategy, $route->getInvocationStrategy());
+        $this->assertSame($strategy, $route->getInvocationStrategy());
     }
 
     public function testGetGroups()
