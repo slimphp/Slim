@@ -486,7 +486,7 @@ class Response extends Message implements ResponseInterface
      */
     public function isBadRequest()
     {
-        return $this->getStatusCode() === StatusCode::HTTP_BAD_REQUEST;        
+        return $this->getStatusCode() === StatusCode::HTTP_BAD_REQUEST;
     }
 
     /**
