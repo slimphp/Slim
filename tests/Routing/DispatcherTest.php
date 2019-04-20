@@ -125,10 +125,11 @@ class DispatcherTest extends TestCase
         $results = $dispatcher->dispatch('GET', '/hello/Foo%20Bar');
 
         $this->assertEquals(RoutingResults::FOUND, $results->getRouteStatus());
+        $this->assertEquals('GET', $results->getMethod());
+        $this->assertEquals('/hello/Foo%20Bar', $results->getUri());
         $this->assertEquals($route->getIdentifier(), $results->getRouteIdentifier());
         $this->assertEquals(['name' => 'Foo Bar'], $results->getRouteArguments());
         $this->assertEquals(['name' => 'Foo%20Bar'], $results->getRouteArguments(false));
-        $this->assertEquals('GET', $results->getMethod());
         $this->assertEquals($methods, $results->getAllowedMethods());
         $this->assertSame($dispatcher, $results->getDispatcher());
     }
