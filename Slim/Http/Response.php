@@ -478,6 +478,18 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
+     * Is this a bad request?
+     * 
+     * Note: This method is not part of the PSR-7 standard.
+     * 
+     * @return bool
+     */
+    public function isBadRequest()
+    {
+        return $this->getStatusCode() === StatusCode::HTTP_BAD_REQUEST;        
+    }
+
+    /**
      * Is this response a client error?
      *
      * Note: This method is not part of the PSR-7 standard.
