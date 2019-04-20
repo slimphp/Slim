@@ -1,132 +1,99 @@
 <?php
-/**
- * Slim Framework (https://slimframework.com)
- *
- * @license https://github.com/slimphp/Slim/blob/4.x/LICENSE.md (MIT License)
- */
-
 declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use FastRoute\Dispatcher\GroupCountBased;
+use FastRoute\RouteCollector;
+use FastRoute\RouteParser;
+use FastRoute\RouteParser\Std;
+use Slim\Interfaces\DispatcherInterface;
+use Slim\Interfaces\RouteCollectorInterface;
 
-class Dispatcher extends GroupCountBased
+/**
+ * Class Dispatcher
+ *
+ * @package Slim\Routing
+ */
+class Dispatcher implements DispatcherInterface
 {
     /**
-     * @var string
+     * @var RouteCollectorInterface
      */
-    private $httpMethod;
+    private $routeCollector;
 
     /**
-     * @var string
+     * @var RouteParser
      */
-    private $uri;
+    private $routeParser;
 
     /**
-     * @var array
+     * @var FastRouteDispatcher|null
      */
-    private $allowedMethods = [];
+    private $dispatcher;
 
     /**
-     * @param string $httpMethod
-     * @param string $uri
-     * @return RoutingResults
+     * Dispatcher constructor.
+     *
+     * @param RouteCollectorInterface   $routeCollector
+     * @param RouteParser|null          $routeParser
      */
-    public function dispatch($httpMethod, $uri): RoutingResults
+    public function __construct(RouteCollectorInterface $routeCollector, RouteParser $routeParser = null)
     {
-        $this->httpMethod = $httpMethod;
-        $this->uri = $uri;
-
-        if (isset($this->staticRouteMap[$httpMethod][$uri])) {
-            return $this->routingResults(self::FOUND, $this->staticRouteMap[$httpMethod][$uri]);
-        }
-
-        $varRouteData = $this->variableRouteData;
-        if (isset($varRouteData[$httpMethod])) {
-            $result = $this->dispatchVariableRoute($varRouteData[$httpMethod], $uri);
-            $routingResults = $this->routingResultsFromVariableRouteResults($result);
-            if ($routingResults->getRouteStatus() === self::FOUND) {
-                return $routingResults;
-            }
-        }
-
-        // For HEAD requests, attempt fallback to GET
-        if ($httpMethod === 'HEAD') {
-            if (isset($this->staticRouteMap['GET'][$uri])) {
-                return $this->routingResults(self::FOUND, $this->staticRouteMap['GET'][$uri]);
-            }
-            if (isset($varRouteData['GET'])) {
-                $result = $this->dispatchVariableRoute($varRouteData['GET'], $uri);
-                return $this->routingResultsFromVariableRouteResults($result);
-            }
-        }
-
-        // If nothing else matches, try fallback routes
-        if (isset($this->staticRouteMap['*'][$uri])) {
-            return $this->routingResults(self::FOUND, $this->staticRouteMap['*'][$uri]);
-        }
-        if (isset($varRouteData['*'])) {
-            $result = $this->dispatchVariableRoute($varRouteData['*'], $uri);
-            return $this->routingResultsFromVariableRouteResults($result);
-        }
-
-        if (count($this->getAllowedMethods($httpMethod, $uri))) {
-            return $this->routingResults(self::METHOD_NOT_ALLOWED);
-        }
-
-        return $this->routingResults(self::NOT_FOUND);
+        $this->routeCollector = $routeCollector;
+        $this->routeParser = $routeParser ?? new Std();
     }
 
     /**
-     * @param int $status
-     * @param string|null $handler
-     * @param array $arguments
-     * @return RoutingResults
+     * @return FastRouteDispatcher
      */
-    protected function routingResults(int $status, string $handler = null, array $arguments = []): RoutingResults
+    protected function createDispatcher(): FastRouteDispatcher
     {
-        return new RoutingResults($this, $this->httpMethod, $this->uri, $status, $handler, $arguments);
+        if ($this->dispatcher) {
+            return $this->dispatcher;
+        }
+
+        $routeDefinitionCallback = function (RouteCollector $r) {
+            foreach ($this->routeCollector->getRoutes() as $route) {
+                $r->addRoute($route->getMethods(), $route->getPattern(), $route->getIdentifier());
+            }
+        };
+
+        $cacheFile = $this->routeCollector->getCacheFile();
+        if ($cacheFile) {
+            /** @var FastRouteDispatcher $dispatcher */
+            $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
+                'dispatcher' => FastRouteDispatcher::class,
+                'routeParser' => $this->routeParser,
+                'cacheFile' => $cacheFile,
+            ]);
+        } else {
+            /** @var FastRouteDispatcher $dispatcher */
+            $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
+                'dispatcher' => FastRouteDispatcher::class,
+                'routeParser' => $this->routeParser,
+            ]);
+        }
+
+        $this->dispatcher = $dispatcher;
+        return $this->dispatcher;
     }
 
     /**
-     * @param array $result
-     * @return RoutingResults
+     * {@inheritdoc}
      */
-    protected function routingResultsFromVariableRouteResults(array $result): RoutingResults
+    public function getAllowedMethods(string $uri): array
     {
-        if ($result[0] === self::FOUND) {
-            return $this->routingResults(self::FOUND, $result[1], $result[2]);
-        }
-        return $this->routingResults(self::NOT_FOUND);
+        $dispatcher = $this->createDispatcher();
+        return $dispatcher->getAllowedMethods($uri);
     }
 
     /**
-     * @param string $httpMethod
-     * @param string $uri
-     * @return array
+     * {@inheritdoc}
      */
-    public function getAllowedMethods(string $httpMethod, string $uri): array
+    public function dispatch(string $method, string $uri): RoutingResults
     {
-        if (isset($this->allowedMethods[$uri])) {
-            return $this->allowedMethods[$uri];
-        }
-
-        $this->allowedMethods[$uri] = [];
-        foreach ($this->staticRouteMap as $method => $uriMap) {
-            if ($method !== $httpMethod && isset($uriMap[$uri])) {
-                $this->allowedMethods[$uri][] = $method;
-            }
-        }
-
-        $varRouteData = $this->variableRouteData;
-        foreach ($varRouteData as $method => $routeData) {
-            $result = $this->dispatchVariableRoute($routeData, $uri);
-            if ($result[0] === self::FOUND) {
-                $this->allowedMethods[$uri][] = $method;
-            }
-        }
-
-        return $this->allowedMethods[$uri];
+        $dispatcher = $this->createDispatcher();
+        $results = $dispatcher->dispatch($method, $uri);
+        return new RoutingResults($this, $method, $uri, $results[0], $results[1], $results[2]);
     }
 }

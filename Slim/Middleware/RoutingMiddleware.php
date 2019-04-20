@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace Slim\Middleware;
 
-use FastRoute\Dispatcher;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -18,6 +17,7 @@ use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouteResolverInterface;
+use Slim\Routing\RoutingResults;
 
 /**
  * Class RoutingMiddleware
@@ -74,7 +74,7 @@ class RoutingMiddleware implements MiddlewareInterface
         $routeStatus = $routingResults->getRouteStatus();
 
         switch ($routeStatus) {
-            case Dispatcher::FOUND:
+            case RoutingResults::FOUND:
                 $routeArguments = $routingResults->getRouteArguments();
                 $routeIdentifier = $routingResults->getRouteIdentifier() ?? '';
                 $route = $this->routeResolver
@@ -84,10 +84,10 @@ class RoutingMiddleware implements MiddlewareInterface
                     ->withAttribute('route', $route)
                     ->withAttribute('routingResults', $routingResults);
 
-            case Dispatcher::NOT_FOUND:
+            case RoutingResults::NOT_FOUND:
                 throw new HttpNotFoundException($request);
 
-            case Dispatcher::METHOD_NOT_ALLOWED:
+            case RoutingResults::METHOD_NOT_ALLOWED:
                 $exception = new HttpMethodNotAllowedException($request);
                 $exception->setAllowedMethods($routingResults->getAllowedMethods());
                 throw $exception;

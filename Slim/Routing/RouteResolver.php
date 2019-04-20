@@ -9,9 +9,8 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
-use FastRoute\RouteParser\Std as StdParser;
+use RuntimeException;
+use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteResolverInterface;
@@ -28,26 +27,20 @@ class RouteResolver implements RouteResolverInterface
     protected $routeCollector;
 
     /**
-     * Parser
-     *
-     * @var RouteParser
-     */
-    protected $routeParser;
-
-    /**
-     * @var Dispatcher|null
+     * @var DispatcherInterface
      */
     private $dispatcher;
 
     /**
      * RouteResolver constructor.
-     * @param RouteCollectorInterface $routeCollector
-     * @param RouteParser $routeParser
+     *
+     * @param RouteCollectorInterface   $routeCollector
+     * @param DispatcherInterface|null  $dispatcher
      */
-    public function __construct(RouteCollectorInterface $routeCollector, RouteParser $routeParser = null)
+    public function __construct(RouteCollectorInterface $routeCollector, ?DispatcherInterface $dispatcher = null)
     {
         $this->routeCollector = $routeCollector;
-        $this->routeParser = $routeParser ?? new StdParser();
+        $this->dispatcher = $dispatcher ?? new Dispatcher($routeCollector);
     }
 
     /**
@@ -58,57 +51,16 @@ class RouteResolver implements RouteResolverInterface
     public function computeRoutingResults(string $uri, string $method): RoutingResults
     {
         $uri = '/' . ltrim(rawurldecode($uri), '/');
-        return $this->createDispatcher()->dispatch($method, $uri);
+        return $this->dispatcher->dispatch($method, $uri);
     }
 
     /**
      * @param string $identifier
      * @return RouteInterface
+     * @throws RuntimeException
      */
     public function resolveRoute(string $identifier): RouteInterface
     {
         return $this->routeCollector->lookupRoute($identifier);
-    }
-
-    /**
-     * @return Dispatcher
-     */
-    protected function createDispatcher(): Dispatcher
-    {
-        if ($this->dispatcher) {
-            return $this->dispatcher;
-        }
-
-        $routeDefinitionCallback = function (RouteCollector $r) {
-            foreach ($this->routeCollector->getRoutes() as $route) {
-                $r->addRoute($route->getMethods(), $route->getPattern(), $route->getIdentifier());
-            }
-        };
-
-        if ($cacheFile = $this->routeCollector->getCacheFile()) {
-            /** @var Dispatcher $dispatcher */
-            $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
-                'dispatcher' => Dispatcher::class,
-                'routeParser' => $this->routeParser,
-                'cacheFile' => $cacheFile,
-            ]);
-        } else {
-            /** @var Dispatcher $dispatcher */
-            $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
-                'dispatcher' => Dispatcher::class,
-                'routeParser' => $this->routeParser,
-            ]);
-        }
-
-        $this->dispatcher = $dispatcher;
-        return $this->dispatcher;
-    }
-
-    /**
-     * @param Dispatcher $dispatcher
-     */
-    public function setDispatcher(Dispatcher $dispatcher): void
-    {
-        $this->dispatcher = $dispatcher;
     }
 }

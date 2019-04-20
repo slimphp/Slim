@@ -1,9 +1,11 @@
 # Changelog
 
 
-## 4.0.0 - TBD
+## 4.0.0 - 2019-07-03
 
 ### Added
+- [#2639](https://github.com/slimphp/Slim/pull/2639) Add `DispatcherInterface` and decouple FastRoute dispatcher entirely from core. This enables us to swap out our router implementation for any other router.
+- [#2638](https://github.com/slimphp/Slim/pull/2638) Add `RouteCollector::fullUrlFor()` to give the ability to generate fully qualified URLs
 - [#2634](https://github.com/slimphp/Slim/pull/2634) Added ability to set invocation strategy on a per-route basis.
 - [#2555](https://github.com/slimphp/Slim/pull/2555) Added PSR-15 Middleware Support
 - [#2529](https://github.com/slimphp/Slim/pull/2529) Slim no longer ships with a PSR-7 implementation. You need to provide a PSR-7 ServerRequest and a PSR-17 ResponseFactory to run Slim.
@@ -21,6 +23,7 @@
 
 ### Deprecated
 
+- [#2638](https://github.com/slimphp/Slim/pull/2638) Deprecate `RouteCollector::pathFor()` which gets replaced by `RouteCollector::urlFor()` preserving the orignal functionality
 - [#2555](https://github.com/slimphp/Slim/pull/2555) Double-Pass Middleware Support has been deprecated
 
 ### Removed

@@ -96,7 +96,7 @@ interface RouteCollectorInterface
      *
      * @return RouteInterface
      *
-     * @throws RuntimeException
+     * @throws RuntimeException   If route of identifier does not exist
      */
     public function lookupRoute(string $identifier): RouteInterface;
 
