@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Interfaces;
 
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 
 interface RouteCollectorInterface
@@ -144,6 +145,8 @@ interface RouteCollectorInterface
     /**
      * Build the path for a named route including the base path
      *
+     * This method is deprecated. Use urlFor() from now on.
+     *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
@@ -156,9 +159,7 @@ interface RouteCollectorInterface
     public function pathFor(string $name, array $data = [], array $queryParams = []): string;
 
     /**
-     * Build the path for a named route.
-     *
-     * This method is deprecated. Use pathFor() from now on.
+     * Build the path for a named route including the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
@@ -170,4 +171,16 @@ interface RouteCollectorInterface
      * @throws InvalidArgumentException If required data not provided
      */
     public function urlFor(string $name, array $data = [], array $queryParams = []): string;
+
+    /**
+     * Get fully qualified URL for named route
+     *
+     * @param UriInterface  $uri
+     * @param string        $routeName Route name
+     * @param array         $data Named argument replacement data
+     * @param array         $queryParams Optional query string parameters
+     *
+     * @return string
+     */
+    public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = []): string;
 }
