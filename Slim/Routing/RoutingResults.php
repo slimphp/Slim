@@ -9,10 +9,16 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
+use Slim\Interfaces\DispatcherInterface;
+
 class RoutingResults
 {
+    public const NOT_FOUND = 0;
+    public const FOUND = 1;
+    public const METHOD_NOT_ALLOWED = 2;
+
     /**
-     * @var Dispatcher
+     * @var DispatcherInterface
      */
     protected $dispatcher;
 
@@ -28,12 +34,10 @@ class RoutingResults
 
     /**
      * @var int
-     * The following statuses are constants from Slim\Dispatcher
-     * Slim\Dispatcher extends FastRoute\Dispatcher\GroupCountBased
-     * Which implements the interface FastRoute\Dispatcher where the original constants are located
-     * Slim\Dispatcher::NOT_FOUND = 0
-     * Slim\Dispatcher::FOUND = 1
-     * Slim\Dispatcher::NOT_ALLOWED = 2
+     * The status is one of the constants shown above
+     * NOT_FOUND = 0
+     * FOUND = 1
+     * METHOD_NOT_ALLOWED = 2
      */
     protected $routeStatus;
 
@@ -49,15 +53,16 @@ class RoutingResults
 
     /**
      * RoutingResults constructor.
-     * @param Dispatcher $dispatcher
-     * @param string $httpMethod
-     * @param string $uri
-     * @param int $routeStatus
-     * @param string|null $routeIdentifier
-     * @param array $routeArguments
+     *
+     * @param DispatcherInterface   $dispatcher
+     * @param string                $httpMethod
+     * @param string                $uri
+     * @param int                   $routeStatus
+     * @param string|null           $routeIdentifier
+     * @param array                 $routeArguments
      */
     public function __construct(
-        Dispatcher $dispatcher,
+        DispatcherInterface $dispatcher,
         string $httpMethod,
         string $uri,
         int $routeStatus,
@@ -73,9 +78,9 @@ class RoutingResults
     }
 
     /**
-     * @return Dispatcher
+     * @return DispatcherInterface
      */
-    public function getDispatcher(): Dispatcher
+    public function getDispatcher(): DispatcherInterface
     {
         return $this->dispatcher;
     }
