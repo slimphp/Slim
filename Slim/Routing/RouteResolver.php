@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
+use RuntimeException;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteInterface;
@@ -56,6 +57,7 @@ class RouteResolver implements RouteResolverInterface
     /**
      * @param string $identifier
      * @return RouteInterface
+     * @throws RuntimeException
      */
     public function resolveRoute(string $identifier): RouteInterface
     {
