@@ -25,7 +25,7 @@ class RoutingResults
     /**
      * @var string
      */
-    protected $httpMethod;
+    protected $method;
 
     /**
      * @var string
@@ -55,7 +55,7 @@ class RoutingResults
      * RoutingResults constructor.
      *
      * @param DispatcherInterface   $dispatcher
-     * @param string                $httpMethod
+     * @param string                $method
      * @param string                $uri
      * @param int                   $routeStatus
      * @param string|null           $routeIdentifier
@@ -63,14 +63,14 @@ class RoutingResults
      */
     public function __construct(
         DispatcherInterface $dispatcher,
-        string $httpMethod,
+        string $method,
         string $uri,
         int $routeStatus,
         string $routeIdentifier = null,
         array $routeArguments = []
     ) {
         $this->dispatcher = $dispatcher;
-        $this->httpMethod = $httpMethod;
+        $this->method = $method;
         $this->uri = $uri;
         $this->routeStatus = $routeStatus;
         $this->routeIdentifier = $routeIdentifier;
@@ -88,9 +88,9 @@ class RoutingResults
     /**
      * @return string
      */
-    public function getHttpMethod(): string
+    public function getMethod(): string
     {
-        return $this->httpMethod;
+        return $this->method;
     }
 
     /**
@@ -140,6 +140,6 @@ class RoutingResults
      */
     public function getAllowedMethods(): array
     {
-        return $this->dispatcher->getAllowedMethods($this->httpMethod, $this->uri);
+        return $this->dispatcher->getAllowedMethods($this->uri);
     }
 }

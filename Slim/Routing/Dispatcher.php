@@ -58,7 +58,8 @@ class Dispatcher implements DispatcherInterface
             }
         };
 
-        if ($cacheFile = $this->routeCollector->getCacheFile()) {
+        $cacheFile = $this->routeCollector->getCacheFile();
+        if ($cacheFile) {
             /** @var FastRouteDispatcher $dispatcher */
             $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
                 'dispatcher' => FastRouteDispatcher::class,
@@ -80,9 +81,10 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getAllowedMethods(string $method, string $uri): array
+    public function getAllowedMethods(string $uri): array
     {
-        return $this->dispatcher->getAllowedMethods($method, $uri);
+        $dispatcher = $this->createDispatcher();
+        return $dispatcher->getAllowedMethods($uri);
     }
 
     /**
@@ -91,6 +93,7 @@ class Dispatcher implements DispatcherInterface
     public function dispatch(string $method, string $uri): RoutingResults
     {
         $dispatcher = $this->createDispatcher();
-        return $dispatcher->dispatch($method, $uri);
+        $results = $dispatcher->dispatch($method, $uri);
+        return new RoutingResults($this, $method, $uri, $results[0], $results[1], $results[2]);
     }
 }
