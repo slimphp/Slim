@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Slim\CallableResolver;
 use Slim\Interfaces\RouteInterface;
@@ -116,7 +117,7 @@ class RouteCollectorTest extends TestCase
 
         $this->assertEquals(
             '/hello/josh/lockhart',
-            $this->routeCollector->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+            $this->routeCollector->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
 
@@ -133,7 +134,7 @@ class RouteCollectorTest extends TestCase
 
         $this->assertEquals(
             '/base/path/hello/josh/lockhart',
-            $this->routeCollector->pathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
+            $this->routeCollector->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
         );
     }
 
@@ -149,15 +150,15 @@ class RouteCollectorTest extends TestCase
 
         $this->assertEquals(
             '/archive/2015',
-            $this->routeCollector->pathFor('foo', ['year' => '2015'])
+            $this->routeCollector->urlFor('foo', ['year' => '2015'])
         );
         $this->assertEquals(
             '/archive/2015/07',
-            $this->routeCollector->pathFor('foo', ['year' => '2015', 'month' => '07'])
+            $this->routeCollector->urlFor('foo', ['year' => '2015', 'month' => '07'])
         );
         $this->assertEquals(
             '/archive/2015/07/d/19',
-            $this->routeCollector->pathFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
+            $this->routeCollector->urlFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
         );
     }
 
@@ -173,7 +174,7 @@ class RouteCollectorTest extends TestCase
 
         $this->assertEquals(
             '/hello/josh?a=b&c=d',
-            $this->routeCollector->pathFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
+            $this->routeCollector->urlFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
         );
     }
 
@@ -190,7 +191,7 @@ class RouteCollectorTest extends TestCase
         $route = $this->routeCollector->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->routeCollector->pathFor('foo', ['last' => 'lockhart']);
+        $this->routeCollector->urlFor('foo', ['last' => 'lockhart']);
     }
 
     /**
@@ -206,7 +207,7 @@ class RouteCollectorTest extends TestCase
         $route = $this->routeCollector->map($methods, $pattern, $callable);
         $route->setName('foo');
 
-        $this->routeCollector->pathFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
+        $this->routeCollector->urlFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
     }
 
     public function testGetRouteInvocationStrategy()
@@ -344,10 +345,10 @@ class RouteCollectorTest extends TestCase
     }
 
     /**
-     * Test that the router urlFor will proxy into a pathFor method, and trigger
+     * Test that the router pathFor will proxy into a urlFor method, and trigger
      * the user deprecated warning
      */
-    public function testUrlForAliasesPathFor()
+    public function testPathForAliasesUrlFor()
     {
         //create a temporary error handler, store the error str in this value
         $errorString = null;
@@ -365,15 +366,45 @@ class RouteCollectorTest extends TestCase
         $routeCollector = $this
             ->getMockBuilder(RouteCollector::class)
             ->setConstructorArgs([$this->getResponseFactory(), new CallableResolver()])
-            ->setMethods(['pathFor'])
+            ->setMethods(['urlFor'])
             ->getMock();
-        $routeCollector->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
-        $routeCollector->urlFor($name, $data, $queryParams);
+        $routeCollector->expects($this->once())->method('urlFor')->with($name, $data, $queryParams);
+        $routeCollector->pathFor($name, $data, $queryParams);
 
         //check that our error was triggered
-        $this->assertEquals($errorString, 'urlFor() is deprecated. Use pathFor() instead.');
+        $this->assertEquals($errorString, 'pathFor() is deprecated. Use urlFor() instead.');
 
         restore_error_handler();
+    }
+
+    public function testFullUrlFor()
+    {
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy
+            ->getScheme()
+            ->willReturn('http')
+            ->shouldBeCalledOnce();
+
+        $uriProphecy
+            ->getAuthority()
+            ->willReturn('example.com:8080')
+            ->shouldBeCalledOnce();
+
+        $callableResolver = new CallableResolver();
+        $responseFactory = $this->getResponseFactory();
+        $routeCollector = new RouteCollector($responseFactory, $callableResolver);
+        $routeCollector->setBasePath('/app');
+
+        $callable = function ($request, $response) {
+            return $response;
+        };
+        $route = $routeCollector->map(['GET'], '/{token}', $callable);
+        $route->setName('test');
+
+        $expectedResult = 'http://example.com:8080/app/123';
+        $result = $routeCollector->fullUrlFor($uriProphecy->reveal(), 'test', ['token' => '123']);
+
+        $this->assertEquals($expectedResult, $result);
     }
 
     /**
