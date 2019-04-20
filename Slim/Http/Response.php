@@ -479,9 +479,9 @@ class Response extends Message implements ResponseInterface
 
     /**
      * Is this a bad request?
-     * 
+     *
      * Note: This method is not part of the PSR-7 standard.
-     * 
+     *
      * @return bool
      */
     public function isBadRequest()
