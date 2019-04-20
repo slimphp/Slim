@@ -27,7 +27,7 @@ class Dispatcher implements DispatcherInterface
     private $routeParser;
 
     /**
-     * @var FastRouteDispatcher
+     * @var FastRouteDispatcher|null
      */
     private $dispatcher;
 
