@@ -14,6 +14,7 @@ use FastRoute\RouteParser\Std as StdParser;
 use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
@@ -377,6 +378,15 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function pathFor(string $name, array $data = [], array $queryParams = []): string
     {
+        trigger_error('pathFor() is deprecated. Use urlFor() instead.', E_USER_DEPRECATED);
+        return $this->urlFor($name, $data, $queryParams);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function urlFor(string $name, array $data = [], array $queryParams = []): string
+    {
         $url = $this->relativePathFor($name, $data, $queryParams);
 
         if ($this->basePath) {
@@ -389,9 +399,12 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function urlFor(string $name, array $data = [], array $queryParams = []): string
+    public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = []): string
     {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
-        return $this->pathFor($name, $data, $queryParams);
+        $path = $this->urlFor($routeName, $data, $queryParams);
+        $scheme = $uri->getScheme();
+        $authority = $uri->getAuthority();
+        $protocol = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
+        return $protocol . $path;
     }
 }
