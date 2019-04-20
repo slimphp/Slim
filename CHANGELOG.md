@@ -4,6 +4,7 @@
 ## 4.0.0 - TBD
 
 ### Added
+- [#2634](https://github.com/slimphp/Slim/pull/2634) Added ability to set invocation strategy on a per-route basis.
 - [#2555](https://github.com/slimphp/Slim/pull/2555) Added PSR-15 Middleware Support
 - [#2529](https://github.com/slimphp/Slim/pull/2529) Slim no longer ships with a PSR-7 implementation. You need to provide a PSR-7 ServerRequest and a PSR-17 ResponseFactory to run Slim.
 - [#2507](https://github.com/slimphp/Slim/pull/2507) Method names are now case-sensitive in Router::map(), and so, by extension, in App::map() 
