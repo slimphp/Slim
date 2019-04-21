@@ -22,6 +22,22 @@ use Slim\Tests\TestCase;
 
 class RouteCollectorProxyTest extends TestCase
 {
+    public function testGetResponseFactory()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $routeCollectorProxy = new RouteCollectorProxy(
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
+
+        $this->assertSame(
+            $responseFactoryProphecy->reveal(),
+            $routeCollectorProxy->getResponseFactory()
+        );
+    }
+
     public function testGetCallableResolver()
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
