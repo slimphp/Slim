@@ -18,10 +18,6 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
-/**
- * Class TestCase
- * @package Slim\Tests
- */
 abstract class TestCase extends PhpUnitTestCase
 {
     /**

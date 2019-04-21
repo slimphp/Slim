@@ -14,11 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
-/**
- * Class MockRequestHandler
- *
- * @package Slim\Tests\Mocks
- */
 class MockRequestHandler implements RequestHandlerInterface
 {
     /**

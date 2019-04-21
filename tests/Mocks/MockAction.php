@@ -11,9 +11,6 @@ namespace Slim\Tests\Mocks;
 
 use InvalidArgumentException;
 
-/**
- * Mock object for Slim\Tests\AppTest
- */
 class MockAction
 {
     public function __call($name, array $arguments)

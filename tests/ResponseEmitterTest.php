@@ -14,10 +14,6 @@ use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockStream;
 use Slim\Tests\Mocks\SmallChunksStream;
 
-/**
- * Class ResponseEmitterTest
- * @package Slim\Tests
- */
 class ResponseEmitterTest extends TestCase
 {
     public function setUp()

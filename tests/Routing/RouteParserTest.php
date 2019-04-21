@@ -12,11 +12,6 @@ use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteParser;
 use Slim\Tests\TestCase;
 
-/**
- * Class RouteParserTest
- *
- * @package Slim\Tests\Routing
- */
 class RouteParserTest extends TestCase
 {
     public function urlForCases()

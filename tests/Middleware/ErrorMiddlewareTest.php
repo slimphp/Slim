@@ -20,10 +20,6 @@ use Slim\Middleware\RoutingMiddleware;
 use Slim\Tests\Mocks\MockCustomException;
 use Slim\Tests\TestCase;
 
-/**
- * Class ErrorMiddlewareTest
- * @package Slim\Tests\Middleware
- */
 class ErrorMiddlewareTest extends TestCase
 {
     public function testSetErrorHandler()

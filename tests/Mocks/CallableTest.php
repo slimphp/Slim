@@ -11,9 +11,6 @@ namespace Slim\Tests\Mocks;
 
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
-/**
- * Mock object for Slim\Tests\CallableResolverTest
- */
 class CallableTest
 {
     public static $CalledCount = 0;

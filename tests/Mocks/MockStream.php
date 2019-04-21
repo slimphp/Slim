@@ -11,10 +11,6 @@ namespace Slim\Tests\Mocks;
 
 use Psr\Http\Message\StreamInterface;
 
-/**
- * Class MockStream
- * @package Slim\Tests\Mocks
- */
 class MockStream implements StreamInterface
 {
     /** @var resource A resource reference */
