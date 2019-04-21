@@ -16,6 +16,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\MiddlewareDispatcher;
+use Slim\Tests\Mocks\MockMiddlewareWithConstructor;
 use Slim\Tests\Mocks\MockMiddlewareWithoutConstructor;
 use Slim\Tests\Mocks\MockRequestHandler;
 use Slim\Tests\Mocks\MockSequenceMiddleware;
@@ -340,7 +341,6 @@ class MiddlewareDispatcherTest extends TestCase
         $middlewareProphecy = $this->prophesize(MiddlewareInterface::class);
         $middlewareProphecy->process(Argument::cetera())->willReturn($responseProphecy->reveal());
 
-
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has('somemiddlewarename')->willReturn(true);
         $containerProphecy->get('somemiddlewarename')->willReturn($middlewareProphecy->reveal());
@@ -351,5 +351,20 @@ class MiddlewareDispatcherTest extends TestCase
 
         $this->assertEquals($responseProphecy->reveal(), $response);
         $kernelProphecy->handle(Argument::type(ServerRequestInterface::class))->shouldNotHaveBeenCalled();
+    }
+
+    public function testMiddlewareGetsInstantiatedWithContainer()
+    {
+        $kernelProphecy = $this->prophesize(RequestHandlerInterface::class);
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $containerProphecy->has(MockMiddlewareWithConstructor::class)->willReturn(false);
+
+        $dispatcher = new MiddlewareDispatcher($kernelProphecy->reveal(), $containerProphecy->reveal());
+        $dispatcher->addDeferred(MockMiddlewareWithConstructor::class);
+        $dispatcher->handle($requestProphecy->reveal());
+
+        $this->assertSame($containerProphecy->reveal(), MockMiddlewareWithConstructor::$container);
     }
 }
