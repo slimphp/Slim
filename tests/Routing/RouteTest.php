@@ -11,15 +11,20 @@ namespace Slim\Tests;
 
 use Closure;
 use Exception;
+use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\CallableResolver;
 use Slim\DeferredCallable;
 use Slim\Handlers\Strategies\RequestHandler;
 use Slim\Handlers\Strategies\RequestResponse;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Routing\Route;
 use Slim\Routing\RouteGroup;
 use Slim\Tests\Mocks\CallableTest;
@@ -38,15 +43,56 @@ class RouteTest extends TestCase
      */
     public function createRoute($methods = 'GET', string $pattern = '/', $callable = null): Route
     {
-        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $callableResolverProphecy
+            ->resolve($callable)
+            ->willReturn($callable);
+
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+
+        $value = '';
+        $streamProphecy
+            ->write(Argument::type('string'))
+            ->will(function ($args) use ($value) {
+                $value .= $args[0];
+                $this->__toString()->willReturn($value);
+                return $this->reveal();
+            });
+
+        $streamProphecy
+            ->__toString()
+            ->willReturn($value);
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseProphecy
+            ->getBody()
+            ->willReturn($streamProphecy->reveal());
+
+        $responseProphecy
+            ->withStatus(Argument::type('integer'))
+            ->will(function ($args) {
+                $this->getStatusCode()->willReturn($args[0]);
+                return $this->reveal();
+            });
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal());
 
         $methods = is_string($methods) ? [$methods] : $methods;
-        return new Route($methods, $pattern, $callable, $responseFactory, $callableResolver);
+        return new Route(
+            $methods,
+            $pattern,
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
     }
 
     public function testConstructor()
@@ -58,12 +104,12 @@ class RouteTest extends TestCase
         };
         $route = $this->createRoute($methods, $pattern, $callable);
 
-        $this->assertAttributeEquals($methods, 'methods', $route);
-        $this->assertAttributeEquals($pattern, 'pattern', $route);
-        $this->assertAttributeEquals($callable, 'callable', $route);
+        $this->assertEquals($methods, $route->getMethods());
+        $this->assertEquals($pattern, $route->getPattern());
+        $this->assertEquals($callable, $route->getCallable());
     }
 
-    public function testGetMethodsReturnsArrayWhenContructedWithString()
+    public function testGetMethodsReturnsArrayWhenConstructedWithString()
     {
         $route = $this->createRoute();
 
@@ -94,63 +140,99 @@ class RouteTest extends TestCase
 
     public function testGetCallableResolver()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
 
-        $this->assertEquals($callableResolver, $route->getCallableResolver());
+        $this->assertSame($callableResolverProphecy->reveal(), $route->getCallableResolver());
     }
 
     public function testGetInvocationStrategy()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
-        $strategy = new RequestResponse();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $strategyProphecy = $this->prophesize(InvocationStrategyInterface::class);
 
-        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, null, $strategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            $containerProphecy->reveal(),
+            $strategyProphecy->reveal()
+        );
 
-        $this->assertEquals($strategy, $route->getInvocationStrategy());
+        $this->assertSame($strategyProphecy->reveal(), $route->getInvocationStrategy());
     }
 
     public function testSetInvocationStrategy()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
-        $strategy = new RequestResponse();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $strategyProphecy = $this->prophesize(InvocationStrategyInterface::class);
 
-        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver);
-        $route->setInvocationStrategy($strategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
+        $route->setInvocationStrategy($strategyProphecy->reveal());
 
-        $this->assertSame($strategy, $route->getInvocationStrategy());
+        $this->assertSame($strategyProphecy->reveal(), $route->getInvocationStrategy());
     }
 
     public function testGetGroups()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
-        $strategy = new RequestResponse();
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $strategyProphecy = $this->prophesize(InvocationStrategyInterface::class);
+        $routeCollectorProxyProphecy = $this->prophesize(RouteCollectorProxyInterface::class);
 
-        $routeGroup = new RouteGroup('/group', $callable, $callableResolver);
+        $routeGroup = new RouteGroup(
+            '/group',
+            $callable,
+            $callableResolverProphecy->reveal(),
+            $routeCollectorProxyProphecy->reveal()
+        );
         $groups = [$routeGroup];
 
-        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, null, $strategy, $groups);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            null,
+            $strategyProphecy->reveal(),
+            $groups
+        );
 
         $this->assertEquals($groups, $route->getGroups());
     }
@@ -178,7 +260,7 @@ class RouteTest extends TestCase
         $route = $this->createRoute();
         $called = 0;
 
-        $mw = function ($request, $handler) use (&$called) {
+        $mw = function (ServerRequestInterface $request, RequestHandlerInterface $handler) use (&$called) {
             $called++;
             return $handler->handle($request);
         };
@@ -192,12 +274,25 @@ class RouteTest extends TestCase
 
     public function testAddMiddlewareOnGroup()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             return $response;
         };
 
-        $responseFactory = $this->getResponseFactory();
-        $callableResolver = new CallableResolver();
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $callableResolverProphecy
+            ->resolve($callable)
+            ->willReturn($callable)
+            ->shouldBeCalledOnce();
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        $routeCollectorProxyProphecy = $this->prophesize(RouteCollectorProxyInterface::class);
         $strategy = new RequestResponse();
 
         $called = 0;
@@ -205,11 +300,26 @@ class RouteTest extends TestCase
             $called++;
             return $handler->handle($request);
         };
-        $routeGroup = new RouteGroup('/group', $callable, $callableResolver);
+
+        $routeGroup = new RouteGroup(
+            '/group',
+            $callable,
+            $callableResolverProphecy->reveal(),
+            $routeCollectorProxyProphecy->reveal()
+        );
         $routeGroup->add($mw);
         $groups = [$routeGroup];
 
-        $route = new Route(['GET'], '/', $callable, $responseFactory, $callableResolver, null, $strategy, $groups);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $callable,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            null,
+            $strategy,
+            $groups
+        );
 
         $request = $this->createServerRequest('/');
         $route->run($request);
@@ -222,7 +332,7 @@ class RouteTest extends TestCase
         $route = $this->createRoute();
         $called = 0;
 
-        $route->add(function ($request, $handler) use (&$called) {
+        $route->add(function (ServerRequestInterface $request, RequestHandlerInterface $handler) use (&$called) {
             $called++;
             return $handler->handle($request);
         });
@@ -292,17 +402,42 @@ class RouteTest extends TestCase
 
     public function testControllerMethodAsStringResolvesWithContainer()
     {
-        $containerProphecy = $this->prophesize(ContainerInterface::class);
-        $containerProphecy->has('CallableTest')->willReturn(true);
-        $containerProphecy->get('CallableTest')->willReturn(new CallableTest());
+        $self = $this;
 
-        $callableResolver = new CallableResolver($containerProphecy->reveal());
-        $responseFactory = $this->getResponseFactory();
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $deferred = new DeferredCallable('CallableTest:toCall', $callableResolver);
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver);
+        $callable = 'CallableTest:toCall';
+        $deferred = new DeferredCallable($callable, $callableResolverProphecy->reveal());
 
-        CallableTest::$CalledCount = 0;
+        $callableResolverProphecy
+            ->resolve($callable)
+            ->willReturn(function (
+                ServerRequestInterface $request,
+                ResponseInterface $response
+            ) use ($self, $responseProphecy) {
+                $self->assertSame($responseProphecy->reveal(), $response);
+                return $response;
+            })
+            ->shouldBeCalledOnce();
+
+        $callableResolverProphecy
+            ->resolve($deferred)
+            ->willReturn($deferred)
+            ->shouldBeCalledOnce();
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal());
+
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal()
+        );
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -317,13 +452,11 @@ class RouteTest extends TestCase
      */
     public function testProcessWhenReturningAResponse()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('foo');
             return $response;
         };
         $route = $this->createRoute(['GET'], '/', $callable);
-
-        CallableTest::$CalledCount = 0;
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -337,7 +470,7 @@ class RouteTest extends TestCase
      */
     public function testRouteCallableDoesNotAppendEchoedOutput()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             echo "foo";
             return $response->withStatus(201);
         };
@@ -361,7 +494,7 @@ class RouteTest extends TestCase
      */
     public function testRouteCallableAppendsCorrectOutputToResponse()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             $response->getBody()->write('foo');
             return $response;
         };
@@ -378,7 +511,7 @@ class RouteTest extends TestCase
      */
     public function testInvokeWithException()
     {
-        $callable = function (ServerRequestInterface $request, ResponseInterface $response, $args) {
+        $callable = function (ServerRequestInterface $request, ResponseInterface $response) {
             throw new Exception();
         };
         $route = $this->createRoute(['GET'], '/', $callable);
@@ -392,12 +525,27 @@ class RouteTest extends TestCase
      */
     public function testInvokeDeferredCallableWithNoContainer()
     {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
         $invocationStrategy = new InvocationStrategyTest();
 
         $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, null, $invocationStrategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            null,
+            $invocationStrategy
+        );
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -411,17 +559,31 @@ class RouteTest extends TestCase
      */
     public function testInvokeDeferredCallableWithContainer()
     {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has('\Slim\Tests\Mocks\CallableTest')->willReturn(true);
         $containerProphecy->get('\Slim\Tests\Mocks\CallableTest')->willReturn(new CallableTest());
-        $container = $containerProphecy->reveal();
 
-        $callableResolver = new CallableResolver($container);
-        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $strategy = new InvocationStrategyTest();
 
         $deferred = '\Slim\Tests\Mocks\CallableTest:toCall';
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $container, $strategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal(),
+            $strategy
+        );
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
@@ -432,22 +594,38 @@ class RouteTest extends TestCase
 
     public function testInvokeUsesRequestHandlerStrategyForRequestHandlers()
     {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has(RequestHandlerTest::class)->willReturn(true);
         $containerProphecy->get(RequestHandlerTest::class)->willReturn(new RequestHandlerTest());
-        $container = $containerProphecy->reveal();
 
-        $callableResolver = new CallableResolver($container);
-        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
 
         $deferred = RequestHandlerTest::class;
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $container);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal()
+        );
 
         $request = $this->createServerRequest('/', 'GET');
         $route->run($request);
 
         /** @var InvocationStrategyInterface $strategy */
-        $strategy = $container->get(RequestHandlerTest::class)::$strategy;
+        $strategy = $containerProphecy
+            ->reveal()
+            ->get(RequestHandlerTest::class)::$strategy;
+
         $this->assertEquals(RequestHandler::class, $strategy);
     }
 
@@ -467,11 +645,24 @@ class RouteTest extends TestCase
      */
     public function testChangingCallableWithNoContainer()
     {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
 
         $deferred = 'NonExistent:toCall';
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, null);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver
+        );
         $route->setCallable('\Slim\Tests\Mocks\CallableTest:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
@@ -486,46 +677,96 @@ class RouteTest extends TestCase
      */
     public function testChangingCallableWithContainer()
     {
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
+
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has('CallableTest2')->willReturn(true);
         $containerProphecy->get('CallableTest2')->willReturn(new CallableTest());
-        $container = $containerProphecy->reveal();
 
-        $callableResolver = new CallableResolver($container);
-        $responseFactory = $this->getResponseFactory();
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $strategy = new InvocationStrategyTest();
 
         $deferred = 'NonExistent:toCall';
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $container, $strategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal(),
+            $strategy
+        );
         $route->setCallable('CallableTest2:toCall'); //Then we fix it here.
 
         $request = $this->createServerRequest('/');
         $response = $route->run($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals([$container->get('CallableTest2'), 'toCall'], InvocationStrategyTest::$LastCalledFor);
+        $this->assertEquals(
+            [$containerProphecy->reveal()->get('CallableTest2'), 'toCall'],
+            InvocationStrategyTest::$LastCalledFor
+        );
     }
 
     public function testRouteCallableIsResolvedUsingContainerWhenCallableResolverIsPresent()
     {
-        $responseFactory = $this->getResponseFactory();
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+
+        $value = '';
+        $streamProphecy
+            ->write(Argument::type('string'))
+            ->will(function ($args) use ($value) {
+                $value .= $args[0];
+                $this->__toString()->willReturn($value);
+                return $this->reveal();
+            });
+
+        $streamProphecy
+            ->__toString()
+            ->willReturn($value);
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+
+        $responseProphecy
+            ->getBody()
+            ->willReturn($streamProphecy->reveal())
+            ->shouldBeCalledTimes(2);
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse()
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $containerProphecy->has('CallableTest3')->willReturn(true);
         $containerProphecy->get('CallableTest3')->willReturn(new CallableTest());
         $containerProphecy->has('ClosureMiddleware')->willReturn(true);
-        $containerProphecy->get('ClosureMiddleware')->willReturn(function ($request, $handler) use ($responseFactory) {
-            $response = $responseFactory->createResponse();
+        $containerProphecy->get('ClosureMiddleware')->willReturn(function ($request, $handler) use ($responseFactoryProphecy) {
+            $response = $responseFactoryProphecy->reveal()->createResponse();
             $response->getBody()->write('Hello');
             return $response;
         });
-        $container = $containerProphecy->reveal();
 
-        $callableResolver = new CallableResolver($container);
+        $callableResolver = new CallableResolver($containerProphecy->reveal());
         $strategy = new InvocationStrategyTest();
 
         $deferred = 'CallableTest3';
-        $route = new Route(['GET'], '/', $deferred, $responseFactory, $callableResolver, $container, $strategy);
+        $route = new Route(
+            ['GET'],
+            '/',
+            $deferred,
+            $responseFactoryProphecy->reveal(),
+            $callableResolver,
+            $containerProphecy->reveal(),
+            $strategy
+        );
         $route->add('ClosureMiddleware');
 
         $request = $this->createServerRequest('/');
