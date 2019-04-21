@@ -15,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
@@ -25,7 +26,6 @@ use Slim\Routing\RouteRunner;
 /**
  * This is the primary class with which you instantiate,
  * configure, and run a Slim Framework application.
- * The \Slim\App class also accepts Slim Framework middleware.
  */
 class App extends RouteCollectorProxy implements RequestHandlerInterface
 {
@@ -107,11 +107,16 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      * This method traverses the application middleware stack and then sends the
      * resultant Response object to the HTTP client.
      *
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface|null $request
      * @return void
      */
-    public function run(ServerRequestInterface $request): void
+    public function run(ServerRequestInterface $request = null): void
     {
+        if (!$request) {
+            $serverRequestCreator = ServerRequestCreatorFactory::create();
+            $request = $serverRequestCreator->createServerRequestFromGlobals();
+        }
+
         $response = $this->handle($request);
         $responseEmitter = new ResponseEmitter();
         $responseEmitter->emit($response);

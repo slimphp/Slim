@@ -567,7 +567,7 @@ class AppTest extends TestCase
         });
 
         $app->add($middlewareProphecy->reveal());
-        $app->add($middlewareProphecy2->reveal());
+        $app->addMiddleware($middlewareProphecy2->reveal());
         $app->get('/', function (ServerRequestInterface $request, $response) {
             return $response;
         });
@@ -694,7 +694,7 @@ class AppTest extends TestCase
             return $response;
         })
             ->add($middlewareProphecy->reveal())
-            ->add($middlewareProphecy2->reveal());
+            ->addMiddleware($middlewareProphecy2->reveal());
 
         $uriProphecy = $this->prophesize(UriInterface::class);
         $uriProphecy->getPath()->willReturn('/');
@@ -777,7 +777,7 @@ class AppTest extends TestCase
             });
         })
             ->add($middlewareProphecy->reveal())
-            ->add($middlewareProphecy2->reveal());
+            ->addMiddleware($middlewareProphecy2->reveal());
 
         $uriProphecy = $this->prophesize(UriInterface::class);
         $uriProphecy->getPath()->willReturn('/foo/bar');
@@ -1511,6 +1511,45 @@ class AppTest extends TestCase
         });
 
         $app->run($requestProphecy->reveal());
+
+        $this->expectOutputString('Hello World');
+    }
+
+    public function testRunWithoutPassingInServerRequest()
+    {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
+        });
+        $streamProphecy->read('11')->will(function () {
+            $this->eof()->willReturn(true);
+            return $this->reveal()->__toString();
+        });
+        $streamProphecy->eof()->willReturn(false);
+        $streamProphecy->isSeekable()->willReturn(true);
+        $streamProphecy->rewind()->willReturn(true);
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+        $responseProphecy->getStatusCode()->willReturn(200);
+        $responseProphecy->getHeaders()->willReturn(['Content-Length' => ['11']]);
+        $responseProphecy->getProtocolVersion()->willReturn('1.1');
+        $responseProphecy->getReasonPhrase()->willReturn('');
+        $responseProphecy->getHeaderLine('Content-Length')->willReturn('11');
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $app = new App($responseFactoryProphecy->reveal());
+        $app->get('/', function (ServerRequestInterface $request, ResponseInterface $response) {
+            $response->getBody()->write('Hello World');
+            return $response;
+        });
+
+        $app->run();
 
         $this->expectOutputString('Hello World');
     }
