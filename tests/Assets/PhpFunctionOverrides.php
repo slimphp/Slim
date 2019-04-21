@@ -35,8 +35,8 @@ function header($string, $replace = true, $statusCode = null)
 {
     HeaderStack::push(
         [
-            'header'      => $string,
-            'replace'     => $replace,
+            'header' => $string,
+            'replace' => $replace,
             'status_code' => $statusCode,
         ]
     );

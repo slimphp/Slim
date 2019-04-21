@@ -19,7 +19,7 @@ class RequestHandlerTest implements RequestHandlerInterface
     public static $CalledCount = 0;
     public static $strategy = '';
 
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         static::$CalledCount++;
 
@@ -41,7 +41,7 @@ class RequestHandlerTest implements RequestHandlerInterface
         return $response;
     }
 
-    public function custom(ServerRequestInterface $request) : ResponseInterface
+    public function custom(ServerRequestInterface $request): ResponseInterface
     {
         return $responseFactory->createResponse();
     }

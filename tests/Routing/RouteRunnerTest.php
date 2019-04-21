@@ -13,9 +13,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
 use Slim\MiddlewareDispatcher;
+use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
-use Slim\Routing\RouteCollector;
 use Slim\Routing\RoutingResults;
 use Slim\Tests\TestCase;
 

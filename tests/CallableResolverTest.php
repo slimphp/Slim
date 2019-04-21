@@ -51,6 +51,7 @@ class CallableResolverTest extends TestCase
         {
             return true;
         }
+
         $resolver = new CallableResolver(); // No container injected
         $callable = $resolver->resolve(__NAMESPACE__ . '\testCallable');
 

@@ -115,8 +115,8 @@ class AbstractErrorRendererTest extends TestCase
         $output = simplexml_load_string($renderer->render($exception, true));
 
         $this->assertEquals($output->message[0], 'Ooops...');
-        $this->assertEquals((string)$output->exception[0]->type, 'Exception');
-        $this->assertEquals((string)$output->exception[1]->type, 'RuntimeException');
+        $this->assertEquals((string) $output->exception[0]->type, 'Exception');
+        $this->assertEquals((string) $output->exception[1]->type, 'RuntimeException');
     }
 
     public function testPlainTextErrorRendererFormatFragmentMethod()
