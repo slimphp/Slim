@@ -415,7 +415,10 @@ class RouteTest extends TestCase
             ->willReturn(function (
                 ServerRequestInterface $request,
                 ResponseInterface $response
-            ) use ($self, $responseProphecy) {
+            ) use (
+                $self,
+                $responseProphecy
+) {
                 $self->assertSame($responseProphecy->reveal(), $response);
                 return $response;
             })
