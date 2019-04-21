@@ -9,22 +9,16 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Routing;
 
-use Psr\Http\Message\UriInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use RuntimeException;
-use Slim\CallableResolver;
-use Slim\Interfaces\RouteInterface;
-use Slim\Routing\Route;
+use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Routing\RouteCollector;
-use Slim\Tests\Mocks\InvocationStrategyTest;
 use Slim\Tests\TestCase;
 
 class RouteCollectorTest extends TestCase
 {
-    /**
-     * @var RouteCollector
-     */
-    protected $routeCollector;
-
     /**
      * @var null|string
      */
@@ -37,282 +31,108 @@ class RouteCollectorTest extends TestCase
         }
     }
 
-    public function setUp()
-    {
-        $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
-        $this->routeCollector = new RouteCollector($responseFactory, $callableResolver);
-    }
-
     public function testGetSetBasePath()
     {
-        $basePath = '/base/path';
+        $basePath = '/app';
 
-        $this->routeCollector->setBasePath($basePath);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $this->assertEquals($basePath, $this->routeCollector->getBasePath());
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->setBasePath($basePath);
+
+        $this->assertEquals($basePath, $routeCollector->getBasePath());
     }
 
     public function testMap()
     {
-        $methods = ['GET'];
-        $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $this->assertInstanceOf(RouteInterface::class, $route);
-        $this->assertAttributeContains($route, 'routes', $this->routeCollector);
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $route = $routeCollector->map(['GET'], '/', function () {
+        });
+
+        $routes = $routeCollector->getRoutes();
+        $this->assertSame($route, $routes[$route->getIdentifier()]);
     }
 
     public function testMapPrependsGroupPattern()
     {
-        $methods = ['GET'];
-        $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $this->routeCollector->pushGroup('/prefix', function () {
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->pushGroup('/prefix', function () {
         });
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $this->routeCollector->popGroup();
 
-        $this->assertAttributeEquals('/prefix/hello/{first}/{last}', 'pattern', $route);
-    }
+        $route = $routeCollector->map(['GET'], '/test', function () {
+        });
 
-    /**
-     * Base path is ignored by relativePathFor()
-     */
-    public function testRelativePathFor()
-    {
-        $this->routeCollector->setBasePath('/base/path');
+        $routeCollector->popGroup();
 
-        $methods = ['GET'];
-        $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->assertEquals(
-            '/hello/josh/lockhart',
-            $this->routeCollector->relativePathFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
-        );
-    }
-
-    public function testPathForWithNoBasePath()
-    {
-        $this->routeCollector->setBasePath('');
-
-        $methods = ['GET'];
-        $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->assertEquals(
-            '/hello/josh/lockhart',
-            $this->routeCollector->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
-        );
-    }
-
-    public function testPathForWithBasePath()
-    {
-        $methods = ['GET'];
-        $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $this->routeCollector->setBasePath('/base/path');
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->assertEquals(
-            '/base/path/hello/josh/lockhart',
-            $this->routeCollector->urlFor('foo', ['first' => 'josh', 'last' => 'lockhart'])
-        );
-    }
-
-    public function testPathForWithOptionalParameters()
-    {
-        $methods = ['GET'];
-        $pattern = '/archive/{year}[/{month:[\d:{2}]}[/d/{day}]]';
-        $callable = function ($request, $response, $args) {
-            return $response;
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->assertEquals(
-            '/archive/2015',
-            $this->routeCollector->urlFor('foo', ['year' => '2015'])
-        );
-        $this->assertEquals(
-            '/archive/2015/07',
-            $this->routeCollector->urlFor('foo', ['year' => '2015', 'month' => '07'])
-        );
-        $this->assertEquals(
-            '/archive/2015/07/d/19',
-            $this->routeCollector->urlFor('foo', ['year' => '2015', 'month' => '07', 'day' => '19'])
-        );
-    }
-
-    public function testPathForWithQueryParameters()
-    {
-        $methods = ['GET'];
-        $pattern = '/hello/{name}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s', $args['name']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->assertEquals(
-            '/hello/josh?a=b&c=d',
-            $this->routeCollector->urlFor('foo', ['name' => 'josh'], ['a' => 'b', 'c' => 'd'])
-        );
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testPathForWithMissingSegmentData()
-    {
-        $methods = ['GET'];
-        $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->routeCollector->urlFor('foo', ['last' => 'lockhart']);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testPathForRouteNotExists()
-    {
-        $methods = ['GET'];
-        $pattern = '/hello/{first}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['first'], $args['last']);
-        };
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-
-        $this->routeCollector->urlFor('bar', ['first' => 'josh', 'last' => 'lockhart']);
+        $this->assertEquals('/prefix/test', $route->getPattern());
     }
 
     public function testGetRouteInvocationStrategy()
     {
-        $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
-        $invocationStrategy = new InvocationStrategyTest();
-        $routeCollector = new RouteCollector($responseFactory, $callableResolver, null, $invocationStrategy);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $containerProphecy = $this->prophesize(ContainerInterface::class);
+        $invocationStrategyProphecy = $this->prophesize(InvocationStrategyInterface::class);
 
-        $this->assertEquals($invocationStrategy, $routeCollector->getDefaultInvocationStrategy());
+        $routeCollector = new RouteCollector(
+            $responseFactoryProphecy->reveal(),
+            $callableResolverProphecy->reveal(),
+            $containerProphecy->reveal(),
+            $invocationStrategyProphecy->reveal()
+        );
+
+        $this->assertSame($invocationStrategyProphecy->reveal(), $routeCollector->getDefaultInvocationStrategy());
     }
 
-    public function testGetCallableResolver()
+    public function testRemoveNamedRoute()
     {
-        $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
-        $routeCollector = new RouteCollector($responseFactory, $callableResolver);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $this->assertEquals($callableResolver, $routeCollector->getCallableResolver());
-    }
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->setBasePath('/base/path');
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testRemoveRoute()
-    {
-        $methods = ['GET'];
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello ignore me');
-        };
+        $route = $routeCollector->map(['GET'], '/test', function () {
+        });
+        $route->setName('test');
 
-        $this->routeCollector->setBasePath('/base/path');
+        $routes = $routeCollector->getRoutes();
+        $this->assertCount(1, $routes);
 
-        $route1 = $this->routeCollector->map($methods, '/foo', $callable);
-        $route1->setName('foo');
-
-        $route2 = $this->routeCollector->map($methods, '/bar', $callable);
-        $route2->setName('bar');
-
-        $route3 = $this->routeCollector->map($methods, '/fizz', $callable);
-        $route3->setName('fizz');
-
-        $route4 = $this->routeCollector->map($methods, '/buzz', $callable);
-        $route4->setName('buzz');
-
-        $routeToRemove = $this->routeCollector->getNamedRoute('fizz');
-
-        $routeCountBefore = count($this->routeCollector->getRoutes());
-        $this->routeCollector->removeNamedRoute($routeToRemove->getName());
-        $routeCountAfter = count($this->routeCollector->getRoutes());
-
-        // Assert number of routes is now less by 1
-        $this->assertEquals(
-            ($routeCountBefore - 1),
-            $routeCountAfter
-        );
-
-        // Simple test that the correct route was removed
-        $this->assertEquals(
-            $this->routeCollector->getNamedRoute('foo')->getName(),
-            'foo'
-        );
-
-        $this->assertEquals(
-            $this->routeCollector->getNamedRoute('bar')->getName(),
-            'bar'
-        );
-
-        $this->assertEquals(
-            $this->routeCollector->getNamedRoute('buzz')->getName(),
-            'buzz'
-        );
-
-        // Exception thrown here, route no longer exists
-        $this->routeCollector->getNamedRoute($routeToRemove->getName());
+        $routeCollector->removeNamedRoute('test');
+        $routes = $routeCollector->getRoutes();
+        $this->assertCount(0, $routes);
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testRouteRemovalNotExists()
+    public function testRemoveNamedRouteWithARouteThatDoesNotExist()
     {
-        $this->routeCollector->setBasePath('/base/path');
-        $this->routeCollector->removeNamedRoute('non-existing-route-name');
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->removeNamedRoute('missing');
     }
 
-    public function testPathForWithModifiedRoutePattern()
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {
-        $this->routeCollector->setBasePath('/base/path');
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-        $methods = ['GET'];
-        $pattern = '/hello/{first:\w+}/{last}';
-        $callable = function ($request, $response, $args) {
-            echo sprintf('Hello %s %s', $args['voornaam'], $args['achternaam']);
-        };
-
-        /** @var Route $route */
-        $route = $this->routeCollector->map($methods, $pattern, $callable);
-        $route->setName('foo');
-        $route->setPattern('/hallo/{voornaam:\w+}/{achternaam}');
-
-        $this->assertEquals(
-            '/hallo/josh/lockhart',
-            $this->routeCollector->relativePathFor('foo', ['voornaam' => 'josh', 'achternaam' => 'lockhart'])
-        );
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->lookupRoute('missing');
     }
 
     /**
@@ -326,8 +146,13 @@ class RouteCollectorTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage(sprintf('Route collector cache file `%s` is not readable', $this->cacheFile));
 
-        $this->routeCollector->setCacheFile($this->cacheFile);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->setCacheFile($this->cacheFile);
     }
+
     /**
      * Test cache file does not exist and directory is not writable
      */
@@ -341,77 +166,10 @@ class RouteCollectorTest extends TestCase
             dirname($cacheFile)
         ));
 
-        $this->routeCollector->setCacheFile($cacheFile);
-    }
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
 
-    /**
-     * Test that the router pathFor will proxy into a urlFor method, and trigger
-     * the user deprecated warning
-     */
-    public function testPathForAliasesUrlFor()
-    {
-        //create a temporary error handler, store the error str in this value
-        $errorString = null;
-
-        set_error_handler(function ($no, $str) use (&$errorString) {
-            $errorString = $str;
-        }, E_USER_DEPRECATED);
-
-        //create the parameters we expect
-        $name = 'foo';
-        $data = ['name' => 'josh'];
-        $queryParams = ['a' => 'b', 'c' => 'd'];
-
-        /** @var RouteCollector $routeCollector */
-        $routeCollector = $this
-            ->getMockBuilder(RouteCollector::class)
-            ->setConstructorArgs([$this->getResponseFactory(), new CallableResolver()])
-            ->setMethods(['urlFor'])
-            ->getMock();
-        $routeCollector->expects($this->once())->method('urlFor')->with($name, $data, $queryParams);
-        $routeCollector->pathFor($name, $data, $queryParams);
-
-        //check that our error was triggered
-        $this->assertEquals($errorString, 'pathFor() is deprecated. Use urlFor() instead.');
-
-        restore_error_handler();
-    }
-
-    public function testFullUrlFor()
-    {
-        $uriProphecy = $this->prophesize(UriInterface::class);
-        $uriProphecy
-            ->getScheme()
-            ->willReturn('http')
-            ->shouldBeCalledOnce();
-
-        $uriProphecy
-            ->getAuthority()
-            ->willReturn('example.com:8080')
-            ->shouldBeCalledOnce();
-
-        $callableResolver = new CallableResolver();
-        $responseFactory = $this->getResponseFactory();
-        $routeCollector = new RouteCollector($responseFactory, $callableResolver);
-        $routeCollector->setBasePath('/app');
-
-        $callable = function ($request, $response) {
-            return $response;
-        };
-        $route = $routeCollector->map(['GET'], '/{token}', $callable);
-        $route->setName('test');
-
-        $expectedResult = 'http://example.com:8080/app/123';
-        $result = $routeCollector->fullUrlFor($uriProphecy->reveal(), 'test', ['token' => '123']);
-
-        $this->assertEquals($expectedResult, $result);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testLookupRouteThrowsExceptionIfRouteNotFound()
-    {
-        $this->routeCollector->lookupRoute("thisIsMissing");
+        $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
+        $routeCollector->setCacheFile($cacheFile);
     }
 }
