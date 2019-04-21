@@ -251,6 +251,16 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($response->isNotFound());
     }
 
+    public function testIsBadRequest()
+    {
+        $response = new Response();
+        $prop = new ReflectionProperty($response, 'status');
+        $prop->setAccessible(true);
+        $prop->setValue($response, 400);
+
+        $this->assertTrue($response->isBadRequest());
+    }
+
     public function testIsClientError()
     {
         $response = new Response();
