@@ -1,6 +1,2 @@
 parameters:
   level: max
-  ignoreErrors:
-    # This error is because of line 329 in Route. PHPStan cannot compute the logic of a callable array of strings [class, method]
-    - '^Parameter #1 $callable of callable Slim\\Interfaces\\InvocationStrategyInterface expects callable, array|callable given.^'
-

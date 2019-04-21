@@ -80,7 +80,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $exception;
 
     /**
-     * @var ErrorRendererInterface|null
+     * @var ErrorRendererInterface|string|null
      */
     protected $renderer;
 
