@@ -19,10 +19,6 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RoutingResults;
 
-/**
- * Class RoutingMiddleware
- * @package Slim\Middleware
- */
 class RoutingMiddleware implements MiddlewareInterface
 {
     /**
@@ -31,8 +27,6 @@ class RoutingMiddleware implements MiddlewareInterface
     protected $routeResolver;
 
     /**
-     * RoutingMiddleware constructor.
-     *
      * @param RouteResolverInterface $routeResolver
      */
     public function __construct(RouteResolverInterface $routeResolver)

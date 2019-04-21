@@ -20,10 +20,6 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Throwable;
 
-/**
- * Class ErrorMiddleware
- * @package Slim\Middleware
- */
 class ErrorMiddleware implements MiddlewareInterface
 {
     /**
@@ -62,12 +58,11 @@ class ErrorMiddleware implements MiddlewareInterface
     protected $defaultErrorHandler;
 
     /**
-     * ErrorMiddleware constructor.
-     * @param CallableResolverInterface $callableResolver
-     * @param ResponseFactoryInterface $responseFactory
-     * @param bool $displayErrorDetails
-     * @param bool $logErrors
-     * @param bool $logErrorDetails
+     * @param CallableResolverInterface     $callableResolver
+     * @param ResponseFactoryInterface      $responseFactory
+     * @param bool                          $displayErrorDetails
+     * @param bool                          $logErrors
+     * @param bool                          $logErrorDetails
      */
     public function __construct(
         CallableResolverInterface $callableResolver,

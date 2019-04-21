@@ -15,11 +15,6 @@ use Psr\Http\Message\UriInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteParserInterface;
 
-/**
- * Class RouteParser
- *
- * @package Slim\Routing
- */
 class RouteParser implements RouteParserInterface
 {
     /**
@@ -33,8 +28,6 @@ class RouteParser implements RouteParserInterface
     private $routeParser;
 
     /**
-     * RouteParser constructor.
-     *
      * @param RouteCollectorInterface $routeCollector
      */
     public function __construct(RouteCollectorInterface $routeCollector)

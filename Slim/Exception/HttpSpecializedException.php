@@ -12,17 +12,12 @@ namespace Slim\Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
-/**
- * Class HttpSpecializedException
- * @package Slim\Exception
- */
 abstract class HttpSpecializedException extends HttpException
 {
     /**
-     * HttpSpecializedException constructor.
-     * @param ServerRequestInterface $request
-     * @param string|null $message
-     * @param Throwable|null $previous
+     * @param ServerRequestInterface    $request
+     * @param string|null               $message
+     * @param Throwable|null            $previous
      */
     public function __construct(ServerRequestInterface $request, string $message = null, Throwable $previous = null)
     {

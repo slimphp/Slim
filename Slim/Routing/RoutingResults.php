@@ -52,8 +52,6 @@ class RoutingResults
     protected $routeArguments;
 
     /**
-     * RoutingResults constructor.
-     *
      * @param DispatcherInterface   $dispatcher
      * @param string                $method
      * @param string                $uri

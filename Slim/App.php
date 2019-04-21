@@ -23,8 +23,6 @@ use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 
 /**
- * App
- *
  * This is the primary class with which you instantiate,
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
@@ -49,8 +47,6 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     protected $routeResolver;
 
     /**
-     * Create new application
-     *
      * @param ResponseFactoryInterface          $responseFactory
      * @param ContainerInterface|null           $container
      * @param CallableResolverInterface|null    $callableResolver

@@ -11,12 +11,6 @@ namespace Slim\Interfaces;
 
 use Throwable;
 
-/**
- * ErrorRendererInterface
- *
- * @package Slim
- * @since   4.0.0
- */
 interface ErrorRendererInterface
 {
     /**

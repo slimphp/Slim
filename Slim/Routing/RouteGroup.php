@@ -43,8 +43,6 @@ class RouteGroup implements RouteGroupInterface
     protected $pattern;
 
     /**
-     * Create a new RouteGroup
-     *
      * @param string                        $pattern
      * @param callable|string               $callable
      * @param CallableResolverInterface     $callableResolver

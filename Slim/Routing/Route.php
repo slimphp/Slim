@@ -114,8 +114,6 @@ class Route implements RouteInterface, RequestHandlerInterface
     protected $groupMiddlewareAppended = false;
 
     /**
-     * Create new route
-     *
      * @param string[]                          $methods The route HTTP methods
      * @param string                            $pattern The route pattern
      * @param callable|string                   $callable The route callable

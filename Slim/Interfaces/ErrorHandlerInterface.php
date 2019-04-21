@@ -13,12 +13,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 
-/**
- * ErrorHandlerInterface
- *
- * @package Slim
- * @since   4.0.0
- */
 interface ErrorHandlerInterface
 {
     /**

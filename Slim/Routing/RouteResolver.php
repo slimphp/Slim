@@ -32,8 +32,6 @@ class RouteResolver implements RouteResolverInterface
     private $dispatcher;
 
     /**
-     * RouteResolver constructor.
-     *
      * @param RouteCollectorInterface   $routeCollector
      * @param DispatcherInterface|null  $dispatcher
      */
