@@ -69,6 +69,14 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
+    public function getResponseFactory(): ResponseFactoryInterface
+    {
+        return $this->responseFactory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getCallableResolver(): CallableResolverInterface
     {
         return $this->callableResolver;
