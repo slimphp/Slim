@@ -9,20 +9,16 @@ declare(strict_types=1);
 
 namespace Slim;
 
-use Closure;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
-use Slim\Interfaces\RouteGroupInterface;
-use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouteResolverInterface;
-use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 
@@ -33,7 +29,7 @@ use Slim\Routing\RouteRunner;
  * configure, and run a Slim Framework application.
  * The \Slim\App class also accepts Slim Framework middleware.
  */
-class App implements RequestHandlerInterface
+class App extends RouteCollectorProxy implements RequestHandlerInterface
 {
     /**
      * Current version
@@ -43,26 +39,9 @@ class App implements RequestHandlerInterface
     public const VERSION = '4.0.0-dev';
 
     /**
-     * Container
-     *
-     * @var ContainerInterface|null
-     */
-    private $container;
-
-    /**
-     * @var CallableResolverInterface
-     */
-    protected $callableResolver;
-
-    /**
      * @var MiddlewareDispatcher
      */
     protected $middlewareDispatcher;
-
-    /**
-     * @var RouteCollectorInterface
-     */
-    protected $routeCollector;
 
     /**
      * @var RouteResolverInterface
@@ -70,22 +49,13 @@ class App implements RequestHandlerInterface
     protected $routeResolver;
 
     /**
-     * @var ResponseFactoryInterface
-     */
-    protected $responseFactory;
-
-    /********************************************************************************
-     * Constructor
-     *******************************************************************************/
-
-    /**
      * Create new application
      *
-     * @param ResponseFactoryInterface  $responseFactory
-     * @param ContainerInterface|null   $container
-     * @param CallableResolverInterface $callableResolver
-     * @param RouteCollectorInterface   $routeCollector
-     * @param RouteResolverInterface    $routeResolver
+     * @param ResponseFactoryInterface          $responseFactory
+     * @param ContainerInterface|null           $container
+     * @param CallableResolverInterface|null    $callableResolver
+     * @param RouteCollectorInterface|null      $routeCollector
+     * @param RouteResolverInterface|null       $routeResolver
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -94,18 +64,25 @@ class App implements RequestHandlerInterface
         RouteCollectorInterface $routeCollector = null,
         RouteResolverInterface $routeResolver = null
     ) {
-        $this->responseFactory = $responseFactory;
-        $this->container = $container;
-        $this->callableResolver = $callableResolver ?? new CallableResolver($container);
-        $this->routeCollector = $routeCollector ?? new RouteCollector(
+        parent::__construct(
             $responseFactory,
-            $this->callableResolver,
-            $container
+            $callableResolver ?? new CallableResolver($container),
+            $container,
+            $routeCollector
         );
-        $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
 
+        $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
         $routeRunner = new RouteRunner($this->routeResolver);
+
         $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container);
+    }
+
+    /**
+     * @return RouteResolverInterface
+     */
+    public function getRouteResolver(): RouteResolverInterface
+    {
+        return $this->routeResolver;
     }
 
     /**
@@ -127,207 +104,6 @@ class App implements RequestHandlerInterface
         $this->middlewareDispatcher->addMiddleware($middleware);
         return $this;
     }
-
-    /********************************************************************************
-     * Getter methods
-     *******************************************************************************/
-
-    /**
-     * Get container
-     *
-     * @return ContainerInterface|null
-     */
-    public function getContainer(): ?ContainerInterface
-    {
-        return $this->container;
-    }
-
-    /**
-     * Get callable resolver
-     *
-     * @return CallableResolverInterface
-     */
-    public function getCallableResolver(): CallableResolverInterface
-    {
-        return $this->callableResolver;
-    }
-
-    /**
-     * Get route collector
-     *
-     * @return RouteCollectorInterface
-     */
-    public function getRouteCollector(): RouteCollectorInterface
-    {
-        return $this->routeCollector;
-    }
-
-    /**
-     * Get route resolver
-     *
-     * @return RouteResolverInterface
-     */
-    public function getRouteResolver(): RouteResolverInterface
-    {
-        return $this->routeResolver;
-    }
-
-    /********************************************************************************
-     * Router proxy methods
-     *******************************************************************************/
-
-    /**
-     * Add GET route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function get(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['GET'], $pattern, $callable);
-    }
-
-    /**
-     * Add POST route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function post(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['POST'], $pattern, $callable);
-    }
-
-    /**
-     * Add PUT route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function put(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['PUT'], $pattern, $callable);
-    }
-
-    /**
-     * Add PATCH route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function patch(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['PATCH'], $pattern, $callable);
-    }
-
-    /**
-     * Add DELETE route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function delete(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['DELETE'], $pattern, $callable);
-    }
-
-    /**
-     * Add OPTIONS route
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function options(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['OPTIONS'], $pattern, $callable);
-    }
-
-    /**
-     * Add route for any HTTP method
-     *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function any(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
-    }
-
-    /**
-     * Add route with multiple methods
-     *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  callable|string    $callable The route callback routine
-     *
-     * @return RouteInterface
-     */
-    public function map(array $methods, string $pattern, $callable): RouteInterface
-    {
-        // Bind route callable to container, if present
-        if ($this->container instanceof ContainerInterface && $callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->routeCollector->map($methods, $pattern, $callable);
-    }
-
-    /**
-     * Add a route that sends an HTTP redirect
-     *
-     * @param string              $from
-     * @param string|UriInterface $to
-     * @param int                 $status
-     *
-     * @return RouteInterface
-     */
-    public function redirect(string $from, $to, int $status = 302): RouteInterface
-    {
-        $handler = function () use ($to, $status) {
-            $response = $this->responseFactory->createResponse($status);
-            return $response->withHeader('Location', (string)$to);
-        };
-
-        return $this->get($from, $handler);
-    }
-
-    /**
-     * Route Groups
-     *
-     * This method accepts a route pattern and a callback. All route
-     * declarations in the callback will be prepended by the group(s)
-     * that it is in.
-     *
-     * @param string   $pattern
-     * @param callable $callable
-     *
-     * @return RouteGroupInterface
-     */
-    public function group(string $pattern, $callable): RouteGroupInterface
-    {
-        $group = $this->routeCollector->pushGroup($pattern, $callable);
-        $group($this);
-        $this->routeCollector->popGroup();
-        return $group;
-    }
-
-    /********************************************************************************
-     * Runner
-     *******************************************************************************/
 
     /**
      * Run application
