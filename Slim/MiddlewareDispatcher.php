@@ -164,7 +164,9 @@ class MiddlewareDispatcher implements RequestHandlerInterface
                     }
                 }
                 if (is_subclass_of($resolved, MiddlewareInterface::class)) {
-                    return (new $resolved)->process($request, $this->next);
+                    /** @var MiddlewareInterface $resolved */
+                    $resolved = new $resolved($this->container);
+                    return $resolved->process($request, $this->next);
                 }
                 if (is_callable($resolved)) {
                     return $resolved($request, $this->next);
