@@ -4,6 +4,7 @@
 ## 4.0.0 - 2019-07-03
 
 ### Added
+- [#2641](https://github.com/slimphp/Slim/pull/2641) Add `RouteCollectorProxyInterface` which extracts all the route mapping functionality from app into its own interface.
 - [#2640](https://github.com/slimphp/Slim/pull/2640) Add `RouteParserInterface` and decouple FastRoute route parser entirely from core. The methods `relativePathFor()`, `urlFor()` and `fullUrlFor()` are now located on this interface.
 - [#2639](https://github.com/slimphp/Slim/pull/2639) Add `DispatcherInterface` and decouple FastRoute dispatcher entirely from core. This enables us to swap out our router implementation for any other router.
 - [#2638](https://github.com/slimphp/Slim/pull/2638) Add `RouteCollector::fullUrlFor()` to give the ability to generate fully qualified URLs
@@ -24,6 +25,7 @@
 
 ### Deprecated
 
+- [#2641](https://github.com/slimphp/Slim/pull/2641) Deprecate `RouteCollector::pushGroup()`,`RouteCollector::popGroup()` which gets replaced by `RouteCollector::group()`
 - [#2638](https://github.com/slimphp/Slim/pull/2638) Deprecate `RouteCollector::pathFor()` which gets replaced by `RouteCollector::urlFor()` preserving the orignal functionality
 - [#2555](https://github.com/slimphp/Slim/pull/2555) Double-Pass Middleware Support has been deprecated
 
