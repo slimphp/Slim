@@ -10,8 +10,8 @@ declare(strict_types=1);
 namespace Slim\Routing;
 
 use Psr\Http\Server\MiddlewareInterface;
-use Slim\App;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\MiddlewareDispatcher;
 
@@ -28,6 +28,11 @@ class RouteGroup implements RouteGroupInterface
     protected $callableResolver;
 
     /**
+     * @var RouteCollectorProxyInterface
+     */
+    protected $routeCollectorProxy;
+
+    /**
      * @var MiddlewareInterface[]|string[]|callable[]
      */
     protected $middleware = [];
@@ -40,18 +45,31 @@ class RouteGroup implements RouteGroupInterface
     /**
      * Create a new RouteGroup
      *
-     * @param string                    $pattern  The pattern prefix for the group
-     * @param callable                  $callable The group callable
-     * @param CallableResolverInterface $callableResolver
+     * @param string                        $pattern
+     * @param callable|string               $callable
+     * @param CallableResolverInterface     $callableResolver
+     * @param RouteCollectorProxyInterface  $routeCollectorProxy
      */
     public function __construct(
         string $pattern,
         $callable,
-        CallableResolverInterface $callableResolver
+        CallableResolverInterface $callableResolver,
+        RouteCollectorProxyInterface $routeCollectorProxy
     ) {
         $this->pattern = $pattern;
         $this->callable = $callable;
         $this->callableResolver = $callableResolver;
+        $this->routeCollectorProxy = $routeCollectorProxy;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function collectRoutes(): RouteGroupInterface
+    {
+        $callable = $this->callableResolver->resolve($this->callable);
+        $callable($this->routeCollectorProxy);
+        return $this;
     }
 
     /**
@@ -90,16 +108,5 @@ class RouteGroup implements RouteGroupInterface
     public function getPattern(): string
     {
         return $this->pattern;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function __invoke(App $app = null): RouteGroupInterface
-    {
-        /** @var callable $callable */
-        $callable = $this->callableResolver->resolve($this->callable);
-        $callable($app);
-        return $this;
     }
 }

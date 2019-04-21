@@ -26,8 +26,10 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\Mocks\MockAction;
 use stdClass;
 
@@ -87,22 +89,6 @@ class AppTest extends TestCase
         $app = new App($responseFactoryProphecy->reveal(), null, null, $routeCollectorProphecy->reveal());
 
         $this->assertSame($routeCollectorProphecy->reveal(), $app->getRouteCollector());
-    }
-
-    public function testGetRouteResolverReturnsInjectedInstance()
-    {
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
-        $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
-        $app = new App(
-            $responseFactoryProphecy->reveal(),
-            null,
-            null,
-            $routeCollectorProphecy->reveal(),
-            $routeResolverProphecy->reveal()
-        );
-
-        $this->assertSame($routeResolverProphecy->reveal(), $app->getRouteResolver());
     }
 
     public function testCreatesRouteCollectorWhenNullWithInjectedContainer()
@@ -785,8 +771,8 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) use (&$output) {
-            $app->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) use (&$output) {
+        $app->group('/foo', function (RouteCollectorProxy $proxy) use (&$output) {
+            $proxy->get('/bar', function (ServerRequestInterface $request, ResponseInterface $response) use (&$output) {
                 $output .= 'Center';
                 return $response;
             });
@@ -889,9 +875,16 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (App $app) use ($middlewareProphecy2, $middlewareProphecy3, &$output) {
-            $app->group('/bar', function (App $app) use ($middlewareProphecy3, &$output) {
-                $app->get('/baz', function (
+        $app->group('/foo', function (RouteCollectorProxyInterface $group) use (
+            $middlewareProphecy2,
+            $middlewareProphecy3,
+            &$output
+        ) {
+            $group->group('/bar', function (RouteCollectorProxyInterface $group) use (
+                $middlewareProphecy3,
+                &$output
+            ) {
+                $group->get('/baz', function (
                     ServerRequestInterface $request,
                     ResponseInterface $response
                 ) use (&$output) {

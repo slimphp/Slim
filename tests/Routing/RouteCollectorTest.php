@@ -15,6 +15,7 @@ use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\TestCase;
 
 class RouteCollectorTest extends TestCase
@@ -59,19 +60,25 @@ class RouteCollectorTest extends TestCase
 
     public function testMapPrependsGroupPattern()
     {
+        $self = $this;
+
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        $callable = function (RouteCollectorProxy $proxy) use ($self) {
+            $route = $proxy->get('/test', function () {
+            });
+
+            $self->assertEquals('/prefix/test', $route->getPattern());
+        };
+
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
+        $callableResolverProphecy
+            ->resolve($callable)
+            ->willReturn($callable)
+            ->shouldBeCalledOnce();
 
         $routeCollector = new RouteCollector($responseFactoryProphecy->reveal(), $callableResolverProphecy->reveal());
-        $routeCollector->pushGroup('/prefix', function () {
-        });
-
-        $route = $routeCollector->map(['GET'], '/test', function () {
-        });
-
-        $routeCollector->popGroup();
-
-        $this->assertEquals('/prefix/test', $route->getPattern());
+        $routeCollector->group('/prefix', $callable);
     }
 
     public function testGetRouteInvocationStrategy()
