@@ -93,7 +93,7 @@ interface RouteInterface
     /**
      * Retrieve a specific route argument
      *
-     * @param string $name
+     * @param string      $name
      * @param string|null $default
      *
      * @return string|null

@@ -33,8 +33,8 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     protected $style;
 
     /**
-     * @param StreamFactoryInterface    $streamFactory
-     * @param string                    $style Either "append" or "prepend"
+     * @param StreamFactoryInterface $streamFactory
+     * @param string                 $style Either "append" or "prepend"
      */
     public function __construct(StreamFactoryInterface $streamFactory, string $style = 'append')
     {
@@ -47,7 +47,7 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      * @throws Throwable

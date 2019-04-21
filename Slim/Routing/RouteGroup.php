@@ -43,10 +43,10 @@ class RouteGroup implements RouteGroupInterface
     protected $pattern;
 
     /**
-     * @param string                        $pattern
-     * @param callable|string               $callable
-     * @param CallableResolverInterface     $callableResolver
-     * @param RouteCollectorProxyInterface  $routeCollectorProxy
+     * @param string                       $pattern
+     * @param callable|string              $callable
+     * @param CallableResolverInterface    $callableResolver
+     * @param RouteCollectorProxyInterface $routeCollectorProxy
      */
     public function __construct(
         string $pattern,

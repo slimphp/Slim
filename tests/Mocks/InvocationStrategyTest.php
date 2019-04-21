@@ -32,8 +32,7 @@ class InvocationStrategyTest implements InvocationStrategyInterface
         ServerRequestInterface $request,
         ResponseInterface $response,
         array $routeArguments
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         static::$LastCalledFor = $callable;
         return $response;
     }

@@ -105,11 +105,11 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * Invoke error handler
      *
-     * @param ServerRequestInterface $request   The most recent Request object
-     * @param Throwable              $exception The caught Exception object
-     * @param bool $displayErrorDetails Whether or not to display the error details
-     * @param bool $logErrors Whether or not to log errors
-     * @param bool $logErrorDetails Whether or not to log error details
+     * @param ServerRequestInterface $request             The most recent Request object
+     * @param Throwable              $exception           The caught Exception object
+     * @param bool                   $displayErrorDetails Whether or not to display the error details
+     * @param bool                   $logErrors           Whether or not to log errors
+     * @param bool                   $logErrorDetails     Whether or not to log error details
      *
      * @return ResponseInterface
      */
@@ -135,6 +135,22 @@ class ErrorHandler implements ErrorHandlerInterface
         }
 
         return $this->respond();
+    }
+
+    /**
+     * @return int
+     */
+    protected function determineStatusCode(): int
+    {
+        if ($this->method === 'OPTIONS') {
+            return 200;
+        }
+
+        if ($this->exception instanceof HttpException) {
+            return $this->exception->getCode();
+        }
+
+        return 500;
     }
 
     /**
@@ -227,19 +243,27 @@ class ErrorHandler implements ErrorHandlerInterface
     }
 
     /**
-     * @return int
+     * Write to the error log if $logErrors has been set to true
+     *
+     * @return void
      */
-    protected function determineStatusCode(): int
+    protected function writeToErrorLog(): void
     {
-        if ($this->method === 'OPTIONS') {
-            return 200;
-        }
+        $renderer = new PlainTextErrorRenderer();
+        $error = $renderer->render($this->exception, $this->logErrorDetails);
+        $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
+        $this->logError($error);
+    }
 
-        if ($this->exception instanceof HttpException) {
-            return $this->exception->getCode();
-        }
-
-        return 500;
+    /**
+     * Wraps the error_log function so that this can be easily tested
+     *
+     * @param string $error
+     * @return void
+     */
+    protected function logError(string $error): void
+    {
+        error_log($error);
     }
 
     /**
@@ -261,28 +285,5 @@ class ErrorHandler implements ErrorHandlerInterface
         $response->getBody()->write($body);
 
         return $response;
-    }
-
-    /**
-     * Write to the error log if $logErrors has been set to true
-     * @return void
-     */
-    protected function writeToErrorLog(): void
-    {
-        $renderer = new PlainTextErrorRenderer();
-        $error = $renderer->render($this->exception, $this->logErrorDetails);
-        $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
-        $this->logError($error);
-    }
-
-    /**
-     * Wraps the error_log function so that this can be easily tested
-     *
-     * @param string $error
-     * @return void
-     */
-    protected function logError(string $error): void
-    {
-        error_log($error);
     }
 }

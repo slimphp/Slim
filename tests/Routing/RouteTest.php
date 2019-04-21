@@ -45,7 +45,7 @@ class RouteTest extends TestCase
     {
         $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response) {
                 return $response;
-            };
+        };
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $callableResolverProphecy

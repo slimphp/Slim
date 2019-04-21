@@ -17,7 +17,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class ContentLengthMiddleware implements MiddlewareInterface
 {
     /**
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      */

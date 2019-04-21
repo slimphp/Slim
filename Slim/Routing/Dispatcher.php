@@ -27,8 +27,8 @@ class Dispatcher implements DispatcherInterface
     private $dispatcher;
 
     /**
-     * @param RouteCollectorInterface   $routeCollector
-     * @param RouteParser|null          $routeParser
+     * @param RouteCollectorInterface $routeCollector
+     * @param RouteParser|null        $routeParser
      */
     public function __construct(RouteCollectorInterface $routeCollector, RouteParser $routeParser = null)
     {
@@ -74,19 +74,19 @@ class Dispatcher implements DispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getAllowedMethods(string $uri): array
-    {
-        $dispatcher = $this->createDispatcher();
-        return $dispatcher->getAllowedMethods($uri);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function dispatch(string $method, string $uri): RoutingResults
     {
         $dispatcher = $this->createDispatcher();
         $results = $dispatcher->dispatch($method, $uri);
         return new RoutingResults($this, $method, $uri, $results[0], $results[1], $results[2]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAllowedMethods(string $uri): array
+    {
+        $dispatcher = $this->createDispatcher();
+        return $dispatcher->getAllowedMethods($uri);
     }
 }

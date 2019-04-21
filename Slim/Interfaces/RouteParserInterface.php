@@ -62,10 +62,10 @@ interface RouteParserInterface
     /**
      * Get fully qualified URL for named route
      *
-     * @param UriInterface  $uri
-     * @param string        $routeName Route name
-     * @param array         $data Named argument replacement data
-     * @param array         $queryParams Optional query string parameters
+     * @param UriInterface $uri
+     * @param string       $routeName   Route name
+     * @param array        $data        Named argument replacement data
+     * @param array        $queryParams Optional query string parameters
      *
      * @return string
      */

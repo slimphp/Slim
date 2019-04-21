@@ -19,7 +19,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
 {
     /**
      * @param Throwable $exception
-     * @param bool $displayErrorDetails
+     * @param bool      $displayErrorDetails
      * @return string
      */
     public function render(Throwable $exception, bool $displayErrorDetails): string
@@ -33,7 +33,7 @@ class JsonErrorRenderer extends AbstractErrorRenderer
             } while ($exception = $exception->getPrevious());
         }
 
-        return (string) json_encode($error, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
+        return (string) json_encode($error, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**

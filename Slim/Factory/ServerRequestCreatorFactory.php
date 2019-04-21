@@ -31,6 +31,14 @@ class ServerRequestCreatorFactory
 
     /**
      * @return ServerRequestCreatorInterface
+     */
+    public static function create(): ServerRequestCreatorInterface
+    {
+        return static::determineServerRequestCreator();
+    }
+
+    /**
+     * @return ServerRequestCreatorInterface
      * @throws RuntimeException
      */
     public static function determineServerRequestCreator(): ServerRequestCreatorInterface
@@ -43,13 +51,5 @@ class ServerRequestCreatorFactory
         }
 
         throw new RuntimeException('Could not detect any ServerRequest creator implementations.');
-    }
-
-    /**
-     * @return ServerRequestCreatorInterface
-     */
-    public static function create(): ServerRequestCreatorInterface
-    {
-        return static::determineServerRequestCreator();
     }
 }

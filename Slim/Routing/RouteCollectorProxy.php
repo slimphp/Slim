@@ -46,11 +46,11 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     protected $basePath;
 
     /**
-     * @param ResponseFactoryInterface      $responseFactory
-     * @param CallableResolverInterface     $callableResolver
-     * @param RouteCollectorInterface|null  $routeCollector
-     * @param ContainerInterface|null       $container
-     * @param string                        $basePath
+     * @param ResponseFactoryInterface     $responseFactory
+     * @param CallableResolverInterface    $callableResolver
+     * @param RouteCollectorInterface|null $routeCollector
+     * @param ContainerInterface|null      $container
+     * @param string                       $basePath
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -118,17 +118,23 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
-    public function get(string $pattern, $callable): RouteInterface
+    public function post(string $pattern, $callable): RouteInterface
     {
-        return $this->map(['GET'], $pattern, $callable);
+        return $this->map(['POST'], $pattern, $callable);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function post(string $pattern, $callable): RouteInterface
+    public function map(array $methods, string $pattern, $callable): RouteInterface
     {
-        return $this->map(['POST'], $pattern, $callable);
+        $pattern = $this->basePath . $pattern;
+
+        if ($this->container && $callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
+
+        return $this->routeCollector->map($methods, $pattern, $callable);
     }
 
     /**
@@ -174,20 +180,6 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
-    public function map(array $methods, string $pattern, $callable): RouteInterface
-    {
-        $pattern = $this->basePath . $pattern;
-
-        if ($this->container && $callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->routeCollector->map($methods, $pattern, $callable);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function redirect(string $from, $to, int $status = 302): RouteInterface
     {
         $handler = function () use ($to, $status) {
@@ -196,6 +188,14 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
         };
 
         return $this->get($from, $handler);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function get(string $pattern, $callable): RouteInterface
+    {
+        return $this->map(['GET'], $pattern, $callable);
     }
 
     /**

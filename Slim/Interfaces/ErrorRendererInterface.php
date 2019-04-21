@@ -15,7 +15,7 @@ interface ErrorRendererInterface
 {
     /**
      * @param Throwable $exception
-     * @param bool $displayErrorDetails
+     * @param bool      $displayErrorDetails
      * @return string
      */
     public function render(Throwable $exception, bool $displayErrorDetails): string;
