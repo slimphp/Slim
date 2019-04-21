@@ -36,7 +36,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     protected $callableResolver;
 
     /**
-     * @var ContainerInterface
+     * @var ContainerInterface|null
      */
     protected $container;
 
