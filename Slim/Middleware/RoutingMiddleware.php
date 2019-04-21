@@ -35,8 +35,8 @@ class RoutingMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param ServerRequestInterface    $request
-     * @param RequestHandlerInterface   $handler
+     * @param ServerRequestInterface  $request
+     * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      *
      * @throws HttpNotFoundException
@@ -52,7 +52,7 @@ class RoutingMiddleware implements MiddlewareInterface
     /**
      * Perform routing
      *
-     * @param  ServerRequestInterface $request   PSR7 Server Request
+     * @param  ServerRequestInterface $request PSR7 Server Request
      * @return ServerRequestInterface
      *
      * @throws HttpNotFoundException

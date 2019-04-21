@@ -24,8 +24,8 @@ class DeferredCallable
     protected $callableResolver;
 
     /**
-     * @param callable|string                   $callable
-     * @param CallableResolverInterface|null    $resolver
+     * @param callable|string                $callable
+     * @param CallableResolverInterface|null $resolver
      */
     public function __construct($callable, CallableResolverInterface $resolver = null)
     {

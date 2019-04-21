@@ -31,10 +31,10 @@ class HttpException extends Exception
     protected $description = '';
 
     /**
-     * @param ServerRequestInterface    $request
-     * @param string                    $message
-     * @param int                       $code
-     * @param Throwable|null            $previous
+     * @param ServerRequestInterface $request
+     * @param string                 $message
+     * @param int                    $code
+     * @param Throwable|null         $previous
      */
     public function __construct(
         ServerRequestInterface $request,
@@ -44,26 +44,6 @@ class HttpException extends Exception
     ) {
         parent::__construct($message, $code, $previous);
         $this->request = $request;
-    }
-
-    /**
-     * @param string $title
-     * @return self
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    /**
-     * @param string $description
-     * @return self
-     */
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
-        return $this;
     }
 
     /**
@@ -83,10 +63,30 @@ class HttpException extends Exception
     }
 
     /**
+     * @param string $title
+     * @return self
+     */
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    /**
+     * @param string $description
+     * @return self
+     */
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
     }
 }

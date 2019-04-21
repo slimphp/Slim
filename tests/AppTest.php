@@ -109,22 +109,6 @@ class AppTest extends TestCase
         $this->assertEquals($routeCollector, $app->getRouteCollector());
     }
 
-    /********************************************************************************
-     * Route collector proxy methods
-     *******************************************************************************/
-
-    public function upperCaseRequestMethodsProvider()
-    {
-        return [
-            ['GET'],
-            ['POST'],
-            ['PUT'],
-            ['PATCH'],
-            ['DELETE'],
-            ['OPTIONS'],
-        ];
-    }
-
     public function lowerCaseRequestMethodsProvider()
     {
         return [
@@ -210,6 +194,22 @@ class AppTest extends TestCase
 
             $this->assertEquals('Hello World', (string) $response->getBody());
         }
+    }
+
+    /********************************************************************************
+     * Route collector proxy methods
+     *******************************************************************************/
+
+    public function upperCaseRequestMethodsProvider()
+    {
+        return [
+            ['GET'],
+            ['POST'],
+            ['PUT'],
+            ['PATCH'],
+            ['DELETE'],
+            ['OPTIONS'],
+        ];
     }
 
     /**
@@ -497,7 +497,7 @@ class AppTest extends TestCase
 
     /**
      * @dataProvider routeGroupsDataProvider
-     * @param array $sequence
+     * @param array  $sequence
      * @param string $expectedPath
      */
     public function testRouteGroupCombinations(array $sequence, string $expectedPath)
@@ -1228,7 +1228,8 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handler = new Class {
+        $handler = new Class
+        {
             public function foo(ServerRequestInterface $request, ResponseInterface $response)
             {
                 return $response;
@@ -1270,7 +1271,8 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
-        $handler = new Class {
+        $handler = new Class
+        {
         };
 
         $containerProphecy = $this->prophesize(ContainerInterface::class);
@@ -1352,10 +1354,12 @@ class AppTest extends TestCase
         $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
 
         // @codingStandardsIgnoreStart
-        function handle($request, ResponseInterface $response) {
+        function handle($request, ResponseInterface $response)
+        {
             $response->getBody()->write('Hello World');
             return $response;
         }
+
         // @codingStandardsIgnoreEnd
 
         $app = new App($responseFactoryProphecy->reveal());

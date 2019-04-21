@@ -47,11 +47,11 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     protected $routeResolver;
 
     /**
-     * @param ResponseFactoryInterface          $responseFactory
-     * @param ContainerInterface|null           $container
-     * @param CallableResolverInterface|null    $callableResolver
-     * @param RouteCollectorInterface|null      $routeCollector
-     * @param RouteResolverInterface|null       $routeResolver
+     * @param ResponseFactoryInterface       $responseFactory
+     * @param ContainerInterface|null        $container
+     * @param CallableResolverInterface|null $callableResolver
+     * @param RouteCollectorInterface|null   $routeCollector
+     * @param RouteResolverInterface|null    $routeResolver
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,

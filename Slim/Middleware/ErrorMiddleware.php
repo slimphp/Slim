@@ -58,11 +58,11 @@ class ErrorMiddleware implements MiddlewareInterface
     protected $defaultErrorHandler;
 
     /**
-     * @param CallableResolverInterface     $callableResolver
-     * @param ResponseFactoryInterface      $responseFactory
-     * @param bool                          $displayErrorDetails
-     * @param bool                          $logErrors
-     * @param bool                          $logErrorDetails
+     * @param CallableResolverInterface $callableResolver
+     * @param ResponseFactoryInterface  $responseFactory
+     * @param bool                      $displayErrorDetails
+     * @param bool                      $logErrors
+     * @param bool                      $logErrorDetails
      */
     public function __construct(
         CallableResolverInterface $callableResolver,
@@ -79,7 +79,7 @@ class ErrorMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      */
@@ -94,7 +94,7 @@ class ErrorMiddleware implements MiddlewareInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @param Throwable $exception
+     * @param Throwable              $exception
      * @return ResponseInterface
      */
     public function handleException(ServerRequestInterface $request, Throwable $exception): ResponseInterface
@@ -126,28 +126,17 @@ class ErrorMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Set callable to handle scenarios where an error
-     * occurs when processing the current request.
+     * Get default error handler
      *
-     * This service MUST return a callable that accepts
-     * three arguments optionally four arguments.
-     *
-     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
-     * 2. Instance of \Psr\Http\Message\ResponseInterface
-     * 3. Instance of \Exception
-     * 4. Boolean displayErrorDetails (optional)
-     *
-     * The callable MUST return an instance of
-     * \Psr\Http\Message\ResponseInterface.
-     *
-     * @param string $type Exception/Throwable name. ie: RuntimeException::class
-     * @param callable|ErrorHandlerInterface $handler
-     * @return self
+     * @return ErrorHandler|callable
      */
-    public function setErrorHandler(string $type, $handler): self
+    public function getDefaultErrorHandler()
     {
-        $this->handlers[$type] = $handler;
-        return $this;
+        if ($this->defaultErrorHandler !== null) {
+            return $this->callableResolver->resolve($this->defaultErrorHandler);
+        }
+
+        return new ErrorHandler($this->responseFactory);
     }
 
     /**
@@ -174,16 +163,27 @@ class ErrorMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Get default error handler
+     * Set callable to handle scenarios where an error
+     * occurs when processing the current request.
      *
-     * @return ErrorHandler|callable
+     * This service MUST return a callable that accepts
+     * three arguments optionally four arguments.
+     *
+     * 1. Instance of \Psr\Http\Message\ServerRequestInterface
+     * 2. Instance of \Psr\Http\Message\ResponseInterface
+     * 3. Instance of \Exception
+     * 4. Boolean displayErrorDetails (optional)
+     *
+     * The callable MUST return an instance of
+     * \Psr\Http\Message\ResponseInterface.
+     *
+     * @param string                         $type Exception/Throwable name. ie: RuntimeException::class
+     * @param callable|ErrorHandlerInterface $handler
+     * @return self
      */
-    public function getDefaultErrorHandler()
+    public function setErrorHandler(string $type, $handler): self
     {
-        if ($this->defaultErrorHandler !== null) {
-            return $this->callableResolver->resolve($this->defaultErrorHandler);
-        }
-
-        return new ErrorHandler($this->responseFactory);
+        $this->handlers[$type] = $handler;
+        return $this;
     }
 }

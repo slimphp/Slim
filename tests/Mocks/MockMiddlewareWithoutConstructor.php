@@ -19,7 +19,7 @@ class MockMiddlewareWithoutConstructor implements MiddlewareInterface
     public static $CalledCount = 0;
 
     /**
-     * @param ServerRequestInterface $request
+     * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
      */

@@ -43,17 +43,6 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     }
 
     /**
-     * Invoke the middleware stack
-     *
-     * @param  ServerRequestInterface $request
-     * @return ResponseInterface
-     */
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        return $this->tip->handle($request);
-    }
-
-    /**
      * Seed the middleware stack with the inner request handler
      *
      * @param RequestHandlerInterface $kernel
@@ -62,6 +51,17 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     protected function seedMiddlewareStack(RequestHandlerInterface $kernel): void
     {
         $this->tip = $kernel;
+    }
+
+    /**
+     * Invoke the middleware stack
+     *
+     * @param  ServerRequestInterface $request
+     * @return ResponseInterface
+     */
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        return $this->tip->handle($request);
     }
 
     /**
@@ -107,7 +107,8 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface {
+        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        {
             private $middleware;
             private $next;
 
@@ -139,7 +140,8 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addDeferred(string $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next, $this->container) implements RequestHandlerInterface {
+        $this->tip = new class($middleware, $next, $this->container) implements RequestHandlerInterface
+        {
             private $middleware;
             private $next;
             private $container;
@@ -194,7 +196,8 @@ class MiddlewareDispatcher implements RequestHandlerInterface
     public function addCallable(callable $middleware): self
     {
         $next = $this->tip;
-        $this->tip = new class($middleware, $next) implements RequestHandlerInterface {
+        $this->tip = new class($middleware, $next) implements RequestHandlerInterface
+        {
             private $middleware;
             private $next;
 

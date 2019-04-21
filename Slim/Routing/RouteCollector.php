@@ -87,11 +87,11 @@ class RouteCollector implements RouteCollectorInterface
     protected $responseFactory;
 
     /**
-     * @param ResponseFactoryInterface      $responseFactory
-     * @param CallableResolverInterface     $callableResolver
-     * @param ContainerInterface|null       $container
-     * @param InvocationStrategyInterface   $defaultInvocationStrategy
-     * @param RouteParserInterface          $routeParser
+     * @param ResponseFactoryInterface    $responseFactory
+     * @param CallableResolverInterface   $callableResolver
+     * @param ContainerInterface|null     $container
+     * @param InvocationStrategyInterface $defaultInvocationStrategy
+     * @param RouteParserInterface        $routeParser
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
@@ -197,6 +197,17 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    public function removeNamedRoute(string $name): RouteCollectorInterface
+    {
+        /** @var Route $route */
+        $route = $this->getNamedRoute($name);
+        unset($this->routes[$route->getIdentifier()]);
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getNamedRoute(string $name): RouteInterface
     {
         foreach ($this->routes as $route) {
@@ -210,39 +221,12 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
-    public function removeNamedRoute(string $name): RouteCollectorInterface
-    {
-        /** @var Route $route */
-        $route = $this->getNamedRoute($name);
-        unset($this->routes[$route->getIdentifier()]);
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function lookupRoute(string $identifier): RouteInterface
     {
         if (!isset($this->routes[$identifier])) {
             throw new RuntimeException('Route not found, looks like your route cache is stale.');
         }
         return $this->routes[$identifier];
-    }
-
-    /**
-     * Process current route groups and compute the pattern
-     * that will prefix all subsequent routes being added while processing
-     * the current route group
-     *
-     * @return string
-     */
-    protected function computeRoutePatternPrefix(): string
-    {
-        $pattern = '';
-        foreach ($this->routeGroups as $group) {
-            $pattern .= $group->getPattern();
-        }
-        return $pattern;
     }
 
     /**
@@ -281,6 +265,22 @@ class RouteCollector implements RouteCollectorInterface
         $this->routeCounter++;
 
         return $route;
+    }
+
+    /**
+     * Process current route groups and compute the pattern
+     * that will prefix all subsequent routes being added while processing
+     * the current route group
+     *
+     * @return string
+     */
+    protected function computeRoutePatternPrefix(): string
+    {
+        $pattern = '';
+        foreach ($this->routeGroups as $group) {
+            $pattern .= $group->getPattern();
+        }
+        return $pattern;
     }
 
     /**

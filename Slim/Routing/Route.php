@@ -114,15 +114,15 @@ class Route implements RouteInterface, RequestHandlerInterface
     protected $groupMiddlewareAppended = false;
 
     /**
-     * @param string[]                          $methods The route HTTP methods
-     * @param string                            $pattern The route pattern
-     * @param callable|string                   $callable The route callable
-     * @param ResponseFactoryInterface          $responseFactory
-     * @param CallableResolverInterface         $callableResolver
-     * @param ContainerInterface|null           $container
-     * @param InvocationStrategyInterface|null  $invocationStrategy
-     * @param RouteGroup[]                      $groups The parent route groups
-     * @param int                               $identifier The route identifier
+     * @param string[]                         $methods    The route HTTP methods
+     * @param string                           $pattern    The route pattern
+     * @param callable|string                  $callable   The route callable
+     * @param ResponseFactoryInterface         $responseFactory
+     * @param CallableResolverInterface        $callableResolver
+     * @param ContainerInterface|null          $container
+     * @param InvocationStrategyInterface|null $invocationStrategy
+     * @param RouteGroup[]                     $groups     The parent route groups
+     * @param int                              $identifier The route identifier
      */
     public function __construct(
         array $methods,
@@ -261,19 +261,6 @@ class Route implements RouteInterface, RequestHandlerInterface
     /**
      * {@inheritdoc}
      */
-    public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
-    {
-        if ($includeInSavedArguments) {
-            $this->savedArguments[$name] = $value;
-        }
-
-        $this->arguments[$name] = $value;
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function setArguments(array $arguments, bool $includeInSavedArguments = true): RouteInterface
     {
         if ($includeInSavedArguments) {
@@ -310,10 +297,6 @@ class Route implements RouteInterface, RequestHandlerInterface
         return $this;
     }
 
-    /********************************************************************************
-     * Route Runner
-     *******************************************************************************/
-
     /**
      * {@inheritdoc}
      */
@@ -331,6 +314,31 @@ class Route implements RouteInterface, RequestHandlerInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function setArgument(string $name, string $value, bool $includeInSavedArguments = true): RouteInterface
+    {
+        if ($includeInSavedArguments) {
+            $this->savedArguments[$name] = $value;
+        }
+
+        $this->arguments[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function run(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!$this->groupMiddlewareAppended) {
+            $this->appendGroupMiddlewareToRoute();
+        }
+
+        return $this->middlewareDispatcher->handle($request);
+    }
+
+    /**
      * @return void
      */
     protected function appendGroupMiddlewareToRoute(): void
@@ -344,18 +352,6 @@ class Route implements RouteInterface, RequestHandlerInterface
         }
 
         $this->groupMiddlewareAppended = true;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function run(ServerRequestInterface $request): ResponseInterface
-    {
-        if (!$this->groupMiddlewareAppended) {
-            $this->appendGroupMiddlewareToRoute();
-        }
-
-        return $this->middlewareDispatcher->handle($request);
     }
 
     /**

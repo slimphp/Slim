@@ -50,7 +50,7 @@ abstract class TestCase extends PhpUnitTestCase
     /**
      * @param string $uri
      * @param string $method
-     * @param array $data
+     * @param array  $data
      * @return ServerRequestInterface
      */
     protected function createServerRequest(
@@ -63,7 +63,7 @@ abstract class TestCase extends PhpUnitTestCase
     }
 
     /**
-     * @param int $statusCode
+     * @param int    $statusCode
      * @param string $reasonPhrase
      * @return ResponseInterface
      */

@@ -79,7 +79,7 @@ interface RouteCollectorInterface
     /**
      * Get named route object
      *
-     * @param string $name        Route name
+     * @param string $name Route name
      *
      * @return RouteInterface
      *
@@ -90,7 +90,7 @@ interface RouteCollectorInterface
     /**
      * Remove named route
      *
-     * @param string $name        Route name
+     * @param string $name Route name
      * @return RouteCollectorInterface
      *
      * @throws RuntimeException   If named route does not exist
@@ -111,8 +111,8 @@ interface RouteCollectorInterface
     /**
      * Add route group
      *
-     * @param string            $pattern
-     * @param string|callable   $callable
+     * @param string          $pattern
+     * @param string|callable $callable
      * @return RouteGroupInterface
      */
     public function group(string $pattern, $callable): RouteGroupInterface;
@@ -120,8 +120,8 @@ interface RouteCollectorInterface
     /**
      * Add route
      *
-     * @param string[] $methods Array of HTTP methods
-     * @param string   $pattern The route pattern
+     * @param string[]        $methods Array of HTTP methods
+     * @param string          $pattern The route pattern
      * @param callable|string $handler The route callable
      *
      * @return RouteInterface

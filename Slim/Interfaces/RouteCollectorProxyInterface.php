@@ -38,8 +38,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add GET route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -48,8 +48,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add POST route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -58,8 +58,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add PUT route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -68,8 +68,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add PATCH route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -78,8 +78,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add DELETE route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -88,8 +88,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add OPTIONS route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -98,8 +98,8 @@ interface RouteCollectorProxyInterface
     /**
      * Add route for any HTTP method
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */
@@ -108,9 +108,9 @@ interface RouteCollectorProxyInterface
     /**
      * Add route with multiple methods
      *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  callable|string    $callable The route callback routine
+     * @param  string[]        $methods  Numeric array of HTTP method names
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
      */

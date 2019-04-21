@@ -52,12 +52,12 @@ class RoutingResults
     protected $routeArguments;
 
     /**
-     * @param DispatcherInterface   $dispatcher
-     * @param string                $method
-     * @param string                $uri
-     * @param int                   $routeStatus
-     * @param string|null           $routeIdentifier
-     * @param array                 $routeArguments
+     * @param DispatcherInterface $dispatcher
+     * @param string              $method
+     * @param string              $uri
+     * @param int                 $routeStatus
+     * @param string|null         $routeIdentifier
+     * @param array               $routeArguments
      */
     public function __construct(
         DispatcherInterface $dispatcher,

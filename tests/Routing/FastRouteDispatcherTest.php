@@ -16,27 +16,6 @@ use Slim\Tests\TestCase;
 
 class FastRouteDispatcherTest extends TestCase
 {
-    protected function getDispatcherClass()
-    {
-        return FastRouteDispatcher::class;
-    }
-
-    protected function getDataGeneratorClass()
-    {
-        return GroupCountBased::class;
-    }
-
-    /**
-     * Set appropriate options for the specific Dispatcher class we're testing
-     */
-    private function generateDispatcherOptions()
-    {
-        return [
-            'dataGenerator' => $this->getDataGeneratorClass(),
-            'dispatcher' => $this->getDispatcherClass()
-        ];
-    }
-
     /**
      * @dataProvider provideFoundDispatchCases
      */
@@ -50,6 +29,27 @@ class FastRouteDispatcherTest extends TestCase
         $this->assertSame($dispatcher::FOUND, $results[0]);
         $this->assertSame($handler, $results[1]);
         $this->assertSame($argDict, $results[2]);
+    }
+
+    /**
+     * Set appropriate options for the specific Dispatcher class we're testing
+     */
+    private function generateDispatcherOptions()
+    {
+        return [
+            'dataGenerator' => $this->getDataGeneratorClass(),
+            'dispatcher' => $this->getDispatcherClass()
+        ];
+    }
+
+    protected function getDataGeneratorClass()
+    {
+        return GroupCountBased::class;
+    }
+
+    protected function getDispatcherClass()
+    {
+        return FastRouteDispatcher::class;
     }
 
     /**
@@ -136,7 +136,8 @@ class FastRouteDispatcherTest extends TestCase
     /**
      * @codingStandardsIgnoreStart
      * @expectedException \FastRoute\BadRouteException
-     * @expectedExceptionMessage Static route "/user/nikic" is shadowed by previously defined variable route "/user/([^/]+)" for method "GET"
+     * @expectedExceptionMessage Static route "/user/nikic" is shadowed by previously defined variable route
+     *                           "/user/([^/]+)" for method "GET"
      * @codingStandardsIgnoreEnd
      */
     public function testShadowedStaticRoute()

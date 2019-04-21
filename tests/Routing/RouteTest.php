@@ -36,15 +36,15 @@ use Slim\Tests\Mocks\RequestHandlerTest;
 class RouteTest extends TestCase
 {
     /**
-     * @param string|array $methods
-     * @param string $pattern
+     * @param string|array        $methods
+     * @param string              $pattern
      * @param Closure|string|null $callable
      * @return Route
      */
     public function createRoute($methods = 'GET', string $pattern = '/', $callable = null): Route
     {
         $callable = $callable ?? function (ServerRequestInterface $request, ResponseInterface $response) {
-            return $response;
+                return $response;
         };
 
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
@@ -418,7 +418,7 @@ class RouteTest extends TestCase
             ) use (
                 $self,
                 $responseProphecy
-) {
+            ) {
                 $self->assertSame($responseProphecy->reveal(), $response);
                 return $response;
             })

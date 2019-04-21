@@ -35,22 +35,6 @@ class AppFactory
     ];
 
     /**
-     * @return ResponseFactoryInterface
-     * @throws RuntimeException
-     */
-    public static function determineResponseFactory(): ResponseFactoryInterface
-    {
-        /** @var Psr17Factory $implementation */
-        foreach (self::$implementations as $implementation) {
-            if ($implementation::isResponseFactoryAvailable()) {
-                return $implementation::getResponseFactory();
-            }
-        }
-
-        throw new RuntimeException('Could not detect any PSR-17 ResponseFactory implementations.');
-    }
-
-    /**
      * @param ResponseFactoryInterface|null  $responseFactory
      * @param ContainerInterface|null        $container
      * @param CallableResolverInterface|null $callableResolver
@@ -73,5 +57,21 @@ class AppFactory
             $routeCollector,
             $routeResolver
         );
+    }
+
+    /**
+     * @return ResponseFactoryInterface
+     * @throws RuntimeException
+     */
+    public static function determineResponseFactory(): ResponseFactoryInterface
+    {
+        /** @var Psr17Factory $implementation */
+        foreach (self::$implementations as $implementation) {
+            if ($implementation::isResponseFactoryAvailable()) {
+                return $implementation::getResponseFactory();
+            }
+        }
+
+        throw new RuntimeException('Could not detect any PSR-17 ResponseFactory implementations.');
     }
 }
