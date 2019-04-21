@@ -26,4 +26,13 @@
             <directory>./Slim/</directory>
         </whitelist>
     </filter>
+
+    <logging>
+        <log
+            type="coverage-html"
+            target="./coverage"
+            lowUpperBound="20"
+            highLowerBound="50"
+        />
+    </logging>
 </phpunit>
