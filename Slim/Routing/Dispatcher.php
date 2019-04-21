@@ -9,11 +9,6 @@ use FastRoute\RouteParser\Std;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 
-/**
- * Class Dispatcher
- *
- * @package Slim\Routing
- */
 class Dispatcher implements DispatcherInterface
 {
     /**
@@ -32,8 +27,6 @@ class Dispatcher implements DispatcherInterface
     private $dispatcher;
 
     /**
-     * Dispatcher constructor.
-     *
      * @param RouteCollectorInterface   $routeCollector
      * @param RouteParser|null          $routeParser
      */

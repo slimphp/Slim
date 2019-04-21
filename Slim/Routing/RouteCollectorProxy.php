@@ -18,11 +18,6 @@ use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 
-/**
- * Class RouteCollectorProxy
- *
- * @package Slim\Routing
- */
 class RouteCollectorProxy implements RouteCollectorProxyInterface
 {
     /**
@@ -51,8 +46,6 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     protected $basePath;
 
     /**
-     * RouteCollectorProxy constructor.
-     *
      * @param ResponseFactoryInterface      $responseFactory
      * @param CallableResolverInterface     $callableResolver
      * @param RouteCollectorInterface|null  $routeCollector

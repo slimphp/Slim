@@ -11,12 +11,6 @@ namespace Slim;
 
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * Response Emitter Class
- *
- * @package Slim
- * @since 4.0.0
- */
 class ResponseEmitter
 {
     /**
@@ -25,7 +19,6 @@ class ResponseEmitter
     private $responseChunkSize;
 
     /**
-     * ResponseEmitter constructor.
      * @param int $responseChunkSize
      */
     public function __construct(int $responseChunkSize = 4096)

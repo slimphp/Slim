@@ -14,10 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * Class MethodOverrideMiddleware
- * @package Slim\Middleware
- */
 class MethodOverrideMiddleware implements MiddlewareInterface
 {
     /**

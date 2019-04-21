@@ -31,11 +31,10 @@ class HttpException extends Exception
     protected $description = '';
 
     /**
-     * HttpException constructor.
-     * @param ServerRequestInterface $request
-     * @param string $message
-     * @param int $code
-     * @param Throwable|null $previous
+     * @param ServerRequestInterface    $request
+     * @param string                    $message
+     * @param int                       $code
+     * @param Throwable|null            $previous
      */
     public function __construct(
         ServerRequestInterface $request,

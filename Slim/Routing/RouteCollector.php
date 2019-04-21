@@ -87,8 +87,6 @@ class RouteCollector implements RouteCollectorInterface
     protected $responseFactory;
 
     /**
-     * Create new router
-     *
      * @param ResponseFactoryInterface      $responseFactory
      * @param CallableResolverInterface     $callableResolver
      * @param ContainerInterface|null       $container

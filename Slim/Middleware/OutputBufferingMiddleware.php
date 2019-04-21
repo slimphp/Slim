@@ -17,10 +17,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Throwable;
 
-/**
- * Class OutputBufferingMiddleware
- * @package Slim\Middleware
- */
 class OutputBufferingMiddleware implements MiddlewareInterface
 {
     public const APPEND = 'append';
@@ -37,10 +33,8 @@ class OutputBufferingMiddleware implements MiddlewareInterface
     protected $style;
 
     /**
-     * Constructor
-     *
-     * @param StreamFactoryInterface $streamFactory
-     * @param string $style Either "append" or "prepend"
+     * @param StreamFactoryInterface    $streamFactory
+     * @param string                    $style Either "append" or "prepend"
      */
     public function __construct(StreamFactoryInterface $streamFactory, string $style = 'append')
     {

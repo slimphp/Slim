@@ -24,10 +24,8 @@ class DeferredCallable
     protected $callableResolver;
 
     /**
-     * DeferredMiddleware constructor.
-     *
-     * @param callable|string $callable
-     * @param CallableResolverInterface|null $resolver
+     * @param callable|string                   $callable
+     * @param CallableResolverInterface|null    $resolver
      */
     public function __construct($callable, CallableResolverInterface $resolver = null)
     {

@@ -28,9 +28,6 @@ use Throwable;
  *
  * It outputs the error message and diagnostic information in one of the following formats:
  * JSON, XML, Plain Text or HTML based on the Accept header.
- *
- * @package Slim
- * @since 4.0.0
  */
 class ErrorHandler implements ErrorHandlerInterface
 {
@@ -98,7 +95,6 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $responseFactory;
 
     /**
-     * ErrorHandler constructor.
      * @param ResponseFactoryInterface $responseFactory
      */
     public function __construct(ResponseFactoryInterface $responseFactory)
