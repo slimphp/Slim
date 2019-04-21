@@ -9,11 +9,8 @@ declare(strict_types=1);
 
 namespace Slim\Routing;
 
-use FastRoute\RouteParser\Std as StdParser;
-use InvalidArgumentException;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Slim\Handlers\Strategies\RequestResponse;
 use Slim\Interfaces\CallableResolverInterface;
