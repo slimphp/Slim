@@ -98,6 +98,8 @@ interface RouteCollectorInterface
     public function removeNamedRoute(string $name): RouteCollectorInterface;
 
     /**
+     * Lookup a route via the route's unique identifier
+     *
      * @param string $identifier
      *
      * @return RouteInterface
@@ -107,21 +109,13 @@ interface RouteCollectorInterface
     public function lookupRoute(string $identifier): RouteInterface;
 
     /**
-     * Add a route group to the array
+     * Add route group
      *
-     * @param string   $pattern The group pattern
-     * @param callable $callable A group callable
-     *
+     * @param string            $pattern
+     * @param string|callable   $callable
      * @return RouteGroupInterface
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface;
-
-    /**
-     * Removes the last route group from the array
-     *
-     * @return RouteGroupInterface|null
-     */
-    public function popGroup(): ?RouteGroupInterface;
+    public function group(string $pattern, $callable): RouteGroupInterface;
 
     /**
      * Add route

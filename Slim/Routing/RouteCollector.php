@@ -232,36 +232,13 @@ class RouteCollector implements RouteCollectorInterface
     }
 
     /**
-     * Add a route group to the array
+     * Process current route groups and compute the pattern
+     * that will prefix all subsequent routes being added while processing
+     * the current route group
      *
-     * @param string   $pattern
-     * @param callable $callable
-     *
-     * @return RouteGroupInterface
+     * @return string
      */
-    public function pushGroup(string $pattern, $callable): RouteGroupInterface
-    {
-        $group = new RouteGroup($pattern, $callable, $this->callableResolver);
-        $this->routeGroups[] = $group;
-        return $group;
-    }
-
-    /**
-     * Removes the last route group from the array
-     *
-     * @return RouteGroupInterface|null The last RouteGroup, if one exists
-     */
-    public function popGroup(): ?RouteGroupInterface
-    {
-        return array_pop($this->routeGroups);
-    }
-
-    /**
-     * Process route groups
-     *
-     * @return string A group pattern to prefix routes with
-     */
-    protected function processGroups(): string
+    protected function computeRoutePatternPrefix(): string
     {
         $pattern = '';
         foreach ($this->routeGroups as $group) {
@@ -273,11 +250,32 @@ class RouteCollector implements RouteCollectorInterface
     /**
      * {@inheritdoc}
      */
+    public function group(string $pattern, $callable): RouteGroupInterface
+    {
+        $routeCollectorProxy = new RouteCollectorProxy(
+            $this->responseFactory,
+            $this->callableResolver,
+            $this->container,
+            $this
+        );
+
+        $routeGroup = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
+        $this->routeGroups[] = $routeGroup;
+
+        $routeGroup->collectRoutes();
+        array_shift($this->routeGroups);
+
+        return $routeGroup;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function map(array $methods, string $pattern, $handler): RouteInterface
     {
         // Prepend parent group pattern(s)
         if ($this->routeGroups) {
-            $pattern = $this->processGroups() . $pattern;
+            $pattern = $this->computeRoutePatternPrefix() . $pattern;
         }
 
         $route = $this->createRoute($methods, $pattern, $handler);
