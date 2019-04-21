@@ -17,18 +17,49 @@ $ composer require "slim/slim:4.x-dev"
 
 This will install Slim and all required dependencies. Slim requires PHP 7.1 or newer.
 
-## Choose a PSR-7 Implementation
+## Choose a PSR-7 Implementation & ServerRequest Creator
 
 Before you can get up and running with Slim you will need to choose a PSR-7 implementation that best fits your application. A few notable ones:
-- [Nyholm/psr7](https://github.com/Nyholm/psr7) - This is the fastest, strictest and most lightweight implementation at the moment
-- [Guzzle/psr7](https://github.com/guzzle/psr7) - This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier
-- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend implementation. It is the slowest implementation of the 3.
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - This is the Slim Framework projects PSR-7 implementation.
+- [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - This is the fastest, strictest and most lightweight implementation at the moment
+- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier
+- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend implementation. It is the slowest implementation of the 3.
 
 
 ## Slim-Http Decorators
 
 [Slim-Http](https://github.com/slimphp/Slim-Http) is a set of decorators for any PSR-7 implementation that we recommend is used with Slim Framework.
+
+## Hello World using PSR-7 & ServerRequest creator auto detection
+In order for auto-detection to work and enable you to use `AppFactory::create()` and `App::run()` without having to manually create a `ServerRequest` you need to install one of the following implementations:
+- [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - Install using `composer require slim/psr7:dev-master`
+- [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr-7 nyholm/psr7-server`
+- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
+- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `zendframework/zend-diactoros`
+
+```php
+<?php
+require 'vendor/autoload.php';
+
+use Slim\AppFactory;
+
+/**
+ * The AppFactory::create() method takes 5 optional parameters
+ * 
+ * @param ResponseFactoryInterface Any implementation of a ResponseFactory
+ * @param ContainerInterface|null Any implementation of a Container
+ * @param CallableResolverInterface|null Any implementation of a CallableResolver
+ * @param RouteCollectorInterface|null Any implementation of a RouteCollector
+ * @param RouteResolverInterface|null Any implementation of a RouteResolverInterface
+ */
+$app = AppFactory::create();
+$app->get('/hello/{name}', function ($request, $response, $args) {
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
+});
+
+$app->run();
+```
 
 ## Hello World with Slim-Http & Slim-Psr7
 
@@ -82,11 +113,12 @@ $serverRequestFactory = new ServerRequestCreator(
 
 /**
  * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
+ * 
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
- * @param array Settings array
  * @param CallableResolverInterface|null Any implementation of a CallableResolver
- * @param RouterInterface|null Any implementation of a Router
+ * @param RouteCollectorInterface|null Any implementation of a RouteCollector
+ * @param RouteResolverInterface|null Any implementation of a RouteResolverInterface
  */
 $app = new Slim\App($psr17Factory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -96,6 +128,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 
 /**
  * The App::run() method takes 1 parameter
+ * 
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = $serverRequestFactory->fromGlobals();
@@ -118,9 +151,9 @@ $serverRequestFactory = new ServerRequestFactory();
  * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
- * @param array Settings array
  * @param CallableResolverInterface|null Any implementation of a CallableResolver
- * @param RouterInterface|null Any implementation of a Router
+ * @param RouteCollectorInterface|null Any implementation of a RouteCollector
+ * @param RouteResolverInterface|null Any implementation of a RouteResolverInterface
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -131,6 +164,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 /**
  * The App::handle() method takes 1 parameter
  * Note we are using handle() and not run() since we want to emit the response using Zend's Response Emitter
+ * 
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = ServerRequestFactory::fromGlobals();
@@ -165,11 +199,12 @@ $serverRequestFactory = new ServerRequestFactory();
  * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
  * Note that we pass in the decorated response factory which will give us access to the Slim\Http
  * decorated Response methods like withJson()
+ * 
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
- * @param array Settings array
  * @param CallableResolverInterface|null Any implementation of a CallableResolver
- * @param RouterInterface|null Any implementation of a Router
+ * @param RouteCollectorInterface|null Any implementation of a RouteCollector
+ * @param RouteResolverInterface|null Any implementation of a RouteResolverInterface
  */
 $app = new Slim\App($decoratedResponseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -180,6 +215,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
  * The App::run() method takes 1 parameter
  * Note that we pass in the decorated server request object which will give us access to the Slim\Http
  * decorated ServerRequest methods like withRedirect()
+ * 
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = ServerRequestFactory::fromGlobals();
@@ -199,11 +235,12 @@ $responseFactory = new ResponseFactory();
 
 /**
  * The App::__constructor() method takes 1 mandatory parameter and 4 optional parameters
+ * 
  * @param ResponseFactoryInterface Any implementation of a ResponseFactory
  * @param ContainerInterface|null Any implementation of a Container
- * @param array Settings array
  * @param CallableResolverInterface|null Any implementation of a CallableResolver
- * @param RouterInterface|null Any implementation of a Router
+ * @param RouteCollectorInterface|null Any implementation of a RouteCollector
+ * @param RouteResolverInterface|null Any implementation of a RouteResolverInterface
  */
 $app = new Slim\App($responseFactory);
 $app->get('/hello/{name}', function ($request, $response, $args) {
@@ -213,6 +250,7 @@ $app->get('/hello/{name}', function ($request, $response, $args) {
 
 /**
  * The App::run() method takes 1 parameter
+ * 
  * @param ServerRequestInterface An instantiation of a ServerRequest
  */
 $request = ServerRequest::fromGlobals();
