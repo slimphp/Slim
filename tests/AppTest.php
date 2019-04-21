@@ -26,6 +26,7 @@ use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteCollectorProxy;
@@ -874,9 +875,16 @@ class AppTest extends TestCase
         });
 
         $app = new App($responseFactoryProphecy->reveal());
-        $app->group('/foo', function (RouteCollectorProxy $proxy) use ($middlewareProphecy2, $middlewareProphecy3, &$output) {
-            $proxy->group('/bar', function (RouteCollectorProxy $proxy) use ($middlewareProphecy3, &$output) {
-                $proxy->get('/baz', function (
+        $app->group('/foo', function (RouteCollectorProxyInterface $group) use (
+            $middlewareProphecy2,
+            $middlewareProphecy3,
+            &$output
+        ) {
+            $group->group('/bar', function (RouteCollectorProxyInterface $group) use (
+                $middlewareProphecy3,
+                &$output
+            ) {
+                $group->get('/baz', function (
                     ServerRequestInterface $request,
                     ResponseInterface $response
                 ) use (&$output) {

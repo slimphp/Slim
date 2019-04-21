@@ -751,7 +751,7 @@ class RouteTest extends TestCase
         $containerProphecy->has('CallableTest3')->willReturn(true);
         $containerProphecy->get('CallableTest3')->willReturn(new CallableTest());
         $containerProphecy->has('ClosureMiddleware')->willReturn(true);
-        $containerProphecy->get('ClosureMiddleware')->willReturn(function ($request, $handler) use ($responseFactoryProphecy) {
+        $containerProphecy->get('ClosureMiddleware')->willReturn(function () use ($responseFactoryProphecy) {
             $response = $responseFactoryProphecy->reveal()->createResponse();
             $response->getBody()->write('Hello');
             return $response;
