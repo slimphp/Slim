@@ -10,10 +10,16 @@ declare(strict_types=1);
 namespace Slim\Interfaces;
 
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\UriInterface;
 
 interface RouteCollectorProxyInterface
 {
+    /**
+     * @return ResponseFactoryInterface
+     */
+    public function getResponseFactory(): ResponseFactoryInterface;
+
     /**
      * @return CallableResolverInterface
      */
