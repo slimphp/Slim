@@ -9,12 +9,10 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Mocks;
 
-/**
- * Mock object for Slim\Tests\CallableResolverTest
- */
 class InvokableTest
 {
     public static $CalledCount = 0;
+
     public function __invoke()
     {
         return static::$CalledCount++;

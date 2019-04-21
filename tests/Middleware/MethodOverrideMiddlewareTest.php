@@ -14,9 +14,6 @@ use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;
 
-/**
- * @covers \Slim\Middleware\MethodOverrideMiddleware
- */
 class MethodOverrideMiddlewareTest extends TestCase
 {
     public function testHeader()

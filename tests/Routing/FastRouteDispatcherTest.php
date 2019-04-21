@@ -14,10 +14,6 @@ use FastRoute\RouteCollector;
 use Slim\Routing\FastRouteDispatcher;
 use Slim\Tests\TestCase;
 
-/**
- * Class FastRouteDispatcherTest
- * @package Slim\Tests
- */
 class FastRouteDispatcherTest extends TestCase
 {
     protected function getDispatcherClass()

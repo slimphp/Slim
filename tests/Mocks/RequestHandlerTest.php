@@ -14,9 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
-/**
- * Mock object for Slim\Tests\CallableResolverTest
- */
 class RequestHandlerTest implements RequestHandlerInterface
 {
     public static $CalledCount = 0;

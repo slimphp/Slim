@@ -14,9 +14,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * Mock object for Slim\Tests\AppTest
- */
 class MockMiddlewareWithoutConstructor implements MiddlewareInterface
 {
     public static $CalledCount = 0;

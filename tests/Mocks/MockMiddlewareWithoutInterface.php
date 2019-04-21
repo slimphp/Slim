@@ -9,10 +9,6 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Mocks;
 
-/**
- * Class MockMiddlewareWithoutInterface
- * @package Slim\Tests\Mocks
- */
 class MockMiddlewareWithoutInterface
 {
 }

@@ -11,9 +11,6 @@ namespace Slim\Tests\Mocks;
 
 use Slim\Error\AbstractErrorRenderer;
 
-/**
- * Mock object for Slim\Tests\AppTest
- */
 class MockErrorRenderer extends AbstractErrorRenderer
 {
     /**

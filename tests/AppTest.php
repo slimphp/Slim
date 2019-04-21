@@ -27,7 +27,6 @@ use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
-use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\Mocks\MockAction;

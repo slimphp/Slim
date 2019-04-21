@@ -119,7 +119,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function get(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['GET'], $pattern, $callable);
+        return $this->map(['GET'], $pattern, $callable);
     }
 
     /**
@@ -127,7 +127,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function post(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['POST'], $pattern, $callable);
+        return $this->map(['POST'], $pattern, $callable);
     }
 
     /**
@@ -135,7 +135,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function put(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['PUT'], $pattern, $callable);
+        return $this->map(['PUT'], $pattern, $callable);
     }
 
     /**
@@ -143,7 +143,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function patch(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['PATCH'], $pattern, $callable);
+        return $this->map(['PATCH'], $pattern, $callable);
     }
 
     /**
@@ -151,7 +151,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function delete(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['DELETE'], $pattern, $callable);
+        return $this->map(['DELETE'], $pattern, $callable);
     }
 
     /**
@@ -159,7 +159,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function options(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['OPTIONS'], $pattern, $callable);
+        return $this->map(['OPTIONS'], $pattern, $callable);
     }
 
     /**
@@ -167,7 +167,7 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function any(string $pattern, $callable): RouteInterface
     {
-        return $this->routeCollector->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
+        return $this->map(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], $pattern, $callable);
     }
 
     /**
@@ -175,6 +175,8 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
      */
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
+        $pattern = $this->basePath . $pattern;
+
         if ($this->container && $callable instanceof Closure) {
             $callable = $callable->bindTo($this->container);
         }

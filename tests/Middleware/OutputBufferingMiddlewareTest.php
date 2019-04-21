@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace Slim\Tests\Middleware;
 
-use Psr\Http\Server\RequestHandlerInterface;
 use Exception;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Middleware\OutputBufferingMiddleware;
 use Slim\MiddlewareDispatcher;
 use Slim\Tests\TestCase;

@@ -12,9 +12,6 @@ namespace Slim\Tests\Mocks;
 use Exception;
 use Psr\Http\Message\StreamInterface;
 
-/**
- * A mock stream interface that yields small chunks when reading
- */
 class SmallChunksStream implements StreamInterface
 {
     const CHUNK_SIZE = 10;
