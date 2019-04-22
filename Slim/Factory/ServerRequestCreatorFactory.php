@@ -22,7 +22,7 @@ class ServerRequestCreatorFactory
     /**
      * @var array
      */
-    protected static $implementations = [
+    protected static $psr17Factories = [
         SlimPsr17Factory::class,
         NyholmPsr17Factory::class,
         ZendDiactorosPsr17Factory::class,
@@ -43,13 +43,18 @@ class ServerRequestCreatorFactory
      */
     public static function determineServerRequestCreator(): ServerRequestCreatorInterface
     {
-        /** @var Psr17Factory $implementation */
-        foreach (self::$implementations as $implementation) {
-            if ($implementation::isServerRequestCreatorAvailable()) {
-                return $implementation::getServerRequestCreator();
+        /** @var Psr17Factory $psr17Factory */
+        foreach (self::$psr17Factories as $psr17Factory) {
+            if ($psr17Factory::isServerRequestCreatorAvailable()) {
+                return $psr17Factory::getServerRequestCreator();
             }
         }
 
-        throw new RuntimeException('Could not detect any ServerRequest creator implementations.');
+        throw new RuntimeException(
+            "Could not detect any ServerRequest creator implementations. " .
+            "Please install a supported implementation in order to use `App::run()` " .
+            "without having to pass in a `ServerRequest` object. " .
+            "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
+        );
     }
 }

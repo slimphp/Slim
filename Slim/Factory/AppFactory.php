@@ -27,12 +27,37 @@ class AppFactory
     /**
      * @var array
      */
-    protected static $implementations = [
+    protected static $psr17Factories = [
         SlimPsr17Factory::class,
         NyholmPsr17Factory::class,
         ZendDiactorosPsr17Factory::class,
         GuzzlePsr17Factory::class,
     ];
+
+    /**
+     * @var ResponseFactoryInterface|null
+     */
+    protected static $responseFactory;
+
+    /**
+     * @var ContainerInterface|null
+     */
+    protected static $container;
+
+    /**
+     * @var CallableResolverInterface|null
+     */
+    protected static $callableResolver;
+
+    /**
+     * @var RouteCollectorInterface|null
+     */
+    protected static $routeCollector;
+
+    /**
+     * @var RouteResolverInterface|null
+     */
+    protected static $routeResolver;
 
     /**
      * @param ResponseFactoryInterface|null  $responseFactory
@@ -49,13 +74,12 @@ class AppFactory
         RouteCollectorInterface $routeCollector = null,
         RouteResolverInterface $routeResolver = null
     ): App {
-        $responseFactory = $responseFactory ?? self::determineResponseFactory();
         return new App(
-            $responseFactory,
-            $container,
-            $callableResolver,
-            $routeCollector,
-            $routeResolver
+            $responseFactory ?? static::$responseFactory ?? self::determineResponseFactory(),
+            $container ?? static::$container,
+            $callableResolver ?? static::$callableResolver,
+            $routeCollector ?? static::$routeCollector,
+            $routeResolver ?? static::$routeResolver
         );
     }
 
@@ -65,13 +89,57 @@ class AppFactory
      */
     public static function determineResponseFactory(): ResponseFactoryInterface
     {
-        /** @var Psr17Factory $implementation */
-        foreach (self::$implementations as $implementation) {
-            if ($implementation::isResponseFactoryAvailable()) {
-                return $implementation::getResponseFactory();
+        /** @var Psr17Factory $psr17factory */
+        foreach (self::$psr17Factories as $psr17factory) {
+            if ($psr17factory::isResponseFactoryAvailable()) {
+                return $psr17factory::getResponseFactory();
             }
         }
 
-        throw new RuntimeException('Could not detect any PSR-17 ResponseFactory implementations.');
+        throw new RuntimeException(
+            "Could not detect any PSR-17 ResponseFactory implementations. " .
+            "Please install a supported implementation in order to use `AppFactory::create()`. " .
+            "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
+        );
+    }
+
+    /**
+     * @param ResponseFactoryInterface $responseFactory
+     */
+    public static function setResponseFactory(ResponseFactoryInterface $responseFactory): void
+    {
+        static::$responseFactory = $responseFactory;
+    }
+
+    /**
+     * @param ContainerInterface $container
+     */
+    public static function setContainer(ContainerInterface $container): void
+    {
+        static::$container = $container;
+    }
+
+    /**
+     * @param CallableResolverInterface $callableResolver
+     */
+    public static function setCallableResolver(CallableResolverInterface $callableResolver): void
+    {
+        static::$callableResolver = $callableResolver;
+    }
+
+    /**
+     * @param RouteCollectorInterface $routeCollector
+     */
+    public static function setRouteCollector(RouteCollectorInterface $routeCollector): void
+    {
+        static::$routeCollector = $routeCollector;
+    }
+
+    /**
+     * @param RouteResolverInterface $routeResolver
+     */
+    public static function setRouteResolver(RouteResolverInterface $routeResolver): void
+    {
+        static::$routeResolver = $routeResolver;
     }
 }
