@@ -91,8 +91,8 @@ class AppFactoryTest extends TestCase
         $app = AppFactory::create();
 
         $this->assertSame(
-          $responseFactoryProphecy->reveal(),
-          $app->getResponseFactory()
+            $responseFactoryProphecy->reveal(),
+            $app->getResponseFactory()
         );
 
         $this->assertSame(
