@@ -35,14 +35,14 @@ class ServerRequestCreatorFactoryTest extends TestCase
 
     /**
      * @dataProvider provideImplementations
-     * @param string $implementation
+     * @param string $psr17factory
      * @param string $expectedServerRequestClass
      */
-    public function testCreateAppWithAllImplementations(string $implementation, string $expectedServerRequestClass)
+    public function testCreateAppWithAllImplementations(string $psr17factory, string $expectedServerRequestClass)
     {
-        $implementationsProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'implementations');
-        $implementationsProperty->setAccessible(true);
-        $implementationsProperty->setValue([$implementation]);
+        $psr17FactoriesProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'psr17Factories');
+        $psr17FactoriesProperty->setAccessible(true);
+        $psr17FactoriesProperty->setValue([$psr17factory]);
 
         $serverRequestCreator = ServerRequestCreatorFactory::create();
         $serverRequest = $serverRequestCreator->createServerRequestFromGlobals();
@@ -55,9 +55,9 @@ class ServerRequestCreatorFactoryTest extends TestCase
      */
     public function testDetermineServerRequestCreatorThrowsRuntimeException()
     {
-        $implementationsProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'implementations');
-        $implementationsProperty->setAccessible(true);
-        $implementationsProperty->setValue([]);
+        $psr17FactoriesProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'psr17Factories');
+        $psr17FactoriesProperty->setAccessible(true);
+        $psr17FactoriesProperty->setValue([]);
 
         ServerRequestCreatorFactory::create();
     }
