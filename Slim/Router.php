@@ -486,9 +486,9 @@ class Router implements RouterInterface
      */
     public function fullUrlFor($name, array $data = [], array $queryParams = [])
     {
-        // Check if container['request'] is initialized.
-        if (!$this->container->has('request')) {
-            throw new RuntimeException('Request object is not initialized yet.');
+        // Check if container is set.
+        if (empty($this->container)) {
+            throw new RuntimeException('Container not set.');
         }
 
         $path = $this->pathFor($name, $data, $queryParams);
