@@ -36,6 +36,22 @@ interface RouteCollectorProxyInterface
     public function getRouteCollector(): RouteCollectorInterface;
 
     /**
+     * Get the RouteCollectorProxy's base path
+     *
+     * @return string
+     */
+    public function getBasePath(): string;
+
+    /**
+     * Set the RouteCollectorProxy's base path
+     *
+     * @param string $basePath
+     *
+     * @return RouteCollectorProxyInterface
+     */
+    public function setBasePath(string $basePath): RouteCollectorProxyInterface;
+
+    /**
      * Add GET route
      *
      * @param  string          $pattern  The route URI pattern
@@ -117,17 +133,6 @@ interface RouteCollectorProxyInterface
     public function map(array $methods, string $pattern, $callable): RouteInterface;
 
     /**
-     * Add a route that sends an HTTP redirect
-     *
-     * @param string              $from
-     * @param string|UriInterface $to
-     * @param int                 $status
-     *
-     * @return RouteInterface
-     */
-    public function redirect(string $from, $to, int $status = 302): RouteInterface;
-
-    /**
      * Route Groups
      *
      * This method accepts a route pattern and a callback. All route
@@ -142,18 +147,13 @@ interface RouteCollectorProxyInterface
     public function group(string $pattern, $callable): RouteGroupInterface;
 
     /**
-     * Get the RouteCollectorProxy's base path
+     * Add a route that sends an HTTP redirect
      *
-     * @return string
+     * @param string              $from
+     * @param string|UriInterface $to
+     * @param int                 $status
+     *
+     * @return RouteInterface
      */
-    public function getBasePath(): string;
-
-    /**
-     * Set the RouteCollectorProxy's base path
-     *
-     * @param string $basePath
-     *
-     * @return RouteCollectorProxyInterface
-     */
-    public function setBasePath(string $basePath): RouteCollectorProxyInterface;
+    public function redirect(string $from, $to, int $status = 302): RouteInterface;
 }

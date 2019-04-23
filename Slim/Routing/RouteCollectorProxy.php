@@ -118,23 +118,17 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
-    public function post(string $pattern, $callable): RouteInterface
+    public function get(string $pattern, $callable): RouteInterface
     {
-        return $this->map(['POST'], $pattern, $callable);
+        return $this->map(['GET'], $pattern, $callable);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function map(array $methods, string $pattern, $callable): RouteInterface
+    public function post(string $pattern, $callable): RouteInterface
     {
-        $pattern = $this->basePath . $pattern;
-
-        if ($this->container && $callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
-        return $this->routeCollector->map($methods, $pattern, $callable);
+        return $this->map(['POST'], $pattern, $callable);
     }
 
     /**
@@ -180,22 +174,15 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     /**
      * {@inheritdoc}
      */
-    public function redirect(string $from, $to, int $status = 302): RouteInterface
+    public function map(array $methods, string $pattern, $callable): RouteInterface
     {
-        $handler = function () use ($to, $status) {
-            $response = $this->responseFactory->createResponse($status);
-            return $response->withHeader('Location', (string) $to);
-        };
+        $pattern = $this->basePath . $pattern;
 
-        return $this->get($from, $handler);
-    }
+        if ($this->container && $callable instanceof Closure) {
+            $callable = $callable->bindTo($this->container);
+        }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function get(string $pattern, $callable): RouteInterface
-    {
-        return $this->map(['GET'], $pattern, $callable);
+        return $this->routeCollector->map($methods, $pattern, $callable);
     }
 
     /**
@@ -205,5 +192,18 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     {
         $pattern = $this->basePath . $pattern;
         return $this->routeCollector->group($pattern, $callable);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function redirect(string $from, $to, int $status = 302): RouteInterface
+    {
+        $handler = function () use ($to, $status) {
+            $response = $this->responseFactory->createResponse($status);
+            return $response->withHeader('Location', (string) $to);
+        };
+
+        return $this->get($from, $handler);
     }
 }
