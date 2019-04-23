@@ -9,6 +9,8 @@
 
 namespace Slim\Tests;
 
+use Psr\Container\ContainerExceptionInterface;
+use Slim\Http\Uri;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -433,39 +435,31 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test that the router urlFor will proxy into a pathFor method, and trigger
-     * the user deprecated warning
-     */
-    public function testUrlForAliasesPathFor()
-    {
-        //create a temporary error handler, store the error str in this value
-        $errorString = null;
-
-        set_error_handler(function ($no, $str) use (&$errorString) {
-            $errorString = $str;
-        }, E_USER_DEPRECATED);
-
-        //create the parameters we expect
-        $name = 'foo';
-        $data = ['name' => 'josh'];
-        $queryParams = ['a' => 'b', 'c' => 'd'];
-
-        //create a router that mocks the pathFor with expected args
-        $router = $this->getMockBuilder('\Slim\Router')->setMethods(['pathFor'])->getMock();
-        $router->expects($this->once())->method('pathFor')->with($name, $data, $queryParams);
-        $router->urlFor($name, $data, $queryParams);
-
-        //check that our error was triggered
-        $this->assertEquals($errorString, 'urlFor() is deprecated. Use pathFor() instead.');
-
-        restore_error_handler();
-    }
-
-    /**
      * @expectedException \RuntimeException
      */
     public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {
         $this->router->lookupRoute("thisIsMissing");
+    }
+
+    /**
+     * Test fullUrlFor() with custom base path
+     */
+    public function testFullUrlFor()
+    {
+        $methods = ['GET'];
+        $pattern = '/token/{token}';
+
+        $router = new Router(); // new Router to prevent side effects from Router::setBasePath()
+        $router
+            ->map($methods, $pattern, null)
+            ->setName('testRoute');
+        $router->setBasePath('/app'); // test URL with sub directory
+
+        $uri = Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
+        $result = $router->fullUrlFor($uri, 'testRoute', ['token' => 'randomToken']);
+        $expected = 'http://example.com:8000/app/token/randomToken';
+
+        $this->assertEquals($expected, $result);
     }
 }

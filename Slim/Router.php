@@ -11,6 +11,7 @@ namespace Slim;
 use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
@@ -432,6 +433,8 @@ class Router implements RouterInterface
     /**
      * Build the path for a named route including the base path
      *
+     * This method will be deprecated in Slim 4. Use urlFor() from now on.
+     *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
@@ -443,19 +446,11 @@ class Router implements RouterInterface
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
-        $url = $this->relativePathFor($name, $data, $queryParams);
-
-        if ($this->basePath) {
-            $url = $this->basePath . $url;
-        }
-
-        return $url;
+        return $this->urlFor($name, $data, $queryParams);
     }
 
     /**
-     * Build the path for a named route.
-     *
-     * This method is deprecated. Use pathFor() from now on.
+     * Build the path for a named route including the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
@@ -468,7 +463,33 @@ class Router implements RouterInterface
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
-        return $this->pathFor($name, $data, $queryParams);
+        $url = $this->relativePathFor($name, $data, $queryParams);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get fully qualified URL for named route
+     *
+     * @param UriInterface $uri
+     * @param string $routeName
+     * @param array $data Named argument replacement data
+     * @param array $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     */
+    public function fullUrlFor(UriInterface $uri, $routeName, array $data = [], array $queryParams = [])
+    {
+        $path = $this->urlFor($routeName, $data, $queryParams);
+        $scheme = $uri->getScheme();
+        $authority = $uri->getAuthority();
+        $protocol = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
+
+        return $protocol . $path;
     }
 }
