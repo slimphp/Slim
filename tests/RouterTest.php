@@ -10,6 +10,7 @@
 namespace Slim\Tests;
 
 use Psr\Container\ContainerExceptionInterface;
+use Slim\Http\Uri;
 use Slim\Router;
 
 class RouterTest extends \PHPUnit_Framework_TestCase
@@ -455,7 +456,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             ->setName('testRoute');
         $router->setBasePath('/app'); // test URL with sub directory
 
-        $uri = \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
+        $uri = Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
         $result = $router->fullUrlFor($uri,'testRoute', ['token' => 'randomToken']);
         $expected = 'http://example.com:8000/app/token/randomToken';
 
