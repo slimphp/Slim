@@ -457,7 +457,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router->setBasePath('/app'); // test URL with sub directory
 
         $uri = Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
-        $result = $router->fullUrlFor($uri,'testRoute', ['token' => 'randomToken']);
+        $result = $router->fullUrlFor($uri, 'testRoute', ['token' => 'randomToken']);
         $expected = 'http://example.com:8000/app/token/randomToken';
 
         $this->assertEquals($expected, $result);
