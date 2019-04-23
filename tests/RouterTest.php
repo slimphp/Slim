@@ -476,19 +476,4 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result);
     }
-
-    /**
-     * Test fullUrlFor() without an container should throw a RuntimeException
-     */
-    public function testFullUrlForWithoutContainer()
-    {
-        $this->setExpectedException(
-            '\RuntimeException',
-            sprintf('Container not set.')
-        );
-
-        $router = new Router();
-        // Intentionally don't set container (Router::setContainer())
-        $router->fullUrlFor('something');
-    }
 }
