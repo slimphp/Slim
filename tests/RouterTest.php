@@ -442,36 +442,21 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Creates a slim app, adds test route, injects a fake request
-     * and generates a complete URL for the test route
-     *
-     * @throws ContainerExceptionInterface
+     * Test fullUrlFor() with custom base path
      */
     public function testFullUrlFor()
     {
-        $app = new \Slim\App();
-        $container = $app->getContainer();
+        $methods = ['GET'];
+        $pattern = '/token/{token}';
 
-        // Add test route
-        $app->get('/token/{token}', null)->setName('testRoute');
-
-        // Inject request
-        $request = new \Slim\Http\Request(
-            'GET',
-            \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c'),
-            new \Slim\Http\Headers(),
-            [],
-            \Slim\Http\Environment::mock()->all(),
-            new \Slim\Http\RequestBody()
-        );
-        $container['request'] = $request;
-
-        // Generate complete URL with custom base path
-        /** @var Router $router */
-        $router = $container->get('router');
+        $router = new Router(); // new Router to prevent side effects from Router::setBasePath()
+        $router
+            ->map($methods, $pattern, null)
+            ->setName('testRoute');
         $router->setBasePath('/app'); // test URL with sub directory
-        $result = $router->fullUrlFor('testRoute', ['token' => 'randomToken']);
 
+        $uri = \Slim\Http\Uri::createFromString('http://example.com:8000/only/authority/important?a=b#c');
+        $result = $router->fullUrlFor($uri,'testRoute', ['token' => 'randomToken']);
         $expected = 'http://example.com:8000/app/token/randomToken';
 
         $this->assertEquals($expected, $result);
