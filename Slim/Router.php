@@ -483,7 +483,7 @@ class Router implements RouterInterface
      * @return string
      *
      */
-    public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = [])
+    public function fullUrlFor(UriInterface $uri, $routeName, array $data = [], array $queryParams = [])
     {
         $path = $this->urlFor($routeName, $data, $queryParams);
         $scheme = $uri->getScheme();
