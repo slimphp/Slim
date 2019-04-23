@@ -505,7 +505,7 @@ class AppTest extends TestCase
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $app = new App($responseFactoryProphecy->reveal());
 
-        $processSequence = function (App $app, array $sequence, $processSequence) {
+        $processSequence = function (RouteCollectorProxy $app, array $sequence, $processSequence) {
             $path = array_shift($sequence);
 
             /**
@@ -513,8 +513,8 @@ class AppTest extends TestCase
              * The very tail of the sequence uses the $app->get() method
              */
             if (count($sequence)) {
-                $app->group($path, function () use ($app, &$sequence, $processSequence) {
-                    $processSequence($app, $sequence, $processSequence);
+                $app->group($path, function (RouteCollectorProxy $group) use (&$sequence, $processSequence) {
+                    $processSequence($group, $sequence, $processSequence);
                 });
             } else {
                 $app->get($path, function () {

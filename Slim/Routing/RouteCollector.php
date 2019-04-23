@@ -238,7 +238,8 @@ class RouteCollector implements RouteCollectorInterface
             $this->responseFactory,
             $this->callableResolver,
             $this->container,
-            $this
+            $this,
+            $pattern
         );
 
         $routeGroup = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
@@ -255,32 +256,12 @@ class RouteCollector implements RouteCollectorInterface
      */
     public function map(array $methods, string $pattern, $handler): RouteInterface
     {
-        // Prepend parent group pattern(s)
-        if ($this->routeGroups) {
-            $pattern = $this->computeRoutePatternPrefix() . $pattern;
-        }
 
         $route = $this->createRoute($methods, $pattern, $handler);
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
         return $route;
-    }
-
-    /**
-     * Process current route groups and compute the pattern
-     * that will prefix all subsequent routes being added while processing
-     * the current route group
-     *
-     * @return string
-     */
-    protected function computeRoutePatternPrefix(): string
-    {
-        $pattern = '';
-        foreach ($this->routeGroups as $group) {
-            $pattern .= $group->getPattern();
-        }
-        return $pattern;
     }
 
     /**
