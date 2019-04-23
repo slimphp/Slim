@@ -11,12 +11,12 @@ namespace Slim;
 use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
-use Slim\Http\Uri;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
@@ -475,31 +475,21 @@ class Router implements RouterInterface
     /**
      * Get fully qualified URL for named route
      *
-     * @param string $name Route name
+     * @param UriInterface $uri
+     * @param string $routeName
      * @param array $data Named argument replacement data
      * @param array $queryParams Optional query string parameters
      *
      * @return string
      *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws RuntimeException If named route does not exist or Request not initialized
      */
-    public function fullUrlFor($name, array $data = [], array $queryParams = [])
+    public function fullUrlFor(UriInterface $uri, string $routeName, array $data = [], array $queryParams = []): string
     {
-        // Check if container is set.
-        if (empty($this->container)) {
-            throw new RuntimeException('Container not set.');
-        }
-
-        $path = $this->pathFor($name, $data, $queryParams);
-
-        /** @var Uri $uri */
-        $uri = $this->container->get('request')->getUri();
-
+        $path = $this->urlFor($routeName, $data, $queryParams);
         $scheme = $uri->getScheme();
         $authority = $uri->getAuthority();
-        $host = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
+        $protocol = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
 
-        return $host . $path;
+        return $protocol . $path;
     }
 }
