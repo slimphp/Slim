@@ -495,9 +495,6 @@ class Router implements RouterInterface
 
         /** @var Uri $uri */
         $uri = $this->container->get('request')->getUri();
-        if (is_string($uri)) {
-            $uri = Uri::createFromString($uri);
-        }
 
         $scheme = $uri->getScheme();
         $authority = $uri->getAuthority();
