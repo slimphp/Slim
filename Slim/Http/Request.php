@@ -497,7 +497,11 @@ class Request extends Message implements ServerRequestInterface
             return '/';
         }
 
-        $basePath = $this->uri->getBasePath();
+        if ($this->uri instanceof Uri) {
+            $basePath = $this->uri->getBasePath();
+        } else {
+            $basePath = '';
+        }
         $path = $this->uri->getPath();
         $path = $basePath . '/' . ltrim($path, '/');
 
