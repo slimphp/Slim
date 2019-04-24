@@ -1,5 +1,6 @@
 # How to upgrade
 
+* [2654] - `RouteParser::pathFor()` and `RouteParser::relativePathFor()` are deprecated. Use `RouteParser::urlFor()` and `RouteParser::relativeUrlFor()`
 * [2638] - `RouteCollector::pathFor()` is now deprecated. Use `RouteParser::urlFor()`
 * [2622] - `Router` has been removed. It is now split into `RouteCollector`, `RouteRunner` and `RouteParser`
 * [2555] - PSR-15 Middleware support was implemented at the cost of Double-Pass middleware being deprecated.
@@ -13,6 +14,7 @@
 * [2254] - You need to add the `Middleware\ContentLengthMiddleware` middleware if you want Slim to add the Content-Length header this automatically.
 * [2166] - You need to add the `Middleware\OutputBuffering` middleware to capture echo'd or var_dump'd output from your code.
 
+[2654]: https://github.com/slimphp/Slim/pull/2654
 [2638]: https://github.com/slimphp/Slim/pull/2638
 [2622]: https://github.com/slimphp/Slim/pull/2622
 [2555]: https://github.com/slimphp/Slim/pull/2555
