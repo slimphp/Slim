@@ -39,9 +39,9 @@ class RouteParser implements RouteParserInterface
     /**
      * {@inheritdoc}
      */
-    public function relativePathFor(string $name, array $data = [], array $queryParams = []): string
+    public function relativeUrlFor(string $routeName, array $data = [], array $queryParams = []): string
     {
-        $route = $this->routeCollector->getNamedRoute($name);
+        $route = $this->routeCollector->getNamedRoute($routeName);
         $pattern = $route->getPattern();
 
         $segments = [];
@@ -102,19 +102,10 @@ class RouteParser implements RouteParserInterface
     /**
      * {@inheritdoc}
      */
-    public function pathFor(string $name, array $data = [], array $queryParams = []): string
-    {
-        trigger_error('pathFor() is deprecated. Use urlFor() instead.', E_USER_DEPRECATED);
-        return $this->urlFor($name, $data, $queryParams);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function urlFor(string $name, array $data = [], array $queryParams = []): string
+    public function urlFor(string $routeName, array $data = [], array $queryParams = []): string
     {
         $basePath = $this->routeCollector->getBasePath();
-        $url = $this->relativePathFor($name, $data, $queryParams);
+        $url = $this->relativeUrlFor($routeName, $data, $queryParams);
 
         if ($basePath) {
             $url = $basePath . $url;
