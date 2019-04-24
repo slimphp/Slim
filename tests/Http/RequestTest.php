@@ -17,6 +17,7 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
+use Slim\Tests\Mocks\UriPsr7Stub;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
@@ -444,6 +445,18 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $prop->setValue($request, null);
 
         $this->assertEquals('/', $request->getRequestTarget());
+    }
+
+    public function testGetRequestTargetIfUriPsr7Only()
+    {
+        $request = $this->requestFactory();
+        $prop = new ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, UriPsr7Stub::createFromString(
+            $request->getUri()
+        ));
+
+        $this->assertEquals('/foo/bar?abc=123', $this->requestFactory()->getRequestTarget());
     }
 
     public function testWithRequestTarget()
