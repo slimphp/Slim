@@ -74,7 +74,7 @@ class RouteParserTest extends TestCase
         $route->setName('test');
 
         $routeParser = $routeCollector->getRouteParser();
-        $results = $routeParser->relativePathFor('test', ['first' => 'hello', 'second' => 'world']);
+        $results = $routeParser->relativeUrlFor('test', ['first' => 'hello', 'second' => 'world']);
 
         $this->assertEquals('/hello/world', $results);
     }
@@ -92,7 +92,7 @@ class RouteParserTest extends TestCase
         $route->setName('test');
 
         $routeParser = $routeCollector->getRouteParser();
-        $results = $routeParser->relativePathFor('test', ['first' => 'hello', 'second' => 'world']);
+        $results = $routeParser->relativeUrlFor('test', ['first' => 'hello', 'second' => 'world']);
 
         $this->assertEquals('/hello/world', $results);
     }
@@ -155,40 +155,6 @@ class RouteParserTest extends TestCase
         $routeParser = $routeCollector->getRouteParser();
 
         $routeParser->urlFor('test');
-    }
-
-    /**
-     * Test that the router pathFor will proxy into a urlFor method, and trigger
-     * the user deprecated warning
-     */
-    public function testPathForAliasesUrlFor()
-    {
-        $errorString = null;
-
-        set_error_handler(function ($no, $str) use (&$errorString) {
-            $errorString = $str;
-        }, E_USER_DEPRECATED);
-
-        $name = 'foo';
-        $data = ['name' => 'josh'];
-        $queryParams = ['a' => 'b', 'c' => 'd'];
-
-        $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
-
-        /** @var RouteParser $routeParser */
-        $routeParser = $this
-            ->getMockBuilder(RouteParser::class)
-            ->setConstructorArgs([$routeCollectorProphecy->reveal()])
-            ->setMethods(['urlFor'])
-            ->getMock();
-
-        $routeParser->expects($this->once())->method('urlFor')->with($name, $data, $queryParams);
-        $routeParser->pathFor($name, $data, $queryParams);
-
-        //check that our error was triggered
-        $this->assertEquals($errorString, 'pathFor() is deprecated. Use urlFor() instead.');
-
-        restore_error_handler();
     }
 
     public function testFullUrlFor()
