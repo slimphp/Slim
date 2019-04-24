@@ -117,8 +117,8 @@ class Headers extends Collection implements HeadersInterface
      * This method sets a header value. It replaces
      * any values that may already exist for the header name.
      *
-     * @param string $key   The case-insensitive header name
-     * @param string $value The header value
+     * @param string       $key   The case-insensitive header name
+     * @param array|string $value The header value
      */
     public function set($key, $value)
     {
