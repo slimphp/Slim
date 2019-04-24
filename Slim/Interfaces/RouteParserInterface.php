@@ -18,7 +18,8 @@ interface RouteParserInterface
     /**
      * Build the path for a named route excluding the base path
      *
-     * @param string $name        Route name
+     *
+     * @param string $routeName   Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
      *
@@ -27,14 +28,12 @@ interface RouteParserInterface
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function relativePathFor(string $name, array $data = [], array $queryParams = []): string;
+    public function relativeUrlFor(string $routeName, array $data = [], array $queryParams = []): string;
 
     /**
      * Build the path for a named route including the base path
      *
-     * This method is deprecated. Use urlFor() from now on.
-     *
-     * @param string $name        Route name
+     * @param string $routeName   Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
      *
@@ -43,21 +42,7 @@ interface RouteParserInterface
      * @throws RuntimeException         If named route does not exist
      * @throws InvalidArgumentException If required data not provided
      */
-    public function pathFor(string $name, array $data = [], array $queryParams = []): string;
-
-    /**
-     * Build the path for a named route including the base path
-     *
-     * @param string $name        Route name
-     * @param array  $data        Named argument replacement data
-     * @param array  $queryParams Optional query string parameters
-     *
-     * @return string
-     *
-     * @throws RuntimeException         If named route does not exist
-     * @throws InvalidArgumentException If required data not provided
-     */
-    public function urlFor(string $name, array $data = [], array $queryParams = []): string;
+    public function urlFor(string $routeName, array $data = [], array $queryParams = []): string;
 
     /**
      * Get fully qualified URL for named route
