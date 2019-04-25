@@ -29,6 +29,9 @@
     ],
     "require": {
         "php": ">=5.5.0",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
         "pimple/pimple": "^3.0",
         "psr/http-message": "^1.0",
         "nikic/fast-route": "^1.0",
