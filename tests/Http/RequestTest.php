@@ -9,6 +9,9 @@
 
 namespace Slim\Tests\Http;
 
+use Prophecy\Argument;
+use Prophecy\Prophecy\MethodProphecy;
+use Psr\Http\Message\UriInterface;
 use ReflectionProperty;
 use Slim\Collection;
 use Slim\Http\Environment;
@@ -17,7 +20,6 @@ use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
-use Slim\Tests\Mocks\UriPsr7Stub;
 
 class RequestTest extends \PHPUnit_Framework_TestCase
 {
@@ -447,16 +449,45 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/', $request->getRequestTarget());
     }
 
-    public function testGetRequestTargetIfUriPsr7Only()
+    /**
+     * @throws \ReflectionException
+     */
+    public function testGetRequestTargetWithSlimPsr7Uri()
     {
+        $basePath = '/base/path';
+        $path = 'foo';
+        $query = 'bar=1';
+
+        $uriProphecy = $this->prophesize(Uri::class);
+        $uriGetBasePathProphecy = new MethodProphecy($uriProphecy, 'getBasePath', [Argument::any()]);
+        $uriGetBasePathProphecy->willReturn($basePath)->shouldBeCalledOnce();
+        $uriGetPathProphecy = new MethodProphecy($uriProphecy, 'getPath', [Argument::any()]);
+        $uriGetPathProphecy->willReturn($path);
+        $uriGetQueryProphecy = new MethodProphecy($uriProphecy, 'getQuery', [Argument::any()]);
+        $uriGetQueryProphecy->willReturn($query);
+
         $request = $this->requestFactory();
         $prop = new ReflectionProperty($request, 'uri');
         $prop->setAccessible(true);
-        $prop->setValue($request, UriPsr7Stub::createFromString(
-            $request->getUri()
-        ));
+        $prop->setValue($request, $uriProphecy->reveal());
 
-        $this->assertEquals('/foo/bar?abc=123', $this->requestFactory()->getRequestTarget());
+        $this->assertEquals($basePath . '/' . $path . '?' . $query, $request->getRequestTarget());
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testGetRequestTargetWithNonSlimPsr7Uri()
+    {
+        // We still pass in a UriInterface, which isn't an instance of Slim URI
+        $uriProphecy = $this->prophesize(UriInterface::class);
+
+        $request = $this->requestFactory();
+        $prop = new ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, $uriProphecy->reveal());
+
+        $this->assertEquals('/', $request->getRequestTarget());
     }
 
     public function testWithRequestTarget()
