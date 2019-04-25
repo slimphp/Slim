@@ -217,7 +217,14 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     public function testMoveToStream()
     {
         $uploadedFile = $this->generateNewTmpFile();
-        $uploadedFile->moveTo('php://temp');
+        $contents = file_get_contents($uploadedFile->file);
+
+        ob_start();
+        $uploadedFile->moveTo('php://output');
+        $movedFileContents = ob_get_clean();
+
+        $this->assertEquals($contents, $movedFileContents);
+        $this->assertFileNotExists($uploadedFile->file);
     }
 
     public function providerCreateFromEnvironment()
