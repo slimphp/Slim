@@ -213,6 +213,7 @@ class Response extends Message implements ResponseInterface
      * Filter HTTP status code.
      *
      * @param  int $status HTTP status code.
+     *
      * @return int
      * @throws \InvalidArgumentException If an invalid HTTP status code is provided.
      */

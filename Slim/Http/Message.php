@@ -93,6 +93,7 @@ abstract class Message implements MessageInterface
      * new protocol version.
      *
      * @param string $version HTTP protocol version
+     *
      * @return static
      * @throws InvalidArgumentException if the http version is an invalid number
      */
