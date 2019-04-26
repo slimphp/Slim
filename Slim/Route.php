@@ -69,6 +69,13 @@ class Route extends Routable implements RouteInterface
     protected $arguments = [];
 
     /**
+     * Route arguments parameters
+     *
+     * @var null|array
+     */
+    protected $savedArguments = [];
+
+    /**
      * The callable payload
      *
      * @var callable
@@ -193,6 +200,8 @@ class Route extends Routable implements RouteInterface
      *
      * @param boolean|string $mode
      *
+     * @return self
+     *
      * @throws InvalidArgumentException If an unknown buffering mode is specified
      */
     public function setOutputBuffering($mode)
@@ -201,6 +210,7 @@ class Route extends Routable implements RouteInterface
             throw new InvalidArgumentException('Unknown output buffering mode');
         }
         $this->outputBuffering = $mode;
+        return $this;
     }
 
     /**
@@ -226,11 +236,15 @@ class Route extends Routable implements RouteInterface
      *
      * @param string $name
      * @param string $value
+     * @param bool $includeInSavedArguments
      *
      * @return self
      */
-    public function setArgument($name, $value)
+    public function setArgument($name, $value, $includeInSavedArguments = true)
     {
+        if ($includeInSavedArguments) {
+            $this->savedArguments[$name] = $value;
+        }
         $this->arguments[$name] = $value;
         return $this;
     }
@@ -239,11 +253,15 @@ class Route extends Routable implements RouteInterface
      * Replace route arguments
      *
      * @param array $arguments
+     * @param bool $includeInSavedArguments
      *
      * @return self
      */
-    public function setArguments(array $arguments)
+    public function setArguments(array $arguments, $includeInSavedArguments = true)
     {
+        if ($includeInSavedArguments) {
+            $this->savedArguments = $arguments;
+        }
         $this->arguments = $arguments;
         return $this;
     }
@@ -286,9 +304,12 @@ class Route extends Routable implements RouteInterface
      */
     public function prepare(ServerRequestInterface $request, array $arguments)
     {
-        // Add the arguments
+        // Remove temp arguments
+        $this->setArguments($this->savedArguments);
+
+        // Add the route arguments
         foreach ($arguments as $k => $v) {
-            $this->setArgument($k, $v);
+            $this->setArgument($k, $v, false);
         }
     }
 

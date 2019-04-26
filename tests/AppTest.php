@@ -9,7 +9,9 @@
 
 namespace Slim\Tests;
 
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
@@ -23,12 +25,34 @@ use Slim\Http\Headers;
 use Slim\Http\Request;
 use Slim\Http\RequestBody;
 use Slim\Http\Response;
+use Slim\Http\StatusCode;
 use Slim\Http\Uri;
 use Slim\Router;
+use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockAction;
+
+/**
+ * Emit a header, without creating actual output artifacts
+ *
+ * @param string $value
+ */
+function header($value, $replace = true)
+{
+    \Slim\header($value, $replace);
+}
 
 class AppTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        HeaderStack::reset();
+    }
+
+    public function tearDown()
+    {
+        HeaderStack::reset();
+    }
+
     public static function setupBeforeClass()
     {
         // ini_set('log_errors', 0);
@@ -164,6 +188,36 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Slim\Route', $route);
         $this->assertAttributeContains('GET', 'methods', $route);
         $this->assertAttributeContains('POST', 'methods', $route);
+    }
+
+    public function testRedirectRoute()
+    {
+        $source = '/foo';
+        $destination = '/bar';
+
+        $app = new App();
+        $request = $this->getMockBuilder('Psr\Http\Message\ServerRequestInterface')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $route = $app->redirect($source, $destination, 301);
+
+        $this->assertInstanceOf('\Slim\Route', $route);
+        $this->assertAttributeContains('GET', 'methods', $route);
+        
+        $response = $route->run($request, new Response());
+        $this->assertEquals(301, $response->getStatusCode());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
+
+        $routeWithDefaultStatus = $app->redirect($source, $destination);
+        $response = $routeWithDefaultStatus->run($request, new Response());
+        $this->assertEquals(302, $response->getStatusCode());
+
+        $uri = $this->getMockBuilder(UriInterface::class)->getMock();
+        $uri->expects($this->once())->method('__toString')->willReturn($destination);
+
+        $routeToUri = $app->redirect($source, $uri);
+        $response = $routeToUri->run($request, new Response());
+        $this->assertEquals($destination, $response->getHeaderLine('Location'));
     }
 
     /********************************************************************************
@@ -1464,27 +1518,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     // TODO: Test run()
     public function testRun()
     {
-        $app = new App();
-
-        // Prepare request and response objects
-        $env = Environment::mock([
-            'SCRIPT_NAME' => '/index.php',
-            'REQUEST_URI' => '/foo',
-            'REQUEST_METHOD' => 'GET',
-        ]);
-        $uri = Uri::createFromEnvironment($env);
-        $headers = Headers::createFromEnvironment($env);
-        $cookies = [];
-        $serverParams = $env->all();
-        $body = new Body(fopen('php://temp', 'r+'));
-        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
-        $res = new Response();
-        $app->getContainer()['request'] = $req;
-        $app->getContainer()['response'] = $res;
-
-        $app->get('/foo', function ($req, $res) {
-            echo 'bar';
-        });
+        $app = $this->getAppForTestingRunMethod();
 
         ob_start();
         $app->run();
@@ -1493,6 +1527,61 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', (string)$resOut);
     }
 
+    public function testRunReturnsEmptyResponseBodyWithHeadRequestMethod()
+    {
+        $app = $this->getAppForTestingRunMethod('HEAD');
+
+        ob_start();
+        $app->run();
+        $resOut = ob_get_clean();
+
+        $this->assertEquals('', (string)$resOut);
+    }
+
+    public function testRunReturnsEmptyResponseBodyWithGetRequestMethodInSilentMode()
+    {
+        $app = $this->getAppForTestingRunMethod();
+        $response = $app->run(true);
+
+        $this->assertEquals('bar', $response->getBody()->__toString());
+    }
+
+    public function testRunReturnsEmptyResponseBodyWithHeadRequestMethodInSilentMode()
+    {
+        $app = $this->getAppForTestingRunMethod('HEAD');
+        $response = $app->run(true);
+
+        $this->assertEquals('', $response->getBody()->__toString());
+    }
+
+    private function getAppForTestingRunMethod($method = 'GET')
+    {
+        $app = new App();
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => $method,
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $req = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response(StatusCode::HTTP_OK, null, $body);
+        $app->getContainer()['request'] = $req;
+        $app->getContainer()['response'] = $res;
+
+        $app->get('/foo', function ($req, $res) {
+            $res->getBody()->write('bar');
+
+            return $res;
+        });
+
+        return $app;
+    }
 
     public function testRespond()
     {
@@ -1709,6 +1798,80 @@ class AppTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
         $this->expectOutputString(str_repeat('.', Mocks\SmallChunksStream::SIZE));
+    }
+
+    public function testResponseReplacesPreviouslySetHeaders()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            return $res
+                ->withHeader('X-Foo', 'baz1')
+                ->withAddedHeader('X-Foo', 'baz2')
+                ;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $app->respond($resOut);
+
+        $expectedStack = [
+            ['header' => 'X-Foo: baz1', 'replace' => true, 'status_code' => null],
+            ['header' => 'X-Foo: baz2', 'replace' => false, 'status_code' => null],
+            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
+        ];
+
+        $this->assertSame($expectedStack, HeaderStack::stack());
+    }
+
+    public function testResponseDoesNotReplacePreviouslySetSetCookieHeaders()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            return $res
+                ->withHeader('Set-Cookie', 'foo=bar')
+                ->withAddedHeader('Set-Cookie', 'bar=baz')
+                ;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+        $app->respond($resOut);
+
+        $expectedStack = [
+            ['header' => 'Set-Cookie: foo=bar', 'replace' => false, 'status_code' => null],
+            ['header' => 'Set-Cookie: bar=baz', 'replace' => false, 'status_code' => null],
+            ['header' => 'HTTP/1.1 200 OK', 'replace' => true, 'status_code' => 200],
+        ];
+
+        $this->assertSame($expectedStack, HeaderStack::stack());
     }
 
     public function testExceptionErrorHandlerDoesNotDisplayErrorDetails()
@@ -2200,6 +2363,34 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($result);
     }
 
+    public function testIsHeadRequestWithGetRequest()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method->setAccessible(true);
+
+        /** @var Request $request */
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $request->method('getMethod')
+            ->willReturn('get');
+
+        $result = $method->invoke(new App(), $request);
+        $this->assertFalse($result);
+    }
+
+    public function testIsHeadRequestWithHeadRequest()
+    {
+        $method = new \ReflectionMethod('Slim\App', 'isHeadRequest');
+        $method->setAccessible(true);
+
+        /** @var Request $request */
+        $request = $this->getMockBuilder(RequestInterface::class)->getMock();
+        $request->method('getMethod')
+            ->willReturn('head');
+
+        $result = $method->invoke(new App(), $request);
+        $this->assertTrue($result);
+    }
+
     public function testHandlePhpError()
     {
         $this->skipIfPhp70();
@@ -2284,6 +2475,153 @@ end;
         $resOut = $app->run(true);
         $output = (string)$resOut->getBody();
         $this->assertStringStartsWith('output buffer test', $output);
+    }
+
+    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgs()
+    {
+        $app = new App();
+        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('1', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process without optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('0', (string)$resOut2->getBody());
+    }
+
+    public function testInvokeSequentialProccessToAPathWithOptionalArgsAndWithoutOptionalArgsAndKeepSetedArgs()
+    {
+        $app = new App();
+        $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        })->setArgument('baz', 'quux');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process without optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('2', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('1', (string)$resOut2->getBody());
+    }
+
+    public function testInvokeSequentialProccessAfterAddingAnotherRouteArgument()
+    {
+        $app = new App();
+        $route = $app->get('/foo[/{bar}]', function ($req, $res, $args) {
+            return $res->write(count($args));
+        })->setArgument('baz', 'quux');
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke process with optional arg
+        $resOut = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->assertEquals('2', (string)$resOut->getBody());
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo/bar',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // add another argument
+        $route->setArgument('one', '1');
+
+        // Invoke process with optional arg
+        $resOut2 = $app->process($req, $res);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut2);
+        $this->assertEquals('3', (string)$resOut2->getBody());
     }
 
     protected function skipIfPhp70()

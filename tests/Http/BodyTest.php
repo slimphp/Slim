@@ -73,7 +73,7 @@ class BodyTest extends \PHPUnit_Framework_TestCase
         $this->stream = $this->resourceFactory();
         $body = new Body($this->stream);
 
-        $this->assertTrue(is_array($body->getMetadata()));
+        $this->assertInternalType('array', $body->getMetadata());
     }
 
     public function testGetMetadataKey()

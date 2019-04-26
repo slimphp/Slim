@@ -21,7 +21,7 @@ use Slim\Exception\ContainerException as SlimContainerException;
  * with these service keys configured and ready for use:
  *
  *  - settings: an array or instance of \ArrayAccess
- *  - environment: an instance of \Slim\Interfaces\Http\EnvironmentInterface
+ *  - environment: an instance of \Slim\Http\Environment
  *  - request: an instance of \Psr\Http\Message\ServerRequestInterface
  *  - response: an instance of \Psr\Http\Message\ResponseInterface
  *  - router: an instance of \Slim\Interfaces\RouterInterface
@@ -31,16 +31,16 @@ use Slim\Exception\ContainerException as SlimContainerException;
  *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
  *  - callableResolver: an instance of \Slim\Interfaces\CallableResolverInterface
  *
- * @property-read array settings
- * @property-read \Slim\Interfaces\Http\EnvironmentInterface environment
- * @property-read \Psr\Http\Message\ServerRequestInterface request
- * @property-read \Psr\Http\Message\ResponseInterface response
- * @property-read \Slim\Interfaces\RouterInterface router
- * @property-read \Slim\Interfaces\InvocationStrategyInterface foundHandler
- * @property-read callable errorHandler
- * @property-read callable notFoundHandler
- * @property-read callable notAllowedHandler
- * @property-read \Slim\Interfaces\CallableResolverInterface callableResolver
+ * @property-read array $settings
+ * @property-read \Slim\Http\Environment $environment
+ * @property-read \Psr\Http\Message\ServerRequestInterface $request
+ * @property-read \Psr\Http\Message\ResponseInterface $response
+ * @property-read \Slim\Interfaces\RouterInterface $router
+ * @property-read \Slim\Interfaces\InvocationStrategyInterface $foundHandler
+ * @property-read callable $errorHandler
+ * @property-read callable $notFoundHandler
+ * @property-read callable $notAllowedHandler
+ * @property-read \Slim\Interfaces\CallableResolverInterface $callableResolver
  */
 class Container extends PimpleContainer implements ContainerInterface
 {

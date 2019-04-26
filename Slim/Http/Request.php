@@ -197,8 +197,10 @@ class Request extends Message implements ServerRequestInterface
             $this->protocolVersion = str_replace('HTTP/', '', $serverParams['SERVER_PROTOCOL']);
         }
 
-        if (!$this->headers->has('Host') || $this->uri->getHost() !== '') {
-            $this->headers->set('Host', $this->uri->getHost());
+        if (!$this->headers->has('Host') && $this->uri->getHost() !== '') {
+            $port = $this->uri->getPort() ? ":{$this->uri->getPort()}" : '';
+
+            $this->headers->set('Host', $this->uri->getHost() . $port);
         }
 
         $this->registerMediaTypeParser('application/json', function ($input) {
@@ -495,7 +497,11 @@ class Request extends Message implements ServerRequestInterface
             return '/';
         }
 
-        $basePath = $this->uri->getBasePath();
+        if ($this->uri instanceof Uri) {
+            $basePath = $this->uri->getBasePath();
+        } else {
+            $basePath = '';
+        }
         $path = $this->uri->getPath();
         $path = $basePath . '/' . ltrim($path, '/');
 
@@ -1028,13 +1034,16 @@ class Request extends Message implements ServerRequestInterface
 
         $mediaType = $this->getMediaType();
 
-        // look for a media type with a structured syntax suffix (RFC 6839)
-        $parts = explode('+', $mediaType);
-        if (count($parts) >= 2) {
-            $mediaType = 'application/' . $parts[count($parts)-1];
+        // Check if this specific media type has a parser registered first
+        if (!isset($this->bodyParsers[$mediaType])) {
+            // If not, look for a media type with a structured syntax suffix (RFC 6839)
+            $parts = explode('+', $mediaType);
+            if (count($parts) >= 2) {
+                $mediaType = 'application/' . $parts[count($parts)-1];
+            }
         }
 
-        if (isset($this->bodyParsers[$mediaType]) === true) {
+        if (isset($this->bodyParsers[$mediaType])) {
             $body = (string)$this->getBody();
             $parsed = $this->bodyParsers[$mediaType]($body);
 
@@ -1132,7 +1141,7 @@ class Request extends Message implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $key The parameter key.
-     * @param  string $default The default value.
+     * @param  mixed $default The default value.
      *
      * @return mixed The parameter value.
      */
@@ -1209,7 +1218,7 @@ class Request extends Message implements ServerRequestInterface
         $params = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
-            $params = array_merge($params, (array)$postParams);
+            $params = array_replace($params, (array)$postParams);
         }
 
         if ($only) {

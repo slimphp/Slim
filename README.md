@@ -29,7 +29,7 @@ require 'vendor/autoload.php';
 $app = new Slim\App();
 
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->write("Hello, " . $args['name']);
+    return $response->getBody()->write("Hello, " . $args['name']);
 });
 
 $app->run();
@@ -69,6 +69,11 @@ Learn more at these links:
 ## Security
 
 If you discover security related issues, please email security@slimframework.com instead of using the issue tracker.
+
+## Professional support
+
+Slim is part of [Tidelift](https://tidelift.com/subscription/pkg/packagist-slim-slim?utm_source=packagist-slim-slim&utm_medium=referral&utm_campaign=readme) which gives software development teams a single source for purchasing and maintaining their software, with professional grade assurances from the experts who know it best, while seamlessly integrating with existing tools.
+
 
 ## Credits
 

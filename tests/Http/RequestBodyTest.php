@@ -72,12 +72,12 @@ class RequestBodyTest extends \PHPUnit_Framework_TestCase
         $bodyMetadata = new ReflectionProperty($this->body, 'meta');
         $bodyMetadata->setAccessible(true);
 
-        $this->assertTrue(is_array($bodyMetadata->getValue($this->body)));
+        $this->assertInternalType('array', $bodyMetadata->getValue($this->body));
     }
 
     public function testGetMetadata()
     {
-        $this->assertTrue(is_array($this->body->getMetadata()));
+        $this->assertInternalType('array', $this->body->getMetadata());
     }
 
     public function testGetMetadataKey()

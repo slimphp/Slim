@@ -11,6 +11,7 @@ namespace Slim;
 use FastRoute\Dispatcher;
 use Psr\Container\ContainerInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
@@ -113,6 +114,16 @@ class Router implements RouterInterface
     }
 
     /**
+     * Get the base path used in pathFor()
+     *
+     * @return string
+     */
+    public function getBasePath()
+    {
+        return $this->basePath;
+    }
+
+    /**
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
      * @param string|false $cacheFile
@@ -124,16 +135,22 @@ class Router implements RouterInterface
     public function setCacheFile($cacheFile)
     {
         if (!is_string($cacheFile) && $cacheFile !== false) {
-            throw new InvalidArgumentException('Router cacheFile must be a string or false');
+            throw new InvalidArgumentException('Router cache file must be a string or false');
+        }
+
+        if ($cacheFile && file_exists($cacheFile) && !is_readable($cacheFile)) {
+            throw new RuntimeException(
+                sprintf('Router cache file `%s` is not readable', $cacheFile)
+            );
+        }
+
+        if ($cacheFile && !file_exists($cacheFile) && !is_writable(dirname($cacheFile))) {
+            throw new RuntimeException(
+                sprintf('Router cache file directory `%s` is not writable', dirname($cacheFile))
+            );
         }
 
         $this->cacheFile = $cacheFile;
-
-        if ($cacheFile !== false && !is_writable(dirname($cacheFile))) {
-            throw new RuntimeException('Router cacheFile directory must be writable');
-        }
-
-
         return $this;
     }
 
@@ -169,8 +186,9 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        // Add route
+        /** @var \Slim\Route */
         $route = $this->createRoute($methods, $pattern, $handler);
+        // Add route
         $this->routes[$route->getIdentifier()] = $route;
         $this->routeCounter++;
 
@@ -336,7 +354,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param $identifier
+     * @param string $identifier
      *
      * @return \Slim\Interfaces\RouteInterface
      * @throws RuntimeException if the route cache is stale
@@ -374,6 +392,7 @@ class Router implements RouterInterface
         $routeDatas = array_reverse($routeDatas);
 
         $segments = [];
+        $segmentName = '';
         foreach ($routeDatas as $routeData) {
             foreach ($routeData as $item) {
                 if (is_string($item)) {
@@ -416,6 +435,8 @@ class Router implements RouterInterface
     /**
      * Build the path for a named route including the base path
      *
+     * This method will be deprecated in Slim 4. Use urlFor() from now on.
+     *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
      * @param array  $queryParams Optional query string parameters
@@ -427,19 +448,11 @@ class Router implements RouterInterface
      */
     public function pathFor($name, array $data = [], array $queryParams = [])
     {
-        $url = $this->relativePathFor($name, $data, $queryParams);
-
-        if ($this->basePath) {
-            $url = $this->basePath . $url;
-        }
-
-        return $url;
+        return $this->urlFor($name, $data, $queryParams);
     }
 
     /**
-     * Build the path for a named route.
-     *
-     * This method is deprecated. Use pathFor() from now on.
+     * Build the path for a named route including the base path
      *
      * @param string $name        Route name
      * @param array  $data        Named argument replacement data
@@ -452,7 +465,33 @@ class Router implements RouterInterface
      */
     public function urlFor($name, array $data = [], array $queryParams = [])
     {
-        trigger_error('urlFor() is deprecated. Use pathFor() instead.', E_USER_DEPRECATED);
-        return $this->pathFor($name, $data, $queryParams);
+        $url = $this->relativePathFor($name, $data, $queryParams);
+
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Get fully qualified URL for named route
+     *
+     * @param UriInterface $uri
+     * @param string $routeName
+     * @param array $data Named argument replacement data
+     * @param array $queryParams Optional query string parameters
+     *
+     * @return string
+     *
+     */
+    public function fullUrlFor(UriInterface $uri, $routeName, array $data = [], array $queryParams = [])
+    {
+        $path = $this->urlFor($routeName, $data, $queryParams);
+        $scheme = $uri->getScheme();
+        $authority = $uri->getAuthority();
+        $protocol = ($scheme ? $scheme . ':' : '') . ($authority ? '//' . $authority : '');
+
+        return $protocol . $path;
     }
 }

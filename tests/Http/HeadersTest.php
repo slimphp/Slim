@@ -6,6 +6,7 @@
  * @copyright Copyright (c) 2011-2017 Josh Lockhart
  * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
 use ReflectionProperty;
@@ -23,7 +24,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['accept']));
+        $this->assertInternalType('array', $prop->getValue($h)['accept']);
         $this->assertEquals('application/json', $prop->getValue($h)['accept']['value'][0]);
     }
 
@@ -36,7 +37,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['content-type']));
+        $this->assertInternalType('array', $prop->getValue($h)['content-type']);
         $this->assertEquals('application/json', $prop->getValue($h)['content-type']['value'][0]);
     }
 
@@ -61,7 +62,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['content-length']));
+        $this->assertInternalType('array', $prop->getValue($h)['content-length']);
         $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
@@ -72,7 +73,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['content-length']));
+        $this->assertInternalType('array', $prop->getValue($h)['content-length']);
         $this->assertEquals(100, $prop->getValue($h)['content-length']['value'][0]);
     }
 
@@ -83,7 +84,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['allow']));
+        $this->assertInternalType('array', $prop->getValue($h)['allow']);
         $this->assertEquals(['GET', 'POST'], $prop->getValue($h)['allow']['value']);
     }
 
@@ -129,7 +130,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertInternalType('array', $prop->getValue($h)['foo']);
         $this->assertEquals(['Bar'], $prop->getValue($h)['foo']['value']);
     }
 
@@ -141,7 +142,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertInternalType('array', $prop->getValue($h)['foo']);
         $this->assertEquals(['Bar', 'Xyz'], $prop->getValue($h)['foo']['value']);
     }
 
@@ -153,7 +154,7 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($h, 'data');
         $prop->setAccessible(true);
 
-        $this->assertTrue(is_array($prop->getValue($h)['foo']));
+        $this->assertInternalType('array', $prop->getValue($h)['foo']);
         $this->assertEquals(['Bar', 'Xyz', '123'], $prop->getValue($h)['foo']['value']);
     }
 
@@ -223,5 +224,18 @@ class HeadersTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('electrolytes', $en->get('HTTP_AUTHORIZATION'));
         $this->assertEquals(['electrolytes'], $h->get('Authorization'));
+    }
+
+    public function testDetermineAuthorizationReturnsEarlyIfHeadersIsNotArray()
+    {
+        $e = Environment::mock([]);
+
+        $GLOBALS['getallheaders_return'] = false;
+        $en = Headers::determineAuthorization($e);
+        $h = Headers::createFromEnvironment($e);
+        unset($GLOBALS['getallheaders_return']);
+
+        $this->assertNull($en->get('HTTP_AUTHORIZATION'));
+        $this->assertNull($h->get('Authorization'));
     }
 }

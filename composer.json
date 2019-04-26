@@ -29,6 +29,9 @@
     ],
     "require": {
         "php": ">=5.5.0",
+        "ext-json": "*",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
         "pimple/pimple": "^3.0",
         "psr/http-message": "^1.0",
         "nikic/fast-route": "^1.0",
@@ -47,12 +50,16 @@
             "Slim\\": "Slim"
         }
     },
+    "autoload-dev": {
+        "files": [
+          "tests/Assets/PhpFunctionOverrides.php",
+          "tests/Assets/PhpHttpFunctionOverrides.php"
+        ]
+    },
     "scripts": {
         "test": [
-            "@phpunit",
-            "@phpcs"
-        ],
-        "phpunit": "php vendor/bin/phpunit",
-        "phpcs": "php vendor/bin/phpcs"
+            "phpunit",
+            "phpcs"
+        ]
     }
 }

@@ -9,6 +9,9 @@
 
 namespace Slim\Tests\Http;
 
+use Prophecy\Argument;
+use Prophecy\Prophecy\MethodProphecy;
+use Psr\Http\Message\UriInterface;
 use ReflectionProperty;
 use Slim\Collection;
 use Slim\Http\Environment;
@@ -46,10 +49,90 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(property_exists($request, 'foo'));
     }
 
-    public function testAddsHostHeaderFromUri()
+    public function testDoesNotAddHostHeaderFromUriIfAlreadySet()
     {
         $request = $this->requestFactory();
+
+        $this->assertEquals('localhost', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testAddsHostHeaderFromUriIfNotSet()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com/foo/bar?abc=123');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
         $this->assertEquals('example.com', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testAddsPortToHostHeaderIfSetWhenHostHeaderIsMissingFromRequest()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com:8443/foo/bar?abc=123');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        $this->assertEquals('example.com:8443', $request->getHeaderLine('Host'));
+    }
+
+    /**
+     * @see #2391
+     */
+    public function testDoesntAddHostHeaderFromUriIfNeitherAreSet()
+    {
+        $env = Environment::mock();
+
+        $uri = Uri::createFromString('https://example.com/foo/bar?abc=123')
+            ->withHost('');
+
+        $headers = Headers::createFromEnvironment($env);
+        $headers->remove('Host');
+
+        $cookies = [
+            'user' => 'john',
+            'id' => '123',
+        ];
+
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $uploadedFiles = UploadedFile::createFromEnvironment($env);
+
+        $request = new Request('GET', $uri, $headers, $cookies, $serverParams, $body, $uploadedFiles);
+
+        $this->assertEquals('', $request->getHeaderLine('Host'));
     }
 
     /*******************************************************************************
@@ -131,6 +214,26 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         unset($_POST);
 
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
+    public function testCreateFromEnvironmentWithMultipartAndQueryParams()
+    {
+        $_POST['123'] = 'bar';
+
+        $env = Environment::mock([
+            'SCRIPT_NAME' => '/index.php',
+            'REQUEST_URI' => '/foo',
+            'REQUEST_METHOD' => 'POST',
+            'QUERY_STRING' => '123=zar',
+            'HTTP_CONTENT_TYPE' => 'multipart/form-data; boundary=---foo'
+        ]);
+
+        $request = Request::createFromEnvironment($env);
+        unset($_POST);
+
+        # Fixes the bug that would make it previously return [ 0 => 'bar' ]
+        $this->assertEquals(['123' => 'bar'], $request->getParams());
+        $this->assertEquals(['123' => 'zar'], $request->getQueryParams());
     }
 
     /**
@@ -342,6 +445,47 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $prop = new ReflectionProperty($request, 'uri');
         $prop->setAccessible(true);
         $prop->setValue($request, null);
+
+        $this->assertEquals('/', $request->getRequestTarget());
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testGetRequestTargetWithSlimPsr7Uri()
+    {
+        $basePath = '/base/path';
+        $path = 'foo';
+        $query = 'bar=1';
+
+        $uriProphecy = $this->prophesize(Uri::class);
+        $uriGetBasePathProphecy = new MethodProphecy($uriProphecy, 'getBasePath', [Argument::any()]);
+        $uriGetBasePathProphecy->willReturn($basePath)->shouldBeCalledOnce();
+        $uriGetPathProphecy = new MethodProphecy($uriProphecy, 'getPath', [Argument::any()]);
+        $uriGetPathProphecy->willReturn($path);
+        $uriGetQueryProphecy = new MethodProphecy($uriProphecy, 'getQuery', [Argument::any()]);
+        $uriGetQueryProphecy->willReturn($query);
+
+        $request = $this->requestFactory();
+        $prop = new ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, $uriProphecy->reveal());
+
+        $this->assertEquals($basePath . '/' . $path . '?' . $query, $request->getRequestTarget());
+    }
+
+    /**
+     * @throws \ReflectionException
+     */
+    public function testGetRequestTargetWithNonSlimPsr7Uri()
+    {
+        // We still pass in a UriInterface, which isn't an instance of Slim URI
+        $uriProphecy = $this->prophesize(UriInterface::class);
+
+        $request = $this->requestFactory();
+        $prop = new ReflectionProperty($request, 'uri');
+        $prop->setAccessible(true);
+        $prop->setValue($request, $uriProphecy->reveal());
 
         $this->assertEquals('/', $request->getRequestTarget());
     }
@@ -838,6 +982,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
         $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
 
         $this->assertEquals(['foo' => 'bar'], $request->getParsedBody());
+    }
+
+    public function testGetParsedBodyWithJsonStructuredSuffixAndRegisteredParser()
+    {
+        $method = 'GET';
+        $uri = new Uri('https', 'example.com', 443, '/foo/bar', 'abc=123', '', '');
+        $headers = new Headers();
+        $headers->set('Content-Type', 'application/vnd.api+json;charset=utf8');
+        $cookies = [];
+        $serverParams = [];
+        $body = new RequestBody();
+        $body->write('{"foo":"bar"}');
+        $request = new Request($method, $uri, $headers, $cookies, $serverParams, $body);
+
+        $request->registerMediaTypeParser('application/vnd.api+json', function ($input) {
+            return ['data' => $input];
+        });
+
+        $this->assertEquals(['data' => '{"foo":"bar"}'], $request->getParsedBody());
     }
 
     public function testGetParsedBodyXml()
