@@ -112,6 +112,8 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @return mixed Entry.
      *
+     * @throws InvalidArgumentException
+     * @throws SlimContainerException
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
      * @throws ContainerException               Error while retrieving the entry.
      */
