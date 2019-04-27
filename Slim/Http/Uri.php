@@ -2,10 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Http;
 
 use InvalidArgumentException;
@@ -97,8 +96,6 @@ class Uri implements UriInterface
     protected $fragment = '';
 
     /**
-     * Create new Uri.
-     *
      * @param string $scheme   Uri scheme.
      * @param string $host     Uri host.
      * @param int    $port     Uri port number.
@@ -131,8 +128,7 @@ class Uri implements UriInterface
     /**
      * Create new Uri from string.
      *
-     * @param  string $uri Complete Uri string
-     *     (i.e., https://user:pass@host:443/path?query).
+     * @param  string $uri Complete Uri string (i.e., https://user:pass@host:443/path?query).
      *
      * @return self
      */
@@ -235,10 +231,6 @@ class Uri implements UriInterface
         return $uri;
     }
 
-    /********************************************************************************
-     * Scheme
-     *******************************************************************************/
-
     /**
      * Retrieve the scheme component of the URI.
      *
@@ -313,10 +305,6 @@ class Uri implements UriInterface
 
         return $scheme;
     }
-
-    /********************************************************************************
-     * Authority
-     *******************************************************************************/
 
     /**
      * Retrieve the authority component of the URI.
@@ -440,8 +428,6 @@ class Uri implements UriInterface
      * @param string $host The hostname to use with the new instance.
      *
      * @return self A new instance with the specified host.
-     *
-     * @throws InvalidArgumentException for invalid hostnames.
      */
     public function withHost($host)
     {
@@ -487,8 +473,6 @@ class Uri implements UriInterface
      *     removes the port information.
      *
      * @return self A new instance with the specified port.
-     *
-     * @throws InvalidArgumentException for invalid ports.
      */
     public function withPort($port)
     {
@@ -525,10 +509,6 @@ class Uri implements UriInterface
 
         throw new InvalidArgumentException('Uri port must be null or an integer between 1 and 65535 (inclusive)');
     }
-
-    /********************************************************************************
-     * Path
-     *******************************************************************************/
 
     /**
      * Retrieve the path component of the URI.
@@ -568,8 +548,7 @@ class Uri implements UriInterface
      * an instance that contains the specified path.
      *
      * The path can either be empty or absolute (starting with a slash) or
-     * rootless (not starting with a slash). Implementations MUST support all
-     * three syntaxes.
+     * rootless (not starting with a slash). Implementations MUST support all three syntaxes.
      *
      * If the path is intended to be domain-relative rather than path relative then
      * it must begin with a slash ("/"). Paths not starting with a slash ("/")
@@ -581,9 +560,9 @@ class Uri implements UriInterface
      *
      * @param string $path The path to use with the new instance.
      *
-     * @return self A new instance with the specified path.
+     * @return static A new instance with the specified path.
      *
-     * @throws InvalidArgumentException for invalid paths.
+     * @throws InvalidArgumentException For invalid paths.
      */
     public function withPath($path)
     {
@@ -624,7 +603,7 @@ class Uri implements UriInterface
      *
      * @param  string $basePath
      *
-     * @return self
+     * @return static
      */
     public function withBasePath($basePath)
     {
@@ -646,6 +625,8 @@ class Uri implements UriInterface
     /**
      * Filter Uri path.
      *
+     * Returns a RFC 3986 percent-encoded uri path.
+     *
      * This method percent-encodes all reserved
      * characters in the provided path string. This method
      * will NOT double-encode characters that are already
@@ -653,7 +634,7 @@ class Uri implements UriInterface
      *
      * @param  string $path The raw uri path.
      *
-     * @return string       The RFC 3986 percent-encoded uri path.
+     * @return string
      *
      * @link   http://www.faqs.org/rfcs/rfc3986.html
      */
@@ -667,10 +648,6 @@ class Uri implements UriInterface
             $path
         );
     }
-
-    /********************************************************************************
-     * Query
-     *******************************************************************************/
 
     /**
      * Retrieve the query string of the URI.
@@ -691,7 +668,7 @@ class Uri implements UriInterface
      * @see https://tools.ietf.org/html/rfc3986#section-2
      * @see https://tools.ietf.org/html/rfc3986#section-3.4
      *
-     * @return string The URI query string.
+     * @return string
      */
     public function getQuery()
     {
@@ -713,7 +690,7 @@ class Uri implements UriInterface
      *
      * @return self A new instance with the specified query string.
      *
-     * @throws InvalidArgumentException for invalid query strings.
+     * @throws InvalidArgumentException For invalid query strings.
      */
     public function withQuery($query)
     {
@@ -744,10 +721,6 @@ class Uri implements UriInterface
             $query
         );
     }
-
-    /********************************************************************************
-     * Fragment
-     *******************************************************************************/
 
     /**
      * Retrieve the fragment component of the URI.
@@ -784,7 +757,7 @@ class Uri implements UriInterface
      *
      * @param string $fragment The fragment to use with the new instance.
      *
-     * @return self A new instance with the specified fragment.
+     * @return static A new instance with the specified fragment.
      */
     public function withFragment($fragment)
     {
@@ -797,10 +770,6 @@ class Uri implements UriInterface
 
         return $clone;
     }
-
-    /********************************************************************************
-     * Helpers
-     *******************************************************************************/
 
     /**
      * Return the string representation as a URI reference.

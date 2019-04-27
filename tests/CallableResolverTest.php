@@ -2,18 +2,18 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests;
 
+use PHPUnit_Framework_TestCase;
 use Slim\CallableResolver;
 use Slim\Container;
 use Slim\Tests\Mocks\CallableTest;
 use Slim\Tests\Mocks\InvokableTest;
 
-class CallableResolverTest extends \PHPUnit_Framework_TestCase
+class CallableResolverTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var Container

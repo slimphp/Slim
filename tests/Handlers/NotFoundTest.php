@@ -2,19 +2,19 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Handlers;
 
 use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Slim\Handlers\NotFound;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Uri;
 
-class NotFoundTest extends \PHPUnit_Framework_TestCase
+class NotFoundTest extends PHPUnit_Framework_TestCase
 {
     public function notFoundProvider()
     {

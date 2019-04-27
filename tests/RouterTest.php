@@ -2,24 +2,28 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 
 namespace Slim\Tests;
 
 use InvalidArgumentException;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use RuntimeException;
 use Slim\Http\Uri;
 use Slim\Router;
 
-class RouterTest extends \PHPUnit_Framework_TestCase
+class RouterTest extends PHPUnit_Framework_TestCase
 {
-    /** @var Router */
+    /**
+     * @var Router
+     */
     protected $router;
 
-    /** @var string */
+    /**
+     * @var string|null
+     */
     protected $cacheFile;
 
     public function setUp()
@@ -77,10 +81,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->map($methods, $pattern, $callable);
     }
 
-    /**
-     * Base path is ignored by relativePathFor()
-     *
-     */
     public function testRelativePathFor()
     {
         $this->router->setBasePath('/base/path');
@@ -222,7 +222,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateDispatcher()
     {
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $method->invoke($this->router));
@@ -234,7 +234,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             $r->addRoute('GET', '/', function () {
             });
         }));
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $prop = $class->getProperty('dispatcher');
         $prop->setAccessible(true);
         $this->assertInstanceOf('\FastRoute\Dispatcher', $prop->getValue($this->router));
@@ -325,23 +325,17 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    /**
-     * Test cacheFile may be set to false
-     */
     public function testSettingCacheFileToFalse()
     {
         $this->router->setCacheFile(false);
 
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $property = $class->getProperty('cacheFile');
         $property->setAccessible(true);
 
         $this->assertFalse($property->getValue($this->router));
     }
 
-    /**
-     * Test cacheFile should be a string or false
-     */
     public function testSettingInvalidCacheFileValue()
     {
         $this->setExpectedException(
@@ -351,9 +345,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->setCacheFile(['invalid']);
     }
 
-    /**
-     * Test cache file exists but is not writable
-     */
     public function testCacheFileExistsAndIsNotReadable()
     {
         $this->cacheFile = __DIR__ . '/non-readable.cache';
@@ -367,9 +358,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->setCacheFile($this->cacheFile);
     }
 
-    /**
-     * Test cache file does not exist and directory is not writable
-     */
     public function testCacheFileDoesNotExistsAndDirectoryIsNotWritable()
     {
         $cacheFile = __DIR__ . '/non-writable-directory/router.cache';
@@ -382,9 +370,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->setCacheFile($cacheFile);
     }
 
-    /**
-     * Test cached routes file is created & that it holds our routes.
-     */
     public function testRouteCacheFileCanBeDispatched()
     {
         $methods = ['GET'];
@@ -396,7 +381,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
 
         $cacheFile = dirname(__FILE__) . '/' . uniqid(microtime(true));
         $this->router->setCacheFile($cacheFile);
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
@@ -409,7 +394,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $router2 = new Router();
         $router2->setCacheFile($cacheFile);
 
-        $class = new \ReflectionClass($router2);
+        $class = new ReflectionClass($router2);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
@@ -426,7 +411,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateDispatcherReturnsSameDispatcherASecondTime()
     {
-        $class = new \ReflectionClass($this->router);
+        $class = new ReflectionClass($this->router);
         $method = $class->getMethod('createDispatcher');
         $method->setAccessible(true);
 
@@ -443,9 +428,6 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->router->lookupRoute("thisIsMissing");
     }
 
-    /**
-     * Test fullUrlFor() with custom base path
-     */
     public function testFullUrlFor()
     {
         $methods = ['GET'];

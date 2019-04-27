@@ -2,18 +2,22 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Handlers;
 
+use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
+use RuntimeException;
 use Slim\Handlers\Error;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use UnexpectedValueException;
 
-class ErrorTest extends \PHPUnit_Framework_TestCase
+class ErrorTest extends PHPUnit_Framework_TestCase
 {
     public function errorProvider()
     {
@@ -35,7 +39,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     public function testError($acceptHeader, $contentType, $startOfBody)
     {
         $error = new Error();
-        $e = new \Exception("Oops", 1, new \Exception('Previous oops'));
+        $e = new Exception("Oops", 1, new Exception('Previous oops'));
 
         /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
@@ -53,7 +57,7 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     public function testErrorDisplayDetails($acceptHeader, $contentType, $startOfBody)
     {
         $error = new Error(true);
-        $e = new \Exception('Oops', 1, new \Exception('Opps before'));
+        $e = new Exception('Oops', 1, new Exception('Opps before'));
 
         /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $e);
@@ -63,17 +67,19 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
     }
 
+    /**
+     * @expectedException UnexpectedValueException
+     */
     public function testNotFoundContentType()
     {
         $errorMock = $this->getMockBuilder(Error::class)->setMethods(['determineContentType'])->getMock();
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
-        $e = new \Exception("Oops");
+        $e = new Exception("Oops");
 
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), $e);
     }
 
@@ -91,8 +97,8 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $first = new \Exception("First Oops");
-        $second = new \Exception("Second Oops", 0, $first);
+        $first = new Exception("First Oops");
+        $second = new Exception("Second Oops", 0, $first);
 
         $error->__invoke($this->getRequest('GET', 'application/json'), new Response(), $second);
     }
@@ -103,11 +109,11 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      */
     public function testRenderHtmlExceptionOrErrorTypeChecksParameter()
     {
-        $class = new \ReflectionClass(Error::class);
+        $class = new ReflectionClass(Error::class);
         $renderHtmlExceptionorError = $class->getMethod('renderHtmlExceptionOrError');
         $renderHtmlExceptionorError->setAccessible(true);
 
-        $this->setExpectedException(\RuntimeException::class);
+        $this->setExpectedException(RuntimeException::class);
 
         $error = new Error();
         $renderHtmlExceptionorError->invokeArgs($error, ['foo']);

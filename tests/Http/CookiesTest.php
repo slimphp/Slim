@@ -2,18 +2,19 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
 use InvalidArgumentException;
+use PHPUnit_Framework_TestCase;
 use ReflectionClass;
 use ReflectionProperty;
 use Slim\Http\Cookies;
+use stdClass;
 
-class CookiesTest extends \PHPUnit_Framework_TestCase
+class CookiesTest extends PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
@@ -269,6 +270,6 @@ class CookiesTest extends \PHPUnit_Framework_TestCase
     public function testParseHeaderException()
     {
         $this->setExpectedException(InvalidArgumentException::class);
-        Cookies::parseHeader(new \StdClass);
+        Cookies::parseHeader(new stdClass);
     }
 }

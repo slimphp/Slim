@@ -2,18 +2,15 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Http;
 
 use Slim\Collection;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
- * Headers
- *
  * This class represents a collection of HTTP headers
  * that is used in both the HTTP request and response objects.
  * It also enables header name case-insensitivity when
@@ -41,8 +38,7 @@ class Headers extends Collection implements HeadersInterface
     ];
 
     /**
-     * Create new headers collection with data extracted from
-     * the application Environment object
+     * Create new headers collection with data extracted from the application Environment object
      *
      * @param Environment $environment The Slim application Environment
      *
@@ -65,8 +61,7 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * If HTTP_AUTHORIZATION does not exist tries to get it from
-     * getallheaders() when available.
+     * If HTTP_AUTHORIZATION does not exist tries to get it from getallheaders() when available.
      *
      * @param Environment $environment The Slim application Environment
      *
@@ -79,7 +74,7 @@ class Headers extends Collection implements HeadersInterface
         if (!empty($authorization) || !is_callable('getallheaders')) {
             return $environment;
         }
-        
+
         $headers = getallheaders();
         if (!is_array($headers)) {
             return $environment;
@@ -95,8 +90,7 @@ class Headers extends Collection implements HeadersInterface
 
     /**
      * Return array of HTTP header names and values.
-     * This method returns the _original_ header name
-     * as specified by the end user.
+     * This method returns the _original_ header name as specified by the end user.
      *
      * @return array
      */
@@ -166,14 +160,7 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Add HTTP header value
-     *
-     * This method appends a header value. Unlike the set() method,
-     * this method _appends_ this new value to any values
-     * that already exist for this header name.
-     *
-     * @param string       $key   The case-insensitive header name
-     * @param array|string $value The new header value(s)
+     * {@inheritdoc}
      */
     public function add($key, $value)
     {
@@ -205,15 +192,7 @@ class Headers extends Collection implements HeadersInterface
     }
 
     /**
-     * Normalize header name
-     *
-     * This method transforms header names into a
-     * normalized form. This is how we enable case-insensitive
-     * header names in the other methods in this class.
-     *
-     * @param  string $key The case-insensitive header name
-     *
-     * @return string Normalized header name
+     * {@inheritdoc}
      */
     public function normalizeKey($key)
     {

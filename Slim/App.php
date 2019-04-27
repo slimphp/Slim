@@ -2,10 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim;
 
 use BadMethodCallException;
@@ -33,18 +32,6 @@ use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
 use Throwable;
 
-/**
- * App
- *
- * This is the primary class with which you instantiate,
- * configure, and run a Slim Framework application.
- * The \Slim\App class also accepts Slim Framework middleware.
- *
- * @property-read callable $errorHandler
- * @property-read callable $phpErrorHandler
- * @property-read callable $notFoundHandler function($request, $response)
- * @property-read callable $notAllowedHandler function($request, $response, $allowedHttpMethods)
- */
 class App
 {
     use MiddlewareAwareTrait;
@@ -57,36 +44,30 @@ class App
     const VERSION = '3.12.1';
 
     /**
-     * Container
-     *
      * @var ContainerInterface
      */
     private $container;
 
-    /********************************************************************************
-     * Constructor
-     *******************************************************************************/
-
     /**
-     * Create new application
+     * @param ContainerInterface|array $container
      *
-     * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of app settings
-     *
-     * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
+     * @throws InvalidArgumentException When no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
     {
         if (is_array($container)) {
             $container = new Container($container);
         }
+
         if (!$container instanceof ContainerInterface) {
             throw new InvalidArgumentException('Expected a ContainerInterface');
         }
+
         $this->container = $container;
     }
 
     /**
-     * Enable access to the DI container by consumers of $app
+     * Get container
      *
      * @return ContainerInterface
      */
@@ -100,7 +81,7 @@ class App
      *
      * This method prepends new middleware to the app's middleware stack.
      *
-     * @param  callable|string    $callable The callback routine
+     * @param  callable|string $callable The callback routine
      *
      * @return static
      */
@@ -110,15 +91,14 @@ class App
     }
 
     /**
-     * Calling a non-existant method on App checks to see if there's an item
+     * Calling a non-existent method on App checks to see if there's an item
      * in the container that is callable and if so, calls it.
      *
      * @param  string $method
-     * @param  array $args
+     * @param  array  $args
      *
      * @return mixed
      *
-     * @throws ContainerException
      * @throws BadMethodCallException
      */
     public function __call($method, $args)
@@ -133,19 +113,13 @@ class App
         throw new BadMethodCallException("Method $method is not a valid method");
     }
 
-    /********************************************************************************
-     * Router proxy methods
-     *******************************************************************************/
-
     /**
      * Add GET route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function get($pattern, $callable)
     {
@@ -155,12 +129,10 @@ class App
     /**
      * Add POST route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function post($pattern, $callable)
     {
@@ -170,12 +142,10 @@ class App
     /**
      * Add PUT route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function put($pattern, $callable)
     {
@@ -185,12 +155,10 @@ class App
     /**
      * Add PATCH route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function patch($pattern, $callable)
     {
@@ -200,12 +168,10 @@ class App
     /**
      * Add DELETE route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function delete($pattern, $callable)
     {
@@ -215,12 +181,10 @@ class App
     /**
      * Add OPTIONS route
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function options($pattern, $callable)
     {
@@ -230,12 +194,10 @@ class App
     /**
      * Add route for any HTTP method
      *
-     * @param  string $pattern  The route URI pattern
-     * @param  callable|string  $callable The route callback routine
+     * @param  string $pattern The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function any($pattern, $callable)
     {
@@ -245,13 +207,11 @@ class App
     /**
      * Add route with multiple methods
      *
-     * @param  string[] $methods  Numeric array of HTTP method names
-     * @param  string   $pattern  The route URI pattern
-     * @param  callable|string    $callable The route callback routine
+     * @param  string[]        $methods  Numeric array of HTTP method names
+     * @param  string          $pattern  The route URI pattern
+     * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -279,8 +239,6 @@ class App
      * @param int                 $status
      *
      * @return RouteInterface
-     *
-     * @throws ContainerException
      */
     public function redirect($from, $to, $status = 302)
     {
@@ -292,7 +250,7 @@ class App
     }
 
     /**
-     * Route Groups
+     * Add a route group
      *
      * This method accepts a route pattern and a callback. All route
      * declarations in the callback will be prepended by the group(s)
@@ -302,22 +260,20 @@ class App
      * @param callable|Closure $callable
      *
      * @return RouteGroupInterface
-     *
-     * @throws ContainerException
      */
     public function group($pattern, $callable)
     {
+        /** @var RouterInterface $router */
+        $router = $this->container->get('router');
+
         /** @var RouteGroup $group */
-        $group = $this->container->get('router')->pushGroup($pattern, $callable);
+        $group = $router->pushGroup($pattern, $callable);
         $group->setContainer($this->container);
         $group($this);
-        $this->container->get('router')->popGroup();
+
+        $router->popGroup();
         return $group;
     }
-
-    /********************************************************************************
-     * Runner
-     *******************************************************************************/
 
     /**
      * Run application
@@ -330,9 +286,6 @@ class App
      * @return ResponseInterface
      *
      * @throws Exception
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
-     * @throws ContainerException
      * @throws Throwable
      */
     public function run($silent = false)
@@ -419,9 +372,6 @@ class App
      *
      * @throws Exception
      * @throws Throwable
-     * @throws MethodNotAllowedException
-     * @throws NotFoundException
-     * @throws ContainerException
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -453,8 +403,6 @@ class App
      * Send the response to the client
      *
      * @param ResponseInterface $response
-     *
-     * @throws ContainerException
      */
     public function respond(ResponseInterface $response)
     {
@@ -488,10 +436,10 @@ class App
             if ($body->isSeekable()) {
                 $body->rewind();
             }
-            $settings       = $this->container->get('settings');
-            $chunkSize      = $settings['responseChunkSize'];
+            $settings = $this->container->get('settings');
+            $chunkSize = $settings['responseChunkSize'];
 
-            $contentLength  = $response->getHeaderLine('Content-Length');
+            $contentLength = $response->getHeaderLine('Content-Length');
             if (!$contentLength) {
                 $contentLength = $body->getSize();
             }
@@ -533,7 +481,6 @@ class App
      *
      * @return ResponseInterface
      *
-     * @throws ContainerException
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
@@ -590,7 +537,6 @@ class App
      *
      * @return ResponseInterface
      *
-     * @throws ContainerException
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
@@ -656,7 +602,6 @@ class App
      *
      * @return ResponseInterface
      *
-     * @throws ContainerException
      * @throws RuntimeException
      */
     protected function finalize(ResponseInterface $response)
@@ -725,14 +670,13 @@ class App
      * Call relevant handler from the Container if needed. If it doesn't exist,
      * then just re-throw.
      *
-     * @param  Exception $e
+     * @param  Exception              $e
      * @param  ServerRequestInterface $request
-     * @param  ResponseInterface $response
+     * @param  ResponseInterface      $response
      *
      * @return ResponseInterface
      *
-     * @throws Exception if a handler is needed and not found
-     * @throws ContainerException
+     * @throws Exception If a handler is needed and not found
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -772,7 +716,6 @@ class App
      * @return ResponseInterface
      *
      * @throws Throwable
-     * @throws ContainerException
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {

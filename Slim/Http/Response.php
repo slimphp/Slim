@@ -2,10 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Http;
 
 use InvalidArgumentException;
@@ -126,8 +125,6 @@ class Response extends Message implements ResponseInterface
     const EOL = "\r\n";
 
     /**
-     * Create new HTTP response.
-     *
      * @param int                   $status  The response status code.
      * @param HeadersInterface|null $headers The response headers.
      * @param StreamInterface|null  $body    The response body.
@@ -153,17 +150,13 @@ class Response extends Message implements ResponseInterface
         $this->headers = clone $this->headers;
     }
 
-    /*******************************************************************************
-     * Status
-     ******************************************************************************/
-
     /**
      * Gets the response status code.
      *
      * The status code is a 3-digit integer result code of the server's attempt
      * to understand and satisfy the request.
      *
-     * @return int Status code.
+     * @return int
      */
     public function getStatusCode()
     {
@@ -262,10 +255,6 @@ class Response extends Message implements ResponseInterface
         return '';
     }
 
-    /*******************************************************************************
-     * Headers
-     ******************************************************************************/
-
     /**
      * Return an instance with the provided value replacing the specified header.
      *
@@ -277,7 +266,7 @@ class Response extends Message implements ResponseInterface
      *
      * @return static
      *
-     * @throws InvalidArgumentException for invalid header names or values.
+     * @throws InvalidArgumentException For invalid header names or values.
      */
     public function withHeader($name, $value)
     {
@@ -295,11 +284,6 @@ class Response extends Message implements ResponseInterface
         return $clone;
     }
 
-
-    /*******************************************************************************
-     * Body
-     ******************************************************************************/
-
     /**
      * Write data to the response body.
      *
@@ -309,7 +293,7 @@ class Response extends Message implements ResponseInterface
      *
      * @param string $data
      *
-     * @return $this
+     * @return static
      */
     public function write($data)
     {
@@ -317,10 +301,6 @@ class Response extends Message implements ResponseInterface
 
         return $this;
     }
-
-    /*******************************************************************************
-     * Response Helpers
-     ******************************************************************************/
 
     /**
      * Redirect.
@@ -358,9 +338,9 @@ class Response extends Message implements ResponseInterface
      * This method prepares the response object to return an HTTP Json
      * response to the client.
      *
-     * @param  mixed  $data   The data
-     * @param  int    $status The HTTP status code.
-     * @param  int    $encodingOptions Json encoding options
+     * @param  mixed $data   The data
+     * @param  int   $status The HTTP status code.
+     * @param  int   $encodingOptions Json encoding options
      *
      * @return static
      *
@@ -475,8 +455,6 @@ class Response extends Message implements ResponseInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
-     *
-     * @api
      */
     public function isForbidden()
     {

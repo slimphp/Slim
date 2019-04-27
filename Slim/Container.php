@@ -2,12 +2,12 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim;
 
+use ArrayAccess;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use InvalidArgumentException;
@@ -21,27 +21,16 @@ use Slim\Exception\ContainerValueNotFoundException;
  * Slim\App expects a container that implements Psr\Container\ContainerInterface
  * with these service keys configured and ready for use:
  *
- *  - settings: an array or instance of \ArrayAccess
- *  - environment: an instance of \Slim\Http\Environment
- *  - request: an instance of \Psr\Http\Message\ServerRequestInterface
- *  - response: an instance of \Psr\Http\Message\ResponseInterface
- *  - router: an instance of \Slim\Interfaces\RouterInterface
- *  - foundHandler: an instance of \Slim\Interfaces\InvocationStrategyInterface
- *  - errorHandler: a callable with the signature: function($request, $response, $exception)
- *  - notFoundHandler: a callable with the signature: function($request, $response)
- *  - notAllowedHandler: a callable with the signature: function($request, $response, $allowedHttpMethods)
- *  - callableResolver: an instance of \Slim\Interfaces\CallableResolverInterface
- *
- * @property-read array $settings
- * @property-read \Slim\Http\Environment $environment
- * @property-read \Psr\Http\Message\ServerRequestInterface $request
- * @property-read \Psr\Http\Message\ResponseInterface $response
- * @property-read \Slim\Interfaces\RouterInterface $router
- * @property-read \Slim\Interfaces\InvocationStrategyInterface $foundHandler
- * @property-read callable $errorHandler
- * @property-read callable $notFoundHandler
- * @property-read callable $notAllowedHandler
- * @property-read \Slim\Interfaces\CallableResolverInterface $callableResolver
+ *  `settings`          an array or instance of \ArrayAccess
+ *  `environment`       an instance of \Slim\Http\Environment
+ *  `request`           an instance of \Psr\Http\Message\ServerRequestInterface
+ *  `response`          an instance of \Psr\Http\Message\ResponseInterface
+ *  `router`            an instance of \Slim\Interfaces\RouterInterface
+ *  `foundHandler`      an instance of \Slim\Interfaces\InvocationStrategyInterface
+ *  `errorHandler`      a callable with the signature: function($request, $response, $exception)
+ *  `notFoundHandler`   a callable with the signature: function($request, $response)
+ *  `notAllowedHandler` a callable with the signature: function($request, $response, $allowedHttpMethods)
+ *  `callableResolver`  an instance of \Slim\Interfaces\CallableResolverInterface
  */
 class Container extends PimpleContainer implements ContainerInterface
 {
@@ -61,8 +50,6 @@ class Container extends PimpleContainer implements ContainerInterface
     ];
 
     /**
-     * Create new container
-     *
      * @param array $values The parameters or objects.
      */
     public function __construct(array $values = [])
@@ -76,7 +63,7 @@ class Container extends PimpleContainer implements ContainerInterface
     /**
      * This function registers the default services that Slim needs to work.
      *
-     * All services are shared - that is, they are registered such that the
+     * All services are shared, they are registered such that the
      * same instance is returned on subsequent calls.
      *
      * @param array $userSettings Associative array of application settings
@@ -88,10 +75,9 @@ class Container extends PimpleContainer implements ContainerInterface
         $defaultSettings = $this->defaultSettings;
 
         /**
-         * This service MUST return an array or an
-         * instance of \ArrayAccess.
+         * This service MUST return an array or an instance of ArrayAccess.
          *
-         * @return array|\ArrayAccess
+         * @return array|ArrayAccess
          */
         $this['settings'] = function () use ($userSettings, $defaultSettings) {
             return new Collection(array_merge($defaultSettings, $userSettings));
@@ -101,19 +87,15 @@ class Container extends PimpleContainer implements ContainerInterface
         $defaultProvider->register($this);
     }
 
-    /********************************************************************************
-     * Methods to satisfy Psr\Container\ContainerInterface
-     *******************************************************************************/
-
     /**
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $id Identifier of the entry to look for.
      *
-     * @return mixed Entry.
+     * @return mixed
      *
-     * @throws InvalidArgumentException
-     * @throws SlimContainerException
+     * @throws InvalidArgumentException         Thrown when an offset cannot be found in the Pimple container
+     * @throws SlimContainerException           Thrown when an exception is not an instance of ContainerException
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
      * @throws ContainerException               Error while retrieving the entry.
      */
@@ -165,16 +147,25 @@ class Container extends PimpleContainer implements ContainerInterface
         return $this->offsetExists($id);
     }
 
-
-    /********************************************************************************
-     * Magic methods for convenience
-     *******************************************************************************/
-
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     *
+     * @throws InvalidArgumentException         Thrown when an offset cannot be found in the Pimple container
+     * @throws SlimContainerException           Thrown when an exception is not an instance of ContainerException
+     * @throws ContainerValueNotFoundException  No entry was found for this identifier.
+     * @throws ContainerException               Error while retrieving the entry.
+     */
     public function __get($name)
     {
         return $this->get($name);
     }
 
+    /**
+     * @param string $name
+     * @return bool
+     */
     public function __isset($name)
     {
         return $this->has($name);

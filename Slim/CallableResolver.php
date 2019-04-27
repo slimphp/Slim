@@ -2,10 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim;
 
 use Psr\Container\ContainerInterface;
@@ -39,12 +38,12 @@ final class CallableResolver implements CallableResolverInterface
      * If toResolve is of the format 'class:method', then try to extract 'class'
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
-     * @param mixed $toResolve
+     * @param callable|string $toResolve
      *
      * @return callable
      *
-     * @throws RuntimeException if the callable does not exist
-     * @throws RuntimeException if the callable is not resolvable
+     * @throws RuntimeException If the callable does not exist
+     * @throws RuntimeException If the callable is not resolvable
      */
     public function resolve($toResolve)
     {

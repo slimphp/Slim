@@ -2,19 +2,21 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
 
 namespace Slim\Tests\Handlers;
 
+use Exception;
 use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
 use Slim\Handlers\PhpError;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Throwable;
+use UnexpectedValueException;
 
-class PhpErrorTest extends \PHPUnit_Framework_TestCase
+class PhpErrorTest extends PHPUnit_Framework_TestCase
 {
     public function phpErrorProvider()
     {
@@ -39,7 +41,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $error = new PhpError();
 
         /** @var Response $res */
-        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), new \Exception());
+        $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), new Exception());
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
@@ -56,7 +58,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
     {
         $error = new PhpError(true);
 
-        $exception = new \Exception('Oops', 1, new \Exception('Opps before'));
+        $exception = new Exception('Oops', 1, new Exception('Opps before'));
 
         /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $exception);
@@ -78,7 +80,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
         $this->setExpectedException('\UnexpectedValueException');
-        $errorMock->__invoke($req, new Response(), new \Exception());
+        $errorMock->__invoke($req, new Response(), new Exception());
     }
 
     /**
@@ -92,22 +94,18 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $this->skipIfPhp70();
         $error = new PhpError();
 
+        /** @var Throwable $throwable */
         $throwable = $this->getMock(
             '\Throwable',
             ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
         );
 
-        /** @var \Throwable $throwable */
-
-        /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $throwable);
 
         $this->assertSame(500, $res->getStatusCode());
         $this->assertSame($contentType, $res->getHeaderLine('Content-Type'));
         $this->assertEquals(0, strpos((string)$res->getBody(), $startOfBody));
     }
-
-
 
     /**
      * Test invalid method returns the correct code and content type
@@ -120,6 +118,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
         $error = new PhpError(true);
 
+        /** @var Throwable $throwable */
         $throwable = $this->getMock(
             '\Throwable',
             ['getCode', 'getMessage', 'getFile', 'getLine', 'getTraceAsString', 'getPrevious']
@@ -134,9 +133,6 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $throwable->method('getTraceAsString')->will($this->returnValue('This is error'));
         $throwable->method('getPrevious')->will($this->returnValue($throwablePrev));
 
-        /** @var \Throwable $throwable */
-
-        /** @var Response $res */
         $res = $error->__invoke($this->getRequest('GET', $acceptHeader), new Response(), $throwable);
 
         $this->assertSame(500, $res->getStatusCode());
@@ -146,6 +142,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @requires PHP 5.0
+     * @expectedException UnexpectedValueException
      */
     public function testNotFoundContentType5()
     {
@@ -154,10 +151,9 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
         $errorMock->method('determineContentType')
             ->will($this->returnValue('unknown/type'));
 
-        $throwable = $this->getMockBuilder('\Throwable')->getMock();
+        $throwable = $this->getMockBuilder('Throwable')->getMock();
         $req = $this->getMockBuilder('Slim\Http\Request')->disableOriginalConstructor()->getMock();
 
-        $this->setExpectedException('\UnexpectedValueException');
         $errorMock->__invoke($req, new Response(), $throwable);
     }
 

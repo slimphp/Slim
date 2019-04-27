@@ -2,26 +2,22 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Mocks;
 
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Http\Response;
 use Slim\MiddlewareAwareTrait;
 
-/**
- * Mock object for Slim\Tests\MiddlewareAwareTest
- */
 class Stackable
 {
     use MiddlewareAwareTrait;
 
-    public function __invoke(ServerRequestInterface $req, ResponseInterface $res)
+    public function __invoke(ServerRequestInterface $request, Response $response)
     {
-        return $res->write('Center');
+        return $response->write('Center');
     }
 
     public function alternativeSeed()
@@ -29,9 +25,9 @@ class Stackable
         $this->seedMiddlewareStack([$this, 'testMiddlewareKernel']);
     }
 
-    public function testMiddlewareKernel(ServerRequestInterface $req, ResponseInterface $res)
+    public function testMiddlewareKernel(ServerRequestInterface $request, Response $response)
     {
-        return $res->write('hello from testMiddlewareKernel');
+        return $response->write('hello from testMiddlewareKernel');
     }
 
     public function add($callable)
