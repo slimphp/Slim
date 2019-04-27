@@ -19,7 +19,6 @@ use RuntimeException;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
-use Slim\Exception\NotFoundException;
 use Slim\Exception\SlimException;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
@@ -33,6 +32,7 @@ use Slim\Http\Uri;
 use Slim\Router;
 use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockAction;
+use Throwable;
 
 /**
  * Emit a header, without creating actual output artifacts
@@ -1978,9 +1978,9 @@ class AppTest extends \PHPUnit_Framework_TestCase
     /**
      * @throws Exception
      * @throws MethodNotAllowedException
-     * @throws NotFoundException
+     * @throws \Slim\Exception\NotFoundException
      * @throws ContainerException
-     *
+     * @throws Throwable
      * @expectedException \Exception
      */
     public function testRunExceptionNoHandler()
@@ -2045,7 +2045,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             return $res;
         });
         $app->add(function ($req, $res, $args) {
-            throw new NotFoundException($req, $res);
+            throw new \Slim\Exception\NotFoundException($req, $res);
         });
         $res = $app->run(true);
 
@@ -2053,7 +2053,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException NotFoundException
+     * @expectedException \Slim\Exception\NotFoundException
      */
     public function testRunNotFoundWithoutHandler()
     {
