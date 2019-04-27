@@ -120,6 +120,7 @@ class Error extends AbstractError
      * @param \Exception|\Error $exception
      *
      * @return string
+     * @throws \RuntimeException
      */
     protected function renderHtmlExceptionOrError($exception)
     {
