@@ -2065,7 +2065,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
             return $res;
         });
         $app->add(function ($req, $res, $args) {
-            throw new NotFoundException($req, $res);
+            throw new \Slim\Exception\NotFoundException($req, $res);
         });
         $res = $app->run(true);
     }
