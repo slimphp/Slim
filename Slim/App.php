@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use RuntimeException;
 use BadMethodCallException;
 use Interop\Container\Exception\ContainerException;
 use Exception;
@@ -639,6 +640,7 @@ class App
      * @return ResponseInterface
      *
      * @throws ContainerException
+     * @throws RuntimeException
      */
     protected function finalize(ResponseInterface $response)
     {
@@ -654,7 +656,7 @@ class App
         if (isset($this->container->get('settings')['addContentLengthHeader']) &&
             $this->container->get('settings')['addContentLengthHeader'] == true) {
             if (ob_get_length() > 0) {
-                throw new \RuntimeException("Unexpected data in output buffer. " .
+                throw new RuntimeException("Unexpected data in output buffer. " .
                     "Maybe you have characters before an opening <?php tag?");
             }
             $size = $response->getBody()->getSize();
