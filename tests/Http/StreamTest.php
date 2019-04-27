@@ -2,15 +2,16 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
+use PHPUnit_Framework_TestCase;
+use RuntimeException;
 use Slim\Http\Stream;
 
-class StreamTest extends \PHPUnit_Framework_TestCase
+class StreamTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var resource pipe stream file handle
@@ -29,9 +30,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @covers Slim\Http\Stream::isPipe
-     */
     public function testIsPipe()
     {
         $this->openPipeStream();
@@ -46,9 +44,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($fileStream->isPipe());
     }
 
-    /**
-     * @covers Slim\Http\Stream::isReadable
-     */
     public function testIsPipeReadable()
     {
         $this->openPipeStream();
@@ -56,9 +51,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->pipeStream->isReadable());
     }
 
-    /**
-     * @covers Slim\Http\Stream::isSeekable
-     */
     public function testPipeIsNotSeekable()
     {
         $this->openPipeStream();
@@ -67,8 +59,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Slim\Http\Stream::seek
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotSeekPipe()
     {
@@ -78,8 +69,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Slim\Http\Stream::tell
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotTellPipe()
     {
@@ -89,8 +79,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Slim\Http\Stream::rewind
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotRewindPipe()
     {
@@ -99,9 +88,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->pipeStream->rewind();
     }
 
-    /**
-     * @covers Slim\Http\Stream::getSize
-     */
     public function testPipeGetSizeYieldsNull()
     {
         $this->openPipeStream();
@@ -109,9 +95,6 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->assertNull($this->pipeStream->getSize());
     }
 
-    /**
-     * @covers Slim\Http\Stream::close
-     */
     public function testClosePipe()
     {
         $this->openPipeStream();
@@ -123,19 +106,12 @@ class StreamTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->pipeStream->isPipe());
     }
 
-    /**
-     * @covers Slim\Http\Stream::__toString
-     */
     public function testPipeToString()
     {
         $this->openPipeStream();
 
         $this->assertSame('', (string) $this->pipeStream);
     }
-
-    /**
-     * @covers Slim\Http\Stream::getContents
-     */
 
     public function testPipeGetContents()
     {

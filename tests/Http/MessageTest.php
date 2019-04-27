@@ -2,24 +2,20 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
+use PHPUnit_Framework_MockObject_MockObject;
+use PHPUnit_Framework_TestCase;
+use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Tests\Mocks\MessageStub;
 
-class MessageTest extends \PHPUnit_Framework_TestCase
+class MessageTest extends PHPUnit_Framework_TestCase
 {
-    /*******************************************************************************
-     * Protocol
-     ******************************************************************************/
-
-    /**
-     * @covers Slim\Http\Message::getProtocolVersion
-     */
     public function testGetProtocolVersion()
     {
         $message = new MessageStub();
@@ -28,9 +24,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1.0', $message->getProtocolVersion());
     }
 
-    /**
-     * @covers Slim\Http\Message::withProtocolVersion
-     */
     public function testWithProtocolVersion()
     {
         $message = new MessageStub();
@@ -40,8 +33,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers Slim\Http\Message::withProtocolVersion
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithProtocolVersionInvalidThrowsException()
     {
@@ -49,13 +41,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $message->withProtocolVersion('3.0');
     }
 
-
-    /**
-     * Ensure that we support HTTP '2'
-     *
-     * @see https://http2.github.io/faq/#is-it-http20-or-http2
-     * @covers Slim\Http\Message::withProtocolVersion
-     */
     public function testWithProtocolVersionForHttp2()
     {
         $message = new MessageStub();
@@ -64,14 +49,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('2', $clone->protocolVersion);
     }
 
-
-    /*******************************************************************************
-     * Headers
-     ******************************************************************************/
-
-    /**
-     * @covers Slim\Http\Message::getHeaders
-     */
     public function testGetHeaders()
     {
         $headers = new Headers();
@@ -93,9 +70,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($shouldBe, $message->getHeaders());
     }
 
-    /**
-     * @covers Slim\Http\Message::hasHeader
-     */
     public function testHasHeader()
     {
         $headers = new Headers();
@@ -108,9 +82,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($message->hasHeader('X-Bar'));
     }
 
-    /**
-     * @covers Slim\Http\Message::getHeaderLine
-     */
     public function testGetHeaderLine()
     {
         $headers = new Headers();
@@ -125,9 +96,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('', $message->getHeaderLine('X-Bar'));
     }
 
-    /**
-     * @covers Slim\Http\Message::getHeader
-     */
     public function testGetHeader()
     {
         $headers = new Headers();
@@ -142,9 +110,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([], $message->getHeader('X-Bar'));
     }
 
-    /**
-     * @covers Slim\Http\Message::withHeader
-     */
     public function testWithHeader()
     {
         $headers = new Headers();
@@ -156,9 +121,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('bar', $clone->getHeaderLine('X-Foo'));
     }
 
-    /**
-     * @covers Slim\Http\Message::withAddedHeader
-     */
     public function testWithAddedHeader()
     {
         $headers = new Headers();
@@ -170,9 +132,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('one,two', $clone->getHeaderLine('X-Foo'));
     }
 
-    /**
-     * @covers Slim\Http\Message::withoutHeader
-     */
     public function testWithoutHeader()
     {
         $headers = new Headers();
@@ -188,13 +147,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($shouldBe, $clone->getHeaders());
     }
 
-    /*******************************************************************************
-     * Body
-     ******************************************************************************/
-
-    /**
-     * @covers Slim\Http\Message::getBody
-     */
     public function testGetBody()
     {
         $body = $this->getBody();
@@ -204,9 +156,6 @@ class MessageTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($body, $message->getBody());
     }
 
-    /**
-     * @covers Slim\Http\Message::withBody
-     */
     public function testWithBody()
     {
         $body = $this->getBody();
@@ -220,10 +169,13 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Body
+     * @return PHPUnit_Framework_MockObject_MockObject|Body
      */
     protected function getBody()
     {
-        return $this->getMockBuilder('Slim\Http\Body')->disableOriginalConstructor()->getMock();
+        return $this
+            ->getMockBuilder('Slim\Http\Body')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 }

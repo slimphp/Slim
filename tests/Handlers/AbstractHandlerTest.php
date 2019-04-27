@@ -2,15 +2,16 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Handlers;
 
+use PHPUnit_Framework_TestCase;
+use ReflectionClass;
 use Slim\Handlers\AbstractHandler;
 
-class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
+class AbstractHandlerTest extends PHPUnit_Framework_TestCase
 {
     public function testHalfValidContentType()
     {
@@ -26,7 +27,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
             'text/html',
         ];
 
-        $class = new \ReflectionClass(AbstractHandler::class);
+        $class = new ReflectionClass(AbstractHandler::class);
 
         $reflectionProperty = $class->getProperty('knownContentTypes');
         $reflectionProperty->setAccessible(true);
@@ -55,7 +56,7 @@ class AbstractHandlerTest extends \PHPUnit_Framework_TestCase
             ->willReturn('text/plain,text/html');
 
         // provide access to the determineContentType() as it's a protected method
-        $class = new \ReflectionClass(AbstractHandler::class);
+        $class = new ReflectionClass(AbstractHandler::class);
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
 

@@ -2,12 +2,13 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
+use PHPUnit_Framework_TestCase;
+use RuntimeException;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -16,14 +17,12 @@ use Slim\Http\Stream;
 use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 
-class UploadedFilesTest extends \PHPUnit_Framework_TestCase
+class UploadedFilesTest extends PHPUnit_Framework_TestCase
 {
     static private $filename = './phpUxcOty';
 
     static private $tmpFiles = ['./phpUxcOty'];
-    /**
-     * @beforeClass
-     */
+
     public static function setUpBeforeClass()
     {
         $fh = fopen(self::$filename, "w");
@@ -31,9 +30,6 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
         fclose($fh);
     }
 
-    /**
-     * @afterClass
-     */
     public static function tearDownAfterClass()
     {
         foreach (self::$tmpFiles as $filename) {
@@ -60,7 +56,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param array $input The input array to parse.
+     * @param array $input    The input array to parse.
      * @param array $expected The expected normalized output.
      *
      * @dataProvider providerCreateFromEnvironment
@@ -128,7 +124,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @return UploadedFile
      */
     public function testGetStream(UploadedFile $uploadedFile)
@@ -142,6 +140,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMoveToNotWritable(UploadedFile $uploadedFile)
@@ -154,7 +153,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @return UploadedFile
      */
     public function testMoveTo(UploadedFile $uploadedFile)
@@ -172,7 +173,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testMoveTo
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @expectedException RuntimeException
      */
     public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
@@ -190,6 +193,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * This test must run after testMoveTo
      *
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMoveToAgain(UploadedFile $uploadedFile)
@@ -205,6 +209,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * This test must run after testMoveTo
      *
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMovedStream($uploadedFile)
@@ -472,13 +477,13 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param array $mockEnv An array representing a mock environment.
+     * @param array $settings An array representing a mock environment.
      *
      * @return Request
      */
-    public function requestFactory(array $mockEnv)
+    public function requestFactory(array $settings)
     {
-        $env = Environment::mock();
+        $env = Environment::mock($settings);
 
         $uri = Uri::createFromString('https://example.com:443/foo/bar?abc=123');
         $headers = Headers::createFromEnvironment($env);

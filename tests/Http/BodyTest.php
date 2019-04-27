@@ -2,16 +2,17 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
+use PHPUnit_Framework_TestCase;
 use ReflectionProperty;
 use Slim\Http\Body;
 
-class BodyTest extends \PHPUnit_Framework_TestCase
+class BodyTest extends PHPUnit_Framework_TestCase
 {
     /**
      * @var string
@@ -60,7 +61,7 @@ class BodyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testConstructorInvalidStream()
     {

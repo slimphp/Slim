@@ -2,24 +2,22 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
+use PHPUnit_Framework_TestCase;
 use ReflectionProperty;
+use RuntimeException;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Response;
 
-class ResponseTest extends \PHPUnit_Framework_TestCase
+class ResponseTest extends PHPUnit_Framework_TestCase
 {
-    /*******************************************************************************
-     * Create
-     ******************************************************************************/
-
-    public function testConstructoWithDefaultArgs()
+    public function testConstructorWithDefaultArgs()
     {
         $response = new Response();
 
@@ -60,10 +58,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse(property_exists($response, 'foo'));
     }
 
-    /*******************************************************************************
-     * Status
-     ******************************************************************************/
-
     public function testGetStatusCode()
     {
         $response = new Response();
@@ -83,7 +77,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithStatusInvalidStatusCodeThrowsException()
     {
@@ -92,7 +86,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage ReasonPhrase must be a string
      */
     public function testWithStatusInvalidReasonPhraseThrowsException()
@@ -116,7 +110,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage ReasonPhrase must be supplied for this code
      */
     public function testMustSetReasonPhraseForUnrecognisedCode()
@@ -141,9 +135,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Custom Phrase', $clone->getReasonPhrase());
     }
 
-    /**
-     * @covers Slim\Http\Response::withRedirect
-     */
     public function testWithRedirect()
     {
         $response = new Response(200);
@@ -166,10 +157,6 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($cloneWithStatusMethod->hasHeader('Location'));
         $this->assertEquals('/foo', $cloneWithStatusMethod->getHeaderLine('Location'));
     }
-
-    /*******************************************************************************
-     * Behaviors
-     ******************************************************************************/
 
     public function testIsEmpty()
     {
@@ -333,7 +320,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testWithInvalidJsonThrowsException()
     {

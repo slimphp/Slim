@@ -2,10 +2,9 @@
 /**
  * Slim Framework (https://slimframework.com)
  *
- * @link      https://github.com/slimphp/Slim
- * @copyright Copyright (c) 2011-2017 Josh Lockhart
- * @license   https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
+ * @license https://github.com/slimphp/Slim/blob/3.x/LICENSE.md (MIT License)
  */
+
 namespace Slim\Http;
 
 use Psr\Http\Message\StreamInterface;
@@ -99,15 +98,15 @@ class NonBufferedBody implements StreamInterface
     public function write($string)
     {
         $buffered = '';
-        while (0 < \ob_get_level()) {
-            $buffered = \ob_get_clean() . $buffered;
+        while (0 < ob_get_level()) {
+            $buffered = ob_get_clean() . $buffered;
         }
 
         echo $buffered . $string;
 
-        \flush();
+        flush();
 
-        return \strlen($string) + \strlen($buffered);
+        return strlen($string) + strlen($buffered);
     }
 
     /**

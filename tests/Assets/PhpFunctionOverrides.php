@@ -6,6 +6,7 @@
  * We put these into the Slim namespace, so that Slim\App will use these versions of header() and
  * headers_sent() when we test its output.
  */
+
 namespace Slim;
 
 use Slim\Tests\Assets\HeaderStack;
@@ -61,7 +62,8 @@ function header($string, $replace = true, $statusCode = null)
 /**
  * Is a file descriptor writable
  *
- * @param $file
+ * @param string $file
+ *
  * @return bool
  */
 function is_readable($file)
@@ -75,7 +77,8 @@ function is_readable($file)
 /**
  * Is a path writable
  *
- * @param $path
+ * @param string $path
+ *
  * @return bool
  */
 function is_writable($path)
