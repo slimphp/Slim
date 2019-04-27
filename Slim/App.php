@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use BadMethodCallException;
 use Interop\Container\Exception\ContainerException;
 use Exception;
 use Psr\Http\Message\UriInterface;
@@ -117,6 +118,7 @@ class App
      * @return mixed
      *
      * @throws ContainerException
+     * @throws BadMethodCallException
      */
     public function __call($method, $args)
     {
@@ -127,7 +129,7 @@ class App
             }
         }
 
-        throw new \BadMethodCallException("Method $method is not a valid method");
+        throw new BadMethodCallException("Method $method is not a valid method");
     }
 
     /********************************************************************************
