@@ -41,7 +41,7 @@ class Router implements RouterInterface
     /**
      * Parser
      *
-     * @var \FastRoute\RouteParser
+     * @var RouteParser
      */
     protected $routeParser;
 
@@ -80,7 +80,7 @@ class Router implements RouterInterface
     protected $routeGroups = [];
 
     /**
-     * @var \FastRoute\Dispatcher
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -184,7 +184,7 @@ class Router implements RouterInterface
         // According to RFC methods are defined in uppercase (See RFC 7231)
         $methods = array_map("strtoupper", $methods);
 
-        /** @var \Slim\Route */
+        /** @var Route */
         $route = $this->createRoute($methods, $pattern, $handler);
         // Add route
         $this->routes[$route->getIdentifier()] = $route;
@@ -219,7 +219,7 @@ class Router implements RouterInterface
      * @param  string   $pattern The route pattern
      * @param  callable $callable The route callable
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     protected function createRoute($methods, $pattern, $callable)
     {
@@ -232,7 +232,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * @return \FastRoute\Dispatcher
+     * @return Dispatcher
      */
     protected function createDispatcher()
     {
@@ -261,7 +261,7 @@ class Router implements RouterInterface
     }
 
     /**
-     * @param \FastRoute\Dispatcher $dispatcher
+     * @param Dispatcher $dispatcher
      */
     public function setDispatcher(Dispatcher $dispatcher)
     {
@@ -355,7 +355,8 @@ class Router implements RouterInterface
     /**
      *
      * @param string $identifier
-     * @return \Slim\Interfaces\RouteInterface
+     *
+     * @return RouteInterface
      */
     public function lookupRoute($identifier)
     {

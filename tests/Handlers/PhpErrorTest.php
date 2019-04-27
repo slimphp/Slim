@@ -9,7 +9,9 @@
 
 namespace Slim\Tests\Handlers;
 
+use PHPUnit_Framework_MockObject_MockObject;
 use Slim\Handlers\PhpError;
+use Slim\Http\Request;
 use Slim\Http\Response;
 
 class PhpErrorTest extends \PHPUnit_Framework_TestCase
@@ -162,7 +164,7 @@ class PhpErrorTest extends \PHPUnit_Framework_TestCase
     /**
      * @param string $method
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
+     * @return PHPUnit_Framework_MockObject_MockObject|Request
      */
     protected function getRequest($method, $acceptHeader)
     {

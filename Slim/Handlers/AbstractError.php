@@ -8,6 +8,9 @@
  */
 namespace Slim\Handlers;
 
+use Throwable;
+use Exception;
+
 /**
  * Abstract Slim application error handler
  */
@@ -31,7 +34,7 @@ abstract class AbstractError extends AbstractHandler
     /**
      * Write to the error log if displayErrorDetails is false
      *
-     * @param \Exception|\Throwable $throwable
+     * @param Exception|Throwable $throwable
      *
      * @return void
      */
@@ -56,7 +59,7 @@ abstract class AbstractError extends AbstractHandler
     /**
      * Render error as Text.
      *
-     * @param \Exception|\Throwable $throwable
+     * @param Exception|Throwable $throwable
      *
      * @return string
      */

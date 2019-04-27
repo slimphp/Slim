@@ -9,6 +9,10 @@
 
 namespace Slim\Tests;
 
+use Exception;
+use BadMethodCallException;
+use RuntimeException;
+use Interop\Container\Exception\ContainerException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
@@ -17,7 +21,6 @@ use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
 use Slim\Exception\SlimException;
-use Slim\Handlers\Error;
 use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Http\Body;
 use Slim\Http\Environment;
@@ -1895,7 +1898,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->getContainer()['response'] = $res;
 
         $mw = function ($req, $res, $next) {
-            throw new \Exception('middleware exception');
+            throw new Exception('middleware exception');
         };
 
         $app->add($mw);
@@ -1973,9 +1976,11 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @throws \Exception
-     * @throws \Slim\Exception\MethodNotAllowedException
-     * @throws \Slim\Exception\NotFoundException
+     * @throws Exception
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
+     * @throws ContainerException
+     *
      * @expectedException \Exception
      */
     public function testRunExceptionNoHandler()
@@ -2048,7 +2053,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Slim\Exception\NotFoundException
+     * @expectedException NotFoundException
      */
     public function testRunNotFoundWithoutHandler()
     {
@@ -2082,7 +2087,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Slim\Exception\MethodNotAllowedException
+     * @expectedException MethodNotAllowedException
      */
     public function testRunNotAllowedWithoutHandler()
     {
@@ -2141,7 +2146,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
         $app->getContainer()['response'] = $res;
 
         $mw = function ($req, $res, $next) {
-            throw new \RuntimeException('middleware exception');
+            throw new RuntimeException('middleware exception');
         };
 
         $app->add($mw);
@@ -2206,7 +2211,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \BadMethodCallException
+     * @expectedException BadMethodCallException
      */
     public function testCallingFromContainerNotCallable()
     {
@@ -2220,7 +2225,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \BadMethodCallException
+     * @expectedException BadMethodCallException
      */
     public function testCallingAnUnknownContainerCallableThrows()
     {
@@ -2229,7 +2234,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \BadMethodCallException
+     * @expectedException BadMethodCallException
      */
     public function testCallingAnUncallableContainerKeyThrows()
     {
@@ -2255,7 +2260,7 @@ class AppTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      * @expectedExceptionMessage Unexpected data in output buffer
      */
     public function testForUnexpectedDataInOutputBuffer()

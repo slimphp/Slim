@@ -8,7 +8,7 @@
  */
 namespace Slim\Tests;
 
-use ReflectionProperty;
+use RuntimeException;
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -102,7 +102,7 @@ class MiddlewareAwareTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testMiddlewareBadReturnValue()
     {

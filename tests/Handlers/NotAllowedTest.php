@@ -8,8 +8,10 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit_Framework_MockObject_MockObject;
 use Slim\Handlers\NotAllowed;
 use Slim\Http\Response;
+use Slim\Http\Request;
 
 class NotAllowedTest extends \PHPUnit_Framework_TestCase
 {
@@ -68,7 +70,8 @@ class NotAllowedTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $method
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|Request
      */
     protected function getRequest($method, $contentType = 'text/html')
     {

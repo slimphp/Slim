@@ -8,8 +8,10 @@
  */
 namespace Slim\Tests\Handlers;
 
+use PHPUnit_Framework_MockObject_MockObject;
 use Slim\Handlers\NotFound;
 use Slim\Http\Response;
+use Slim\Http\Request;
 use Slim\Http\Uri;
 
 class NotFoundTest extends \PHPUnit_Framework_TestCase
@@ -57,7 +59,8 @@ class NotFoundTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @param string $method
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Request
+     *
+     * @return PHPUnit_Framework_MockObject_MockObject|Request
      */
     protected function getRequest($method, $contentType = 'text/html')
     {

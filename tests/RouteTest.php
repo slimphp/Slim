@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests;
 
+use Exception;
 use Slim\Container;
 use Slim\DeferredCallable;
 use Slim\Http\Body;
@@ -306,12 +307,12 @@ class RouteTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \Exception
+     * @expectedException Exception
      */
     public function testInvokeWithException()
     {
         $callable = function ($req, $res, $args) {
-            throw new \Exception();
+            throw new Exception();
         };
         $route = new Route(['GET'], '/', $callable);
 

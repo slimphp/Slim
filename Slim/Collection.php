@@ -193,7 +193,7 @@ class Collection implements CollectionInterface
     /**
      * Get collection iterator
      *
-     * @return \ArrayIterator
+     * @return ArrayIterator
      */
     public function getIterator()
     {

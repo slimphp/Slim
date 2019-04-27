@@ -35,6 +35,7 @@ abstract class AbstractHandler
      * as willdurand/negotiation for any other situation.
      *
      * @param ServerRequestInterface $request
+     *
      * @return string
      */
     protected function determineContentType(ServerRequestInterface $request)

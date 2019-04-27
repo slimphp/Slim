@@ -8,6 +8,8 @@
  */
 namespace Slim\Tests\Http;
 
+use RuntimeException;
+use InvalidArgumentException;
 use ReflectionProperty;
 use Slim\Http\Body;
 use Slim\Http\Headers;
@@ -83,7 +85,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithStatusInvalidStatusCodeThrowsException()
     {
@@ -92,7 +94,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage ReasonPhrase must be a string
      */
     public function testWithStatusInvalidReasonPhraseThrowsException()
@@ -116,7 +118,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage ReasonPhrase must be supplied for this code
      */
     public function testMustSetReasonPhraseForUnrecognisedCode()
@@ -333,7 +335,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testWithInvalidJsonThrowsException()
     {

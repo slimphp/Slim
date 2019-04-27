@@ -10,6 +10,9 @@ namespace Slim\Tests;
 
 use Slim\Container;
 use Psr\Container\ContainerInterface;
+use Interop\Container\Exception\NotFoundException;
+use Interop\Container\Exception\ContainerException;
+use InvalidArgumentException;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
@@ -36,7 +39,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` throws error if item does not exist
      *
-     * @expectedException \Interop\Container\Exception\NotFoundException
+     * @expectedException NotFoundException
      */
     public function testGetWithValueNotFoundError()
     {
@@ -47,7 +50,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * Test `get()` throws something that is a ContainerExpception - typically a NotFoundException, when there is a DI
      * config error
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException ContainerException
      */
     public function testGetWithDiConfigErrorThrownAsContainerValueNotFoundException()
     {
@@ -64,7 +67,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      * Test `get()` recasts \InvalidArgumentException as ContainerInterop-compliant exceptions when an error is present
      * in the DI config
      *
-     * @expectedException \Interop\Container\Exception\ContainerException
+     * @expectedException ContainerException
      */
     public function testGetWithDiConfigErrorThrownAsInvalidArgumentException()
     {
@@ -80,7 +83,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
     /**
      * Test `get()` does not recast exceptions which are thrown in a factory closure
      *
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testGetWithErrorThrownByFactoryClosure()
     {
@@ -88,7 +91,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         /** @var \Callable $invokable */
         $invokable->expects($this->any())
             ->method('__invoke')
-            ->will($this->throwException(new \InvalidArgumentException()));
+            ->will($this->throwException(new InvalidArgumentException()));
 
         $container = new Container;
         $container['foo'] =

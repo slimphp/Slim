@@ -76,9 +76,10 @@ final class CallableResolver implements CallableResolverInterface
      *
      * @param string $class
      * @param string $method
+     *
      * @return callable
      *
-     * @throws \RuntimeException if the callable does not exist
+     * @throws RuntimeException if the callable does not exist
      */
     protected function resolveCallable($class, $method = '__invoke')
     {
@@ -96,7 +97,7 @@ final class CallableResolver implements CallableResolverInterface
     /**
      * @param Callable $callable
      *
-     * @throws \RuntimeException if the callable is not resolvable
+     * @throws RuntimeException if the callable is not resolvable
      */
     protected function assertCallable($callable)
     {

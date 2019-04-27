@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
 use ReflectionProperty;
 use Slim\Http\Body;
 
@@ -60,7 +61,7 @@ class BodyTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testConstructorInvalidStream()
     {

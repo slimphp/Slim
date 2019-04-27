@@ -9,7 +9,8 @@
 
 namespace Slim\Tests;
 
-use Psr\Container\ContainerExceptionInterface;
+use InvalidArgumentException;
+use RuntimeException;
 use Slim\Http\Uri;
 use Slim\Router;
 
@@ -63,7 +64,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Route pattern must be a string
      */
     public function testMapWithInvalidPatternType()
@@ -180,7 +181,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testPathForWithMissingSegmentData()
     {
@@ -196,7 +197,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testPathForRouteNotExists()
     {
@@ -212,7 +213,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testSettingInvalidBasePath()
     {
@@ -240,7 +241,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testRemoveRoute()
     {
@@ -296,7 +297,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testRouteRemovalNotExists()
     {
@@ -435,7 +436,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testLookupRouteThrowsExceptionIfRouteNotFound()
     {

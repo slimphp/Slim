@@ -9,6 +9,9 @@
 
 namespace Slim\Tests\Http;
 
+use RuntimeException;
+use ReflectionException;
+use InvalidArgumentException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\MethodProphecy;
 use Psr\Http\Message\UriInterface;
@@ -166,7 +169,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithMethodInvalid()
     {
@@ -310,7 +313,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testCreateRequestWithInvalidMethodString()
     {
@@ -323,7 +326,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testCreateRequestWithInvalidMethodOther()
     {
@@ -450,7 +453,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testGetRequestTargetWithSlimPsr7Uri()
     {
@@ -475,7 +478,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function testGetRequestTargetWithNonSlimPsr7Uri()
     {
@@ -498,7 +501,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithRequestTargetThatHasSpaces()
     {
@@ -1130,7 +1133,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testGetParsedBodyAsArray()
     {
@@ -1212,7 +1215,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithParsedBodyInvalid()
     {
@@ -1220,7 +1223,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithParsedBodyInvalidFalseValue()
     {

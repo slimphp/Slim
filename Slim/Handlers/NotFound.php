@@ -28,6 +28,7 @@ class NotFound extends AbstractHandler
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     *
      * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)

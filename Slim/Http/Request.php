@@ -49,7 +49,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request URI object
      *
-     * @var \Psr\Http\Message\UriInterface
+     * @var UriInterface
      */
     protected $uri;
 
@@ -84,7 +84,7 @@ class Request extends Message implements ServerRequestInterface
     /**
      * The request attributes (route segment names and values)
      *
-     * @var \Slim\Collection
+     * @var Collection
      */
     protected $attributes;
 
@@ -168,6 +168,7 @@ class Request extends Message implements ServerRequestInterface
      * @param array            $serverParams  The server environment variables
      * @param StreamInterface  $body          The request body object
      * @param array            $uploadedFiles The request uploadedFiles collection
+     *
      * @throws InvalidMethodException on invalid HTTP method
      */
     public function __construct(
@@ -317,8 +318,10 @@ class Request extends Message implements ServerRequestInterface
      * changed request method.
      *
      * @param string $method Case-sensitive method.
+     *
      * @return static
-     * @throws \InvalidArgumentException for invalid HTTP methods.
+     *
+     * @throws InvalidArgumentException for invalid HTTP methods.
      */
     public function withMethod($method)
     {
@@ -334,8 +337,10 @@ class Request extends Message implements ServerRequestInterface
      * Validate the HTTP method
      *
      * @param  null|string $method
+     *
      * @return null|string
-     * @throws \InvalidArgumentException on invalid HTTP method.
+     *
+     * @throws InvalidArgumentException on invalid HTTP method.
      */
     protected function filterMethod($method)
     {
@@ -364,6 +369,7 @@ class Request extends Message implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param  string $method HTTP method
+     *
      * @return bool
      */
     public function isMethod($method)
@@ -529,7 +535,9 @@ class Request extends Message implements ServerRequestInterface
      * @link http://tools.ietf.org/html/rfc7230#section-2.7 (for the various
      *     request-target forms allowed in request messages)
      * @param mixed $requestTarget
+     *
      * @return static
+     *
      * @throws InvalidArgumentException if the request target is invalid
      */
     public function withRequestTarget($requestTarget)
@@ -551,6 +559,7 @@ class Request extends Message implements ServerRequestInterface
      * This method MUST return a UriInterface instance.
      *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
+     *
      * @return UriInterface Returns a UriInterface instance
      *     representing the URI of the request.
      */
@@ -585,8 +594,10 @@ class Request extends Message implements ServerRequestInterface
      * new UriInterface instance.
      *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
+     *
      * @param UriInterface $uri New request URI to use.
      * @param bool $preserveHost Preserve the original state of the Host header.
+     *
      * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
@@ -749,6 +760,7 @@ class Request extends Message implements ServerRequestInterface
      * updated cookie values.
      *
      * @param array $cookies Array of key/value pairs representing cookies.
+     *
      * @return static
      */
     public function withCookieParams(array $cookies)
@@ -810,6 +822,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param array $query Array of query string arguments, typically from
      *     $_GET.
+     *
      * @return static
      */
     public function withQueryParams(array $query)
@@ -849,8 +862,10 @@ class Request extends Message implements ServerRequestInterface
      * updated body parameters.
      *
      * @param array $uploadedFiles An array tree of UploadedFileInterface instances.
+     *
      * @return static
-     * @throws \InvalidArgumentException if an invalid structure is provided.
+     *
+     * @throws InvalidArgumentException if an invalid structure is provided.
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
@@ -885,6 +900,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param  string $key
      * @param  mixed  $default
+     *
      * @return mixed
      */
     public function getServerParam($key, $default = null)
@@ -925,8 +941,10 @@ class Request extends Message implements ServerRequestInterface
      * specifying a default value to return if the attribute is not found.
      *
      * @see getAttributes()
+     *
      * @param string $name The attribute name.
      * @param mixed $default Default value to return if the attribute does not exist.
+     *
      * @return mixed
      */
     public function getAttribute($name, $default = null)
@@ -945,8 +963,10 @@ class Request extends Message implements ServerRequestInterface
      * updated attribute.
      *
      * @see getAttributes()
+     *
      * @param string $name The attribute name.
      * @param mixed $value The value of the attribute.
+     *
      * @return static
      */
     public function withAttribute($name, $value)
@@ -970,6 +990,7 @@ class Request extends Message implements ServerRequestInterface
      * updated attributes.
      *
      * @param  array $attributes New attributes
+     *
      * @return static
      */
     public function withAttributes(array $attributes)
@@ -991,7 +1012,9 @@ class Request extends Message implements ServerRequestInterface
      * the attribute.
      *
      * @see getAttributes()
+     *
      * @param string $name The attribute name.
+     *
      * @return static
      */
     public function withoutAttribute($name)
@@ -1020,6 +1043,7 @@ class Request extends Message implements ServerRequestInterface
      *
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
+     *
      * @throws RuntimeException if the request body media type parser returns an invalid value
      */
     public function getParsedBody()
@@ -1083,8 +1107,10 @@ class Request extends Message implements ServerRequestInterface
      *
      * @param null|array|object $data The deserialized body data. This will
      *     typically be in an array or object.
+     *
      * @return static
-     * @throws \InvalidArgumentException if an unsupported argument type is
+     *
+     * @throws InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
     public function withParsedBody($data)
@@ -1211,6 +1237,7 @@ class Request extends Message implements ServerRequestInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @param array|null $only list the keys to retrieve.
+     *
      * @return array|null
      */
     public function getParams(array $only = null)

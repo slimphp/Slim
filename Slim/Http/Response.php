@@ -8,6 +8,7 @@
  */
 namespace Slim\Http;
 
+use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -182,12 +183,15 @@ class Response extends Message implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     *
      * @param int $code The 3-digit integer result code to set.
      * @param string $reasonPhrase The reason phrase to use with the
      *     provided status code; if none is provided, implementations MAY
      *     use the defaults as suggested in the HTTP specification.
+     *
      * @return static
-     * @throws \InvalidArgumentException For invalid status code arguments.
+     *
+     * @throws InvalidArgumentException For invalid status code arguments.
      */
     public function withStatus($code, $reasonPhrase = '')
     {
@@ -216,8 +220,10 @@ class Response extends Message implements ResponseInterface
      * Filter HTTP status code.
      *
      * @param  int $status HTTP status code.
+     *
      * @return int
-     * @throws \InvalidArgumentException If an invalid HTTP status code is provided.
+     *
+     * @throws InvalidArgumentException If an invalid HTTP status code is provided.
      */
     protected function filterStatus($status)
     {
@@ -242,6 +248,7 @@ class Response extends Message implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+     *
      * @return string Reason phrase; must return an empty string if none present.
      */
     public function getReasonPhrase()
@@ -267,8 +274,10 @@ class Response extends Message implements ResponseInterface
      *
      * @param string $name Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
+     *
      * @return static
-     * @throws \InvalidArgumentException for invalid header names or values.
+     *
+     * @throws InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value)
     {
@@ -299,6 +308,7 @@ class Response extends Message implements ResponseInterface
      * Proxies to the underlying stream and writes the provided data to it.
      *
      * @param string $data
+     *
      * @return $this
      */
     public function write($data)
@@ -322,6 +332,7 @@ class Response extends Message implements ResponseInterface
      *
      * @param  string|UriInterface $url    The redirect destination.
      * @param  int|null            $status The redirect HTTP status code.
+     *
      * @return static
      */
     public function withRedirect($url, $status = null)
@@ -350,8 +361,10 @@ class Response extends Message implements ResponseInterface
      * @param  mixed  $data   The data
      * @param  int    $status The HTTP status code.
      * @param  int    $encodingOptions Json encoding options
-     * @throws \RuntimeException
+     *
      * @return static
+     *
+     * @throws RuntimeException
      */
     public function withJson($data, $status = null, $encodingOptions = 0)
     {
@@ -462,6 +475,7 @@ class Response extends Message implements ResponseInterface
      * Note: This method is not part of the PSR-7 standard.
      *
      * @return bool
+     *
      * @api
      */
     public function isForbidden()

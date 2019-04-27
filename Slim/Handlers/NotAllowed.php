@@ -29,6 +29,7 @@ class NotAllowed extends AbstractHandler
      * @param  string[]               $methods  Allowed HTTP methods
      *
      * @return ResponseInterface
+     *
      * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, array $methods)
@@ -73,6 +74,7 @@ class NotAllowed extends AbstractHandler
      * Render PLAIN message for OPTIONS response
      *
      * @param  array                  $methods
+     *
      * @return string
      */
     protected function renderPlainOptionsMessage($methods)
@@ -86,6 +88,7 @@ class NotAllowed extends AbstractHandler
      * Render JSON not allowed message
      *
      * @param  array                  $methods
+     *
      * @return string
      */
     protected function renderJsonNotAllowedMessage($methods)
@@ -99,6 +102,7 @@ class NotAllowed extends AbstractHandler
      * Render XML not allowed message
      *
      * @param  array                  $methods
+     *
      * @return string
      */
     protected function renderXmlNotAllowedMessage($methods)
@@ -112,6 +116,7 @@ class NotAllowed extends AbstractHandler
      * Render HTML not allowed message
      *
      * @param  array                  $methods
+     *
      * @return string
      */
     protected function renderHtmlNotAllowedMessage($methods)

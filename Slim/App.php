@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use Interop\Container\Exception\ContainerException;
 use Exception;
 use Psr\Http\Message\UriInterface;
 use Slim\Exception\InvalidMethodException;
@@ -68,6 +69,7 @@ class App
      * Create new application
      *
      * @param ContainerInterface|array $container Either a ContainerInterface or an associative array of app settings
+     *
      * @throws InvalidArgumentException when no container is provided that implements ContainerInterface
      */
     public function __construct($container = [])
@@ -111,7 +113,10 @@ class App
      *
      * @param  string $method
      * @param  array $args
+     *
      * @return mixed
+     *
+     * @throws ContainerException
      */
     public function __call($method, $args)
     {
@@ -135,7 +140,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function get($pattern, $callable)
     {
@@ -148,7 +153,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function post($pattern, $callable)
     {
@@ -161,7 +166,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function put($pattern, $callable)
     {
@@ -174,7 +179,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function patch($pattern, $callable)
     {
@@ -187,7 +192,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function delete($pattern, $callable)
     {
@@ -200,7 +205,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function options($pattern, $callable)
     {
@@ -213,7 +218,7 @@ class App
      * @param  string $pattern  The route URI pattern
      * @param  callable|string  $callable The route callback routine
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function any($pattern, $callable)
     {
@@ -228,6 +233,8 @@ class App
      * @param  callable|string    $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -276,6 +283,8 @@ class App
      * @param callable|Closure $callable
      *
      * @return RouteGroupInterface
+     *
+     * @throws ContainerException
      */
     public function group($pattern, $callable)
     {
@@ -298,11 +307,13 @@ class App
      * resultant Response object to the HTTP client.
      *
      * @param bool|false $silent
+     *
      * @return ResponseInterface
      *
      * @throws Exception
      * @throws MethodNotAllowedException
      * @throws NotFoundException
+     * @throws ContainerException
      */
     public function run($silent = false)
     {
@@ -349,7 +360,10 @@ class App
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
+     *
      * @return ResponseInterface
+     *
+     * @throws ContainerException
      */
     protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -380,11 +394,14 @@ class App
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
+     *
      * @return ResponseInterface
      *
      * @throws Exception
+     * @throws Throwable
      * @throws MethodNotAllowedException
      * @throws NotFoundException
+     * @throws ContainerException
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -416,6 +433,8 @@ class App
      * Send the response to the client
      *
      * @param ResponseInterface $response
+     *
+     * @throws ContainerException
      */
     public function respond(ResponseInterface $response)
     {
@@ -493,6 +512,8 @@ class App
      * @param  ResponseInterface      $response The most recent Response object
      *
      * @return ResponseInterface
+     *
+     * @throws ContainerException
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      */
@@ -501,7 +522,7 @@ class App
         // Get the route info
         $routeInfo = $request->getAttribute('routeInfo');
 
-        /** @var \Slim\Interfaces\RouterInterface $router */
+        /** @var RouterInterface $router */
         $router = $this->container->get('router');
 
         // If router hasn't been dispatched or the URI changed then dispatch
@@ -546,7 +567,12 @@ class App
      * @param  array             $cookies     The request cookies (key-value array)
      * @param  string            $bodyContent The request body
      * @param  ResponseInterface $response     The response object (optional)
+     *
      * @return ResponseInterface
+     *
+     * @throws ContainerException
+     * @throws MethodNotAllowedException
+     * @throws NotFoundException
      */
     public function subRequest(
         $method,
@@ -578,6 +604,7 @@ class App
      *
      * @param ServerRequestInterface $request
      * @param RouterInterface        $router
+     *
      * @return ServerRequestInterface
      */
     protected function dispatchRouterAndPrepareRoute(ServerRequestInterface $request, RouterInterface $router)
@@ -606,7 +633,10 @@ class App
      * Finalize response
      *
      * @param ResponseInterface $response
+     *
      * @return ResponseInterface
+     *
+     * @throws ContainerException
      */
     protected function finalize(ResponseInterface $response)
     {
@@ -646,6 +676,7 @@ class App
      * @see https://tools.ietf.org/html/rfc7231
      *
      * @param ResponseInterface $response
+     *
      * @return bool
      */
     protected function isEmptyResponse(ResponseInterface $response)
@@ -678,7 +709,9 @@ class App
      * @param  ResponseInterface $response
      *
      * @return ResponseInterface
+     *
      * @throws Exception if a handler is needed and not found
+     * @throws ContainerException
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -714,8 +747,11 @@ class App
      * @param  Throwable $e
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface $response
+     *
      * @return ResponseInterface
+     *
      * @throws Throwable
+     * @throws ContainerException
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {

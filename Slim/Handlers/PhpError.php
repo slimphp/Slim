@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 use UnexpectedValueException;
+use Throwable;
 
 /**
  * Default Slim application error handler for PHP 7+ Throwables
@@ -26,9 +27,10 @@ class PhpError extends AbstractError
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param \Throwable             $error     The caught Throwable object
+     * @param Throwable             $error     The caught Throwable object
      *
      * @return ResponseInterface
+     *
      * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Throwable $error)
@@ -65,7 +67,7 @@ class PhpError extends AbstractError
     /**
      * Render HTML error page
      *
-     * @param \Throwable $error
+     * @param Throwable $error
      *
      * @return string
      */
@@ -102,7 +104,7 @@ class PhpError extends AbstractError
     /**
      * Render error as HTML.
      *
-     * @param \Throwable $error
+     * @param Throwable $error
      *
      * @return string
      */
@@ -137,7 +139,7 @@ class PhpError extends AbstractError
     /**
      * Render JSON error
      *
-     * @param \Throwable $error
+     * @param Throwable $error
      *
      * @return string
      */
@@ -168,7 +170,7 @@ class PhpError extends AbstractError
     /**
      * Render XML error
      *
-     * @param \Throwable $error
+     * @param Throwable $error
      *
      * @return string
      */
@@ -196,6 +198,7 @@ class PhpError extends AbstractError
      * Returns a CDATA section with the given content.
      *
      * @param  string $content
+     *
      * @return string
      */
     private function createCdataSection($content)

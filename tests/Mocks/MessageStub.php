@@ -9,6 +9,8 @@
 namespace Slim\Tests\Mocks;
 
 use Slim\Http\Message;
+use Slim\Interfaces\Http\HeadersInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Mock object for Slim\Http\MessageTest
@@ -25,14 +27,14 @@ class MessageStub extends Message
     /**
      * Headers
      *
-     * @var \Slim\Interfaces\Http\HeadersInterface
+     * @var HeadersInterface
      */
     public $headers;
 
     /**
      * Body object
      *
-     * @var \Psr\Http\Message\StreamInterface
+     * @var StreamInterface
      */
     public $body;
 }

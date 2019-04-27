@@ -65,6 +65,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException InvalidArgumentException
+     *
      * @expectedExceptionMessage Uri scheme must be one of: "", "https", "http"
      */
     public function testWithSchemeInvalid()
@@ -311,6 +312,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Uri::withBasePath
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Uri path must be a string
      */
@@ -375,6 +377,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Uri::withPath
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Uri path must be a string
      */
@@ -422,6 +425,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Uri::withQuery
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Uri query must be a string
      */
@@ -462,6 +466,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Uri::withFragment
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Uri fragment must be a string
      */
@@ -516,6 +521,7 @@ class UriTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Uri::createFromString
+     *
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage Uri must be a string
      */

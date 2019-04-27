@@ -61,7 +61,8 @@ function header($string, $replace = true, $statusCode = null)
 /**
  * Is a file descriptor writable
  *
- * @param $file
+ * @param string $file
+ *
  * @return bool
  */
 function is_readable($file)
@@ -75,7 +76,8 @@ function is_readable($file)
 /**
  * Is a path writable
  *
- * @param $path
+ * @param string $path
+ *
  * @return bool
  */
 function is_writable($path)

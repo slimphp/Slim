@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 use UnexpectedValueException;
+use Exception;
 
 /**
  * Default Slim application error handler
@@ -26,9 +27,10 @@ class Error extends AbstractError
      *
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param \Exception             $exception The caught Exception object
+     * @param Exception             $exception The caught Exception object
      *
      * @return ResponseInterface
+     *
      * @throws UnexpectedValueException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, \Exception $exception)
@@ -66,11 +68,11 @@ class Error extends AbstractError
     /**
      * Render HTML error page
      *
-     * @param  \Exception $exception
+     * @param  Exception $exception
      *
      * @return string
      */
-    protected function renderHtmlErrorMessage(\Exception $exception)
+    protected function renderHtmlErrorMessage(Exception $exception)
     {
         $title = 'Slim Application Error';
 
@@ -105,7 +107,7 @@ class Error extends AbstractError
      *
      * Provided for backwards compatibility; use renderHtmlExceptionOrError().
      *
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return string
      */
@@ -117,7 +119,7 @@ class Error extends AbstractError
     /**
      * Render exception or error as HTML.
      *
-     * @param \Exception|\Error $exception
+     * @param Exception|Error $exception
      *
      * @return string
      */
@@ -156,7 +158,7 @@ class Error extends AbstractError
     /**
      * Render JSON error
      *
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return string
      */
@@ -187,7 +189,7 @@ class Error extends AbstractError
     /**
      * Render XML error
      *
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return string
      */

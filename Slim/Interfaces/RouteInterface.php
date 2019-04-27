@@ -88,6 +88,7 @@ interface RouteInterface
      * @param string $name
      *
      * @return static
+     *
      * @throws InvalidArgumentException if the route name is not a string
      */
     public function setName($name);
@@ -120,6 +121,7 @@ interface RouteInterface
      *
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
+     *
      * @return ResponseInterface
      */
     public function run(ServerRequestInterface $request, ResponseInterface $response);

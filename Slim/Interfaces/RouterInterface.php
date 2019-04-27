@@ -68,7 +68,7 @@ interface RouterInterface
      *
      * @param string $name        Route name
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      *
      * @throws RuntimeException   If named route does not exist
      */
@@ -77,7 +77,7 @@ interface RouterInterface
     /**
      * @param string $identifier
      *
-     * @return \Slim\Interfaces\RouteInterface
+     * @return RouteInterface
      */
     public function lookupRoute($identifier);
 

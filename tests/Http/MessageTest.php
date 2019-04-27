@@ -8,8 +8,11 @@
  */
 namespace Slim\Tests\Http;
 
+use PHPUnit_Framework_MockObject_MockObject;
 use Slim\Http\Headers;
 use Slim\Tests\Mocks\MessageStub;
+use Slim\Http\Body;
+use InvalidArgumentException;
 
 class MessageTest extends \PHPUnit_Framework_TestCase
 {
@@ -41,7 +44,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Message::withProtocolVersion
-     * @expectedException \InvalidArgumentException
+     * @expectedException InvalidArgumentException
      */
     public function testWithProtocolVersionInvalidThrowsException()
     {
@@ -54,6 +57,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
      * Ensure that we support HTTP '2'
      *
      * @see https://http2.github.io/faq/#is-it-http20-or-http2
+     *
      * @covers Slim\Http\Message::withProtocolVersion
      */
     public function testWithProtocolVersionForHttp2()
@@ -220,7 +224,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|\Slim\Http\Body
+     * @return PHPUnit_Framework_MockObject_MockObject|Body
      */
     protected function getBody()
     {

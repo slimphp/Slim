@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use RuntimeException;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -128,7 +129,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @return UploadedFile
      */
     public function testGetStream(UploadedFile $uploadedFile)
@@ -142,6 +145,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMoveToNotWritable(UploadedFile $uploadedFile)
@@ -154,7 +158,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @return UploadedFile
      */
     public function testMoveTo(UploadedFile $uploadedFile)
@@ -172,7 +178,9 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @depends testMoveTo
+     *
      * @param UploadedFile $uploadedFile
+     *
      * @expectedException RuntimeException
      */
     public function testMoveToCannotBeDoneTwice(UploadedFile $uploadedFile)
@@ -190,6 +198,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * This test must run after testMoveTo
      *
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMoveToAgain(UploadedFile $uploadedFile)
@@ -205,6 +214,7 @@ class UploadedFilesTest extends \PHPUnit_Framework_TestCase
      * This test must run after testMoveTo
      *
      * @depends testConstructor
+     *
      * @param UploadedFile $uploadedFile
      */
     public function testMovedStream($uploadedFile)

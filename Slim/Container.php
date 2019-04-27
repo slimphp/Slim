@@ -8,6 +8,7 @@
  */
 namespace Slim;
 
+use InvalidArgumentException;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
 use Pimple\Container as PimpleContainer;
@@ -109,10 +110,10 @@ class Container extends PimpleContainer implements ContainerInterface
      *
      * @param string $id Identifier of the entry to look for.
      *
+     * @return mixed Entry.
+     *
      * @throws ContainerValueNotFoundException  No entry was found for this identifier.
      * @throws ContainerException               Error while retrieving the entry.
-     *
-     * @return mixed Entry.
      */
     public function get($id)
     {
@@ -121,7 +122,7 @@ class Container extends PimpleContainer implements ContainerInterface
         }
         try {
             return $this->offsetGet($id);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             if ($this->exceptionThrownByContainer($exception)) {
                 throw new SlimContainerException(
                     sprintf('Container error while retrieving "%s"', $id),
@@ -138,11 +139,11 @@ class Container extends PimpleContainer implements ContainerInterface
      * Tests whether an exception needs to be recast for compliance with Container-Interop.  This will be if the
      * exception was thrown by Pimple.
      *
-     * @param \InvalidArgumentException $exception
+     * @param InvalidArgumentException $exception
      *
      * @return bool
      */
-    private function exceptionThrownByContainer(\InvalidArgumentException $exception)
+    private function exceptionThrownByContainer(InvalidArgumentException $exception)
     {
         $trace = $exception->getTrace()[0];
 

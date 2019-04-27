@@ -8,6 +8,7 @@
  */
 namespace Slim\Tests\Http;
 
+use RuntimeException;
 use Slim\Http\Stream;
 
 class StreamTest extends \PHPUnit_Framework_TestCase
@@ -68,7 +69,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Stream::seek
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotSeekPipe()
     {
@@ -79,7 +80,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Stream::tell
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotTellPipe()
     {
@@ -90,7 +91,7 @@ class StreamTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers Slim\Http\Stream::rewind
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testCannotRewindPipe()
     {

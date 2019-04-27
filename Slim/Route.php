@@ -8,6 +8,8 @@
  */
 namespace Slim;
 
+use Closure;
+use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -136,7 +138,7 @@ class Route extends Routable implements RouteInterface
     /**
      * This method enables you to override the Route's callable
      *
-     * @param string|\Closure $callable
+     * @param string|Closure $callable
      */
     public function setCallable($callable)
     {
@@ -343,8 +345,10 @@ class Route extends Routable implements RouteInterface
      *
      * @param ServerRequestInterface $request  The current Request object
      * @param ResponseInterface      $response The current Response object
-     * @return \Psr\Http\Message\ResponseInterface
-     * @throws \Exception  if the route callable throws an exception
+     *
+     * @return ResponseInterface
+     *
+     * @throws Exception  if the route callable throws an exception
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
