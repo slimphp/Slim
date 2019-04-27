@@ -8,11 +8,11 @@
  */
 namespace Slim\Tests\Http;
 
+use InvalidArgumentException;
 use PHPUnit_Framework_MockObject_MockObject;
+use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Tests\Mocks\MessageStub;
-use Slim\Http\Body;
-use InvalidArgumentException;
 
 class MessageTest extends \PHPUnit_Framework_TestCase
 {

@@ -8,8 +8,8 @@
  */
 namespace Slim\Exception;
 
-use InvalidArgumentException;
 use Interop\Container\Exception\ContainerException as InteropContainerException;
+use InvalidArgumentException;
 
 /**
  * Container Exception

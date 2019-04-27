@@ -8,8 +8,8 @@
  */
 namespace Slim\Exception;
 
-use Psr\Http\Message\ServerRequestInterface;
 use InvalidArgumentException;
+use Psr\Http\Message\ServerRequestInterface;
 
 class InvalidMethodException extends InvalidArgumentException
 {

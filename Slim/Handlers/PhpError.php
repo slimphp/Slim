@@ -11,8 +11,8 @@ namespace Slim\Handlers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
-use UnexpectedValueException;
 use Throwable;
+use UnexpectedValueException;
 
 /**
  * Default Slim application error handler for PHP 7+ Throwables

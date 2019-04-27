@@ -8,11 +8,11 @@
  */
 namespace Slim\Http;
 
-use RuntimeException;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Slim\Interfaces\Http\HeadersInterface;
 
 /**
@@ -373,7 +373,7 @@ class Response extends Message implements ResponseInterface
 
         // Ensure that the json encoding passed successfully
         if ($json === false) {
-            throw new \RuntimeException(json_last_error_msg(), json_last_error());
+            throw new RuntimeException(json_last_error_msg(), json_last_error());
         }
 
         $responseWithJson = $response->withHeader('Content-Type', 'application/json');

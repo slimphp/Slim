@@ -8,8 +8,8 @@
  */
 namespace Slim\Handlers;
 
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 use UnexpectedValueException;
 

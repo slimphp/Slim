@@ -8,8 +8,8 @@
  */
 namespace Slim\Exception;
 
-use RuntimeException;
 use Interop\Container\Exception\NotFoundException as InteropNotFoundException;
+use RuntimeException;
 
 /**
  * Not Found Exception

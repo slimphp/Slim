@@ -8,12 +8,12 @@
  */
 namespace Slim;
 
-use InvalidArgumentException;
 use Interop\Container\ContainerInterface;
 use Interop\Container\Exception\ContainerException;
+use InvalidArgumentException;
 use Pimple\Container as PimpleContainer;
-use Slim\Exception\ContainerValueNotFoundException;
 use Slim\Exception\ContainerException as SlimContainerException;
+use Slim\Exception\ContainerValueNotFoundException;
 
 /**
  * Slim's default DI container is Pimple.

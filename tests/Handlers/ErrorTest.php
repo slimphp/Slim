@@ -8,10 +8,10 @@
  */
 namespace Slim\Tests\Handlers;
 
-use Slim\Handlers\Error;
-use Slim\Http\Response;
-use Slim\Http\Request;
 use PHPUnit_Framework_MockObject_MockObject;
+use Slim\Handlers\Error;
+use Slim\Http\Request;
+use Slim\Http\Response;
 
 class ErrorTest extends \PHPUnit_Framework_TestCase
 {

@@ -8,9 +8,9 @@
  */
 namespace Slim;
 
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use UnexpectedValueException;
 
 /**

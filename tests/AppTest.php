@@ -9,13 +9,13 @@
 
 namespace Slim\Tests;
 
-use Exception;
 use BadMethodCallException;
-use RuntimeException;
+use Exception;
 use Interop\Container\Exception\ContainerException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Slim\App;
 use Slim\Container;
 use Slim\Exception\MethodNotAllowedException;

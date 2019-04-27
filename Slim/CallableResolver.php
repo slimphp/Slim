@@ -8,8 +8,8 @@
  */
 namespace Slim;
 
-use RuntimeException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**

@@ -8,30 +8,30 @@
  */
 namespace Slim;
 
-use RuntimeException;
 use BadMethodCallException;
-use Interop\Container\Exception\ContainerException;
-use Exception;
-use Psr\Http\Message\UriInterface;
-use Slim\Exception\InvalidMethodException;
-use Throwable;
 use Closure;
-use InvalidArgumentException;
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Container\ContainerInterface;
+use Exception;
 use FastRoute\Dispatcher;
-use Slim\Exception\SlimException;
+use Interop\Container\Exception\ContainerException;
+use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
+use RuntimeException;
+use Slim\Exception\InvalidMethodException;
 use Slim\Exception\MethodNotAllowedException;
 use Slim\Exception\NotFoundException;
-use Slim\Http\Uri;
-use Slim\Http\Headers;
+use Slim\Exception\SlimException;
 use Slim\Http\Body;
+use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\Uri;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Interfaces\RouterInterface;
+use Throwable;
 
 /**
  * App
@@ -144,6 +144,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function get($pattern, $callable)
     {
@@ -157,6 +159,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function post($pattern, $callable)
     {
@@ -170,6 +174,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function put($pattern, $callable)
     {
@@ -183,6 +189,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function patch($pattern, $callable)
     {
@@ -196,6 +204,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function delete($pattern, $callable)
     {
@@ -209,6 +219,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function options($pattern, $callable)
     {
@@ -222,6 +234,8 @@ class App
      * @param  callable|string  $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function any($pattern, $callable)
     {
@@ -265,6 +279,8 @@ class App
      * @param int                 $status
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function redirect($from, $to, $status = 302)
     {
@@ -317,6 +333,7 @@ class App
      * @throws MethodNotAllowedException
      * @throws NotFoundException
      * @throws ContainerException
+     * @throws Throwable
      */
     public function run($silent = false)
     {

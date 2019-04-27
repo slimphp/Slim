@@ -8,11 +8,12 @@
  */
 namespace Slim\Handlers;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Slim\Http\Body;
 use UnexpectedValueException;
-use Exception;
+use RuntimeException;
 
 /**
  * Default Slim application error handler
@@ -122,12 +123,12 @@ class Error extends AbstractError
      * @param Exception|Error $exception
      *
      * @return string
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     protected function renderHtmlExceptionOrError($exception)
     {
-        if (!$exception instanceof \Exception && !$exception instanceof \Error) {
-            throw new \RuntimeException("Unexpected type. Expected Exception or Error.");
+        if (!$exception instanceof Exception && !$exception instanceof Error) {
+            throw new RuntimeException("Unexpected type. Expected Exception or Error.");
         }
 
         $html = sprintf('<div><strong>Type:</strong> %s</div>', get_class($exception));

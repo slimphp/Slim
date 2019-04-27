@@ -9,13 +9,13 @@
 
 namespace Slim\Tests\Http;
 
-use RuntimeException;
-use ReflectionException;
 use InvalidArgumentException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\MethodProphecy;
 use Psr\Http\Message\UriInterface;
+use ReflectionException;
 use ReflectionProperty;
+use RuntimeException;
 use Slim\Collection;
 use Slim\Http\Environment;
 use Slim\Http\Headers;

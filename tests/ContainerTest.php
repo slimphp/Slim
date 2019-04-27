@@ -8,11 +8,11 @@
  */
 namespace Slim\Tests;
 
-use Slim\Container;
-use Psr\Container\ContainerInterface;
-use Interop\Container\Exception\NotFoundException;
 use Interop\Container\Exception\ContainerException;
+use Interop\Container\Exception\NotFoundException;
 use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
+use Slim\Container;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {

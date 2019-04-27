@@ -8,9 +8,9 @@
  */
 namespace Slim\Tests\Http;
 
-use ReflectionProperty;
-use ReflectionClass;
 use InvalidArgumentException;
+use ReflectionClass;
+use ReflectionProperty;
 use Slim\Http\Cookies;
 
 class CookiesTest extends \PHPUnit_Framework_TestCase

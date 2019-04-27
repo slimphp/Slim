@@ -8,8 +8,8 @@
  */
 namespace Slim\Handlers;
 
-use Throwable;
 use Exception;
+use Throwable;
 
 /**
  * Abstract Slim application error handler

@@ -10,11 +10,11 @@ namespace Slim\Http;
 
 use Closure;
 use InvalidArgumentException;
-use Psr\Http\Message\UploadedFileInterface;
-use RuntimeException;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
+use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Slim\Collection;
 use Slim\Exception\InvalidMethodException;
 use Slim\Interfaces\Http\HeadersInterface;

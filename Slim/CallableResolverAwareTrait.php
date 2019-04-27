@@ -9,8 +9,8 @@
 namespace Slim;
 
 use Closure;
-use RuntimeException;
 use Psr\Container\ContainerInterface;
+use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 
 /**

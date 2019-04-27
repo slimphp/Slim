@@ -10,8 +10,8 @@ namespace Slim\Tests\Handlers;
 
 use PHPUnit_Framework_MockObject_MockObject;
 use Slim\Handlers\NotFound;
-use Slim\Http\Response;
 use Slim\Http\Request;
+use Slim\Http\Response;
 use Slim\Http\Uri;
 
 class NotFoundTest extends \PHPUnit_Framework_TestCase

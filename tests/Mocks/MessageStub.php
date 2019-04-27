@@ -8,9 +8,9 @@
  */
 namespace Slim\Tests\Mocks;
 
+use Psr\Http\Message\StreamInterface;
 use Slim\Http\Message;
 use Slim\Interfaces\Http\HeadersInterface;
-use Psr\Http\Message\StreamInterface;
 
 /**
  * Mock object for Slim\Http\MessageTest

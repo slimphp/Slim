@@ -9,17 +9,17 @@
 namespace Slim;
 
 use FastRoute\Dispatcher;
-use Psr\Container\ContainerInterface;
-use InvalidArgumentException;
-use Psr\Http\Message\UriInterface;
-use RuntimeException;
-use Psr\Http\Message\ServerRequestInterface;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std as StdParser;
+use InvalidArgumentException;
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
+use RuntimeException;
 use Slim\Interfaces\RouteGroupInterface;
-use Slim\Interfaces\RouterInterface;
 use Slim\Interfaces\RouteInterface;
+use Slim\Interfaces\RouterInterface;
 
 /**
  * Router
