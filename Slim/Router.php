@@ -100,6 +100,7 @@ class Router implements RouterInterface
      * @param string $basePath
      *
      * @return self
+     * @throws InvalidArgumentException
      */
     public function setBasePath($basePath)
     {
@@ -126,8 +127,10 @@ class Router implements RouterInterface
      * Set path to fast route cache file. If this is false then route caching is disabled.
      *
      * @param string|false $cacheFile
-     *
+
      * @return self
+     * @throws InvalidArgumentException if cacheFile is not a string or not false
+     * @throws RuntimeException when cacheFile directory is not writable
      */
     public function setCacheFile($cacheFile)
     {
@@ -167,7 +170,6 @@ class Router implements RouterInterface
      * @param  callable $handler The route callable
      *
      * @return RouteInterface
-     *
      * @throws InvalidArgumentException if the route pattern isn't a string
      */
     public function map($methods, $pattern, $handler)
@@ -284,7 +286,6 @@ class Router implements RouterInterface
      * @param string $name        Route name
      *
      * @return Route
-     *
      * @throws RuntimeException   If named route does not exist
      */
     public function getNamedRoute($name)
@@ -353,10 +354,11 @@ class Router implements RouterInterface
     }
 
     /**
-     *
      * @param string $identifier
      *
      * @return RouteInterface
+     *
+     * @throws RuntimeException if the route cache is stale
      */
     public function lookupRoute($identifier)
     {
