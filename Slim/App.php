@@ -100,6 +100,7 @@ class App
      * @return mixed
      *
      * @throws BadMethodCallException
+     * @throws ContainerException
      */
     public function __call($method, $args)
     {
@@ -120,6 +121,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function get($pattern, $callable)
     {
@@ -133,6 +136,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function post($pattern, $callable)
     {
@@ -146,6 +151,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function put($pattern, $callable)
     {
@@ -159,6 +166,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function patch($pattern, $callable)
     {
@@ -172,6 +181,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function delete($pattern, $callable)
     {
@@ -185,6 +196,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function options($pattern, $callable)
     {
@@ -198,6 +211,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function any($pattern, $callable)
     {
@@ -212,6 +227,8 @@ class App
      * @param  callable|string $callable The route callback routine
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function map(array $methods, $pattern, $callable)
     {
@@ -239,6 +256,8 @@ class App
      * @param int                 $status
      *
      * @return RouteInterface
+     *
+     * @throws ContainerException
      */
     public function redirect($from, $to, $status = 302)
     {
@@ -260,6 +279,8 @@ class App
      * @param callable|Closure $callable
      *
      * @return RouteGroupInterface
+     *
+     * @throws ContainerException
      */
     public function group($pattern, $callable)
     {
@@ -287,6 +308,7 @@ class App
      *
      * @throws Exception
      * @throws Throwable
+     * @throws ContainerException
      */
     public function run($silent = false)
     {
@@ -372,6 +394,7 @@ class App
      *
      * @throws Exception
      * @throws Throwable
+     * @throws ContainerException
      */
     public function process(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -403,6 +426,8 @@ class App
      * Send the response to the client
      *
      * @param ResponseInterface $response
+     *
+     * @throws ContainerException
      */
     public function respond(ResponseInterface $response)
     {
@@ -483,6 +508,7 @@ class App
      *
      * @throws MethodNotAllowedException
      * @throws NotFoundException
+     * @throws ContainerException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -539,6 +565,7 @@ class App
      *
      * @throws MethodNotAllowedException
      * @throws NotFoundException
+     * @throws ContainerException
      */
     public function subRequest(
         $method,
@@ -603,6 +630,7 @@ class App
      * @return ResponseInterface
      *
      * @throws RuntimeException
+     * @throws ContainerException
      */
     protected function finalize(ResponseInterface $response)
     {
@@ -677,6 +705,7 @@ class App
      * @return ResponseInterface
      *
      * @throws Exception If a handler is needed and not found
+     * @throws ContainerException
      */
     protected function handleException(Exception $e, ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -716,6 +745,7 @@ class App
      * @return ResponseInterface
      *
      * @throws Throwable
+     * @throws ContainerException
      */
     protected function handlePhpError(Throwable $e, ServerRequestInterface $request, ResponseInterface $response)
     {
