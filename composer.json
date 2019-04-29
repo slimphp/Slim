@@ -76,5 +76,13 @@
         "phpunit": "php vendor/bin/phpunit",
         "phpcs": "php vendor/bin/phpcs",
         "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Slim"
+    },
+    "suggest": {
+        "slim/psr7": "This is the Slim Framework projects PSR-7 implementation.",
+        "nyholm/psr-7": "This is the fastest, strictest and most lightweight implementation at the moment.",
+        "nyholm/psr-7-server": "Necessary when using nyholm/psr-7.",
+        "guzzlehttp/psr7": "This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier.",
+        "http-interop/http-factory-guzzle": "Necessary when using guzzlehttp/psr7.",
+        "zendframework/zend-diactoros": "This is the Zend implementation. It is the slowest implementation of the 3."
     }
 }
