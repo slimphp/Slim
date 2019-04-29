@@ -76,5 +76,8 @@
         "phpunit": "php vendor/bin/phpunit",
         "phpcs": "php vendor/bin/phpcs",
         "phpstan": "php -d memory_limit=-1 vendor/bin/phpstan analyse Slim"
+    },
+    "suggest": {
+        "slim/psr7": "Slim PSR-7 implementation. See http://www.slimframework.com/docs/v4/start/installation.html for more information."
     }
 }
