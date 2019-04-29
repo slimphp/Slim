@@ -20,7 +20,6 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RouteCollectorProxy;
-use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 
 /**
@@ -62,12 +61,12 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     ) {
         parent::__construct(
             $responseFactory,
-            $callableResolver ?? new CallableResolver($container),
+            $callableResolver,
             $container,
             $routeCollector
         );
 
-        $this->routeResolver = $routeResolver ?? new RouteResolver($this->routeCollector);
+        $this->routeResolver = $routeResolver;
         $routeRunner = new RouteRunner($this->routeResolver);
 
         $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $container);
