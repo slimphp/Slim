@@ -9,12 +9,27 @@ namespace Slim\Tests\Http;
 
 use PHPUnit_Framework_TestCase;
 use Slim\Http\NonBufferedBody;
+use Slim\Http\Response;
+use Slim\Tests\Assets\HeaderStack;
 
 class NonBufferedBodyTest extends PHPUnit_Framework_TestCase
 {
+    protected function setUp()
+    {
+        HeaderStack::reset();
+    }
+
+    protected function tearDown()
+    {
+        HeaderStack::reset();
+    }
+
     public function testTheStreamContract()
     {
         $body = new NonBufferedBody();
+        $body->close();
+        $body->seek(0);
+        $body->rewind();
 
         self::assertSame('', (string) $body, 'Casting to string returns no data, since the class does not store any');
         self::assertNull($body->detach(), 'Returns null since there is no such underlying stream');
@@ -27,5 +42,52 @@ class NonBufferedBodyTest extends PHPUnit_Framework_TestCase
         self::assertSame('', $body->read(10), 'Data cannot be retrieved once written');
         self::assertSame('', $body->getContents(), 'Data cannot be retrieved once written');
         self::assertNull($body->getMetadata(), 'Metadata mechanism is not implemented');
+    }
+
+    public function testWithHeader()
+    {
+        (new Response())
+            ->withBody(new NonBufferedBody())
+            ->withHeader('Foo', 'Bar');
+
+        self::assertSame([
+            [
+                'header' => 'Foo: Bar',
+                'replace' => true,
+                'status_code' => null
+            ]
+        ], HeaderStack::stack());
+    }
+
+    public function testWithAddedHeader()
+    {
+        (new Response())
+            ->withBody(new NonBufferedBody())
+            ->withHeader('Foo', 'Bar')
+            ->withAddedHeader('Foo', 'Baz');
+
+        self::assertSame([
+            [
+                'header' => 'Foo: Bar',
+                'replace' => true,
+                'status_code' => null
+            ],
+            [
+                'header' => 'Foo: Bar,Baz',
+                'replace' => true,
+                'status_code' => null
+            ]
+        ], HeaderStack::stack());
+    }
+
+
+    public function testWithoutHeader()
+    {
+        (new Response())
+            ->withBody(new NonBufferedBody())
+            ->withHeader('Foo', 'Bar')
+            ->withoutHeader('Foo');
+
+        self::assertSame([], HeaderStack::stack());
     }
 }

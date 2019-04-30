@@ -274,7 +274,7 @@ class Response extends Message implements ResponseInterface
         $clone->headers->set($name, $value);
 
         if ($this->body instanceof NonBufferedBody) {
-            header(sprintf('%s: %s', $name, $this->getHeaderLine($name)));
+            header(sprintf('%s: %s', $name, $clone->getHeaderLine($name)));
         }
 
         if ($clone->getStatusCode() === StatusCode::HTTP_OK && strtolower($name) === 'location') {

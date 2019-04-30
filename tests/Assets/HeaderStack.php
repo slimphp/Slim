@@ -78,4 +78,18 @@ class HeaderStack
 
         return false;
     }
+
+    /**
+     * Remove occurrences of $header
+     *
+     * @param string $header
+     */
+    public static function remove($header)
+    {
+        foreach (self::$data as $key => $item) {
+            if (false !== strpos($item['header'], "$header:")) {
+                unset(self::$data[$key]);
+            }
+        }
+    }
 }

@@ -231,7 +231,7 @@ abstract class Message implements MessageInterface
         $clone->headers->add($name, $value);
 
         if ($this instanceof Response && $this->body instanceof NonBufferedBody) {
-            header(sprintf('%s: %s', $name, $this->getHeaderLine($name)));
+            header(sprintf('%s: %s', $name, $clone->getHeaderLine($name)));
         }
 
         return $clone;
