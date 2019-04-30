@@ -270,12 +270,12 @@ class Response extends Message implements ResponseInterface
      */
     public function withHeader($name, $value)
     {
-        if ($this->body instanceof NonBufferedBody) {
-            header("$name: $value");
-        }
-
         $clone = clone $this;
         $clone->headers->set($name, $value);
+
+        if ($this->body instanceof NonBufferedBody) {
+            header(sprintf('%s: %s', $name, $clone->getHeaderLine($name)));
+        }
 
         if ($clone->getStatusCode() === StatusCode::HTTP_OK && strtolower($name) === 'location') {
             $clone = $clone->withStatus(StatusCode::HTTP_FOUND);

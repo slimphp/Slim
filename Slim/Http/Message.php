@@ -230,6 +230,10 @@ abstract class Message implements MessageInterface
         $clone = clone $this;
         $clone->headers->add($name, $value);
 
+        if ($this instanceof Response && $this->body instanceof NonBufferedBody) {
+            header(sprintf('%s: %s', $name, $clone->getHeaderLine($name)));
+        }
+
         return $clone;
     }
 
@@ -250,6 +254,10 @@ abstract class Message implements MessageInterface
     {
         $clone = clone $this;
         $clone->headers->remove($name);
+
+        if ($this instanceof Response && $this->body instanceof NonBufferedBody) {
+            header_remove($name);
+        }
 
         return $clone;
     }
