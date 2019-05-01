@@ -12,7 +12,7 @@ namespace Slim\Factory;
 use Psr\Container\ContainerInterface;
 use RuntimeException;
 
-final class BuildContainer implements ContainerInterface
+final class ServiceContainer implements ContainerInterface
 {
     /**
      * @var ContainerInterface

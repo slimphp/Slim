@@ -12,8 +12,8 @@ require __DIR__ . '/../vendor/autoload.php';
  */
 
 use Psr\Http\Message\ResponseFactoryInterface;
-use Slim\Factory\BuildContainer;
-use Slim\Factory\Builder;
+use Slim\Factory\AppFactory;
+use Slim\Factory\ServiceContainer;
 use Slim\Factory\ServiceProvider;
 use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Middleware\ErrorMiddleware;
@@ -21,12 +21,12 @@ use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\Factory\StreamFactory;
 
 $provider = new ServiceProvider();
-$container = new BuildContainer($provider);
+$container = new ServiceContainer($provider);
 $container->set(
     ResponseFactoryInterface::class,
     new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory())
 );
-$builder = new Builder($container);
+$builder = new AppFactory($container);
 $app = $builder->getApp();
 
 /**

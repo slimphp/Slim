@@ -11,135 +11,46 @@ namespace Slim\Factory;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
-use RuntimeException;
 use Slim\App;
-use Slim\Factory\Psr17\GuzzlePsr17Factory;
-use Slim\Factory\Psr17\NyholmPsr17Factory;
-use Slim\Factory\Psr17\Psr17Factory;
-use Slim\Factory\Psr17\SlimPsr17Factory;
-use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
 
-class AppFactory
+final class AppFactory
 {
     /**
-     * @var array
+     * @var ServiceContainer
      */
-    protected static $psr17Factories = [
-        SlimPsr17Factory::class,
-        NyholmPsr17Factory::class,
-        ZendDiactorosPsr17Factory::class,
-        GuzzlePsr17Factory::class,
-    ];
+    private $provider;
+
+    public function __construct(ServiceContainer $provider)
+    {
+        $this->provider = $provider;
+    }
 
     /**
-     * @var ResponseFactoryInterface|null
-     */
-    protected static $responseFactory;
-
-    /**
-     * @var ContainerInterface|null
-     */
-    protected static $container;
-
-    /**
-     * @var CallableResolverInterface|null
-     */
-    protected static $callableResolver;
-
-    /**
-     * @var RouteCollectorInterface|null
-     */
-    protected static $routeCollector;
-
-    /**
-     * @var RouteResolverInterface|null
-     */
-    protected static $routeResolver;
-
-    /**
-     * @param ResponseFactoryInterface|null  $responseFactory
-     * @param ContainerInterface|null        $container
-     * @param CallableResolverInterface|null $callableResolver
-     * @param RouteCollectorInterface|null   $routeCollector
-     * @param RouteResolverInterface|null    $routeResolver
+     * @param ContainerInterface|null $container
      * @return App
      */
-    public static function create(
-        ResponseFactoryInterface $responseFactory = null,
-        ContainerInterface $container = null,
-        CallableResolverInterface $callableResolver = null,
-        RouteCollectorInterface $routeCollector = null,
-        RouteResolverInterface $routeResolver = null
-    ): App {
+    public static function create(ContainerInterface $container = null)
+    {
+        $provider = new ServiceProvider();
+        $buildContainer = new ServiceContainer($provider, $container);
+        $builder = new self($buildContainer);
+        return $builder->getApp();
+    }
+
+    /**
+     * @return App
+     */
+    public function getApp()
+    {
         return new App(
-            $responseFactory ?? static::$responseFactory ?? self::determineResponseFactory(),
-            $container ?? static::$container,
-            $callableResolver ?? static::$callableResolver,
-            $routeCollector ?? static::$routeCollector,
-            $routeResolver ?? static::$routeResolver
+            $this->provider->get(ResponseFactoryInterface::class),
+            $this->provider->getContainer(),
+            $this->provider->get(CallableResolverInterface::class),
+            $this->provider->get(RouteCollectorInterface::class),
+            $this->provider->get(RouteResolverInterface::class)
         );
-    }
-
-    /**
-     * @return ResponseFactoryInterface
-     * @throws RuntimeException
-     */
-    public static function determineResponseFactory(): ResponseFactoryInterface
-    {
-        /** @var Psr17Factory $psr17factory */
-        foreach (self::$psr17Factories as $psr17factory) {
-            if ($psr17factory::isResponseFactoryAvailable()) {
-                return $psr17factory::getResponseFactory();
-            }
-        }
-
-        throw new RuntimeException(
-            "Could not detect any PSR-17 ResponseFactory implementations. " .
-            "Please install a supported implementation in order to use `AppFactory::create()`. " .
-            "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
-        );
-    }
-
-    /**
-     * @param ResponseFactoryInterface $responseFactory
-     */
-    public static function setResponseFactory(ResponseFactoryInterface $responseFactory): void
-    {
-        static::$responseFactory = $responseFactory;
-    }
-
-    /**
-     * @param ContainerInterface $container
-     */
-    public static function setContainer(ContainerInterface $container): void
-    {
-        static::$container = $container;
-    }
-
-    /**
-     * @param CallableResolverInterface $callableResolver
-     */
-    public static function setCallableResolver(CallableResolverInterface $callableResolver): void
-    {
-        static::$callableResolver = $callableResolver;
-    }
-
-    /**
-     * @param RouteCollectorInterface $routeCollector
-     */
-    public static function setRouteCollector(RouteCollectorInterface $routeCollector): void
-    {
-        static::$routeCollector = $routeCollector;
-    }
-
-    /**
-     * @param RouteResolverInterface $routeResolver
-     */
-    public static function setRouteResolver(RouteResolverInterface $routeResolver): void
-    {
-        static::$routeResolver = $routeResolver;
     }
 }
