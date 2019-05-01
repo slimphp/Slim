@@ -83,7 +83,8 @@ $app->add($errorMiddleware);
 
 // Action
 $app->get('/hello/{name}', function ($request, $response, $args) {
-    return $response->getBody()->write("Hello, " . $args['name']);
+    $response->getBody()->write("Hello, " . $args['name']);
+    return $response;
 });
 
 $request = new ServerRequest(ServerRequestFactory::createFromGlobals());
