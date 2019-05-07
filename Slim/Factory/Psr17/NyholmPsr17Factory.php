@@ -11,6 +11,9 @@ class NyholmPsr17Factory extends Psr17Factory
     protected static $serverRequestCreatorClass = 'Nyholm\Psr7Server\ServerRequestCreator';
     protected static $serverRequestCreatorMethod = 'fromGlobals';
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getServerRequestCreator(): ServerRequestCreatorInterface
     {
         /*
