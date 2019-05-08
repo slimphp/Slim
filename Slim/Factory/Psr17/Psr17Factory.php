@@ -18,22 +18,22 @@ use Slim\Interfaces\ServerRequestCreatorInterface;
 abstract class Psr17Factory implements Psr17FactoryInterface
 {
     /**
-     * @var string|null
+     * @var string
      */
     protected static $responseFactoryClass;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected static $streamFactoryClass;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected static $serverRequestCreatorClass;
 
     /**
-     * @var string|null
+     * @var string
      */
     protected static $serverRequestCreatorMethod;
 
