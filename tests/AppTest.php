@@ -530,6 +530,19 @@ class AppTest extends TestCase
         $this->assertEquals($expectedPath, $route->getPattern());
     }
 
+    public function testRouteGroupPattern()
+    {
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+
+        /** @var ResponseFactoryInterface $responseFactoryInterface */
+        $responseFactoryInterface = $responseFactoryProphecy->reveal();
+        $app = new App($responseFactoryInterface);
+        $group = $app->group('/foo', function () {
+        });
+
+        $this->assertEquals('/foo', $group->getPattern());
+    }
+
     /********************************************************************************
      * Middleware
      *******************************************************************************/
