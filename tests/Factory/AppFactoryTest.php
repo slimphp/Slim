@@ -14,11 +14,14 @@ use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use ReflectionProperty;
+use RuntimeException;
 use Slim\Factory\AppFactory;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
+use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimPsr17Factory;
 use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
+use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
@@ -46,9 +49,8 @@ class AppFactoryTest extends TestCase
      */
     public function testCreateAppWithAllImplementations(string $psr17factory, string $expectedResponseFactoryClass)
     {
-        $psr17FactoriesProperty = new ReflectionProperty(AppFactory::class, 'psr17Factories');
-        $psr17FactoriesProperty->setAccessible(true);
-        $psr17FactoriesProperty->setValue([$psr17factory]);
+        Psr17FactoryProvider::setFactories([$psr17factory]);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
 
         $app = AppFactory::create();
 
@@ -62,15 +64,22 @@ class AppFactoryTest extends TestCase
         $this->assertInstanceOf($expectedResponseFactoryClass, $responseFactory);
     }
 
+    public function testDetermineResponseFactoryReturnsDecoratedFactory()
+    {
+        Psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+
+        $app = AppFactory::create();
+
+        $this->assertInstanceOf(DecoratedResponseFactory::class, $app->getResponseFactory());
+    }
+
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testDetermineResponseFactoryThrowsRuntimeException()
     {
-        $psr17FactoriesProperty = new ReflectionProperty(AppFactory::class, 'psr17Factories');
-        $psr17FactoriesProperty->setAccessible(true);
-        $psr17FactoriesProperty->setValue([]);
-
+        Psr17FactoryProvider::setFactories([]);
         AppFactory::create();
     }
 
@@ -82,6 +91,7 @@ class AppFactoryTest extends TestCase
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
 
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
         AppFactory::setResponseFactory($responseFactoryProphecy->reveal());
         AppFactory::setContainer($containerProphecy->reveal());
         AppFactory::setCallableResolver($callableResolverProphecy->reveal());
@@ -123,6 +133,8 @@ class AppFactoryTest extends TestCase
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
         $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
 
         $app = AppFactory::create(
             $responseFactoryProphecy->reveal(),
