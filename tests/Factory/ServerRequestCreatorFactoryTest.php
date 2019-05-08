@@ -11,12 +11,15 @@ namespace Slim\Tests\Factory;
 
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
-use ReflectionProperty;
+use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
+use Slim\Factory\Psr17\Psr17FactoryProvider;
+use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
 use Slim\Factory\Psr17\SlimPsr17Factory;
 use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\Http\ServerRequest;
 use Slim\Psr7\Request as SlimServerRequest;
 use Slim\Tests\TestCase;
 use Zend\Diactoros\ServerRequest as ZendServerRequest;
@@ -40,9 +43,8 @@ class ServerRequestCreatorFactoryTest extends TestCase
      */
     public function testCreateAppWithAllImplementations(string $psr17factory, string $expectedServerRequestClass)
     {
-        $psr17FactoriesProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'psr17Factories');
-        $psr17FactoriesProperty->setAccessible(true);
-        $psr17FactoriesProperty->setValue([$psr17factory]);
+        Psr17FactoryProvider::setFactories([$psr17factory]);
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
 
         $serverRequestCreator = ServerRequestCreatorFactory::create();
         $serverRequest = $serverRequestCreator->createServerRequestFromGlobals();
@@ -50,15 +52,36 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $this->assertInstanceOf($expectedServerRequestClass, $serverRequest);
     }
 
+    public function testDetermineServerRequestCreatorReturnsDecoratedServerRequestCreator()
+    {
+        Psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+
+        $this->assertInstanceOf(SlimHttpServerRequestCreator::class, $serverRequestCreator);
+        $this->assertInstanceOf(ServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
+    }
+
     /**
-     * @expectedException \RuntimeException
+     * @expectedException RuntimeException
      */
     public function testDetermineServerRequestCreatorThrowsRuntimeException()
     {
-        $psr17FactoriesProperty = new ReflectionProperty(ServerRequestCreatorFactory::class, 'psr17Factories');
-        $psr17FactoriesProperty->setAccessible(true);
-        $psr17FactoriesProperty->setValue([]);
-
+        Psr17FactoryProvider::setFactories([]);
         ServerRequestCreatorFactory::create();
+    }
+
+    public function testSetPsr17FactoryProvider()
+    {
+        $psr17FactoryProvider = new Psr17FactoryProvider();
+        $psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+
+        ServerRequestCreatorFactory::setPsr17FactoryProvider($psr17FactoryProvider);
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+
+        $this->assertInstanceOf(SlimServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
     }
 }
