@@ -169,4 +169,15 @@ class AppFactoryTest extends TestCase
             $app->getRouteResolver()
         );
     }
+
+    public function testSetPsr17FactoryProvider()
+    {
+        $psr17FactoryProvider = new Psr17FactoryProvider();
+        $psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+
+        AppFactory::setPsr17FactoryProvider($psr17FactoryProvider);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+
+        $this->assertInstanceOf(SlimResponseFactory::class, AppFactory::determineResponseFactory());
+    }
 }

@@ -43,7 +43,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     public static function getResponseFactory(): ResponseFactoryInterface
     {
         if (!static::isResponseFactoryAvailable()) {
-            throw new RuntimeException(__METHOD__ . ' could not instantiate response factory.');
+            throw new RuntimeException(get_called_class() . ' could not instantiate a response factory.');
         }
 
         return new static::$responseFactoryClass;
@@ -55,7 +55,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     public static function getStreamFactory(): StreamFactoryInterface
     {
         if (!static::isStreamFactoryAvailable()) {
-            throw new RuntimeException(__METHOD__ . ' could not instantiate stream factory.');
+            throw new RuntimeException(get_called_class() . ' could not instantiate a stream factory.');
         }
 
         return new static::$streamFactoryClass;
@@ -67,7 +67,7 @@ abstract class Psr17Factory implements Psr17FactoryInterface
     public static function getServerRequestCreator(): ServerRequestCreatorInterface
     {
         if (!static::isServerRequestCreatorAvailable()) {
-            throw new RuntimeException(__METHOD__ . ' could not instantiate server request creator.');
+            throw new RuntimeException(get_called_class() . ' could not instantiate a server request creator.');
         }
 
         return new ServerRequestCreator(static::$serverRequestCreatorClass, static::$serverRequestCreatorMethod);

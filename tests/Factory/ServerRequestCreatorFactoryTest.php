@@ -71,4 +71,17 @@ class ServerRequestCreatorFactoryTest extends TestCase
         Psr17FactoryProvider::setFactories([]);
         ServerRequestCreatorFactory::create();
     }
+
+    public function testSetPsr17FactoryProvider()
+    {
+        $psr17FactoryProvider = new Psr17FactoryProvider();
+        $psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+
+        ServerRequestCreatorFactory::setPsr17FactoryProvider($psr17FactoryProvider);
+        ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+
+        $this->assertInstanceOf(SlimServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
+    }
 }
