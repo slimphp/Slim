@@ -95,8 +95,7 @@ class AppFactory
             if ($psr17factory::isResponseFactoryAvailable()) {
                 $responseFactory = $psr17factory::getResponseFactory();
 
-                if (
-                    static::$slimHttpDecoratorsAutomaticDetectionEnabled
+                if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
                     && SlimHttpPsr17Factory::isResponseFactoryAvailable()
                     && $psr17factory::isStreamFactoryAvailable()
                 ) {

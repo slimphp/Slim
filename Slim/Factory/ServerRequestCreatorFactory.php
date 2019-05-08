@@ -49,8 +49,7 @@ class ServerRequestCreatorFactory
             if ($psr17Factory::isServerRequestCreatorAvailable()) {
                 $serverRequestCreator = $psr17Factory::getServerRequestCreator();
 
-                if (
-                    static::$slimHttpDecoratorsAutomaticDetectionEnabled
+                if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
                     && SlimHttpServerRequestCreator::isServerRequestDecoratorAvailable()
                 ) {
                     return new SlimHttpServerRequestCreator($serverRequestCreator);
