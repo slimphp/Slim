@@ -8,6 +8,7 @@ use Slim\Interfaces\ServerRequestCreatorInterface;
 class NyholmPsr17Factory extends Psr17Factory
 {
     protected static $responseFactoryClass = 'Nyholm\Psr7\Factory\Psr17Factory';
+    protected static $streamFactoryClass = 'Nyholm\Psr7\Factory\Psr17Factory';
     protected static $serverRequestCreatorClass = 'Nyholm\Psr7Server\ServerRequestCreator';
     protected static $serverRequestCreatorMethod = 'fromGlobals';
 
