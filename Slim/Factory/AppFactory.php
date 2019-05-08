@@ -13,26 +13,20 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use RuntimeException;
 use Slim\App;
-use Slim\Factory\Psr17\GuzzlePsr17Factory;
-use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17Factory;
-use Slim\Factory\Psr17\SlimPsr17Factory;
-use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
+use Slim\Factory\Psr17\Psr17FactoryProvider;
+use Slim\Factory\Psr17\SlimHttpPsr17Factory;
 use Slim\Interfaces\CallableResolverInterface;
+use Slim\Interfaces\Psr17FactoryProviderInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
 
 class AppFactory
 {
     /**
-     * @var array
+     * @var Psr17FactoryProviderInterface|null
      */
-    protected static $psr17Factories = [
-        SlimPsr17Factory::class,
-        NyholmPsr17Factory::class,
-        ZendDiactorosPsr17Factory::class,
-        GuzzlePsr17Factory::class,
-    ];
+    protected static $psr17FactoryProvider;
 
     /**
      * @var ResponseFactoryInterface|null
@@ -58,6 +52,11 @@ class AppFactory
      * @var RouteResolverInterface|null
      */
     protected static $routeResolver;
+
+    /**
+     * @var bool
+     */
+    protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
     /**
      * @param ResponseFactoryInterface|null  $responseFactory
@@ -89,10 +88,23 @@ class AppFactory
      */
     public static function determineResponseFactory(): ResponseFactoryInterface
     {
+        $psr17FactoryProvider = static::$psr17FactoryProvider ?? new Psr17FactoryProvider();
+
         /** @var Psr17Factory $psr17factory */
-        foreach (self::$psr17Factories as $psr17factory) {
+        foreach ($psr17FactoryProvider->getFactories() as $psr17factory) {
             if ($psr17factory::isResponseFactoryAvailable()) {
-                return $psr17factory::getResponseFactory();
+                $responseFactory = $psr17factory::getResponseFactory();
+
+                if (
+                    static::$slimHttpDecoratorsAutomaticDetectionEnabled
+                    && SlimHttpPsr17Factory::isResponseFactoryAvailable()
+                    && $psr17factory::isStreamFactoryAvailable()
+                ) {
+                    $streamFactory = $psr17factory::getStreamFactory();
+                    return SlimHttpPsr17Factory::createDecoratedResponseFactory($responseFactory, $streamFactory);
+                }
+
+                return $responseFactory;
             }
         }
 
@@ -101,6 +113,14 @@ class AppFactory
             "Please install a supported implementation in order to use `AppFactory::create()`. " .
             "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
         );
+    }
+
+    /**
+     * @param Psr17FactoryProviderInterface $psr17FactoryProvider
+     */
+    public static function setPsr17FactoryProvider(Psr17FactoryProviderInterface $psr17FactoryProvider): void
+    {
+        static::$psr17FactoryProvider = $psr17FactoryProvider;
     }
 
     /**
@@ -141,5 +161,13 @@ class AppFactory
     public static function setRouteResolver(RouteResolverInterface $routeResolver): void
     {
         static::$routeResolver = $routeResolver;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public static function setSlimHttpDecoratorsAutomaticDetection(bool $enabled): void
+    {
+        static::$slimHttpDecoratorsAutomaticDetectionEnabled = $enabled;
     }
 }

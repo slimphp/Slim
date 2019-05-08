@@ -10,24 +10,23 @@ declare(strict_types=1);
 namespace Slim\Factory;
 
 use RuntimeException;
-use Slim\Factory\Psr17\GuzzlePsr17Factory;
-use Slim\Factory\Psr17\NyholmPsr17Factory;
 use Slim\Factory\Psr17\Psr17Factory;
-use Slim\Factory\Psr17\SlimPsr17Factory;
-use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
+use Slim\Factory\Psr17\Psr17FactoryProvider;
+use Slim\Factory\Psr17\SlimHttpServerRequestCreator;
+use Slim\Interfaces\Psr17FactoryProviderInterface;
 use Slim\Interfaces\ServerRequestCreatorInterface;
 
 class ServerRequestCreatorFactory
 {
     /**
-     * @var array
+     * @var Psr17FactoryProviderInterface|null
      */
-    protected static $psr17Factories = [
-        SlimPsr17Factory::class,
-        NyholmPsr17Factory::class,
-        ZendDiactorosPsr17Factory::class,
-        GuzzlePsr17Factory::class,
-    ];
+    protected static $psr17FactoryProvider;
+
+    /**
+     * @var bool
+     */
+    protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
 
     /**
      * @return ServerRequestCreatorInterface
@@ -43,10 +42,21 @@ class ServerRequestCreatorFactory
      */
     public static function determineServerRequestCreator(): ServerRequestCreatorInterface
     {
+        $psr17FactoryProvider = static::$psr17FactoryProvider ?? new Psr17FactoryProvider();
+
         /** @var Psr17Factory $psr17Factory */
-        foreach (self::$psr17Factories as $psr17Factory) {
+        foreach ($psr17FactoryProvider->getFactories() as $psr17Factory) {
             if ($psr17Factory::isServerRequestCreatorAvailable()) {
-                return $psr17Factory::getServerRequestCreator();
+                $serverRequestCreator = $psr17Factory::getServerRequestCreator();
+
+                if (
+                    static::$slimHttpDecoratorsAutomaticDetectionEnabled
+                    && SlimHttpServerRequestCreator::isServerRequestDecoratorAvailable()
+                ) {
+                    return new SlimHttpServerRequestCreator($serverRequestCreator);
+                }
+
+                return $serverRequestCreator;
             }
         }
 
@@ -56,5 +66,21 @@ class ServerRequestCreatorFactory
             "without having to pass in a `ServerRequest` object. " .
             "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
         );
+    }
+
+    /**
+     * @param Psr17FactoryProviderInterface $psr17FactoryProvider
+     */
+    public static function setPsr17FactoryProvider(Psr17FactoryProviderInterface $psr17FactoryProvider): void
+    {
+        static::$psr17FactoryProvider = $psr17FactoryProvider;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public static function setSlimHttpDecoratorsAutomaticDetection(bool $enabled): void
+    {
+        static::$slimHttpDecoratorsAutomaticDetectionEnabled = $enabled;
     }
 }
