@@ -29,11 +29,31 @@ Before you can get up and running with Slim you will need to choose a PSR-7 impl
 ## Slim-Http Decorators
 
 [Slim-Http](https://github.com/slimphp/Slim-Http) is a set of decorators for any PSR-7 implementation that we recommend is used with Slim Framework.
+To install the Slim-Http library simply run the following command:
+
+```bash
+composer require slim/http
+```
+
+The `ServerRequest` and `Response` object decorators are automatically detected and applied by the internal factories. If you have installed Slim-Http and wish to turn off automatic object decoration you can use the following statements:
+```php
+<?php
+
+use Slim\Factory\AppFactory;
+use Slim\Factory\ServerRequestCreatorFactory;
+
+AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+ServerRequestCreatorFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+
+$app = AppFactory::create();
+
+...
+```
 
 ## Hello World using AppFactory with PSR-7 auto-detection
 In order for auto-detection to work and enable you to use `AppFactory::create()` and `App::run()` without having to manually create a `ServerRequest` you need to install one of the following implementations:
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - Install using `composer require slim/psr7`
-- [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr-7 nyholm/psr7-server`
+- [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr7 nyholm/psr7-server`
 - [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
 - [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `zendframework/zend-diactoros`
 
@@ -59,44 +79,6 @@ $app->get('/hello/{name}', function (Request $request, Response $response, $args
     $name = $args['name'];
     $response->getBody()->write("Hello, $name");
     return $response;
-});
-
-$app->run();
-```
-
-## Hello World with Slim-Http Decorators & Slim-Psr7
-
-```bash
-$ composer require slim/slim:4.0.0-alpha slim/psr7 slim/http
-```
-
-```php
-<?php
-use Slim\Factory\AppFactory;
-use Slim\Http\Factory\DecoratedResponseFactory;
-use Slim\Http\Response;
-use Slim\Http\ServerRequest as Request;
-use Slim\Middleware\ErrorMiddleware;
-use Slim\Psr7\Factory\ResponseFactory;
-use Slim\Psr7\Factory\StreamFactory;
-
-require __DIR__ . '/../vendor/autoload.php';
-
-// Instantiate DecoratedResponseFactory and set it onto AppFactory
-$responseFactory = new DecoratedResponseFactory(new ResponseFactory(), new StreamFactory());
-AppFactory::setResponseFactory($responseFactory);
-
-// Instantiate App
-$app = AppFactory::create();
-
-// Add error middleware
-$errorMiddleware = new ErrorMiddleware($app->getCallableResolver(), $responseFactory, true, true, true);
-$app->add($errorMiddleware);
-
-// Decorated Request & Response object available via route callable
-$app->get('/hello/{name}', function (Request $request, Response $response, $args) {
-    $name = $args['name'];
-    return $response->write("Hello, $name");
 });
 
 $app->run();
