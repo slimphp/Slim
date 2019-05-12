@@ -35,6 +35,14 @@ class DeferredCallable
     }
 
     /**
+     * @return callable|string
+     */
+    public function getCallable()
+    {
+        return $this->callable;
+    }
+
+    /**
      * @return mixed
      */
     public function __invoke()
