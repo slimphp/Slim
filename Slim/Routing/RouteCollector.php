@@ -92,19 +92,24 @@ class RouteCollector implements RouteCollectorInterface
      * @param ContainerInterface|null     $container
      * @param InvocationStrategyInterface $defaultInvocationStrategy
      * @param RouteParserInterface        $routeParser
+     * @param string                      $cacheFile
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
         ContainerInterface $container = null,
         InvocationStrategyInterface $defaultInvocationStrategy = null,
-        RouteParserInterface $routeParser = null
+        RouteParserInterface $routeParser = null,
+        string $cacheFile = null
     ) {
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->container = $container;
         $this->defaultInvocationStrategy = $defaultInvocationStrategy ?? new RequestResponse();
         $this->routeParser = $routeParser ?? new RouteParser($this);
+        if ($cacheFile) {
+            $this->setCacheFile($cacheFile);
+        }
     }
 
     /**
