@@ -180,9 +180,6 @@ class RouteCollectorTest extends TestCase
         $routeCollector->setCacheFile($cacheFile);
     }
 
-    /**
-     * Test cacheFile via construct is set
-     */
     public function testSetCacheFileViaConstructor()
     {
         $cacheFile = __DIR__ . '/router.cache';

@@ -107,6 +107,7 @@ class RouteCollector implements RouteCollectorInterface
         $this->container = $container;
         $this->defaultInvocationStrategy = $defaultInvocationStrategy ?? new RequestResponse();
         $this->routeParser = $routeParser ?? new RouteParser($this);
+
         if ($cacheFile) {
             $this->setCacheFile($cacheFile);
         }
