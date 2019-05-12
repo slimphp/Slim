@@ -47,7 +47,7 @@ class DeferredCallableTest extends PHPUnit_Framework_TestCase
 
     public function testItReturnsInvokedCallableResponse()
     {
-        $container = new Container;
+        $container = new Container();
         $test = $this;
         $foo = 'foo';
         $bar = 'bar';
@@ -61,5 +61,16 @@ class DeferredCallableTest extends PHPUnit_Framework_TestCase
 
         $response = $deferred($foo);
         $this->assertEquals($bar, $response);
+    }
+
+    public function testGetCallable()
+    {
+        $container = new Container();
+
+        $closure = function () {
+        };
+
+        $deferred = new DeferredCallable($closure, $container);
+        $this->assertSame($closure, $deferred->getCallable());
     }
 }
