@@ -46,3 +46,19 @@ function header_remove($name = null)
 {
     HeaderStack::remove($name);
 }
+
+/**
+ * Return the level of the output buffering shifted by the value of the global
+ * variable $GLOBALS['ob_get_level_shift'] if it exists. Otherwise the function
+ * override calls the default php built-in function.
+ *
+ * @return int
+ */
+function ob_get_level()
+{
+    if (isset($GLOBALS['ob_get_level_shift'])) {
+        return \ob_get_level() + $GLOBALS['ob_get_level_shift'];
+    }
+
+    return \ob_get_level();
+}
