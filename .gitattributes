@@ -5,7 +5,6 @@
 # see: https://redd.it/2jzp6k
 /example            export-ignore
 /tests              export-ignore
-/.codeclimate.yml   export-ignore
 /.coveralls.yml     export-ignore
 /.editorconfig      export-ignore
 /.gitattributes     export-ignore
@@ -14,4 +13,5 @@
 /CONTRIBUTING.md    export-ignore
 /README.md          export-ignore
 /phpcs.xml          export-ignore
+/phpstan.neon.dist  export-ignore
 /phpunit.xml.dist   export-ignore
