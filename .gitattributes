@@ -3,7 +3,6 @@
 
 # Exclude unused files
 # see: https://redd.it/2jzp6k
-/example            export-ignore
 /tests              export-ignore
 /.coveralls.yml     export-ignore
 /.editorconfig      export-ignore
