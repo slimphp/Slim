@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Slim\Routing;
 
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
 use FastRoute\RouteParser\Std;
 use Slim\Interfaces\DispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
@@ -17,23 +16,16 @@ class Dispatcher implements DispatcherInterface
     private $routeCollector;
 
     /**
-     * @var RouteParser
-     */
-    private $routeParser;
-
-    /**
      * @var FastRouteDispatcher|null
      */
     private $dispatcher;
 
     /**
      * @param RouteCollectorInterface $routeCollector
-     * @param RouteParser|null        $routeParser
      */
-    public function __construct(RouteCollectorInterface $routeCollector, RouteParser $routeParser = null)
+    public function __construct(RouteCollectorInterface $routeCollector)
     {
         $this->routeCollector = $routeCollector;
-        $this->routeParser = $routeParser ?? new Std();
     }
 
     /**
@@ -56,14 +48,14 @@ class Dispatcher implements DispatcherInterface
             /** @var FastRouteDispatcher $dispatcher */
             $dispatcher = \FastRoute\cachedDispatcher($routeDefinitionCallback, [
                 'dispatcher' => FastRouteDispatcher::class,
-                'routeParser' => $this->routeParser,
+                'routeParser' => new Std(),
                 'cacheFile' => $cacheFile,
             ]);
         } else {
             /** @var FastRouteDispatcher $dispatcher */
             $dispatcher = \FastRoute\simpleDispatcher($routeDefinitionCallback, [
                 'dispatcher' => FastRouteDispatcher::class,
-                'routeParser' => $this->routeParser,
+                'routeParser' => new Std(),
             ]);
         }
 
