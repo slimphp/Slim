@@ -96,6 +96,7 @@ class RoutingMiddlewareTest extends TestCase
 
     /**
      * @expectedException RuntimeException
+     * @expectedExceptionMessage An unexpected error occurred while performing routing.
      */
     public function testPerformRoutingThrowsExceptionOnInvalidRoutingResultsRouteStatus()
     {
