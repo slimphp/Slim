@@ -10,9 +10,12 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use FastRoute\Dispatcher;
+use Prophecy\Argument;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use RuntimeException;
 use Slim\CallableResolver;
+use Slim\Interfaces\RouteResolverInterface;
 use Slim\Middleware\RoutingMiddleware;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
@@ -89,5 +92,40 @@ class RoutingMiddlewareTest extends TestCase
         $middlewareDispatcher->addCallable($mw);
         $middlewareDispatcher->addMiddleware($mw2);
         $middlewareDispatcher->handle($request);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testPerformRoutingThrowsExceptionOnInvalidRoutingResultsRouteStatus()
+    {
+        // Prophesize the `RoutingResults` instance that would return an invalid route
+        // status when the method `getRouteStatus()` gets called.
+        $routingResultsProphecy = $this->prophesize(RoutingResults::class);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $routingResultsProphecy->getRouteStatus()
+            ->willReturn(-1)
+            ->shouldBeCalledOnce();
+        /** @var RoutingResults $routingResults */
+        $routingResults = $routingResultsProphecy->reveal();
+
+        // Prophesize the `RouteResolverInterface` that would return the `RoutingResults`
+        // defined above, when the method `computeRoutingResults()` gets called.
+        $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $routeResolverProphecy->computeRoutingResults(Argument::any(), Argument::any())
+            ->willReturn($routingResults)
+            ->shouldBeCalled();
+        /** @var RouteResolverInterface $routeResolver */
+        $routeResolver = $routeResolverProphecy->reveal();
+
+        // Create the server request.
+        $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
+
+        // Create the routing middleware with the `RouteResolverInterface` defined
+        // above. Perform the routing, which should throw the RuntimeException.
+        $m = new RoutingMiddleware($routeResolver);
+        /** @noinspection PhpUnhandledExceptionInspection */
+        $m->performRouting($request);
     }
 }
