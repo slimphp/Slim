@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests\Middleware;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\StreamInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Middleware\MethodOverrideMiddleware;
 use Slim\MiddlewareDispatcher;
@@ -107,8 +108,19 @@ class MethodOverrideMiddlewareTest extends TestCase
 
         $request = $this->createServerRequest('/', 'POST');
 
-        // Consume the body contents in order to get the stream to the end.
-        $request->getBody()->getContents();
+        // Prophesize the body stream for which `eof()` returns `true` and the
+        // `rewind()` has to be called.
+        $bodyProphecy = $this->prophesize(StreamInterface::class);
+        /** @noinspection PhpUndefinedMethodInspection */
+        $bodyProphecy->eof()
+            ->willReturn(true)
+            ->shouldBeCalled();
+        /** @noinspection PhpUndefinedMethodInspection */
+        $bodyProphecy->rewind()
+            ->shouldBeCalled();
+        /** @var StreamInterface $body */
+        $body = $bodyProphecy->reveal();
+        $request = $request->withBody($body);
 
         $middlewareDispatcher = new MiddlewareDispatcher($this->createMock(RequestHandler::class));
         $middlewareDispatcher->addCallable($mw);
