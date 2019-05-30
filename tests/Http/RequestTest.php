@@ -15,6 +15,8 @@ use Psr\Http\Message\UriInterface;
 use ReflectionProperty;
 use RuntimeException;
 use Slim\Collection;
+use Slim\Exception\InvalidMethodException;
+use Slim\Http\Body;
 use Slim\Http\Environment;
 use Slim\Http\Headers;
 use Slim\Http\Request;
@@ -147,10 +149,10 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
     public function testWithAllAllowedCharactersMethod()
     {
-        $request = $this->requestFactory()->withMethod("!#$%&'*+.^_`|~09AZ-");
+        $request = $this->requestFactory()->withMethod("_09AZ-");
 
-        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'method', $request);
-        $this->assertAttributeEquals("!#$%&'*+.^_`|~09AZ-", 'originalMethod', $request);
+        $this->assertAttributeEquals("_09AZ-", 'method', $request);
+        $this->assertAttributeEquals("_09AZ-", 'originalMethod', $request);
     }
 
     /**

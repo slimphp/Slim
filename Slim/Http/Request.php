@@ -342,7 +342,7 @@ class Request extends Message implements ServerRequestInterface
         }
 
         $method = strtoupper($method);
-        if (preg_match("/^[!#$%&'*+.^_`|~0-9a-z-]+$/i", $method) !== 1) {
+        if (preg_match("/^[A-Z0-9_-]+$/", $method) !== 1) {
             throw new InvalidMethodException($this, $method);
         }
 
