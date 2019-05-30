@@ -2654,15 +2654,18 @@ end;
         $body->write('Hello!' . "\n");
         $body->write('Hello!' . "\n");
 
+        // Tell connection_status() to fail.
+        \Slim\connection_status(true);
 
         $response = new Response(StatusCode::HTTP_OK, null, $body);
 
-        $app->respond($response, function () {
-            return CONNECTION_ABORTED;
-        });
+        $app->respond($response);
         $resOut = ob_get_clean();
 
         $this->assertEquals("Hello!\nHello!\n", (string)$resOut);
+
+        // Tell connection_status() to pass.
+        \Slim\connection_status(false);
     }
 
     public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
@@ -2673,11 +2676,15 @@ end;
         $body = new Body(fopen('php://input', 'r+'));
         $response = new Response(StatusCode::HTTP_OK, null, $body);
 
-        $app->respond($response, function () {
-            return CONNECTION_ABORTED;
-        });
+        // Tell connection_status() to fail.
+        \Slim\connection_status(true);
+
+        $app->respond($response);
         $resOut = ob_get_clean();
 
         $this->assertEquals("", (string)$resOut);
+
+        // Tell connection_status() to pass.
+        \Slim\connection_status(false);
     }
 }

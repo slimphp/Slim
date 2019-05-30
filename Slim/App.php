@@ -366,7 +366,7 @@ class App
      *
      * @param ResponseInterface $response
      */
-    public function respond(ResponseInterface $response, $connectionStatus = 'connection_status')
+    public function respond(ResponseInterface $response)
     {
         // Send response
         if (!headers_sent()) {
@@ -415,14 +415,14 @@ class App
 
                     $amountToRead -= strlen($data);
 
-                    if ($connectionStatus() != CONNECTION_NORMAL) {
+                    if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }
                 }
             } else {
                 while (!$body->eof()) {
                     echo $body->read((int)$chunkSize);
-                    if ($connectionStatus() != CONNECTION_NORMAL) {
+                    if (connection_status() != CONNECTION_NORMAL) {
                         break;
                     }
                 }

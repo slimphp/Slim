@@ -88,3 +88,18 @@ function is_writable($path)
     }
     return true;
 }
+
+function connection_status($toggleFailure = false)
+{
+    static $shouldFail = false;
+
+    if ($shouldFail) {
+        return CONNECTION_ABORTED;
+    }
+
+    if ($shouldFail !== $toggleFailure) {
+        $shouldFail = $toggleFailure;
+    }
+
+    return \connection_status();
+}
