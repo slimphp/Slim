@@ -295,8 +295,6 @@ class App
         try {
             ob_start();
             $response = $this->process($this->container->get('request'), $response);
-        } catch (InvalidMethodException $e) {
-            $response = $this->processInvalidMethod($e->getRequest(), $response);
         } finally {
             $output = ob_get_clean();
         }
@@ -321,42 +319,6 @@ class App
         }
 
         return $response;
-    }
-
-    /**
-     * Pull route info for a request with a bad method to decide whether to
-     * return a not-found error (default) or a bad-method error, then run
-     * the handler for that error, returning the resulting response.
-     *
-     * Used for cases where an incoming request has an unrecognized method,
-     * rather than throwing an exception and not catching it all the way up.
-     *
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     *
-     * @return ResponseInterface
-     *
-     * @throws ContainerException
-     */
-    protected function processInvalidMethod(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        $router = $this->container->get('router');
-        if (is_callable([$request->getUri(), 'getBasePath']) && is_callable([$router, 'setBasePath'])) {
-            $router->setBasePath($request->getUri()->getBasePath());
-        }
-
-        $request = $this->dispatchRouterAndPrepareRoute($request, $router);
-        $routeInfo = $request->getAttribute('routeInfo', [RouterInterface::DISPATCH_STATUS => Dispatcher::NOT_FOUND]);
-
-        if ($routeInfo[RouterInterface::DISPATCH_STATUS] === Dispatcher::METHOD_NOT_ALLOWED) {
-            return $this->handleException(
-                new MethodNotAllowedException($request, $response, $routeInfo[RouterInterface::ALLOWED_METHODS]),
-                $request,
-                $response
-            );
-        }
-
-        return $this->handleException(new NotFoundException($request, $response), $request, $response);
     }
 
     /**
@@ -727,8 +689,5 @@ class App
             // Call the registered handler
             return call_user_func_array($callable, $params);
         }
-
-        // No handlers found, so just throw the exception
-        throw $e;
     }
 }
