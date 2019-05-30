@@ -1599,6 +1599,39 @@ class AppTest extends PHPUnit_Framework_TestCase
         $this->expectOutputString('Hello');
     }
 
+    public function testRespondWithInvalidConnectionStatus()
+    {
+        $app = new App();
+        $app->get('/foo', function ($req, $res) {
+            $res->write('Hello');
+
+            return $res;
+        });
+
+        // Prepare request and response objects
+        $env = Environment::mock([
+            'HTTP_HOST'      => 'i.hope.this.host.never.exists',
+            'SCRIPT_NAME'    => '/index.php',
+            'REQUEST_URI'    => '/foo',
+            'REQUEST_METHOD' => 'GET',
+        ]);
+        $uri = Uri::createFromEnvironment($env);
+        $headers = Headers::createFromEnvironment($env);
+        $cookies = [];
+        $serverParams = $env->all();
+        $body = new RequestBody();
+        $req = new Request('GET', $uri, $headers, $cookies, $serverParams, $body);
+        $res = new Response();
+
+        // Invoke app
+        $resOut = $app($req, $res);
+
+        $app->respond($resOut);
+
+        $this->assertInstanceOf('\Psr\Http\Message\ResponseInterface', $resOut);
+        $this->expectOutputString('Hello');
+    }
+
     public function testRespondWithHeaderNotSent()
     {
         $app = new App();
@@ -2610,5 +2643,41 @@ end;
         if (version_compare(PHP_VERSION, '7.0', '>=')) {
             $this->markTestSkipped();
         }
+    }
+
+    public function testWillHandleInvalidConnectionStatusWithADeterminateBody()
+    {
+        $app = $this->getAppForTestingRunMethod();
+
+        ob_start();
+        $body = new Body(fopen('php://temp', 'r+'));
+        $body->write('Hello!' . "\n");
+        $body->write('Hello!' . "\n");
+
+
+        $response = new Response(StatusCode::HTTP_OK, null, $body);
+
+        $app->respond($response, function () {
+            return CONNECTION_ABORTED;
+        });
+        $resOut = ob_get_clean();
+
+        $this->assertEquals("Hello!\nHello!\n", (string)$resOut);
+    }
+
+    public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
+    {
+        $app = $this->getAppForTestingRunMethod();
+
+        ob_start();
+        $body = new Body(fopen('php://input', 'r+'));
+        $response = new Response(StatusCode::HTTP_OK, null, $body);
+
+        $app->respond($response, function () {
+            return CONNECTION_ABORTED;
+        });
+        $resOut = ob_get_clean();
+
+        $this->assertEquals("", (string)$resOut);
     }
 }
