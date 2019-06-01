@@ -2655,7 +2655,7 @@ end;
         $body->write('Hello!' . "\n");
 
         // Tell connection_status() to fail.
-        \Slim\connection_status(true);
+        $GLOBALS['connection_status_return'] = CONNECTION_ABORTED;
 
         $response = new Response(StatusCode::HTTP_OK, null, $body);
 
@@ -2665,7 +2665,7 @@ end;
         $this->assertEquals("Hello!\nHello!\n", (string)$resOut);
 
         // Tell connection_status() to pass.
-        \Slim\connection_status(false);
+        unset($GLOBALS['connection_status_return']);
     }
 
     public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
@@ -2677,7 +2677,7 @@ end;
         $response = new Response(StatusCode::HTTP_OK, null, $body);
 
         // Tell connection_status() to fail.
-        \Slim\connection_status(true);
+        $GLOBALS['connection_status_return'] = CONNECTION_TIMEOUT;
 
         $app->respond($response);
         $resOut = ob_get_clean();
@@ -2685,6 +2685,6 @@ end;
         $this->assertEquals("", (string)$resOut);
 
         // Tell connection_status() to pass.
-        \Slim\connection_status(false);
+        unset($GLOBALS['connection_status_return']);
     }
 }
