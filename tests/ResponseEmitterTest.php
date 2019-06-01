@@ -187,7 +187,7 @@ class ResponseEmitterTest extends TestCase
         $body->write('Hello!' . "\n");
 
         // Tell connection_status() to fail.
-        \Slim\connection_status(true);
+        $GLOBALS['connection_status_return'] = CONNECTION_ABORTED;
 
         $response = $this
             ->createResponse()
@@ -200,7 +200,7 @@ class ResponseEmitterTest extends TestCase
         $this->expectOutputString("Hello!\nHello!\n");
 
         // Tell connection_status() to pass.
-        \Slim\connection_status(false);
+        unset($GLOBALS['connection_status_return']);
     }
 
     public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
@@ -208,7 +208,7 @@ class ResponseEmitterTest extends TestCase
         $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://input', 'r+'));
 
         // Tell connection_status() to fail.
-        \Slim\connection_status(true);
+        $GLOBALS['connection_status_return'] = CONNECTION_TIMEOUT;
 
         $response = $this
             ->createResponse()
@@ -225,6 +225,6 @@ class ResponseEmitterTest extends TestCase
         $this->expectOutputString("");
 
         // Tell connection_status() to pass.
-        \Slim\connection_status(false);
+        unset($GLOBALS['connection_status_return']);
     }
 }
