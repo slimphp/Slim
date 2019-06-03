@@ -382,7 +382,11 @@ class Router implements RouterInterface
         }
         $url = implode('', $segments);
 
-        if ($queryParams) {
+        $hasQueryParams = array_filter($queryParams, function ($value) {
+            return $value !== null;
+        }) !== [];
+
+        if ($hasQueryParams) {
             $url .= '?' . http_build_query($queryParams);
         }
 
