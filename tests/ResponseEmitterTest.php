@@ -179,4 +179,52 @@ class ResponseEmitterTest extends TestCase
 
         $this->assertTrue($responseEmitter->isResponseEmpty($response));
     }
+
+    public function testWillHandleInvalidConnectionStatusWithADeterminateBody()
+    {
+        $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://temp', 'r+'));
+        $body->write('Hello!' . "\n");
+        $body->write('Hello!' . "\n");
+
+        // Tell connection_status() to fail.
+        $GLOBALS['connection_status_return'] = CONNECTION_ABORTED;
+
+        $response = $this
+            ->createResponse()
+            ->withHeader('Content-Length', $body->getSize())
+            ->withBody($body);
+
+        $responseEmitter = new ResponseEmitter();
+        $responseEmitter->emit($response);
+
+        $this->expectOutputString("Hello!\nHello!\n");
+
+        // Tell connection_status() to pass.
+        unset($GLOBALS['connection_status_return']);
+    }
+
+    public function testWillHandleInvalidConnectionStatusWithAnIndeterminateBody()
+    {
+        $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://input', 'r+'));
+
+        // Tell connection_status() to fail.
+        $GLOBALS['connection_status_return'] = CONNECTION_TIMEOUT;
+
+        $response = $this
+            ->createResponse()
+            ->withBody($body);
+
+
+        $responseEmitter = new ResponseEmitter();
+
+        $mirror = new \ReflectionClass(ResponseEmitter::class);
+        $emitBodyMethod = $mirror->getMethod('emitBody');
+        $emitBodyMethod->setAccessible(true);
+        $emitBodyMethod->invoke($responseEmitter, $response);
+
+        $this->expectOutputString("");
+
+        // Tell connection_status() to pass.
+        unset($GLOBALS['connection_status_return']);
+    }
 }
