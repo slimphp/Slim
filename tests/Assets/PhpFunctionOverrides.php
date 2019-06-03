@@ -42,6 +42,11 @@ function header($string, $replace = true, $statusCode = null)
     );
 }
 
+/**
+ * Allows the mocking of invalid HTTP states.
+ *
+ * @return int
+ */
 function connection_status()
 {
     if (isset($GLOBALS['connection_status_return'])) {
