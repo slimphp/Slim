@@ -22,7 +22,7 @@ This will install Slim and all required dependencies. Slim requires PHP 7.1 or n
 Before you can get up and running with Slim you will need to choose a PSR-7 implementation that best fits your application. A few notable ones:
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - This is the Slim Framework projects PSR-7 implementation.
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - This is the fastest, strictest and most lightweight implementation at the moment
-- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier
+- [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - This is the implementation used by the Guzzle Client. It is not as strict but adds some nice functionality for Streams and file handling. It is the second fastest implementation but is a bit bulkier.
 - [zend-diactoros](https://github.com/zendframework/zend-diactoros) - This is the Zend implementation. It is the slowest implementation of the 3.
 
 
