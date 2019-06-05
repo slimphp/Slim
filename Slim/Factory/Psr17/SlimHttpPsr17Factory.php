@@ -27,4 +27,15 @@ class SlimHttpPsr17Factory extends Psr17Factory
     ): ResponseFactoryInterface {
         return new static::$responseFactoryClass($responseFactory, $streamFactory);
     }
+
+    /**
+     * Set the response factory class the method `createDecoratedResponseFactory`
+     * should use.
+     *
+     * @param string $responseFactoryClass
+     */
+    public static function setResponseFactory(string $responseFactoryClass): void
+    {
+        static::$responseFactoryClass = $responseFactoryClass;
+    }
 }
