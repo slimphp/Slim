@@ -18,6 +18,11 @@ abstract class AbstractError extends AbstractHandler
     protected $displayErrorDetails;
 
     /**
+     * @var string
+     */
+    protected $title = 'Slim Application Error';
+
+    /**
      * @param bool $displayErrorDetails Set to true to display full details
      */
     public function __construct($displayErrorDetails = false)
@@ -38,7 +43,7 @@ abstract class AbstractError extends AbstractHandler
             return;
         }
 
-        $message = 'Slim Application Error:' . PHP_EOL;
+        $message = $this->title . ':' . PHP_EOL;
         $message .= $this->renderThrowableAsText($throwable);
         while ($throwable = $throwable->getPrevious()) {
             $message .= PHP_EOL . 'Previous error:' . PHP_EOL;

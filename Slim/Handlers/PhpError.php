@@ -64,8 +64,6 @@ class PhpError extends AbstractError
      */
     protected function renderHtmlErrorMessage(Throwable $error)
     {
-        $title = 'Slim Application Error';
-
         if ($this->displayErrorDetails) {
             $html = '<p>The application could not run because of the following error:</p>';
             $html .= '<h2>Details</h2>';
@@ -84,8 +82,8 @@ class PhpError extends AbstractError
             "<title>%s</title><style>body{margin:0;padding:30px;font:12px/1.5 Helvetica,Arial,Verdana," .
             "sans-serif;}h1{margin:0;font-size:48px;font-weight:normal;line-height:48px;}strong{" .
             "display:inline-block;width:65px;}</style></head><body><h1>%s</h1>%s</body></html>",
-            $title,
-            $title,
+            $this->title,
+            $this->title,
             $html
         );
 
@@ -137,7 +135,7 @@ class PhpError extends AbstractError
     protected function renderJsonErrorMessage(Throwable $error)
     {
         $json = [
-            'message' => 'Slim Application Error',
+            'message' => $this->title,
         ];
 
         if ($this->displayErrorDetails) {
@@ -167,7 +165,7 @@ class PhpError extends AbstractError
      */
     protected function renderXmlErrorMessage(Throwable $error)
     {
-        $xml = "<error>\n  <message>Slim Application Error</message>\n";
+        $xml = "<error>\n  <message>" . $this->title . "</message>\n";
         if ($this->displayErrorDetails) {
             do {
                 $xml .= "  <error>\n";
