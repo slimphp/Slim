@@ -3,10 +3,10 @@
 
 # Exclude unused files
 # see: https://redd.it/2jzp6k
-/tests              export-ignore
 /.coveralls.yml     export-ignore
 /.editorconfig      export-ignore
 /.gitattributes     export-ignore
+/.github            export-ignore
 /.gitignore         export-ignore
 /.travis.yml        export-ignore
 /CONTRIBUTING.md    export-ignore
@@ -14,3 +14,4 @@
 /phpcs.xml          export-ignore
 /phpstan.neon.dist  export-ignore
 /phpunit.xml.dist   export-ignore
+/tests              export-ignore
