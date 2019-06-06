@@ -11,6 +11,7 @@ namespace Slim\Factory;
 
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use RuntimeException;
 use Slim\App;
 use Slim\Factory\Psr17\Psr17Factory;
@@ -32,6 +33,11 @@ class AppFactory
      * @var ResponseFactoryInterface|null
      */
     protected static $responseFactory;
+
+    /**
+     * @var StreamFactoryInterface|null
+     */
+    protected static $streamFactory;
 
     /**
      * @var ContainerInterface|null
@@ -73,8 +79,9 @@ class AppFactory
         RouteCollectorInterface $routeCollector = null,
         RouteResolverInterface $routeResolver = null
     ): App {
+        static::$responseFactory = $responseFactory ?? static::$responseFactory;
         return new App(
-            $responseFactory ?? static::$responseFactory ?? self::determineResponseFactory(),
+            self::determineResponseFactory(),
             $container ?? static::$container,
             $callableResolver ?? static::$callableResolver,
             $routeCollector ?? static::$routeCollector,
@@ -88,6 +95,13 @@ class AppFactory
      */
     public static function determineResponseFactory(): ResponseFactoryInterface
     {
+        if (static::$responseFactory) {
+            if (static::$streamFactory) {
+                return static::attemptResponseFactoryDecoration(static::$responseFactory, static::$streamFactory);
+            }
+            return static::$responseFactory;
+        }
+
         $psr17FactoryProvider = static::$psr17FactoryProvider ?? new Psr17FactoryProvider();
 
         /** @var Psr17Factory $psr17factory */
@@ -95,12 +109,9 @@ class AppFactory
             if ($psr17factory::isResponseFactoryAvailable()) {
                 $responseFactory = $psr17factory::getResponseFactory();
 
-                if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
-                    && SlimHttpPsr17Factory::isResponseFactoryAvailable()
-                    && $psr17factory::isStreamFactoryAvailable()
-                ) {
-                    $streamFactory = $psr17factory::getStreamFactory();
-                    return SlimHttpPsr17Factory::createDecoratedResponseFactory($responseFactory, $streamFactory);
+                if ($psr17factory::isStreamFactoryAvailable() || static::$streamFactory) {
+                    $streamFactory = static::$streamFactory ?? $psr17factory::getStreamFactory();
+                    return static::attemptResponseFactoryDecoration($responseFactory, $streamFactory);
                 }
 
                 return $responseFactory;
@@ -112,6 +123,22 @@ class AppFactory
             "Please install a supported implementation in order to use `AppFactory::create()`. " .
             "See https://github.com/slimphp/Slim/blob/4.x/README.md for a list of supported implementations."
         );
+    }
+
+    /**
+     * @param ResponseFactoryInterface $responseFactory
+     * @param StreamFactoryInterface   $streamFactory
+     * @return ResponseFactoryInterface
+     */
+    protected static function attemptResponseFactoryDecoration(ResponseFactoryInterface $responseFactory, StreamFactoryInterface $streamFactory): ResponseFactoryInterface
+    {
+        if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
+            && SlimHttpPsr17Factory::isResponseFactoryAvailable()
+        ) {
+            return SlimHttpPsr17Factory::createDecoratedResponseFactory($responseFactory, $streamFactory);
+        }
+
+        return $responseFactory;
     }
 
     /**
@@ -128,6 +155,14 @@ class AppFactory
     public static function setResponseFactory(ResponseFactoryInterface $responseFactory): void
     {
         static::$responseFactory = $responseFactory;
+    }
+
+    /**
+     * @param StreamFactoryInterface $streamFactory
+     */
+    public static function setStreamFactory(StreamFactoryInterface $streamFactory): void
+    {
+        static::$streamFactory = $streamFactory;
     }
 
     /**
