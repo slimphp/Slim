@@ -130,8 +130,10 @@ class AppFactory
      * @param StreamFactoryInterface   $streamFactory
      * @return ResponseFactoryInterface
      */
-    protected static function attemptResponseFactoryDecoration(ResponseFactoryInterface $responseFactory, StreamFactoryInterface $streamFactory): ResponseFactoryInterface
-    {
+    protected static function attemptResponseFactoryDecoration(
+        ResponseFactoryInterface $responseFactory,
+        StreamFactoryInterface $streamFactory
+    ): ResponseFactoryInterface {
         if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
             && SlimHttpPsr17Factory::isResponseFactoryAvailable()
         ) {

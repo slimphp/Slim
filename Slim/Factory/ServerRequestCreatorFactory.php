@@ -73,8 +73,9 @@ class ServerRequestCreatorFactory
      * @param ServerRequestCreatorInterface $serverRequestCreator
      * @return ServerRequestCreatorInterface
      */
-    protected static function attemptServerRequestCreatorDecoration(ServerRequestCreatorInterface $serverRequestCreator): ServerRequestCreatorInterface
-    {
+    protected static function attemptServerRequestCreatorDecoration(
+        ServerRequestCreatorInterface $serverRequestCreator
+    ): ServerRequestCreatorInterface {
         if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
             && SlimHttpServerRequestCreator::isServerRequestDecoratorAvailable()
         ) {
