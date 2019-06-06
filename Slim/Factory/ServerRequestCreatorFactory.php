@@ -24,6 +24,11 @@ class ServerRequestCreatorFactory
     protected static $psr17FactoryProvider;
 
     /**
+     * @var ServerRequestCreatorInterface|null
+     */
+    protected static $serverRequestCreator;
+
+    /**
      * @var bool
      */
     protected static $slimHttpDecoratorsAutomaticDetectionEnabled = true;
@@ -42,20 +47,17 @@ class ServerRequestCreatorFactory
      */
     public static function determineServerRequestCreator(): ServerRequestCreatorInterface
     {
+        if (static::$serverRequestCreator) {
+            return static::attemptServerRequestCreatorDecoration(static::$serverRequestCreator);
+        }
+
         $psr17FactoryProvider = static::$psr17FactoryProvider ?? new Psr17FactoryProvider();
 
         /** @var Psr17Factory $psr17Factory */
         foreach ($psr17FactoryProvider->getFactories() as $psr17Factory) {
             if ($psr17Factory::isServerRequestCreatorAvailable()) {
                 $serverRequestCreator = $psr17Factory::getServerRequestCreator();
-
-                if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
-                    && SlimHttpServerRequestCreator::isServerRequestDecoratorAvailable()
-                ) {
-                    return new SlimHttpServerRequestCreator($serverRequestCreator);
-                }
-
-                return $serverRequestCreator;
+                return static::attemptServerRequestCreatorDecoration($serverRequestCreator);
             }
         }
 
@@ -68,11 +70,34 @@ class ServerRequestCreatorFactory
     }
 
     /**
+     * @param ServerRequestCreatorInterface $serverRequestCreator
+     * @return ServerRequestCreatorInterface
+     */
+    protected static function attemptServerRequestCreatorDecoration(ServerRequestCreatorInterface $serverRequestCreator): ServerRequestCreatorInterface
+    {
+        if (static::$slimHttpDecoratorsAutomaticDetectionEnabled
+            && SlimHttpServerRequestCreator::isServerRequestDecoratorAvailable()
+        ) {
+            return new SlimHttpServerRequestCreator($serverRequestCreator);
+        }
+
+        return $serverRequestCreator;
+    }
+
+    /**
      * @param Psr17FactoryProviderInterface $psr17FactoryProvider
      */
     public static function setPsr17FactoryProvider(Psr17FactoryProviderInterface $psr17FactoryProvider): void
     {
         static::$psr17FactoryProvider = $psr17FactoryProvider;
+    }
+
+    /**
+     * @param ServerRequestCreatorInterface $serverRequestCreator
+     */
+    public static function setServerRequestCreator(ServerRequestCreatorInterface $serverRequestCreator): void
+    {
+        self::$serverRequestCreator = $serverRequestCreator;
     }
 
     /**
