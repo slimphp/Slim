@@ -11,6 +11,7 @@ namespace Slim\Tests\Factory;
 
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use Nyholm\Psr7\ServerRequest as NyholmServerRequest;
+use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
 use Slim\Factory\Psr17\GuzzlePsr17Factory;
 use Slim\Factory\Psr17\NyholmPsr17Factory;
@@ -20,6 +21,8 @@ use Slim\Factory\Psr17\SlimPsr17Factory;
 use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Http\ServerRequest;
+use Slim\Interfaces\ServerRequestCreatorInterface;
+use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Request as SlimServerRequest;
 use Slim\Tests\TestCase;
 use Zend\Diactoros\ServerRequest as ZendServerRequest;
@@ -83,5 +86,22 @@ class ServerRequestCreatorFactoryTest extends TestCase
         $serverRequestCreator = ServerRequestCreatorFactory::create();
 
         $this->assertInstanceOf(SlimServerRequest::class, $serverRequestCreator->createServerRequestFromGlobals());
+    }
+
+    public function testSetServerRequestCreator()
+    {
+        $serverRequestProphecy = $this->prophesize(ServerRequestInterface::class);
+
+        $serverRequestCreatorProphecy = $this->prophesize(ServerRequestCreatorInterface::class);
+        $serverRequestCreatorProphecy
+            ->createServerRequestFromGlobals()
+            ->willReturn($serverRequestProphecy->reveal())
+            ->shouldBeCalledOnce();
+
+        ServerRequestCreatorFactory::setServerRequestCreator($serverRequestCreatorProphecy->reveal());
+
+        $serverRequestCreator = ServerRequestCreatorFactory::create();
+
+        $this->assertSame($serverRequestProphecy->reveal(), $serverRequestCreator->createServerRequestFromGlobals());
     }
 }

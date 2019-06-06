@@ -13,6 +13,8 @@ use Http\Factory\Guzzle\ResponseFactory as GuzzleResponseFactory;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use ReflectionProperty;
 use RuntimeException;
 use Slim\Factory\AppFactory;
@@ -22,11 +24,13 @@ use Slim\Factory\Psr17\Psr17FactoryProvider;
 use Slim\Factory\Psr17\SlimPsr17Factory;
 use Slim\Factory\Psr17\ZendDiactorosPsr17Factory;
 use Slim\Http\Factory\DecoratedResponseFactory;
+use Slim\Http\Response as DecoratedResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
+use Slim\Tests\Mocks\MockPsr17FactoryWithoutStreamFactory;
 use Slim\Tests\TestCase;
 use Zend\Diactoros\ResponseFactory as ZendDiactorosResponseFactory;
 
@@ -81,6 +85,27 @@ class AppFactoryTest extends TestCase
     {
         Psr17FactoryProvider::setFactories([]);
         AppFactory::create();
+    }
+
+    public function testSetPsr17FactoryProvider()
+    {
+        $psr17FactoryProvider = new Psr17FactoryProvider();
+        $psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+
+        AppFactory::setPsr17FactoryProvider($psr17FactoryProvider);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+
+        $this->assertInstanceOf(SlimResponseFactory::class, AppFactory::determineResponseFactory());
+    }
+
+    public function testResponseFactoryIsStillReturnedIfStreamFactoryIsNotAvailable()
+    {
+        Psr17FactoryProvider::setFactories([MockPsr17FactoryWithoutStreamFactory::class]);
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+
+        $app = AppFactory::create();
+
+        $this->assertInstanceOf(SlimResponseFactory::class, $app->getResponseFactory());
     }
 
     public function testAppIsCreatedWithInstancesFromSetters()
@@ -170,14 +195,30 @@ class AppFactoryTest extends TestCase
         );
     }
 
-    public function testSetPsr17FactoryProvider()
+    public function testResponseAndStreamFactoryIsBeingInjectedInDecoratedResponseFactory()
     {
-        $psr17FactoryProvider = new Psr17FactoryProvider();
-        $psr17FactoryProvider::setFactories([SlimPsr17Factory::class]);
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
 
-        AppFactory::setPsr17FactoryProvider($psr17FactoryProvider);
-        AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy
+            ->createResponse(200, '')
+            ->willReturn($responseProphecy->reveal())
+            ->shouldBeCalledOnce();
 
-        $this->assertInstanceOf(SlimResponseFactory::class, AppFactory::determineResponseFactory());
+        $streamFactoryProphecy = $this->prophesize(StreamFactoryInterface::class);
+
+        AppFactory::setResponseFactory($responseFactoryProphecy->reveal());
+        AppFactory::setStreamFactory($streamFactoryProphecy->reveal());
+        AppFactory::setSlimHttpDecoratorsAutomaticDetection(true);
+
+        $app = AppFactory::create();
+
+        $responseFactory = $app->getResponseFactory();
+        $response = $responseFactory->createResponse();
+
+        $streamFactoryProperty = new ReflectionProperty(DecoratedResponse::class, 'streamFactory');
+        $streamFactoryProperty->setAccessible(true);
+
+        $this->assertSame($streamFactoryProphecy->reveal(), $streamFactoryProperty->getValue($response));
     }
 }
