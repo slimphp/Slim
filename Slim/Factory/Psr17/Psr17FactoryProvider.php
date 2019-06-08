@@ -14,7 +14,7 @@ use Slim\Interfaces\Psr17FactoryProviderInterface;
 class Psr17FactoryProvider implements Psr17FactoryProviderInterface
 {
     /**
-     * @var array
+     * @var string[]
      */
     protected static $factories = [
         SlimPsr17Factory::class,
