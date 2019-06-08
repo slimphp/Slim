@@ -12,12 +12,12 @@ namespace Slim\Interfaces;
 interface Psr17FactoryProviderInterface
 {
     /**
-     * @return array
+     * @return string[]
      */
     public static function getFactories(): array;
 
     /**
-     * @var array
+     * @var string[]
      */
     public static function setFactories(array $factories): void;
 
