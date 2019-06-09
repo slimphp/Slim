@@ -129,7 +129,8 @@ class ResponseEmitter
      */
     public function isResponseEmpty(ResponseInterface $response): bool
     {
-        $contents = (string) $response->getBody();
-        return empty($contents) || in_array($response->getStatusCode(), [204, 205, 304], true);
+        $contents = (string)$response->getBody();
+        return (empty($contents) && !is_numeric($contents))
+            || in_array($response->getStatusCode(), [204, 205, 304], true);
     }
 }

@@ -180,6 +180,17 @@ class ResponseEmitterTest extends TestCase
         $this->assertTrue($responseEmitter->isResponseEmpty($response));
     }
 
+    public function testIsResponseEmptyWithZeroAsBody()
+    {
+        $body = $this->createStream('0');
+        $response = $this
+            ->createResponse(200)
+            ->withBody($body);
+        $responseEmitter = new ResponseEmitter();
+
+        $this->assertFalse($responseEmitter->isResponseEmpty($response));
+    }
+
     public function testWillHandleInvalidConnectionStatusWithADeterminateBody()
     {
         $body = $this->getStreamFactory()->createStreamFromResource(fopen('php://temp', 'r+'));
