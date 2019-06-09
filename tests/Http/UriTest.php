@@ -709,13 +709,13 @@ class UriTest extends PHPUnit_Framework_TestCase
         $this->assertSame('https://0:0@0:1', (string) Uri::createFromString($expected)->getBaseUrl());
     }
 
-    public function testCreatorWithEmptyPath()
+    public function testConstructorWithEmptyPath()
     {
         $uri = new Uri('https', 'example.com', null, '');
         $this->assertSame('/', $uri->getPath());
     }
 
-    public function testCreatorWithZeroAsPath()
+    public function testConstructorWithZeroAsPath()
     {
         $uri = new Uri('https', 'example.com', null, '0');
         $this->assertSame('0', (string) $uri->getPath());
