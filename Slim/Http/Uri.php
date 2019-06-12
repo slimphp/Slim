@@ -118,7 +118,7 @@ class Uri implements UriInterface
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
-        $this->path = empty($path) && !is_numeric($path) ? '/' : $this->filterPath($path);
+        $this->path = ($path === null || !strlen($path)) ? '/' : $this->filterPath($path);
         $this->query = $this->filterQuery($query);
         $this->fragment = $this->filterQuery($fragment);
         $this->user = $user;
