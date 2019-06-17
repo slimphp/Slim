@@ -13,12 +13,12 @@ class Dispatcher implements DispatcherInterface
     /**
      * @var RouteCollectorInterface
      */
-    private $routeCollector;
+    protected $routeCollector;
 
     /**
      * @var FastRouteDispatcher|null
      */
-    private $dispatcher;
+    protected $dispatcher;
 
     /**
      * @param RouteCollectorInterface $routeCollector

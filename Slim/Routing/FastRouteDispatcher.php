@@ -16,7 +16,7 @@ class FastRouteDispatcher extends GroupCountBased
     /**
      * @var array
      */
-    private $allowedMethods = [];
+    protected $allowedMethods = [];
 
     /**
      * @param string $httpMethod

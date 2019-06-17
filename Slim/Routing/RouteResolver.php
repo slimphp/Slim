@@ -29,7 +29,7 @@ class RouteResolver implements RouteResolverInterface
     /**
      * @var DispatcherInterface
      */
-    private $dispatcher;
+    protected $dispatcher;
 
     /**
      * @param RouteCollectorInterface  $routeCollector

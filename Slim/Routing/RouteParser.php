@@ -20,12 +20,12 @@ class RouteParser implements RouteParserInterface
     /**
      * @var RouteCollectorInterface
      */
-    private $routeCollector;
+    protected $routeCollector;
 
     /**
      * @var Std
      */
-    private $routeParser;
+    protected $routeParser;
 
     /**
      * @param RouteCollectorInterface $routeCollector

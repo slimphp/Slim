@@ -22,7 +22,7 @@ class RouteRunner implements RequestHandlerInterface
     /**
      * @var RouteResolverInterface
      */
-    private $routeResolver;
+    protected $routeResolver;
 
     /**
      * @param RouteResolverInterface $routeResolver
