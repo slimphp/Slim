@@ -36,7 +36,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
      */
     public function __construct(
         RequestHandlerInterface $kernel,
-        ContainerInterface $container = null
+        ?ContainerInterface $container = null
     ) {
         $this->seedMiddlewareStack($kernel);
         $this->container = $container;
