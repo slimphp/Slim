@@ -27,7 +27,7 @@ class DeferredCallable
      * @param callable|string                $callable
      * @param CallableResolverInterface|null $resolver
      */
-    public function __construct($callable, CallableResolverInterface $resolver = null)
+    public function __construct($callable, ?CallableResolverInterface $resolver = null)
     {
         $this->callable = $callable;
         $this->callableResolver = $resolver;
