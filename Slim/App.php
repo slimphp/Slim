@@ -55,10 +55,10 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      */
     public function __construct(
         ResponseFactoryInterface $responseFactory,
-        ContainerInterface $container = null,
-        CallableResolverInterface $callableResolver = null,
-        RouteCollectorInterface $routeCollector = null,
-        RouteResolverInterface $routeResolver = null
+        ?ContainerInterface $container = null,
+        ?CallableResolverInterface $callableResolver = null,
+        ?RouteCollectorInterface $routeCollector = null,
+        ?RouteResolverInterface $routeResolver = null
     ) {
         parent::__construct(
             $responseFactory,
@@ -110,7 +110,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      * @param ServerRequestInterface|null $request
      * @return void
      */
-    public function run(ServerRequestInterface $request = null): void
+    public function run(?ServerRequestInterface $request = null): void
     {
         if (!$request) {
             $serverRequestCreator = ServerRequestCreatorFactory::create();

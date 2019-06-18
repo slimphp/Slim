@@ -55,8 +55,8 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     public function __construct(
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
-        ContainerInterface $container = null,
-        RouteCollectorInterface $routeCollector = null,
+        ?ContainerInterface $container = null,
+        ?RouteCollectorInterface $routeCollector = null,
         string $basePath = ''
     ) {
         $this->responseFactory = $responseFactory;
