@@ -139,8 +139,8 @@ interface RouteCollectorProxyInterface
      * declarations in the callback will be prepended by the group(s)
      * that it is in.
      *
-     * @param string   $pattern
-     * @param callable $callable
+     * @param string          $pattern
+     * @param string|callable $callable
      *
      * @return RouteGroupInterface
      */
