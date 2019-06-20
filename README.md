@@ -55,7 +55,7 @@ In order for auto-detection to work and enable you to use `AppFactory::create()`
 - [Slim-Psr7](https://github.com/slimphp/Slim-Psr7) - Install using `composer require slim/psr7`
 - [Nyholm/psr7](https://github.com/Nyholm/psr7) & [Nyholm/psr7-server](https://github.com/Nyholm/psr7-server) - Install using `composer require nyholm/psr7 nyholm/psr7-server`
 - [Guzzle/psr7](https://github.com/guzzle/psr7) & [http-interop/http-factory-guzzle](https://github.com/http-interop/http-factory-guzzle) - Install using `composer require guzzlehttp/psr7 http-interop/http-factory-guzzle`
-- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `zendframework/zend-diactoros`
+- [zend-diactoros](https://github.com/zendframework/zend-diactoros) - Install using `composer require zendframework/zend-diactoros`
 
 ```php
 <?php
