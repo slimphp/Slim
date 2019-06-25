@@ -194,12 +194,12 @@ class Uri implements UriInterface
         }
 
         // Path
-        $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
+        $requestScriptName = (string) parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
         $requestScriptDir = dirname($requestScriptName);
 
         // parse_url() requires a full URL. As we don't extract the domain name or scheme,
         // we use a stand-in.
-        $requestUri = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
+        $requestUri = (string) parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
 
         $basePath = '';
         $virtualPath = $requestUri;
