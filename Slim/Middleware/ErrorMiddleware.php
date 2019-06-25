@@ -136,7 +136,7 @@ class ErrorMiddleware implements MiddlewareInterface
             return $this->callableResolver->resolve($this->defaultErrorHandler);
         }
 
-        return new ErrorHandler($this->responseFactory);
+        return new ErrorHandler($this->callableResolver, $this->responseFactory);
     }
 
     /**
