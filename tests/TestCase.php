@@ -16,6 +16,8 @@ use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Message\StreamInterface;
+use Slim\CallableResolver;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Tests\Providers\PSR7ObjectProvider;
 
 abstract class TestCase extends PhpUnitTestCase
@@ -45,6 +47,14 @@ abstract class TestCase extends PhpUnitTestCase
     {
         $psr7ObjectProvider = new PSR7ObjectProvider();
         return $psr7ObjectProvider->getStreamFactory();
+    }
+
+    /**
+     * @return CallableResolverInterface
+     */
+    protected function getCallableResolver(): CallableResolverInterface
+    {
+        return new CallableResolver();
     }
 
     /**
