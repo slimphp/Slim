@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace Slim\Tests;
 
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestFactoryInterface;
@@ -50,11 +51,13 @@ abstract class TestCase extends PhpUnitTestCase
     }
 
     /**
+     * @param ContainerInterface|null $container
+     *
      * @return CallableResolverInterface
      */
-    protected function getCallableResolver(): CallableResolverInterface
+    protected function getCallableResolver(?ContainerInterface $container = null): CallableResolverInterface
     {
-        return new CallableResolver();
+        return new CallableResolver($container);
     }
 
     /**
