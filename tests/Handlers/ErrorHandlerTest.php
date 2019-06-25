@@ -11,6 +11,7 @@ namespace Slim\Tests\Handlers;
 
 use Psr\Http\Message\ResponseInterface;
 use ReflectionClass;
+use Slim\Error\Renderers\HtmlErrorRenderer;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
@@ -87,6 +88,11 @@ class ErrorHandlerTest extends TestCase
         $reflectionProperty->setValue($handler, 'text/plain');
         $renderer = $method->invoke($handler);
         $this->assertInstanceOf(PlainTextErrorRenderer::class, $renderer);
+
+        // Test the default error renderer
+        $reflectionProperty->setValue($handler, 'text/unknown');
+        $renderer = $method->invoke($handler);
+        $this->assertInstanceOf(HtmlErrorRenderer::class, $renderer);
     }
 
     public function testDetermineStatusCode()
@@ -128,10 +134,10 @@ class ErrorHandlerTest extends TestCase
             ->getMockBuilder(ErrorHandler::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $newTypes = [
-            'application/xml',
-            'text/xml',
-            'text/html',
+        $newErrorRenderers = [
+            'application/xml' => XmlErrorRenderer::class,
+            'text/xml' => XmlErrorRenderer::class,
+            'text/html' => HtmlErrorRenderer::class,
         ];
 
         $class = new ReflectionClass(ErrorHandler::class);
@@ -140,9 +146,9 @@ class ErrorHandlerTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
-        $reflectionProperty = $class->getProperty('knownContentTypes');
+        $reflectionProperty = $class->getProperty('errorRenderers');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $newTypes);
+        $reflectionProperty->setValue($handler, $newErrorRenderers);
 
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
@@ -164,9 +170,9 @@ class ErrorHandlerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $knownContentTypes = [
-            'text/plain',
-            'text/xml',
+        $errorRenderers = [
+            'text/plain' => PlainTextErrorRenderer::class,
+            'text/xml' => XmlErrorRenderer::class,
         ];
 
         $class = new ReflectionClass(ErrorHandler::class);
@@ -175,9 +181,9 @@ class ErrorHandlerTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
-        $reflectionProperty = $class->getProperty('knownContentTypes');
+        $reflectionProperty = $class->getProperty('errorRenderers');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $knownContentTypes);
+        $reflectionProperty->setValue($handler, $errorRenderers);
 
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
@@ -199,8 +205,8 @@ class ErrorHandlerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $knownContentTypes = [
-            'application/xml'
+        $errorRenderers = [
+            'application/xml' => XmlErrorRenderer::class
         ];
 
         $class = new ReflectionClass(ErrorHandler::class);
@@ -209,9 +215,9 @@ class ErrorHandlerTest extends TestCase
         $reflectionProperty->setAccessible(true);
         $reflectionProperty->setValue($handler, $this->getResponseFactory());
 
-        $reflectionProperty = $class->getProperty('knownContentTypes');
+        $reflectionProperty = $class->getProperty('errorRenderers');
         $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, $knownContentTypes);
+        $reflectionProperty->setValue($handler, $errorRenderers);
 
         $method = $class->getMethod('determineContentType');
         $method->setAccessible(true);
@@ -250,6 +256,32 @@ class ErrorHandlerTest extends TestCase
         $return = $method->invoke($handler, $request);
 
         $this->assertEquals('text/html', $return);
+    }
+
+    public function testRegisterErrorRenderer()
+    {
+        $handler = new ErrorHandler($this->getResponseFactory());
+        $handler->registerErrorRenderer('application/slim', PlainTextErrorRenderer::class);
+
+        $reflectionClass = new ReflectionClass(ErrorHandler::class);
+        $reflectionProperty = $reflectionClass->getProperty('errorRenderers');
+        $reflectionProperty->setAccessible(true);
+        $errorRenderers = $reflectionProperty->getValue($handler);
+
+        $this->assertArrayHasKey('application/slim', $errorRenderers);
+    }
+
+    public function testSetDefaultErrorRenderer()
+    {
+        $handler = new ErrorHandler($this->getResponseFactory());
+        $handler->setDefaultErrorRenderer(PlainTextErrorRenderer::class);
+
+        $reflectionClass = new ReflectionClass(ErrorHandler::class);
+        $reflectionProperty = $reflectionClass->getProperty('defaultErrorRenderer');
+        $reflectionProperty->setAccessible(true);
+        $defaultErrorRenderer = $reflectionProperty->getValue($handler);
+
+        $this->assertEquals(PlainTextErrorRenderer::class, $defaultErrorRenderer);
     }
 
     public function testOptions()

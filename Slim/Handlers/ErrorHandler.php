@@ -32,16 +32,19 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
-     * Known handled content types
-     *
-     * @var array
+     * @var string
      */
-    protected $knownContentTypes = [
-        'application/json',
-        'application/xml',
-        'text/xml',
-        'text/html',
-        'text/plain'
+    protected $defaultErrorRenderer = HtmlErrorRenderer::class;
+
+    /**
+     * @var string[]
+     */
+    protected $errorRenderers = [
+        'application/json' => JsonErrorRenderer::class,
+        'application/xml' => XmlErrorRenderer::class,
+        'text/xml' => XmlErrorRenderer::class,
+        'text/html' => HtmlErrorRenderer::class,
+        'text/plain' => PlainTextErrorRenderer::class,
     ];
 
     /**
@@ -166,7 +169,10 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function determineContentType(ServerRequestInterface $request): string
     {
         $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
+        $selectedContentTypes = array_intersect(
+            explode(',', $acceptHeader),
+            array_keys($this->errorRenderers)
+        );
         $count = count($selectedContentTypes);
 
         if ($count) {
@@ -185,7 +191,7 @@ class ErrorHandler implements ErrorHandlerInterface
 
         if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
             $mediaType = 'application/' . $matches[1];
-            if (in_array($mediaType, $this->knownContentTypes, true)) {
+            if (array_key_exists($mediaType, $this->errorRenderers)) {
                 return $mediaType;
             }
         }
@@ -218,28 +224,35 @@ class ErrorHandler implements ErrorHandlerInterface
         }
 
         if ($renderer === null) {
-            switch ($this->contentType) {
-                case 'application/json':
-                    $renderer = JsonErrorRenderer::class;
-                    break;
-
-                case 'text/xml':
-                case 'application/xml':
-                    $renderer = XmlErrorRenderer::class;
-                    break;
-
-                case 'text/plain':
-                    $renderer = PlainTextErrorRenderer::class;
-                    break;
-
-                default:
-                case 'text/html':
-                    $renderer = HtmlErrorRenderer::class;
-                    break;
+            if (array_key_exists($this->contentType, $this->errorRenderers)) {
+                $renderer = $this->errorRenderers[$this->contentType];
+            } else {
+                $renderer = $this->defaultErrorRenderer;
             }
         }
 
         return new $renderer();
+    }
+
+    /**
+     * Register an error renderer for a specific content-type
+     *
+     * @param string $contentType   The content-type this renderer should be registered to
+     * @param string $errorRenderer The error renderer class name
+     */
+    public function registerErrorRenderer(string $contentType, string $errorRenderer): void
+    {
+        $this->errorRenderers[$contentType] = $errorRenderer;
+    }
+
+    /**
+     * Set the default error renderer
+     *
+     * @param string $errorRenderer The default error renderer class name
+     */
+    public function setDefaultErrorRenderer(string $errorRenderer): void
+    {
+        $this->defaultErrorRenderer = $errorRenderer;
     }
 
     /**
