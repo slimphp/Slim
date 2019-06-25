@@ -19,6 +19,7 @@ use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Throwable;
@@ -32,12 +33,12 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
-     * @var string
+     * @var ErrorRendererInterface|string|callable
      */
     protected $defaultErrorRenderer = HtmlErrorRenderer::class;
 
     /**
-     * @var string[]
+     * @var array
      */
     protected $errorRenderers = [
         'application/json' => JsonErrorRenderer::class,
@@ -83,7 +84,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $exception;
 
     /**
-     * @var ErrorRendererInterface|string|null
+     * @var ErrorRendererInterface|callable|null
      */
     protected $renderer;
 
@@ -93,15 +94,22 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $statusCode;
 
     /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
+
+    /**
      * @var ResponseFactoryInterface
      */
     protected $responseFactory;
 
     /**
-     * @param ResponseFactoryInterface $responseFactory
+     * @param CallableResolverInterface $callableResolver
+     * @param ResponseFactoryInterface  $responseFactory
      */
-    public function __construct(ResponseFactoryInterface $responseFactory)
+    public function __construct(CallableResolverInterface $callableResolver, ResponseFactoryInterface $responseFactory)
     {
+        $this->callableResolver = $callableResolver;
         $this->responseFactory = $responseFactory;
     }
 
@@ -203,11 +211,11 @@ class ErrorHandler implements ErrorHandlerInterface
      * Determine which renderer to use based on content type
      * Overloaded $renderer from calling class takes precedence over all
      *
-     * @return ErrorRendererInterface
+     * @return callable
      *
      * @throws RuntimeException
      */
-    protected function determineRenderer(): ErrorRendererInterface
+    protected function determineRenderer(): callable
     {
         $renderer = $this->renderer;
 
@@ -231,16 +239,16 @@ class ErrorHandler implements ErrorHandlerInterface
             }
         }
 
-        return new $renderer();
+        return $this->callableResolver->resolve($renderer);
     }
 
     /**
      * Register an error renderer for a specific content-type
      *
-     * @param string $contentType   The content-type this renderer should be registered to
-     * @param string $errorRenderer The error renderer class name
+     * @param string  $contentType  The content-type this renderer should be registered to
+     * @param ErrorRendererInterface|string|callable $errorRenderer The error renderer
      */
-    public function registerErrorRenderer(string $contentType, string $errorRenderer): void
+    public function registerErrorRenderer(string $contentType, $errorRenderer): void
     {
         $this->errorRenderers[$contentType] = $errorRenderer;
     }
@@ -248,9 +256,9 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * Set the default error renderer
      *
-     * @param string $errorRenderer The default error renderer class name
+     * @param ErrorRendererInterface|string|callable $errorRenderer The default error renderer
      */
-    public function setDefaultErrorRenderer(string $errorRenderer): void
+    public function setDefaultErrorRenderer($errorRenderer): void
     {
         $this->defaultErrorRenderer = $errorRenderer;
     }
@@ -292,10 +300,10 @@ class ErrorHandler implements ErrorHandlerInterface
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
-        /** @var ErrorRendererInterface $renderer */
-        $renderer = $this->renderer;
-        $body = $renderer->render($this->exception, $this->displayErrorDetails);
-        $response->getBody()->write($body);
+        if (is_callable($this->renderer)) {
+            $body = call_user_func($this->renderer, $this->exception, $this->displayErrorDetails);
+            $response->getBody()->write($body);
+        }
 
         return $response;
     }
