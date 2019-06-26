@@ -13,9 +13,7 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
 use Slim\CallableResolver;
-use Slim\Interfaces\ErrorRendererInterface;
 use Slim\Tests\Mocks\CallableTest;
-use Slim\Tests\Mocks\ErrorRendererTest;
 use Slim\Tests\Mocks\InvokableTest;
 use Slim\Tests\Mocks\RequestHandlerTest;
 
@@ -158,16 +156,6 @@ class CallableResolverTest extends TestCase
         $this->assertInternalType('array', $callable);
         $this->assertInstanceOf(RequestHandlerTest::class, $callable[0]);
         $this->assertEquals('custom', $callable[1]);
-    }
-
-    public function testObjErrorRendererClass()
-    {
-        $obj = new ErrorRendererTest();
-        $resolver = $this->getCallableResolver();
-        $callable = $resolver->resolve($obj);
-
-        $this->assertIsCallable($callable);
-        $this->assertInstanceOf(ErrorRendererInterface::class, $callable[0]);
     }
 
     /**
