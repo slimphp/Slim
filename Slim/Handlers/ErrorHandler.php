@@ -248,7 +248,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function writeToErrorLog(): void
     {
         $renderer = new PlainTextErrorRenderer();
-        $error = $renderer->render($this->exception, $this->logErrorDetails);
+        $error = $renderer->__invoke($this->exception, $this->logErrorDetails);
         $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
     }

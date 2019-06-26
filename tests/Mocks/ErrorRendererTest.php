@@ -17,7 +17,7 @@ class ErrorRendererTest implements ErrorRendererInterface
     /**
      * {@inheritdoc}
      */
-    public function render(Throwable $exception, bool $displayErrorDetails): string
+    public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         return $exception->getMessage().($displayErrorDetails ? ' +Details' : '');
     }

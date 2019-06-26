@@ -76,8 +76,6 @@ final class CallableResolver implements CallableResolverInterface
             // if no method has been specified explicitly
             if ($instance instanceof RequestHandlerInterface && $method === null) {
                 $method = 'handle';
-            } elseif ($instance instanceof ErrorRendererInterface && $method === null) {
-                $method = 'render';
             }
 
             $resolved = [$instance, $method ?? '__invoke'];
@@ -85,8 +83,6 @@ final class CallableResolver implements CallableResolverInterface
 
         if ($resolved instanceof RequestHandlerInterface) {
             $resolved = [$resolved, 'handle'];
-        } elseif ($resolved instanceof ErrorRendererInterface) {
-            $resolved = [$resolved, 'render'];
         }
 
         if (!is_callable($resolved)) {
