@@ -14,7 +14,6 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\ErrorRendererInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure

@@ -19,7 +19,6 @@ use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
 use Slim\Handlers\ErrorHandler;
 use Slim\Tests\Mocks\MockCustomException;
-use Slim\Tests\Mocks\MockErrorRenderer;
 use Slim\Tests\TestCase;
 
 class ErrorHandlerTest extends TestCase
