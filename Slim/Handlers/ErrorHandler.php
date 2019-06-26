@@ -278,10 +278,8 @@ class ErrorHandler implements ErrorHandlerInterface
         }
 
         $renderer = $this->determineRenderer();
-        if (is_callable($renderer)) {
-            $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
-            $response->getBody()->write($body);
-        }
+        $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
+        $response->getBody()->write($body);
 
         return $response;
     }
