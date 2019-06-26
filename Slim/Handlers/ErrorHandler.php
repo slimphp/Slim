@@ -84,11 +84,6 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $exception;
 
     /**
-     * @var ErrorRendererInterface|callable|null
-     */
-    protected $renderer;
-
-    /**
      * @var int
      */
     protected $statusCode;
@@ -139,7 +134,6 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
         $this->contentType = $this->determineContentType($request);
-        $this->renderer = $this->determineRenderer();
 
         if ($logErrors) {
             $this->writeToErrorLog();
@@ -209,7 +203,6 @@ class ErrorHandler implements ErrorHandlerInterface
 
     /**
      * Determine which renderer to use based on content type
-     * Overloaded $renderer from calling class takes precedence over all
      *
      * @return callable
      *
@@ -217,26 +210,10 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function determineRenderer(): callable
     {
-        $renderer = $this->renderer;
-
-        if ($renderer !== null
-            && (
-                (is_string($renderer) && !class_exists($renderer))
-                || !in_array(ErrorRendererInterface::class, class_implements($renderer), true)
-            )
-        ) {
-            throw new RuntimeException(
-                'Non compliant error renderer provided (%s). ' .
-                'Renderer must implement the ErrorRendererInterface'
-            );
-        }
-
-        if ($renderer === null) {
-            if (array_key_exists($this->contentType, $this->errorRenderers)) {
-                $renderer = $this->errorRenderers[$this->contentType];
-            } else {
-                $renderer = $this->defaultErrorRenderer;
-            }
+        if (array_key_exists($this->contentType, $this->errorRenderers)) {
+            $renderer = $this->errorRenderers[$this->contentType];
+        } else {
+            $renderer = $this->defaultErrorRenderer;
         }
 
         return $this->callableResolver->resolve($renderer);
@@ -300,8 +277,9 @@ class ErrorHandler implements ErrorHandlerInterface
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
-        if (is_callable($this->renderer)) {
-            $body = call_user_func($this->renderer, $this->exception, $this->displayErrorDetails);
+        $renderer = $this->determineRenderer();
+        if (is_callable($renderer)) {
+            $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
             $response->getBody()->write($body);
         }
 

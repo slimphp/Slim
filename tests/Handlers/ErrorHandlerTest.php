@@ -24,49 +24,6 @@ use Slim\Tests\TestCase;
 
 class ErrorHandlerTest extends TestCase
 {
-    public function testDetermineContentTypeMethodDoesNotThrowExceptionWhenPassedValidRenderer()
-    {
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $class = new ReflectionClass(ErrorHandler::class);
-
-        $callableResolverProperty = $class->getProperty('callableResolver');
-        $callableResolverProperty->setAccessible(true);
-        $callableResolverProperty->setValue($handler, $this->getCallableResolver());
-
-        $reflectionProperty = $class->getProperty('renderer');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, MockErrorRenderer::class);
-
-        $method = $class->getMethod('determineRenderer');
-        $method->setAccessible(true);
-        $method->invoke($handler);
-
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testDetermineContentTypeMethodThrowsExceptionWhenPassedAnInvalidRenderer()
-    {
-        $handler = $this
-            ->getMockBuilder(ErrorHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $class = new ReflectionClass(ErrorHandler::class);
-
-        $reflectionProperty = $class->getProperty('renderer');
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($handler, 'NonExistentRenderer::class');
-
-        $method = $class->getMethod('determineRenderer');
-        $method->setAccessible(true);
-        $method->invoke($handler);
-    }
-
     public function testDetermineRenderer()
     {
         $handler = $this
