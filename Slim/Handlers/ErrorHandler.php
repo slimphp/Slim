@@ -19,6 +19,7 @@ use Slim\Error\Renderers\PlainTextErrorRenderer;
 use Slim\Error\Renderers\XmlErrorRenderer;
 use Slim\Exception\HttpException;
 use Slim\Exception\HttpMethodNotAllowedException;
+use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\ErrorHandlerInterface;
 use Slim\Interfaces\ErrorRendererInterface;
 use Throwable;
@@ -32,12 +33,12 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
-     * @var string
+     * @var ErrorRendererInterface|string|callable
      */
     protected $defaultErrorRenderer = HtmlErrorRenderer::class;
 
     /**
-     * @var string[]
+     * @var array
      */
     protected $errorRenderers = [
         'application/json' => JsonErrorRenderer::class,
@@ -83,14 +84,14 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $exception;
 
     /**
-     * @var ErrorRendererInterface|string|null
-     */
-    protected $renderer;
-
-    /**
      * @var int
      */
     protected $statusCode;
+
+    /**
+     * @var CallableResolverInterface
+     */
+    protected $callableResolver;
 
     /**
      * @var ResponseFactoryInterface
@@ -98,10 +99,12 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $responseFactory;
 
     /**
-     * @param ResponseFactoryInterface $responseFactory
+     * @param CallableResolverInterface $callableResolver
+     * @param ResponseFactoryInterface  $responseFactory
      */
-    public function __construct(ResponseFactoryInterface $responseFactory)
+    public function __construct(CallableResolverInterface $callableResolver, ResponseFactoryInterface $responseFactory)
     {
+        $this->callableResolver = $callableResolver;
         $this->responseFactory = $responseFactory;
     }
 
@@ -131,7 +134,6 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
         $this->contentType = $this->determineContentType($request);
-        $this->renderer = $this->determineRenderer();
 
         if ($logErrors) {
             $this->writeToErrorLog();
@@ -201,46 +203,29 @@ class ErrorHandler implements ErrorHandlerInterface
 
     /**
      * Determine which renderer to use based on content type
-     * Overloaded $renderer from calling class takes precedence over all
      *
-     * @return ErrorRendererInterface
+     * @return callable
      *
      * @throws RuntimeException
      */
-    protected function determineRenderer(): ErrorRendererInterface
+    protected function determineRenderer(): callable
     {
-        $renderer = $this->renderer;
-
-        if ($renderer !== null
-            && (
-                (is_string($renderer) && !class_exists($renderer))
-                || !in_array(ErrorRendererInterface::class, class_implements($renderer), true)
-            )
-        ) {
-            throw new RuntimeException(
-                'Non compliant error renderer provided (%s). ' .
-                'Renderer must implement the ErrorRendererInterface'
-            );
+        if (array_key_exists($this->contentType, $this->errorRenderers)) {
+            $renderer = $this->errorRenderers[$this->contentType];
+        } else {
+            $renderer = $this->defaultErrorRenderer;
         }
 
-        if ($renderer === null) {
-            if (array_key_exists($this->contentType, $this->errorRenderers)) {
-                $renderer = $this->errorRenderers[$this->contentType];
-            } else {
-                $renderer = $this->defaultErrorRenderer;
-            }
-        }
-
-        return new $renderer();
+        return $this->callableResolver->resolve($renderer);
     }
 
     /**
      * Register an error renderer for a specific content-type
      *
-     * @param string $contentType   The content-type this renderer should be registered to
-     * @param string $errorRenderer The error renderer class name
+     * @param string  $contentType  The content-type this renderer should be registered to
+     * @param ErrorRendererInterface|string|callable $errorRenderer The error renderer
      */
-    public function registerErrorRenderer(string $contentType, string $errorRenderer): void
+    public function registerErrorRenderer(string $contentType, $errorRenderer): void
     {
         $this->errorRenderers[$contentType] = $errorRenderer;
     }
@@ -248,9 +233,9 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * Set the default error renderer
      *
-     * @param string $errorRenderer The default error renderer class name
+     * @param ErrorRendererInterface|string|callable $errorRenderer The default error renderer
      */
-    public function setDefaultErrorRenderer(string $errorRenderer): void
+    public function setDefaultErrorRenderer($errorRenderer): void
     {
         $this->defaultErrorRenderer = $errorRenderer;
     }
@@ -263,7 +248,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function writeToErrorLog(): void
     {
         $renderer = new PlainTextErrorRenderer();
-        $error = $renderer->render($this->exception, $this->logErrorDetails);
+        $error = $renderer->__invoke($this->exception, $this->logErrorDetails);
         $error .= "\nView in rendered output by enabling the \"displayErrorDetails\" setting.\n";
         $this->logError($error);
     }
@@ -292,9 +277,8 @@ class ErrorHandler implements ErrorHandlerInterface
             $response = $response->withHeader('Allow', $allowedMethods);
         }
 
-        /** @var ErrorRendererInterface $renderer */
-        $renderer = $this->renderer;
-        $body = $renderer->render($this->exception, $this->displayErrorDetails);
+        $renderer = $this->determineRenderer();
+        $body = call_user_func($renderer, $this->exception, $this->displayErrorDetails);
         $response->getBody()->write($body);
 
         return $response;

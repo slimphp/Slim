@@ -22,7 +22,7 @@ class XmlErrorRenderer extends AbstractErrorRenderer
      * @param bool      $displayErrorDetails
      * @return string
      */
-    public function render(Throwable $exception, bool $displayErrorDetails): string
+    public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
         $xml = "<error>\n  <message>{$exception->getMessage()}</message>\n";
 

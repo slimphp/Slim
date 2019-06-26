@@ -18,5 +18,5 @@ interface ErrorRendererInterface
      * @param bool      $displayErrorDetails
      * @return string
      */
-    public function render(Throwable $exception, bool $displayErrorDetails): string;
+    public function __invoke(Throwable $exception, bool $displayErrorDetails): string;
 }
