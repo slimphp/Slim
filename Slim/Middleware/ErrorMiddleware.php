@@ -133,7 +133,7 @@ class ErrorMiddleware implements MiddlewareInterface
     public function getDefaultErrorHandler()
     {
         if ($this->defaultErrorHandler === null) {
-            $this->defaultErrorHandler = new ErrorHandler($this->responseFactory);
+            $this->defaultErrorHandler = new ErrorHandler($this->callableResolver, $this->responseFactory);
         }
 
         return $this->callableResolver->resolve($this->defaultErrorHandler);
