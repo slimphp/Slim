@@ -27,10 +27,10 @@ class PlainTextErrorRenderer extends AbstractErrorRenderer
         $text = "Slim Application Error:\n";
         $text .= $this->formatExceptionFragment($exception);
 
-        do {
+        while ($displayErrorDetails && $exception = $exception->getPrevious()) {
             $text .= "\nPrevious Error:\n";
             $text .= $this->formatExceptionFragment($exception);
-        } while ($exception = $exception->getPrevious());
+        }
 
         return $text;
     }
