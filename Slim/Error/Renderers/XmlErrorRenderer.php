@@ -24,7 +24,7 @@ class XmlErrorRenderer extends AbstractErrorRenderer
      */
     public function __invoke(Throwable $exception, bool $displayErrorDetails): string
     {
-        $xml = "<error>\n  <message>{$exception->getMessage()}</message>\n";
+        $xml = "<error>\n  <message>".$this->createCdataSection($exception->getMessage())."</message>\n";
 
         if ($displayErrorDetails) {
             do {
