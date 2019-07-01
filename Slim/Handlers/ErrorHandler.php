@@ -33,6 +33,11 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
+     * @var string
+     */
+    protected $defaultErrorRendererContentType = 'text/html';
+
+    /**
      * @var ErrorRendererInterface|string|callable
      */
     protected $defaultErrorRenderer = HtmlErrorRenderer::class;
@@ -168,7 +173,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * @param ServerRequestInterface $request
      * @return string
      */
-    protected function determineContentType(ServerRequestInterface $request): string
+    protected function determineContentType(ServerRequestInterface $request): ?string
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(
@@ -198,7 +203,7 @@ class ErrorHandler implements ErrorHandlerInterface
             }
         }
 
-        return 'text/html';
+        return null;
     }
 
     /**
@@ -233,10 +238,12 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * Set the default error renderer
      *
+     * @param string                                 $contentType   The content type of the default error renderer
      * @param ErrorRendererInterface|string|callable $errorRenderer The default error renderer
      */
-    public function setDefaultErrorRenderer($errorRenderer): void
+    public function setDefaultErrorRenderer(string $contentType, $errorRenderer): void
     {
+        $this->defaultErrorRendererContentType = $contentType;
         $this->defaultErrorRenderer = $errorRenderer;
     }
 
@@ -270,7 +277,11 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function respond(): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($this->statusCode);
-        $response = $response->withHeader('Content-type', $this->contentType);
+        if (array_key_exists($this->contentType, $this->errorRenderers)) {
+            $response = $response->withHeader('Content-type', $this->contentType);
+        } else {
+            $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
+        }
 
         if ($this->exception instanceof HttpMethodNotAllowedException) {
             $allowedMethods = implode(', ', $this->exception->getAllowedMethods());
