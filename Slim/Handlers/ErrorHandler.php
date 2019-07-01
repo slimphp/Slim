@@ -69,7 +69,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $logErrorDetails;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $contentType;
 
