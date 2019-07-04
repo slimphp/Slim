@@ -29,7 +29,7 @@ final class CallableResolver implements CallableResolverInterface
     /**
      * @param ContainerInterface|null $container
      */
-    public function __construct(ContainerInterface $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         $this->container = $container;
     }

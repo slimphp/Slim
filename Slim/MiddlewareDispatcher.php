@@ -149,7 +149,7 @@ class MiddlewareDispatcher implements RequestHandlerInterface
             public function __construct(
                 string $middleware,
                 RequestHandlerInterface $next,
-                ContainerInterface $container = null
+                ?ContainerInterface $container = null
             ) {
                 $this->middleware = $middleware;
                 $this->next = $next;

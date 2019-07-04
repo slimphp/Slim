@@ -130,8 +130,8 @@ class Route implements RouteInterface, RequestHandlerInterface
         $callable,
         ResponseFactoryInterface $responseFactory,
         CallableResolverInterface $callableResolver,
-        ContainerInterface $container = null,
-        InvocationStrategyInterface $invocationStrategy = null,
+        ?ContainerInterface $container = null,
+        ?InvocationStrategyInterface $invocationStrategy = null,
         array $groups = [],
         int $identifier = 0
     ) {
