@@ -73,11 +73,11 @@ class AppFactory
      * @return App
      */
     public static function create(
-        ResponseFactoryInterface $responseFactory = null,
-        ContainerInterface $container = null,
-        CallableResolverInterface $callableResolver = null,
-        RouteCollectorInterface $routeCollector = null,
-        RouteResolverInterface $routeResolver = null
+        ?ResponseFactoryInterface $responseFactory = null,
+        ?ContainerInterface $container = null,
+        ?CallableResolverInterface $callableResolver = null,
+        ?RouteCollectorInterface $routeCollector = null,
+        ?RouteResolverInterface $routeResolver = null
     ): App {
         static::$responseFactory = $responseFactory ?? static::$responseFactory;
         return new App(
