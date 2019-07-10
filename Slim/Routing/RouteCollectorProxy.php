@@ -178,10 +178,6 @@ class RouteCollectorProxy implements RouteCollectorProxyInterface
     {
         $pattern = $this->basePath . $pattern;
 
-        if ($this->container && $callable instanceof Closure) {
-            $callable = $callable->bindTo($this->container);
-        }
-
         return $this->routeCollector->map($methods, $pattern, $callable);
     }
 

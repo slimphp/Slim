@@ -382,37 +382,6 @@ class RouteCollectorProxyTest extends TestCase
         $this->assertEquals($pattern, $route->getPattern());
     }
 
-    public function testMapBindsContainerToCallable()
-    {
-        $self = $this;
-
-        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
-        $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
-        $containerProphecy = $this->prophesize(ContainerInterface::class);
-
-        $pattern = '/';
-        $callable = function () use ($containerProphecy, $self) {
-            $self->assertSame($containerProphecy->reveal(), $this);
-        };
-
-        $routeCollector = new RouteCollector(
-            $responseFactoryProphecy->reveal(),
-            $callableResolverProphecy->reveal(),
-            $containerProphecy->reveal()
-        );
-
-        $routeCollectorProxy = new RouteCollectorProxy(
-            $responseFactoryProphecy->reveal(),
-            $callableResolverProphecy->reveal(),
-            $containerProphecy->reveal(),
-            $routeCollector
-        );
-
-        $route = $routeCollectorProxy->get($pattern, $callable);
-        $routeCallable = $route->getCallable();
-        $routeCallable();
-    }
-
     public function testRedirect()
     {
 
