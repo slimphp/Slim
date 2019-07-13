@@ -138,13 +138,25 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->exception = $exception;
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
-        $this->contentType = $this->determineContentType($request);
+        if (is_null($this->contentType)) {
+            $this->contentType = $this->determineContentType($request);
+        }
 
         if ($logErrors) {
             $this->writeToErrorLog();
         }
 
         return $this->respond();
+    }
+
+    /**
+     * Force the content type for all error handler responses.
+     *
+     * @param string|null $contentType The content type
+     */
+    public function forceContentType(?string $contentType): void
+    {
+        $this->contentType = $contentType;
     }
 
     /**

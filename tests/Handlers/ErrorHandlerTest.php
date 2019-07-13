@@ -92,6 +92,26 @@ class ErrorHandlerTest extends TestCase
         $this->assertEquals($statusCode, 500);
     }
 
+    /**
+     * Test if we can force the content type of all error handler responses.
+     */
+    public function testForceContentType()
+    {
+        $request = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'text/plain,text/xml');
+
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+        $handler->forceContentType('application/json');
+
+        $exception = new HttpNotFoundException($request);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($request, $exception, false, false, false);
+
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+    }
+
     public function testHalfValidContentType()
     {
         $request = $this
