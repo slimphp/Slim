@@ -92,6 +92,26 @@ class ErrorHandlerTest extends TestCase
         $this->assertEquals($statusCode, 500);
     }
 
+    /**
+     * Test if we can force the content type of all error handler responses.
+     */
+    public function testForceContentType()
+    {
+        $request = $this
+            ->createServerRequest('/not-defined', 'GET')
+            ->withHeader('Accept', 'text/plain,text/xml');
+
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+        $handler->forceContentType('application/json');
+
+        $exception = new HttpNotFoundException($request);
+
+        /** @var ResponseInterface $response */
+        $response = $handler->__invoke($request, $exception, false, false, false);
+
+        $this->assertSame(['application/json'], $response->getHeader('Content-Type'));
+    }
+
     public function testHalfValidContentType()
     {
         $request = $this
@@ -123,7 +143,7 @@ class ErrorHandlerTest extends TestCase
 
         $contentType = $method->invoke($handler, $request);
 
-        $this->assertEquals('text/html', $contentType);
+        $this->assertNull($contentType);
     }
 
     public function testDetermineContentTypeTextPlainMultiAcceptHeader()
@@ -203,7 +223,7 @@ class ErrorHandlerTest extends TestCase
     {
         $request = $this
             ->createServerRequest('/', 'GET')
-            ->withHeader('Content-Type', 'text/plain,text/html');
+            ->withHeader('Accept', 'text/plain,text/html');
 
         // provide access to the determineContentType() as it's a protected method
         $class = new ReflectionClass(ErrorHandler::class);
@@ -242,14 +262,19 @@ class ErrorHandlerTest extends TestCase
     public function testSetDefaultErrorRenderer()
     {
         $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
-        $handler->setDefaultErrorRenderer(PlainTextErrorRenderer::class);
+        $handler->setDefaultErrorRenderer('text/plain', PlainTextErrorRenderer::class);
 
         $reflectionClass = new ReflectionClass(ErrorHandler::class);
         $reflectionProperty = $reflectionClass->getProperty('defaultErrorRenderer');
         $reflectionProperty->setAccessible(true);
         $defaultErrorRenderer = $reflectionProperty->getValue($handler);
 
+        $defaultErrorRendererContentTypeProperty = $reflectionClass->getProperty('defaultErrorRendererContentType');
+        $defaultErrorRendererContentTypeProperty->setAccessible(true);
+        $defaultErrorRendererContentType = $defaultErrorRendererContentTypeProperty->getValue($handler);
+
         $this->assertEquals(PlainTextErrorRenderer::class, $defaultErrorRenderer);
+        $this->assertEquals('text/plain', $defaultErrorRendererContentType);
     }
 
     public function testOptions()
@@ -288,5 +313,21 @@ class ErrorHandlerTest extends TestCase
             ->method('writeToErrorLog');
 
         $handler->__invoke($request, $exception, true, true, true);
+    }
+
+    public function testDefaultErrorRenderer()
+    {
+        $request = $this
+            ->createServerRequest('/', 'GET')
+            ->withHeader('Accept', 'application/unknown');
+
+        $handler = new ErrorHandler($this->getCallableResolver(), $this->getResponseFactory());
+        $exception = new \RuntimeException();
+
+        /** @var ResponseInterface $res */
+        $res = $handler->__invoke($request, $exception, true, true, true);
+
+        $this->assertTrue($res->hasHeader('Content-Type'));
+        $this->assertEquals('text/html', $res->getHeaderLine('Content-Type'));
     }
 }

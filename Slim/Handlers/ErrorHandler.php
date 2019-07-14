@@ -33,6 +33,11 @@ use Throwable;
 class ErrorHandler implements ErrorHandlerInterface
 {
     /**
+     * @var string
+     */
+    protected $defaultErrorRendererContentType = 'text/html';
+
+    /**
      * @var ErrorRendererInterface|string|callable
      */
     protected $defaultErrorRenderer = HtmlErrorRenderer::class;
@@ -64,7 +69,7 @@ class ErrorHandler implements ErrorHandlerInterface
     protected $logErrorDetails;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $contentType;
 
@@ -133,13 +138,25 @@ class ErrorHandler implements ErrorHandlerInterface
         $this->exception = $exception;
         $this->method = $request->getMethod();
         $this->statusCode = $this->determineStatusCode();
-        $this->contentType = $this->determineContentType($request);
+        if (is_null($this->contentType)) {
+            $this->contentType = $this->determineContentType($request);
+        }
 
         if ($logErrors) {
             $this->writeToErrorLog();
         }
 
         return $this->respond();
+    }
+
+    /**
+     * Force the content type for all error handler responses.
+     *
+     * @param string|null $contentType The content type
+     */
+    public function forceContentType(?string $contentType): void
+    {
+        $this->contentType = $contentType;
     }
 
     /**
@@ -168,7 +185,7 @@ class ErrorHandler implements ErrorHandlerInterface
      * @param ServerRequestInterface $request
      * @return string
      */
-    protected function determineContentType(ServerRequestInterface $request): string
+    protected function determineContentType(ServerRequestInterface $request): ?string
     {
         $acceptHeader = $request->getHeaderLine('Accept');
         $selectedContentTypes = array_intersect(
@@ -198,7 +215,7 @@ class ErrorHandler implements ErrorHandlerInterface
             }
         }
 
-        return 'text/html';
+        return null;
     }
 
     /**
@@ -210,7 +227,7 @@ class ErrorHandler implements ErrorHandlerInterface
      */
     protected function determineRenderer(): callable
     {
-        if (array_key_exists($this->contentType, $this->errorRenderers)) {
+        if (!is_null($this->contentType) && array_key_exists($this->contentType, $this->errorRenderers)) {
             $renderer = $this->errorRenderers[$this->contentType];
         } else {
             $renderer = $this->defaultErrorRenderer;
@@ -233,10 +250,12 @@ class ErrorHandler implements ErrorHandlerInterface
     /**
      * Set the default error renderer
      *
+     * @param string                                 $contentType   The content type of the default error renderer
      * @param ErrorRendererInterface|string|callable $errorRenderer The default error renderer
      */
-    public function setDefaultErrorRenderer($errorRenderer): void
+    public function setDefaultErrorRenderer(string $contentType, $errorRenderer): void
     {
+        $this->defaultErrorRendererContentType = $contentType;
         $this->defaultErrorRenderer = $errorRenderer;
     }
 
@@ -270,7 +289,11 @@ class ErrorHandler implements ErrorHandlerInterface
     protected function respond(): ResponseInterface
     {
         $response = $this->responseFactory->createResponse($this->statusCode);
-        $response = $response->withHeader('Content-type', $this->contentType);
+        if (!is_null($this->contentType) && array_key_exists($this->contentType, $this->errorRenderers)) {
+            $response = $response->withHeader('Content-type', $this->contentType);
+        } else {
+            $response = $response->withHeader('Content-type', $this->defaultErrorRendererContentType);
+        }
 
         if ($this->exception instanceof HttpMethodNotAllowedException) {
             $allowedMethods = implode(', ', $this->exception->getAllowedMethods());
