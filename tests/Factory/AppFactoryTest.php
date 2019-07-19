@@ -27,6 +27,7 @@ use Slim\Http\Factory\DecoratedResponseFactory;
 use Slim\Http\Response as DecoratedResponse;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
+use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Psr7\Factory\ResponseFactory as SlimResponseFactory;
 use Slim\Routing\RouteCollector;
@@ -114,7 +115,10 @@ class AppFactoryTest extends TestCase
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
         $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+
+        $routeCollectorProphecy->getRouteParser()->willReturn($routeParserProphecy);
 
         AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
         AppFactory::setResponseFactory($responseFactoryProphecy->reveal());
@@ -157,7 +161,10 @@ class AppFactoryTest extends TestCase
         $containerProphecy = $this->prophesize(ContainerInterface::class);
         $callableResolverProphecy = $this->prophesize(CallableResolverInterface::class);
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
         $routeResolverProphecy = $this->prophesize(RouteResolverInterface::class);
+
+        $routeCollectorProphecy->getRouteParser()->willReturn($routeParserProphecy->reveal());
 
         AppFactory::setSlimHttpDecoratorsAutomaticDetection(false);
 

@@ -27,6 +27,7 @@ use Slim\Handlers\Strategies\RequestResponseArgs;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
+use Slim\Interfaces\RouteParserInterface;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\Mocks\MockAction;
@@ -85,6 +86,10 @@ class AppTest extends TestCase
     {
         $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
         $routeCollectorProphecy = $this->prophesize(RouteCollectorInterface::class);
+        $routeParserProphecy = $this->prophesize(RouteParserInterface::class);
+
+        $routeCollectorProphecy->getRouteParser()->willReturn($routeParserProphecy->reveal());
+
         $app = new App($responseFactoryProphecy->reveal(), null, null, $routeCollectorProphecy->reveal());
 
         $this->assertSame($routeCollectorProphecy->reveal(), $app->getRouteCollector());

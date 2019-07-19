@@ -16,6 +16,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Exception\HttpMethodNotAllowedException;
 use Slim\Exception\HttpNotFoundException;
+use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Slim\Routing\RoutingResults;
 
@@ -27,11 +28,18 @@ class RoutingMiddleware implements MiddlewareInterface
     protected $routeResolver;
 
     /**
-     * @param RouteResolverInterface $routeResolver
+     * @var RouteParserInterface
      */
-    public function __construct(RouteResolverInterface $routeResolver)
+    protected $routeParser;
+
+    /**
+     * @param RouteResolverInterface $routeResolver
+     * @param RouteParserInterface   $routeParser
+     */
+    public function __construct(RouteResolverInterface $routeResolver, RouteParserInterface $routeParser)
     {
         $this->routeResolver = $routeResolver;
+        $this->routeParser = $routeParser;
     }
 
     /**
@@ -45,6 +53,7 @@ class RoutingMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $request = $request->withAttribute('routeParser', $this->routeParser);
         $request = $this->performRouting($request);
         return $handler->handle($request);
     }
@@ -67,6 +76,8 @@ class RoutingMiddleware implements MiddlewareInterface
         );
         $routeStatus = $routingResults->getRouteStatus();
 
+        $request = $request->withAttribute('routingResults', $routingResults);
+
         switch ($routeStatus) {
             case RoutingResults::FOUND:
                 $routeArguments = $routingResults->getRouteArguments();
@@ -74,9 +85,7 @@ class RoutingMiddleware implements MiddlewareInterface
                 $route = $this->routeResolver
                     ->resolveRoute($routeIdentifier)
                     ->prepare($routeArguments);
-                return $request
-                    ->withAttribute('route', $route)
-                    ->withAttribute('routingResults', $routingResults);
+                return $request->withAttribute('route', $route);
 
             case RoutingResults::NOT_FOUND:
                 throw new HttpNotFoundException($request);

@@ -14,6 +14,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Slim\CallableResolver;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
+use Slim\Routing\RouteParser;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 use Slim\Routing\RoutingResults;
@@ -35,10 +36,11 @@ class RouteRunnerTest extends TestCase
         $routeCollector = new RouteCollector($responseFactory, $callableResolver);
         $routeCollector->map(['GET'], '/hello/{name}', $handler);
 
+        $routeParser = new RouteParser($routeCollector);
         $routeResolver = new RouteResolver($routeCollector);
 
         $request = $this->createServerRequest('https://example.com:443/hello/foo', 'GET');
-        $dispatcher = new RouteRunner($routeResolver);
+        $dispatcher = new RouteRunner($routeResolver, $routeParser);
 
         $middlewareDispatcher = new MiddlewareDispatcher($dispatcher);
         $middlewareDispatcher->handle($request);

@@ -28,7 +28,7 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw = new RoutingMiddleware($app->getRouteResolver());
+        $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
         $app->add($mw);
 
         $exception = HttpNotFoundException::class;
@@ -54,7 +54,7 @@ class ErrorMiddlewareTest extends TestCase
         $app = new App($responseFactory);
         $callableResolver = $app->getCallableResolver();
 
-        $mw = new RoutingMiddleware($app->getRouteResolver());
+        $mw = new RoutingMiddleware($app->getRouteResolver(), $app->getRouteCollector()->getRouteParser());
         $app->add($mw);
 
         $handler = (function () {
