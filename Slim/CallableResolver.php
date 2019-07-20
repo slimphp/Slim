@@ -55,18 +55,25 @@ final class CallableResolver implements CallableResolverInterface
             $this->assertCallable($toResolve);
         }
 
-        // check for slim callable as "class:method"
-        if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
-            $resolved = $this->resolveCallable($matches[1], $matches[2]);
-            $this->assertCallable($resolved);
-
-            return $resolved;
-        }
-
-        $resolved = $this->resolveCallable($toResolve);
+        list($class, $method) = $this->parseCallable($toResolve);
+        $resolved = $this->resolveCallable($class, $method);
         $this->assertCallable($resolved);
-
         return $resolved;
+    }
+
+    /**
+     * Extract class and method from toResolve
+     * 
+     * @param string $toResolve
+     * 
+     * @return array
+     */
+    protected function parseCallable($toResolve)
+    {
+        if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
+            return [$matches[1], $matches[2]];
+        }
+        return [$toResolve, '__invoke'];
     }
 
     /**
@@ -80,7 +87,7 @@ final class CallableResolver implements CallableResolverInterface
      *
      * @throws RuntimeException if the callable does not exist
      */
-    protected function resolveCallable($class, $method = '__invoke')
+    protected function resolveCallable($class, $method)
     {
         if ($this->container->has($class)) {
             return [$this->container->get($class), $method];
