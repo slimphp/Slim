@@ -63,9 +63,9 @@ final class CallableResolver implements CallableResolverInterface
 
     /**
      * Extract class and method from toResolve
-     * 
+     *
      * @param string $toResolve
-     * 
+     *
      * @return array
      */
     protected function parseCallable($toResolve)
