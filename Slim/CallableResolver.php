@@ -51,12 +51,13 @@ final class CallableResolver implements CallableResolverInterface
             return $toResolve;
         }
 
-        if (!is_string($toResolve)) {
-            $this->assertCallable($toResolve);
+        $resolved = $toResolve;
+
+        if (is_string($toResolve)) {
+            list($class, $method) = $this->parseCallable($toResolve);
+            $resolved = $this->resolveCallable($class, $method);
         }
 
-        list($class, $method) = $this->parseCallable($toResolve);
-        $resolved = $this->resolveCallable($class, $method);
         $this->assertCallable($resolved);
         return $resolved;
     }
@@ -73,6 +74,7 @@ final class CallableResolver implements CallableResolverInterface
         if (preg_match(self::CALLABLE_PATTERN, $toResolve, $matches)) {
             return [$matches[1], $matches[2]];
         }
+
         return [$toResolve, '__invoke'];
     }
 
