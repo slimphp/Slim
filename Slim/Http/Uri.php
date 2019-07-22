@@ -118,7 +118,7 @@ class Uri implements UriInterface
         $this->scheme = $this->filterScheme($scheme);
         $this->host = $host;
         $this->port = $this->filterPort($port);
-        $this->path = empty($path) ? '/' : $this->filterPath($path);
+        $this->path = ($path === null || !strlen($path)) ? '/' : $this->filterPath($path);
         $this->query = $this->filterQuery($query);
         $this->fragment = $this->filterQuery($fragment);
         $this->user = $user;
@@ -194,12 +194,12 @@ class Uri implements UriInterface
         }
 
         // Path
-        $requestScriptName = parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
+        $requestScriptName = (string) parse_url($env->get('SCRIPT_NAME'), PHP_URL_PATH);
         $requestScriptDir = dirname($requestScriptName);
 
         // parse_url() requires a full URL. As we don't extract the domain name or scheme,
         // we use a stand-in.
-        $requestUri = parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
+        $requestUri = (string) parse_url('http://example.com' . $env->get('REQUEST_URI'), PHP_URL_PATH);
 
         $basePath = '';
         $virtualPath = $requestUri;
