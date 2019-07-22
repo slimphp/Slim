@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/slimphp/Slim.svg?branch=3.x)](https://travis-ci.org/slimphp/Slim)
 [![Coverage Status](https://coveralls.io/repos/github/slimphp/Slim/badge.svg?branch=3.x)](https://coveralls.io/github/slimphp/Slim?branch=3.x)
+[![Financial Contributors on Open Collective](https://opencollective.com/slimphp/all/badge.svg?label=financial+contributors)](https://opencollective.com/slimphp)
 [![Total Downloads](https://poser.pugx.org/slim/slim/downloads)](https://packagist.org/packages/slim/slim)
 [![License](https://poser.pugx.org/slim/slim/license)](https://packagist.org/packages/slim/slim)
 
@@ -74,14 +75,37 @@ If you discover security related issues, please email security@slimframework.com
 
 Slim is part of [Tidelift](https://tidelift.com/subscription/pkg/packagist-slim-slim?utm_source=packagist-slim-slim&utm_medium=referral&utm_campaign=readme) which gives software development teams a single source for purchasing and maintaining their software, with professional grade assurances from the experts who know it best, while seamlessly integrating with existing tools.
 
+## Contributors
 
-## Credits
+### Code Contributors
 
-- [Josh Lockhart](https://github.com/codeguy)
-- [Andrew Smith](https://github.com/silentworks)
-- [Rob Allen](https://github.com/akrabat)
-- [Gabriel Manricks](https://github.com/gmanricks)
-- [All Contributors](../../contributors)
+This project exists thanks to all the people who contribute. [Contribute](CONTRIBUTING.md).
+<a href="https://github.com/slimphp/Slim/graphs/contributors">
+    <img src="https://opencollective.com/slimphp/contributors.svg?width=890&button=false" />
+</a>
+
+### Financial Contributors
+
+Become a financial contributor and help us sustain our community. [Contribute](https://opencollective.com/slimphp/contribute)
+
+#### Individuals
+
+<a href="https://opencollective.com/slimphp"><img src="https://opencollective.com/slimphp/individuals.svg?width=890"></a>
+
+#### Organizations
+
+Support this project with your organization. Your logo will show up here with a link to your website. [Contribute](https://opencollective.com/slimphp/contribute)
+
+<a href="https://opencollective.com/slimphp/organization/0/website"><img src="https://opencollective.com/slimphp/organization/0/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/1/website"><img src="https://opencollective.com/slimphp/organization/1/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/2/website"><img src="https://opencollective.com/slimphp/organization/2/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/3/website"><img src="https://opencollective.com/slimphp/organization/3/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/4/website"><img src="https://opencollective.com/slimphp/organization/4/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/5/website"><img src="https://opencollective.com/slimphp/organization/5/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/6/website"><img src="https://opencollective.com/slimphp/organization/6/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/7/website"><img src="https://opencollective.com/slimphp/organization/7/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/8/website"><img src="https://opencollective.com/slimphp/organization/8/avatar.svg"></a>
+<a href="https://opencollective.com/slimphp/organization/9/website"><img src="https://opencollective.com/slimphp/organization/9/avatar.svg"></a>
 
 ## License
 
