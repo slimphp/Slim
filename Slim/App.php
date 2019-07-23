@@ -19,6 +19,8 @@ use Slim\Factory\ServerRequestCreatorFactory;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteResolverInterface;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Middleware\RoutingMiddleware;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
@@ -99,6 +101,32 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
     {
         $this->middlewareDispatcher->addMiddleware($middleware);
         return $this;
+    }
+
+    public function addRoutingMiddleware(): RoutingMiddleware
+    {
+        $routingMiddleware = new RoutingMiddleware(
+            $this->getRouteResolver(),
+            $this->getRouteCollector()->getRouteParser()
+        );
+        $this->add($routingMiddleware);
+        return $routingMiddleware;
+    }
+
+    public function addErrorMiddleware(
+        bool $displayErrorDetails,
+        bool $logErrors,
+        bool $logErrorDetails
+    ): ErrorMiddleware {
+        $errorMiddleware = new ErrorMiddleware(
+            $this->getCallableResolver(),
+            $this->getResponseFactory(),
+            $displayErrorDetails,
+            $logErrors,
+            $logErrorDetails
+        );
+        $this->add($errorMiddleware);
+        return $errorMiddleware;
     }
 
     /**
