@@ -73,13 +73,6 @@ class Route extends Routable implements RouteInterface
     protected $savedArguments = [];
 
     /**
-     * The callable payload
-     *
-     * @var callable
-     */
-    protected $callable;
-
-    /**
      * @param string|string[] $methods The route HTTP methods
      * @param string          $pattern The route pattern
      * @param callable        $callable The route callable
@@ -88,9 +81,8 @@ class Route extends Routable implements RouteInterface
      */
     public function __construct($methods, $pattern, $callable, $groups = [], $identifier = 0)
     {
+        parent::__construct($pattern, $callable);
         $this->methods  = is_string($methods) ? [$methods] : $methods;
-        $this->pattern  = $pattern;
-        $this->callable = $callable;
         $this->groups   = $groups;
         $this->identifier = 'route' . $identifier;
     }
