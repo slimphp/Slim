@@ -28,6 +28,9 @@ use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Interfaces\RouteParserInterface;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Middleware\RoutingMiddleware;
+use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteCollector;
 use Slim\Routing\RouteCollectorProxy;
 use Slim\Tests\Mocks\MockAction;
@@ -649,6 +652,66 @@ class AppTest extends TestCase
 
         $response = $app->handle($requestProphecy->reveal());
         $this->assertSame('Hello World', (string) $response->getBody());
+    }
+
+    public function testAddRoutingMiddleware()
+    {
+        /** @var ResponseFactoryInterface $responseFactory */
+        $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
+
+        // Create the app.
+        $app = new App($responseFactory);
+
+        // Add the routing middleware.
+        $routingMiddleware = $app->addRoutingMiddleware();
+
+        // Check that the routing middleware really has been added to the tip of the app middleware stack.
+        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty->setAccessible(true);
+        /** @var MiddlewareDispatcher $middlewareDispatcher */
+        $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
+
+        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty->setAccessible(true);
+        /** @var RequestHandlerInterface $tip */
+        $tip = $tipProperty->getValue($middlewareDispatcher);
+
+        $reflection = new \ReflectionClass($tip);
+        $middlewareProperty = $reflection->getProperty('middleware');
+        $middlewareProperty->setAccessible(true);
+
+        $this->assertSame($routingMiddleware, $middlewareProperty->getValue($tip));
+        $this->assertInstanceOf(RoutingMiddleware::class, $routingMiddleware);
+    }
+
+    public function testAddErrorMiddleware()
+    {
+        /** @var ResponseFactoryInterface $responseFactory */
+        $responseFactory = $this->prophesize(ResponseFactoryInterface::class)->reveal();
+
+        // Create the app.
+        $app = new App($responseFactory);
+
+        // Add the error middleware.
+        $errorMiddleware = $app->addErrorMiddleware(true, true, true);
+
+        // Check that the error middleware really has been added to the tip of the app middleware stack.
+        $middlewareDispatcherProperty = new \ReflectionProperty(App::class, 'middlewareDispatcher');
+        $middlewareDispatcherProperty->setAccessible(true);
+        /** @var MiddlewareDispatcher $middlewareDispatcher */
+        $middlewareDispatcher = $middlewareDispatcherProperty->getValue($app);
+
+        $tipProperty = new \ReflectionProperty(MiddlewareDispatcher::class, 'tip');
+        $tipProperty->setAccessible(true);
+        /** @var RequestHandlerInterface $tip */
+        $tip = $tipProperty->getValue($middlewareDispatcher);
+
+        $reflection = new \ReflectionClass($tip);
+        $middlewareProperty = $reflection->getProperty('middleware');
+        $middlewareProperty->setAccessible(true);
+
+        $this->assertSame($errorMiddleware, $middlewareProperty->getValue($tip));
+        $this->assertInstanceOf(ErrorMiddleware::class, $errorMiddleware);
     }
 
     public function testAddMiddlewareOnRoute()
