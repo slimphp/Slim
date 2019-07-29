@@ -103,6 +103,11 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         return $this;
     }
 
+    /**
+     * Add the slim built-in routing middleware to the app middleware stack
+     *
+     * @return RoutingMiddleware
+     */
     public function addRoutingMiddleware(): RoutingMiddleware
     {
         $routingMiddleware = new RoutingMiddleware(
@@ -113,6 +118,15 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
         return $routingMiddleware;
     }
 
+    /**
+     * Add the slim built-in error middleware to the app middleware stack
+     *
+     * @param bool $displayErrorDetails
+     * @param bool $logErrors
+     * @param bool $logErrorDetails
+     *
+     * @return ErrorMiddleware
+     */
     public function addErrorMiddleware(
         bool $displayErrorDetails,
         bool $logErrors,
