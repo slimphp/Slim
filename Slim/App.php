@@ -25,10 +25,6 @@ use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 
-/**
- * This is the primary class with which you instantiate,
- * configure, and run a Slim Framework application.
- */
 class App extends RouteCollectorProxy implements RequestHandlerInterface
 {
     /**
@@ -36,7 +32,7 @@ class App extends RouteCollectorProxy implements RequestHandlerInterface
      *
      * @var string
      */
-    public const VERSION = '4.0.0-beta';
+    public const VERSION = '4.0.0';
 
     /**
      * @var MiddlewareDispatcher
