@@ -1192,6 +1192,67 @@ class AppTest extends TestCase
         $this->assertEquals('Hello World', (string) $response->getBody());
     }
 
+    public function testInvokeWithMatchingRouteWithNamedParameterRequestHandlerStradigy()
+    {
+        $streamProphecy = $this->prophesize(StreamInterface::class);
+        $streamProphecy->__toString()->willReturn('');
+        $streamProphecy->write(Argument::type('string'))->will(function ($args) {
+            $body = $this->reveal()->__toString();
+            $body .= $args[0];
+            $this->__toString()->willReturn($body);
+        });
+
+        $responseProphecy = $this->prophesize(ResponseInterface::class);
+        $responseProphecy->getBody()->willReturn($streamProphecy->reveal());
+
+        $responseFactoryProphecy = $this->prophesize(ResponseFactoryInterface::class);
+        $responseFactoryProphecy->createResponse()->willReturn($responseProphecy->reveal());
+
+        $responseFactory = $responseFactoryProphecy->reveal();
+
+        $app = new App($responseFactory);
+        $app->get('/Hello/{name}', new class($responseFactory) implements RequestHandlerInterface
+        {
+            /**
+             * @var ResponseFactoryInterface
+             */
+            private $responseFactory;
+
+            /**
+             * @param ResponseFactoryInterface $responseFactory
+             */
+            public function __construct(ResponseFactoryInterface $responseFactory)
+            {
+                $this->responseFactory = $responseFactory;
+            }
+
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $response = $this->responseFactory->createResponse();
+                $response->getBody()->write("Hello {$request->getAttribute('name')}");
+                return $response;
+            }
+        });
+
+        $uriProphecy = $this->prophesize(UriInterface::class);
+        $uriProphecy->getPath()->willReturn('/Hello/World');
+
+        $requestProphecy = $this->prophesize(ServerRequestInterface::class);
+        $requestProphecy->getMethod()->willReturn('GET');
+        $requestProphecy->getUri()->willReturn($uriProphecy->reveal());
+        $requestProphecy->getAttribute('routingResults')->willReturn(null);
+        $requestProphecy->withAttribute(Argument::type('string'), Argument::any())->will(function ($args) {
+            $clone = clone $this;
+            $clone->getAttribute($args[0])->willReturn($args[1]);
+            return $clone;
+        });
+
+        $response = $app->handle($requestProphecy->reveal());
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals('Hello World', (string) $response->getBody());
+    }
+
     public function testInvokeWithMatchingRouteWithNamedParameterRequestResponseArgStrategy()
     {
         $streamProphecy = $this->prophesize(StreamInterface::class);
