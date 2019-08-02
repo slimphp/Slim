@@ -15,7 +15,7 @@ use Psr\Http\Message\StreamInterface;
 class SlowPokeStream implements StreamInterface
 {
     const CHUNK_SIZE = 1;
-    const SIZE = 10000;
+    const SIZE = 100000;
 
     /**
      * @var int
