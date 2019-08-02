@@ -13,6 +13,7 @@ use Slim\ResponseEmitter;
 use Slim\Tests\Assets\HeaderStack;
 use Slim\Tests\Mocks\MockStream;
 use Slim\Tests\Mocks\SmallChunksStream;
+use Slim\Tests\Mocks\SlowPokeStream;
 
 class ResponseEmitterTest extends TestCase
 {
@@ -170,6 +171,19 @@ class ResponseEmitterTest extends TestCase
         $responseEmitter = new ResponseEmitter();
 
         $this->assertTrue($responseEmitter->isResponseEmpty($response));
+    }
+
+    public function testAvoidReadFromSlowStreamAccordingStatus()
+    {
+        $body = new SlowPokeStream();
+        $response = $this
+            ->createResponse(204, 'No content')
+            ->withBody($body);
+        
+        $responseEmitter = new ResponseEmitter();
+        $responseEmitter->emit($response);
+
+        $this->expectOutputString('');
     }
 
     public function testIsResponseEmptyWithEmptyBody()
