@@ -15,7 +15,7 @@ use Psr\Http\Message\StreamInterface;
 class SlowPokeStream implements StreamInterface
 {
     const CHUNK_SIZE = 1;
-    const SIZE = 100000;
+    const SIZE = 500;
 
     /**
      * @var int
@@ -82,7 +82,7 @@ class SlowPokeStream implements StreamInterface
 
     public function read($length)
     {
-        \usleep(100);
+        \usleep(1);
         $size = min($this->amountToRead, self::CHUNK_SIZE, $length);
         $this->amountToRead -= $size;
         return str_repeat('.', $size);
